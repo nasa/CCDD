@@ -2215,7 +2215,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                                     "Invalid Input",
                                                                                     "Ignore this invalid input",
                                                                                     "Ignore this and any remaining invalid inputs for this table",
-                                                                                    "Cease inputting values");
+                                                                                    "Cease inputting values",
+                                                                                    false);
 
                             // Check if the Ignore All button was pressed
                             if (buttonSelected == IGNORE_BUTTON)

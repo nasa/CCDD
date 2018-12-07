@@ -349,7 +349,7 @@ public class CcddDialogHandler extends JDialog
      * type selected
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param message
      *            text message to display
@@ -388,7 +388,7 @@ public class CcddDialogHandler extends JDialog
      * displayed is based on the message type
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param message
      *            text message to display
@@ -426,7 +426,7 @@ public class CcddDialogHandler extends JDialog
      * displayed is based on the message type. Dialog modality is based on the input flag
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param message
      *            text message to display
@@ -499,7 +499,7 @@ public class CcddDialogHandler extends JDialog
      * button type selected. The icon displayed is based on the message type
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param message
      *            text message to display
@@ -594,10 +594,10 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**********************************************************************************************
-     * Create the Ignore/Ignore All/Cancel dialog
+     * Create the Ignore/Ignore All/Cancel or Ignore All/Cancel dialog
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param message
      *            text message to display
@@ -614,6 +614,9 @@ public class CcddDialogHandler extends JDialog
      * @param cancelToolTip
      *            Cancel button tool tip text; null if no tool tip is to be displayed
      *
+     * @param noIgnore
+     *            true to not display the Ignore button
+     *
      * @return Selected button type
      *********************************************************************************************/
     protected int showIgnoreCancelDialog(Component parent,
@@ -621,13 +624,17 @@ public class CcddDialogHandler extends JDialog
                                          String title,
                                          String ignoreToolTip,
                                          String ignoreAllToolTip,
-                                         String cancelToolTip)
+                                         String cancelToolTip,
+                                         boolean noIgnore)
     {
-        // Create the Ignore button
-        final JButton btnIgnore = CcddButtonPanelHandler.createButton("Ignore",
-                                                                      OK_ICON,
-                                                                      KeyEvent.VK_I,
-                                                                      ignoreToolTip);
+
+        // Create the Ignore button unless the flag is set to skip it
+        final JButton btnIgnore = noIgnore
+                                           ? null
+                                           : CcddButtonPanelHandler.createButton("Ignore",
+                                                                                 OK_ICON,
+                                                                                 KeyEvent.VK_I,
+                                                                                 ignoreToolTip);
 
         // Create the Ignore All button
         final JButton btnIgnoreAll = CcddButtonPanelHandler.createButton("Ignore All",
@@ -660,14 +667,24 @@ public class CcddDialogHandler extends JDialog
             }
         };
 
-        // Set the button listeners
-        btnIgnore.addActionListener(listener);
+        // Set the button listeners. Check if the Ignore button is displayed
+        if (!noIgnore)
+        {
+            btnIgnore.addActionListener(listener);
+        }
+
         btnIgnoreAll.addActionListener(listener);
         btnCancel.addActionListener(listener);
 
         // Create the panel for the dialog buttons and add the dialog buttons to the panel
         JPanel buttonPnl = new JPanel();
-        buttonPnl.add(btnIgnore);
+
+        // Check if the Ignore button is displayed
+        if (!noIgnore)
+        {
+            buttonPnl.add(btnIgnore);
+        }
+
         buttonPnl.add(btnIgnoreAll);
         buttonPnl.add(btnCancel);
 
@@ -684,7 +701,7 @@ public class CcddDialogHandler extends JDialog
      * option type. Return the button type selected
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param dialogPanel
      *            panel containing the dialog components
@@ -720,7 +737,7 @@ public class CcddDialogHandler extends JDialog
      * Return the button type selected
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param dialogPanel
      *            panel containing the dialog components
@@ -764,7 +781,7 @@ public class CcddDialogHandler extends JDialog
      * The dialog may be resized, based on the input flag. Return the button type selected
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param dialogPanel
      *            panel containing the dialog components
@@ -803,7 +820,7 @@ public class CcddDialogHandler extends JDialog
      * resized, based on the input flag. Return the button type selected
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param dialogPanel
      *            panel containing the dialog components
@@ -849,7 +866,7 @@ public class CcddDialogHandler extends JDialog
      *            main class
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param fileName
      *            file name to display in the input field chosen; null if no file name is initially
@@ -909,7 +926,7 @@ public class CcddDialogHandler extends JDialog
      *            main class
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param dialogTitle
      *            title to display in the dialog window frame
@@ -951,7 +968,7 @@ public class CcddDialogHandler extends JDialog
      *            main class
      *
      * @param parent
-     *            window to center the dialog over
+     *            window over which to center the dialog
      *
      * @param fileName
      *            file name to display in the input field chosen; null if no file name is initially
@@ -2077,8 +2094,8 @@ public class CcddDialogHandler extends JDialog
      * button listeners needed based on the dialog type
      *
      * @param parent
-     *            window to center the dialog over; set to null to redirect message dialog text to
-     *            the standard output stream (usually the command line)
+     *            window over which to center the dialog; set to null to redirect message dialog
+     *            text to the standard output stream (usually the command line)
      *
      * @param upperObject
      *            object containing the dialog components or message

@@ -68,11 +68,12 @@ public class CcddCommandLineHandler
 
     // Import command parameters
     private FileEnvVar[] dataFile;
-    private boolean replaceExisting;
+    private boolean replaceExistingTables;
     private boolean appendExistingFields;
     private boolean useExistingFields;
     private boolean openEditor;
     private boolean ignoreErrors;
+    private boolean replaceExistingMacros;
 
     // Export command parameters
     private String filePath;
@@ -433,7 +434,7 @@ public class CcddCommandLineHandler
         createArgument = new ArrayList<CommandHandler>();
         deleteArgument = new ArrayList<CommandHandler>();
         dataFile = null;
-        replaceExisting = false;
+        replaceExistingTables = false;
         appendExistingFields = false;
         useExistingFields = false;
         filePath = "";
@@ -1097,11 +1098,12 @@ public class CcddCommandLineHandler
                         // operation fails
                         if (ccddMain.getFileIOHandler().importFile(dataFile,
                                                                    false,
-                                                                   replaceExisting,
+                                                                   replaceExistingTables,
                                                                    appendExistingFields,
                                                                    useExistingFields,
                                                                    false,
                                                                    ignoreErrors,
+                                                                   replaceExistingMacros,
                                                                    null))
                         {
                             throw new Exception();
@@ -1113,11 +1115,12 @@ public class CcddCommandLineHandler
                         // Import the table(s) from the specified file in a background thread
                         ccddMain.getFileIOHandler().importFileInBackground(dataFile,
                                                                            false,
-                                                                           replaceExisting,
+                                                                           replaceExistingTables,
                                                                            appendExistingFields,
                                                                            useExistingFields,
                                                                            openEditor,
                                                                            ignoreErrors,
+                                                                           replaceExistingMacros,
                                                                            ccddMain.getMainFrame());
                     }
                 }
@@ -1151,7 +1154,7 @@ public class CcddCommandLineHandler
         });
 
         // Import command - replace existing tables
-        importArgument.add(new CommandHandler("replaceExisting",
+        importArgument.add(new CommandHandler("replaceExistingTables",
                                               "Replace existing table(s)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
@@ -1165,7 +1168,7 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                replaceExisting = (Boolean) parmVal;
+                replaceExistingTables = (Boolean) parmVal;
             }
         });
 
@@ -1249,6 +1252,25 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 ignoreErrors = (Boolean) parmVal;
+            }
+        });
+
+        // Import command - replace existing macro values
+        importArgument.add(new CommandHandler("replaceExistingMacros",
+                                              "Replace existing macros values",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to replace existing macro values
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                replaceExistingMacros = (Boolean) parmVal;
             }
         });
 

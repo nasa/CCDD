@@ -584,6 +584,52 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
+     * Create a copy of an array of string arrays
+     *
+     * @param array
+     *            array of string arrays to copy
+     *
+     * @return Array containing a copy of the string arrays from the input array
+     *********************************************************************************************/
+    protected static String[][] copyArrayOfStringArrays(String[][] array)
+    {
+        // Create storage for the copy
+        String[][] arrayCopy = new String[array.length][];
+
+        // Step through each array in the list
+        for (int row = 0; row < array.length; row++)
+        {
+            // Add a copy of the array to the list copy
+            arrayCopy[row] = Arrays.copyOf(array[row], array[row].length);
+        }
+
+        return arrayCopy;
+    }
+
+    /**********************************************************************************************
+     * Create a copy of a list of string arrays
+     *
+     * @param list
+     *            list of string arrays to copy
+     *
+     * @return List containing a copy of the string arrays from the input list
+     *********************************************************************************************/
+    protected static List<String[]> copyListOfStringArrays(List<String[]> list)
+    {
+        // Create storage for the copy
+        List<String[]> listCopy = new ArrayList<String[]>(list.size());
+
+        // Step through each array in the list
+        for (String[] item : list)
+        {
+            // Add a copy of the array to the list copy
+            listCopy.add(Arrays.copyOf(item, item.length));
+        }
+
+        return listCopy;
+    }
+
+    /**********************************************************************************************
      * Create a copy of a single dimensional array with a specified number of extra columns
      * appended
      *

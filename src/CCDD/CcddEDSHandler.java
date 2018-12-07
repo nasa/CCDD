@@ -263,6 +263,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
+     * @param replaceExistingMacros
+     *            not used for EDS import
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -276,9 +279,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     public void importFromFile(FileEnvVar importFile,
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
-                               boolean ignoreErrors) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                               boolean ignoreErrors,
+                               boolean replaceExistingMacros) throws CCDDException,
+                                                              IOException,
+                                                              Exception
     {
         try
         {

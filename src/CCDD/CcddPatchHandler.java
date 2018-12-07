@@ -1467,8 +1467,8 @@ public class CcddPatchHandler
     // // row index columns
     // typeDefn =
     // tableTypeHandler.createTypeDefinition(newColumnDefn[TableTypesColumn.TYPE_NAME.ordinal()],
-    // new String[0][0],
-    // newColumnDefn[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()]);
+    // newColumnDefn[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()],,
+    // new String[0][0]);
     // }
     //
     // // Check if this column definition isn't for the primary key or row index since

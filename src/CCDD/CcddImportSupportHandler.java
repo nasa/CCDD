@@ -577,7 +577,8 @@ public class CcddImportSupportHandler
                                                    DefaultInputType.XML_TLM_HDR.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
-                                                   tlmHeaderTable});
+                                                   tlmHeaderTable,
+                                                   "false"});
         }
 
         // Check if the command table name isn't set in the project import file
@@ -601,7 +602,8 @@ public class CcddImportSupportHandler
                                                    DefaultInputType.XML_CMD_HDR.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
-                                                   cmdHeaderTable});
+                                                   cmdHeaderTable,
+                                                   "false"});
         }
 
         // Check if the application ID variable name isn't set in the project import file
@@ -633,7 +635,8 @@ public class CcddImportSupportHandler
                                                    DefaultInputType.XML_APP_ID.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
-                                                   applicationIDName});
+                                                   applicationIDName,
+                                                   "false"});
         }
 
         // Check if the command function code variable name isn't set in the import file
@@ -665,7 +668,8 @@ public class CcddImportSupportHandler
                                                    DefaultInputType.XML_FUNC_CODE.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
-                                                   cmdFuncCodeName});
+                                                   cmdFuncCodeName,
+                                                   "false"});
         }
 
         // Check if the project-level data fields are to be created
@@ -716,6 +720,60 @@ public class CcddImportSupportHandler
                                        String cancelToolTip,
                                        Component parent) throws CCDDException
     {
+        return getErrorResponse(continueOnError,
+                                message,
+                                title,
+                                ignoreToolTip,
+                                ignoreAllToolTip,
+                                cancelToolTip,
+                                false,
+                                parent);
+    }
+
+    /**********************************************************************************************
+     * Display an Ignore/Ignore All/Cancel or Ignore All/Cancel dialog in order to get the response
+     * to an error condition. The user may elect to ignore the one instance of this type of error,
+     * all instances of this type of error, or cancel the operation
+     *
+     * @param continueOnError
+     *            current state of the flag that indicates if all errors of this type should be
+     *            ignored
+     *
+     * @param message
+     *            text message to display
+     *
+     * @param title
+     *            title to display in the dialog window frame
+     *
+     * @param ignoreToolTip
+     *            Ignore button tool tip text; null if no tool tip is to be displayed
+     *
+     * @param ignoreAllToolTip
+     *            Ignore All button tool tip text; null if no tool tip is to be displayed
+     *
+     * @param cancelToolTip
+     *            Cancel button tool tip text; null if no tool tip is to be displayed
+     *
+     * @param noIgnore
+     *            true to not display the Ignore button
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *
+     * @return true if the user elected to ignore errors of this type
+     *
+     * @throws CCDDException
+     *             If the user selects the Cancel button
+     *********************************************************************************************/
+    protected boolean getErrorResponse(boolean continueOnError,
+                                       String message,
+                                       String title,
+                                       String ignoreToolTip,
+                                       String ignoreAllToolTip,
+                                       String cancelToolTip,
+                                       boolean noIgnore,
+                                       Component parent) throws CCDDException
+    {
         // Check if the user hasn't already elected to ignore this type of error
         if (!continueOnError)
         {
@@ -725,7 +783,8 @@ public class CcddImportSupportHandler
                                                                                 title,
                                                                                 ignoreToolTip,
                                                                                 ignoreAllToolTip,
-                                                                                cancelToolTip);
+                                                                                cancelToolTip,
+                                                                                noIgnore);
 
             // Check if the Ignore All button was pressed
             if (buttonSelected == IGNORE_BUTTON)

@@ -1243,7 +1243,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         Object[][] typeData = table.getTableData(true);
 
         // Create/replace the type definition
-        tableTypeHandler.createTypeDefinition(tableTypeName, typeData, getDescription());
+        tableTypeHandler.createReplaceTypeDefinition(tableTypeName, getDescription(), typeData);
 
         // Remove existing changes, if any
         typeAdditions.clear();

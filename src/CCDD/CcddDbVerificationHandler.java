@@ -1644,6 +1644,7 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private void verifyDataFieldInheritance()
     {
+        // Get the reference to the data field handler
         CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
 
         // Step through each table type
@@ -1654,7 +1655,7 @@ public class CcddDbVerificationHandler
                                                                   null,
                                                                   ccddMain.getMainFrame());
 
-            // Step through each of this table type's data field
+            // Step through each of this table type's data fields
             for (FieldInformation typeFld : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType)))
             {
                 // Step through all tables of this type

@@ -612,6 +612,9 @@ public class CcddFileIOHandler
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
+     * @param replaceExistingMacros
+     *            true to replace the values for existing macros
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -622,6 +625,7 @@ public class CcddFileIOHandler
                                           final boolean useExistingFields,
                                           final boolean openEditor,
                                           final boolean ignoreErrors,
+                                          final boolean replaceExistingMacros,
                                           final Component parent)
     {
         // Execute the import operation in the background
@@ -649,6 +653,7 @@ public class CcddFileIOHandler
                            useExistingFields,
                            openEditor,
                            ignoreErrors,
+                           replaceExistingMacros,
                            parent);
             }
 
@@ -688,7 +693,7 @@ public class CcddFileIOHandler
      * @param backupFirst
      *            true to create a backup of the database before importing tables
      *
-     * @param replaceExisting
+     * @param replaceExistingTables
      *            true to replace a table that already exists in the database
      *
      * @param appendExistingFields
@@ -705,6 +710,9 @@ public class CcddFileIOHandler
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
+     * @param replaceExistingMacros
+     *            true to replace the values for existing macros
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -712,11 +720,12 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected boolean importFile(FileEnvVar[] dataFiles,
                                  boolean backupFirst,
-                                 boolean replaceExisting,
+                                 boolean replaceExistingTables,
                                  boolean appendExistingFields,
                                  boolean useExistingFields,
                                  boolean openEditor,
                                  boolean ignoreErrors,
+                                 boolean replaceExistingMacros,
                                  Component parent)
     {
         boolean errorFlag = false;
@@ -728,11 +737,11 @@ public class CcddFileIOHandler
 
         // Store the current table type, data type, macro, reserved message ID, and data field
         // information in case it needs to be restored
-        List<TypeDefinition> originalTableTypes = new ArrayList<TypeDefinition>(tableTypeHandler.getTypeDefinitions());
-        List<String[]> originalDataTypes = new ArrayList<String[]>(dataTypeHandler.getDataTypeData());
-        String[][] originalInputTypes = inputTypeHandler.getCustomInputTypeData();
-        List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
-        List<String[]> originalReservedMsgIDs = new ArrayList<String[]>(rsvMsgIDHandler.getReservedMsgIDData());
+        List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitionsCopy();
+        List<String[]> originalDataTypes = CcddUtilities.copyListOfStringArrays(dataTypeHandler.getDataTypeData());
+        String[][] originalInputTypes = CcddUtilities.copyArrayOfStringArrays(inputTypeHandler.getCustomInputTypeData());
+        List<String[]> originalMacros = CcddUtilities.copyListOfStringArrays(macroHandler.getMacroData());
+        List<String[]> originalReservedMsgIDs = CcddUtilities.copyListOfStringArrays(rsvMsgIDHandler.getReservedMsgIDData());
         List<String[]> originalDataFields = fieldHandler.getFieldDefnsFromInfo();
 
         // Step through each data file to import
@@ -826,7 +835,11 @@ public class CcddFileIOHandler
                 }
 
                 // Import the table definition(s) from the file
-                ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null, ignoreErrors);
+                ioHandler.importFromFile(file,
+                                         ImportType.IMPORT_ALL,
+                                         null,
+                                         ignoreErrors,
+                                         replaceExistingMacros);
 
                 // Check if the halt dialog is active (import operation is executed in the
                 // background)
@@ -891,10 +904,24 @@ public class CcddFileIOHandler
 
             // Create the data tables from the imported table definitions from all files
             createTablesFromDefinitions(allTableDefinitions,
-                                        replaceExisting,
+                                        replaceExistingTables,
                                         openEditor,
                                         groupHandler,
                                         parent);
+
+            // Check if the user elected to enable replacement of existing macro values
+            if (replaceExistingMacros)
+            {
+                // Verify that the new macro values are valid for the current instances of the
+                // macros
+                macroHandler.validateMacroUsage(parent);
+
+                // Update the usage of the macros in the tables
+                macroHandler.updateExistingMacroUsage(parent);
+            }
+
+            // Set the macro data to the updated macro list
+            macroHandler.setMacroData();
 
             // Release the save point. This must be done within a transaction block, so it must be
             // done prior to the commit below
@@ -1779,7 +1806,8 @@ public class CcddFileIOHandler
                 ioHandler.importFromFile(dataFile[0],
                                          ImportType.FIRST_DATA_ONLY,
                                          tableHandler.getTableTypeDefinition(),
-                                         ignoreErrorsCb.isSelected());
+                                         ignoreErrorsCb.isSelected(),
+                                         false);
                 tableDefinitions = ioHandler.getTableDefinitions();
 
                 // Check if a table definition was successfully created

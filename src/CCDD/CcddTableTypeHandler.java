@@ -150,9 +150,6 @@ public class CcddTableTypeHandler
             isRowValueUnique = new ArrayList<Boolean>();
             isStructureOk = new ArrayList<Boolean>();
             isPointerOk = new ArrayList<Boolean>();
-
-            // Add the new definition to the list
-            typeDefinitions.add(this);
         }
 
         /******************************************************************************************
@@ -1137,6 +1134,27 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
+     * Get a copy of the list of table type definitions
+     *
+     * @return Copy of the list of table type definitions
+     *********************************************************************************************/
+    protected List<TypeDefinition> getTypeDefinitionsCopy()
+    {
+        List<TypeDefinition> typeDefinitionCopy = new ArrayList<TypeDefinition>();
+
+        // Step through each existing table type definition
+        for (TypeDefinition typeDefn : typeDefinitions)
+        {
+            // Create and add the copy of the type definition to the list
+            typeDefinitionCopy.add(createTypeDefinition(typeDefn.getName(),
+                                                        typeDefn.getDescription(),
+                                                        typeDefn.getData()));
+        }
+
+        return typeDefinitionCopy;
+    }
+
+    /**********************************************************************************************
      * Set the list of table type definitions
      *
      * @param typeDefinitions
@@ -1175,6 +1193,7 @@ public class CcddTableTypeHandler
             {
                 // Create the type and add it to the list
                 typeDefn = new TypeDefinition(typeData[TableTypesColumn.TYPE_NAME.ordinal()].toString());
+                typeDefinitions.add(typeDefn);
             }
 
             // Add the column names, tool tip, column unique, column required, and column input
@@ -1200,23 +1219,23 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Create a new table type definition. If the definition exists then replace it with the new
-     * one
+     * Create a new table type definition and add it to the list of type definitions. If the
+     * definition exists then replace it with the new one
      *
      * @param typeName
      *            table type name
      *
-     * @param typeData
-     *            array of table type data
-     *
      * @param description
      *            table type description
      *
+     * @param typeData
+     *            array of table type data
+     *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    protected TypeDefinition createTypeDefinition(String typeName,
-                                                  Object[][] typeData,
-                                                  String description)
+    protected TypeDefinition createReplaceTypeDefinition(String typeName,
+                                                         String description,
+                                                         Object[][] typeData)
     {
         // Get the reference to the type definition
         TypeDefinition typeDefn = getTypeDefinition(typeName);
@@ -1228,8 +1247,35 @@ public class CcddTableTypeHandler
             typeDefinitions.remove(typeDefn);
         }
 
-        // Create a new type definition and add it to the list
-        typeDefn = new TypeDefinition(typeName);
+        // Create the type definition
+        typeDefn = createTypeDefinition(typeName, description, typeData);
+
+        // Add it to the list of type definitions
+        typeDefinitions.add(typeDefn);
+
+        return typeDefn;
+    }
+
+    /**********************************************************************************************
+     * Create a new table type definition
+     *
+     * @param typeName
+     *            table type name
+     *
+     * @param description
+     *            table type description
+     *
+     * @param typeData
+     *            array of table type data
+     *
+     * @return Reference to the type definition created
+     *********************************************************************************************/
+    private TypeDefinition createTypeDefinition(String typeName,
+                                                String description,
+                                                Object[][] typeData)
+    {
+        // Create a new type definition
+        TypeDefinition typeDefn = new TypeDefinition(typeName);
 
         // Add the primary key and row index column definitions
         typeDefn.addColumn(DefaultColumn.PRIMARY_KEY.ordinal(),
@@ -1715,9 +1761,9 @@ public class CcddTableTypeHandler
             typeUpdate = TableTypeUpdate.NEW;
 
             // Add the new table type
-            createTypeDefinition(tableTypeDefn.getTypeName(),
-                                 tableTypeDefn.getColumns().toArray(new Object[0][0]),
-                                 tableTypeDefn.getDescription());
+            createReplaceTypeDefinition(tableTypeDefn.getTypeName(),
+                                        tableTypeDefn.getDescription(),
+                                        tableTypeDefn.getColumns().toArray(new Object[0][0]));
 
             // Check if a data field is associated with the new table type
             if (tableTypeDefn.getDataFields().size() != 0)
@@ -1737,9 +1783,9 @@ public class CcddTableTypeHandler
         else
         {
             // Add the table type with a different name and get a reference to it
-            TypeDefinition altTypeDefn = createTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
-                                                              tableTypeDefn.getColumns().toArray(new Object[0][0]),
-                                                              tableTypeDefn.getDescription());
+            TypeDefinition altTypeDefn = createReplaceTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
+                                                                     tableTypeDefn.getDescription(),
+                                                                     tableTypeDefn.getColumns().toArray(new Object[0][0]));
 
             // Step through each column name
             for (String columnName : typeDefn.getColumnNamesUser())

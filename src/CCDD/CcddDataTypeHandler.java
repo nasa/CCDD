@@ -136,7 +136,7 @@ public class CcddDataTypeHandler
      *********************************************************************************************/
     protected void setDataTypeData(List<String[]> dataTypes)
     {
-        this.dataTypes = new ArrayList<String[]>(dataTypes);
+        this.dataTypes = CcddUtilities.copyListOfStringArrays(dataTypes);
     }
 
     /**********************************************************************************************
@@ -530,7 +530,7 @@ public class CcddDataTypeHandler
      * @return List containing the tables in the database that reference the specified data type
      *         name
      *********************************************************************************************/
-    protected String[] getDataTypeReferences(String dataTypeName, Component parent)
+    protected String[] searchDataTypeReferences(String dataTypeName, Component parent)
     {
         String searchCriteria = dataTypeName;
 
@@ -647,7 +647,7 @@ public class CcddDataTypeHandler
      * @param includePrimitives
      *            true to include primitive data types in the list; false to include only
      *            structures
-     * 
+     *
      * @return List of items to display in the data type pop-up combo box
      *********************************************************************************************/
     protected List<String> getDataTypePopUpItems(boolean includePrimitives)

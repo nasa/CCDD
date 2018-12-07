@@ -279,6 +279,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
+     * @param replaceExistingMacros
+     *            true to replace the values for existing macros
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -292,9 +295,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     public void importFromFile(FileEnvVar importFile,
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
-                               boolean ignoreErrors) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                               boolean ignoreErrors,
+                               boolean replaceExistingMacros) throws CCDDException,
+                                                              IOException,
+                                                              Exception
     {
         BufferedReader br = null;
 
@@ -792,9 +796,33 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // if the type definitions are the same
                 dataTypeHandler.updateDataTypes(dataTypeDefns);
 
-                // Add the macro if it's new or match it to an existing one with the same name if
-                // the values are the same
-                macroHandler.updateMacros(macroDefns);
+                // Add the macro if it's new or match it to an existing one with the same
+                // name. If the flag to replace existing macro values is false then get the
+                // list of macros names where the existing and import file values differ
+                List<String> mismatchedMacros = macroHandler.updateMacros(macroDefns,
+                                                                          replaceExistingMacros);
+
+                // Check if any existing and import file macro values differ ( the flag to replace
+                // existing macro values is false)
+                if (!mismatchedMacros.isEmpty())
+                {
+                    boolean continueOnError = false;
+
+                    // Check if the user elects to ignore the difference(s), keeping the existing
+                    // macro values, or cancels the import operation
+                    getErrorResponse(continueOnError,
+                                     "<html><b>The value for imported macro(s) '</b>"
+                                                      + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
+                                                      + "<b>' doesn't match the existing definition(s) in import file '</b>"
+                                                      + importFile.getAbsolutePath()
+                                                      + "<b>'; continue?",
+                                     "Macro Value Mismatch",
+                                     null,
+                                     "Ignore macro value difference(s) (keep existing value(s))",
+                                     "Stop importing",
+                                     true,
+                                     parent);
+                }
 
                 // Add the reserved message ID definition if it's new
                 rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);

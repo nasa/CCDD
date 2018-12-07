@@ -44,8 +44,7 @@ public class CcddLinkHandler
     CcddLinkHandler(CcddMain ccddMain, List<String[]> linkDefinitions)
     {
         // Create the link definitions list
-        this.linkDefinitions = new ArrayList<String[]>();
-        this.linkDefinitions.addAll(linkDefinitions);
+        this.linkDefinitions = CcddUtilities.copyListOfStringArrays(linkDefinitions);
 
         this.ccddMain = ccddMain;
         dataTypeHandler = ccddMain.getDataTypeHandler();

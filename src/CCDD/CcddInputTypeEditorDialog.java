@@ -116,7 +116,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
 
             // Get the references to the specified input type in the table type an data field
             // tables
-            references = inputTypeHandler.getInputTypeReferences(inputTypeName,
+            references = inputTypeHandler.searchInputTypeReferences(inputTypeName,
                                                                  CcddInputTypeEditorDialog.this);
         }
 

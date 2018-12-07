@@ -752,7 +752,7 @@ public class CcddInputTypeHandler
      * @return List containing the tables in the database that reference the specified input type
      *         name; an empty array if no matches are found
      *********************************************************************************************/
-    protected String[] getInputTypeReferences(String inputTypeName, Component parent)
+    protected String[] searchInputTypeReferences(String inputTypeName, Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.SEARCH,
                                  new String[][] {{"_search_text_",
@@ -836,7 +836,7 @@ public class CcddInputTypeHandler
 
         // Step through each reference in the table type and data field internal tables that use
         // the specified input type
-        for (String typeRef : getInputTypeReferences(inputType.getInputName(), parent))
+        for (String typeRef : searchInputTypeReferences(inputType.getInputName(), parent))
         {
             // Split the reference into table name, column name, comment, and context
             String[] tblColCmtAndCntxt = typeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);

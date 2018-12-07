@@ -16,7 +16,6 @@ import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
-import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
@@ -46,18 +45,14 @@ import javax.swing.table.TableCellRenderer;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
-import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
-import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableSelectionMode;
-import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /**************************************************************************************************
@@ -80,60 +75,12 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     // List of macro table content changes to process
     private List<TableModification> modifications;
 
-    // List of macro references already loaded from the database. This is used to avoid repeated
-    // searches for a the same macro
-    private List<MacroReference> loadedReferences;
-
     // Temporary table cell storage for when macro names are replaced by their corresponding values
     // so that the original cell contents can be restored
     private String[][] originalCellData;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Macro Editor";
-
-    /**********************************************************************************************
-     * Macro data table references class
-     *********************************************************************************************/
-    private class MacroReference
-    {
-        private final String macroName;
-        private final String[] references;
-
-        /******************************************************************************************
-         * Macro data table references class constructor
-         *
-         * @param macroName
-         *            macro name
-         *****************************************************************************************/
-        MacroReference(String macroName)
-        {
-            this.macroName = macroName;
-
-            // Get the references to the specified macro in the data tables
-            references = macroHandler.getMacroReferences(CcddMacroHandler.getFullMacroName(macroName),
-                                                         CcddMacroEditorDialog.this);
-        }
-
-        /******************************************************************************************
-         * Get the macro name associated with the references
-         *
-         * @return Macro name
-         *****************************************************************************************/
-        protected String getMacroName()
-        {
-            return macroName;
-        }
-
-        /******************************************************************************************
-         * Get the references in the data tables for this macro
-         *
-         * @return References in the data tables for this macro
-         *****************************************************************************************/
-        protected String[] getReferences()
-        {
-            return references;
-        }
-    }
 
     /**********************************************************************************************
      * Macro editor dialog class constructor
@@ -182,6 +129,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             // Update the copy of the macro data so it can be used to determine if changes are made
             storeCurrentData();
 
+            // Initialize the list of macro references already loaded
+            macroHandler.initializeReferences();
+
             // Accept all edits for this table
             macroTable.getUndoManager().discardAllEdits();
         }
@@ -229,7 +179,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             protected void execute()
             {
                 modifications = new ArrayList<TableModification>();
-                loadedReferences = new ArrayList<MacroReference>();
+
+                // Initialize the list of macro references already loaded
+                macroHandler.initializeReferences();
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -299,63 +251,20 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         for (int row : macroTable.getSelectedRows())
                         {
                             // Get the macro name
-                            String macroName = macroTable.getValueAt(row, MacrosColumn.MACRO_NAME.ordinal()).toString();
+                            String macroName = macroTable.getValueAt(row,
+                                                                     MacrosColumn.MACRO_NAME.ordinal())
+                                                         .toString();
 
                             // Check if the macro is referenced in any of the data tables
                             if (!macroName.isEmpty())
                             {
-                                List<String> tables = new ArrayList<String>();
-
-                                // Step through each reference to the macro in the tables
-                                for (String macroRef : getMacroReferences(macroName).getReferences())
-                                {
-                                    // Split the reference into table name, column name, comment,
-                                    // and context
-                                    String[] tblColCmtAndCntxt = macroRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-                                    String refComment = tblColCmtAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
-
-                                    // Check if the this is a reference to a prototype data table
-                                    if (!refComment.isEmpty())
-                                    {
-                                        // Extract the viewable name and type of the table and the
-                                        // name of the column containing the data type, and
-                                        // separate the column string into the individual column
-                                        // values
-                                        String[] refNameAndType = refComment.split(",");
-
-                                        // Check if the table name hasn't already been added to the
-                                        // list
-                                        if (!tables.contains(refNameAndType[0]))
-                                        {
-                                            // Add the table name to the list of those using the
-                                            // macro
-                                            tables.add(refNameAndType[0]);
-                                        }
-                                    }
-                                    // The reference is in the custom values table
-                                    else
-                                    {
-                                        // Extract the context from the reference
-                                        String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                                        // Get the path to the parent table for the reference in
-                                        // the custom values table
-                                        String table = refColumns[ValuesColumn.TABLE_PATH.ordinal()];
-                                        table = table.substring(0, table.lastIndexOf(","));
-
-                                        // Check if the table name hasn't already been added to the
-                                        // list
-                                        if (!tables.contains(table))
-                                        {
-                                            // Add the table name to the list of those using the
-                                            // macro
-                                            tables.add(table);
-                                        }
-                                    }
-                                }
+                                // Get the list of tables using the macro. The list is empty if the
+                                // macro isn't referenced by any table
+                                List<String> tablePaths = macroHandler.getMacroUsage(macroName,
+                                                                                     CcddMacroEditorDialog.this);
 
                                 // Check if the macro is in use by a data table
-                                if (!tables.isEmpty())
+                                if (!tablePaths.isEmpty())
                                 {
                                     // Deselect the macro
                                     macroTable.removeRowSelectionInterval(row, row);
@@ -365,7 +274,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                                                               "<html><b>Cannot delete macro '</b>"
                                                                                                           + macroName
                                                                                                           + "<b>'; macro is referenced by table(s) '</b>"
-                                                                                                          + CcddUtilities.convertArrayToStringTruncate(tables.toArray(new String[0]))
+                                                                                                          + CcddUtilities.convertArrayToStringTruncate(tablePaths.toArray(new String[0]))
                                                                                                           + "<b>'",
                                                                               "Delete Macro",
                                                                               JOptionPane.ERROR_MESSAGE,
@@ -486,9 +395,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                             buildUpdates();
 
                             // Update the tables affected by the changes to the macro(s)
-                            dbTable.modifyTablesPerDataTypeOrMacroChanges(modifications,
-                                                                          getUpdatedData(),
-                                                                          CcddMacroEditorDialog.this);
+                            dbTable.modifyTablesPerDataTypeOrMacroChangesInBackground(modifications,
+                                                                                      getUpdatedData(),
+                                                                                      CcddMacroEditorDialog.this);
                         }
                     }
                 });
@@ -541,43 +450,6 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                   true);
             }
         });
-    }
-
-    /**********************************************************************************************
-     * Get the references to the specified macro in the tables
-     *
-     * @param macroName
-     *            macro name
-     *
-     * @return Reference to the specified macro in the tables
-     *********************************************************************************************/
-    private MacroReference getMacroReferences(String macroName)
-    {
-        MacroReference macroRefs = null;
-
-        // Step through the list of the macro search references already loaded
-        for (MacroReference loadedRef : loadedReferences)
-        {
-            // Check if the macro name matches that for an already searched macro
-            if (macroName.equals(loadedRef.getMacroName()))
-            {
-                // Store the macro search reference and stop searching
-                macroRefs = loadedRef;
-                break;
-            }
-        }
-
-        // Check if the macro references haven't already been loaded
-        if (macroRefs == null)
-        {
-            // Search for references to this macro
-            macroRefs = new MacroReference(macroName);
-
-            // Add the search results to the list so that this search doesn't get performed again
-            loadedReferences.add(macroRefs);
-        }
-
-        return macroRefs;
     }
 
     /**********************************************************************************************
@@ -796,115 +668,13 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                 // Check if the index matches that for the committed macro
                                 if (index.equals(committedData[commRow][MacroEditorColumnInfo.OID.ordinal()]))
                                 {
-                                    List<String> tableNames = new ArrayList<String>();
-
-                                    // Get the macro name. Use the committed name (in place of the
-                                    // current name in the editor, in case it's been changed) since
-                                    // this is how the macro is referenced in the data tables
-                                    macroName = committedData[commRow][MacroEditorColumnInfo.NAME.ordinal()];
-
-                                    // Step through each reference to the macro in the tables
-                                    for (String macroRef : getMacroReferences(macroName).getReferences())
-                                    {
-                                        // Split the reference into table name, column name, table
-                                        // type, and context
-                                        String[] tblColDescAndCntxt = macroRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-                                        String refComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
-
-                                        // Check if the this is a reference to a prototype data
-                                        // table
-                                        if (!refComment.isEmpty())
-                                        {
-                                            // Extract the viewable name and type of the table and
-                                            // the name of the column containing the data type, and
-                                            // separate the column string into the individual
-                                            // column values
-                                            String[] refNameAndType = refComment.split(",");
-
-                                            // Check if this table hasn't already been found to
-                                            // contain a type mismatch
-                                            if (!tableNames.contains(refNameAndType[0]))
-                                            {
-                                                String refColumn = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
-                                                String[] refContext = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                                                // Use the type and column to get the column's
-                                                // input type
-                                                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
-                                                int columnIndex = typeDefn.getColumnIndexByDbName(refColumn);
-                                                InputType inputType = typeDefn.getInputTypes()[columnIndex];
-
-                                                // The referenced column value has the original
-                                                // macro names, and these may have been altered in
-                                                // the editor. In order to evaluate the updated
-                                                // macro value the macro names in the reference
-                                                // must be replaced by their updated names. The
-                                                // macro's OID column value is us tTo get the new
-                                                // name from the old name. Step through each macro
-                                                // referenced, using the original names, in the
-                                                // column value
-                                                for (String oldName : macroHandler.getReferencedMacros(refContext[columnIndex]))
-                                                {
-                                                    String newName = oldName;
-                                                    String oid = "";
-
-                                                    // Step through the updated macro definitions
-                                                    for (String[] oldMacro : macroHandler.getMacroData())
-                                                    {
-                                                        // Check if the macro names match
-                                                        if (oldName.equals(oldMacro[MacrosColumn.MACRO_NAME.ordinal()]))
-                                                        {
-                                                            // Store the OID value for the macro
-                                                            // and stop searching
-                                                            oid = oldMacro[MacrosColumn.OID.ordinal()];
-                                                            break;
-                                                        }
-                                                    }
-
-                                                    // Step through the updated macro definitions
-                                                    for (String[] newMacro : newMacroHandler.getMacroData())
-                                                    {
-                                                        // Check if the macro's OID value matches
-                                                        // the target one
-                                                        if (oid.equals(newMacro[MacrosColumn.OID.ordinal()]))
-                                                        {
-                                                            // Since the OIDs match these are the
-                                                            // same macro. Store the macro's new
-                                                            // name (in case it changed) and stop
-                                                            // searching
-                                                            newName = newMacro[MacrosColumn.MACRO_NAME.ordinal()];
-                                                            break;
-                                                        }
-                                                    }
-
-                                                    // Replace all instances of the macro's old
-                                                    // name with its new name
-                                                    refContext[columnIndex] = macroHandler.replaceMacroName(CcddMacroHandler.getFullMacroName(oldName),
-                                                                                                            CcddMacroHandler.getFullMacroName(newName),
-                                                                                                            refContext[columnIndex]);
-                                                }
-
-                                                // Check if the expanded value of the updated macro
-                                                // doesn't match the input type required by the
-                                                // macro's user
-                                                if (!newMacroHandler.getMacroExpansion(refContext[columnIndex]).matches(inputType.getInputMatch()))
-                                                {
-                                                    // Add the affected table name to the list
-                                                    tableNames.add(refNameAndType[0]);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Check if any tables with conflicts with the new data type
-                                    // were found
-                                    if (!tableNames.isEmpty())
-                                    {
-                                        throw new CCDDException("Macro value is not consistent with macro usage in table(s) '</b>"
-                                                                + CcddUtilities.convertArrayToStringTruncate(tableNames.toArray(new String[0]))
-                                                                + "<b>'");
-                                    }
-
+                                    // Validate the macro usage. Use the committed name (in place
+                                    // of the current name in the editor, in case it's been
+                                    // changed) since this is how the macro is referenced in the
+                                    // data tables. Stop searching since a match was found
+                                    macroHandler.validateMacroUsage(committedData[commRow][MacroEditorColumnInfo.NAME.ordinal()],
+                                                                    newMacroHandler,
+                                                                    CcddMacroEditorDialog.this);
                                     break;
                                 }
                             }

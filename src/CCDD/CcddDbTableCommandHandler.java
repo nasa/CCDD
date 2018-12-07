@@ -3182,6 +3182,8 @@ public class CcddDbTableCommandHandler
                                             + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
                                             + ", "
                                             + FieldsColumn.FIELD_VALUE.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_INHERITED.getColumnName()
                                             + " FROM "
                                             + InternalTable.FIELDS.getTableName()
                                             + " WHERE "
@@ -3451,9 +3453,7 @@ public class CcddDbTableCommandHandler
                     StringBuilder assnsModCmd = new StringBuilder("");
 
                     // Build the update command
-                    modCmd.append("UPDATE "
-                                  + dbTableName
-                                  + " SET ");
+                    modCmd.append("UPDATE " + dbTableName + " SET ");
 
                     // Step through each changed column
                     for (int column = 0; column < mod.getRowData().length; column++)
@@ -8045,16 +8045,79 @@ public class CcddDbTableCommandHandler
      * @param dialog
      *            reference to the data type or macro editor dialog
      *********************************************************************************************/
-    protected void modifyTablesPerDataTypeOrMacroChanges(final List<TableModification> modifications,
-                                                         final List<String[]> updates,
-                                                         final CcddDialogHandler dialog)
+    protected void modifyTablesPerDataTypeOrMacroChangesInBackground(final List<TableModification> modifications,
+                                                                     final List<String[]> updates,
+                                                                     final CcddDialogHandler dialog)
     {
+        // Execute the command in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, dialog, new BackgroundCommand()
+        {
+            boolean errorFlag = false;
+
+            /**************************************************************************************
+             * Modify data types (macros)
+             *************************************************************************************/
+            @Override
+            protected void execute()
+            {
+                // Modify the data type (macro) references in the tables
+                errorFlag = modifyTablesPerDataTypeOrMacroChanges(modifications,
+                                                                  updates,
+                                                                  dialog);
+            }
+
+            /**************************************************************************************
+             * Modify data types or macros complete
+             *************************************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Rebuild the variable paths and offsets
+                variableHandler.buildPathAndOffsetLists();
+
+                // Check if this is a data type change
+                if (dialog instanceof CcddDataTypeEditorDialog)
+                {
+                    ((CcddDataTypeEditorDialog) dialog).doDataTypeUpdatesComplete(errorFlag);
+                }
+                // This is a macro change
+                else
+                {
+                    ((CcddMacroEditorDialog) dialog).doMacroUpdatesComplete(errorFlag);
+                }
+            }
+        });
+    }
+
+    /**********************************************************************************************
+     * Modify all tables affected by changes to the user-defined data type names, or macro names
+     * and/or macro values
+     *
+     * @param modifications
+     *            list of data type (macro) definition modifications
+     *
+     * @param updates
+     *            list of string arrays reflecting the content of the data types (macros) after
+     *            being changed in the data type (macro) editor
+     *
+     * @param dialog
+     *            reference to the data type or macro editor dialog
+     *
+     * @return true if an error occurs while updating the data types (macros)
+     *********************************************************************************************/
+    protected boolean modifyTablesPerDataTypeOrMacroChanges(final List<TableModification> modifications,
+                                                            final List<String[]> updates,
+                                                            final Component dialog)
+    {
+        boolean errorFlag = false;
+
+        TypeDefinition typeDefn = null;
         final CcddDataTypeHandler newDataTypeHandler;
         final CcddMacroHandler newMacroHandler;
-        final String changeName;
+        String changeName;
 
         // Set to true if the change is to a data type, and false if the change is to a macro
-        final boolean isDataType = dialog instanceof CcddDataTypeEditorDialog;
+        boolean isDataType = dialog instanceof CcddDataTypeEditorDialog;
 
         // Check if this is a data type change
         if (isDataType)
@@ -8134,559 +8197,527 @@ public class CcddDbTableCommandHandler
             }
         }
 
-        // Execute the command in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, dialog, new BackgroundCommand()
+        List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
+
+        // Flag that indicates that only a data type (macro) name has been altered, or a data type
+        // size where the new size is not larger than the old size. If this remains true for all
+        // data type (macro) updates then the project database internal table update process is
+        // streamlined, making it much faster in cases where the internal tables reference a large
+        // number of variables and tables
+        boolean nameChangeOnly = true;
+
+        // Storage for the table's data. This is the table data as it exists in the project
+        // database
+        List<Object[]> tableData;
+
+        // Step through each modification
+        for (TableModification mod : modifications)
         {
-            boolean errorFlag = false;
-            List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
+            String oldName;
+            String newName;
+            String oldNameDelim = null;
+            String newNameDelim = null;
+            String[] references;
 
-            /**************************************************************************************
-             * Modify data types (macros)
-             *************************************************************************************/
-            @Override
-            protected void execute()
+            // Check if this is a data type change
+            if (isDataType)
             {
-                TypeDefinition typeDefn = null;
+                // Get the original and updated user-defined data type names
+                oldName = CcddDataTypeHandler.getDataTypeName(mod.getOriginalRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
+                                                              mod.getOriginalRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
+                newName = CcddDataTypeHandler.getDataTypeName(mod.getRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
+                                                              mod.getRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
 
-                // Flag that indicates that only a data type (macro) name has been altered, or a
-                // data type size where the new size is not larger than the old size. If this
-                // remains true for all data type (macro) updates then the project database
-                // internal table update process is streamlined, making it much faster in cases
-                // where the internal tables reference a large number of variables and tables
-                boolean nameChangeOnly = true;
+                // Get the references to the updated data type
+                references = dataTypeHandler.searchDataTypeReferences(oldName, dialog);
 
-                // Storage for the table's data. This is the table data as it exists in the project
-                // database
-                List<Object[]> tableData;
+                // Check if only a data type name has been changed thus far (or if this is the
+                // initial pass)
+                if (nameChangeOnly)
+                {
+                    // Set to false if the size increased or the base type changed; keep equal to
+                    // true if only the data type name has changed and the size is no larger
+                    nameChangeOnly = Integer.valueOf(mod.getOriginalRowData()[DataTypesColumn.SIZE.ordinal()].toString()) >= Integer.valueOf(mod.getRowData()[DataTypesColumn.SIZE.ordinal()].toString())
+                                     && mod.getOriginalRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString().equals(mod.getRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString());
+                }
+            }
+            // This is a macro change
+            else
+            {
+                // Get the original and updated user-defined macro names
+                oldName = mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString();
+                newName = mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString();
 
-                // Step through each modification
+                // Get the original and updated macro names with the macro delimiters
+                oldNameDelim = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
+                newNameDelim = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
+
+                // Get the references to the updated macro
+                references = macroHandler.getMacroReferences(oldNameDelim, dialog).getReferences();
+
+                // Check if only a macro name has been changed thus far (or if this is the initial
+                // pass)
+                if (nameChangeOnly)
+                {
+                    // Set to false if the macro value changes; keep equal to true if only the
+                    // macro name has changed
+                    nameChangeOnly = macroHandler.getMacroExpansion(mod.getOriginalRowData()[MacrosColumn.VALUE.ordinal()].toString())
+                                                 .equals(newMacroHandler.getMacroExpansion(mod.getRowData()[MacrosColumn.VALUE.ordinal()].toString()));
+                }
+            }
+
+            // Step through each table/column containing the modification
+            for (String ref : references)
+            {
+                String tableName = null;
+                String changeColumn = null;
+                String matchColumn = null;
+                ModifiedTable modifiedTable = null;
+
+                // Split the reference into table name, column name, table type, and context
+                String[] tblColDescAndCntxt = ref.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+                // Create a reference to the search result's database table name and row data to
+                // shorten comparisons below
+                String refTableName = tblColDescAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()];
+                String[] refContext = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                // Set to true if the referenced table is a prototype table and false if the
+                // reference is to the internal custom values table
+                boolean isPrototype = !refTableName.startsWith(INTERNAL_TABLE_PREFIX);
+
+                // Check if the referenced table is a prototype table
+                if (isPrototype)
+                {
+                    // Set the viewable table name (with capitalization intact) and get the column
+                    // name containing the data type (macro) reference. Use the primary key as the
+                    // matching column criteria
+                    tableName = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2)[0];
+                    changeColumn = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
+                    matchColumn = refContext[DefaultColumn.PRIMARY_KEY.ordinal()];
+                }
+                // The reference is in the custom values table. Check if this is a macro change
+                else if (!isDataType)
+                {
+                    // Get the table name from the variable path in the custom values table and get
+                    // the column name containing the macro reference. Use the variable name as the
+                    // matching column criteria
+                    tableName = refContext[ValuesColumn.TABLE_PATH.ordinal()].replaceAll("(\"|\\s|,[^\\.]*\\.[^,]*$)", "");
+                    changeColumn = refContext[ValuesColumn.COLUMN_NAME.ordinal()];
+                    matchColumn = refContext[ValuesColumn.TABLE_PATH.ordinal()].replaceAll("(.*\\.|\")", "");
+                }
+                // This is a data type change and the reference is in the custom values table
+                else
+                {
+                    // Skip this reference since data type changes are automatically propagated to
+                    // the internal tables via the data table modification process
+                    continue;
+                }
+
+                // Step through each table already loaded for modifications
+                for (ModifiedTable modTbl : modifiedTables)
+                {
+                    // Check if the table has already been loaded
+                    if (modTbl.getTableInformation().getProtoVariableName().equals(tableName))
+                    {
+                        // Store the reference to the modified table and stop searching
+                        modifiedTable = modTbl;
+                        break;
+                    }
+                }
+
+                // Check if the table isn't already loaded
+                if (modifiedTable == null)
+                {
+                    // Load the table and add it to the list
+                    modifiedTable = new ModifiedTable(tableName);
+                    modifiedTables.add(modifiedTable);
+
+                    // Check if the table arrays aren't expanded
+                    if (!modifiedTable.getEditor().isExpanded())
+                    {
+                        // Expand the table arrays
+                        modifiedTable.getEditor().showHideArrayMembers();
+                    }
+                }
+
+                // Get the reference to the table to shorten subsequent calls
+                CcddJTableHandler table = modifiedTable.getEditor().getTable();
+
+                // Use the table's type to get the index for the table column containing the data
+                // type (macro) reference
+                typeDefn = modifiedTable.getEditor().getTableTypeDefinition();
+                int changeColumnIndex = isPrototype
+                                                    ? typeDefn.getColumnIndexByDbName(changeColumn)
+                                                    : typeDefn.getColumnIndexByUserName(changeColumn);
+
+                String macroValue = null;
+
+                // Check is a change was made to a macro
+                if (!isDataType)
+                {
+                    // Get the original value of the macro
+                    macroValue = macroHandler.getMacroValue(oldName);
+                }
+
+                // Set the flags that indicate if a name or value changed
+                boolean isNameChange = !oldName.equals(newName);
+                boolean isValueChange = (isDataType
+                                         && (dataTypeHandler.getSizeInBytes(oldName) != newDataTypeHandler.getSizeInBytes(newName)
+                                             || !dataTypeHandler.getBaseDataType(oldName).equals(newDataTypeHandler.getBaseDataType(newName))))
+                                        || (!isDataType
+                                            && macroValue != null
+                                            && !macroValue.equals(newMacroHandler.getMacroValue(newName)));
+
+                // Check if the data type or macro name changed, or the data type size or base
+                // type, or macro value changed
+                if (isNameChange || isValueChange)
+                {
+                    // Get the table's data (again if a name change occurred since changes were
+                    // made)
+                    tableData = table.getTableDataList(false);
+
+                    // Step through each row
+                    for (int row = 0; row < tableData.size(); row++)
+                    {
+                        // Check if this is the row in the table data with the macro reference. If
+                        // not a prototype use the table's type to get the column index for the
+                        // variable name
+                        if (isPrototype
+                                        ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
+                                        : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString()))
+                        {
+                            // Step through each column in the row, skipping the primary key and
+                            // row index columns
+                            for (int column = NUM_HIDDEN_COLUMNS; column < tableData.get(row).length; column++)
+                            {
+                                // Check if this is the column that contains a data type or macro
+                                if (column == changeColumnIndex)
+                                {
+                                    // Check if the cell value is editable
+                                    if (table.isCellEditable(table.convertRowIndexToView(row),
+                                                             table.convertColumnIndexToView(column)))
+                                    {
+                                        // Get the contents of the cell containing the data type or
+                                        // macro reference
+                                        String oldValue = tableData.get(row)[column].toString();
+                                        String newValue = oldValue;
+
+                                        // Check if the data type or macro name changed
+                                        if (isNameChange)
+                                        {
+                                            // Check if this is a data type change
+                                            if (isDataType)
+                                            {
+                                                // Check if the cell doesn't contain only the data
+                                                // type name
+                                                if (!oldValue.equals(oldName))
+                                                {
+                                                    // Check if the cell doesn't contain a sizeof()
+                                                    // call for the data type
+                                                    if (!CcddVariableHandler.hasSizeof(oldValue, oldName))
+                                                    {
+                                                        // Skip this reference. The data type match
+                                                        // is coincidental
+                                                        continue;
+                                                    }
+
+                                                    // Continue to step through the string,
+                                                    // replacing each sizeof() instance
+                                                    while (CcddVariableHandler.hasSizeof(newValue, oldName))
+                                                    {
+                                                        // Replace the data type in the sizeof()
+                                                        // call with the new name
+                                                        newValue = newValue.replaceFirst(CcddVariableHandler.getSizeofDataTypeMatch(oldName),
+                                                                                         "sizeof(" + newName + ")");
+                                                    }
+                                                }
+                                                // The cell contains only the data type name
+                                                else
+                                                {
+                                                    // Set the new cell value to the new data type
+                                                    // name
+                                                    newValue = newName;
+                                                }
+                                            }
+                                            // This is a macro change
+                                            else
+                                            {
+                                                // Replace all instances of the old macro name in
+                                                // the table cell with the new name
+                                                newValue = macroHandler.replaceMacroName(oldNameDelim,
+                                                                                         newNameDelim,
+                                                                                         oldValue);
+                                            }
+                                        }
+
+                                        // Check if this a change was made to the data type size or
+                                        // base type
+                                        if (isDataType && isValueChange)
+                                        {
+                                            // Check if the data type reference isn't an exact
+                                            // match (stand-alone or within a sizeof() call)
+                                            if (!newValue.equals(newName)
+                                                && !CcddVariableHandler.hasSizeof(newValue)
+                                                && !CcddMacroHandler.hasMacro(newValue))
+                                            {
+                                                // Skip this reference - the data type name match
+                                                // is coincidental
+                                                continue;
+                                            }
+                                        }
+
+                                        // Store the change in the table data
+                                        tableData.get(row)[column] = newValue;
+
+                                        // Make the change to the cell, including any updates to
+                                        // changes in array size
+                                        table.validateCellContent(tableData,
+                                                                  row,
+                                                                  column,
+                                                                  oldValue,
+                                                                  newValue,
+                                                                  false,
+                                                                  true);
+
+                                        // Load the updated array of data into the table
+                                        table.loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
+                                                                     false);
+                                    }
+
+                                    // Stop searching the columns since the target row was located
+                                    // and processed
+                                    break;
+                                }
+                            }
+
+                            // Stop searching the rows since the target row was located and
+                            // processed
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        try
+        {
+            // Create a save point in case an error occurs while modifying a table
+            dbCommand.createSavePoint(dialog);
+
+            // Check if only a change in data type name, data size (same size or smaller), or macro
+            // name occurred; if so then the internal table update process is simplified in order
+            // to speed it up
+            if (nameChangeOnly)
+            {
+                // Step through each modification in order to update the variable or macro
+                // references in the internal tables
                 for (TableModification mod : modifications)
                 {
-                    String oldName;
-                    String newName;
-                    String oldNameDelim = null;
-                    String newNameDelim = null;
-                    String[] references;
-
                     // Check if this is a data type change
                     if (isDataType)
                     {
-                        // Get the original and updated user-defined data type names
-                        oldName = CcddDataTypeHandler.getDataTypeName(mod.getOriginalRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
-                                                                      mod.getOriginalRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
-                        newName = CcddDataTypeHandler.getDataTypeName(mod.getRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
-                                                                      mod.getRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
+                        // Get the old and new data type name
+                        String oldName = CcddDataTypeHandler.getDataTypeName(mod.getOriginalRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
+                                                                             mod.getOriginalRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
+                        String newName = CcddDataTypeHandler.getDataTypeName(mod.getRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
+                                                                             mod.getRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
 
-                        // Get the references to the updated data type
-                        references = dataTypeHandler.getDataTypeReferences(oldName, dialog);
-
-                        // Check if only a data type name has been changed thus far (or if this is
-                        // the initial pass)
-                        if (nameChangeOnly)
-                        {
-                            // Set to false if the size increased or the base type changed; keep
-                            // equal to true if only the data type name has changed and the size is
-                            // no larger
-                            nameChangeOnly = Integer.valueOf(mod.getOriginalRowData()[DataTypesColumn.SIZE.ordinal()].toString()) >= Integer.valueOf(mod.getRowData()[DataTypesColumn.SIZE.ordinal()].toString())
-                                             && mod.getOriginalRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString().equals(mod.getRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString());
-                        }
+                        // Execute the command to update the internal tables that reference
+                        // variable paths
+                        dbCommand.executeDbUpdate("UPDATE "
+                                                  + InternalTable.LINKS.getTableName()
+                                                  + " SET "
+                                                  + LinksColumn.MEMBER.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + LinksColumn.MEMBER.getColumnName()
+                                                  + ", E'(.*,)"
+                                                  + oldName
+                                                  + "(\\..*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.TLM_SCHEDULER.getTableName()
+                                                  + " SET "
+                                                  + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                  + ", E'(.*,)"
+                                                  + oldName
+                                                  + "(\\..*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.VALUES.getTableName()
+                                                  + " SET "
+                                                  + ValuesColumn.TABLE_PATH.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + ValuesColumn.TABLE_PATH.getColumnName()
+                                                  + ", E'(.*,)"
+                                                  + oldName
+                                                  + "(\\..*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); ",
+                                                  dialog);
                     }
                     // This is a macro change
                     else
                     {
-                        // Get the original and updated user-defined macro names
-                        oldName = mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString();
-                        newName = mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString();
+                        // Get the original and updated user-defined macro names (with the
+                        // delimiters)
+                        String oldName = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
+                        String newName = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
 
-                        // Get the original and updated macro names with the macro delimiters
-                        oldNameDelim = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
-                        newNameDelim = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
-
-                        // Get the references to the updated macro
-                        references = macroHandler.getMacroReferences(oldNameDelim, dialog);
-
-                        // Check if only a macro name has been changed thus far (or if this is the
-                        // initial pass)
-                        if (nameChangeOnly)
-                        {
-                            // Set to false if the macro value changes; keep equal to true if only
-                            // the macro name has changed
-                            nameChangeOnly = macroHandler.getMacroExpansion(mod.getOriginalRowData()[MacrosColumn.VALUE.ordinal()].toString())
-                                                         .equals(newMacroHandler.getMacroExpansion(mod.getRowData()[MacrosColumn.VALUE.ordinal()].toString()));
-                        }
+                        // Execute the command to update the internal tables that reference
+                        // variable and table paths
+                        dbCommand.executeDbUpdate("UPDATE "
+                                                  + InternalTable.ASSOCIATIONS.getTableName()
+                                                  + " SET "
+                                                  + AssociationsColumn.MEMBERS.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + AssociationsColumn.MEMBERS.getColumnName()
+                                                  + ", E'(.*)"
+                                                  + oldName
+                                                  + "(.*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.FIELDS.getTableName()
+                                                  + " SET "
+                                                  + FieldsColumn.OWNER_NAME.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + FieldsColumn.OWNER_NAME.getColumnName()
+                                                  + ", E'(.*)"
+                                                  + oldName
+                                                  + "(.*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.GROUPS.getTableName()
+                                                  + " SET "
+                                                  + GroupsColumn.MEMBERS.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + GroupsColumn.MEMBERS.getColumnName()
+                                                  + ", E'(.*)"
+                                                  + oldName
+                                                  + "(.*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.LINKS.getTableName()
+                                                  + " SET "
+                                                  + LinksColumn.MEMBER.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + LinksColumn.MEMBER.getColumnName()
+                                                  + ", E'(.*)"
+                                                  + oldName
+                                                  + "(.*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.TLM_SCHEDULER.getTableName()
+                                                  + " SET "
+                                                  + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + TlmSchedulerColumn.MEMBER.getColumnName()
+                                                  + ", E'(.*)"
+                                                  + oldName
+                                                  + "(.*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); UPDATE "
+                                                  + InternalTable.VALUES.getTableName()
+                                                  + " SET "
+                                                  + ValuesColumn.TABLE_PATH.getColumnName()
+                                                  + " = regexp_replace("
+                                                  + ValuesColumn.TABLE_PATH.getColumnName()
+                                                  + ", E'(.*)"
+                                                  + oldName
+                                                  + "(.*)'"
+                                                  + ", E'\\\\1"
+                                                  + newName
+                                                  + "\\\\2'); ",
+                                                  dialog);
                     }
-
-                    // Step through each table/column containing the modification
-                    for (String ref : references)
-                    {
-                        String tableName = null;
-                        String changeColumn = null;
-                        String matchColumn = null;
-                        ModifiedTable modifiedTable = null;
-
-                        // Split the reference into table name, column name, table type, and
-                        // context
-                        String[] tblColDescAndCntxt = ref.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-
-                        // Create a reference to the search result's database table name and row
-                        // data to shorten comparisons below
-                        String refTableName = tblColDescAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()];
-                        String[] refContext = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                        // Set to true if the referenced table is a prototype table and false if
-                        // the reference is to the internal custom values table
-                        boolean isPrototype = !refTableName.startsWith(INTERNAL_TABLE_PREFIX);
-
-                        // Check if the referenced table is a prototype table
-                        if (isPrototype)
-                        {
-                            // Set the viewable table name (with capitalization intact) and get the
-                            // column name containing the data type (macro) reference. Use the
-                            // primary key as the matching column criteria
-                            tableName = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2)[0];
-                            changeColumn = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
-                            matchColumn = refContext[DefaultColumn.PRIMARY_KEY.ordinal()];
-                        }
-                        // The reference is in the custom values table. Check if this is a macro
-                        // change
-                        else if (!isDataType)
-                        {
-                            // Get the table name from the variable path in the custom values table
-                            // and get the column name containing the macro reference. Use the
-                            // variable name as the matching column criteria
-                            tableName = refContext[ValuesColumn.TABLE_PATH.ordinal()].replaceAll("(\"|\\s|,[^\\.]*\\.[^,]*$)", "");
-                            changeColumn = refContext[ValuesColumn.COLUMN_NAME.ordinal()];
-                            matchColumn = refContext[ValuesColumn.TABLE_PATH.ordinal()].replaceAll("(.*\\.|\")", "");
-                        }
-                        // This is a data type change and the reference is in the custom values
-                        // table
-                        else
-                        {
-                            // Skip this reference since data type changes are automatically
-                            // propagated to the internal tables via the data table modification
-                            // process
-                            continue;
-                        }
-
-                        // Step through each table already loaded for modifications
-                        for (ModifiedTable modTbl : modifiedTables)
-                        {
-                            // Check if the table has already been loaded
-                            if (modTbl.getTableInformation().getProtoVariableName().equals(tableName))
-                            {
-                                // Store the reference to the modified table and stop searching
-                                modifiedTable = modTbl;
-                                break;
-                            }
-                        }
-
-                        // Check if the table isn't already loaded
-                        if (modifiedTable == null)
-                        {
-                            // Load the table and add it to the list
-                            modifiedTable = new ModifiedTable(tableName);
-                            modifiedTables.add(modifiedTable);
-
-                            // Check if the table arrays aren't expanded
-                            if (!modifiedTable.getEditor().isExpanded())
-                            {
-                                // Expand the table arrays
-                                modifiedTable.getEditor().showHideArrayMembers();
-                            }
-                        }
-
-                        // Get the reference to the table to shorten subsequent calls
-                        CcddJTableHandler table = modifiedTable.getEditor().getTable();
-
-                        // Use the table's type to get the index for the table column containing
-                        // the data type (macro) reference
-                        typeDefn = modifiedTable.getEditor().getTableTypeDefinition();
-                        int changeColumnIndex = isPrototype
-                                                            ? typeDefn.getColumnIndexByDbName(changeColumn)
-                                                            : typeDefn.getColumnIndexByUserName(changeColumn);
-
-                        String macroValue = null;
-
-                        // Check is a change was made to a macro
-                        if (!isDataType)
-                        {
-                            // Get the original value of the macro
-                            macroValue = macroHandler.getMacroValue(oldName);
-                        }
-
-                        // Set the flags that indicate if a name or value changed
-                        boolean isNameChange = !oldName.equals(newName);
-                        boolean isValueChange = (isDataType
-                                                 && (dataTypeHandler.getSizeInBytes(oldName) != newDataTypeHandler.getSizeInBytes(newName)
-                                                     || !dataTypeHandler.getBaseDataType(oldName).equals(newDataTypeHandler.getBaseDataType(newName))))
-                                                || (!isDataType
-                                                    && macroValue != null
-                                                    && !macroValue.equals(newMacroHandler.getMacroValue(newName)));
-
-                        // Check if the data type or macro name changed, or the data type size or
-                        // base type, or macro value changed
-                        if (isNameChange || isValueChange)
-                        {
-                            // Get the table's data (again if a name change occurred since changes
-                            // were made)
-                            tableData = table.getTableDataList(false);
-
-                            // Step through each row
-                            for (int row = 0; row < tableData.size(); row++)
-                            {
-                                // Check if this is the row in the table data with the macro
-                                // reference. If not a prototype use the table's type to get the
-                                // column index for the variable name
-                                if (isPrototype
-                                                ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
-                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString()))
-                                {
-                                    // Step through each column in the row, skipping the primary
-                                    // key and row index columns
-                                    for (int column = NUM_HIDDEN_COLUMNS; column < tableData.get(row).length; column++)
-                                    {
-                                        // Check if this is the column that contains a data type or
-                                        // macro
-                                        if (column == changeColumnIndex)
-                                        {
-                                            // Check if the cell value is editable
-                                            if (table.isCellEditable(table.convertRowIndexToView(row),
-                                                                     table.convertColumnIndexToView(column)))
-                                            {
-                                                // Get the contents of the cell containing the data
-                                                // type or macro reference
-                                                String oldValue = tableData.get(row)[column].toString();
-                                                String newValue = oldValue;
-
-                                                // Check if the data type or macro name changed
-                                                if (isNameChange)
-                                                {
-                                                    // Check if this is a data type change
-                                                    if (isDataType)
-                                                    {
-                                                        // Check if the cell doesn't contain only
-                                                        // the data type name
-                                                        if (!oldValue.equals(oldName))
-                                                        {
-                                                            // Check if the cell doesn't contain a
-                                                            // sizeof() call for the data type
-                                                            if (!CcddVariableHandler.hasSizeof(oldValue, oldName))
-                                                            {
-                                                                // Skip this reference. The data
-                                                                // type match is coincidental
-                                                                continue;
-                                                            }
-
-                                                            // Continue to step through the string,
-                                                            // replacing each sizeof() instance
-                                                            while (CcddVariableHandler.hasSizeof(newValue, oldName))
-                                                            {
-                                                                // Replace the data type in the
-                                                                // sizeof() call with the new name
-                                                                newValue = newValue.replaceFirst(CcddVariableHandler.getSizeofDataTypeMatch(oldName),
-                                                                                                 "sizeof(" + newName + ")");
-                                                            }
-                                                        }
-                                                        // The cell contains only the data type
-                                                        // name
-                                                        else
-                                                        {
-                                                            // Set the new cell value to the new
-                                                            // data type name
-                                                            newValue = newName;
-                                                        }
-                                                    }
-                                                    // This is a macro change
-                                                    else
-                                                    {
-                                                        // Replace all instances of the old macro
-                                                        // name in the table cell with the new name
-                                                        newValue = macroHandler.replaceMacroName(oldNameDelim,
-                                                                                                 newNameDelim,
-                                                                                                 oldValue);
-                                                    }
-                                                }
-
-                                                // Check if this a change was made to the data type
-                                                // size or base type
-                                                if (isDataType && isValueChange)
-                                                {
-                                                    // Check if the data type reference isn't an
-                                                    // exact match (stand-alone or within a
-                                                    // sizeof() call)
-                                                    if (!newValue.equals(newName)
-                                                        && !CcddVariableHandler.hasSizeof(newValue)
-                                                        && !CcddMacroHandler.hasMacro(newValue))
-                                                    {
-                                                        // Skip this reference - the data type name
-                                                        // match is coincidental
-                                                        continue;
-                                                    }
-                                                }
-
-                                                // Store the change in the table data
-                                                tableData.get(row)[column] = newValue;
-
-                                                // Make the change to the cell, including any
-                                                // updates to changes in array size
-                                                table.validateCellContent(tableData,
-                                                                          row,
-                                                                          column,
-                                                                          oldValue,
-                                                                          newValue,
-                                                                          false,
-                                                                          true);
-
-                                                // Load the updated array of data into the table
-                                                table.loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), false);
-                                            }
-
-                                            // Stop searching the columns since the target row was
-                                            // located and processed
-                                            break;
-                                        }
-                                    }
-
-                                    // Stop searching the rows since the target row was located and
-                                    // processed
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                try
-                {
-                    // Create a save point in case an error occurs while modifying a table
-                    dbCommand.createSavePoint(dialog);
-
-                    // Check if only a change in data type name, data size (same size or smaller),
-                    // or macro name occurred; if so then the internal table update process is
-                    // simplified in order to speed it up
-                    if (nameChangeOnly)
-                    {
-                        // Step through each modification in order to update the variable or macro
-                        // references in the internal tables
-                        for (TableModification mod : modifications)
-                        {
-                            // Check if this is a data type change
-                            if (isDataType)
-                            {
-                                // Get the old and new data type name
-                                String oldName = CcddDataTypeHandler.getDataTypeName(mod.getOriginalRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
-                                                                                     mod.getOriginalRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
-                                String newName = CcddDataTypeHandler.getDataTypeName(mod.getRowData()[DataTypesColumn.USER_NAME.ordinal()].toString(),
-                                                                                     mod.getRowData()[DataTypesColumn.C_NAME.ordinal()].toString());
-
-                                // Execute the command to update the internal tables that reference
-                                // variable paths
-                                dbCommand.executeDbUpdate("UPDATE "
-                                                          + InternalTable.LINKS.getTableName()
-                                                          + " SET "
-                                                          + LinksColumn.MEMBER.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + LinksColumn.MEMBER.getColumnName()
-                                                          + ", E'(.*,)"
-                                                          + oldName
-                                                          + "(\\..*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.TLM_SCHEDULER.getTableName()
-                                                          + " SET "
-                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                          + ", E'(.*,)"
-                                                          + oldName
-                                                          + "(\\..*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.VALUES.getTableName()
-                                                          + " SET "
-                                                          + ValuesColumn.TABLE_PATH.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + ValuesColumn.TABLE_PATH.getColumnName()
-                                                          + ", E'(.*,)"
-                                                          + oldName
-                                                          + "(\\..*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); ",
-                                                          dialog);
-                            }
-                            // This is a macro change
-                            else
-                            {
-                                // Get the original and updated user-defined macro names (with the
-                                // delimiters)
-                                String oldName = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
-                                String newName = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
-
-                                // Execute the command to update the internal tables that reference
-                                // variable and table paths
-                                dbCommand.executeDbUpdate("UPDATE "
-                                                          + InternalTable.ASSOCIATIONS.getTableName()
-                                                          + " SET "
-                                                          + AssociationsColumn.MEMBERS.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + AssociationsColumn.MEMBERS.getColumnName()
-                                                          + ", E'(.*)"
-                                                          + oldName
-                                                          + "(.*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.FIELDS.getTableName()
-                                                          + " SET "
-                                                          + FieldsColumn.OWNER_NAME.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + FieldsColumn.OWNER_NAME.getColumnName()
-                                                          + ", E'(.*)"
-                                                          + oldName
-                                                          + "(.*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.GROUPS.getTableName()
-                                                          + " SET "
-                                                          + GroupsColumn.MEMBERS.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + GroupsColumn.MEMBERS.getColumnName()
-                                                          + ", E'(.*)"
-                                                          + oldName
-                                                          + "(.*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.LINKS.getTableName()
-                                                          + " SET "
-                                                          + LinksColumn.MEMBER.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + LinksColumn.MEMBER.getColumnName()
-                                                          + ", E'(.*)"
-                                                          + oldName
-                                                          + "(.*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.TLM_SCHEDULER.getTableName()
-                                                          + " SET "
-                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
-                                                          + ", E'(.*)"
-                                                          + oldName
-                                                          + "(.*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); UPDATE "
-                                                          + InternalTable.VALUES.getTableName()
-                                                          + " SET "
-                                                          + ValuesColumn.TABLE_PATH.getColumnName()
-                                                          + " = regexp_replace("
-                                                          + ValuesColumn.TABLE_PATH.getColumnName()
-                                                          + ", E'(.*)"
-                                                          + oldName
-                                                          + "(.*)'"
-                                                          + ", E'\\\\1"
-                                                          + newName
-                                                          + "\\\\2'); ",
-                                                          dialog);
-                            }
-                        }
-                    }
-
-                    // Step through each modified table
-                    for (ModifiedTable modTbl : modifiedTables)
-                    {
-                        // Build the additions, modifications, and deletions to the table
-                        modTbl.getEditor().buildUpdates();
-
-                        // Make the table modifications to the project database and to any open
-                        // table editors that contain the data type (macro) reference(s)
-                        if (modifyTableData(modTbl.getTableInformation(),
-                                            modTbl.getEditor().getAdditions(),
-                                            modTbl.getEditor().getModifications(),
-                                            modTbl.getEditor().getDeletions(),
-                                            true,
-                                            nameChangeOnly,
-                                            false,
-                                            false,
-                                            false,
-                                            newDataTypeHandler,
-                                            dialog))
-                        {
-                            throw new SQLException("table modification error");
-                        }
-                    }
-
-                    // Store the data type or macro table
-                    dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand((isDataType
-                                                                                             ? InternalTable.DATA_TYPES
-                                                                                             : InternalTable.MACROS),
-                                                                                 CcddUtilities.removeArrayListColumn(updates,
-                                                                                                                     (isDataType
-                                                                                                                                 ? DataTypesColumn.OID.ordinal()
-                                                                                                                                 : MacrosColumn.OID.ordinal())),
-                                                                                 null,
-                                                                                 dialog),
-                                              dialog);
-
-                    // Release the save point. This must be done within a transaction block, so it
-                    // must be done prior to the commit below
-                    dbCommand.releaseSavePoint(dialog);
-
-                    // Commit the change(s) to the database
-                    dbControl.getConnection().commit();
-
-                    // Inform the user that the update succeeded
-                    eventLog.logEvent(SUCCESS_MSG,
-                                      changeName + " and all affected tables updated");
-                }
-                catch (SQLException se)
-                {
-                    // Inform the user that updating the data types (macros) failed
-                    eventLog.logFailEvent(dialog,
-                                          "Cannot update "
-                                                  + changeName.toLowerCase()
-                                                  + "; cause '"
-                                                  + se.getMessage()
-                                                  + "'",
-                                          "<html><b>Cannot update " + changeName.toLowerCase());
-
-                    errorFlag = true;
-                }
-                catch (Exception e)
-                {
-                    // Display a dialog providing details on the unanticipated error
-                    CcddUtilities.displayException(e, dialog);
                 }
             }
 
-            /**************************************************************************************
-             * Modify data types or macros complete
-             *************************************************************************************/
-            @Override
-            protected void complete()
+            // Step through each modified table
+            for (ModifiedTable modTbl : modifiedTables)
             {
-                // Rebuild the variable paths and offsets
-                variableHandler.buildPathAndOffsetLists();
+                // Build the additions, modifications, and deletions to the table
+                modTbl.getEditor().buildUpdates();
 
-                // Check if this is a data type change
-                if (isDataType)
+                // Make the table modifications to the project database and to any open table
+                // editors that contain the data type (macro) reference(s)
+                if (modifyTableData(modTbl.getTableInformation(),
+                                    modTbl.getEditor().getAdditions(),
+                                    modTbl.getEditor().getModifications(),
+                                    modTbl.getEditor().getDeletions(),
+                                    true,
+                                    nameChangeOnly,
+                                    false,
+                                    false,
+                                    false,
+                                    newDataTypeHandler,
+                                    dialog))
                 {
-                    ((CcddDataTypeEditorDialog) dialog).doDataTypeUpdatesComplete(errorFlag);
-                }
-                // This is a macro change
-                else
-                {
-                    ((CcddMacroEditorDialog) dialog).doMacroUpdatesComplete(errorFlag);
+                    throw new CCDDException("table modification error");
                 }
             }
-        });
+
+            // Check if this is a macro change and table modifications resulted
+            if (!isDataType && !modifiedTables.isEmpty())
+            {
+                // Rebuild the data field information from the database in the event field changes
+                // resulted from the macro change (e.g., an array size increased causing fields to
+                // be inherited)
+                fieldHandler.buildFieldInformation(dialog);
+            }
+
+            // Store the data type or macro table
+            dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand((isDataType
+                                                                                     ? InternalTable.DATA_TYPES
+                                                                                     : InternalTable.MACROS),
+                                                                         CcddUtilities.removeArrayListColumn(updates,
+                                                                                                             (isDataType
+                                                                                                                         ? DataTypesColumn.OID.ordinal()
+                                                                                                                         : MacrosColumn.OID.ordinal())),
+                                                                         null,
+                                                                         dialog),
+                                      dialog);
+
+            // Release the save point. This must be done within a transaction block, so it must be
+            // done prior to the commit below
+            dbCommand.releaseSavePoint(dialog);
+
+            // Commit the change(s) to the database
+            dbControl.getConnection().commit();
+
+            // Inform the user that the update succeeded
+            eventLog.logEvent(SUCCESS_MSG, changeName + " and all affected tables updated");
+        }
+        catch (CCDDException | SQLException cse)
+        {
+            // Inform the user that updating the data types (macros) failed
+            eventLog.logFailEvent(dialog,
+                                  "Cannot update "
+                                          + changeName.toLowerCase()
+                                          + "; cause '"
+                                          + cse.getMessage()
+                                          + "'",
+                                  "<html><b>Cannot update " + changeName.toLowerCase());
+
+            errorFlag = true;
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, dialog);
+        }
+
+        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -8839,7 +8870,7 @@ public class CcddDbTableCommandHandler
                             InputType inputType = inputTypeHandler.getInputTypeByName(oldName);
 
                             // Step through each reference to the input type name
-                            for (String inputTypeRef : inputTypeHandler.getInputTypeReferences(oldName, dialog))
+                            for (String inputTypeRef : inputTypeHandler.searchInputTypeReferences(oldName, dialog))
                             {
                                 // Split the reference into table name, column name, comment, and
                                 // context

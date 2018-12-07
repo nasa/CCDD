@@ -556,6 +556,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            table type definition of the table in which to import the data; ignored if
      *            importing all tables
      *
+     * @param replaceExistingMacros
+     *            not used for XTCE import
+     *
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
@@ -572,9 +575,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     public void importFromFile(FileEnvVar importFile,
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
-                               boolean ignoreErrors) throws CCDDException,
-                                                     IOException,
-                                                     Exception
+                               boolean ignoreErrors,
+                               boolean replaceExistingMacros) throws CCDDException,
+                                                              IOException,
+                                                              Exception
     {
         try
         {
@@ -735,6 +739,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         isCommand = false;
         maxNumArguments = 1;
         maxNumArgumentsAll = 1;
+        System.out.println("\ncreateTableTypeDefinitions"); // TODO
 
         // Set the flags to indicate if the target is a structure or command table
         boolean targetIsStructure = importType == ImportType.IMPORT_ALL
@@ -865,9 +870,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // this larger table type is used to temporarily store the command information. The
                 // table type is then deleted upon completion of the import operation, which
                 // prevents storing an unused table type in the project
-                commandAllTypeDefn = tableTypeHandler.createTypeDefinition(typeName + "_special",
-                                                                           DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND),
-                                                                           "XTCE import special command table type");
+                commandAllTypeDefn = tableTypeHandler.createReplaceTypeDefinition(typeName + "_special",
+                                                                                  "XTCE import special command table type",
+                                                                                  DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND));
 
                 // Store the maximum number of command arguments (comparing the normal command
                 // tables and command header tables)
@@ -1010,29 +1015,32 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Get the command container reference to shorten subsequent calls
                         CommandContainerType cmdContainer = ((MetaCommandType) metaCommand).getCommandContainer();
 
-                        // Check if the command has any arguments
-                        if (cmdContainer != null
-                            && cmdContainer.getEntryList() != null)
+                        // Check if the command is flagged as abstract. This denotes a command
+                        // header which is converted to a structure, and therefore necessitates
+                        // creating a structure table type to contain it as well as a special
+                        // command table type to handle the (possibly) extra command arguments
+                        if (((MetaCommandType) metaCommand).isAbstract())
                         {
-                            // Check if the command is flagged as abstract. This denotes a command
-                            // header which is converted to a structure, and therefore necessitates
-                            // creating a structure table type to contain it as well as a special
-                            // command table type to handle the (possibly) extra command arguments
-                            if (((MetaCommandType) metaCommand).isAbstract())
-                            {
-                                isCmdToTlm = true;
+                            isCmdToTlm = true;
 
+                            // Check if the command has any arguments
+                            if (cmdContainer != null && cmdContainer.getEntryList() != null)
+                            {
                                 // Get the maximum number of arguments needed for the commands that
                                 // are converted to structures (i.e., command header tables)
                                 maxNumArgumentsAll = Math.max(maxNumArgumentsAll,
                                                               cmdContainer.getEntryList().getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().size());
 
                             }
-                            // The command isn't flagged as abstract. This denotes a command table
-                            else
-                            {
-                                isCommand = true;
+                        }
+                        // The command isn't flagged as abstract. This denotes a command table
+                        else
+                        {
+                            isCommand = true;
 
+                            // Check if the command has any arguments
+                            if (cmdContainer != null && cmdContainer.getEntryList() != null)
+                            {
                                 // Get the maximum number of arguments needed for the commands that
                                 // aren't converted to structures
                                 maxNumArguments = Math.max(maxNumArguments,
@@ -1046,9 +1054,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         // Check if the data from all tables is to be read or if only a single table is to be read
         // but one of the target table type hasn't been found
-        if (importType == ImportType.IMPORT_ALL
-            || (targetIsStructure && !isTelemetry && !isCmdToTlm)
-            || (targetIsCommand && !isCommand))
+        if (importType == ImportType.IMPORT_ALL || (targetIsStructure && !isTelemetry && !isCmdToTlm) || (targetIsCommand && !isCommand))
+
         {
             // Step through each child system, if any
             for (SpaceSystemType childSystem : system.getSpaceSystem())
@@ -2730,30 +2737,41 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // its array indices are used to determine the array's overall index sizes
                         childSystem = getSpaceSystemByName(lastMember, system);
 
-                        // Get the data type and variable name for the structure parameter
-                        typeAndName = TableInformation.getProtoVariableName(childSystem.getShortDescription())
-                                                      .split("\\.");
-
-                        // Check if both the data type and variable name are present
-                        if (typeAndName.length == 2)
+                        // TODO THIS CAN OCCUR IF ALL OF THE ARRAY MEMBER CHILD TABLES AREN'T
+                        // SELECTED FOR EXPORT. IT NEEDS TO 'FILL IN' THE MISSING CHILDREN WHEN
+                        // EXPORTING! EVEN WITH THE EXPORT FIXED A USER CAN CREATE AN IMPORT FILE
+                        // WITH MISSING CHILDREN, SO THIS MUST BE ACCOUNTED FOR
+                        if (childSystem != null)
                         {
-                            // Set the flag to indicate this is a valid container reference
-                            isValidReference = true;
+                            // Get the data type and variable name for the structure parameter
+                            typeAndName = TableInformation.getProtoVariableName(childSystem.getShortDescription())
+                                                          .split("\\.");
 
-                            // Get the array index portion of the variable name
-                            String arrayIndex = ArrayVariable.getVariableArrayIndex(typeAndName[1]);
-
-                            arraySize = "";
-
-                            // Step through each array dimension
-                            for (int dim : ArrayVariable.getArrayIndexFromSize(arrayIndex))
+                            // Check if both the data type and variable name are present
+                            if (typeAndName.length == 2)
                             {
-                                // Add the array dimension value, incremented by 1 to get the
-                                // dimension's total size
-                                arraySize += (dim + 1) + ",";
-                            }
+                                // Set the flag to indicate this is a valid container reference
+                                isValidReference = true;
 
-                            arraySize = CcddUtilities.removeTrailer(arraySize, ",");
+                                // Get the array index portion of the variable name
+                                String arrayIndex = ArrayVariable.getVariableArrayIndex(typeAndName[1]);
+
+                                arraySize = "";
+
+                                // Step through each array dimension
+                                for (int dim : ArrayVariable.getArrayIndexFromSize(arrayIndex))
+                                {
+                                    // Add the array dimension value, incremented by 1 to get the
+                                    // dimension's total size
+                                    arraySize += (dim + 1) + ",";
+                                }
+
+                                arraySize = CcddUtilities.removeTrailer(arraySize, ",");
+                            }
+                        }
+                        else
+                        {
+                            System.out.println(" no child for " + system.getName() + "  lstmem: " + lastMember); // TODO
                         }
 
                         // Update the sequence container index in order to skip the array members
@@ -3027,6 +3045,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         // Add the project's space systems, parameters, and commands
         buildSpaceSystems(tableNames);
+
+        // TODO THIS WORKS. IT DOES IT BY LOADING THE TABLES EVEN IF THE USER DIDN'T EXPLICITLY
+        // SELECT THEM. IS THIS DESIRABLE? OR SHOULD IT FLAG THEM SOMEHOW (SUCH AS BY ONLY LOADING
+        // THE PROTO FOR THEM AND NOT ANY SPECIAL VALUES)?
+        // TODO NOTE: EDS NEEDS A SIMILAR FIX.
+        if (!childTables.isEmpty())
+        {
+            // THESE ARE THE CHILD TABLES THAT NEED TO BE CREATED
+            // System.out.println("Number of unexported child tables: " + childTables.size()); //
+            // TODO
+            //
+            // for (String tablePath : childTables)
+            // {
+            // System.out.println(" add child table: " + tablePath); // TODO
+            // }
+
+            buildSpaceSystems(childTables.toArray(new String[0]));
+        }
     }
 
     /**********************************************************************************************
@@ -3479,6 +3515,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         }
                     }
                 }
+                // An error occurred loading the table information
+                else
+                {
+                    throw new CCDDException("Unable to load table '" + tableName + "'");
+                }
             }
         }
     }
@@ -3564,6 +3605,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Store the table name, with its full path, in the short description field. This is
             // used if the export file is used to import tables into a project
             childSystem.setShortDescription(fullPath);
+
+            // TODO REMOVE CHILDREN THAT ARE EXPORTED EXPLICITLY
+            childTables.remove(fullPath);
         }
 
         // Set the new space system's header attributes
@@ -4238,7 +4282,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Add container references to the space system in the sequence container
                         // entry list that defines each parameter array member
-                        addContainerReference(parameterName, dataType, arraySize, entryList);
+                        addContainerReference(spaceSystem.getShortDescription()/* TODO */, parameterName, dataType, arraySize, entryList);
                     }
                 }
             }
@@ -4264,7 +4308,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Add a container reference to the space system in the sequence container entry
                 // list that defines the parameter
-                addContainerReference(parameterName, dataType, arraySize, entryList);
+                addContainerReference(spaceSystem.getShortDescription()/* TODO */, parameterName, dataType, arraySize, entryList);
             }
             // This is a reference to the telemetry header table
             else
@@ -4276,6 +4320,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         return isTlmHdrRef;
     }
+
+    // TODO LIST OF CHILD TABLES IN CONTAINERS
+    private final List<String> childTables = new ArrayList<String>();
 
     /**********************************************************************************************
      * Create the telemetry parameter data type and set the specified attributes
@@ -5142,7 +5189,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Add a container reference (or references if the argument is an array) to
                         // the space system in the command container entry list that defines the
                         // argument
-                        addContainerReference(argumentName, argDataType, argArraySize, entryList);
+                        addContainerReference(null/* TODO */, argumentName, argDataType, argArraySize, entryList);
                     }
 
                     index++;
@@ -5570,7 +5617,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @throws CCDDException
      *             If an error occurs executing an external (script) method
      *********************************************************************************************/
-    protected void addContainerReference(String parameterName,
+    protected void addContainerReference(String systemName, // TODO
+                                         String parameterName,
                                          String dataType,
                                          String arraySize,
                                          Object entryList) throws CCDDException
@@ -5625,11 +5673,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Get the name of the array structure table
                         String arrayTablePath = dataType + "_" + parameterName;
 
+                        // TODO
+                        String arrayTablePathActual = dataType + "." + parameterName;
+
                         // Step through the remaining dimensions
                         for (int subIndex = currentIndices.length - 1; subIndex >= 0; subIndex--)
                         {
                             // Append the current array index reference(s)
                             arrayTablePath += "_" + String.valueOf(currentIndices[subIndex]);
+
+                            // TODO
+                            arrayTablePathActual += "[" + String.valueOf(currentIndices[subIndex]) + "]";
                         }
 
                         // Store the structure reference in the list
@@ -5645,6 +5699,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // Store the container reference into the specified telemetry entry
                             // list
                             ((EntryListType) entryList).getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(containerRefEntry);
+
+                            // TODO
+                            childTables.add(systemName + "," + arrayTablePathActual);
                         }
                         // Check if this is a command list container
                         else if (entryList instanceof CommandContainerEntryListType)

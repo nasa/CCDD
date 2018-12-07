@@ -68,7 +68,7 @@ public class CcddReservedMsgIDHandler
      *********************************************************************************************/
     protected void setReservedMsgIDData(List<String[]> reservedMsgIDData)
     {
-        this.reservedMsgIDData = new ArrayList<String[]>(reservedMsgIDData);
+        this.reservedMsgIDData = CcddUtilities.copyListOfStringArrays(reservedMsgIDData);
     }
 
     /**********************************************************************************************

@@ -243,9 +243,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                       DialogOption.CREATE_OPTION) == OK_BUTTON)
                 {
                     // Add the table type definition
-                    tableTypeHandler.createTypeDefinition(typeNameFld.getText(),
-                                                          DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()),
-                                                          "");
+                    tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
+                                                          "",
+                                                          DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()));
 
                     // Add the new table type to the project database
                     dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
@@ -311,9 +311,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                         // Copy the selected type using the supplied name. The current type data
                         // and description is copied, which may differ from the committed data and
                         // description if the user has made uncommitted changes
-                        tableTypeHandler.createTypeDefinition(typeNameFld.getText(),
-                                                              editorDialog.getTypeEditor().getTable().getTableData(true),
-                                                              editorDialog.getTypeEditor().getDescription());
+                        tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
+                                                              editorDialog.getTypeEditor().getDescription(),
+                                                              editorDialog.getTypeEditor().getTable().getTableData(true));
 
                         // Copy the table type to the new type name
                         dbTable.copyTableType(activeTypeName,

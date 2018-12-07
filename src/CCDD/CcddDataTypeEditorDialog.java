@@ -110,7 +110,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             this.dataTypeName = dataTypeName;
 
             // Get the references to the specified data type in the prototype tables
-            references = dataTypeHandler.getDataTypeReferences(dataTypeName,
+            references = dataTypeHandler.searchDataTypeReferences(dataTypeName,
                                                                CcddDataTypeEditorDialog.this);
         }
 
@@ -486,9 +486,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             buildUpdates();
 
                             // Update the tables affected by the changes to the data type(s)
-                            dbTable.modifyTablesPerDataTypeOrMacroChanges(modifications,
-                                                                          getUpdatedData(),
-                                                                          CcddDataTypeEditorDialog.this);
+                            dbTable.modifyTablesPerDataTypeOrMacroChangesInBackground(modifications,
+                                                                                      getUpdatedData(),
+                                                                                      CcddDataTypeEditorDialog.this);
                         }
                     }
                 });

@@ -90,6 +90,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox replaceExistingTablesCb;
     private JCheckBox appendExistingFieldsCb;
     private JCheckBox useExistingFieldsCb;
+    private JCheckBox replaceExistingMacrosCb;
     private JRadioButton singleFileRBtn;
     private JCheckBox openEditorCb;
     private JCheckBox ignoreErrorsCb;
@@ -647,6 +648,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      useExistingFieldsCb.isSelected(),
                                                                      openEditorCb.isSelected(),
                                                                      ignoreErrorsCb.isSelected(),
+                                                                     replaceExistingMacrosCb.isSelected(),
                                                                      CcddTableManagerDialog.this);
                             }
 
@@ -988,6 +990,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(useExistingFieldsCb, gbc);
 
+        // Create a check box for indicating existing macro values can be replaced
+        replaceExistingMacrosCb = new JCheckBox("Replace existing macro values");
+        replaceExistingMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        replaceExistingMacrosCb.setBorder(emptyBorder);
+        replaceExistingMacrosCb.setToolTipText(CcddUtilities.wrapText("Replace macro values for macros that already exist",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridy++;
+        dialogPnl.add(replaceExistingMacrosCb, gbc);
+
         // Create a check box for indicating that the a table editor should be opened for each
         // imported table
         openEditorCb = new JCheckBox("Open editor for each imported table");
@@ -995,7 +1007,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         openEditorCb.setBorder(emptyBorder);
         openEditorCb.setToolTipText(CcddUtilities.wrapText("Open a table editor for each imported table",
                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(openEditorCb, gbc);
 

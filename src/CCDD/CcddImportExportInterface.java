@@ -56,6 +56,9 @@ public interface CcddImportExportInterface
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
+     * @param replaceExistingMacros
+     *            true to replace the values for existing macros
+     *
      * @throws CCDDException
      *             If data is missing, extraneous, or an error in the import file
      *
@@ -68,9 +71,10 @@ public interface CcddImportExportInterface
     abstract void importFromFile(FileEnvVar importFile,
                                  ImportType importType,
                                  TypeDefinition targetTypeDefn,
-                                 boolean ignoreErrors) throws CCDDException,
-                                                       IOException,
-                                                       Exception;
+                                 boolean ignoreErrors,
+                                 boolean replaceExistingMacros) throws CCDDException,
+                                                                IOException,
+                                                                Exception;
 
     /**********************************************************************************************
      * Export the project to the specified file
