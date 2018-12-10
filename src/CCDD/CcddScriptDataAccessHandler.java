@@ -6261,8 +6261,7 @@ public class CcddScriptDataAccessHandler
      * @throws CCDDException
      *             If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceAddContainerReference(String systemName, // TODO
-                                          String parameterName,
+    public void xtceAddContainerReference(String parameterName,
                                           String dataType,
                                           String arraySize,
                                           Object entryList) throws CCDDException
@@ -6270,7 +6269,7 @@ public class CcddScriptDataAccessHandler
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.addContainerReference(systemName /* TODO */, parameterName, dataType, arraySize, entryList);
+            xtceHandler.addContainerReference(parameterName, dataType, arraySize, entryList);
         }
     }
 

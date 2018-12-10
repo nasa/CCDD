@@ -1831,9 +1831,11 @@ function addContainerReference(factory, parameterName, dataType, arraySize, entr
                     arrayTablePath += "_" + currentIndices[subIndex].toString();
                 }
 
-                // Store the structure reference in the list
+                // Store the structure reference in the list. The sequence container reference
+                // components must be in the order specified by ArrayContainerReference, separated
+                // by '/'s
                 containerRefEntry = factory.createContainerRefEntryType();
-                containerRefEntry.setContainerRef(arrayTablePath + "/" + ccdd.xmlCleanSystemPath(parameterName + ccdd.formatArrayIndex(currentIndices)));
+                containerRefEntry.setContainerRef(arrayTablePath + "/" + ccdd.xmlCleanSystemPath(parameterName + ccdd.formatArrayIndex(currentIndices)) + "/" + arraySize);
 
                 // Check if this is a telemetry list
                 if (entryList instanceof EntryListType)

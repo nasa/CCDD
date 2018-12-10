@@ -911,8 +911,10 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            reference to the table cell renderer component
      *
      * @param ignoreCase
-     *            true if the search is case insensitive
-     *
+     *            true if the search is case insensitive and the search pattern is not used by the
+     *            PostgreSQL search_atables() function (must be false for this case; the case
+     *            insensitive flag is provided directly to the function instead of being included
+     *            in the matching string)
      * @param allowRegEx
      *            true if the search text can contain a regular expression
      *
@@ -953,7 +955,6 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                                       .replaceAll("\\*", ".*?")
                                                                       .replaceAll(WILD_CARD_MARKER, "\\\\*"))
                                             + ")");
-
         }
         catch (PatternSyntaxException pse)
         {

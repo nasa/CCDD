@@ -1674,7 +1674,8 @@ public class CcddDbVerificationHandler
                         {
                             // Check if any of the other field parameters (except value) differ
                             if (!inheritedFld.getDescription().equals(typeFld.getDescription())
-                                || !inheritedFld.getApplicabilityType().equals(typeFld.getApplicabilityType())
+                                || !inheritedFld.getApplicabilityType().getApplicabilityName()
+                                                .equals(typeFld.getApplicabilityType().getApplicabilityName())
                                 || inheritedFld.isRequired() != typeFld.isRequired()
                                 || inheritedFld.getSize() != typeFld.getSize()
                                 || inheritedFld.isInherited() != true)

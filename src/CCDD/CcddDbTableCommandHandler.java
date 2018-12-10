@@ -6459,7 +6459,9 @@ public class CcddDbTableCommandHandler
             // Step through each of the table's field definitions
             for (FieldInformation fieldInfo : fieldInformation)
             {
-                // Add the command to insert the field information
+                // Add the command to insert the field information. If the owner of the fields to
+                // be copied is a table type and the target owner isn't a table type then force the
+                // inheritance flag to true
                 command.append("('"
                                + ownerName
                                + "', "
@@ -6477,7 +6479,9 @@ public class CcddDbTableCommandHandler
                                + ", "
                                + delimitText(fieldInfo.getValue())
                                + ", "
-                               + String.valueOf(fieldInfo.isInherited())
+                               + String.valueOf(fieldInfo.isInherited()
+                                                || (CcddFieldHandler.isTableTypeField(fieldInfo.getOwnerName())
+                                                    && !CcddFieldHandler.isTableTypeField(ownerName)))
                                + "), ");
             }
 
@@ -6633,7 +6637,7 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
-                    // Copy the target table type's data fields, set the owner of the copies fields
+                    // Copy the target table type's data fields, set the owner of the copied fields
                     // to the new owner, and get the complete list of field definitions
                     fieldHandler.copyFields(CcddFieldHandler.getFieldTypeName(typeName),
                                             CcddFieldHandler.getFieldTypeName(copyName));
@@ -7625,8 +7629,7 @@ public class CcddDbTableCommandHandler
                             + "<b>'";
                 }
 
-                // Build the command to update the data fields table and the telemetry scheduler
-                // table comment (rate parameters)
+                // Build the command to update the data fields table
                 command.append(modifyFieldsCommand(CcddFieldHandler.getFieldTypeName(typeName),
                                                    fieldInformation));
             }

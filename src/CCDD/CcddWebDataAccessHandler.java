@@ -714,7 +714,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
             // Create the match pattern from the search criteria
             Pattern searchPattern = CcddSearchHandler.createSearchPattern(searchText,
-                                                                          Boolean.valueOf(ignoreCase),
+                                                                          false,
                                                                           Boolean.valueOf(allowRegEx),
                                                                           null);
 

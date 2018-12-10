@@ -3148,8 +3148,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             /**************************************************************************************
              * Override the paste method so that hidden rows (array members) are displayed prior to
              * pasting in new data. If an array member variable is pasted into a structure table
-             * then the array definition is automatically generated under certain conditions. TODO
-             * FILL IN THE CONDITIONS UNDER WHICH AN ARRAY DEFN IS CREATED
+             * then the array definition is automatically generated under certain conditions
              *************************************************************************************/
             @Override
             protected boolean pasteData(Object[] cellData,

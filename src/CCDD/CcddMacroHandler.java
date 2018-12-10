@@ -257,7 +257,13 @@ public class CcddMacroHandler
      *********************************************************************************************/
     protected void setMacroData()
     {
-        setMacroData(updatedMacros);
+        // Check if the macros are updated
+        if (updatedMacros != null)
+        {
+            // Store the updated macros and remove the list of updates
+            setMacroData(updatedMacros);
+            updatedMacros = null;
+        }
     }
 
     /**********************************************************************************************

@@ -88,8 +88,13 @@ public class CcddSearchDialog extends CcddFrameHandler
     private JLabel numMatchesLbl;
     private MultilineLabel selectedColumnsLbl;
 
-    // Pattern for matching search text in the table cells
+    // Pattern for matching search text in the table cells. The highlight pattern differs slightly
+    // from the search pattern depending of the type of search. If calling the PostgreSQL
+    // search_table() function the ignore case flag is provided as an option to the function
+    // instead of being part of the matching string (the '?i' flag). If searching a text string
+    // (e.g., a log entry) the '?i' flag is used in the matching string
     private Pattern searchPattern;
+    private Pattern highlightPattern;
 
     // Comparison search criteria used to determine if the criteria changed
     private String prevSearchText;
@@ -777,7 +782,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                       (isSelected
                                                                   ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                                   : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor()),
-                                                      searchPattern);
+                                                      highlightPattern);
                 }
             }
         };
@@ -988,11 +993,21 @@ public class CcddSearchDialog extends CcddFrameHandler
             {
                 List<Object[]> resultsDataList = null;
 
-                // Create the match pattern from the search criteria
+                // Create the match patterns from the search criteria
                 searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
-                                                                      ignoreCaseCb.isSelected(),
+                                                                      (searchDlgType == SearchDialogType.LOG
+                                                                                                             ? ignoreCaseCb.isSelected()
+                                                                                                             : false),
+
                                                                       allowRegexCb.isSelected(),
                                                                       CcddSearchDialog.this);
+                highlightPattern = searchDlgType == SearchDialogType.LOG
+                                   || !ignoreCaseCb.isSelected()
+                                                                 ? searchPattern
+                                                                 : CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                                                         ignoreCaseCb.isSelected(),
+                                                                                                         allowRegexCb.isSelected(),
+                                                                                                         CcddSearchDialog.this);
 
                 // Check if the search pattern is valid
                 if (searchPattern != null)

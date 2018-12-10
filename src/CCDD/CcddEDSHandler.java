@@ -1,4 +1,7 @@
 /**
+ * // List containing the table paths for children of root tables not explicitly included in the //
+ * array of tables to export private List<String> missingChildTables;
+ *
  * CFS Command and Data Dictionary EDS handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National

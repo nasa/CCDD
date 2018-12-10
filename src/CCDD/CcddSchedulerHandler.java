@@ -110,7 +110,6 @@ public class CcddSchedulerHandler
                          String rateName,
                          CcddSchedulerDialogInterface schedulerDlg)
     {
-        System.out.println("CcddSchedulerHandler"); // TODO
         this.ccddMain = ccddMain;
         this.rateName = rateName;
         this.schedulerDlg = schedulerDlg;

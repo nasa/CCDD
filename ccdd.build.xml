@@ -3,7 +3,6 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.number" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
     	<property file="ccdd.build.version"/>
         <buildnumber file="ccdd.build.number"/>
         <tstamp>
@@ -19,6 +18,7 @@
           </manifest>
             <fileset dir="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/bin"/>
         </jar>
+        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.number" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
     	<copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.version" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
     	<copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.xml" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
         <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc"/>
