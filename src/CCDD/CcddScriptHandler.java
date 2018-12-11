@@ -11,6 +11,7 @@ import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR_CMD_LN;
 import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
+import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
 import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
@@ -782,7 +783,8 @@ public class CcddScriptHandler
 
     /**********************************************************************************************
      * Get the list of a script association's member table paths. If a group is referenced then its
-     * member tables are included
+     * member tables are included. This method is also used to parse a string of table names when
+     * exporting via the command line export command
      *
      * @param associationMembers
      *            association members as a single string (as stored in the database)
@@ -790,8 +792,10 @@ public class CcddScriptHandler
      * @param groupHandler
      *            group handler reference
      *
-     * @param includeAllTablesGroupChildren
-     *            true to include the child table paths for the 'All tables' group
+     * @param isForExport
+     *            true when using this method to build the list of tables to export via the command
+     *            line export command. This flag should be set to false when using this method for
+     *            obtaining the tables for script associations
      *
      * @param parent
      *            GUI component over which to center any error dialog
@@ -800,10 +804,18 @@ public class CcddScriptHandler
      *********************************************************************************************/
     protected List<String> getAssociationTablePaths(String associationMembers,
                                                     CcddGroupHandler groupHandler,
-                                                    boolean includeAllTablesGroupChildren,
+                                                    boolean isForExport,
                                                     Component parent)
     {
         List<String> tablePaths = new ArrayList<String>();
+        CcddTableTreeHandler tableTree = null;
+
+        // Check if the table list is to be used when exporting
+        if (isForExport)
+        {
+            // Build a table tree with all tables
+            tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, parent);
+        }
 
         // Separate the individual table path+names
         String[] members = associationMembers.split(Pattern.quote(ASSN_TABLE_SEPARATOR));
@@ -820,18 +832,13 @@ public class CcddScriptHandler
                 // Check if this is the pseudo-group containing all tables
                 if (groupName.equals(ALL_TABLES_GROUP_NODE_NAME))
                 {
-                    // Add the names of all root tables to the list
-                    tablePaths.addAll(dbTable.getRootTables(false, parent));
+                    // Get a list containing all prototype table names
+                    tablePaths = tableTree.getTablesWithoutChildren(tableTree.getNodeByNodeName(DEFAULT_PROTOTYPE_NODE_NAME));
 
-                    // Check if the child table names should be included
-                    if (includeAllTablesGroupChildren)
+                    // Check if the table list is to be used when exporting
+                    if (isForExport)
                     {
-                        // Build a table tree with all instance tables
-                        CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
-                                                                                  TableTreeType.INSTANCE_TABLES,
-                                                                                  parent);
-
-                        // Add the child tables of the root tables to the list
+                        // Add the children of the root tables to the list
                         tablePaths = tableTree.getTablesWithChildren(tablePaths);
                     }
                 }
@@ -861,6 +868,13 @@ public class CcddScriptHandler
                 // Add the table path
                 tablePaths.add(member);
             }
+        }
+
+        // Check if the table list is to be used when exporting
+        if (isForExport)
+        {
+            // Add the ancestors of the tables to the list
+            tableTree.addTableAncestors(tablePaths, false);
         }
 
         return tablePaths;

@@ -1269,10 +1269,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the user elected to store the groups
             if (includeGroups)
             {
-                // Add the group information, if any, to the output
-                JSONParser parser = new JSONParser();
-                outputJO.put(JSONTags.GROUP.getTag(),
-                             parser.parse(getGroupInformation("", false)));
+                // Get the group information
+                String groupInfo = getGroupInformation("", false);
+
+                // Check if any groups exist
+                if (groupInfo != null)
+                {
+                    // Add the group information, if any, to the output
+                    JSONParser parser = new JSONParser();
+                    outputJO.put(JSONTags.GROUP.getTag(), parser.parse(groupInfo));
+                }
             }
 
             // Check if variable paths are to be output

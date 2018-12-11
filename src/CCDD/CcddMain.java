@@ -360,16 +360,22 @@ public class CcddMain
             // The GUI is hidden
             else
             {
-                // Attempt to connect to the project database
-                dbControl.openDatabase(dbControl.getProjectName());
+                // Store the project name prior to opening the database (the project name is
+                // changed if the default is opened following an unsuccessful attempt to open the
+                // target database)
+                String projectName = dbControl.getProjectName();
 
-                // Check if the database successfully opened (note that connection to the default
-                // database, even if specified, results in exiting the application)
-                if (!dbControl.isDatabaseConnected())
-                {
-                    // Perform any clean-up steps and exit the application
-                    cmdLnHandler.postCommandCleanUp(1);
-                }
+                // Open the specified database and execute post-opening command line commands. Set
+                // the error flag if no database can be opened (including the default), or if the
+                // default database was successfully opened but was not the database specified
+                // (failure to open a database results in the default being opened)
+                boolean errorFlag = dbControl.openDatabase(projectName)
+                                    || !projectName.equals(DEFAULT_DATABASE);
+
+                // Perform any clean-up steps and exit the application
+                cmdLnHandler.postCommandCleanUp(errorFlag
+                                                          ? 1
+                                                          : 0);
             }
         }
     }

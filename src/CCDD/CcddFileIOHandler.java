@@ -905,23 +905,10 @@ public class CcddFileIOHandler
             // Create the data tables from the imported table definitions from all files
             createTablesFromDefinitions(allTableDefinitions,
                                         replaceExistingTables,
+                                        replaceExistingMacros,
                                         openEditor,
                                         groupHandler,
                                         parent);
-
-            // Check if the user elected to enable replacement of existing macro values
-            if (replaceExistingMacros)
-            {
-                // Verify that the new macro values are valid for the current instances of the
-                // macros
-                macroHandler.validateMacroUsage(parent);
-
-                // Update the usage of the macros in the tables
-                macroHandler.updateExistingMacroUsage(parent);
-            }
-
-            // Set the macro data to the updated macro list
-            macroHandler.setMacroData();
 
             // Release the save point. This must be done within a transaction block, so it must be
             // done prior to the commit below
@@ -1068,8 +1055,11 @@ public class CcddFileIOHandler
      * @param tableDefinitions
      *            list of table definitions for the table(s) to create
      *
-     * @param replaceExisting
+     * @param replaceExistingTables
      *            true to replace a table that already exists in the database
+     *
+     * @param replaceExistingMacros
+     *            true to replace the values for existing macros
      *
      * @param openEditor
      *            true to open a table editor for each imported table
@@ -1085,7 +1075,8 @@ public class CcddFileIOHandler
      *             definition
      *********************************************************************************************/
     private void createTablesFromDefinitions(List<TableDefinition> tableDefinitions,
-                                             boolean replaceExisting,
+                                             boolean replaceExistingTables,
+                                             boolean replaceExistingMacros,
                                              boolean openEditor,
                                              CcddGroupHandler groupHandler,
                                              final Component parent) throws CCDDException
@@ -1212,7 +1203,7 @@ public class CcddFileIOHandler
                             String[] typeAndVar = ancestors[index].split("\\.");
 
                             // Check if the existing tables are to be replaced
-                            if (replaceExisting)
+                            if (replaceExistingTables)
                             {
                                 isReplace = true;
 
@@ -1296,7 +1287,7 @@ public class CcddFileIOHandler
                                     if (!createImportedTable(ancestorInfo,
                                                              protoData,
                                                              numColumns,
-                                                             replaceExisting,
+                                                             replaceExistingTables,
                                                              openEditor,
                                                              allTables,
                                                              parent))
@@ -1329,7 +1320,7 @@ public class CcddFileIOHandler
                                     if (!createImportedTable(ancestorInfo,
                                                              Arrays.asList(rowData),
                                                              numColumns,
-                                                             replaceExisting,
+                                                             replaceExistingTables,
                                                              openEditor,
                                                              allTables,
                                                              parent))
@@ -1372,7 +1363,7 @@ public class CcddFileIOHandler
                         if (!createImportedTable(tableInfo,
                                                  tableDefn.getData(),
                                                  numColumns,
-                                                 replaceExisting,
+                                                 replaceExistingTables,
                                                  openEditor,
                                                  allTables,
                                                  parent))
@@ -1441,6 +1432,20 @@ public class CcddFileIOHandler
                                                                   groupHandler.getGroupDefnsFromInfo(),
                                                                   null,
                                                                   parent);
+
+        // Check if the user elected to enable replacement of existing macro values
+        if (replaceExistingMacros)
+        {
+            // Verify that the new macro values are valid for the current instances of the
+            // macros
+            macroHandler.validateMacroUsage(parent);
+
+            // Update the usage of the macros in the tables
+            macroHandler.updateExistingMacroUsage(parent);
+        }
+
+        // Set the macro data to the updated macro list
+        macroHandler.setMacroData();
 
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())

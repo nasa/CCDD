@@ -266,7 +266,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the server connection status
      *
-     * @return true if a connection to a database exists
+     * @return true if a connection to a database exists (default or otherwise)
      *********************************************************************************************/
     protected boolean isServerConnected()
     {

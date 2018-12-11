@@ -133,7 +133,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     private String recursionTable;
 
     // List of nodes that don't meet the table filtering criteria
-    private List<ToolTipTreeNode> removeNodes;
+    private final List<ToolTipTreeNode> removeNodes;
 
     // List of variables to be excluded from the tree
     private List<String> excludedVariables;
@@ -262,6 +262,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Set the tree to be collapsed initially with no filters applied
         isByGroup = false;
         isByType = false;
+
+        removeNodes = new ArrayList<ToolTipTreeNode>();
 
         // Get the table information from the database and use it to build the table tree
         buildTableTreeFromDatabase(parent);
@@ -1105,7 +1107,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Starting with the specified node, traverse down its branch and flag as invalid any node
      * where the name doesn't match one in the supplied list of tables. The match criteria accounts
      * for filtering by type, by group, or by both type and group. A list of nodes to remove is
-     * created, based on the match criteria and the filter(s)
+     * created, based on the match criteria and the filter(s). This is a recursive method
      *
      * @param validTables
      *            list of table names belonging to the filtered selection; null if no filtering
@@ -1119,7 +1121,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     {
         boolean isValid = true;
         List<ToolTipTreeNode> removeChildNodes = new ArrayList<ToolTipTreeNode>();
-
         String nodeName = node.getUserObject().toString();
 
         // Check if this node represents a table and the root/parent isn't in the list of valid
@@ -1128,6 +1129,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             && ((isByType && !validTables.contains(nodeName.split("\\.")[0]))
                 || (!isByType && isByGroup && !validTables.contains(nodeName))))
         {
+            // System.out.println("invalid " + nodeName); // TODO
             // Flag the node as invalid and set the invalid flag
             node.setUserObject(INVALID_TEXT_COLOR + nodeName);
             isValid = false;
@@ -1148,7 +1150,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 if (!setInvalidNodesAndTrim(validTables, childNode))
                 {
                     // Add the child to the list of nodes to remove
-                    removeChildNodes.add(childNode);
+                    removeChildNodes.add(childNode); // TODO NEEDED? IF THE PARENT IS REMOVED THEN
+                                                     // ALL ITS CHILDREN ARE CUT OFF AUTOMATICALLY
                 }
                 // The child has a valid descendant
                 else
@@ -1168,10 +1171,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             removeNodes.add(node);
         }
         // Check if the node has any invalid descendants
-        else if (!removeNodes.isEmpty())
+        // else if (!removeNodes.isEmpty()) // TODO SHOULD THIS BE removeChildNodes?
+        else if (!removeChildNodes.isEmpty())
         {
             // Add the invalid child nodes to the list of nodes to remove
-            removeNodes.addAll(removeChildNodes);
+            removeNodes.addAll(removeChildNodes);// TODO NEEDED? IF THE PARENT IS REMOVED THEN ALL
+                                                 // // ITS CHILDREN ARE CUT OFF AUTOMATICALLY
         }
 
         return isValid;
@@ -1309,7 +1314,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Check if a list of table names is provided for filtering the tree's branches
         if (validTables != null)
         {
-            removeNodes = new ArrayList<ToolTipTreeNode>();
+            removeNodes.clear();
 
             // Flag any nodes that aren't in the filter list as invalid. If a branch has no valid
             // nodes then remove it
@@ -1318,6 +1323,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                       ? (ToolTipTreeNode) protoNode.getParent()
                                                       : (ToolTipTreeNode) instNode.getParent()));
 
+            // System.out.println("removeNodes = " + removeNodes.size()); // TODO
             // Step through the list of nodes to remove (if any) - these are invalid nodes with no
             // children or nodes that have no valid descendants
             for (ToolTipTreeNode removeNode : removeNodes)
@@ -1832,8 +1838,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get the TreeNode for the node matching the specified node path name (table path + variable
-     * name)
+     * Get the TreeNode for the first node matching the specified node path name (table path +
+     * variable name), starting at the tree root node
      *
      * @param nodePath
      *            path of the node to search for, in the form
@@ -1844,10 +1850,29 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *********************************************************************************************/
     protected ToolTipTreeNode getNodeByNodePath(String nodePath)
     {
+        return getNodeByNodePath(nodePath, getRootNode());
+    }
+
+    /**********************************************************************************************
+     * Get the TreeNode for the first node matching the specified node path name (table path +
+     * variable name), starting at the specified node
+     *
+     * @param nodePath
+     *            path of the node to search for, in the form
+     *            rootTable,tableName.variableName(,...)
+     *
+     * @param startNode
+     *            node from which to begin
+     *
+     * @return TreeNode for the specified node path; null if the node path doesn't exist in the
+     *         tree
+     *********************************************************************************************/
+    protected ToolTipTreeNode getNodeByNodePath(String nodePath, ToolTipTreeNode startNode)
+    {
         ToolTipTreeNode node = null;
 
         // Step through the root node's children, if any
-        for (Enumeration<?> element = getRootNode().preorderEnumeration(); element.hasMoreElements();)
+        for (Enumeration<?> element = startNode.preorderEnumeration(); element.hasMoreElements();)
         {
             // Get the referenced node
             ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
@@ -1916,7 +1941,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add the ancestor instance tables for each table path in the supplied list, Based on the
+     * Add the ancestor instance tables for each table path in the supplied list. Based on the
      * input flag also add the prototype tables for every table and ancestor in the list. No
      * duplicate table references are included in the list
      *
@@ -2046,13 +2071,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the specified root table name(s) including all descendant tables
+     * Get a list of the specified table name(s), and include all descendant tables for those
+     * tables that are root structures. The node with the default instance node name is used to
+     * search for root table descendants
      *
      * @param tables
-     *            list of root tables for which the descendants are required
+     *            list of tables for which the descendants are required
      *
-     * @return List containing the table path+names of the specified root table(s) and the
-     *         descendants of these tables
+     * @return List containing the table path+names of the specified table(s) with the descendants
+     *         of these tables (if applicable and any exist)
      *********************************************************************************************/
     protected List<String> getTablesWithChildren(List<String> tables)
     {
@@ -2067,7 +2094,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             tablesWithChildren.add(table);
 
             // Get the node for the table
-            ToolTipTreeNode node = getNodeByNodePath(table);
+            ToolTipTreeNode node = getNodeByNodePath(table,
+                                                     getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME));
 
             // Check if the table is in the tree
             if (node != null)
@@ -2085,7 +2113,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     if (!tablesWithChildren.contains(fullPath))
                     {
                         // Add the table's full path (with the root table) to the full path list
-                        tablesWithChildren.add(getFullVariablePath(childPath));
+                        tablesWithChildren.add(fullPath);
                     }
                 }
             }
@@ -2152,7 +2180,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @return List containing the table path+names of the specified node, excluding any duplicates
      *         and children of these descendant tables
      *********************************************************************************************/
-    private List<String> getTablesWithoutChildren(ToolTipTreeNode node)
+    protected List<String> getTablesWithoutChildren(ToolTipTreeNode node)
     {
         List<String> tables = new ArrayList<String>();
 

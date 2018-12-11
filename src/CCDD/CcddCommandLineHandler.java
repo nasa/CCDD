@@ -1415,8 +1415,7 @@ public class CcddCommandLineHandler
 
                 // Parse the converted table path list. The paths are handled the same as those for
                 // script associations (hence the need for the conversion above); this includes
-                // expanding group references. For the 'All tables' pseudo-group set the flag so
-                // that all of the child table paths are included
+                // expanding group references
                 tablePaths = ccddMain.getScriptHandler().getAssociationTablePaths(internalFormat,
                                                                                   new CcddGroupHandler(ccddMain,
                                                                                                        null,
@@ -1428,6 +1427,7 @@ public class CcddCommandLineHandler
                                                                                                           ? null
                                                                                                           : ccddMain.getMainFrame()))
                                      .toArray(new String[0]);
+
             };
         });
 
@@ -2206,8 +2206,7 @@ public class CcddCommandLineHandler
         // project-specific commands (script execution, export, or import) (note that the GUI is
         // hidden if this flag is set), or if an error occurred and the GUI is hidden (if the GUI
         // is visible then the error is handled via error dialog and event log message)
-        if (shutdownWhenComplete
-            || (exitStatus == 1 && ccddMain.isGUIHidden()))
+        if (shutdownWhenComplete || (exitStatus == 1 && ccddMain.isGUIHidden()))
         {
             // Restore the original table export and script output paths (in case either of these
             // were changed via a command line command). If the GUI is visible then the script
