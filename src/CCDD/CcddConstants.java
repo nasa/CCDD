@@ -2060,7 +2060,8 @@ public class CcddConstants
         DOUBLE("double", "double", 8, BaseDataTypeInfo.FLOATING_POINT),
         CHAR("char", "char", 1, BaseDataTypeInfo.CHARACTER),
         STRING("string", "char", 2, BaseDataTypeInfo.CHARACTER),
-        ADDRESS("address", "void *", 4, BaseDataTypeInfo.POINTER);
+        ADDRESS("address", "void *", 4, BaseDataTypeInfo.POINTER),
+        VOID("", "void *", 4, BaseDataTypeInfo.POINTER);
 
         private final String userName;
         private final String cType;

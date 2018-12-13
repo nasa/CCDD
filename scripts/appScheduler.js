@@ -36,16 +36,16 @@ function outputFileCreationInfo(file)
     // Check if any table is associated with the script
     if (ccdd.getTableNumRows() != 0)
     {
-        ccdd.writeToFileLn(file, "   Table(s): " + (",\n             ").join(sorted(ccdd.getTableNames())));
+        ccdd.writeToFileLn(file, "   Table(s): " + [].slice.call(ccdd.getTableNames()).sort().join(",\n             "));
     }
 
     // Check if any groups is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
-        ccdd.writeToFileLn(file, "   Group(s): " + (",\n             ").join(sorted(ccdd.getAssociatedGroupNames())));
+        ccdd.writeToFileLn(file, "   Group(s): " + [].slice.call(ccdd.getAssociatedGroupNames()).sort().join(",\n             "));
     }
 
-    ccdd.writeToFileLn(file, "*/");
+    ccdd.writeToFileLn(file, "*/\n");
 }
 
 /** End functions *********************************************************** */

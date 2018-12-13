@@ -122,8 +122,21 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         // Step through each selected script
                         for (FileEnvVar file : scriptFile)
                         {
-                            // Store the script in the database
-                            fileIOHandler.storeScriptInDatabase(file);
+                            // Check if the script by this name isn't already stored or is the user
+                            // elects to overwrite the existing script table
+                            if (!dbTable.isTableExists(InternalTable.SCRIPT.getTableName(file.getName()),
+                                                       CcddScriptStorageDialog.this)
+                                || new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                             "<html><b>Overwrite existing stored script '</b>"
+                                                                                                      + file.getName()
+                                                                                                      + "<b>'?",
+                                                                             "Overwrite Script",
+                                                                             JOptionPane.QUESTION_MESSAGE,
+                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            {
+                                // Store the script in the database
+                                fileIOHandler.storeScriptInDatabase(file);
+                            }
                         }
                     }
                     // No script file is selected

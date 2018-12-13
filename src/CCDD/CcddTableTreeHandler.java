@@ -913,7 +913,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         ToolTipTreeNode protoAllNode = null;
         ToolTipTreeNode instAllNode = null;
 
-        // Add the all tables node to the root node
+        // Add the 'All tables' group node to the root node
         ToolTipTreeNode allTablesNode = new ToolTipTreeNode("<html><i>"
                                                             + ALL_TABLES_GROUP_NODE_NAME,
                                                             "Group containing all tables");
@@ -1096,10 +1096,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             }
 
             // Build the prototype and instance nodes filtered by type (and group, if applicable).
-            buildTopLevelNodes(validTables,
-                               instance,
-                               prototype,
-                               parent);
+            buildTopLevelNodes(validTables, instance, prototype, parent);
         }
     }
 
@@ -1328,6 +1325,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // children or nodes that have no valid descendants
             for (ToolTipTreeNode removeNode : removeNodes)
             {
+                // if (removeNode.getParent() != null)// TODO
+                // System.out.println(" remove " +
+                // CcddUtilities.removeHTMLTags(removeNode.getUserObject().toString()) + " from " +
+                // CcddUtilities.removeHTMLTags(removeNode.getParent().toString())); // TODO
+
                 // Remove the node from the tree
                 removeNode.removeFromParent();
             }
@@ -1462,7 +1464,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                        childNode,
                                        new ToolTipTreeNode(nodeName,
                                                            getTableDescription(tablePath,
-                                                                               thisMember.getDataTypes().get(memIndex))));
+                                                                               thisMember.getDataTypes()
+                                                                                         .get(memIndex))));
                         }
                     }
                 }

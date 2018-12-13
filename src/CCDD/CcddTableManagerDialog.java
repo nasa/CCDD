@@ -118,6 +118,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     // Group selection change in progress flag
     private boolean isNodeSelectionChanging;
 
+    // Name of the table selected from the table tree
+    private String selectedTableName;
+
     // Array of new table names to create
     private String[] tableNames;
 
@@ -547,7 +550,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                   dialogPnl,
                                                   "Rename Table",
                                                   DialogOption.RENAME_OPTION,
-                                                  true) == OK_BUTTON)
+                                                  true) == OK_BUTTON
+                                && !selectedTableName.equals(nameFld.getText()))
                             {
                                 // Rename the table
                                 dbTable.renameTable(tableTree.getSelectionPath().getLastPathComponent().toString(),
@@ -821,21 +825,21 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             && getSelectionPath().getPathCount() > getHeaderNodeLevel())
                         {
                             // Get the name of the table selected
-                            String name = getSelectionPath().getLastPathComponent().toString();
+                            selectedTableName = getSelectionPath().getLastPathComponent().toString();
 
                             // Get the table description
-                            descriptionFld.setText(tableTree.getTableDescription(name, ""));
+                            descriptionFld.setText(tableTree.getTableDescription(selectedTableName, ""));
 
                             // Check if this is a copy table dialog
                             if (dialogType == ManagerDialogType.COPY)
                             {
                                 // Append text to the name to differentiate the copy from the
                                 // original
-                                name += "_copy";
+                                selectedTableName += "_copy";
                             }
 
                             // Set the new name field to match the selected table's name
-                            nameFld.setText(name);
+                            nameFld.setText(selectedTableName);
 
                             // Enable and set the background color for the table name and
                             // description fields
@@ -1937,7 +1941,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Check if the user-supplied name matches an existing table name. If renaming, the new
             // name may differ by capitalization or characters; otherwise (if creating or copying)
             // the names must differ with the text forced to lower case
-            if ((dialogType == ManagerDialogType.RENAME && nameInUse.equals(tableName))
+            if ((dialogType == ManagerDialogType.RENAME
+                 && !selectedTableName.equals(nameInUse)
+                 && nameInUse.equals(tableName))
                 || (dialogType != ManagerDialogType.RENAME
                     && nameInUse.equalsIgnoreCase(tableName)))
             {

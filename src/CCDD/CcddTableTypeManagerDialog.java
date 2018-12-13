@@ -244,8 +244,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 {
                     // Add the table type definition
                     tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
-                                                          "",
-                                                          DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()));
+                                                                 "",
+                                                                 DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()));
 
                     // Add the new table type to the project database
                     dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
@@ -279,7 +279,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 if (showOptionsDialog(editorDialog,
                                       dialogPnl,
                                       "Rename Type",
-                                      DialogOption.RENAME_OPTION) == OK_BUTTON)
+                                      DialogOption.RENAME_OPTION) == OK_BUTTON
+                    && !activeTypeName.equals(typeNameFld.getText()))
                 {
                     // Rename the type
                     tableTypeHandler.getTypeDefinition(activeTypeName).setName(typeNameFld.getText());
@@ -312,8 +313,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                         // and description is copied, which may differ from the committed data and
                         // description if the user has made uncommitted changes
                         tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
-                                                              editorDialog.getTypeEditor().getDescription(),
-                                                              editorDialog.getTypeEditor().getTable().getTableData(true));
+                                                                     editorDialog.getTypeEditor().getDescription(),
+                                                                     editorDialog.getTypeEditor().getTable().getTableData(true));
 
                         // Copy the table type to the new type name
                         dbTable.copyTableType(activeTypeName,
@@ -459,9 +460,10 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Step through each of the type names
                     for (String type : types)
                     {
-                        // Check if the user-supplied name matches an existing type name (with the
-                        // text forced to lower case)
-                        if (type.equalsIgnoreCase(typeNameFld.getText()))
+                        // Check if the user-supplied name matches an existing type name (case
+                        // insensitive)
+                        if (type.equalsIgnoreCase(typeNameFld.getText())
+                            && !type.equals(activeTypeName))
                         {
                             // Inform the user that the name is already in use
                             throw new CCDDException("Table type name is already in use");
@@ -478,8 +480,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddTableTypeManagerDialog.this,
-                                                      "<html><b>"
-                                                                                       + ce.getMessage(),
+                                                      "<html><b>" + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
