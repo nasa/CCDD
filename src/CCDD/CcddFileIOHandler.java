@@ -1084,6 +1084,20 @@ public class CcddFileIOHandler
         boolean prototypesOnly = true;
         List<String> skippedTables = new ArrayList<String>();
 
+        // Check if the user elected to enable replacement of existing macro values
+        if (replaceExistingMacros)
+        {
+            // Verify that the new macro values are valid for the current instances of the
+            // macros
+            macroHandler.validateMacroUsage(parent);
+
+            // Update the usage of the macros in the tables
+            macroHandler.updateExistingMacroUsage(parent);
+        }
+
+        // Set the macro data to the updated macro list
+        macroHandler.setMacroData();
+
         // Get the list of all tables, including the paths for child structure tables
         CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
                                                                   TableTreeType.TABLES,
@@ -1432,20 +1446,6 @@ public class CcddFileIOHandler
                                                                   groupHandler.getGroupDefnsFromInfo(),
                                                                   null,
                                                                   parent);
-
-        // Check if the user elected to enable replacement of existing macro values
-        if (replaceExistingMacros)
-        {
-            // Verify that the new macro values are valid for the current instances of the
-            // macros
-            macroHandler.validateMacroUsage(parent);
-
-            // Update the usage of the macros in the tables
-            macroHandler.updateExistingMacroUsage(parent);
-        }
-
-        // Set the macro data to the updated macro list
-        macroHandler.setMacroData();
 
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())
