@@ -68,6 +68,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param infoType
      *            internal table type
      *
+     * @param infoDefinitions
+     *            list of string arrays containing each node name and associated tool tip
+     *
      * @param filterValue
      *            string value that may be used to modify the tree building method; null or blank
      *            if not filtering
@@ -86,6 +89,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     CcddInformationTreeHandler(CcddMain ccddMain,
                                CcddUndoHandler undoHandler,
                                InternalTable infoType,
+                               List<String[]> infoDefinitions,
                                String filterValue,
                                boolean filterFlag,
                                List<String> treePathOrder,
@@ -95,11 +99,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 
         dataTypeHandler = ccddMain.getDataTypeHandler();
         this.treePathOrder = treePathOrder;
-
-        // Get the internal table definitions from the database
-        List<String[]> infoDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType,
-                                                                                                      false,
-                                                                                                      parent);
 
         // Check that the information definitions loaded successfully
         if (infoDefinitions != null)
@@ -146,6 +145,73 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Build the information tree
             buildTree(false, false, filterValue, filterFlag, parent);
         }
+    }
+
+    /**********************************************************************************************
+     * Generic information tree handler class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param undoHandler
+     *            reference to the undo handler
+     *
+     * @param infoType
+     *            internal table type
+     *
+     * @param filterValue
+     *            string value that may be used to modify the tree building method; null or blank
+     *            if not filtering
+     *
+     * @param filterFlag
+     *            flag used to filter the tree content
+     *
+     * @param treePathOrder
+     *            list containing all of the items that potentially can appear in the tree in the
+     *            order in which they appear when added to the tree; null if no order is specified
+     *            (the order can be specified later, if needed)
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    CcddInformationTreeHandler(CcddMain ccddMain,
+                               CcddUndoHandler undoHandler,
+                               InternalTable infoType,
+                               String filterValue,
+                               boolean filterFlag,
+                               List<String> treePathOrder,
+                               Component parent)
+    {
+        // Get the internal table definitions from the database
+        this(ccddMain,
+             undoHandler,
+             infoType,
+             ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType,
+                                                                          false,
+                                                                          parent),
+             filterValue,
+             filterFlag,
+             treePathOrder,
+             parent);
+    }
+
+    /**********************************************************************************************
+     * Generic information tree handler class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param infoDefinitions
+     *            list of string arrays containing each node name and associated tool tip
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    CcddInformationTreeHandler(CcddMain ccddMain,
+                               List<String[]> infoDefinitions,
+                               Component parent)
+    {
+        this(ccddMain, null, null, infoDefinitions, null, false, null, parent);
     }
 
     /**********************************************************************************************

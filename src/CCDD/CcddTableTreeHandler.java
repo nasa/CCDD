@@ -1126,7 +1126,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             && ((isByType && !validTables.contains(nodeName.split("\\.")[0]))
                 || (!isByType && isByGroup && !validTables.contains(nodeName))))
         {
-            // System.out.println("invalid " + nodeName); // TODO
             // Flag the node as invalid and set the invalid flag
             node.setUserObject(INVALID_TEXT_COLOR + nodeName);
             isValid = false;
@@ -1320,16 +1319,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                       ? (ToolTipTreeNode) protoNode.getParent()
                                                       : (ToolTipTreeNode) instNode.getParent()));
 
-            // System.out.println("removeNodes = " + removeNodes.size()); // TODO
             // Step through the list of nodes to remove (if any) - these are invalid nodes with no
             // children or nodes that have no valid descendants
             for (ToolTipTreeNode removeNode : removeNodes)
             {
-                // if (removeNode.getParent() != null)// TODO
-                // System.out.println(" remove " +
-                // CcddUtilities.removeHTMLTags(removeNode.getUserObject().toString()) + " from " +
-                // CcddUtilities.removeHTMLTags(removeNode.getParent().toString())); // TODO
-
                 // Remove the node from the tree
                 removeNode.removeFromParent();
             }
@@ -2483,7 +2476,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * that allows tree expansion/collapse
      *
      * @param label
-     *            table tree title
+     *            table tree title; null to not display a title
      *
      * @param selectionMode
      *            tree item selection mode (single versus multiple)

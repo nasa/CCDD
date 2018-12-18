@@ -839,7 +839,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                         0);
 
         // Create a panel to hold the table selection components of the dialog
-        JPanel tablePnl = null;
+        JPanel filterPnl = null;
 
         // Build the table tree showing all tables
         tableTree = new CcddTableTreeHandler(ccddMain,
@@ -878,23 +878,21 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                   : 0))
         {
             // Create panels to hold the components of the dialog
-            tablePnl = new JPanel(new GridBagLayout());
+            filterPnl = new JPanel(new GridBagLayout());
 
-            // Create the table group selection dialog labels and fields
-            JLabel dlgLabel = new JLabel(labelText);
-            dlgLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            tablePnl.add(dlgLabel, gbc);
-
-            // Create the choices and selected lists and add them to the dialog
+            // Create the table filter label and tree
+            JLabel filterLbl = new JLabel(labelText);
+            filterLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            filterPnl.add(filterLbl, gbc);
             gbc.insets.top = 0;
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
             gbc.weighty = 1.0;
             gbc.gridy++;
-            tablePnl.add(tableTree.createTreePanel(null,
-                                                   tableSelect,
-                                                   false,
-                                                   ccddMain.getMainFrame()),
-                         gbc);
+            filterPnl.add(tableTree.createTreePanel(null,
+                                                    tableSelect,
+                                                    false,
+                                                    ccddMain.getMainFrame()),
+                          gbc);
         }
         // No tables are stored in the database
         else
@@ -909,7 +907,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                       DialogOption.OK_OPTION);
         }
 
-        return tablePnl;
+        return filterPnl;
     }
 
     /**********************************************************************************************
