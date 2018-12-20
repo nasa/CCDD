@@ -1,0 +1,38 @@
+*** C structure to CSV conversion utility ***
+
+c_struct_to_csv_convert is a Java application that converts C-language structures into the comma
+separated values (CSV) format used for importing tables into the CFS Command & Data Dictionary
+(CCDD) program.  The utility scans the specified file(s) for "struct" and "typedef struct" 
+definitions. Any other content in the file(s) is ignored.  Comments associated with the structures
+or variables is preserved in the CSV file.
+
+Macro values or formulae for a variable's array size or bit length are converted to CCDD macros.
+However, the value of these macros is set to "2" - the user may edit the CSV file to update the
+macro values (or edit them in CCDD after importing).  Note that the default macro value can lead to
+import errors if a macro formula used as an array size evaluates to less that 2 (array size
+must be >= 2).
+
+The application reads the input and output file information from a file, "conversion_paths", which
+must be located in the same folder as the executable.  The format for each entry in the file is as
+follows:
+
+  short name, type, output file path+name, input file path+name [, input file path+name 2 [, ...]]
+  
+"short name" and "type" are descriptive text used to create a comment in the output file. For
+example, if the input file is a cFS application then the short name would be the application's name
+("CI", "HK", etc.) and the type would be "cFS application".  "output file path+name" is the name
+of the output file, including its folder path (without a path the file is written to the folder
+from which the application is executed).  "input file path+name" is the name of the input file from
+which to extract the structure definitions, including its folder path (without a path the file is
+sought in the folder from which the application is executed).  Multiple input files may be
+specified, separated by commas - all of the structures from these files are written to the single
+output file.
+
+Rows in the conversion_paths file that are blank, or that begin with the "#" character are ignored.
+
+To perform the conversion execute the following:
+
+  java -jar c_struct_to_csv_convert [-output <output folder path>]
+  
+The -output option, if used, prepends the supplied folder path to each output file in the
+conversion_paths file.  Note that this retains any path already specified for the output file.
