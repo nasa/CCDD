@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
+import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 
 import java.awt.Color;
@@ -44,6 +45,7 @@ public class CcddMacroHandler
     // Class references
     private CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
+    private CcddDataTypeHandler dataTypeHandler;
     private CcddVariableHandler variableHandler;
 
     // List containing the macro names and associated unexpanded values
@@ -221,10 +223,15 @@ public class CcddMacroHandler
      *
      * @param variableHandler
      *            reference to the variable handler
+     *
+     * @param dataTypeHandler
+     *            reference to the data type handler
      *********************************************************************************************/
-    protected void setHandlers(CcddVariableHandler variableHandler)
+    protected void setHandlers(CcddVariableHandler variableHandler,
+                               CcddDataTypeHandler dataTypeHandler)
     {
         this.variableHandler = variableHandler;
+        this.dataTypeHandler = dataTypeHandler;
     }
 
     /**********************************************************************************************
@@ -844,6 +851,48 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
+     * Get the list of structure names referenced in sizeof() calls in the specified macro
+     *
+     * @param macroName
+     *            macro name
+     *
+     * @return List of structure names referenced in sizeof() calls in the specified macro macro;
+     *         and empty list if no structures are referenced or the macro doesn't exist
+     *********************************************************************************************/
+    protected List<String> getStructureReferences(String macroName)
+    {
+        List<String> structureReferences = new ArrayList<String>();
+
+        // Step through each macro
+        for (String[] macroDefn : macros)
+        {
+            // Check if the macro name matches the target macro
+            if (macroName.equalsIgnoreCase(macroDefn[MacrosColumn.MACRO_NAME.ordinal()]))
+            {
+                // Parse each data type referenced in a sizeof() call in the macro
+                for (String dataType : macroDefn[MacrosColumn.VALUE.ordinal()].replaceAll(".*?"
+                                                                                          + SIZEOF_DATATYPE
+                                                                                          + ".*?",
+                                                                                          "$1 ")
+                                                                              .split(" "))
+                {
+                    // Check if the data type is a structure and the structure name isn't already
+                    // in the list
+                    if (!dataTypeHandler.isPrimitive(dataType)
+                        && !structureReferences.contains(dataType))
+                    {
+
+                        // Add the structure name to the list
+                        structureReferences.add(dataType);
+                    }
+                }
+            }
+        }
+
+        return structureReferences;
+    }
+
+    /**********************************************************************************************
      * Get a list containing the macros that are dependent on the specified data type
      *
      * @param dataType
@@ -859,8 +908,7 @@ public class CcddMacroHandler
         for (String[] macro : macros)
         {
             // Check if the macro's value has a sizeof() call for the specified data type
-            if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
-                                              dataType))
+            if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()], dataType))
             {
                 // Add the macro and its related macros to the list
                 addRelatedMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);
@@ -1142,7 +1190,7 @@ public class CcddMacroHandler
 
         // Create a macro handler using the values currently displayed in the macro editor
         CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain, updatedMacros);
-        newMacroHandler.setHandlers(ccddMain.getVariableHandler());
+        newMacroHandler.setHandlers(variableHandler, dataTypeHandler);
 
         // Step through each updated macro definition
         for (String[] macro : updatedMacros)

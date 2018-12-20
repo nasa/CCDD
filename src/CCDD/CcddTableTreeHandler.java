@@ -1167,7 +1167,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             removeNodes.add(node);
         }
         // Check if the node has any invalid descendants
-        // else if (!removeNodes.isEmpty()) // TODO SHOULD THIS BE removeChildNodes?
         else if (!removeChildNodes.isEmpty())
         {
             // Add the invalid child nodes to the list of nodes to remove

@@ -1024,6 +1024,8 @@ public class CcddFileIOHandler
                 tableEditorDlg.closeFrame();
             }
 
+            // TODO MAKE SURE THIS RESTORES THESE CORRECTLY (REBUILD WHATEVER IS NEEDED, NOT JUST
+            // SETS THE LISTS)
             // Restore the table types, data types, macros, reserved message IDs, and data fields
             // to the values prior to the import operation
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
@@ -1047,6 +1049,174 @@ public class CcddFileIOHandler
         }
 
         return errorFlag;
+    }
+
+    /**********************************************************************************************
+     * Check the supplied list of tables in the order they are referenced for the specified
+     * prototype structure table name. If not present add the table to the list at the current
+     * insertion index. Update the insertion index to the immediately after the specified table
+     *
+     * @param protoStructName
+     *            name of the prototype structure table
+     *
+     * @param orderedTableNames
+     *            current list of table names in the order referenced (the prototype structure is
+     *            added if not already in the list)
+     *
+     * @param insertionIndex
+     *            index at which to insert the table name
+     *
+     * @return The updated insertion point
+     *********************************************************************************************/
+    private int getStructureInsertionIndex(String protoStructName,
+                                           List<String> orderedTableNames,
+                                           int insertionIndex)
+    {
+        // Get the index of the structure in the list of reference ordered table names
+        int protoStructIndex = orderedTableNames.indexOf(protoStructName);
+
+        // Check if the structure isn't in the list
+        if (protoStructIndex == -1)
+        {
+            // Add the structure to the list at the current insertion point (the end of the list if
+            // no insertion point has been set)
+            orderedTableNames.add((insertionIndex == -1
+                                                        ? orderedTableNames.size()
+                                                        : insertionIndex),
+                                  protoStructName);
+
+            // Check if an insertion point has been set
+            if (insertionIndex != -1)
+            {
+                // Increment the insertion point to account for a table being added to the list
+                insertionIndex++;
+            }
+        }
+        // Check if the current insertion point is prior to the prototype's place in the list
+        else if (insertionIndex != -1 && protoStructIndex > insertionIndex)
+        {
+            // Set the insertion index to after this structure
+            insertionIndex = protoStructIndex + 1;
+        }
+
+        return insertionIndex;
+    }
+
+    /**********************************************************************************************
+     * Reorder the list of table definitions so that tables referenced as a data type or in a
+     * sizeof() call appear in the list prior to the table that references them
+     *
+     * @param tableDefinitions
+     *            list of table definitions for the table(s) to create
+     *
+     * @return The list of table definitions, reordered so that tables referenced as a data type or
+     *         in a sizeof() call appear in the list prior to the table that references them
+     *********************************************************************************************/
+    private List<TableDefinition> orderTableDefinitionsByReference(List<TableDefinition> tableDefinitions)
+    {
+        // TODO THIS HAS BEEN TESTED **ONLY**A**LITTLE**!!! IF IT WORKS FOR ALL CASES THEN IT MAY
+        // CAN BE OPTIMIZED
+
+        List<TableDefinition> orderedTableDefinitions = new ArrayList<TableDefinition>();
+        List<String> orderedTableNames = new ArrayList<String>();
+
+        // Step through each table definition
+        for (TableDefinition tableDefn : tableDefinitions)
+        {
+            int insertIndex = -1;
+
+            // Check if the table is an instance (child)
+            if (tableDefn.getName().contains(","))
+            {
+                // Get the index in the list for the table's prototype
+                insertIndex = orderedTableNames.indexOf(TableInformation.getPrototypeName(tableDefn.getName()));
+            }
+
+            // Check if the table is a prototype or is a child whose prototype isn't in the list
+            if (insertIndex == -1)
+            {
+                int column = 0;
+
+                // Get the table's type definition
+                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
+
+                // Step through each cell value in the table
+                for (String cellValue : tableDefn.getData())
+                {
+                    // Check if the cell value is present
+                    if (cellValue != null && !cellValue.isEmpty())
+                    {
+                        // Check if this is a structure reference in the data type column
+                        if (column == CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT))
+                            && !dataTypeHandler.isPrimitive(cellValue))
+                        {
+                            // Insert the referenced structure, if not already in the list, and
+                            // update the insertion index
+                            insertIndex = getStructureInsertionIndex(cellValue,
+                                                                     orderedTableNames,
+                                                                     insertIndex);
+                        }
+                        // This isn't a structure reference in the data type column
+                        else
+                        {
+                            // Step through each macro referenced in the cell value
+                            for (String macroName : macroHandler.getReferencedMacros(cellValue))
+                            {
+                                // Step through each structure referenced by the macro
+                                for (String structureName : macroHandler.getStructureReferences(macroName))
+                                {
+                                    // Insert the referenced structure, if not already in the list,
+                                    // and update the insertion index
+                                    insertIndex = getStructureInsertionIndex(structureName,
+                                                                             orderedTableNames,
+                                                                             insertIndex);
+                                }
+                            }
+                        }
+                    }
+
+                    // Update the table data column index. When the end of the row is reached then
+                    // reset to the first column
+                    column++;
+
+                    if (column == typeDefn.getColumnCountVisible())
+                    {
+                        column = 0;
+                    }
+                }
+            }
+
+            // Check if the table hasn't been added to the list already
+            if (!orderedTableNames.contains(tableDefn.getName()))
+            {
+                // Add the table name to the list, inserted so that any table it references is
+                // prior to it in the list
+                orderedTableNames.add((insertIndex == -1
+                                                         ? orderedTableNames.size()
+                                                         : insertIndex),
+                                      tableDefn.getName());
+            }
+        }
+
+        // Step through each table name in the order it's referenced
+        for (String tableName : orderedTableNames)
+        {
+            // Step through each table definition
+            for (TableDefinition tableDefn : tableDefinitions)
+            {
+                // Check if the table names match
+                if (tableName.equals(tableDefn.getName()))
+                {
+                    System.out.println(tableName); // TODO
+                    // Add the table definition to the list in the order it's referenced and stop
+                    // searching
+                    orderedTableDefinitions.add(tableDefn);
+                    break;
+                }
+            }
+        }
+
+        return orderedTableDefinitions;
     }
 
     /**********************************************************************************************
@@ -1097,6 +1267,10 @@ public class CcddFileIOHandler
 
         // Set the macro data to the updated macro list
         macroHandler.setMacroData();
+
+        // Reorder the table definitions so that those referenced by a table as a data type or in a
+        // sizeof() call appear in the list before the table
+        tableDefinitions = orderTableDefinitionsByReference(tableDefinitions);
 
         // Get the list of all tables, including the paths for child structure tables
         CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
@@ -1422,30 +1596,16 @@ public class CcddFileIOHandler
         dbTable.storeInformationTable(InternalTable.TABLE_TYPES, null, null, parent);
 
         // Store the data types
-        dbTable.storeInformationTable(InternalTable.DATA_TYPES,
-                                      CcddUtilities.removeArrayListColumn(dataTypeHandler.getDataTypeData(),
-                                                                          DataTypesColumn.OID.ordinal()),
-                                      null,
-                                      parent);
+        dbTable.storeInformationTable(InternalTable.DATA_TYPES, CcddUtilities.removeArrayListColumn(dataTypeHandler.getDataTypeData(), DataTypesColumn.OID.ordinal()), null, parent);
 
         // Store the input types
-        dbTable.storeInformationTable(InternalTable.INPUT_TYPES,
-                                      CcddUtilities.removeArrayListColumn(Arrays.asList(inputTypeHandler.getCustomInputTypeData()),
-                                                                          InputTypesColumn.OID.ordinal()),
-                                      null,
-                                      parent);
+        dbTable.storeInformationTable(InternalTable.INPUT_TYPES, CcddUtilities.removeArrayListColumn(Arrays.asList(inputTypeHandler.getCustomInputTypeData()), InputTypesColumn.OID.ordinal()), null, parent);
 
         // Store the data fields
-        dbTable.storeInformationTable(InternalTable.FIELDS,
-                                      fieldHandler.getFieldDefnsFromInfo(),
-                                      null,
-                                      parent);
+        dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null, parent);
 
         // Store the groups
-        ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS,
-                                                                  groupHandler.getGroupDefnsFromInfo(),
-                                                                  null,
-                                                                  parent);
+        ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS, groupHandler.getGroupDefnsFromInfo(), null, parent);
 
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())

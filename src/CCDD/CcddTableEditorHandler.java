@@ -3167,9 +3167,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // {
                 // if (c == 0)
                 // {
-                // System.out.print("\n " + r + ":"); // TODO
+                // System.out.print("\n " + r + ":");
                 // }
-                // System.out.print(" ." + o + "."); // TODO
+                // System.out.print(" ." + o + ".");
                 // c++;
                 // if (c == numColumns)
                 // {
@@ -3177,7 +3177,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // r++;
                 // }
                 // }
-                // System.out.println(""); // TODO
+                // System.out.println("");
 
                 Boolean showMessage = true;
 

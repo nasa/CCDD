@@ -8146,7 +8146,7 @@ public class CcddDbTableCommandHandler
         final CcddVariableHandler newVariableHandler = new CcddVariableHandler(ccddMain,
                                                                                newDataTypeHandler,
                                                                                newMacroHandler);
-        newMacroHandler.setHandlers(newVariableHandler);
+        newMacroHandler.setHandlers(newVariableHandler, newDataTypeHandler);
         newVariableHandler.buildPathAndOffsetLists();
 
         /******************************************************************************************

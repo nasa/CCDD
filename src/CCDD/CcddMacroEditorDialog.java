@@ -647,7 +647,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                             // macro editor
                             CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain,
                                                                                     getUpdatedData());
-                            newMacroHandler.setHandlers(ccddMain.getVariableHandler());
+                            newMacroHandler.setHandlers(ccddMain.getVariableHandler(),
+                                                        ccddMain.getDataTypeHandler());
 
                             // Get the macro's index and name
                             String index = tableData.get(row)[MacroEditorColumnInfo.OID.ordinal()].toString();

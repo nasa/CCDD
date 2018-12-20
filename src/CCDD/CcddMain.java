@@ -829,7 +829,7 @@ public class CcddMain
         // Now that the variable handler exists, store its reference in the table command and macro
         // handlers
         dbTable.setHandlers();
-        macroHandler.setHandlers(variableHandler);
+        macroHandler.setHandlers(variableHandler, dataTypeHandler);
         scriptHandler.setHandlers();
 
         // Build the variables list and determine the variable offsets (note that the variables
