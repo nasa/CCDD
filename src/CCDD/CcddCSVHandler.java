@@ -70,33 +70,40 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private enum CSVTags
     {
-        COLUMN_NAMES("_column_data_"),
-        CELL_DATA(""),
-        NAME_TYPE("_name_type_"),
-        DESCRIPTION("_description_"),
-        DATA_FIELD("_data_fields_"),
-        MACRO("_macros_"),
-        TABLE_TYPE("_table_type_"),
-        TABLE_TYPE_DATA_FIELD("_table_type_data_fields_"),
-        DATA_TYPE("_data_type_"),
-        INPUT_TYPE("_input_type_"),
-        RESERVED_MSG_IDS("_reserved_msg_ids_"),
-        PROJECT_DATA_FIELD("_project_data_fields_"),
-        VARIABLE_PATHS("_variable_paths_"),
-        GROUP("_group_"),
-        GROUP_DATA_FIELD("_group_data_fields_");
+        COLUMN_DATA("_column_data_", null),
+        CELL_DATA("", null),
+        NAME_TYPE("_name_type_", null),
+        DESCRIPTION("_description_", null),
+        DATA_FIELD("_data_field_", "_data_fields_"),
+        MACRO("_macro_", "_macros_"),
+        TABLE_TYPE("_table_type_", null),
+        TABLE_TYPE_DATA_FIELD("_table_type_data_field_", "_table_type_data_fields_"),
+        DATA_TYPE("_data_type_", "_data_types_"),
+        INPUT_TYPE("_input_type_", "_input_types_"),
+        RESERVED_MSG_IDS("_reserved_msg_id_", "_reserved_msg_ids_"),
+        PROJECT_DATA_FIELD("_project_data_field_", "_project_data_fields_"),
+        VARIABLE_PATHS("_variable_path_", "_variable_paths_"),
+        GROUP("_group_", null),
+        GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_");
 
         private final String tag;
+        private final String alternateTag;
 
         /******************************************************************************************
          * CSV data type tags constructor
          *
          * @param tag
          *            text describing the data
+         *
+         * @param alternateTag
+         *            alternate text describing the data; null if there is no alternate name. This
+         *            allows the same tag data type to have two names, which is used for backwards
+         *            compatibility, due to a previous mixture of singular and plural tag names
          *****************************************************************************************/
-        CSVTags(String tag)
+        CSVTags(String tag, String alternateTag)
         {
             this.tag = tag;
+            this.alternateTag = alternateTag;
         }
 
         /******************************************************************************************
@@ -108,6 +115,22 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         {
             return tag;
         }
+
+        /******************************************************************************************
+         * Check if the supplied text matches the data type tag name or alternate name
+         *
+         * @param text
+         *            text describing the data
+         *
+         * @return true if the supplied text matches the tag name or alternate tag name, if one
+         *         exists (case insensitive)
+         *****************************************************************************************/
+        protected boolean isTag(String text)
+        {
+            return tag.equalsIgnoreCase(text)
+                   || (alternateTag != null && alternateTag.equalsIgnoreCase(text));
+        }
+
     }
 
     /**********************************************************************************************
@@ -206,12 +229,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             boolean continueOnGroupFieldError = ignoreErrors;
 
             ProjectDefinition projectDefn = new ProjectDefinition();
-            List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
-            List<String[]> dataTypeDefns = new ArrayList<String[]>();
-            List<String[]> inputTypeDefns = new ArrayList<String[]>();
-            List<String[]> macroDefns = new ArrayList<String[]>();
-            List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
-            tableDefinitions = new ArrayList<TableDefinition>();
+            List<TableTypeDefinition> tableTypeDefns = new ArrayList<>();
+            List<String[]> dataTypeDefns = new ArrayList<>();
+            List<String[]> inputTypeDefns = new ArrayList<>();
+            List<String[]> macroDefns = new ArrayList<>();
+            List<String[]> reservedMsgIDDefns = new ArrayList<>();
+            tableDefinitions = new ArrayList<>();
 
             // Make three passes through the file, first to get the input types (which must be
             // processed prior to adding a table type), second to get the table types, input types,
@@ -267,6 +290,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // character)
                         if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("#"))
                         {
+                            boolean isTag = false;
+                            boolean isNextTable = false;
+
                             // Check if the line contains an odd number of double quotes
                             if (trimmedLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
                             {
@@ -285,7 +311,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                     // (i.e., it ends with one double quote)
                                     if (nextLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
                                     {
-                                        // Stop searching; the multi-line string has been
+                                        // Stop searching; the multi-line string
+                                        // has been
                                         // concatenated to the initial line
                                         break;
                                     }
@@ -312,111 +339,53 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             // column value
                             String firstColumn = columnValues[0].trim();
 
-                            // Check if this is the table name and table type tag
-                            if (firstColumn.equalsIgnoreCase(CSVTags.NAME_TYPE.getTag()))
+                            // Step through the import tags
+                            for (CSVTags csvTag : CSVTags.values())
                             {
-                                // Set the import tag to look for the table name and table type
-                                importTag = CSVTags.NAME_TYPE;
-
-                                // Check if this is the third pass and if the name and type are
-                                // already set; if so, this is the beginning of another table's
-                                // information
-                                if (loop == 3 && !tablePath.isEmpty())
+                                // Check if the first column value matches the tag name
+                                if (csvTag.isTag(firstColumn))
                                 {
-                                    // Stop processing the file in order to create the table prior
-                                    // to beginning another one
+                                    isTag = true;
+
+                                    // Set the import tag and stop searching
+                                    importTag = csvTag;
+
+                                    // Check if this is the table name and table type tag
+                                    if (CSVTags.NAME_TYPE.isTag(firstColumn))
+                                    {
+                                        // Check if this is the third pass and if the name and type
+                                        // are already set; if so, this is the beginning of another
+                                        // table's information
+                                        if (loop == 3 && !tablePath.isEmpty())
+                                        {
+                                            // Set the flag to indicate that this is the beginning
+                                            // of the next table definition
+                                            isNextTable = true;
+                                        }
+                                    }
+                                    // Check if this is the table type tag
+                                    else if (CSVTags.TABLE_TYPE.isTag(firstColumn))
+                                    {
+                                        // Set the flag so that the next row is treated as the table
+                                        // type name and description
+                                        isTypeName = true;
+                                    }
+
                                     break;
                                 }
                             }
-                            // Check if this is the table column name tag and that a table name and
-                            // type are defined
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.COLUMN_NAMES.getTag())
-                                     && !tablePath.isEmpty())
-                            {
-                                // Set the import tag to look for the table column names
-                                importTag = CSVTags.COLUMN_NAMES;
-                            }
-                            // Check if this is the table description tag and that a table name and
-                            // type are defined
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.DESCRIPTION.getTag())
-                                     && !tablePath.isEmpty())
-                            {
-                                // Set the import tag to look for the table description
-                                importTag = CSVTags.DESCRIPTION;
-                            }
-                            // Check if this is the data field tag and that a table name and type
-                            // are defined
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.DATA_FIELD.getTag())
-                                     && !tablePath.isEmpty())
-                            {
-                                // Set the import tag to look for the data field(s)
-                                importTag = CSVTags.DATA_FIELD;
-                            }
-                            // Check if this is the table type tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.TABLE_TYPE.getTag()))
-                            {
-                                // Set the import tag to look for the table type definition
-                                importTag = CSVTags.TABLE_TYPE;
 
-                                // Set the flag so that the next row is treated as the table type
-                                // name and description
-                                isTypeName = true;
-                            }
-                            // Check if this is the table type data field tag and that a table type
-                            // is defined
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.TABLE_TYPE_DATA_FIELD.getTag())
-                                     && tableTypeDefn != null)
+                            // Check if this is the beginning of the next table definition
+                            if (isNextTable)
                             {
-                                // Set the import tag to look for the table type data field(s)
-                                importTag = CSVTags.TABLE_TYPE_DATA_FIELD;
+                                // Stop processing the file in order to create the table
+                                // prior to beginning another one
+                                break;
                             }
-                            // Check if this is the data type tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.DATA_TYPE.getTag()))
-                            {
-                                // Set the import tag to look for the data type(s)
-                                importTag = CSVTags.DATA_TYPE;
-                            }
-                            // Check if this is the input type tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.INPUT_TYPE.getTag()))
-                            {
-                                // Set the import tag to look for the input type(s)
-                                importTag = CSVTags.INPUT_TYPE;
-                            }
-                            // Check if this is the macro tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.MACRO.getTag()))
-                            {
-                                // Set the import tag to look for the macro(s)
-                                importTag = CSVTags.MACRO;
-                            }
-                            // Check if this is the reserved message IDs tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.RESERVED_MSG_IDS.getTag()))
-                            {
-                                // Set the import tag to look for the reserved IDs
-                                importTag = CSVTags.RESERVED_MSG_IDS;
-                            }
-                            // Check if this is the project-level data fields tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.PROJECT_DATA_FIELD.getTag()))
-                            {
-                                // Set the import tag to look for the project-level data fields
-                                importTag = CSVTags.PROJECT_DATA_FIELD;
-                            }
-                            // Check if this is the group definitions tag
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.GROUP.getTag()))
-                            {
-                                // Set the import tag to look for the group definitions
-                                importTag = CSVTags.GROUP;
-                            }
-                            // Check if this is the group data fields tag and that a group is
-                            // defined
-                            else if (firstColumn.equalsIgnoreCase(CSVTags.GROUP_DATA_FIELD.getTag())
-                                     && groupDefnName != null)
-                            {
-                                // Set the import tag to look for the group data fields
-                                importTag = CSVTags.GROUP_DATA_FIELD;
-                            }
+
                             // Not a tag (or no table name and type are defined); read in the
                             // information based on the last tag read
-                            else
+                            if (!isTag)
                             {
                                 // Check if this is the first pass
                                 if (loop == 1)
@@ -461,7 +430,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             break;
 
                                         case CELL_DATA:
-                                        case COLUMN_NAMES:
+                                        case COLUMN_DATA:
                                         case DATA_FIELD:
                                         case DATA_TYPE:
                                         case DESCRIPTION:
@@ -541,8 +510,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                                       columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
                                                                                                                                       columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
                                                                                                                                       columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
+                                                                                                                                                   - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()
+                                                                                                                                                   - 1]},
                                                                                                                         importFile.getAbsolutePath(),
                                                                                                                         inputTypeHandler,
                                                                                                                         parent);
@@ -832,7 +803,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                         case INPUT_TYPE:
                                         case CELL_DATA:
-                                        case COLUMN_NAMES:
+                                        case COLUMN_DATA:
                                         case DATA_FIELD:
                                         case DESCRIPTION:
                                         case NAME_TYPE:
@@ -895,7 +866,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             tableDefn.setDescription(columnValues[0]);
                                             break;
 
-                                        case COLUMN_NAMES:
+                                        case COLUMN_DATA:
                                             // Check if any column names exist
                                             if (columnValues.length != 0)
                                             {
@@ -1041,8 +1012,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Check if this is the third pass
                     if (loop == 3)
                     {
-                        // Add the table's definition to the list
-                        tableDefinitions.add(tableDefn);
+                        // Check if a table definition exists in the import file
+                        if (tableDefn.getName() != null)
+                        {
+                            // Add the table's definition to the list
+                            tableDefinitions.add(tableDefn);
+                        }
 
                         // Check if only the data from the first table is to be read
                         if (importType == ImportType.FIRST_DATA_ONLY)
@@ -1206,11 +1181,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
-            List<String> referencedTableTypes = new ArrayList<String>();
-            List<String> referencedDataTypes = new ArrayList<String>();
-            List<String> referencedInputTypes = new ArrayList<String>();
-            List<String> referencedMacros = new ArrayList<String>();
-            List<String[]> variablePaths = new ArrayList<String[]>();
+            List<String> referencedTableTypes = new ArrayList<>();
+            List<String> referencedDataTypes = new ArrayList<>();
+            List<String> referencedInputTypes = new ArrayList<>();
+            List<String> referencedMacros = new ArrayList<>();
+            List<String[]> variablePaths = new ArrayList<>();
 
             // Output the table data to the selected file. Multiple writers are needed in case
             // tables are appended to an existing file
@@ -1307,7 +1282,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Output the column data tag and column names
-                    pw.printf(CSVTags.COLUMN_NAMES.getTag() + "\n%s\n",
+                    pw.printf(CSVTags.COLUMN_DATA.getTag() + "\n%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
 
                     // Step through each row in the table
@@ -1322,7 +1297,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // Step through each column in the row
                         for (int column = 0; column < columnNames.length; column++)
                         {
-                            List<Integer> dataTypeColumns = new ArrayList<Integer>();
+                            List<Integer> dataTypeColumns = new ArrayList<>();
 
                             // Get the column indices for all columns that can contain a primitive
                             // data type
@@ -1421,7 +1396,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Get the table type definition based on the type name
                     TypeDefinition tableTypeDefn = tableTypeHandler.getTypeDefinition(tableType);
 
-                    // Output the table type tag, and the type name and description
+                    // Output the table type tag, and the type name and
+                    // description
                     pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(tableTypeDefn.getName(),
                                                                        tableTypeDefn.getDescription()));

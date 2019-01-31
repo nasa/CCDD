@@ -264,11 +264,14 @@ public class CcddVariableHandler
      * @param dataType
      *            data type
      *
+     * @param macroHndlr
+     *            macro handler reference
+     *
      * @return Regular expression for matching a sizeof() call for the specified data type
      *********************************************************************************************/
-    protected static String getSizeofDataTypeMatch(String dataType)
+    protected static String getSizeofDataTypeMatch(String dataType, CcddMacroHandler macroHndlr)
     {
-        return "sizeof\\(+?\\s*(" + dataType + ")\\s*\\)";
+        return "sizeof\\(+?\\s*(" + macroHndlr.getMacroExpansion(dataType) + ")\\s*\\)";
     }
 
     /**********************************************************************************************
@@ -293,11 +296,17 @@ public class CcddVariableHandler
      * @param dataType
      *            data type
      *
+     * @param macroHndlr
+     *            macro handler reference
+     *
      * @return true if the supplied text contains a sizeof() call
      *********************************************************************************************/
-    protected static boolean hasSizeof(String text, String dataType)
+    protected static boolean hasSizeof(String text, String dataType, CcddMacroHandler macroHndlr)
     {
-        return text.matches(".*?" + getSizeofDataTypeMatch(dataType) + ".*");
+        return text.matches(".*?"
+                            + getSizeofDataTypeMatch(macroHndlr.getMacroExpansion(dataType),
+                                                     macroHndlr)
+                            + ".*");
     }
 
     /**********************************************************************************************
@@ -320,7 +329,10 @@ public class CcddVariableHandler
         while (expression != null && hasSizeof(expression))
         {
             // Get the data type (primitive or structure) for the sizeof() call
-            String dataType = expression.replaceFirst(".*?" + SIZEOF_DATATYPE + ".*", "$1");
+            String dataType = macroHandler.getMacroExpansion(expression.replaceFirst(".*?"
+                                                                                     + SIZEOF_DATATYPE
+                                                                                     + ".*",
+                                                                                     "$1"));
 
             // Check if the data type isn't in the list of valid ones
             if (validDataTypes != null && !validDataTypes.contains(dataType))

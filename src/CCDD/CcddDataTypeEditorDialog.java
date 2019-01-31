@@ -111,7 +111,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
             // Get the references to the specified data type in the prototype tables
             references = dataTypeHandler.searchDataTypeReferences(dataTypeName,
-                                                               CcddDataTypeEditorDialog.this);
+                                                                  CcddDataTypeEditorDialog.this);
         }
 
         /******************************************************************************************
@@ -309,7 +309,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                                     // Check if the match is within a sizeof() call
                                     if (CcddVariableHandler.hasSizeof(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()],
-                                                                      dataType))
+                                                                      dataType,
+                                                                      macroHandler))
                                     {
                                         // Check if the table name hasn't already been added to the
                                         // list

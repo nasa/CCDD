@@ -8418,7 +8418,9 @@ public class CcddDbTableCommandHandler
                                                 {
                                                     // Check if the cell doesn't contain a sizeof()
                                                     // call for the data type
-                                                    if (!CcddVariableHandler.hasSizeof(oldValue, oldName))
+                                                    if (!CcddVariableHandler.hasSizeof(oldValue,
+                                                                                       oldName,
+                                                                                       macroHandler))
                                                     {
                                                         // Skip this reference. The data type match
                                                         // is coincidental
@@ -8427,11 +8429,14 @@ public class CcddDbTableCommandHandler
 
                                                     // Continue to step through the string,
                                                     // replacing each sizeof() instance
-                                                    while (CcddVariableHandler.hasSizeof(newValue, oldName))
+                                                    while (CcddVariableHandler.hasSizeof(newValue,
+                                                                                         oldName,
+                                                                                         newMacroHandler))
                                                     {
                                                         // Replace the data type in the sizeof()
                                                         // call with the new name
-                                                        newValue = newValue.replaceFirst(CcddVariableHandler.getSizeofDataTypeMatch(oldName),
+                                                        newValue = newValue.replaceFirst(CcddVariableHandler.getSizeofDataTypeMatch(oldName,
+                                                                                                                                    macroHandler),
                                                                                          "sizeof(" + newName + ")");
                                                     }
                                                 }

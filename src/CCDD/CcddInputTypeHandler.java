@@ -692,8 +692,11 @@ public class CcddInputTypeHandler
                         break;
 
                     case ARRAY:
-                        // Remove all spaces and replace any commas with a comma and space
-                        valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
+                        // Remove all spaces, plus signs, and leading zeroes, and replace any
+                        // commas with a comma and space
+                        valueS = valueS.replaceAll("[\\s+\\+]", "")
+                                       .replaceAll("0*([0-9]+)", "$1")
+                                       .replaceAll(",", ", ");
                         break;
 
                     case MESSAGE_ID:

@@ -908,7 +908,9 @@ public class CcddMacroHandler
         for (String[] macro : macros)
         {
             // Check if the macro's value has a sizeof() call for the specified data type
-            if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()], dataType))
+            if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
+                                              dataType,
+                                              CcddMacroHandler.this))
             {
                 // Add the macro and its related macros to the list
                 addRelatedMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);
@@ -1009,6 +1011,16 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
+     * (Re)initialize the lists for the macro modifications and macro definitions. This must be
+     * called prior to the first call to updateMacros(), or to clear the lists
+     *********************************************************************************************/
+    protected void initializeMacroUpdates()
+    {
+        modifications = new ArrayList<>();
+        updatedMacros = CcddUtilities.copyListOfStringArrays(macros);
+    }
+
+    /**********************************************************************************************
      * Add new macros and check for matches with existing ones
      *
      * @param macroDefinitions
@@ -1024,9 +1036,9 @@ public class CcddMacroHandler
     {
         List<String> mismatchedMacros = new ArrayList<String>();
 
-        // Initialize the lists for the macro modifications and macro definitions
-        modifications = new ArrayList<TableModification>();
-        updatedMacros = CcddUtilities.copyListOfStringArrays(macros);
+        // TODO DELETE THESE (MOVED TO SEPARATE METHOD)
+        // modifications = new ArrayList<>();
+        // updatedMacros = CcddUtilities.copyListOfStringArrays(macros);
 
         // Step through each imported macro definition
         for (String[] macroDefn : macroDefinitions)
@@ -1448,6 +1460,11 @@ public class CcddMacroHandler
         // Check if any macros exist
         if (!macros.isEmpty())
         {
+            // TODO THIS TRIES EVERY MACRO AND CHECKS IF THE RESULT MATCHES THE inputType.
+            // PARENTHESES CAN BE A FACTOR IN WHETHER OR NOT A MACRO IS VALID. IF A PARENTHESIS IS
+            // MISSING THE EVALUATED EXPRESSION WON'T BE VALID, SO AN OTHERWISE VALID MACRO WILL BE
+            // LEFT OUT OF THE LIST. WHAT SHOULD BE DONE IF THE PARENTHESES AREN'T BALANCED?
+
             // Step through each macro
             for (String[] macro : macros)
             {
@@ -1455,6 +1472,56 @@ public class CcddMacroHandler
                 String text = textComp.getText().substring(0, textComp.getSelectionStart())
                               + macro[MacrosColumn.VALUE.ordinal()]
                               + textComp.getText().substring(textComp.getSelectionEnd());
+
+                System.out.print(" macro: " + text);// TODO
+
+                // Initialize the parentheses counters. For each left (right) parenthesis a right
+                // (left) one is added to the end (beginning) of the string. This ensures the
+                // parentheses are balanced if the number of left and right parentheses are unequal
+                // or if the one or more right parentheses precedes the first left parenthesis.
+                // Note
+                // that this may not match the user's intended final arrangement for the
+                // parentheses; it serves only to ensure that the resulting string a valid formula.
+                // The macro is then evaluated in this context to see if the resulting string
+                // matches the specified input type and thus determine if teh macro is included in
+                // the pop-up menu
+                int leftParenthesisCount = 0;
+                int rightParenthesisCount = 0;
+
+                // Step through each character in the text string
+                for (char c : text.toCharArray())
+                {
+                    // Check if this is a left parenthesis
+                    if (c == '(')
+                    {
+                        // Increment the left parenthesis counter
+                        leftParenthesisCount++;
+                    }
+                    // Check if this is a right parenthesis
+                    else if (c == ')')
+                    {
+                        // Increment the parenthesis counter
+                        rightParenthesisCount++;
+                    }
+                }
+
+                // Perform for the number of left parentheses
+                while (leftParenthesisCount > 0)
+                {
+                    // Append a left parenthesis and decrement the counter
+                    text += ")";
+                    leftParenthesisCount--;
+                }
+
+                // Perform for the number of right parentheses
+                while (rightParenthesisCount > 0)
+                {
+                    // Prepend a left parenthesis and decrement the counter
+                    text = "(" + text;
+                    rightParenthesisCount--;
+                }
+
+                System.out.println(" -> " + text);// TODO
 
                 // Create a string version of the new value, replacing any macro in the text with
                 // its corresponding value

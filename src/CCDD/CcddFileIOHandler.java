@@ -744,6 +744,9 @@ public class CcddFileIOHandler
         List<String[]> originalReservedMsgIDs = CcddUtilities.copyListOfStringArrays(rsvMsgIDHandler.getReservedMsgIDData());
         List<String[]> originalDataFields = fieldHandler.getFieldDefnsFromInfo();
 
+        // Initialize the macro update lists
+        macroHandler.initializeMacroUpdates();
+
         // Step through each data file to import
         for (FileEnvVar dataFile : dataFiles)
         {
@@ -1024,8 +1027,6 @@ public class CcddFileIOHandler
                 tableEditorDlg.closeFrame();
             }
 
-            // TODO MAKE SURE THIS RESTORES THESE CORRECTLY (REBUILD WHATEVER IS NEEDED, NOT JUST
-            // SETS THE LISTS)
             // Restore the table types, data types, macros, reserved message IDs, and data fields
             // to the values prior to the import operation
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
@@ -1207,7 +1208,6 @@ public class CcddFileIOHandler
                 // Check if the table names match
                 if (tableName.equals(tableDefn.getName()))
                 {
-                    System.out.println(tableName); // TODO
                     // Add the table definition to the list in the order it's referenced and stop
                     // searching
                     orderedTableDefinitions.add(tableDefn);

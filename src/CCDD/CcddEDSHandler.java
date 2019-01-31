@@ -1389,21 +1389,25 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
         }
 
-        // Create a data field for the system path
-        tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
-                                                                        "System path",
-                                                                        "System Path",
-                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
-                                                                        Math.min(Math.max(systemPath.length(),
-                                                                                          5),
-                                                                                 40),
-                                                                        false,
-                                                                        ApplicabilityType.ALL,
-                                                                        systemPath,
-                                                                        false));
+        // Check if the structure table definition contains any variable definitions
+        if (!tableDefn.getData().isEmpty())
+        {
+            // Create a data field for the system path
+            tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                                                                            "System path",
+                                                                            "System Path",
+                                                                            inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
+                                                                            Math.min(Math.max(systemPath.length(),
+                                                                                              5),
+                                                                                     40),
+                                                                            false,
+                                                                            ApplicabilityType.ALL,
+                                                                            systemPath,
+                                                                            false));
 
-        // Add the structure table definition to the list
-        tableDefinitions.add(tableDefn);
+            // Add the structure table definition to the list
+            tableDefinitions.add(tableDefn);
+        }
     }
 
     /**********************************************************************************************

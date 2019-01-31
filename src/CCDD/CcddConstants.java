@@ -2261,7 +2261,7 @@ public class CcddConstants
                                             + "alphanumeric (see Alphanumeric)"),
 
         ARRAY_INDEX("Array index",
-                    "^\\s*\\+??\\s*0*([2-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([2-9]|[1-9]\\d+))*",
+                    "^\\s*\\+??\\s*0*([1-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([1-9]|[1-9]\\d+))*",
                     InputTypeFormat.ARRAY,
                     "Variable array index in the format #<, #<...>>"),
 
