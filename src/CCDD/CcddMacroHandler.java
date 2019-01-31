@@ -1036,10 +1036,6 @@ public class CcddMacroHandler
     {
         List<String> mismatchedMacros = new ArrayList<String>();
 
-        // TODO DELETE THESE (MOVED TO SEPARATE METHOD)
-        // modifications = new ArrayList<>();
-        // updatedMacros = CcddUtilities.copyListOfStringArrays(macros);
-
         // Step through each imported macro definition
         for (String[] macroDefn : macroDefinitions)
         {
@@ -1460,11 +1456,6 @@ public class CcddMacroHandler
         // Check if any macros exist
         if (!macros.isEmpty())
         {
-            // TODO THIS TRIES EVERY MACRO AND CHECKS IF THE RESULT MATCHES THE inputType.
-            // PARENTHESES CAN BE A FACTOR IN WHETHER OR NOT A MACRO IS VALID. IF A PARENTHESIS IS
-            // MISSING THE EVALUATED EXPRESSION WON'T BE VALID, SO AN OTHERWISE VALID MACRO WILL BE
-            // LEFT OUT OF THE LIST. WHAT SHOULD BE DONE IF THE PARENTHESES AREN'T BALANCED?
-
             // Step through each macro
             for (String[] macro : macros)
             {
@@ -1473,14 +1464,11 @@ public class CcddMacroHandler
                               + macro[MacrosColumn.VALUE.ordinal()]
                               + textComp.getText().substring(textComp.getSelectionEnd());
 
-                System.out.print(" macro: " + text);// TODO
-
                 // Initialize the parentheses counters. For each left (right) parenthesis a right
                 // (left) one is added to the end (beginning) of the string. This ensures the
                 // parentheses are balanced if the number of left and right parentheses are unequal
                 // or if the one or more right parentheses precedes the first left parenthesis.
-                // Note
-                // that this may not match the user's intended final arrangement for the
+                // Note that this may not match the user's intended final arrangement for the
                 // parentheses; it serves only to ensure that the resulting string a valid formula.
                 // The macro is then evaluated in this context to see if the resulting string
                 // matches the specified input type and thus determine if teh macro is included in
@@ -1520,8 +1508,6 @@ public class CcddMacroHandler
                     text = "(" + text;
                     rightParenthesisCount--;
                 }
-
-                System.out.println(" -> " + text);// TODO
 
                 // Create a string version of the new value, replacing any macro in the text with
                 // its corresponding value
