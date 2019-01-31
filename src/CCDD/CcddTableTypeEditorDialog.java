@@ -426,7 +426,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1, "Open the data field manager");
                 mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1, "Clear the data field values");
                 JMenu mnOverwrite = ccddMain.createSubMenu(mnField, "Overwrite values", KeyEvent.VK_O, 1, null);
-                mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite, "All", KeyEvent.VK_A, 1, "Overwrite all table field values with the default value", true);
+                mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite, "All", KeyEvent.VK_A, 1, "Overwrite all table field values with the default value", false);
                 mntmOverwriteSame = ccddMain.createRadioButtonMenuItem(mnOverwrite, "If same", KeyEvent.VK_S, 3, "Overwrite only matching table field values with the default value", false);
                 mntmOverwriteEmpty = ccddMain.createRadioButtonMenuItem(mnOverwrite, "If empty", KeyEvent.VK_E, 3, "Overwrite only empty table field values with the default value", false);
                 mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite, "None", KeyEvent.VK_N, 1, "Do not overwrite table field values", true);
