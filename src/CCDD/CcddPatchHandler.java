@@ -95,7 +95,7 @@ public class CcddPatchHandler
         // implemented
         if (isBeforeHandlerInit)
         {
-            // Patch #11052018: PartA - Add a column, field_default, to the fields table that
+            // Patch #11052018: PartA - Add a column, field_inherited, to the fields table that
             // indicates if the field is owned by a table and is inherited from the table's type
             updateFieldsPart1();
 
@@ -184,7 +184,7 @@ public class CcddPatchHandler
     }
 
     /**********************************************************************************************
-     * Update the fields table to include a default_field column and set each field's default
+     * Update the fields table to include a field_inherited column and set each field's default
      * status. Older versions of CCDD are not compatible with the project database after applying
      * this patch
      *
@@ -410,7 +410,7 @@ public class CcddPatchHandler
     }
 
     /**********************************************************************************************
-     * After updating the fields table to include a default_field column add inherited fields to
+     * After updating the fields table to include a field_inherited column add inherited fields to
      * those tables that don't already have the field. Older versions of CCDD are not compatible
      * with the project database after applying this patch
      *

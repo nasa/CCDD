@@ -1777,7 +1777,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // with its corresponding value
                     String newValueS = newMacroHandler.getMacroExpansion(newValue.toString(),
                                                                          validDataTypes);
-                    System.out.println("newValueS: " + newValue + " -> " + newValueS); // TODO
 
                     // Check if a sizeof() call in the text makes a recursive reference. Example:
                     // If this is a structure table then this can occur if a sizeof() call refers
@@ -1886,7 +1885,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Check if the value doesn't match the expected input type
                         if (!newValueS.matches(typeDefn.getInputTypes()[column].getInputMatch()))
                         {
-                            System.out.println("." + newValueS + "."); // TODO
                             throw new CCDDException("Invalid characters in table '</b>"
                                                     + currentTableInfo.getTablePath()
                                                     + "<b>' for column '</b>"

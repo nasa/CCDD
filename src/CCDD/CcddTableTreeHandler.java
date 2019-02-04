@@ -2027,7 +2027,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     {
                         List<Object[]> childPaths = new ArrayList<Object[]>();
 
-                        // Get the children of this header node
+                        // Get the children of this header node. This returns a list of the nodes
+                        // that have no children (the end nodes in each branch); it doesn't include
+                        // the parent nodes leading to the children. The parents must be added
+                        // afterwards
                         addChildNodes(node, childPaths, null, false);
 
                         // Step through each of the child table paths
@@ -2037,13 +2040,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                             String fullPath = getFullVariablePath(childPath);
 
                             // Check if the table isn't already in the list
-                            if (!tables.contains(fullPath))
+                            if (!fullPath.isEmpty() && !tables.contains(fullPath))
                             {
                                 // Add the table's full path (with the root table) to the full path
                                 // list
-                                tables.add(getFullVariablePath(childPath));
+                                tables.add(fullPath);
                             }
                         }
+
+                        // Add all of the parents of the child tables
+                        addTableAncestors(tables, false);
                     }
                 }
                 // The path represents a table
