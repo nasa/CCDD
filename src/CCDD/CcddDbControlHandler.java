@@ -2528,7 +2528,8 @@ public class CcddDbControlHandler
                     // Check that the database isn't the default database (server)
                     if (!databaseName.equals(DEFAULT_DATABASE))
                     {
-                        // Attempt to connect to the default database
+                        // Close the database and attempt to connect to the default database
+                        closeDatabase();
                         errorFlag = connectToServer();
                     }
                 }
