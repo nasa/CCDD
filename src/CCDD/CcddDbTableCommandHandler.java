@@ -2093,15 +2093,17 @@ public class CcddDbTableCommandHandler
 
         try
         {
-            // Check if the table doesn't exist in the database
-            if (!variableHandler.getStructureAndVariablePaths().contains(tablePath))
-            {
-                throw new CCDDException("Table doesn't exist");
-            }
-
             // Strip the variable name, if present, from the table name to get the table's
             // prototype table name
             String tableName = tableInfo.getPrototypeName();
+
+            // Check if the table doesn't exist in the variable list (if it's a structure table) or
+            // in the database (if it's another table type)
+            if (!variableHandler.getStructureAndVariablePaths().contains(tablePath)
+                && !isTableExists(tableName, parent))
+            {
+                throw new CCDDException("Table doesn't exist");
+            }
 
             // Convert the table name to lower case and bound it with double quotes if it matches a
             // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the

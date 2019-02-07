@@ -200,7 +200,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             if (objectJA.get(index) instanceof JSONObject)
             {
                 // Parse the JSON object and add it to the results list
-                results.add(parseCCDDJSONObject((JSONObject) objectJA.get(index)));
+                results.add(parseJSONObject((JSONObject) objectJA.get(index)));
             }
             // Not a JSON object; i.e., it's a string representing an array of items (column names,
             // for example)
@@ -229,7 +229,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *             If an error occurs while attempting to parse the JSON object
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    private JSONObject parseCCDDJSONObject(JSONObject jsonObj) throws ParseException
+    private JSONObject parseJSONObject(JSONObject jsonObj) throws ParseException
     {
         JSONObject resultJO = new JSONObject();
 
@@ -253,7 +253,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Parse the JSON object and add it to the result
                 resultJO.put(obj.toString(),
-                             parseCCDDJSONObject((JSONObject) jsonObj.get(obj)));
+                             parseJSONObject((JSONObject) jsonObj.get(obj)));
             }
             // Item isn't a JSON array or object (i.e., it's a string)
             else
@@ -1541,7 +1541,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the data field(s) added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected OrderedJSONObject getDataFields(String ownerName, String tagName, OrderedJSONObject outputJO)
+    protected OrderedJSONObject getDataFields(String ownerName,
+                                              String tagName,
+                                              OrderedJSONObject outputJO)
     {
         JSONArray dataFieldDefnJA = new JSONArray();
 
@@ -1635,7 +1637,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             tableInformation.put(JSONTags.TABLE_NAME.getTag(), tableName);
             tableInformation.put(JSONTags.TABLE_TYPE.getTag(), tableInfo.getType());
             tableInformation.put(JSONTags.TABLE_DESCRIPTION.getTag(), tableInfo.getDescription());
-            tableInformation.put(JSONTags.TABLE_DATA.getTag(), tableData);
+            tableInformation.put(JSONTags.TABLE_DATA.getTag(),
+                                 tableData.get(JSONTags.TABLE_DATA.getTag()));
             tableInformation = getDataFields(tableName,
                                              JSONTags.TABLE_FIELD.getTag(),
                                              tableInformation);

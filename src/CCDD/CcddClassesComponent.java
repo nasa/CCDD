@@ -4690,6 +4690,15 @@ public class CcddClassesComponent
     protected static class OrderedJSONObject extends LinkedHashMap<Object, Object>
     {
         /******************************************************************************************
+         * Override so as to use the standard JSONObject toString() method
+         *****************************************************************************************/
+        @Override
+        public String toString()
+        {
+            return new JSONObject(this).toString();
+        }
+
+        /******************************************************************************************
          * Convert the key:value pair map into a string. The standard JSONObject toJSONString()
          * method can be used since the map is ordered at this point
          *
