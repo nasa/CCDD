@@ -66,13 +66,12 @@ public class CcddRateParameterHandler
         Collections.sort(rateInformation, new Comparator<RateInformation>()
         {
             /**************************************************************************************
-             * Compare the stream names of two rates. Force lower case to eliminate case
-             * differences in the comparison
+             * Compare the stream names of two rates, ignoring case
              *************************************************************************************/
             @Override
             public int compare(RateInformation rate1, RateInformation rate2)
             {
-                return rate1.getStreamName().toLowerCase().compareTo(rate2.getStreamName().toLowerCase());
+                return rate1.getStreamName().compareToIgnoreCase(rate2.getStreamName());
             }
         });
     }

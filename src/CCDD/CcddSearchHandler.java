@@ -795,7 +795,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                     case TABLES:
                     case SCRIPTS:
                         // Compare the first column as strings, ignoring case
-                        result = entry1[0].toString().toLowerCase().compareTo(entry2[0].toString().toLowerCase());
+                        result = entry1[0].toString().compareToIgnoreCase(entry2[0].toString());
                         break;
 
                     case LOG:
@@ -816,8 +816,10 @@ public class CcddSearchHandler extends CcddDialogHandler
                         && entry2[1].toString().matches("Column '.*', variable '.*\\]'"))
                     {
                         // Get the array variable references from the second column values
-                        String arrayVariable1 = entry1[1].toString().replaceFirst("Column '.*', variable '(.*\\])'", "$1");
-                        String arrayVariable2 = entry2[1].toString().replaceFirst("Column '.*', variable '(.*\\])'", "$1");
+                        String arrayVariable1 = entry1[1].toString()
+                                                         .replaceFirst("Column '.*', variable '(.*\\])'", "$1");
+                        String arrayVariable2 = entry2[1].toString()
+                                                         .replaceFirst("Column '.*', variable '(.*\\])'", "$1");
 
                         // Check if the variables are members of the same array
                         if (ArrayVariable.removeArrayIndex(arrayVariable1)
@@ -830,14 +832,14 @@ public class CcddSearchHandler extends CcddDialogHandler
                         else
                         {
                             // Compare the second column, ignoring case
-                            result = entry1[1].toString().toLowerCase().compareTo(entry2[1].toString().toLowerCase());
+                            result = entry1[1].toString().compareToIgnoreCase(entry2[1].toString());
                         }
                     }
                     // The second column values are not both references to array variable members
                     else
                     {
                         // Compare the second column, ignoring case
-                        result = entry1[1].toString().toLowerCase().compareTo(entry2[1].toString().toLowerCase());
+                        result = entry1[1].toString().compareToIgnoreCase(entry2[1].toString());
                     }
                 }
 

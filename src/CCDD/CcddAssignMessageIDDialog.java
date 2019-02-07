@@ -964,13 +964,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 Collections.sort(fieldInformation, new Comparator<FieldInformation>()
                 {
                     /******************************************************************************
-                     * Compare the table names of two field definitions. Force lower case to
-                     * eliminate case differences in the comparison
+                     * Compare the table names of two field definitions, ignoring case
                      *****************************************************************************/
                     @Override
                     public int compare(FieldInformation fld1, FieldInformation fld2)
                     {
-                        return fld1.getOwnerName().toLowerCase().compareTo(fld2.getOwnerName().toLowerCase());
+                        return fld1.getOwnerName().compareToIgnoreCase(fld2.getOwnerName());
                     }
                 });
 

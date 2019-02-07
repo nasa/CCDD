@@ -918,13 +918,12 @@ public class CcddScriptHandler
         Collections.sort(filters, new Comparator<FileNameExtensionFilter>()
         {
             /**************************************************************************************
-             * Compare the descriptions of two engine extensions. Force lower case to eliminate
-             * case differences in the comparison
+             * Compare the descriptions of two engine extensions, ignoring case
              *************************************************************************************/
             @Override
             public int compare(FileNameExtensionFilter ext1, FileNameExtensionFilter ext2)
             {
-                return ext1.getDescription().toLowerCase().compareTo(ext2.getDescription().toLowerCase());
+                return ext1.getDescription().compareToIgnoreCase(ext2.getDescription());
             }
         });
 
@@ -1359,7 +1358,7 @@ public class CcddScriptHandler
                 {
                     // Sort the table paths. Sorting the tables based on their position in the
                     // table tree ensures that a child table's data is read as part of a parent (if
-                    // the parent is in the association), and not separate;y from the parent
+                    // the parent is in the association), and not separately from the parent
                     Collections.sort(tablePaths, new Comparator<String>()
                     {
                         /**************************************************************************

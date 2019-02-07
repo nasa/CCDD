@@ -24,11 +24,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.OrderedJSONObject;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -729,7 +729,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 {
                     // Store each search result in a JSON object and add it to the search results
                     // array
-                    JSONObject searchJO = new JSONObject();
+                    OrderedJSONObject searchJO = new OrderedJSONObject();
                     searchJO.put(SearchResultsColumnInfo.OWNER.getColumnName(SearchDialogType.TABLES),
                                  searchResult[SearchResultsColumnInfo.OWNER.ordinal()]);
                     searchJO.put(SearchResultsColumnInfo.LOCATION.getColumnName(SearchDialogType.TABLES),
@@ -751,11 +751,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @return JSON encoded string containing active project's information
      *********************************************************************************************/
-    @SuppressWarnings("unchecked")
     private String getProjectInformation()
     {
         String user = "";
-        JSONObject projectJO = new JSONObject();
+        OrderedJSONObject projectJO = new OrderedJSONObject();
 
         // Step through the list of databases and attached users
         for (String active : dbControl.queryActiveList(ccddMain.getMainFrame()))
@@ -879,13 +878,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         else
         {
             // Get the table data
-            JSONObject tableNameAndData = jsonHandler.getTableData(tableName,
-                                                                   getDescription,
-                                                                   isReplaceMacro,
-                                                                   isIncludePath,
-                                                                   variableHandler,
-                                                                   separators,
-                                                                   new JSONObject());
+            OrderedJSONObject tableNameAndData = jsonHandler.getTableData(tableName,
+                                                                          getDescription,
+                                                                          isReplaceMacro,
+                                                                          isIncludePath,
+                                                                          variableHandler,
+                                                                          separators,
+                                                                          new OrderedJSONObject());
 
             // Check if the table data loaded successfully
             if (tableNameAndData != null)
@@ -922,7 +921,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             if (dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
             {
                 // Store the table name and description
-                JSONObject tableNameAndDesc = new JSONObject();
+                OrderedJSONObject tableNameAndDesc = new OrderedJSONObject();
                 tableNameAndDesc.put(JSONTags.TABLE_NAME.getTag(), tableName);
                 tableNameAndDesc.put(JSONTags.TABLE_DESCRIPTION.getTag(),
                                      dbTable.queryTableDescription(tableName,
@@ -939,7 +938,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if the project database contains a data table
             if (tableNames.length != 0)
             {
-                JSONObject tableNameAndDesc;
+                OrderedJSONObject tableNameAndDesc;
                 JSONArray responseJA = new JSONArray();
 
                 // Get the description for every table that has a description
@@ -963,7 +962,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
 
                     // Store the table name and description, and add it to the array
-                    tableNameAndDesc = new JSONObject();
+                    tableNameAndDesc = new OrderedJSONObject();
                     tableNameAndDesc.put(JSONTags.TABLE_NAME.getTag(), name);
                     tableNameAndDesc.put(JSONTags.TABLE_DESCRIPTION.getTag(), description);
                     responseJA.add(tableNameAndDesc);
@@ -1049,7 +1048,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         else if (!checkExists || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
         {
             // Add the table name and data field information to the output
-            JSONObject tableNameAndFields = new JSONObject();
+            OrderedJSONObject tableNameAndFields = new OrderedJSONObject();
             tableNameAndFields.put(JSONTags.TABLE_NAME.getTag(), tableName);
             tableNameAndFields = jsonHandler.getDataFields(tableName,
                                                            JSONTags.TABLE_FIELD.getTag(),
@@ -1085,7 +1084,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         if (protoNamesAndTableTypes.size() != 0)
         {
             JSONArray responseJA = new JSONArray();
-            JSONObject responseJO = null;
+            OrderedJSONObject responseJO = null;
 
             // Get the list of table types
             String[] tableTypes = dbTable.queryTableTypesList(ccddMain.getMainFrame());
@@ -1108,7 +1107,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         response = "";
                     }
 
-                    responseJO = new JSONObject();
+                    responseJO = new OrderedJSONObject();
                     JSONArray namesJA = new JSONArray();
 
                     // Step through each table name
@@ -1172,7 +1171,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getStructureSize(String tableName)
     {
         String response = null;
-        JSONObject responseJO = null;
+        OrderedJSONObject responseJO = null;
         JSONArray responseJA = new JSONArray();
 
         // Get the list of table names and their associated table type
@@ -1198,7 +1197,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Check if the table represents a structure
                 if (typeDefn.isStructure())
                 {
-                    responseJO = new JSONObject();
+                    responseJO = new OrderedJSONObject();
 
                     // Check if the link handler exists
                     if (linkHandler == null)
@@ -1303,11 +1302,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // A table name is provided
         {
             // Get the tables information
-            JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
-                                                                     isReplaceMacro,
-                                                                     isIncludePath,
-                                                                     variableHandler,
-                                                                     separators);
+            OrderedJSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
+                                                                            isReplaceMacro,
+                                                                            isIncludePath,
+                                                                            variableHandler,
+                                                                            separators);
 
             // Check if the table loaded successfully
             if (tableInfoJO != null)
@@ -1341,7 +1340,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         if (groupNames.length != 0)
         {
             response = "";
-            JSONObject responseJO = new JSONObject();
+            OrderedJSONObject responseJO = new OrderedJSONObject();
             JSONArray namesJA = new JSONArray();
 
             // Step though each group/application
@@ -1423,7 +1422,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Step through each row in the table
                 for (String[] row : copyTable)
                 {
-                    JSONObject rowJO = new JSONObject();
+                    OrderedJSONObject rowJO = new OrderedJSONObject();
 
                     // Step through each column in the row
                     for (int column = 0; column < row.length; column++)
@@ -1439,7 +1438,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             }
 
             // Store the copy table information
-            JSONObject copyJO = new JSONObject();
+            OrderedJSONObject copyJO = new OrderedJSONObject();
             copyJO.put(JSONTags.COPY_TABLE_STREAM.getTag(), streamName);
             copyJO.put(JSONTags.COPY_TABLE_HDR_SIZE.getTag(), String.valueOf(headerSize));
             copyJO.put(JSONTags.COPY_TABLE_OPTIMIZE.getTag(), String.valueOf(optimize));
@@ -1505,7 +1504,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Step through each row in the table
                     for (String[] row : sdtEntries)
                     {
-                        JSONObject rowJO = new JSONObject();
+                        OrderedJSONObject rowJO = new OrderedJSONObject();
 
                         // Step through each column in the row
                         for (int column = 0; column < row.length; column++)
@@ -1521,7 +1520,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 }
 
                 // Store the schedule definition table information
-                JSONObject appJO = new JSONObject();
+                OrderedJSONObject appJO = new OrderedJSONObject();
                 appJO.put(JSONTags.APP_SCHED_SCHEDULE_TABLE.getTag(), tableJA);
                 response = appJO.toString();
             }
@@ -1538,7 +1537,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Step through each message definition table entry
                 for (int row = 0; row < msgEntries.length; row++)
                 {
-                    JSONObject rowJO = new JSONObject();
+                    OrderedJSONObject rowJO = new OrderedJSONObject();
 
                     // Add the message definition table value to the array. An array is used to
                     // preserve the order of the items
@@ -1552,7 +1551,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 }
 
                 // Store the message definition table information
-                JSONObject appJO = new JSONObject();
+                OrderedJSONObject appJO = new OrderedJSONObject();
                 appJO.put(JSONTags.APP_SCHED_MESSAGE_TABLE.getTag(), tableJA);
                 response = appJO.toString();
             }
@@ -1586,7 +1585,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *             If an illegal separator character(s) or invalid show/hide data type flag value
      *             is detected
      *********************************************************************************************/
-    @SuppressWarnings("unchecked")
     private String getVariableNames(String variablePath, String parameters) throws CCDDException
     {
         String response = null;
@@ -1597,7 +1595,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Check if all the input parameters are present and that they're in the expected formats
         if (separators != null)
         {
-            JSONObject responseJO = new JSONObject();
+            OrderedJSONObject responseJO = new OrderedJSONObject();
             response = "";
 
             // Get the individual parameters and format them if needed
@@ -1833,7 +1831,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Step through each variable in the structure table
                     for (int row = 0; row < tableInfo.getData().length; row++)
                     {
-                        JSONObject structureJO = new JSONObject();
+                        OrderedJSONObject structureJO = new OrderedJSONObject();
                         String cellValue;
 
                         // Check if the variable name is present. If not then all the variable data
@@ -2032,7 +2030,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Step through each command in the command table
                     for (int row = 0; row < tableInfo.getData().length; row++)
                     {
-                        JSONObject commandJO = new JSONObject();
+                        OrderedJSONObject commandJO = new OrderedJSONObject();
                         String cellValue;
 
                         // Check if the command name is present. If not then all the command data
@@ -2069,7 +2067,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                             // command row
                             for (AssociatedColumns cmdArgument : commandArguments)
                             {
-                                JSONObject commandArgumentJO = new JSONObject();
+                                OrderedJSONObject commandArgumentJO = new OrderedJSONObject();
 
                                 // Check if the command argument name column has a value. If not,
                                 // all associated argument values are skipped
@@ -2172,7 +2170,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getTableTypeDefinitions()
     {
         // Add the table type definitions to the output
-        return jsonHandler.getTableTypeDefinitions(null, new JSONObject()).toJSONString();
+        return jsonHandler.getTableTypeDefinitions(null, new OrderedJSONObject()).toJSONString();
     }
 
     /**********************************************************************************************
@@ -2184,7 +2182,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getDataTypeDefinitions()
     {
         // Add the data type definitions to the output
-        return jsonHandler.getDataTypeDefinitions(null, new JSONObject()).toJSONString();
+        return jsonHandler.getDataTypeDefinitions(null, new OrderedJSONObject()).toJSONString();
     }
 
     /**********************************************************************************************
@@ -2196,7 +2194,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getInputTypeDefinitions()
     {
         // Add the input type definitions to the output
-        return jsonHandler.getInputTypeDefinitions(null, new JSONObject()).toJSONString();
+        return jsonHandler.getInputTypeDefinitions(null, new OrderedJSONObject()).toJSONString();
     }
 
     /**********************************************************************************************
@@ -2208,7 +2206,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getMacroDefinitions()
     {
         // Add the macro definitions to the output
-        return jsonHandler.getMacroDefinitions(null, new JSONObject()).toJSONString();
+        return jsonHandler.getMacroDefinitions(null, new OrderedJSONObject()).toJSONString();
     }
 
     /**********************************************************************************************

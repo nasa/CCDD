@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -106,6 +107,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import org.json.simple.JSONObject;
 
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -1973,8 +1976,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Sort the list based on the comparison column, and converting the column value based on
-         * the specified sort type
+         * Sort the list based on the comparison column, and convert the column value based on the
+         * specified sort type
          *
          * @param sortType
          *            ArrayListMultipleSortType conversion type; determines how the values are
@@ -4675,6 +4678,26 @@ public class CcddClassesComponent
                 g2.setPaint(lineColor);
                 g2.fill(lineRect);
             }
+        }
+    }
+
+    /**********************************************************************************************
+     * The standard JSONObject uses a HashMap and does not retain the order in which the key:value
+     * pairs are stored. This custom JSON object uses a LinkedHashMap, so it maintains the
+     * key:value pairs in the same order in which they were stored
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class OrderedJSONObject extends LinkedHashMap<Object, Object>
+    {
+        /******************************************************************************************
+         * Convert the key:value pair map into a string. The standard JSONObject toJSONString()
+         * method can be used since the map is ordered at this point
+         *
+         * @return JSON key:value pair map converted to a string
+         *****************************************************************************************/
+        protected String toJSONString()
+        {
+            return new JSONObject(this).toJSONString();
         }
     }
 }

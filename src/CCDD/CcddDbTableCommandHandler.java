@@ -2091,22 +2091,23 @@ public class CcddDbTableCommandHandler
         // Create an empty table information class
         TableInformation tableInfo = new TableInformation(tablePath);
 
-        // Strip the variable name, if present, from the table name
-        String tableName = tableInfo.getPrototypeName();
-
-        // Convert the table name to lower case and bound it with double quotes if it matches a
-        // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the name
-        // is quoted), so forcing the name to lower case is done here to differentiate the table
-        // name from the upper case database commands in the event log
-        String dbTableName = dbControl.getQuotedName(tableName);
-
         try
         {
             // Check if the table doesn't exist in the database
-            if (!isTableExists(tableName, parent))
+            if (!variableHandler.getStructureAndVariablePaths().contains(tablePath))
             {
                 throw new CCDDException("Table doesn't exist");
             }
+
+            // Strip the variable name, if present, from the table name to get the table's
+            // prototype table name
+            String tableName = tableInfo.getPrototypeName();
+
+            // Convert the table name to lower case and bound it with double quotes if it matches a
+            // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the
+            // name is quoted), so forcing the name to lower case is done here to differentiate the
+            // table name from the upper case database commands in the event log
+            String dbTableName = dbControl.getQuotedName(tableName);
 
             // Get the table comment
             String[] comment = queryDataTableComment(tableName, parent);
@@ -2278,12 +2279,12 @@ public class CcddDbTableCommandHandler
             // Inform the user that loading the table failed
             eventLog.logFailEvent(parent,
                                   "Cannot load table '"
-                                          + tableInfo.getProtoVariableName()
+                                          + tablePath
                                           + "'; cause '"
                                           + se.getMessage()
                                           + "'",
                                   "<html><b>Cannot load table '</b>"
-                                                 + tableInfo.getProtoVariableName()
+                                                 + tablePath
                                                  + "<b>'");
         }
         catch (Exception e)
@@ -2627,13 +2628,12 @@ public class CcddDbTableCommandHandler
             Collections.sort(tableMembers, new Comparator<TableMembers>()
             {
                 /**********************************************************************************
-                 * Compare the table names of two member definitions. Force lower case to eliminate
-                 * case differences in the comparison
+                 * Compare the table names of two member definitions, ignoring case
                  *********************************************************************************/
                 @Override
                 public int compare(TableMembers mem1, TableMembers mem2)
                 {
-                    return mem1.getTableName().toLowerCase().compareTo(mem2.getTableName().toLowerCase());
+                    return mem1.getTableName().compareToIgnoreCase(mem2.getTableName());
                 }
             });
         }

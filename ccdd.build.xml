@@ -20,7 +20,8 @@
         </jar>
         <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.number" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
     	<copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.version" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
-    	<copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.xml" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
+        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/ccdd.build.xml" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
+        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/overview.html" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
         <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc"/>
         <mkdir dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc"/>
         <copy todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc">
