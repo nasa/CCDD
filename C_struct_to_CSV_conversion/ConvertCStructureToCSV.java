@@ -39,7 +39,7 @@ public class ConvertCStructureToCSV
     private static final String MACRO_IDENTIFIER = "##";
 
     // TODO THE DEFAULT MACRO VALUE OF '2' CAN LEAD TO ERRORS WHEN IMPORTING WHEN AN ARRAY SIZE IS
-    // A FORMULA AND THE FORMULA EVALUATES TO < 2 (ARRAY SIZE MUST BE >= 2)
+    // A FORMULA AND THE FORMULA EVALUATES TO < 1 (ARRAY SIZE MUST BE >= 1)
 
     /**********************************************************************************************
      * C-language structure and type definition to CSV file conversion handler class constructor
@@ -204,7 +204,7 @@ public class ConvertCStructureToCSV
                 boolean isTypeDef = false;
 
                 // Check if this is a type definition
-                if (structDataIn.get(row).startsWith("typedef struct"))
+                if (structDataIn.get(row).matches("\\s*typedef\\s+struct\\s*(?:$|/\\*.*|//.*)"))
                 {
                     // Set the flag indicating this is a type definition
                     isTypeDef = true;
