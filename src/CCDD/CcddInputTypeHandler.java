@@ -537,13 +537,9 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Get an array of all of the input type names, excluding separators and breaks
      *
-     * @param includeSpecialTypes
-     *            true to include special input types (data type and variable path); false to
-     *            exclude
-     *
      * @return Array of all of the input type names
      *********************************************************************************************/
-    protected String[] getNames(boolean includeSpecialTypes)
+    protected String[] getNames()
     {
         // Create an array to hold the input type names
         List<String> inputNames = new ArrayList<String>();
@@ -551,12 +547,8 @@ public class CcddInputTypeHandler
         // Step through each input type
         for (InputType inputType : inputTypes)
         {
-            // Check that this isn't a page format type and, if special types are to be excluded,
-            // that this isn't one of those types
-            if (!inputType.getInputFormat().equals(InputTypeFormat.PAGE_FORMAT)
-                && (includeSpecialTypes
-                    || (!inputType.getInputFormat().equals(InputTypeFormat.DATA_TYPE)
-                        && !inputType.getInputFormat().equals(InputTypeFormat.VARIABLE_PATH))))
+            // Check that this isn't a page format type
+            if (!inputType.getInputFormat().equals(InputTypeFormat.PAGE_FORMAT))
             {
                 // Store the input type name in the array
                 inputNames.add(inputType.getInputName());
@@ -573,15 +565,12 @@ public class CcddInputTypeHandler
      * Get an array of all of the input type descriptions, sorted based on the alphabetically
      * sorted input names, excluding separators and breaks
      *
-     * @param includeSpecialTypes
-     *            true to include special input types (data type and enumeration); false to exclude
-     *
      * @return Array of all of the input type descriptions
      *********************************************************************************************/
-    protected String[] getDescriptions(boolean includeSpecialTypes)
+    protected String[] getDescriptions()
     {
         // Get the list of input type names, sorted alphabetically
-        String[] inputNames = getNames(includeSpecialTypes);
+        String[] inputNames = getNames();
 
         // Create an array to hold the input type descriptions
         String[] inputDescriptions = new String[inputNames.length];

@@ -1130,7 +1130,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private String[] getInputTypeNames()
     {
         // Get the list of all input types
-        String[] inputNames = inputTypeHandler.getNames(true);
+        String[] inputNames = inputTypeHandler.getNames();
 
         // Step through each row in the table type
         for (int row = 0; row < table.getRowCount(); row++)
@@ -1178,7 +1178,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     {
         // Create a combo box for displaying table type input types
         comboBox = new PaddedComboBox(getInputTypeNames(),
-                                      inputTypeHandler.getDescriptions(true),
+                                      inputTypeHandler.getDescriptions(),
                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont())
         {
             /**************************************************************************************
