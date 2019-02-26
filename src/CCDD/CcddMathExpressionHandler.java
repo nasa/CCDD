@@ -226,6 +226,98 @@ public class CcddMathExpressionHandler
 
                     break;
 
+                // Bit-wise AND operator
+                case '&':
+                    // Check if the value for this level is set
+                    if (nestLevel.getValue() != null)
+                    {
+                        nestLevel.setOperator('&');
+                    }
+                    // The level doesn't have a value
+                    else
+                    {
+                        // Set the flag to indicate that the supplied text isn't an expression (or
+                        // has a syntax error)
+                        isExpression = false;
+                    }
+
+                    break;
+
+                case '|':
+                    // Bit-wise OR operator
+                    // Check if the value for this level is set
+                    if (nestLevel.getValue() != null)
+                    {
+                        nestLevel.setOperator('|');
+                    }
+                    // The level doesn't have a value
+                    else
+                    {
+                        // Set the flag to indicate that the supplied text isn't an expression (or
+                        // has a syntax error)
+                        isExpression = false;
+                    }
+
+                    break;
+
+                // Left bit shift operator
+                case '<':
+                    // Check if the next character is also a '<'
+                    if (expression.length() > index + 1 && expression.charAt(index + 1) == '<')
+                    {
+                        // Check if the value for this level is set
+                        if (nestLevel.getValue() != null)
+                        {
+                            nestLevel.setOperator('<');
+                            index++;
+                        }
+                        // The level doesn't have a value
+                        else
+                        {
+                            // Set the flag to indicate that the supplied text isn't an expression
+                            // (or has a syntax error)
+                            isExpression = false;
+                        }
+                    }
+                    // The next character isn't a '<'
+                    else
+                    {
+                        // Set the flag to indicate that the supplied text isn't an expression (or
+                        // has a syntax error)
+                        isExpression = false;
+                    }
+
+                    break;
+
+                // Right bit shift operator
+                case '>':
+                    // Check if the next character is also a '>'
+                    if (expression.length() > index + 1 && expression.charAt(index + 1) == '>')
+                    {
+                        // Check if the value for this level is set
+                        if (nestLevel.getValue() != null)
+                        {
+                            nestLevel.setOperator('>');
+                            index++;
+                        }
+                        // The level doesn't have a value
+                        else
+                        {
+                            // Set the flag to indicate that the supplied text isn't an expression
+                            // (or has a syntax error)
+                            isExpression = false;
+                        }
+                    }
+                    // The next character isn't a '>'
+                    else
+                    {
+                        // Set the flag to indicate that the supplied text isn't an expression (or
+                        // has a syntax error)
+                        isExpression = false;
+                    }
+
+                    break;
+
                 // Space character
                 case ' ':
                     break;
@@ -290,7 +382,7 @@ public class CcddMathExpressionHandler
      *********************************************************************************************/
     private static boolean performOperation(Double dValue, NestLevel nestLevel)
     {
-        boolean isError = true;
+        boolean isValid = true;
 
         // Check if the sign is negative for the nest level
         if (nestLevel.getSign() == -1)
@@ -337,8 +429,51 @@ public class CcddMathExpressionHandler
                     // zero
                     else
                     {
-                        // Set the flag to indicate operation failed
-                        isError = false;
+                        // Set the flag to indicate the operation failed
+                        isValid = false;
+                    }
+
+                    break;
+
+                // Bit-wise AND operator
+                case '&':
+                    nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() & dValue.longValue()))));
+                    break;
+
+                // Bit-wise OR operator
+                case '|':
+                    nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() | dValue.longValue()))));
+                    break;
+
+                // Left bit shift operator
+                case '<':
+                    // Check if the right operand is non-negative
+                    if (dValue >= 0)
+                    {
+                        nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() << dValue.longValue()))));
+                    }
+                    // The right operand is negative; the operation is undefined
+                    else
+                    {
+                        // Set the flag to indicate the operation failed
+                        isValid = false;
+                    }
+
+                    break;
+
+                // Right bit shift operator
+                case '>':
+                    // Check if the right operand is non-negative
+                    if (dValue >= 0)
+                    {
+                        // Set the result to 0 if the right operand is negative
+                        nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() >> dValue.longValue()))));
+                    }
+                    // The right operand is negative; the operation is undefined
+                    else
+                    {
+                        // Set the flag to indicate the operation failed
+                        isValid = false;
                     }
 
                     break;
@@ -352,6 +487,6 @@ public class CcddMathExpressionHandler
         // Reset the nest level's operator
         nestLevel.setOperator('\0');
 
-        return isError;
+        return isValid;
     }
 }

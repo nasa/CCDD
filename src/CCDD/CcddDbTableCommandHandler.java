@@ -8077,9 +8077,6 @@ public class CcddDbTableCommandHandler
             @Override
             protected void complete()
             {
-                // Rebuild the variable paths and offsets
-                variableHandler.buildPathAndOffsetLists();
-
                 // Check if this is a data type change
                 if (dialog instanceof CcddDataTypeEditorDialog)
                 {
@@ -8090,6 +8087,9 @@ public class CcddDbTableCommandHandler
                 {
                     ((CcddMacroEditorDialog) dialog).doMacroUpdatesComplete(errorFlag);
                 }
+
+                // Rebuild the variable paths and offsets
+                variableHandler.buildPathAndOffsetLists();
             }
         });
     }
@@ -8115,7 +8115,6 @@ public class CcddDbTableCommandHandler
                                                             final Component dialog)
     {
         boolean errorFlag = false;
-
         TypeDefinition typeDefn = null;
         final CcddDataTypeHandler newDataTypeHandler;
         final CcddMacroHandler newMacroHandler;
@@ -8245,6 +8244,12 @@ public class CcddDbTableCommandHandler
                     nameChangeOnly = Integer.valueOf(mod.getOriginalRowData()[DataTypesColumn.SIZE.ordinal()].toString()) >= Integer.valueOf(mod.getRowData()[DataTypesColumn.SIZE.ordinal()].toString())
                                      && mod.getOriginalRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString().equals(mod.getRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString());
                 }
+
+                // Replace all instances 'sizeof(oldName)' with 'sizeof(newName)' in the macros
+                newMacroHandler.replaceDataTypeReferences(oldName, newName);
+
+                // Reset the stored expanded values
+                newMacroHandler.clearStoredValues();
             }
             // This is a macro change
             else
@@ -8258,7 +8263,7 @@ public class CcddDbTableCommandHandler
                 newNameDelim = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
 
                 // Get the references to the updated macro
-                references = macroHandler.getMacroReferences(oldNameDelim, dialog).getReferences();
+                references = macroHandler.getMacroReferences(oldName, dialog).getReferences();
 
                 // Check if only a macro name has been changed thus far (or if this is the initial
                 // pass)
@@ -8686,17 +8691,34 @@ public class CcddDbTableCommandHandler
                 fieldHandler.buildFieldInformation(dialog);
             }
 
-            // Store the data type or macro table
-            dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand((isDataType
-                                                                                     ? InternalTable.DATA_TYPES
-                                                                                     : InternalTable.MACROS),
-                                                                         CcddUtilities.removeArrayListColumn(updates,
-                                                                                                             (isDataType
-                                                                                                                         ? DataTypesColumn.OID.ordinal()
-                                                                                                                         : MacrosColumn.OID.ordinal())),
-                                                                         null,
-                                                                         dialog),
-                                      dialog);
+            // Check if this is a data type change
+            if (isDataType)
+            {
+                // Store the data type and macro tables
+                dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand(InternalTable.DATA_TYPES,
+                                                                             CcddUtilities.removeArrayListColumn(updates,
+                                                                                                                 DataTypesColumn.OID.ordinal()),
+                                                                             null,
+                                                                             dialog),
+                                          dialog);
+                dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand(InternalTable.MACROS,
+                                                                             CcddUtilities.removeArrayListColumn(newMacroHandler.getMacroData(),
+                                                                                                                 MacrosColumn.OID.ordinal()),
+                                                                             null,
+                                                                             dialog),
+                                          dialog);
+            }
+            // This is a macro change
+            else
+            {
+                // Store the macro table
+                dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand(InternalTable.MACROS,
+                                                                             CcddUtilities.removeArrayListColumn(updates,
+                                                                                                                 MacrosColumn.OID.ordinal()),
+                                                                             null,
+                                                                             dialog),
+                                          dialog);
+            }
 
             // Release the save point. This must be done within a transaction block, so it must be
             // done prior to the commit below

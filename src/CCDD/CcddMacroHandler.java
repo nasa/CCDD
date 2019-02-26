@@ -98,10 +98,25 @@ public class CcddMacroHandler
         MacroReference(String macroName, Component parent)
         {
             this.macroName = macroName;
+            List<String> dependentMacros = new ArrayList<String>();
+            String searchMacros = "(";
 
-            // Get the references to the specified macro in the data tables
-            references = searchMacroReferences(CcddMacroHandler.getFullMacroName(macroName),
-                                               parent);
+            // Get the list of macros that have a value that depends on the supplied macro. The
+            // list also contains the supplied macro name
+            getDependentMacros(macroName, dependentMacros);
+
+            // Step through each dependent macro name
+            for (String refMacro : dependentMacros)
+            {
+                // Add the macro name, with delimiters, to the search criteria
+                searchMacros += CcddMacroHandler.getFullMacroName(refMacro) + "|";
+            }
+
+            // Clean up the macro search name string
+            searchMacros = CcddUtilities.removeTrailer(searchMacros, "|") + ")";
+
+            // Get the references to the specified macro(s) in the data tables
+            references = searchMacroReferences(searchMacros, parent);
         }
 
         /******************************************************************************************
@@ -390,7 +405,7 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
-     * Replace all instances of the specified the macro name in the supplied text string
+     * Replace all instances of the specified macro name in the supplied text string
      *
      * @param oldName
      *            original macro name, including the delimiters
@@ -425,6 +440,38 @@ public class CcddMacroHandler
         }
 
         return text;
+    }
+
+    /**********************************************************************************************
+     * Replace all instances in all macros with sizeof() calls using the specified data type name
+     * with the new data type name
+     *
+     * @param oldDataTypeName
+     *            original data type name
+     *
+     * @param newDataTypeName
+     *            new data type name
+     *********************************************************************************************/
+    protected void replaceDataTypeReferences(String oldDataTypeName, String newDataTypeName)
+    {
+        // Step through each macro definition
+        for (int index = 0; index < macros.size(); index++)
+        {
+            // Check if the macro's value has a sizeof() call for the specified data type
+            if (CcddVariableHandler.hasSizeof(macros.get(index)[MacrosColumn.VALUE.ordinal()],
+                                              oldDataTypeName,
+                                              CcddMacroHandler.this))
+            {
+                // Replace instances of the old data type name in any sizeof() calls with the new
+                // name
+                macros.set(index,
+                           new String[] {macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()],
+                                         macros.get(index)[MacrosColumn.VALUE.ordinal()].replaceAll("(sizeof\\(+?\\s*)(?:"
+                                                                                                    + oldDataTypeName
+                                                                                                    + ")(\\s*\\))",
+                                                                                                    "$1" + newDataTypeName + "$2")});
+            }
+        }
     }
 
     /**********************************************************************************************
@@ -907,13 +954,17 @@ public class CcddMacroHandler
         // Step through each macro definition
         for (String[] macro : macros)
         {
+            // TODO THIS WON'T WORK FOR sizeof(##MACRO##) WHERE MACRO == THE DATA TYPE NAME! IF THE
+            // MACRO REFERENCED WAS A WHOLE DATA TYPE NAME IT COULD WORK, BUT IT'S POSSIBLE TO
+            // CONCATENATE MUTIPLE MACROS AND TEXT TOGETHER TO GET THE DATA TYPE - THERE'S NO
+            // WAY TO UPDATE THAT
             // Check if the macro's value has a sizeof() call for the specified data type
             if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
                                               dataType,
                                               CcddMacroHandler.this))
             {
-                // Add the macro and its related macros to the list
-                addRelatedMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);
+                // Add the macro and its dependent macros to the list
+                getDependentMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);
             }
         }
 
@@ -925,53 +976,42 @@ public class CcddMacroHandler
      * value to the supplied list. This is a recursive method
      *
      * @param macroName
-     *            macro name
+     *            name of the macro for which to find all dependent macros
      *
-     * @param references
-     *            list to add this macro's name and the names of its dependent macros
+     * @param dependentMacros
+     *            List of macros that have a value that is dependent on a specified macro (list
+     *            includes the specified macro)
      *********************************************************************************************/
-    private void addRelatedMacros(String macroName, List<String> references)
+    private void getDependentMacros(String macroName, List<String> dependentMacros)
     {
-        // Add the macro's name to the list
-        references.add(macroName);
-
-        // Step through each macro referenced in the specified macro's value
-        for (String otherMacro : getReferencedMacros(getMacroValueByName(macroName)))
+        // Check if the macro hasn't already been processed and added to the list
+        if (!dependentMacros.contains(macroName))
         {
-            // Check if this macro hasn't already been added to the list
-            if (!references.contains(otherMacro))
+            // Add the macro name to the list
+            dependentMacros.add(macroName);
+
+            // Step through each macro definition
+            for (String[] macro : macros)
             {
-                // Add this macro and its referenced macros to the list
-                addRelatedMacros(otherMacro, references);
+                // Check that this isn't the definition for the specified macro. Since a macro is
+                // programatically prevented from referencing itself (since that would constitute a
+                // recursion error) this check simply prevents making unneeded calls below
+                if (!macro[MacrosColumn.MACRO_NAME.ordinal()].equalsIgnoreCase(macroName))
+                {
+                    // Get a list of every macro name referenced in this macro's value
+                    List<String> refMac = getReferencedMacros(macro[MacrosColumn.VALUE.ordinal()]);
+
+                    // Check if this macro's value references the specified macro (making its value
+                    // dependent on the specified macro)
+                    if (refMac.contains(macroName))
+                    {
+                        // Add this macro and its dependents to the list
+                        getDependentMacros(macro[MacrosColumn.MACRO_NAME.ordinal()],
+                                           dependentMacros);
+                    }
+                }
             }
         }
-    }
-
-    /**********************************************************************************************
-     * Get the unexpanded macro value associated with the specified macro name
-     *
-     * @param macroName
-     *            macro name
-     *
-     * @return Unexpanded macro value associated with the specified macro name
-     *********************************************************************************************/
-    private String getMacroValueByName(String macroName)
-    {
-        String macroValue = null;
-
-        // Step through each macro definition
-        for (String[] macro : macros)
-        {
-            // Check if the macro name provided matches the definition's name
-            if (macroName.equals(macro[MacrosColumn.MACRO_NAME.ordinal()]))
-            {
-                // Get the associated macro value and stop searching
-                macroValue = macro[MacrosColumn.VALUE.ordinal()];
-                break;
-            }
-        }
-
-        return macroValue;
     }
 
     /**********************************************************************************************
@@ -996,7 +1036,7 @@ public class CcddMacroHandler
                                                                                                                           {"_case_insensitive_",
                                                                                                                            "true"},
                                                                                                                           {"_allow_regex_",
-                                                                                                                           "false"},
+                                                                                                                           "true"},
                                                                                                                           {"_selected_tables_",
                                                                                                                            SearchType.DATA.toString()},
                                                                                                                           {"_columns_",
@@ -1204,7 +1244,9 @@ public class CcddMacroHandler
         for (String[] macro : updatedMacros)
         {
             // Verify the macro's usage
-            validateMacroUsage(macro[MacrosColumn.MACRO_NAME.ordinal()], newMacroHandler, parent);
+            validateMacroUsage(CcddMacroHandler.getFullMacroName(macro[MacrosColumn.MACRO_NAME.ordinal()]),
+                               newMacroHandler,
+                               parent);
         }
     }
 
@@ -1231,10 +1273,8 @@ public class CcddMacroHandler
         List<String> tableNames = new ArrayList<String>();
 
         // Step through each reference to the macro in the tables
-        for (String macroRef : getMacroReferences(CcddMacroHandler.getFullMacroName(macroName),
-                                                  parent).getReferences())
+        for (String macroRef : getMacroReferences(macroName, parent).getReferences())
         {
-
             // Split the reference into table name, column name, table type, and context
             String[] tblColDescAndCntxt = macroRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
             String refComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];

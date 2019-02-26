@@ -1242,8 +1242,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 {
                     // Add the table to the prototype node
                     protoNode.add(new ToolTipTreeNode(member.getTableName(),
-                                                      getTableDescription(member.getTableName(),
-                                                                          "")));
+                                                      getDescriptions
+                                                                      ? getTableDescription(member.getTableName(),
+                                                                                            "")
+                                                                      : null));
                 }
 
                 // Check if the member meets the criteria for inclusion in the instances tree: the
@@ -1283,8 +1285,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                                       ? protoNode
                                                                                       : instNode),
                                    new ToolTipTreeNode(member.getTableName(),
-                                                       getTableDescription(member.getTableName(),
-                                                                           "")));
+                                                       getDescriptions
+                                                                       ? getTableDescription(member.getTableName(),
+                                                                                             "")
+                                                                       : null));
 
                         // Check if a recursive reference was detected and that warning dialogs
                         // aren't suppressed
@@ -1421,13 +1425,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         if (excludedVariables == null || !excludedVariables.contains(tablePath))
                         {
                             // Add the primitive as a node to this child node
-                            childNode.add(new ToolTipTreeNode(variable, ""));
+                            childNode.add(new ToolTipTreeNode(variable, null));
                         }
                         // The variable is in the exclusion list
                         else
                         {
                             // Add the variable with the node text grayed out
-                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR + variable, ""));
+                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR + variable, null));
                         }
                     }
                 }
@@ -1455,9 +1459,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                             buildNodes(member,
                                        childNode,
                                        new ToolTipTreeNode(nodeName,
-                                                           getTableDescription(tablePath,
-                                                                               thisMember.getDataTypes()
-                                                                                         .get(memIndex))));
+                                                           getDescriptions
+                                                                           ? getTableDescription(tablePath,
+                                                                                                 thisMember.getDataTypes()
+                                                                                                           .get(memIndex))
+                                                                           : null));
                         }
                     }
                 }

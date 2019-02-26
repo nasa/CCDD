@@ -720,10 +720,8 @@ public class CcddUtilities
         // Step through each row in the input list
         for (String[] row : list)
         {
-            int tgtColumn = 0;
-
             // Create storage for the row minus the specified column
-            String[] newRow = new String[row.length - 1];
+            List<String> newRow = new ArrayList<String>();
 
             // Step through each column in the row
             for (int column = 0; column < row.length; column++)
@@ -732,13 +730,12 @@ public class CcddUtilities
                 if (column != delColumn)
                 {
                     // Copy the input array value to the new array
-                    newRow[tgtColumn] = row[column];
-                    tgtColumn++;
+                    newRow.add(row[column]);
                 }
             }
 
             // Add the row, minus the specified column, to the list copy
-            newList.add(newRow);
+            newList.add(newRow.toArray(new String[0]));
         }
 
         return newList;

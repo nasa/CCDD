@@ -342,7 +342,8 @@ public class CcddVariableHandler
                 isInvalid = true;
             }
 
-            // Get the size of the data type in bytes and replace the sizeof() call with this value
+            // Get the size of the data type in bytes and replace the sizeof() call with this
+            // value
             expression = expression.replaceFirst(SIZEOF_DATATYPE,
                                                  String.valueOf(getDataTypeSizeInBytes(dataType)));
         }
@@ -489,13 +490,6 @@ public class CcddVariableHandler
                 // Get the variable path for this tree node
                 String varPath = allVariableTree.getFullVariablePath(nodePath);
 
-                // Check if the variable path has any macros in its variable name(s)
-                if (CcddMacroHandler.hasMacro(varPath))
-                {
-                    // Expand any macros contained in the variable name(s)
-                    varPath = macroHandler.getMacroExpansion(varPath);
-                }
-
                 // Check if the path contains a data type
                 if (varPath.matches(".+,.+\\..+"))
                 {
@@ -595,6 +589,25 @@ public class CcddVariableHandler
 
             // Store the offset as the size for this structure
             structureAndVariableOffsets.set(structIndex, offset);
+        }
+
+        // Clear the stored macro values since they may be incorrect due to embedded sizeof()
+        // calls. Now that the structure sizes are known subsequent macro expansions will be
+        // correct
+        macroHandler.clearStoredValues();
+
+        // Step through each table and variable path
+        for (int index = 0; index < structureAndVariablePaths.size(); index++)
+        {
+            // Get the path at this index
+            String varPath = structureAndVariablePaths.get(index);
+
+            // Check if the path contains a macro
+            if (CcddMacroHandler.hasMacro(varPath))
+            {
+                // Update the path in the list with the macros expanded
+                structureAndVariablePaths.set(index, macroHandler.getMacroExpansion(varPath));
+            }
         }
 
         // Add the structure paths and variables to the variable references input type and refresh
