@@ -1095,6 +1095,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
                          "Created "
                                                              + new Date().toString()
+                                                             + " : CCDD version = "
+                                                             + ccddMain.getCCDDVersionInformation()
                                                              + " : project = "
                                                              + dbControl.getDatabaseName()
                                                              + " : host = "

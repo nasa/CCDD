@@ -49,6 +49,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
     // Class references
+    private final CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddDbTableCommandHandler dbTable;
@@ -150,6 +151,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         this.parent = parent;
 
         // Create references to shorten subsequent calls
+        this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -366,7 +368,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                     // Check if this is the table type tag
                                     else if (CSVTags.TABLE_TYPE.isTag(firstColumn))
                                     {
-                                        // Set the flag so that the next row is treated as the table
+                                        // Set the flag so that the next row is treated as the
+                                        // table
                                         // type name and description
                                         isTypeName = true;
                                     }
@@ -1209,6 +1212,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     pw.printf((!addLineFeed
                                             ? "# Created "
                                               + new Date().toString()
+                                              + " : CCDD version = "
+                                              + ccddMain.getCCDDVersionInformation()
                                               + " : project = "
                                               + dbControl.getDatabaseName()
                                               + " : host = "
