@@ -500,7 +500,7 @@ public class CcddKeyboardHandler
                                 // at the current text insertion point
                                 new PopUpComboBox(editorDialog,
                                                   (JTextComponent) comp,
-                                                  editorDialog.getTableEditor().getValidDataTypes(),
+                                                  editorDialog.getTableEditor().getValidStructureDataTypes(),
                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
                         }
@@ -619,7 +619,7 @@ public class CcddKeyboardHandler
                                                       (JTextComponent) comp,
                                                       macroHandler.getMacroPopUpItems((JTextComponent) comp,
                                                                                       inputType,
-                                                                                      editor.getValidDataTypes()),
+                                                                                      editor.getValidStructureDataTypes()),
                                                       macroHandler.getMacroPopUpToolTips(),
                                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                     {

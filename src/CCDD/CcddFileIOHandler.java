@@ -420,12 +420,13 @@ public class CcddFileIOHandler
                     while ((line = br.readLine()) != null)
                     {
                         // Check if this line creates the plpgsql language
-                        if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;"))
+                        if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;")
+                            || line.equals("CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;"))
                         {
                             // Add the command to first drop the language. This allows backups
                             // created from PostgreSQL versions 8.4 and earlier to be restored in
                             // version 9.0 and subsequent without generating an error
-                            line = "DROP LANGUAGE IF EXISTS plpgsql;\n" + line;
+                            line = "DROP LANGUAGE IF EXISTS plpgsql;\nCREATE PROCEDURAL LANGUAGE plpgsql;";
 
                             // Check if the PostgeSQL version is 9 or higher
                             if (dbControl.getPostgreSQLMajorVersion() > 8)

@@ -74,7 +74,6 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.TableSelectionMode;
-import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
@@ -101,7 +100,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private final TableInformation currentTableInfo;
     private TableInformation committedTableInfo;
     private UndoableTableModel tableModel;
-    private CcddTableTreeHandler tableTree;
     private TypeDefinition typeDefn;
 
     // GUI component over which to center any error dialog. This is the editor dialog to which the
@@ -120,7 +118,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private List<MinMaxPair> minMaxPair;
 
     // Array containing the names of all structure tables
-    private String[] allStructureTables;
+    private String[] allPrototypeStructureTables;
 
     // Column header tool tip text
     private String[] toolTips;
@@ -174,6 +172,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // List containing the primitive data types and structures that can be referenced by this table
     // (if it is a structure)
     private List<String> validDataTypes;
+
+    // List containing the structures that can be referenced by this table (if it is a structure)
+    private List<String> validStructureDataTypes;
 
     // List containing the structures that can't be referenced by this table (if it is a
     // structure). This includes the structure itself and all of its ancestor structures
@@ -251,8 +252,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         primaryKeyIndex = DefaultColumn.PRIMARY_KEY.ordinal();
 
         // Initialize the structure table information
-        tableTree = null;
-        allStructureTables = null;
+        allPrototypeStructureTables = null;
 
         // Set the flag to indicate that editing of the table is allowed
         isEditEnabled = true;
@@ -1774,9 +1774,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     boolean useRowRate = false;
 
                     // Create a string version of the new value, replacing any macro in the text
-                    // with its corresponding value
+                    // with its corresponding value. If the macro is within an array size or bit
+                    // length column in a structure table prototype then the valid data types are
+                    // constrained to those that are not one of the table's ancestors. Note that an
+                    // instance table can't have it's array size of bit length changed, and
+                    // non-structure tables can't have children, so there's no need to constrain
+                    // the data types for these cases
                     String newValueS = newMacroHandler.getMacroExpansion(newValue.toString(),
-                                                                         validDataTypes);
+                                                                         typeDefn.isStructure()
+                                                                                              && currentTableInfo.isPrototype()
+                                                                                              && (column == arraySizeIndex
+                                                                                                  || column != bitLengthIndex)
+                                                                                                                               ? invalidDataTypes
+                                                                                                                               : null);
 
                     // Check if a sizeof() call in the text makes a recursive reference. Example:
                     // If this is a structure table then this can occur if a sizeof() call refers
@@ -3160,7 +3170,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean highlightPastedData)
             {
                 // TODO LOTS OF CHANGES WERE MADE ON 11/29/18 - CONTINUE TO VERIFY!
-                // System.out.print("\npasteData: " + currentTableInfo.getTablePath()); // TODO
+                // System.out.print("\npasteData: " + currentTableInfo.getTablePath());
                 // int r = 0;
                 // int c = 0;
                 // for (Object o : cellData)
@@ -4152,6 +4162,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private void setDataTypeColumns(String[] allStructTbls, CcddTableTreeHandler tblTree)
     {
         validDataTypes = null;
+        validStructureDataTypes = null;
         invalidDataTypes = null;
 
         // Get the lists of columns that display primitive data types and primitive & structure
@@ -4192,6 +4203,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         if (!primAndStructColumns.isEmpty())
         {
             invalidDataTypes = new ArrayList<String>();
+            validStructureDataTypes = new ArrayList<String>();
 
             // Check if the list of valid data types wasn't already created above
             if (validDataTypes == null)
@@ -4205,17 +4217,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Add the primitive data types to the combo box list
             addPrimitivesToComboBox(comboBox);
 
-            // Get the array of structure tables, if any
-            allStructureTables = (allStructTbls == null)
-                                                         ? dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE)
-                                                         : allStructTbls;
-
-            // Get the table tree
-            tableTree = (tblTree == null)
-                                          ? new CcddTableTreeHandler(ccddMain,
-                                                                     TableTreeType.INSTANCE_TABLES,
-                                                                     editorDialog)
-                                          : tblTree;
+            // Get the array of prototype structure table names, if any
+            allPrototypeStructureTables = (allStructTbls == null)
+                                                                  ? dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE)
+                                                                  : allStructTbls;
 
             // Add the structure data types to the combo box list
             addStructuresToComboBox(comboBox);
@@ -4239,14 +4244,22 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Get the list of primitive data types and structures. If this is a structure table then
-     * invalid structure table references aren't included
+     * Get the list of prototype structure table names that can be referenced in the current
+     * column. If the current column is the array size or bit length then ancestors of this
+     * structure are not included, otherwise all structures are returned
      *
-     * @return List of primitive data types and structures; null if no data type column exists
+     * @return List of valid prototype structure table names; null if no data type column exists
      *********************************************************************************************/
-    protected List<String> getValidDataTypes()
+    protected List<String> getValidStructureDataTypes()
     {
-        return validDataTypes;
+        int editColumnModel = table.convertColumnIndexToModel(getTable().getEditingColumn());
+
+        return typeDefn.isStructure()
+               && currentTableInfo.isPrototype()
+               && (editColumnModel == arraySizeIndex
+                   || editColumnModel == bitLengthIndex)
+                                                         ? validStructureDataTypes
+                                                         : Arrays.asList(allPrototypeStructureTables);
     }
 
     /**********************************************************************************************
@@ -4281,32 +4294,69 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private void addStructuresToComboBox(PaddedComboBox comboBox)
     {
         // Check if any structure tables exist
-        if (allStructureTables != null && allStructureTables.length != 0)
+        if (allPrototypeStructureTables != null && allPrototypeStructureTables.length != 0)
         {
             // Sort the array of structure table names alphabetically, ignoring case. This ordering
             // should match the ordering in the table tree (which is determined by a PostgreSQL
-            // sort)
-            Arrays.sort(allStructureTables, String.CASE_INSENSITIVE_ORDER);
+            // sort), and is the order displayed in the combo box
+            Arrays.sort(allPrototypeStructureTables, String.CASE_INSENSITIVE_ORDER);
 
-            // Step through each structure table
-            for (String structure : allStructureTables)
+            // Create the list of invalid prototype structure table names by extracting every
+            // prototype name from the table's path
+            invalidDataTypes = new ArrayList<String>();
+
+            // Check if this is a prototype structure table. The array size and bit length can only
+            // be altered in a prototype, so there's no need to exclude any data types from the
+            // list of valid types for an instance table
+            if (currentTableInfo.isPrototype() && typeDefn.isStructure())
             {
-                // Check that this structure is not referenced is the table's tree; otherwise use
-                // of the structure would constitute a recursive reference
-                if (!tableTree.isTargetInTablePath(currentTableInfo.getProtoVariableName(), structure))
-                {
-                    // Since the structure isn't in this table's tree path add the structure table
-                    // name to the combo box list
-                    comboBox.addItem(structure);
+                // Add the table to the invalid list - a table can't reference itself
+                invalidDataTypes.add(currentTableInfo.getTablePath());
 
-                    // Add the structure to the list of valid data types
-                    validDataTypes.add(structure);
-                }
-                // This structure is referenced in the table's tree
-                else
+                // Check if the table is a child table
+                if (!dbTable.isRootStructure(currentTableInfo.getTablePath()))
                 {
-                    // Add the structure to the list of invalid data types
-                    invalidDataTypes.add(structure);
+                    // Build the prototype table name match string
+                    String pathMatch = "," + currentTableInfo.getTablePath() + ".";
+
+                    // Step through each variable path
+                    for (String variablePath : variableHandler.getStructureAndVariablePaths())
+                    {
+                        // Get the index of the prototype name match in the variable path
+                        int index = variablePath.indexOf(pathMatch);
+
+                        // Check if the prototype is in the variable path
+                        if (index != -1)
+                        {
+                            // Step through each ancestor prototype name in the variable path
+                            for (String ancestorPrototype : variablePath.substring(0, index)
+                                                                        .replaceAll("\\.[^,]+", "")
+                                                                        .split(","))
+                            {
+                                // Check if the prototype name isn't already in the list
+                                if (!invalidDataTypes.contains(ancestorPrototype))
+                                {
+                                    // This prototype table is an ancestor of the current structure
+                                    // table. Add the prototype name to the invalid list
+                                    invalidDataTypes.add(ancestorPrototype);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Step through each prototype structure table name
+            for (String prototypeStructure : allPrototypeStructureTables)
+            {
+                // Check if the prototype structure is valid
+                if (!invalidDataTypes.contains(prototypeStructure))
+                {
+                    // Add the prototype structure table name to the valid types (primitive &
+                    // structure and structure only) and combo box lists
+                    validStructureDataTypes.add(prototypeStructure);
+                    validDataTypes.add(prototypeStructure);
+                    comboBox.addItem(prototypeStructure);
                 }
             }
         }

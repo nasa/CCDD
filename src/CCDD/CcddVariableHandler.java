@@ -315,13 +315,13 @@ public class CcddVariableHandler
      * @param expression
      *            text in which to replace any sizeof() calls
      *
-     * @param validDataTypes
-     *            List containing the valid data types when evaluating sizeof() calls; null if
+     * @param invalidDataTypes
+     *            List containing the invalid data types when evaluating sizeof() calls; null if
      *            there are no data type constraints for a sizeof() call
      *
      * @return Input string with each instance of sizeof(data type) replaced by its numeric value
      *********************************************************************************************/
-    protected String replaceSizeofWithValue(String expression, List<String> validDataTypes)
+    protected String replaceSizeofWithValue(String expression, List<String> invalidDataTypes)
     {
         isInvalid = false;
 
@@ -334,8 +334,8 @@ public class CcddVariableHandler
                                                                                      + ".*",
                                                                                      "$1"));
 
-            // Check if the data type isn't in the list of valid ones
-            if (validDataTypes != null && !validDataTypes.contains(dataType))
+            // Check if the data type isn't allowed in the current context
+            if (invalidDataTypes != null && invalidDataTypes.contains(dataType))
             {
                 // Set the flag to indicate an invalid data type reference is made in a sizeof()
                 // call

@@ -63,7 +63,7 @@ public class CcddMacroHandler
     private boolean isMacroRecursive;
 
     // List containing the valid data types when evaluating sizeof() calls
-    private List<String> validDataTypes;
+    private List<String> invalidDataTypes;
 
     // List containing the macro pop-up combo box tool tips
     private final List<String> popUpToolTips;
@@ -596,7 +596,7 @@ public class CcddMacroHandler
                     {
                         // Replace each sizeof() call with its numeric value
                         macroValue = variableHandler.replaceSizeofWithValue(macro[MacrosColumn.VALUE.ordinal()],
-                                                                            validDataTypes);
+                                                                            invalidDataTypes);
 
                         // Check if the sizeof() call references an invalid data type
                         if (variableHandler.isInvalidReference())
@@ -719,21 +719,21 @@ public class CcddMacroHandler
 
     /**********************************************************************************************
      * Replace any macro names and sizeof() calls embedded in the supplied text with the associated
-     * macro values and data type sizes. If a list of valid data types is supplied, sizeof() calls
-     * set an error flag if the referenced data type isn't in the list
+     * macro values and data type sizes. If a list of invalid data types is supplied, sizeof()
+     * calls set an error flag if the referenced data type is in the list
      *
      * @param text
      *            text string possibly containing macro names and/or sizeof() calls
      *
-     * @param validDataTypes
-     *            List containing the valid data types when evaluating sizeof() calls; null if
+     * @param invalidDataTypes
+     *            List containing the invalid data types when evaluating sizeof() calls; null if
      *            there are no data type constraints for a sizeof() call
      *
      * @return Text string with any embedded macro names and sizeof() calls replaced with the
      *         associated macro values and data type sizes; if no macro or sizeof() call is present
      *         the text is returned unchanged
      *********************************************************************************************/
-    protected String getMacroExpansion(String text, List<String> validDataTypes)
+    protected String getMacroExpansion(String text, List<String> invalidDataTypes)
     {
         isMacroRecursive = false;
 
@@ -744,10 +744,12 @@ public class CcddMacroHandler
         if (hasMacro(text) || CcddVariableHandler.hasSizeof(text))
         {
             expandedText = "";
-            this.validDataTypes = validDataTypes;
+            this.invalidDataTypes = invalidDataTypes;
+
+            // TODO MAY HAVE NO NEED FOR validDataTypes? APPEARS TO BE USED TO DETECT RECURSION!
 
             // Convert any sizeof() calls to the equivalent data type size
-            text = variableHandler.replaceSizeofWithValue(text, validDataTypes);
+            text = variableHandler.replaceSizeofWithValue(text, invalidDataTypes);
 
             // Check if the sizeof() call references an invalid data type
             if (variableHandler.isInvalidReference())
@@ -826,9 +828,9 @@ public class CcddMacroHandler
                 }
             }
 
-            // Reset the valid data types so this list doesn't inadvertently affect macro checks
+            // Reset the invalid data types so this list doesn't inadvertently affect macro checks
             // where there is no data type constraint
-            this.validDataTypes = null;
+            this.invalidDataTypes = null;
         }
         // The text doesn't contain a macro or sizeof() call
         else

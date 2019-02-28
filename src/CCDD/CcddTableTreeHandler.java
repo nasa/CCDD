@@ -1531,66 +1531,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Check the table tree to determine if a table is in the path for another table. The tree is
-     * searched starting at its root until the target table is located. Then the nodes "upstream"
-     * of this node are searched for a reference to the structure and, if found, then the structure
-     * is in the tables' path
-     *
-     * @param checkTable
-     *            name of the table to check
-     *
-     * @param targetTable
-     *            name of the target table to search for in the table's path
-     *
-     * @return true if the structure is in the path of the table
-     *********************************************************************************************/
-    protected boolean isTargetInTablePath(String checkTable, String targetTable)
-    {
-        boolean isInPath = false;
-
-        // Step through the root node's children, if any
-        for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
-        {
-            // Get the node referenced
-            ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
-
-            // Check that the node represents a table
-            if (tableNode.getLevel() >= getHeaderNodeLevel())
-            {
-                // Check if the node matches the target table's name
-                if (getTableFromNodeName(tableNode.getUserObject().toString()).equals(checkTable))
-                {
-                    // Step through each node in the table's path, skipping the database,
-                    // prototype/instance, group, and type nodes
-                    for (int nodeIndex = getHeaderNodeLevel(); nodeIndex < tableNode.getPath().length; nodeIndex++)
-                    {
-                        // Get the table name from the node name
-                        String nodeTable = getTableFromNodeName(tableNode.getPath()[nodeIndex].toString());
-
-                        // Check if the table name matches the target table
-                        if (nodeTable.equals(targetTable))
-                        {
-                            // Set the flag indicating the target table is in the table's path and
-                            // stop searching
-                            isInPath = true;
-                            break;
-                        }
-                    }
-
-                    // Check if the target table is in the path
-                    if (isInPath)
-                    {
-                        // Stop searching since a match exists
-                        break;
-                    }
-                }
-            }
-        }
-
-        return isInPath;
-    }
-
-    /**********************************************************************************************
      * Search the entire table tree and get the list of paths where the node contains the search
      * table's name. If no search name is provided then a list of all nodes is returned. The paths
      * are in the form of comma-separated node names, with any HTML tags removed
