@@ -204,7 +204,7 @@ public class ConvertCStructureToCSV
                 boolean isTypeDef = false;
 
                 // Check if this is a type definition
-                if (structDataIn.get(row).matches("\\s*typedef\\s+struct\\s*(?:$|/\\*.*|//.*)"))
+                if (structDataIn.get(row).matches("\\s*typedef\\s+struct\\s*\\{?\\s*(?:$||/\\*.*|//.*)"))
                 {
                     // Set the flag indicating this is a type definition
                     isTypeDef = true;

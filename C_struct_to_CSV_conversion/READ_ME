@@ -32,7 +32,7 @@ Rows in the conversion_paths file that are blank, or that begin with the "#" cha
 
 To perform the conversion execute the following:
 
-  java -jar c_struct_to_csv_convert [-output <output folder path>]
+  java -jar c_struct_to_csv_convert.jar [-output <output folder path>]
   
 The -output option, if used, prepends the supplied folder path to each output file in the
 conversion_paths file.  Note that this retains any path already specified for the output file.
