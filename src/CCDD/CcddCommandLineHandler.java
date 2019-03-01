@@ -941,8 +941,7 @@ public class CcddCommandLineHandler
                                                                  2);
 
                         // Prepend the portion of the path that was skipped to the script path
-                        scriptAndTable[0] = associationString.substring(0,
-                                                                        nameSepIndex)
+                        scriptAndTable[0] = associationString.substring(0, nameSepIndex)
                                             + scriptAndTable[0];
                     }
 
@@ -1137,19 +1136,29 @@ public class CcddCommandLineHandler
 
         // Import command - file path + name
         importArgument.add(new CommandHandler("fileName",
-                                              "Import file name (required)",
+                                              "Import file name(s)[,...] (required)",
                                               "import file name",
                                               CommandLineType.NAME,
                                               0)
         {
             /**************************************************************************************
-             * Set the import file path + name
+             * Set the import file path + name. Multiple path +names may be specified by separating
+             * each with a comma
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                dataFile = new FileEnvVar[1];
-                dataFile[0] = new FileEnvVar((String) parmVal);
+                // Separate the command line argument into the individual file path+names
+                String[] fileNames = ((String) parmVal).split(",");
+
+                dataFile = new FileEnvVar[fileNames.length];
+
+                // Step through each file name
+                for (int index = 0; index < fileNames.length; index++)
+                {
+                    // Create the file's class
+                    dataFile[index] = new FileEnvVar(fileNames[index]);
+                }
             }
         });
 
