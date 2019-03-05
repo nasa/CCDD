@@ -3169,26 +3169,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean combineAsSingleEdit,
                                         boolean highlightPastedData)
             {
-                // TODO LOTS OF CHANGES WERE MADE ON 11/29/18 - CONTINUE TO VERIFY!
-                // System.out.print("\npasteData: " + currentTableInfo.getTablePath());
-                // int r = 0;
-                // int c = 0;
-                // for (Object o : cellData)
-                // {
-                // if (c == 0)
-                // {
-                // System.out.print("\n " + r + ":");
-                // }
-                // System.out.print(" ." + o + ".");
-                // c++;
-                // if (c == numColumns)
-                // {
-                // c = 0;
-                // r++;
-                // }
-                // }
-                // System.out.println("");
-
                 Boolean showMessage = true;
 
                 // Check if the pasted data should be combined into a single edit operation

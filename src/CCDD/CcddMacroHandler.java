@@ -746,8 +746,6 @@ public class CcddMacroHandler
             expandedText = "";
             this.invalidDataTypes = invalidDataTypes;
 
-            // TODO MAY HAVE NO NEED FOR validDataTypes? APPEARS TO BE USED TO DETECT RECURSION!
-
             // Convert any sizeof() calls to the equivalent data type size
             text = variableHandler.replaceSizeofWithValue(text, invalidDataTypes);
 
@@ -956,10 +954,6 @@ public class CcddMacroHandler
         // Step through each macro definition
         for (String[] macro : macros)
         {
-            // TODO THIS WON'T WORK FOR sizeof(##MACRO##) WHERE MACRO == THE DATA TYPE NAME! IF THE
-            // MACRO REFERENCED WAS A WHOLE DATA TYPE NAME IT COULD WORK, BUT IT'S POSSIBLE TO
-            // CONCATENATE MUTIPLE MACROS AND TEXT TOGETHER TO GET THE DATA TYPE - THERE'S NO
-            // WAY TO UPDATE THAT
             // Check if the macro's value has a sizeof() call for the specified data type
             if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
                                               dataType,

@@ -1146,8 +1146,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 if (!setInvalidNodesAndTrim(validTables, childNode))
                 {
                     // Add the child to the list of nodes to remove
-                    removeChildNodes.add(childNode); // TODO NEEDED? IF THE PARENT IS REMOVED THEN
-                                                     // ALL ITS CHILDREN ARE CUT OFF AUTOMATICALLY
+                    removeChildNodes.add(childNode);
                 }
                 // The child has a valid descendant
                 else
@@ -1170,8 +1169,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         else if (!removeChildNodes.isEmpty())
         {
             // Add the invalid child nodes to the list of nodes to remove
-            removeNodes.addAll(removeChildNodes);// TODO NEEDED? IF THE PARENT IS REMOVED THEN ALL
-                                                 // // ITS CHILDREN ARE CUT OFF AUTOMATICALLY
+            removeNodes.addAll(removeChildNodes);
         }
 
         return isValid;

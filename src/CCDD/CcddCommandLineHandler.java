@@ -67,7 +67,7 @@ public class CcddCommandLineHandler
     private boolean showUsage;
 
     // Import command parameters
-    private FileEnvVar[] dataFile;
+    private final List<FileEnvVar> dataFile;
     private boolean replaceExistingTables;
     private boolean appendExistingFields;
     private boolean useExistingFields;
@@ -433,7 +433,7 @@ public class CcddCommandLineHandler
         exportArgument = new ArrayList<CommandHandler>();
         createArgument = new ArrayList<CommandHandler>();
         deleteArgument = new ArrayList<CommandHandler>();
-        dataFile = null;
+        dataFile = new ArrayList<FileEnvVar>();
         replaceExistingTables = false;
         appendExistingFields = false;
         useExistingFields = false;
@@ -1095,7 +1095,7 @@ public class CcddCommandLineHandler
                     {
                         // Import the table(s) from the specified file; check if the import
                         // operation fails
-                        if (ccddMain.getFileIOHandler().importFile(dataFile,
+                        if (ccddMain.getFileIOHandler().importFile(dataFile.toArray(new FileEnvVar[0]),
                                                                    false,
                                                                    replaceExistingTables,
                                                                    appendExistingFields,
@@ -1112,7 +1112,7 @@ public class CcddCommandLineHandler
                     else
                     {
                         // Import the table(s) from the specified file in a background thread
-                        ccddMain.getFileIOHandler().importFileInBackground(dataFile,
+                        ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]),
                                                                            false,
                                                                            replaceExistingTables,
                                                                            appendExistingFields,
@@ -1136,28 +1136,57 @@ public class CcddCommandLineHandler
 
         // Import command - file path + name
         importArgument.add(new CommandHandler("fileName",
-                                              "Import file name(s)[,...] (required)",
-                                              "import file name",
+                                              "Import path+file name(s)",
+                                              "[path1]nameA[+nameB[+...]\n"
+                                                                          + "  [;[path2]nameC[+...][;...]]\n"
+                                                                          + "  (required)",
                                               CommandLineType.NAME,
                                               0)
         {
             /**************************************************************************************
-             * Set the import file path + name. Multiple path +names may be specified by separating
-             * each with a comma
+             * Set the import file path+name(s). Multiple files in the same path can be specified
+             * by separating the first path+name from the subsequent names with a plus (+).
+             *
+             * Example: -fileName "/path/to/fileA+fileB+subPath/fileC" specifies files
+             * /path/to/fileA, /path/to/fileB, and /path/to/subPath/fileC.
+             *
+             * Multiple path groups can be specified by separating each grouping with a semi-colon
+             * (;).
+             *
+             * Example: -fileName "/path1/to/fileA+fileB;/path2/to/fileC" specifies files
+             * /path1/to/fileA, /path1/to/fileB, and /path2/to/fileC.
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                // Separate the command line argument into the individual file path+names
-                String[] fileNames = ((String) parmVal).split(",");
-
-                dataFile = new FileEnvVar[fileNames.length];
-
-                // Step through each file name
-                for (int index = 0; index < fileNames.length; index++)
+                // Step through each path group
+                for (String filePath : ((String) parmVal).split(";"))
                 {
-                    // Create the file's class
-                    dataFile[index] = new FileEnvVar(fileNames[index]);
+                    String path = null;
+
+                    // Step through each file name for this path group
+                    for (String fileName : filePath.split("\\+"))
+                    {
+                        // Check if the path has been determined (i.e., this is the first file in
+                        // the path group)
+                        if (path == null)
+                        {
+                            // Create the file class and add it to the list
+                            FileEnvVar file = new FileEnvVar(fileName);
+                            dataFile.add(file);
+
+                            // Extract the file's path
+                            path = file.getAbsolutePath().substring(0,
+                                                                    file.getAbsolutePath().length()
+                                                                       - file.getName().length());
+                        }
+                        // The path has been determined by the first file
+                        else
+                        {
+                            // Append the path to the file name and add the file to the list
+                            dataFile.add(new FileEnvVar(path + File.separator + fileName));
+                        }
+                    }
                 }
             }
         });
