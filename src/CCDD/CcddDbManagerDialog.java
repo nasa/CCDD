@@ -112,6 +112,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     // editor update
     private String[][] committedData;
 
+    // Owner of the currently selected project (used when changing a project's owner)
+    private String currentOwner;
+
     // Indices into the array of arrayItemData
     private final int DB_PRJNAME = 0;
     private final int DB_INFO = 1;
@@ -194,22 +197,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     switch (dialogType)
                     {
                         case CREATE:
-                            // Get the array containing the roles
-                            String[] roles = dbControl.queryRoleList(CcddDbManagerDialog.this);
-                            String[][] roleInfo = new String[roles.length][2];
-
-                            // Step through each role
-                            for (int index = 0; index < roles.length; index++)
-                            {
-                                // Store the role name
-                                roleInfo[index][0] = roles[index];
-                            }
-
                             // Create a panel containing a grid of radio buttons representing the
                             // roles from which to choose
                             if (!addRadioButtons(null,
                                                  false,
-                                                 roleInfo,
+                                                 getRoleInformation(),
                                                  null,
                                                  "Select project owner",
                                                  false,
@@ -384,6 +376,50 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                selectPnl))
                             {
                                 throw new CCDDException("Unlock");
+                            }
+
+                            break;
+
+                        case OWNER:
+                            // Get the project names and descriptions
+                            getDatabaseInformation(true, false, null);
+
+                            // Create a panel containing a grid of radio buttons representing the
+                            // projects from which to choose
+                            if (!addRadioButtons(null,
+                                                 true,
+                                                 arrayItemData,
+                                                 disabledItems,
+                                                 "Select a project for which to change ownership",
+                                                 true,
+                                                 selectPnl,
+                                                 gbc))
+                            {
+                                throw new CCDDException("Owner");
+                            }
+
+                            // Increment so that the project owner label appears
+                            gbc.gridy++;
+
+                            // Create a panel containing a grid of radio buttons representing the
+                            // roles from which to choose
+                            if (!addRadioButtons(null,
+                                                 false,
+                                                 getRoleInformation(),
+                                                 null,
+                                                 "Select new owner",
+                                                 false,
+                                                 selectPnl,
+                                                 gbc))
+                            {
+                                // Inform the user that no roles exist on the server
+                                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                          "<html><b>No role exists",
+                                                                          "Change Project Owner",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                                errorFlag = true;
+                                throw new CCDDException();
                             }
 
                             break;
@@ -765,6 +801,23 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             break;
 
+                        case OWNER:
+                            // Display the change project owner dialog
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Change Project Owner",
+                                                  DialogOption.OWNER_OPTION,
+                                                  true) == OK_BUTTON)
+                            {
+                                // Change the project owner
+                                dbControl.changeProjectOwner(getRadioButtonSelected(0),
+                                                             currentOwner,
+                                                             getRadioButtonSelected(1),
+                                                             CcddDbManagerDialog.this);
+                            }
+
+                            break;
+
                         case ACCESS:
                             // Display the user access level editor dialog
                             showOptionsDialog(ccddMain.getMainFrame(),
@@ -912,7 +965,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Check if the event indicates a radio button selection change
                 if (pce.getPropertyName().equals(RADIO_BUTTON_CHANGE_EVENT))
                 {
-                    // Check if this is a rename or copy type dialog
+                    // Check if this is a rename, copy, or owner type dialog
                     if (dialogType == DbManagerDialogType.RENAME
                         || dialogType == DbManagerDialogType.COPY)
                     {
@@ -948,9 +1001,16 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         nameFld.setText(name);
                         descriptionFld.setText(desc);
 
+                        // Set a flag that indicates if the name field can be changed (the name
+                        // can't be changed in the rename dialog)
+                        boolean isAlterable = dialogType != DbManagerDialogType.RENAME
+                                              || !name.equals(dbControl.getProjectName());
+
                         // Set the enable state for the input fields
-                        nameFld.setEditable(true);
-                        nameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                        nameFld.setEditable(isAlterable);
+                        nameFld.setBackground(isAlterable
+                                                          ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                                          : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
                         descriptionFld.setEditable(true);
                         descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                         descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
@@ -1040,7 +1100,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         for (int index = 0; index < databases.length; index++)
                         {
                             // Check if the user-supplied name matches an existing database name
-                            if (databases[index].split(",")[0].equals(databaseName))
+                            if (databases[index].split(DATABASE_COMMENT_SEPARATOR, 2)[0].equals(databaseName))
                             {
                                 // Inform the user that the name is already in use
                                 throw new CCDDException("Project name already in use");
@@ -1073,6 +1133,35 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         // Inform the user that a project must be selected
                         throw new CCDDException("Must select a project to " + action);
+                    }
+
+                    break;
+
+                case OWNER:
+                    // Check that a project and owner are selected
+                    if (getRadioButtonSelected(0) == null || getRadioButtonSelected(1) == null)
+                    {
+                        // Inform the user that the project and/or owner isn't selected
+                        throw new CCDDException("Project and owner must be selected");
+                    }
+
+                    // Step through the available project names and owners
+                    for (int index = 0; index < arrayItemData.length; index++)
+                    {
+                        // Check if the selected owner matches
+                        if (arrayItemData[index][DB_PRJNAME].equals(getRadioButtonSelected(0)))
+                        {
+                            // Check that the current and new owner names are the same
+                            if (arrayItemData[index][DB_INFO].equals(getRadioButtonSelected(1)))
+                            {
+                                // Inform the user that the a different owner must be selected
+                                throw new CCDDException("New project owner must be selected");
+                            }
+
+                            // Store the matching project's owner and stop searching
+                            currentOwner = arrayItemData[index][DB_INFO];
+                            break;
+                        }
                     }
 
                     break;
@@ -1602,6 +1691,28 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
+     * Get the array of roles registered on the server
+     *
+     * @return Two-dimensional array where the first dimension contains the available roles and the
+     *         second dimension is null
+     *********************************************************************************************/
+    private String[][] getRoleInformation()
+    {
+        // Get the array containing the roles
+        String[] roles = dbControl.queryRoleList(CcddDbManagerDialog.this);
+        String[][] roleInfo = new String[roles.length][2];
+
+        // Step through each role
+        for (int index = 0; index < roles.length; index++)
+        {
+            // Store the role name
+            roleInfo[index][0] = roles[index];
+        }
+
+        return roleInfo;
+    }
+
+    /**********************************************************************************************
      * Get the project database names and descriptions
      *
      * @param isOnlyUnlocked
@@ -1635,10 +1746,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                                              dbControl.getUser());
         arrayItemData = new String[userDatabaseInformation.length][3];
 
-        // Check if this is the database rename, copy, or delete dialog
+        // Check if this is the database rename, copy, delete, or change owner dialog
         if (dialogType == DbManagerDialogType.RENAME
             || dialogType == DbManagerDialogType.COPY
-            || dialogType == DbManagerDialogType.DELETE)
+            || dialogType == DbManagerDialogType.DELETE
+            || dialogType == DbManagerDialogType.OWNER)
         {
             // Get the list of databases for which the current user has administrative access
             adminAccess = dbControl.getUserAdminAccess();
@@ -1669,11 +1781,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             boolean isDisabled = false;
 
             // Check if the database is locked and that locked databases are to be disabled, if the
-            // database is unlocked and that unlocked databases are to be disabled, and if the item
-            // is not specified as enabled
+            // database is unlocked and that unlocked databases are to be disabled, if the item is
+            // not specified as enabled, and this is not the rename or change owner dialog and not
+            // the currently open project
             if (((isOnlyUnlocked && isLocked)
                  || (isOnlyLocked && !isLocked))
-                && !comment[DatabaseComment.PROJECT_NAME.ordinal()].equals(enabledItem))
+                && !comment[DatabaseComment.PROJECT_NAME.ordinal()].equals(enabledItem)
+                && ((dialogType != DbManagerDialogType.RENAME && dialogType != DbManagerDialogType.OWNER)
+                    || !dbControl.getProjectName().equals(comment[DatabaseComment.PROJECT_NAME.ordinal()])))
             {
                 // Add the index of the database to the disabled list
                 disabledItems.add(index);
@@ -1747,7 +1862,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Store the lock status
                 arrayItemData[index][DB_INFO] = status;
             }
-            // Not the unlock dialog
+            // Check if this is the change owner dialog
+            else if (dialogType == DbManagerDialogType.OWNER)
+            {
+                // Set the information field to the database owner
+                arrayItemData[index][DB_INFO] = dbControl.getProjectOwner(comment[DatabaseComment.PROJECT_NAME.ordinal()],
+                                                                          ccddMain.getMainFrame());
+            }
+            // Not the unlock or change owner dialog
             else
             {
                 // Set the information field to the database description

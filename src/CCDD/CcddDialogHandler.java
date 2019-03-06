@@ -103,7 +103,7 @@ public class CcddDialogHandler extends JDialog
     private int buttonSelected;
 
     // Radio button selected by the user
-    private String radioButtonSelected;
+    private final List<String> radioButtonSelected;
 
     // Text field containing the file name(s) chosen by the user
     private JTextField nameField;
@@ -202,6 +202,7 @@ public class CcddDialogHandler extends JDialog
     CcddDialogHandler()
     {
         buttonSelected = JOptionPane.CLOSED_OPTION;
+        radioButtonSelected = new ArrayList<String>();
         checkBox = null;
 
         // Create a handler for the dialog buttons
@@ -290,14 +291,38 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**********************************************************************************************
-     * Get the currently selected radio button's text component
+     * Get the currently selected radio button's text component for the first radio button group
      *
      * @return Name associated with the currently selected radio button; null if no radio button is
      *         selected
      *********************************************************************************************/
     protected String getRadioButtonSelected()
     {
-        return radioButtonSelected;
+        return getRadioButtonSelected(0);
+    }
+
+    /**********************************************************************************************
+     * Get the currently selected radio button's text component for the specified radio button
+     * group
+     *
+     * @param index
+     *            radio button group index
+     *
+     * @return Name associated with the currently selected radio button for the specified radio
+     *         button group; null if no radio button is selected
+     *********************************************************************************************/
+    protected String getRadioButtonSelected(int index)
+    {
+        String selected = null;
+
+        // Check if the index is valid
+        if (index < radioButtonSelected.size())
+        {
+            // Get the selected radio button for the button group
+            selected = radioButtonSelected.get(index);
+        }
+
+        return selected;
     }
 
     /**********************************************************************************************
@@ -1488,7 +1513,7 @@ public class CcddDialogHandler extends JDialog
         boolean rbtnsAdded = false;
 
         // Store the currently selected item. Use null if no preselected item list is provided
-        radioButtonSelected = rbtnSelected;
+        radioButtonSelected.add(rbtnSelected);
 
         // Check if any items exist
         if (itemInformation.length != 0)
@@ -1544,6 +1569,8 @@ public class CcddDialogHandler extends JDialog
             // Create a listener for radio button selection changes
             ActionListener listener = new ActionListener()
             {
+                final int index = radioButtonSelected.size() - 1;
+
                 /**********************************************************************************
                  * Select the item based on the radio button selection
                  *********************************************************************************/
@@ -1554,13 +1581,16 @@ public class CcddDialogHandler extends JDialog
                     String buttonText = ((JRadioButton) ae.getSource()).getText();
 
                     // Check if the selected item differs from the one currently selected
-                    if (radioButtonSelected == null || !radioButtonSelected.equals(buttonText))
+                    if (radioButtonSelected.get(index) == null
+                        || !radioButtonSelected.get(index).equals(buttonText))
                     {
                         // Update the currently selected item
-                        radioButtonSelected = buttonText;
+                        radioButtonSelected.set(index, buttonText);
 
                         // Issue an event to any listeners that the radio button selection changed
-                        firePropertyChange(RADIO_BUTTON_CHANGE_EVENT, "", radioButtonSelected);
+                        firePropertyChange(RADIO_BUTTON_CHANGE_EVENT,
+                                           "",
+                                           radioButtonSelected.get(index));
                     }
                 }
             };

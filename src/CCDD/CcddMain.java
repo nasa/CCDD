@@ -158,6 +158,7 @@ public class CcddMain
     private JMenuItem mntmUnlock;
     private JMenuItem mntmVerifyDatabase;
     private JMenuItem mntmManageUsers;
+    private JMenuItem mntmChangeDbOwner;
     private JMenuItem[] mntmRecentProjects;
     private JMenu mnData;
     private JMenuItem mntmNewTable;
@@ -1077,6 +1078,7 @@ public class CcddMain
         mntmUnlock.setEnabled(activateIfServer);
         mntmVerifyDatabase.setEnabled(activateIfDatabase);
         mntmManageUsers.setEnabled(activateIfDatabase && activateIfAdmin);
+        mntmChangeDbOwner.setEnabled(activateIfServer);
         mntmNewTable.setEnabled(activateIfDatabase
                                 && tableTypeHandler != null
                                 && tableTypeHandler.getTypes() != null
@@ -1862,6 +1864,7 @@ public class CcddMain
         mntmUnlock = createMenuItem(mnProject, "Unlock", KeyEvent.VK_U, 1, "Unlock project database(s)");
         mnProject.addSeparator();
         mntmVerifyDatabase = createMenuItem(mnProject, "Verify", KeyEvent.VK_V, 1, "Perform a project database consistency check");
+        mntmChangeDbOwner = createMenuItem(mnProject, "Change owner", KeyEvent.VK_W, 1, "Change owner of an existing project databaser");
         mntmManageUsers = createMenuItem(mnProject, "Manage users", KeyEvent.VK_M, 1, "Open the user access level manager");
 
         // Update the recently opened projects command menu items
@@ -2071,6 +2074,19 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddServerPropertyDialog(CcddMain.this, ServerPropertyDialogType.WEB_SERVER);
+            }
+        });
+
+        // Add a listener for the Change owner menu item
+        mntmChangeDbOwner.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Display the project database owner change dialog
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.OWNER);
             }
         });
 

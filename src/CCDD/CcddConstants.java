@@ -348,6 +348,7 @@ public class CcddConstants
         COPY,
         DELETE,
         UNLOCK,
+        OWNER,
         ACCESS
     }
 
@@ -6447,32 +6448,22 @@ public class CcddConstants
         // name,admin(s),description'), sorted alphabetically
         DATABASES("SELECT datname || E'"
                   + DATABASE_COMMENT_SEPARATOR
-                  + "' || split_part(description, '"
-                  + DATABASE_COMMENT_SEPARATOR
-                  + "', 2) || E'"
-                  + DATABASE_COMMENT_SEPARATOR
-                  + "' || split_part(split_part(description, '"
-                  + DATABASE_COMMENT_SEPARATOR
-                  + "', 1), '"
+                  + "' || substr(description, length('"
                   + CCDD_PROJECT_IDENTIFIER
-                  + "', 2) || E'"
-                  + DATABASE_COMMENT_SEPARATOR
-                  + "' || substr(description, length(datName || '"
-                  + CCDD_PROJECT_IDENTIFIER
-                  + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
-                  + "pg_shdescription ON pg_shdescription.objoid = d.oid "
-                  + "WHERE d.datistemplate = false AND description LIKE '"
+                  + "') + 1) AS db_lck_prj_adm_desc FROM pg_database "
+                  + "d LEFT JOIN pg_shdescription ON pg_shdescription.objoid = "
+                  + "d.oid WHERE d.datistemplate = false AND description LIKE '"
                   + CCDD_PROJECT_IDENTIFIER
                   + "%' ORDER BY datname ASC;"),
 
-        // Get the list of CCDD databases (in the form 'database name;lock status;visible
-        // name;project creator;description'), sorted alphabetically, for which the user has
-        // access. '_user_' must be replaced by the user name
+        // Get the list of CCDD databases (in the form 'database name;lock status;visible (project)
+        // name;admin(s);description'), sorted alphabetically, for which the user has access.
+        // '_user_' must be replaced by the user name
         DATABASES_BY_USER("SELECT datname || E'"
                           + DATABASE_COMMENT_SEPARATOR
                           + "' || substr(description, length('"
                           + CCDD_PROJECT_IDENTIFIER
-                          + "') + 1) AS dbname_viewname_lock_creator_desc FROM pg_database "
+                          + "') + 1) AS db_lck_prj_adm_desc FROM pg_database "
                           + "d LEFT JOIN pg_shdescription ON pg_shdescription.objoid = "
                           + "d.oid WHERE d.datistemplate = false AND description LIKE '"
                           + CCDD_PROJECT_IDENTIFIER
@@ -6845,6 +6836,7 @@ public class CcddConstants
         IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2, -1),
         EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2, -1),
         RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2, -1),
+        OWNER_OPTION("Change Owner", 'C', "Cancel", RENAME_ICON, 2, -1),
         COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2, -1),
         BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2, -1),
         RESTORE_OPTION("Restore", 'R', "Cancel", UNDO_ICON, 2, -1),

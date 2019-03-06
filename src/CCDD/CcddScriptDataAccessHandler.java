@@ -4363,6 +4363,16 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Check if the graphical user interface is not displayed
+     *
+     * @return true if the GUI is hidden; false if the GUI is visible
+     *********************************************************************************************/
+    public boolean isGUIHidden()
+    {
+        return ccddMain.isGUIHidden();
+    }
+
+    /**********************************************************************************************
      * Display an informational dialog showing the supplied text. The dialog’s header and icon
      * indicate that the text describes information useful to the user; e.g., script status. The
      * Okay button must be pressed before the script can continue

@@ -1194,6 +1194,122 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
+     * Get the owner of the specified project
+     *
+     * @param projectName
+     *            project name
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *
+     * @return Project's owner; null if the project doen't exist
+     *********************************************************************************************/
+    protected String getProjectOwner(String projectName, Component parent)
+    {
+        String projectOwner = null;
+
+        // Convert the project name into its database form
+        String databaseName = convertProjectNameToDatabase(projectName);
+
+        try
+        {
+            // Get the owner for the database
+            ResultSet resultSet = dbCommand.executeDbQuery("SELECT pg_catalog.pg_get_userbyid(d.datdba) "
+                                                           + "AS \"Owner\" FROM pg_catalog.pg_database d "
+                                                           + "WHERE d.datname = '"
+                                                           + databaseName
+                                                           + "';",
+                                                           parent);
+            resultSet.next();
+
+            // Get the database owner
+            projectOwner = resultSet.getString(1);
+
+            resultSet.close();
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that loading the database comment failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot obtain owner for project database '"
+                                                           + getServerAndDatabase(databaseName)
+                                                           + "'; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot obtain owner for project '</b>"
+                                                                  + projectName
+                                                                  + "<b>'");
+        }
+
+        return projectOwner;
+    }
+
+    /**********************************************************************************************
+     * Change the owner of the specified project
+     *
+     * @param projectName
+     *            project name
+     *
+     * @param currentOwner
+     *            current owner of the database
+     *
+     * @param newOwner
+     *            new owner of the database
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void changeProjectOwner(String projectName,
+                                      String currentOwner,
+                                      String newOwner,
+                                      Component parent)
+    {
+        // Convert the project name into its database form
+        String databaseName = convertProjectNameToDatabase(projectName);
+
+        try
+        {
+            // Enable auto-commit for database changes
+            connection.setAutoCommit(true);
+
+            // Change the database owner
+            dbCommand.executeDbCommand("ALTER DATABASE "
+                                       + databaseName
+                                       + " OWNER TO "
+                                       + newOwner
+                                       + "; REASSIGN OWNED BY "
+                                       + currentOwner
+                                       + " TO "
+                                       + newOwner
+                                       + ";",
+                                       parent);
+
+            // Log that changing the database owner succeeded
+            eventLog.logEvent(SUCCESS_MSG,
+                              "Project '" + projectName + "' ownership changed");
+        }
+        catch (SQLException se)
+        {
+            // TODO ADD TO GUIDE
+            // Inform the user that the database owner cannot be changed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot change project database '"
+                                                           + getServerAndDatabase(databaseName)
+                                                           + "' ownership; cause '"
+                                                           + se.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot change project '</b>"
+                                                                  + projectName
+                                                                  + "<b>' ownership)");
+        }
+        finally
+        {
+            // Disable auto-commit for database changes
+            resetAutoCommit();
+        }
+    }
+
+    /**********************************************************************************************
      * Get the database description
      *
      * @param databaseName
