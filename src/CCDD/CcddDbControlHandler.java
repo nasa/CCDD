@@ -156,11 +156,14 @@ public class CcddDbControlHandler
         /******************************************************************************************
          * Get the streams' content
          *
-         * @return The contents of the stream; null if the content was not configured to be stored
+         * @return The contents of the stream; empty string if the content was not configured to be
+         *         stored
          *****************************************************************************************/
         protected String getOutput()
         {
-            return output.toString();
+            return output != null
+                                  ? output.toString()
+                                  : "";
         }
 
         /******************************************************************************************
@@ -1290,7 +1293,6 @@ public class CcddDbControlHandler
         }
         catch (SQLException se)
         {
-            // TODO ADD TO GUIDE
             // Inform the user that the database owner cannot be changed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot change project database '"
@@ -3308,130 +3310,166 @@ public class CcddDbControlHandler
      *
      * @param restoreFile
      *            file to restore the database from
+     *
+     * @param overwriteExisting
+     *            true to overwrite the existing project database; false to create a new database
+     *            ion which to restore the backup file contents
      *********************************************************************************************/
-    protected void restoreDatabase(final String projectName,
-                                   final String ownerName,
-                                   final String description,
-                                   final File restoreFile)
+    protected void restoreDatabaseInBackground(final String projectName,
+                                               final String ownerName,
+                                               final String description,
+                                               final File restoreFile,
+                                               final boolean overwriteExisting)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            String errorType = "";
-
             /**************************************************************************************
              * Restore database command
              *************************************************************************************/
             @Override
             protected void execute()
             {
-                // Create the names for the restored project and database
-                String restoreProjectName = projectName + "_restored";
-                String restoreDatabaseName = convertProjectNameToDatabase(projectName)
-                                             + "_restored";
-
-                // Get the list of available databases
-                String[] databases = queryDatabaseList(ccddMain.getMainFrame());
-
-                boolean isMatch = true;
-                int seqNum = 0;
-                String seqName = "";
-
-                // Continue to check for name matches until the restored database name is unique
-                while (isMatch)
-                {
-                    isMatch = false;
-
-                    // Step through each existing database name
-                    for (String name : databases)
-                    {
-                        // Check if the name of the restored database name matches that of another
-                        // database
-                        if ((restoreDatabaseName + seqName).equals(name.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
-                        {
-                            // Increment the sequence number and set the flag to indicate a match
-                            // was found. Repeat the process in case this amended name is also a
-                            // match
-                            seqNum++;
-                            seqName = "_" + seqNum;
-                            isMatch = true;
-                            break;
-                        }
-                    }
-                }
-
-                // Check if a sequence number is needed to differentiate the database name
-                if (!seqName.isEmpty())
-                {
-                    // Add the sequence number to the names
-                    restoreProjectName += seqName;
-                    restoreDatabaseName += seqName;
-                }
-
-                // Create a new database to which to restore the data
-                if (createDatabase(restoreProjectName, ownerName, description))
-                {
-                    // Build the command to restore the database
-                    String command = "psql "
-                                     + getUserHostAndPort()
-                                     + "-d "
-                                     + restoreDatabaseName
-                                     + " -v ON_ERROR_STOP=true -f ";
-
-                    // Get the number of command line arguments. Since the restore file name may
-                    // have spaces the argument count must be made prior to appending it
-                    int numArgs = command.split(" ").length + 1;
-
-                    // Append the file name, bounded by quotes in case it contains a space
-                    command += "\"" + restoreFile.getAbsolutePath() + "\"";
-
-                    // Log the database restore command
-                    eventLog.logEvent(COMMAND_MSG, command);
-
-                    // Execute the restore command
-                    errorType = executeProcess(command, numArgs);
-
-                    // Check if no error occurred
-                    if (errorType.isEmpty())
-                    {
-                        // Log that the database restoration succeeded
-                        eventLog.logEvent(SUCCESS_MSG, "Project '"
-                                                       + projectName
-                                                       + "' restored as '"
-                                                       + restoreProjectName
-                                                       + "'");
-                    }
-                }
-                // Database restoration failed
-                else
-                {
-                    // Set the error type message
-                    errorType = "cannot create restore database";
-                }
-            }
-
-            /**************************************************************************************
-             * Restore database command complete
-             *************************************************************************************/
-            @Override
-            protected void complete()
-            {
-                // Check if an error occurred restoring the database
-                if (errorType == null || !errorType.isEmpty())
-                {
-                    // Inform the user that the database could not be restored
-                    eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Project '"
-                                                                   + projectName
-                                                                   + "' restore failed; cause '"
-                                                                   + errorType
-                                                                   + "'",
-                                          "<html><b>Project '</b>"
-                                                                          + projectName
-                                                                          + "<b>' restore failed");
-                }
+                restoreDatabase(projectName,
+                                ownerName,
+                                description,
+                                restoreFile,
+                                overwriteExisting);
             }
         });
+    }
+
+    /**********************************************************************************************
+     * Restore a database
+     *
+     * @param projectName
+     *            name of the project to restore (preserving case and special characters)
+     *
+     * @param ownerName
+     *            name of the role or user that owns the database and its objects
+     *
+     * @param description
+     *            project description
+     *
+     * @param restoreFile
+     *            file to restore the database from
+     *
+     * @param overwriteExisting
+     *            true to overwrite the existing project database; false to create a new database
+     *            ion which to restore the backup file contents
+     *********************************************************************************************/
+    protected void restoreDatabase(String projectName,
+                                   String ownerName,
+                                   String description,
+                                   File restoreFile,
+                                   boolean overwriteExisting)
+    {
+        String errorType = "";
+
+        // Create the names for the restored project and database
+        String restoreProjectName = projectName
+                                    + (overwriteExisting
+                                                         ? ""
+                                                         : "_restored");
+        String restoreDatabaseName = convertProjectNameToDatabase(projectName)
+                                     + (overwriteExisting
+                                                          ? ""
+                                                          : "_restored");
+
+        // Get the list of available databases
+        String[] databases = queryDatabaseList(ccddMain.getMainFrame());
+
+        boolean isMatch = !overwriteExisting;
+        int seqNum = 0;
+        String seqName = "";
+
+        // Continue to check for name matches until the restored database name is unique
+        while (isMatch)
+        {
+            isMatch = false;
+
+            // Step through each existing database name
+            for (String name : databases)
+            {
+                // Check if the name of the restored database name matches that of another
+                // database
+                if ((restoreDatabaseName + seqName).equals(name.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
+                {
+                    // Increment the sequence number and set the flag to indicate a match
+                    // was found. Repeat the process in case this amended name is also a
+                    // match
+                    seqNum++;
+                    seqName = "_" + seqNum;
+                    isMatch = true;
+                    break;
+                }
+            }
+        }
+
+        // Check if a sequence number is needed to differentiate the database name
+        if (!seqName.isEmpty())
+        {
+            // Add the sequence number to the names
+            restoreProjectName += seqName;
+            restoreDatabaseName += seqName;
+        }
+
+        // Check if an existing database is being overwritten; if no, create a new database to
+        // which to restore the data and check that it is created successfully
+        if (overwriteExisting || createDatabase(restoreProjectName, ownerName, description))
+        {
+            // Build the command to restore the database
+            String command = "psql "
+                             + getUserHostAndPort()
+                             + "-d "
+                             + restoreDatabaseName
+                             + " -v ON_ERROR_STOP=true -f ";
+
+            // Get the number of command line arguments. Since the restore file name may
+            // have spaces the argument count must be made prior to appending it
+            int numArgs = command.split(" ").length + 1;
+
+            // Append the file name, bounded by quotes in case it contains a space
+            command += "\"" + restoreFile.getAbsolutePath() + "\"";
+
+            // Log the database restore command
+            eventLog.logEvent(COMMAND_MSG, command);
+
+            // Execute the restore command
+            errorType = executeProcess(command, numArgs);
+
+            // Check if no error occurred
+            if (errorType.isEmpty())
+            {
+                // Log that the database restoration succeeded
+                eventLog.logEvent(SUCCESS_MSG, "Project '"
+                                               + projectName
+                                               + "' restored as '"
+                                               + restoreProjectName
+                                               + "'");
+            }
+        }
+        // Database restoration failed
+        else
+        {
+            // Set the error type message
+            errorType = "cannot create restore database";
+        }
+
+        // Check if an error occurred restoring the database
+        if (errorType == null || !errorType.isEmpty())
+        {
+            // Inform the user that the database could not be restored
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Project '"
+                                                           + projectName
+                                                           + "' restore failed; cause '"
+                                                           + errorType
+                                                           + "'",
+                                  "<html><b>Project '</b>"
+                                                                  + projectName
+                                                                  + "<b>' restore failed");
+        }
     }
 
     /**********************************************************************************************

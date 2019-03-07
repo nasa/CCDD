@@ -102,6 +102,7 @@ public class CcddCommandLineHandler
     private String createName;
     private String createOwner;
     private String createDescription;
+    private String createRestore;
 
     // Delete project parameters
     private String deleteName;
@@ -457,6 +458,7 @@ public class CcddCommandLineHandler
         createName = null;
         createOwner = null;
         createDescription = "";
+        createRestore = null;
         deleteName = null;
         deleteContinueIfMissing = false;
         stopProcessingCommands = false;
@@ -1870,6 +1872,16 @@ public class CcddCommandLineHandler
                     {
                         throw new Exception();
                     }
+
+                    // Check if a backup file was chosen to restore
+                    if (createRestore != null)
+                    {
+                        // Restore the backup file to the newly created project database
+                        ccddMain.getFileIOHandler().restoreDatabaseFromFile(createRestore,
+                                                                            createName,
+                                                                            createOwner,
+                                                                            createDescription);
+                    }
                 }
                 // The attempt to connect to the PostgreSQL server failed
                 else
@@ -1927,6 +1939,23 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 createDescription = (String) parmVal;
+            }
+        });
+
+        // Restore project backup command - backup file name
+        createArgument.add(new CommandHandler("restore",
+                                              "Backup file to restore",
+                                              "backup file name",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the backup file name to restore
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                createRestore = (String) parmVal;
             }
         });
 

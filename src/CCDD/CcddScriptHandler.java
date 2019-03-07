@@ -2012,20 +2012,32 @@ public class CcddScriptHandler
             // isn't empty
             if (!tableInfo.isErrorFlag() && tableInfo.getData().length != 0)
             {
+                boolean isStructure = false;
+                int variableNameColumn = -1;
+                int dataTypeColumn = -1;
+                int arraySizeColumn = -1;
+                int variablePathColumn = -1;
+
                 // Get the table's type definition
                 TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+
+                // Check if the table represents a structure
+                if (typeDefn.isStructure())
+                {
+                    isStructure = true;
+
+                    // Get the variable name, data type, array size, and path column indices
+                    variableNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                    dataTypeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                    arraySizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                    variablePathColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
+                }
 
                 // Get the data and place it in an array for reference below. Add columns to
                 // contain the table type and path
                 String[][] data = CcddUtilities.appendArrayColumns(tableInfo.getData(), 2);
                 int typeColumn = data[0].length - TYPE_COLUMN_DELTA;
                 int pathColumn = data[0].length - PATH_COLUMN_DELTA;
-
-                // Get the variable name, data type, and path column indices (if these columns
-                // exist in the table)
-                int variableNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
-                int dataTypeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
-                int variablePathColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
 
                 // Step through each row
                 for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
@@ -2035,12 +2047,11 @@ public class CcddScriptHandler
                     data[row][typeColumn] = tableInfo.getType();
                     data[row][pathColumn] = tablePath;
 
-                    // Check if the table contains variable path, variable name, and data type
-                    // columns, and that the variable name and data type aren't blank
-                    if (variablePathColumn != -1
-                        && variableNameColumn != -1
+                    // Check if the table represents a structure, contains a variable path column,
+                    // and that the variable name and data type aren't blank
+                    if (isStructure
+                        && variablePathColumn != -1
                         && !data[row][variableNameColumn].isEmpty()
-                        && dataTypeColumn != -1
                         && !data[row][dataTypeColumn].isEmpty())
                     {
                         // Get the variable path and store it in the table data. The variable path
@@ -2061,55 +2072,35 @@ public class CcddScriptHandler
                     combinedData = CcddUtilities.concatenateArrays(combinedData,
                                                                    new Object[][] {data[row]});
 
-                    // Check if this is a table reference (a data type column was found and it does
-                    // not contain a primitive data type)
-                    if (dataTypeColumn != -1
-                        && !dataTypeHandler.isPrimitive(data[row][dataTypeColumn]))
+                    // Check if this is a structure table reference
+                    if (isStructure && !dataTypeHandler.isPrimitive(data[row][dataTypeColumn]))
                     {
-                        // Get the column containing the variable name for this table
-                        int varNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
-
-                        // Check that a variable name column was found
-                        if (varNameColumn != -1)
+                        // Check if the data type or variable name isn't blank, and if an array
+                        // size column doesn't exist or that the row doesn't reference an array
+                        // definition. This is necessary to prevent appending the prototype
+                        // information for this data type structure
+                        if ((!data[row][dataTypeColumn].isEmpty()
+                             || !data[row][variableNameColumn].isEmpty())
+                            && (data[row][arraySizeColumn].isEmpty()
+                                || ArrayVariable.isArrayMember(data[row][variableNameColumn])))
                         {
-                            // Get the column containing the array size for this table
-                            int arraySizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                            // Get the variable in the format dataType.variableName, prepend a
+                            // comma to separate the new variable from the preceding variable path,
+                            // then break down the child table
+                            TableInformation childInfo = readTable(tablePath
+                                                                   + ","
+                                                                   + data[row][dataTypeColumn]
+                                                                   + "."
+                                                                   + data[row][variableNameColumn],
+                                                                   parent);
 
-                            // Check if the data type or variable name isn't blank, and if an array
-                            // size column doesn't exist or that the row doesn't reference an array
-                            // definition. This is necessary to prevent appending the prototype
-                            // information for this data type structure
-                            if ((!data[row][dataTypeColumn].isEmpty()
-                                 || !data[row][varNameColumn].isEmpty())
-                                && (arraySizeColumn == -1
-                                    || data[row][arraySizeColumn].isEmpty()
-                                    || ArrayVariable.isArrayMember(data[row][varNameColumn])))
+                            // Check if an error occurred loading the child table
+                            if (childInfo != null && childInfo.isErrorFlag())
                             {
-                                // Get the variable in the format dataType.variableName, prepend a
-                                // comma to separate the new variable from the preceding variable
-                                // path, then break down the child table
-                                TableInformation childInfo = readTable(tablePath
-                                                                       + ","
-                                                                       + data[row][dataTypeColumn]
-                                                                       + "."
-                                                                       + data[row][varNameColumn],
-                                                                       parent);
-
-                                // Check if an error occurred loading the child table
-                                if (childInfo != null && childInfo.isErrorFlag())
-                                {
-                                    // Set the error flag and stop processing this table
-                                    tableInfo.setErrorFlag();
-                                    break;
-                                }
+                                // Set the error flag and stop processing this table
+                                tableInfo.setErrorFlag();
+                                break;
                             }
-                        }
-                        // Table has no variable name column
-                        else
-                        {
-                            // Set the error flag and stop processing this table
-                            tableInfo.setErrorFlag();
-                            break;
                         }
                     }
                 }

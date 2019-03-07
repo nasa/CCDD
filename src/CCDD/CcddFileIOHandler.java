@@ -350,10 +350,49 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected void restoreDatabaseFromFile()
     {
+        restoreDatabaseFromFile(null, null, null, null);
+    }
+
+    /**********************************************************************************************
+     * Restore a project's database from a specified or user-selected backup file. The backup is a
+     * plain text file containing the PostgreSQL commands necessary to rebuild the database
+     *
+     * @param restoreFileName
+     *            name of the backup file to restore; null to allow the user to choose a file
+     *
+     * @param projectName
+     *            name of the project to restore; null to extract the project name from the backup
+     *            file's database comment
+     *
+     * @param projectOwner
+     *            owner of the project to restore; null to extract the owner name from the backup
+     *            file's database comment
+     *
+     * @param projectDescription
+     *            description of the project to restore; null to extract the description from the
+     *            backup file's database comment
+     *********************************************************************************************/
+    protected void restoreDatabaseFromFile(String restoreFileName,
+                                           String projectName,
+                                           String projectOwner,
+                                           String projectDescription)
+    {
+        boolean ownerFound = projectOwner != null;
+        boolean commentFound = projectName != null && projectDescription != null;
+
+        // Check if a blank backup file name is provided
+        if (restoreFileName != null && restoreFileName.isEmpty())
+        {
+            // Set the file name to null to allow easier comparisons below
+            restoreFileName = null;
+        }
+
         // Set the flag if the current user's password is non-blank. Depending on the
         // authentication set-up and operating system, the password may still be required by the
-        // psql command even if the authentication method is 'trust'
-        boolean isPasswordSet = dbControl.isPasswordNonBlank();
+        // psql command even if the authentication method is 'trust'. If the restore is initiated
+        // from the command line with the GUI hidden then the password is assumed to be already set
+        boolean isPasswordSet = dbControl.isPasswordNonBlank()
+                                || (ccddMain.isGUIHidden() && restoreFileName != null);
 
         // Check if no password is set
         if (!isPasswordSet)
@@ -368,22 +407,33 @@ public class CcddFileIOHandler
         }
 
         // Check if the user's database password is set (either non-blank or explicitly set to
-        // blank )
+        // blank)
         if (isPasswordSet)
         {
             File tempFile = null;
+            FileEnvVar[] dataFile = null;
 
-            // Allow the user to select the backup file path + name to load from
-            FileEnvVar[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                           ccddMain.getMainFrame(),
-                                                                           null,
-                                                                           null,
-                                                                           new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                                                      FileExtension.DBU.getExtensionName())},
-                                                                           false,
-                                                                           "Restore Project",
-                                                                           ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                                                           DialogOption.RESTORE_OPTION);
+            // Check if the name of the backup file name to restore isn't provided
+            if (restoreFileName == null)
+            {
+                // Allow the user to select the backup file path + name to load from
+                dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                  ccddMain.getMainFrame(),
+                                                                  null,
+                                                                  null,
+                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                                             FileExtension.DBU.getExtensionName())},
+                                                                  false,
+                                                                  "Restore Project",
+                                                                  ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                                                  DialogOption.RESTORE_OPTION);
+            }
+            // The name of the backup file to restore is provided
+            else
+            {
+                // Create the file class
+                dataFile = new FileEnvVar[] {new FileEnvVar(restoreFileName)};
+            }
 
             // Check if a file was chosen
             if (dataFile != null && dataFile[0] != null)
@@ -401,12 +451,7 @@ public class CcddFileIOHandler
                                                 + "'");
                     }
 
-                    boolean ownerFound = false;
-                    boolean commentFound = false;
                     String line;
-                    String projectName = null;
-                    String projectOwner = null;
-                    String projectDescription = null;
 
                     // Create a temporary file in which to copy the backup file contents
                     tempFile = File.createTempFile(dataFile[0].getName(), "");
@@ -489,13 +534,34 @@ public class CcddFileIOHandler
                     // Check if the project owner, name, and description exist
                     if (ownerFound && commentFound)
                     {
-                        // Restore the database from the temporary file. This file has the line
-                        // that disables creation of the database comment, which is handled when
-                        // the restored database is created
-                        dbControl.restoreDatabase(projectName,
-                                                  projectOwner,
-                                                  projectDescription,
-                                                  tempFile);
+                        // Flush the output file buffer so that none of the contents are lost
+                        bw.flush();
+
+                        // Check if the backup file is restored via the command line
+                        if (restoreFileName != null)
+                        {
+                            // Restore the database from the temporary file. This file has the line
+                            // that disables creation of the database comment, which is handled
+                            // when the restored database is created
+                            dbControl.restoreDatabase(projectName,
+                                                      projectOwner,
+                                                      projectDescription,
+                                                      tempFile,
+                                                      true);
+                        }
+                        // The the backup file is restored via the GUI
+                        else
+                        {
+                            // Restore the database from the temporary file as a background
+                            // process. This file has the line that disables creation of the
+                            // database comment, which is handled when the restored database is
+                            // created
+                            dbControl.restoreDatabaseInBackground(projectName,
+                                                                  projectOwner,
+                                                                  projectDescription,
+                                                                  tempFile,
+                                                                  false);
+                        }
 
                         // Store the data file path in the program preferences backing store
                         storePath(ccddMain,
