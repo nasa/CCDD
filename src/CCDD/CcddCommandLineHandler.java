@@ -893,7 +893,7 @@ public class CcddCommandLineHandler
                                         CommandLinePriority.DB_DEPENDENT.getStartPriority() + 2)
         {
             /**************************************************************************************
-             * Execute a script. The application exits following completion of this command
+             * Execute a script
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal) throws Exception

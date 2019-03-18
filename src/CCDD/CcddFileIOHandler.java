@@ -378,7 +378,8 @@ public class CcddFileIOHandler
                                            String projectDescription)
     {
         boolean ownerFound = projectOwner != null;
-        boolean commentFound = projectName != null && projectDescription != null;
+        boolean nameDescProvided = projectName != null && projectDescription != null;
+        boolean commentFound = false;
 
         // Check if a blank backup file name is provided
         if (restoreFileName != null && restoreFileName.isEmpty())
@@ -501,26 +502,31 @@ public class CcddFileIOHandler
                                             + CCDD_PROJECT_IDENTIFIER
                                             + ".+"))
                         {
-                            // Extract the database name from the comment
-                            String databaseName = line.replaceAll("COMMENT ON DATABASE (.+) IS '"
-                                                                  + CCDD_PROJECT_IDENTIFIER
-                                                                  + ".+",
-                                                                  "$1");
-                            String commentText = line.replaceAll("COMMENT ON DATABASE .+ IS '"
-                                                                 + CCDD_PROJECT_IDENTIFIER
-                                                                 + "(.+)';$",
-                                                                 "$1");
-
-                            // Split the line read from the file in order to get the project name
-                            // and description
-                            String[] comment = dbControl.parseDatabaseComment(databaseName,
-                                                                              commentText);
-
-                            // Extract the project name (with case preserved) and description, and
-                            // set the flag indicating the comment is located
-                            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
-                            projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
                             commentFound = true;
+
+                            // Check if the project name and description aren't provided
+                            if (!nameDescProvided)
+                            {
+                                // Extract the database name from the comment
+                                String databaseName = line.replaceAll("COMMENT ON DATABASE (.+) IS '"
+                                                                      + CCDD_PROJECT_IDENTIFIER
+                                                                      + ".+",
+                                                                      "$1");
+                                String commentText = line.replaceAll("COMMENT ON DATABASE .+ IS '"
+                                                                     + CCDD_PROJECT_IDENTIFIER
+                                                                     + "(.+)';$",
+                                                                     "$1");
+
+                                // Split the line read from the file in order to get the project
+                                // name and description
+                                String[] comment = dbControl.parseDatabaseComment(databaseName,
+                                                                                  commentText);
+
+                                // Extract the project name (with case preserved) and description,
+                                // and set the flag indicating the comment is located
+                                projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                                projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
+                            }
 
                             // Insert a comment indicator into the file so that this line isn't
                             // executed when the database is restored
@@ -532,7 +538,7 @@ public class CcddFileIOHandler
                     }
 
                     // Check if the project owner, name, and description exist
-                    if (ownerFound && commentFound)
+                    if (ownerFound && (commentFound || nameDescProvided))
                     {
                         // Flush the output file buffer so that none of the contents are lost
                         bw.flush();

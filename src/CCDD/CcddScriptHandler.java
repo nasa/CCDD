@@ -1352,7 +1352,6 @@ public class CcddScriptHandler
                                                                    groupHandler,
                                                                    false,
                                                                    parent);
-
                 // Check if at least one table is assigned to this script association
                 if (!tablePaths.isEmpty())
                 {
