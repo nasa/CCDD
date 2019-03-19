@@ -1084,7 +1084,7 @@ public class CcddCommandLineHandler
                                  getSubArgument());
 
                     // Check if a required sub-command is missing
-                    if (dataFile == null)
+                    if (dataFile == null || dataFile.isEmpty())
                     {
                         // Set the flag to display the command line usage information and the error
                         // message

@@ -2156,6 +2156,7 @@ public class CcddDialogHandler extends JDialog
      *
      * @return Selected button type
      *********************************************************************************************/
+    @SuppressWarnings("resource") // Can't close the scanner since it would also close System.in
     protected int createDialog(Component parent,
                                Object upperObject,
                                JPanel buttonPnl,
@@ -2190,7 +2191,7 @@ public class CcddDialogHandler extends JDialog
                 else
                 {
                     // Output the message to the standard output stream
-                    System.out.println(message);
+                    System.out.println("\n" + message);
 
                     // Check if this is a question message
                     if (icon.equals(getIcon("OptionPane.questionIcon", QUESTION_ICON)))
@@ -2208,6 +2209,8 @@ public class CcddDialogHandler extends JDialog
                                        + "\n";
                         }
 
+                        message += "  Enter selection: ";
+
                         // Create a scanner to obtain user input from the command line
                         Scanner scanner = new Scanner(System.in);
 
@@ -2216,7 +2219,7 @@ public class CcddDialogHandler extends JDialog
                             try
                             {
                                 // Get the user's input
-                                System.out.print(message + "  Enter selection: ");
+                                System.out.print(message);
                                 buttonSelected = scanner.nextInt();
 
                                 // Check if the value falls within the selection range
@@ -2238,14 +2241,14 @@ public class CcddDialogHandler extends JDialog
                             if (buttonSelected == 0)
                             {
                                 // Inform the user that the input is invalid
-                                System.err.println("Invalid selection, re-enter\n");
                                 scanner.nextLine();
+                                System.err.println("Invalid selection, re-enter");
+                                System.err.flush();
                             }
                         } while (buttonSelected == 0);
                         // Repeat the input process until a valid value is entered
 
-                        // Close the input scanner and adjust the button selection index
-                        scanner.close();
+                        // Adjust the button selection index
                         buttonSelected--;
                     }
                 }

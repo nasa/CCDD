@@ -314,75 +314,80 @@ public class CcddHaltDialog extends CcddDialogHandler
      *********************************************************************************************/
     protected void updateProgressBar(final String progText, int startValue)
     {
-        // Check if the start value is provided
-        if (startValue != -1)
+        // Check if the progress is displayed
+        if (progBar != null)
         {
-            // Initialize the progress counters
-            progCount = 0;
-            prevProgCount = 0;
-            progStart = startValue;
-        }
-
-        // Update the progress counter
-        progCount++;
-
-        // Create a runnable object to be executed
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            /**************************************************************************************
-             * Since the progress bar involves a GUI update use invokeLater to execute the call on
-             * the event dispatch thread
-             *************************************************************************************/
-            @Override
-            public void run()
+            // Check if the start value is provided
+            if (startValue != -1)
             {
-                // Check if the minimum progress bar width is set
-                if (minWidth == -1)
-                {
-                    // Set and store the minimum progress bar width
-                    progBar.setMinimumSize(progBar.getSize());
-                    minWidth = progBar.getSize().width;
-                }
-
-                // Get the progress bar graphics context
-                Graphics gCont = progBar.getGraphics();
-
-                // Check if the context is valid
-                if (gCont != null)
-                {
-                    // Check if the progress text is provided
-                    if (progText != null)
-                    {
-                        // Update the progress text
-                        progBar.setString(" " + progText + " ");
-
-                        // Check if the progress bar and dialog sizes need to change to accommodate
-                        // the progress bar text
-                        if (progBar.getPreferredSize().width > minWidth)
-                        {
-                            // Resize the progress bar and dialog
-                            setPreferredSize(null);
-                            progBar.setSize(progBar.getPreferredSize());
-                            setSize(getPreferredSize());
-                        }
-                    }
-
-                    // Step through the progress count values beginning with the last one processed
-                    for (int count = prevProgCount + 1; count <= progCount; count++)
-                    {
-                        // Update the progress bar
-                        progBar.setValue(progStart + (count * numDivisionPerStep / itemsPerStep));
-                        progBar.update(gCont);
-                    }
-
-                    // Store the last processed progress counter value
-                    prevProgCount = progCount;
-
-                    // Redraw the halt dialog
-                    update(getGraphics());
-                }
+                // Initialize the progress counters
+                progCount = 0;
+                prevProgCount = 0;
+                progStart = startValue;
             }
-        });
+
+            // Update the progress counter
+            progCount++;
+
+            // Create a runnable object to be executed
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                /**********************************************************************************
+                 * Since the progress bar involves a GUI update use invokeLater to execute the call
+                 * on the event dispatch thread
+                 *********************************************************************************/
+                @Override
+                public void run()
+                {
+                    // Check if the minimum progress bar width is set
+                    if (minWidth == -1)
+                    {
+                        // Set and store the minimum progress bar width
+                        progBar.setMinimumSize(progBar.getSize());
+                        minWidth = progBar.getSize().width;
+                    }
+
+                    // Get the progress bar graphics context
+                    Graphics gCont = progBar.getGraphics();
+
+                    // Check if the context is valid
+                    if (gCont != null)
+                    {
+                        // Check if the progress text is provided
+                        if (progText != null)
+                        {
+                            // Update the progress text
+                            progBar.setString(" " + progText + " ");
+
+                            // Check if the progress bar and dialog sizes need to change to
+                            // accommodate the progress bar text
+                            if (progBar.getPreferredSize().width > minWidth)
+                            {
+                                // Resize the progress bar and dialog
+                                setPreferredSize(null);
+                                progBar.setSize(progBar.getPreferredSize());
+                                setSize(getPreferredSize());
+                            }
+                        }
+
+                        // Step through the progress count values beginning with the last one
+                        // processed
+                        for (int count = prevProgCount + 1; count <= progCount; count++)
+                        {
+                            // Update the progress bar
+                            progBar.setValue(progStart + (count * numDivisionPerStep / itemsPerStep));
+                            progBar.update(gCont);
+                        }
+
+                        // Store the last processed progress counter value
+                        prevProgCount = progCount;
+
+                        // Redraw the halt dialog
+                        update(getGraphics());
+                    }
+                }
+            });
+        }
     }
 
     /**********************************************************************************************
