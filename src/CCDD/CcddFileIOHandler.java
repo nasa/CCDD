@@ -452,7 +452,9 @@ public class CcddFileIOHandler
                                                 + "'");
                     }
 
-                    String line;
+                    boolean inComment = false;
+                    String line = null;
+                    String commentText = "";
 
                     // Create a temporary file in which to copy the backup file contents
                     tempFile = File.createTempFile(dataFile[0].getName(), "");
@@ -465,72 +467,68 @@ public class CcddFileIOHandler
                     // Read each line in the backup file
                     while ((line = br.readLine()) != null)
                     {
-                        // Check if this line creates the plpgsql language
-                        if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;")
-                            || line.equals("CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;"))
+                        // Check if this line is not a continuance of the database comment
+                        if (!inComment)
                         {
-                            // Add the command to first drop the language. This allows backups
-                            // created from PostgreSQL versions 8.4 and earlier to be restored in
-                            // version 9.0 and subsequent without generating an error
-                            line = "DROP LANGUAGE IF EXISTS plpgsql;\nCREATE PROCEDURAL LANGUAGE plpgsql;";
-
-                            // Check if the PostgeSQL version is 9 or higher
-                            if (dbControl.getPostgreSQLMajorVersion() > 8)
+                            // Check if this line creates the plpgsql language
+                            if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;")
+                                || line.equals("CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;"))
                             {
-                                // Add the command to drop the language extension; this is
-                                // necessary in order for the language to be dropped in PostgreSQL
-                                // 9+
-                                line = "DROP EXTENSION plpgsql;\n" + line;
+                                // Add the command to first drop the language. This allows backups
+                                // created from PostgreSQL versions 8.4 and earlier to be restored
+                                // in version 9.0 and subsequent without generating an error
+                                line = "DROP LANGUAGE IF EXISTS plpgsql;\nCREATE PROCEDURAL LANGUAGE plpgsql;";
+
+                                // Check if the PostgeSQL version is 9 or higher
+                                if (dbControl.getPostgreSQLMajorVersion() > 8)
+                                {
+                                    // Add the command to drop the language extension; this is
+                                    // necessary in order for the language to be dropped in
+                                    // PostgreSQL 9+
+                                    line = "DROP EXTENSION plpgsql;\n" + line;
+                                }
+                            }
+
+                            // Check if the database owner hasn't been found already and that the
+                            // line contains the owner information
+                            if (!ownerFound
+                                && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
+                            {
+                                // Get the owner and store it, and set the flag indicating the
+                                // owner is located
+                                projectOwner = line.replaceFirst(".*Owner: ", "");
+                                ownerFound = true;
+                            }
+
+                            // Check if the database comment hasn't been found already and that the
+                            // line contains the comment information
+                            if (!commentFound
+                                && line.matches("COMMENT ON DATABASE .+ IS '"
+                                                + CCDD_PROJECT_IDENTIFIER
+                                                + ".+"))
+                            {
+                                commentFound = true;
+                                inComment = true;
                             }
                         }
 
-                        // Check if the database owner hasn't been found already and that the line
-                        // contains the owner information
-                        if (!ownerFound
-                            && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
+                        // Check if this line is the beginning or a continuance of the database
+                        // comment
+                        if (inComment)
                         {
-                            // Get the owner and store it, and set the flag indicating the owner is
-                            // located
-                            projectOwner = line.replaceFirst(".*Owner: ", "");
-                            ownerFound = true;
-                        }
-
-                        // Check if the database comment hasn't been found already and that the
-                        // line contains the comment information
-                        if (!commentFound
-                            && line.matches("COMMENT ON DATABASE .+ IS '"
-                                            + CCDD_PROJECT_IDENTIFIER
-                                            + ".+"))
-                        {
-                            commentFound = true;
-
-                            // Check if the project name and description aren't provided
-                            if (!nameDescProvided)
-                            {
-                                // Extract the database name from the comment
-                                String databaseName = line.replaceAll("COMMENT ON DATABASE (.+) IS '"
-                                                                      + CCDD_PROJECT_IDENTIFIER
-                                                                      + ".+",
-                                                                      "$1");
-                                String commentText = line.replaceAll("COMMENT ON DATABASE .+ IS '"
-                                                                     + CCDD_PROJECT_IDENTIFIER
-                                                                     + "(.+)';$",
-                                                                     "$1");
-
-                                // Split the line read from the file in order to get the project
-                                // name and description
-                                String[] comment = dbControl.parseDatabaseComment(databaseName,
-                                                                                  commentText);
-
-                                // Extract the project name (with case preserved) and description,
-                                // and set the flag indicating the comment is located
-                                projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
-                                projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
-                            }
+                            // Begin, or append the continuance of the database description, to the
+                            // database comment command text
+                            commentText += (commentText.isEmpty()
+                                                                  ? ""
+                                                                  : "\n")
+                                           + line;
 
                             // Insert a comment indicator into the file so that this line isn't
                             // executed when the database is restored
                             line = "-- " + line;
+
+                            // Set the flag to true if the comment continues to the next line
+                            inComment = !line.endsWith(";");
                         }
 
                         // Write the line to the temporary file
@@ -542,6 +540,31 @@ public class CcddFileIOHandler
                     {
                         // Flush the output file buffer so that none of the contents are lost
                         bw.flush();
+
+                        // Check if the database name and description aren't provided explicitly,
+                        // and a comment was extracted from the backup file
+                        if (!nameDescProvided && commentFound)
+                        {
+                            // Extract the database name from the comment
+                            String databaseName = commentText.replaceAll("(?s)COMMENT ON DATABASE (.+) IS '"
+                                                                         + CCDD_PROJECT_IDENTIFIER
+                                                                         + ".+",
+                                                                         "$1");
+                            commentText = commentText.replaceAll("(?s)COMMENT ON DATABASE .+ IS '"
+                                                                 + CCDD_PROJECT_IDENTIFIER
+                                                                 + "(.+)';$",
+                                                                 "$1");
+
+                            // Split the line read from the file in order to get the project name
+                            // and description
+                            String[] comment = dbControl.parseDatabaseComment(databaseName,
+                                                                              commentText);
+
+                            // Extract the project name (with case preserved) and description, and
+                            // set the flag indicating the comment is located
+                            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                            projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
+                        }
 
                         // Check if the backup file is restored via the command line
                         if (restoreFileName != null)

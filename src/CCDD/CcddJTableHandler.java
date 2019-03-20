@@ -3841,10 +3841,12 @@ public abstract class CcddJTableHandler extends JTable
     @Override
     public void tableChanged(final TableModelEvent tme)
     {
-        // Check that a model data reload is not in progress, that the table model is valid, and
-        // that the table has rows to display. The columns are not correct until the model data
-        // reload is complete
-        if (!isReloadData && tableModel != null && getRowCount() != 0)
+        // Check if a model data reload is not in progress, the table model is valid, the table has
+        // rows to display, and the table is showing on the screen. The columns are not correct
+        // until the model data reload is complete. If the table isn't showing yet then a null
+        // exception can infrequently occur in updateRowHeights() due to what appears to be a race
+        // condition or Swing bug
+        if (!isReloadData && tableModel != null && getRowCount() != 0 && table.isShowing())
         {
             // Flag to indicate if the changed row indices are valid
             boolean isValid = true;
