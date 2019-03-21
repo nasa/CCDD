@@ -488,6 +488,32 @@ public class CcddFileIOHandler
                                     line = "DROP EXTENSION plpgsql;\n" + line;
                                 }
                             }
+                            // Check if this line is a SQL command that includes setting the owner.
+                            // This, along with the next two conditionals, changes the database
+                            // owner form the original one specified in the backup file to the
+                            // current user
+                            else if (line.matches(".+ OWNER TO .+;\\s*"))
+                            {
+                                // Change the original owner to the current user
+                                line = line.replaceFirst("OWNER TO .+;",
+                                                         "OWNER TO " + dbControl.getUser() + ";");
+                            }
+                            // Check if this line is a SQL command that revokes permissions for an
+                            // owner
+                            else if (line.matches("REVOKE .+ FROM " + projectOwner + ";\\s*"))
+                            {
+                                // Change the original owner to the current user
+                                line = line.replaceFirst("FROM .+;",
+                                                         "FROM " + dbControl.getUser() + ";");
+                            }
+                            // Check if this line is a SQL command that grants permissions to an
+                            // owner
+                            else if (line.matches("GRANT .+ TO " + projectOwner + ";\\s*"))
+                            {
+                                // Change the original owner to the current user
+                                line = line.replaceFirst("TO .+;",
+                                                         "TO " + dbControl.getUser() + ";");
+                            }
 
                             // Check if the database owner hasn't been found already and that the
                             // line contains the owner information
