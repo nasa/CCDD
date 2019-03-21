@@ -686,6 +686,21 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getTableDataWithMacros(tableType, columnName, row);
     }
 
+    public static Integer[] getStructureTableRowIndices(String tablePath)
+    {
+        return accessHandler.getStructureTableRowIndices(tablePath);
+    }
+
+    public static Integer[] getCommandTableRowIndices(String tableName)
+    {
+        return accessHandler.getCommandTableRowIndices(tableName);
+    }
+
+    public static Integer[] getTableRowIndices(String tableType, String tablePath)
+    {
+        return accessHandler.getTableRowIndices(tableType, tablePath);
+    }
+
     public static String getStructureDataByVariableName(String tablePath,
                                                         String variableName,
                                                         String columnName)
