@@ -434,7 +434,7 @@ public class CcddPatchHandler
                 CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
 
                 // Step through each table type
-                for (String typeName : ccddMain.getTableTypeHandler().getTypes())
+                for (String typeName : ccddMain.getTableTypeHandler().getTableTypeNames())
                 {
                     // Get the list of names of all tables of the specified type
                     List<String> tableNamesList = dbTable.getAllTablesOfType(typeName,

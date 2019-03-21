@@ -99,6 +99,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox includeReservedMsgIDsCb;
     private JCheckBox includeProjectFieldsCb;
     private JCheckBox includeGroupsCb;
+    // TODO
+    private JCheckBox includeAllTableTypesCb;
+    private JCheckBox includeAllDataTypesCb;
+    private JCheckBox includeAllInputTypesCb;
+    private JCheckBox includeAllMacrosCb;
+    // end TODO
     private JCheckBox includeVariablePaths;
     private JTextField varPathSepFld;
     private JTextField typeNameSepFld;
@@ -632,10 +638,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                                               FileExtension.XTCE.getExtensionName())},
                                                                    false,
                                                                    true,
-                                                                   "Import Table"
-                                                                         + (callingEditorDlg != null
-                                                                                                     ? ""
-                                                                                                     : "(s)"),
+                                                                   "Import Data",
                                                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
                                                                    DialogOption.IMPORT_OPTION,
                                                                    createImportPanel(gbc));
@@ -665,11 +668,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // Check if the export panel exists; if so display the dialog
                             if (showOptionsDialog(caller,
                                                   dialogPnl,
-                                                  "Export Table"
-                                                             + (callingEditorDlg != null
-                                                                                         ? ""
-                                                                                         : "(s)")
-                                                             + " in "
+                                                  "Export Data in "
                                                              + fileExtn.getExtensionName().toUpperCase()
                                                              + " Format",
                                                   DialogOption.EXPORT_OPTION,
@@ -705,6 +704,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                (replaceMacrosCb != null
                                                                                                         ? replaceMacrosCb.isSelected()
                                                                                                         : true),
+                                                                               (includeAllTableTypesCb != null
+                                                                                                               ? includeAllTableTypesCb.isSelected()
+                                                                                                               : false),
+                                                                               (includeAllDataTypesCb != null
+                                                                                                              ? includeAllDataTypesCb.isSelected()
+                                                                                                              : false),
+                                                                               (includeAllInputTypesCb != null
+                                                                                                               ? includeAllInputTypesCb.isSelected()
+                                                                                                               : false),
+                                                                               (includeAllMacrosCb != null
+                                                                                                           ? includeAllMacrosCb.isSelected()
+                                                                                                           : false),
                                                                                (includeReservedMsgIDsCb != null
                                                                                                                 ? includeReservedMsgIDsCb.isSelected()
                                                                                                                 : false),
@@ -1195,6 +1206,46 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.weightx = 0.0;
                 gbc.gridy++;
                 separatorPnl.add(replaceMacrosCb, gbc);
+
+                // Create the include all table type definitions check box
+                includeAllTableTypesCb = new JCheckBox("Include all table type definitions");
+                includeAllTableTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeAllTableTypesCb.setBorder(emptyBorder);
+                includeAllTableTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all table types "
+                                                                             + "definitions are included in each export file",
+                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeAllTableTypesCb, gbc);
+
+                // Create the include all data type definitions check box
+                includeAllDataTypesCb = new JCheckBox("Include all data type definitions");
+                includeAllDataTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeAllDataTypesCb.setBorder(emptyBorder);
+                includeAllDataTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all data type definitions "
+                                                                            + "are included in each export file",
+                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeAllDataTypesCb, gbc);
+
+                // Create the include all user-defined input type definitions check box
+                includeAllInputTypesCb = new JCheckBox("Include all user-defined input type definitions");
+                includeAllInputTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeAllInputTypesCb.setBorder(emptyBorder);
+                includeAllInputTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all user-defined input type definitions "
+                                                                             + "are included in each export file",
+                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeAllInputTypesCb, gbc);
+
+                // Create the include all macro definitions check box
+                includeAllMacrosCb = new JCheckBox("Include all macro definitions");
+                includeAllMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeAllMacrosCb.setBorder(emptyBorder);
+                includeAllMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, all macro definitions "
+                                                                         + "are included in each export file",
+                                                                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeAllMacrosCb, gbc);
 
                 // Create the reserved message ID inclusion check box
                 includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
@@ -2067,16 +2118,52 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     break;
 
                 case EXPORT_CSV:
-                case EXPORT_EDS:
                 case EXPORT_JSON:
+                    // Check if no tables are selected and none of the "include" check boxes are
+                    // selected (this check doesn't apply if the export occurs from a table
+                    // editor). At least one of these must be selected in order to perform an
+                    // export
+                    if (callingEditorDlg == null
+                        && tableTree.getSelectedTablesWithChildren().size() == 0
+                        && !(includeAllTableTypesCb != null
+                                                            ? includeAllTableTypesCb.isSelected()
+                                                            : false)
+                        && !(includeAllDataTypesCb != null
+                                                           ? includeAllDataTypesCb.isSelected()
+                                                           : false)
+                        && !(includeAllInputTypesCb != null
+                                                            ? includeAllInputTypesCb.isSelected()
+                                                            : false)
+                        && !(includeAllMacrosCb != null
+                                                        ? includeAllMacrosCb.isSelected()
+                                                        : false)
+                        && !(includeReservedMsgIDsCb != null
+                                                             ? includeReservedMsgIDsCb.isSelected()
+                                                             : false)
+                        && !(includeProjectFieldsCb != null
+                                                            ? includeProjectFieldsCb.isSelected()
+                                                            : false)
+                        && !(includeGroupsCb != null
+                                                     ? includeGroupsCb.isSelected()
+                                                     : false)
+                        && !(includeVariablePaths != null
+                                                          ? includeVariablePaths.isSelected()
+                                                          : false))
+                    {
+                        // Inform the user that no table or include option has been selected
+                        throw new CCDDException("Must select a table or at least one include option");
+                    }
+
+                case EXPORT_EDS:
                 case EXPORT_XTCE:
                     // Remove any leading or trailing white space characters from the file
                     // path/name
                     pathFld.setText(pathFld.getText().trim());
 
-                    // Check if the export command originated from the main menu and no table has
-                    // been selected
-                    if (callingEditorDlg == null
+                    // Check if no tables are selected and this is an EDS or XTCE export
+                    if ((dialogType == ManagerDialogType.EXPORT_EDS
+                         || dialogType == ManagerDialogType.EXPORT_XTCE)
+                        && callingEditorDlg == null
                         && tableTree.getSelectedTablesWithChildren().size() == 0)
                     {
                         // Inform the user that no table has been selected

@@ -1135,6 +1135,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
+     * @param includeAllTableTypes
+     *            true to include the all table type definitions in the export file
+     *
+     * @param includeAllDataTypes
+     *            true to include the all data type definitions in the export file
+     *
+     * @param includeAllInputTypes
+     *            true to include the all user-defined input type definitions in the export file
+     *
+     * @param includeAllMacros
+     *            true to include the all macro definitions in the export file
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
@@ -1169,6 +1181,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
                              boolean replaceMacros,
+                             boolean includeAllTableTypes,
+                             boolean includeAllDataTypes,
+                             boolean includeAllInputTypes,
+                             boolean includeAllMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeGroups,
@@ -1177,7 +1193,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                              String[] separators,
                              Object... extraInfo) throws CCDDException, Exception
     {
-        boolean addLineFeed = false;
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
@@ -1190,11 +1205,69 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             List<String> referencedMacros = new ArrayList<>();
             List<String[]> variablePaths = new ArrayList<>();
 
+            // Check if all table type definitions are to be exported
+            if (includeAllTableTypes)
+            {
+                // Add all table type definitions to the referenced table types list
+                referencedTableTypes.addAll(Arrays.asList(tableTypeHandler.getTableTypeNames()));
+            }
+
+            // Check if all data type definitions are to be exported
+            if (includeAllDataTypes)
+            {
+                // Add all data type definitions to the referenced table types list
+                referencedDataTypes.addAll(dataTypeHandler.getDataTypeNames());
+            }
+
+            // Check if all input type definitions are to be exported
+            if (includeAllInputTypes)
+            {
+                // Add all input type definitions to the referenced table types list
+                referencedInputTypes.addAll(Arrays.asList(inputTypeHandler.getNames(true)));
+            }
+
+            // Check if all macro definitions are to be exported
+            if (includeAllMacros)
+            {
+                // Add all macro definitions to the referenced table types list
+                referencedMacros.addAll(macroHandler.getMacroNames());
+            }
+
+            // Check if all variable paths are to be exported. This is only possible if no tables
+            // are specified; otherwise only those variables in the table are exported
+            if (includeVariablePaths && tableNames.length == 0)
+            {
+                // Step through each structure and variable name
+                for (String variablePath : variableHandler.getAllVariableNames())
+                {
+                    // Add the path, in both application and user-defined formats, to the list to
+                    // be output
+                    variablePaths.add(new String[] {variablePath,
+                                                    variableHandler.getFullVariableName(variablePath,
+                                                                                        separators[0],
+                                                                                        Boolean.parseBoolean(separators[1]),
+                                                                                        separators[2])});
+                }
+            }
+
             // Output the table data to the selected file. Multiple writers are needed in case
             // tables are appended to an existing file
             fw = new FileWriter(exportFile, true);
             bw = new BufferedWriter(fw);
             pw = new PrintWriter(bw);
+
+            // Output the file creation information
+            pw.printf("# Created "
+                      + new Date().toString()
+                      + " : CCDD version = "
+                      + ccddMain.getCCDDVersionInformation()
+                      + " : project = "
+                      + dbControl.getDatabaseName()
+                      + " : host = "
+                      + dbControl.getServer()
+                      + " : user = "
+                      + dbControl.getUser()
+                      + "\n");
 
             // Step through each table
             for (String tblName : tableNames)
@@ -1208,22 +1281,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // Check if the table's data successfully loaded
                 if (!tableInfo.isErrorFlag())
                 {
-                    // Output the file creation information (for the first pass only)
-                    pw.printf((!addLineFeed
-                                            ? "# Created "
-                                              + new Date().toString()
-                                              + " : CCDD version = "
-                                              + ccddMain.getCCDDVersionInformation()
-                                              + " : project = "
-                                              + dbControl.getDatabaseName()
-                                              + " : host = "
-                                              + dbControl.getServer()
-                                              + " : user = "
-                                              + dbControl.getUser()
-                                              + "\n"
-                                            : "")
-                              + "\n");
-
                     // Get the table type definition based on the type name
                     TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
@@ -1232,32 +1289,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     {
                         // Add the table type to the list of those referenced
                         referencedTableTypes.add(tableInfo.getType());
-                    }
-
-                    // Step through each table type column input type
-                    for (InputType inputType : typeDefn.getInputTypes())
-                    {
-                        // Check if the input type is user-defined and this input type is not
-                        // already output
-                        if (inputType.isCustomInput()
-                            && !referencedInputTypes.contains(inputType.getInputName()))
-                        {
-                            // Add the input type to the list of those referenced
-                            referencedInputTypes.add(inputType.getInputName());
-                        }
-                    }
-
-                    // Step through each data field belonging to the table
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(tblName))
-                    {
-                        // Check if if the input type is user-defined and this input type is
-                        // not already output
-                        if (fieldInfo.getInputType().isCustomInput()
-                            && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
-                        {
-                            // Add the input type to the list of those referenced
-                            referencedInputTypes.add(fieldInfo.getInputType().getInputName());
-                        }
                     }
 
                     // Get the visible column names based on the table's type
@@ -1272,7 +1303,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Output the table path (if applicable) and name, table type, and system path
                     // (if provided)
-                    pw.printf(CSVTags.NAME_TYPE.getTag() + "\n%s\n",
+                    pw.printf("\n" + CSVTags.NAME_TYPE.getTag() + "\n%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(tableInfo.getTablePath(),
                                                                        tableInfo.getType(),
                                                                        fieldHandler.getFieldValue(tblName,
@@ -1387,12 +1418,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                fieldInfo.getValue()));
                         }
                     }
-
-                    addLineFeed = true;
                 }
             }
 
-            // Check if any table types are referenced
+            // Check if any table types are referenced (or all are included)
             if (!referencedTableTypes.isEmpty())
             {
                 // Step through each referenced table type
@@ -1400,6 +1429,32 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 {
                     // Get the table type definition based on the type name
                     TypeDefinition tableTypeDefn = tableTypeHandler.getTypeDefinition(tableType);
+
+                    // Step through each table type column input type
+                    for (InputType inputType : tableTypeDefn.getInputTypes())
+                    {
+                        // Check if the input type is user-defined and this input type is not
+                        // already output
+                        if (inputType.isCustomInput()
+                            && !referencedInputTypes.contains(inputType.getInputName()))
+                        {
+                            // Add the input type to the list of those referenced
+                            referencedInputTypes.add(inputType.getInputName());
+                        }
+                    }
+
+                    // Step through each data field belonging to the table type
+                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getName())))
+                    {
+                        // Check if if the input type is user-defined and this input type is not
+                        // already output
+                        if (fieldInfo.getInputType().isCustomInput()
+                            && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
+                        {
+                            // Add the input type to the list of those referenced
+                            referencedInputTypes.add(fieldInfo.getInputType().getInputName());
+                        }
+                    }
 
                     // Output the table type tag, and the type name and
                     // description
@@ -1448,7 +1503,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
 
-            // Check if any primitive data types are referenced
+            // Check if any primitive data types are referenced (or all are included)
             if (!referencedDataTypes.isEmpty())
             {
                 // Output the data type marker
@@ -1470,29 +1525,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
 
-            // Check if any custom input types are referenced
-            if (!referencedInputTypes.isEmpty())
-            {
-                // Output the input type marker
-                pw.printf("\n" + CSVTags.INPUT_TYPE.getTag() + "\n");
-
-                // Step through each referenced input type
-                for (String inputTypeName : referencedInputTypes)
-                {
-                    // Get the input type definition
-                    InputType inputType = inputTypeHandler.getInputTypeByName(inputTypeName);
-
-                    // Output the input type definition
-                    pw.printf("%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(inputType.getInputName(),
-                                                                       inputType.getInputDescription(),
-                                                                       inputType.getInputMatch(),
-                                                                       InputType.convertItemListToString(inputType.getInputItems()),
-                                                                       inputType.getInputFormat().getFormatName()));
-                }
-            }
-
-            // Check if any macros are referenced
+            // Check if any macros are referenced (or all are included)
             if (!referencedMacros.isEmpty())
             {
                 // Output the macro marker
@@ -1501,7 +1534,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // Step through each macro
                 for (String[] macro : macroHandler.getMacroData())
                 {
-                    // Check if the macro is referenced in the table
+                    // Check if all macros are to be included or if the macro is referenced in the
+                    // table
                     if (referencedMacros.contains(macro[MacrosColumn.MACRO_NAME.ordinal()]))
                     {
                         // Output the macro definition
@@ -1544,6 +1578,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Step through each data field
                     for (FieldInformation fieldInfo : fieldInformation)
                     {
+                        // Check if if the input type is user-defined and this input type is not
+                        // already output
+                        if (fieldInfo.getInputType().isCustomInput()
+                            && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
+                        {
+                            // Add the input type to the list of those referenced
+                            referencedInputTypes.add(fieldInfo.getInputType().getInputName());
+                        }
+
                         // Output the field information
                         pw.printf("%s\n",
                                   CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
@@ -1603,6 +1646,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             // Step through each data field
                             for (FieldInformation fieldInfo : fieldInformation)
                             {
+                                // Check if if the input type is user-defined and this input type
+                                // is not already output
+                                if (fieldInfo.getInputType().isCustomInput()
+                                    && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
+                                {
+                                    // Add the input type to the list of those referenced
+                                    referencedInputTypes.add(fieldInfo.getInputType().getInputName());
+                                }
+
                                 // Output the field information
                                 pw.printf("%s\n",
                                           CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
@@ -1615,6 +1667,28 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
                     }
+                }
+            }
+
+            // Check if any custom input types are referenced (or all are included)
+            if (!referencedInputTypes.isEmpty())
+            {
+                // Output the input type marker
+                pw.printf("\n" + CSVTags.INPUT_TYPE.getTag() + "\n");
+
+                // Step through each referenced input type
+                for (String inputTypeName : referencedInputTypes)
+                {
+                    // Get the input type definition
+                    InputType inputType = inputTypeHandler.getInputTypeByName(inputTypeName);
+
+                    // Output the input type definition
+                    pw.printf("%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(inputType.getInputName(),
+                                                                       inputType.getInputDescription(),
+                                                                       inputType.getInputMatch(),
+                                                                       InputType.convertItemListToString(inputType.getInputItems()),
+                                                                       inputType.getInputFormat().getFormatName()));
                 }
             }
 

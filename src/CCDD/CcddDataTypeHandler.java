@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,13 +79,37 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the data type definitions
+     * Get the list of data type definitions
      *
      * @return List of string arrays containing the data type definitions
      *********************************************************************************************/
     protected List<String[]> getDataTypeData()
     {
         return dataTypes;
+    }
+
+    /**********************************************************************************************
+     * Get a list of the data type names
+     *
+     * @return List of data type names, sorted alphabetically; an empty list if no data types are
+     *         defined
+     *********************************************************************************************/
+    protected List<String> getDataTypeNames()
+    {
+        // Create a list to hold the data type names
+        List<String> dataTypeNames = new ArrayList<String>();
+
+        // Step through each data type
+        for (String[] dataType : dataTypes)
+        {
+            // Store the data type name in the list
+            dataTypeNames.add(getDataTypeName(dataType));
+        }
+
+        // Sort the data type names alphabetically
+        Collections.sort(dataTypeNames, String.CASE_INSENSITIVE_ORDER);
+
+        return dataTypeNames;
     }
 
     /**********************************************************************************************

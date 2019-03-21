@@ -1026,6 +1026,18 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
+     * @param includeAllTableTypes
+     *            true to include the all table type definitions in the export file
+     *
+     * @param includeAllDataTypes
+     *            true to include the all data type definitions in the export file
+     *
+     * @param includeAllInputTypes
+     *            true to include the all user-defined input type definitions in the export file
+     *
+     * @param includeAllMacros
+     *            true to include the all macro definitions in the export file
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
@@ -1061,6 +1073,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
                              boolean replaceMacros,
+                             boolean includeAllTableTypes,
+                             boolean includeAllDataTypes,
+                             boolean includeAllInputTypes,
+                             boolean includeAllMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeGroups,
@@ -1080,6 +1096,51 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             List<String> referencedInputTypes = new ArrayList<String>();
             List<String> referencedMacros = new ArrayList<String>();
             List<String[]> variablePaths = new ArrayList<String[]>();
+
+            // Check if all table type definitions are to be exported
+            if (includeAllTableTypes)
+            {
+                // Add all table type definitions to the referenced table types list
+                referencedTableTypes.addAll(Arrays.asList(tableTypeHandler.getTableTypeNames()));
+            }
+
+            // Check if all data type definitions are to be exported
+            if (includeAllDataTypes)
+            {
+                // Add all data type definitions to the referenced table types list
+                referencedDataTypes.addAll(dataTypeHandler.getDataTypeNames());
+            }
+
+            // Check if all input type definitions are to be exported
+            if (includeAllInputTypes)
+            {
+                // Add all input type definitions to the referenced table types list
+                referencedInputTypes.addAll(Arrays.asList(inputTypeHandler.getNames(true)));
+            }
+
+            // Check if all macro definitions are to be exported
+            if (includeAllMacros)
+            {
+                // Add all macro definitions to the referenced table types list
+                referencedMacros.addAll(macroHandler.getMacroNames());
+            }
+
+            // Check if all variable paths are to be exported. This is only possible if no tables
+            // are specified; otherwise only those variables in the table are exported
+            if (includeVariablePaths && tableNames.length == 0)
+            {
+                // Step through each structure and variable name
+                for (String variablePath : variableHandler.getAllVariableNames())
+                {
+                    // Add the path, in both application and user-defined formats, to the list to
+                    // be output
+                    variablePaths.add(new String[] {variablePath,
+                                                    variableHandler.getFullVariableName(variablePath,
+                                                                                        separators[0],
+                                                                                        Boolean.parseBoolean(separators[1]),
+                                                                                        separators[2])});
+                }
+            }
 
             // Output the table data to the selected file. Multiple writers are needed in case
             // tables are appended to an existing file
@@ -1170,33 +1231,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             referencedTableTypes.add(tableInfo.getType());
                         }
 
-                        // Step through each table type column input type
-                        for (InputType inputType : typeDefn.getInputTypes())
-                        {
-                            // Check if the input type is user-defined and this input type is not
-                            // already output
-                            if (inputType.isCustomInput()
-                                && !referencedInputTypes.contains(inputType.getInputName()))
-                            {
-                                // Add the input type to the list of those referenced
-                                referencedInputTypes.add(inputType.getInputName());
-                            }
-                        }
-
-                        // Build the data field information for the table
-                        // Step through each data field belonging to the table
-                        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(tblName))
-                        {
-                            // Check if if the input type is user-defined and this input type is
-                            // not already output
-                            if (fieldInfo.getInputType().isCustomInput()
-                                && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
-                            {
-                                // Add the input type to the list of those referenced
-                                referencedInputTypes.add(fieldInfo.getInputType().getInputName());
-                            }
-                        }
-
                         // Get the visible column names based on the table's type
                         String[] columnNames = typeDefn.getColumnNamesUser();
 
@@ -1284,13 +1318,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             }
 
             // Add the referenced table type definition(s), if any, to the output
-            outputJO = getTableTypeDefinitions(referencedTableTypes, outputJO);
+            outputJO = getTableTypeDefinitions(referencedTableTypes,
+                                               referencedInputTypes,
+                                               outputJO);
 
             // Add the referenced data type definition(s), if any, to the output
             outputJO = getDataTypeDefinitions(referencedDataTypes, outputJO);
-
-            // Add the referenced input type definition(s), if any, to the output
-            outputJO = getInputTypeDefinitions(referencedInputTypes, outputJO);
 
             // Add the referenced macro definition(s), if any, to the output
             outputJO = getMacroDefinitions(referencedMacros, outputJO);
@@ -1308,6 +1341,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Add the project-level data field(s), if any, to the output
                 outputJO = getDataFields(CcddFieldHandler.getFieldProjectName(),
                                          JSONTags.PROJECT_FIELD.getTag(),
+                                         referencedInputTypes,
                                          outputJO);
             }
 
@@ -1315,7 +1349,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             if (includeGroups)
             {
                 // Get the group information
-                String groupInfo = getGroupInformation("", false);
+                String groupInfo = getGroupInformation("", false, referencedInputTypes);
 
                 // Check if any groups exist
                 if (groupInfo != null)
@@ -1325,6 +1359,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     outputJO.put(JSONTags.GROUP.getTag(), parser.parse(groupInfo));
                 }
             }
+
+            // Add the referenced input type definition(s), if any, to the output
+            outputJO = getInputTypeDefinitions(referencedInputTypes, outputJO);
 
             // Check if variable paths are to be output
             if (includeVariablePaths)
@@ -1537,6 +1574,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param tagName
      *            JSON tag name
      *
+     * @param referencedInputTypes
+     *            list of user-defined input types referenced; null if this list isn't used by the
+     *            caller. This list has any user-defined input types not already in the list added
+     *
      * @param outputJO
      *            JSON object to which the data fields are added
      *
@@ -1545,6 +1586,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @SuppressWarnings("unchecked")
     protected OrderedJSONObject getDataFields(String ownerName,
                                               String tagName,
+                                              List<String> referencedInputTypes,
                                               OrderedJSONObject outputJO)
     {
         JSONArray dataFieldDefnJA = new JSONArray();
@@ -1561,6 +1603,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             for (FieldInformation fieldInfo : fieldInformation)
             {
                 fieldJO = new OrderedJSONObject();
+
+                // Check if if the input type is user-defined and this input type is not already
+                // output
+                if (referencedInputTypes != null
+                    && fieldInfo.getInputType().isCustomInput()
+                    && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
+                {
+                    // Add the input type to the list of those referenced
+                    referencedInputTypes.add(fieldInfo.getInputType().getInputName());
+                }
 
                 // Add the data field column values to the output
                 fieldJO.put(FieldEditorColumnInfo.NAME.getColumnName(), fieldInfo.getFieldName());
@@ -1643,6 +1695,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                  tableData.get(JSONTags.TABLE_DATA.getTag()));
             tableInformation = getDataFields(tableName,
                                              JSONTags.TABLE_FIELD.getTag(),
+                                             null,
                                              tableInformation);
 
             // Get the system name
@@ -1667,13 +1720,19 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param tableTypeNames
      *            names of the table types to add; null to include all defined table types
      *
+     * @param referencedInputTypes
+     *            list of user-defined input types referenced; null if this list isn't used by the
+     *            caller. This list has any user-defined input types not already in the list added
+     *
      * @param outputJO
      *            JSON object to which the data types are added
      *
      * @return The supplied JSON object, with the table type definitions added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected OrderedJSONObject getTableTypeDefinitions(List<String> tableTypeNames, OrderedJSONObject outputJO)
+    protected OrderedJSONObject getTableTypeDefinitions(List<String> tableTypeNames,
+                                                        List<String> referencedInputTypes,
+                                                        OrderedJSONObject outputJO)
     {
         // Check if the table type name list is null, in which case all defined table types are
         // included
@@ -1705,6 +1764,37 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     JSONArray typeDefnJA = new JSONArray();
                     OrderedJSONObject tableTypeJO;
+
+                    // CHeck if the referenced input types list should be updated
+                    if (referencedInputTypes != null)
+                    {
+                        // Step through each table type column input type
+                        for (InputType inputType : tableTypeDefn.getInputTypes())
+                        {
+                            // Check if the input type is user-defined and this input type is not
+                            // already output
+                            if (inputType.isCustomInput()
+                                && !referencedInputTypes.contains(inputType.getInputName()))
+                            {
+                                // Add the input type to the list of those referenced
+                                referencedInputTypes.add(inputType.getInputName());
+                            }
+                        }
+
+                        // Step through each data field belonging to the table type
+                        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getName())))
+                        {
+                            // Check if if the input type is user-defined and this input type is
+                            // not already output
+                            if (fieldInfo.getInputType().isCustomInput()
+                                &&
+                                !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
+                            {
+                                // Add the input type to the list of those referenced
+                                referencedInputTypes.add(fieldInfo.getInputType().getInputName());
+                            }
+                        }
+                    }
 
                     // Step through each column definition in the table type, skipping the primary
                     // key and row index columns
@@ -1739,6 +1829,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     tableTypeJO.put(JSONTags.TABLE_TYPE_COLUMN.getTag(), typeDefnJA);
                     tableTypeJO = getDataFields(CcddFieldHandler.getFieldTypeName(refTableType),
                                                 JSONTags.TABLE_TYPE_FIELD.getTag(),
+                                                referencedInputTypes,
                                                 tableTypeJO);
 
                     tableTypeJA.add(tableTypeJO);
@@ -1842,7 +1933,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the custom input type definitions added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected OrderedJSONObject getInputTypeDefinitions(List<String> inputTypeNames, OrderedJSONObject outputJO)
+    protected OrderedJSONObject getInputTypeDefinitions(List<String> inputTypeNames,
+                                                        OrderedJSONObject outputJO)
     {
         // Check if the input type name list is null, in which case all defined input types are
         // included
@@ -2336,6 +2428,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeNameTag
      *            true to include the group name item and data field tag
      *
+     * @param referencedInputTypes
+     *            list of user-defined input types referenced; null if this list isn't used by the
+     *            caller. This list has any user-defined input types not already in the list added
+     *
      * @return JSON encoded string containing the specified group's data fields; null if the group
      *         doesn't exist or if the project database contains no groups, or blank if the group
      *         contains no data fields
@@ -2346,7 +2442,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @SuppressWarnings("unchecked")
     protected String getGroupFields(String groupName,
                                     boolean applicationOnly,
-                                    boolean includeNameTag) throws CCDDException
+                                    boolean includeNameTag,
+                                    List<String> referencedInputTypes) throws CCDDException
     {
         String response = null;
 
@@ -2372,7 +2469,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // get the brackets and commas in the JSON formatted string correct
                         responseJA.add(parser.parse(getGroupFields(name,
                                                                    applicationOnly,
-                                                                   true)));
+                                                                   true,
+                                                                   referencedInputTypes)));
                     }
                     catch (ParseException pe)
                     {
@@ -2407,6 +2505,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     // tag)
                     OrderedJSONObject fieldsJO = getDataFields(CcddFieldHandler.getFieldGroupName(groupName),
                                                                JSONTags.GROUP_FIELD.getTag(),
+                                                               referencedInputTypes,
                                                                new OrderedJSONObject());
                     groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.GROUP_FIELD.getTag());
                 }
@@ -2448,6 +2547,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param applicationOnly
      *            true if only groups that represent applications should be processed
      *
+     * @param referencedInputTypes
+     *            list of user-defined input types referenced; null if this list isn't used by the
+     *            caller. This list has any user-defined input types not already in the list added
+     *
      * @return JSON encoded string containing the specified group/application information; null if
      *         a group name is specified and the group/application doesn't exist or if no
      *         groups/applications exist in the project database
@@ -2457,7 +2560,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
     protected String getGroupInformation(String groupName,
-                                         boolean applicationOnly) throws CCDDException
+                                         boolean applicationOnly,
+                                         List<String> referencedInputTypes) throws CCDDException
     {
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
@@ -2506,7 +2610,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // Get the fields for this group as a JSON string, then format it as a JSON
                         // object so that is can be added to the response array. This is needed to
                         // get the brackets and commas in the JSON formatted string correct
-                        responseJA.add(parser.parse(getGroupInformation(name, applicationOnly)));
+                        responseJA.add(parser.parse(getGroupInformation(name,
+                                                                        applicationOnly,
+                                                                        referencedInputTypes)));
                     }
                     catch (ParseException pe)
                     {
@@ -2546,7 +2652,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     groupInfoJO.put(dataFieldTag,
                                     parser.parse(getGroupFields(groupName,
                                                                 applicationOnly,
-                                                                false)));
+                                                                false,
+                                                                referencedInputTypes)));
 
                     // Convert the response object to a JSON string
                     response = groupInfoJO.toString();

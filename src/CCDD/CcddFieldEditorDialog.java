@@ -889,7 +889,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         }
 
         // Create a combo box for displaying field input types
-        inputTypeCbox = new PaddedComboBox(inputTypeHandler.getNames(),
+        inputTypeCbox = new PaddedComboBox(inputTypeHandler.getInputTypeNames(),
                                            inputTypeHandler.getDescriptions(),
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 

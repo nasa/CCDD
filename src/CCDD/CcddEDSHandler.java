@@ -2086,6 +2086,22 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            * Not used for EDS export (all macros are expanded) * true to replace any
      *            embedded macros with their corresponding values
      *
+     * @param includeAllTableTypes
+     *            * Not used for EDS export * true to include the all table type definitions in the
+     *            export file
+     *
+     * @param includeAllDataTypes
+     *            * Not used for EDS export * true to include the all data type definitions in the
+     *            export file
+     *
+     * @param includeAllInputTypes
+     *            * Not used for XTCE export * true to include the all user-defined input type
+     *            definitions in the export file
+     *
+     * @param includeAllMacros
+     *            * Not used for EDS export * true to include the all macro definitions in the
+     *            export file
+     *
      * @param includeReservedMsgIDs
      *            * Not used for EDS export * true to include the contents of the reserved message
      *            ID table in the export file
@@ -2125,6 +2141,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
                              boolean replaceMacros,
+                             boolean includeAllTableTypes,
+                             boolean includeAllDataTypes,
+                             boolean includeAllInputTypes,
+                             boolean includeAllMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeGroups,

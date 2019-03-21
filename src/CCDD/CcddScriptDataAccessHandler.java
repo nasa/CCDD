@@ -4080,6 +4080,78 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Get an array of row numbers in the structure table data that belong to the specified
+     * structure table. Convenience method that assumes the table type is "Structure"
+     *
+     * @param tablePath
+     *            full table path
+     *
+     * @return Array of the structure table data row numbers that belong to the specified structure
+     *         table; returns an empty array if the structure table path doesn't exist
+     *********************************************************************************************/
+    public Integer[] getStructureTableRowIndices(String tablePath)
+    {
+        return getTableRowIndices(TYPE_STRUCTURE, tablePath);
+    }
+
+    /**********************************************************************************************
+     * Get an array of row numbers in the command table data that belong to the specified command
+     * table. Convenience method that assumes the table type is "Command"
+     *
+     * @param tableName
+     *            table name
+     *
+     * @return Array of the command table data row numbers that belong to the specified command
+     *         table; returns an empty array if the command table name doesn't exist
+     *********************************************************************************************/
+    public Integer[] getCommandTableRowIndices(String tableName)
+    {
+        return getTableRowIndices(TYPE_COMMAND, tableName);
+    }
+
+    /**********************************************************************************************
+     * Get an array of row numbers in the table data for the specified table type that belong to
+     * the specified table
+     *
+     * @param tableType
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
+     *
+     * @param tablePath
+     *            full table path
+     *
+     * @return Array of the specified table type's table data row numbers that belong to the
+     *         specified table; returns an empty array if an instance of the table type or the
+     *         table path doesn't exist
+     *********************************************************************************************/
+    public Integer[] getTableRowIndices(String tableType, String tablePath)
+    {
+        List<Integer> tableRows = new ArrayList<Integer>();
+
+        // Get the reference to the table information class for the requested table type
+        TableInformation tableInfo = getTableInformation(tableType);
+
+        // Check that the table type exists
+        if (tableInfo != null)
+        {
+            // Step through the table data
+            for (int row = 0; row < tableInfo.getData().length; row++)
+            {
+                // Check if the table name matches the target table
+                if (tableInfo.getData()[row][tableInfo.getData()[row].length
+                                             - PATH_COLUMN_DELTA].equals(tablePath))
+                {
+                    // Add the row number to the list
+                    tableRows.add(row);
+                }
+            }
+        }
+
+        return tableRows.toArray(new Integer[0]);
+    }
+
+    /**********************************************************************************************
      * Get the data from the specified "Structure" table in the specified column for the row with
      * the specified variable name, with any macro name replaced by its corresponding value.
      * Convenience method that assumes the table type is "Structure" and the variable name column
@@ -5666,6 +5738,10 @@ public class CcddScriptDataAccessHandler
             xtceHandler.exportToFile(new FileEnvVar(outputFileName),
                                      getTableNames(),
                                      true, // unused for XTCE export
+                                     false, // unused for XTCE export
+                                     false, // unused for XTCE export
+                                     false, // unused for XTCE export
+                                     false, // unused for XTCE export
                                      false, // unused for XTCE export
                                      false, // unused for XTCE export
                                      false, // unused for XTCE export

@@ -278,7 +278,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         if (isFilterByType)
         {
             // Create the node storage for the table types
-            typeNodes = new ToolTipTreeNode[tableTypeHandler.getTypes().length];
+            typeNodes = new ToolTipTreeNode[tableTypeHandler.getTableTypeNames().length];
         }
 
         // Check if the application statuses are to be used to filter the group tree
@@ -316,7 +316,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         int index = 0;
 
                         // Step through each table type
-                        for (String type : tableTypeHandler.getTypes())
+                        for (String type : tableTypeHandler.getTableTypeNames())
                         {
                             // Create the node for this table type and add it to the tree model
                             typeNodes[index] = new ToolTipTreeNode(type,

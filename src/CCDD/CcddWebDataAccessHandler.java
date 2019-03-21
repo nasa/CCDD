@@ -423,7 +423,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the name, application status, description, and data fields for the
                         // specified group (or all groups if no group name is specified)
                         response = jsonHandler.getGroupInformation(attributeAndName[1],
-                                                                   applicationOnly);
+                                                                   applicationOnly,
+                                                                   null);
                         break;
 
                     case "tables":
@@ -447,7 +448,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // no group name is specified)
                         response = jsonHandler.getGroupFields(attributeAndName[1],
                                                               applicationOnly,
-                                                              true);
+                                                              true,
+                                                              null);
                         break;
 
                     case "names":
@@ -784,6 +786,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         projectJO.put("Port", dbControl.getPort());
         projectJO = jsonHandler.getDataFields(CcddFieldHandler.getFieldProjectName(),
                                               JSONTags.PROJECT_FIELD.getTag(),
+                                              null,
                                               projectJO);
 
         return projectJO.toString();
@@ -1052,6 +1055,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             tableNameAndFields.put(JSONTags.TABLE_NAME.getTag(), tableName);
             tableNameAndFields = jsonHandler.getDataFields(tableName,
                                                            JSONTags.TABLE_FIELD.getTag(),
+                                                           null,
                                                            tableNameAndFields);
             response = tableNameAndFields.toString();
         }
@@ -2170,7 +2174,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private String getTableTypeDefinitions()
     {
         // Add the table type definitions to the output
-        return jsonHandler.getTableTypeDefinitions(null, new OrderedJSONObject()).toJSONString();
+        return jsonHandler.getTableTypeDefinitions(null,
+                                                   null,
+                                                   new OrderedJSONObject())
+                          .toJSONString();
     }
 
     /**********************************************************************************************

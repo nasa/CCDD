@@ -455,7 +455,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     }
 
                     // Get the list of available tables
-                    String[] types = tableTypeHandler.getTypes();
+                    String[] types = tableTypeHandler.getTableTypeNames();
 
                     // Step through each of the type names
                     for (String type : types)

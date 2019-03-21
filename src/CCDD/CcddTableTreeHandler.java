@@ -986,7 +986,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                            Component parent)
     {
         // Step through each table type
-        for (String type : tableTypeHandler.getTypes())
+        for (String type : tableTypeHandler.getTableTypeNames())
         {
             List<String> validTables = new ArrayList<String>();
 

@@ -80,6 +80,10 @@ public class CcddCommandLineHandler
     private String[] tablePaths;
     private boolean overwriteFile;
     private boolean singleFile;
+    private boolean includeAllTableTypes;
+    private boolean includeAllDataTypes;
+    private boolean includeAllInputTypes;
+    private boolean includeAllMacros;
     private boolean replaceMacros;
     private boolean includeReservedMsgIDs;
     private boolean includeProjectFields;
@@ -1362,6 +1366,10 @@ public class CcddCommandLineHandler
                                                                          overwriteFile,
                                                                          singleFile,
                                                                          replaceMacros,
+                                                                         includeAllTableTypes,
+                                                                         includeAllDataTypes,
+                                                                         includeAllInputTypes,
+                                                                         includeAllMacros,
                                                                          includeReservedMsgIDs,
                                                                          includeProjectFields,
                                                                          includeGroups,
@@ -1392,6 +1400,10 @@ public class CcddCommandLineHandler
                                                                                  overwriteFile,
                                                                                  singleFile,
                                                                                  replaceMacros,
+                                                                                 includeAllTableTypes,
+                                                                                 includeAllDataTypes,
+                                                                                 includeAllInputTypes,
+                                                                                 includeAllMacros,
                                                                                  includeReservedMsgIDs,
                                                                                  includeProjectFields,
                                                                                  includeGroups,
@@ -1508,6 +1520,86 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 singleFile = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include all table type definitions
+        exportArgument.add(new CommandHandler("includeAllTableTypes",
+                                              "Include all table type definitions\n"
+                                                                      + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the table type definitions
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeAllTableTypes = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include all data type definitions
+        exportArgument.add(new CommandHandler("includeAllDataTypes",
+                                              "Include all data type definitions\n"
+                                                                     + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the data type definitions
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeAllDataTypes = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include all user-defined input type definitions
+        exportArgument.add(new CommandHandler("includeAllInputTypes",
+                                              "Include all user-defined input type\n"
+                                                                      + "  definitions (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the user-defined input type definitions
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeAllInputTypes = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include all macro definitions
+        exportArgument.add(new CommandHandler("includeAllMacros",
+                                              "Include all macro definitions\n"
+                                                                  + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the list of all macro definitions
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeAllMacros = (Boolean) parmVal;
             }
         });
 

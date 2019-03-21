@@ -88,6 +88,18 @@ public interface CcddImportExportInterface
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
+     * @param includeAllTableTypes
+     *            true to include the all table type definitions in the export file
+     *
+     * @param includeAllDataTypes
+     *            true to include the all data type definitions in the export file
+     *
+     * @param includeAllInputTypes
+     *            true to include the all user-defined input type definitions in the export file
+     *
+     * @param includeAllMacros
+     *            true to include the all macro definitions in the export file
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
@@ -124,6 +136,10 @@ public interface CcddImportExportInterface
     abstract void exportToFile(FileEnvVar exportFile,
                                String[] tableNames,
                                boolean replaceMacros,
+                               boolean includeAllTableTypes,
+                               boolean includeAllDataTypes,
+                               boolean includeAllInputTypes,
+                               boolean includeAllMacros,
                                boolean includeReservedMsgIDs,
                                boolean includeProjectFields,
                                boolean includeVariablePaths,

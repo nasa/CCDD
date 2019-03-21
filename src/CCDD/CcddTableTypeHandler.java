@@ -1347,25 +1347,26 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Get an array of the defined table types
+     * Get an array of the name of the defined table types
      *
-     * @return Array of table types
+     * @return Array of names of the table types, sorted alphabetically; an empty list if no table
+     *         types are defined
      *********************************************************************************************/
-    protected String[] getTypes()
+    protected String[] getTableTypeNames()
     {
-        List<String> types = new ArrayList<String>();
+        List<String> tableTypeNames = new ArrayList<String>();
 
         // Step through each definition
         for (TypeDefinition typeDefn : typeDefinitions)
         {
             // Add the type name to the list
-            types.add(typeDefn.getName());
+            tableTypeNames.add(typeDefn.getName());
         }
 
         // Sort the list alphabetically
-        Collections.sort(types);
+        Collections.sort(tableTypeNames);
 
-        return types.toArray(new String[0]);
+        return tableTypeNames.toArray(new String[0]);
     }
 
     /**********************************************************************************************

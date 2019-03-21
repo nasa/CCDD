@@ -1130,7 +1130,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private String[] getInputTypeNames()
     {
         // Get the list of all input types
-        String[] inputNames = inputTypeHandler.getNames();
+        String[] inputNames = inputTypeHandler.getInputTypeNames();
 
         // Step through each row in the table type
         for (int row = 0; row < table.getRowCount(); row++)

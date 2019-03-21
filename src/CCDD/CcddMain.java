@@ -167,7 +167,7 @@ public class CcddMain
     private JMenuItem mntmCopyTable;
     private JMenuItem mntmDeleteTable;
     private JMenuItem mntmPadding;
-    private JMenuItem mntmImportTable;
+    private JMenuItem mntmImportData;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmExportEDS;
     private JMenuItem mntmExportJSON;
@@ -1081,14 +1081,14 @@ public class CcddMain
         mntmChangeDbOwner.setEnabled(activateIfServer);
         mntmNewTable.setEnabled(activateIfDatabase
                                 && tableTypeHandler != null
-                                && tableTypeHandler.getTypes() != null
+                                && tableTypeHandler.getTableTypeNames() != null
                                 && activateIfReadWrite);
         mntmEditTable.setEnabled(activateIfDatabase);
         mntmRenameTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmCopyTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmDeleteTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmPadding.setEnabled(activateIfDatabase && activateIfReadWrite);
-        mntmImportTable.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmImportData.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmExportCSV.setEnabled(activateIfDatabase);
         mntmExportEDS.setEnabled(activateIfDatabase);
         mntmExportJSON.setEnabled(activateIfDatabase);
@@ -1878,12 +1878,12 @@ public class CcddMain
         mntmCopyTable = createMenuItem(mnData, "Copy table", KeyEvent.VK_C, 1, "Copy selected data table");
         mntmDeleteTable = createMenuItem(mnData, "Delete table(s)", KeyEvent.VK_L, 1, "Delete selected data table(s)");
         mnData.addSeparator();
-        mntmImportTable = createMenuItem(mnData, "Import table(s)", KeyEvent.VK_I, 1, "Import selected CSV, JSON, or EDS/XTCE XML file(s) to data table(s)");
-        JMenu mnExport = createSubMenu(mnData, "Export table(s)", KeyEvent.VK_X, 1, null);
-        mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data table(s) in CSV format");
-        mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data table(s) in EDS XML format");
-        mntmExportJSON = createMenuItem(mnExport, "JSON", KeyEvent.VK_J, 1, "Export selected data table(s) in JSON format");
-        mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export selected data table(s) in XTCE XML format");
+        mntmImportData = createMenuItem(mnData, "Import data", KeyEvent.VK_I, 1, "Import selected CSV, JSON, or EDS/XTCE XML file(s) data");
+        JMenu mnExport = createSubMenu(mnData, "Export data", KeyEvent.VK_X, 1, null);
+        mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data in CSV format");
+        mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data in EDS XML format");
+        mntmExportJSON = createMenuItem(mnExport, "JSON", KeyEvent.VK_J, 1, "Export selected data in JSON format");
+        mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export selected data in XTCE XML format");
         mnData.addSeparator();
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, 2, "Open the table group manager");
         mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_Y, 1, "Open the table type manager");
@@ -2330,7 +2330,7 @@ public class CcddMain
         });
 
         // Add a listener for the Import Data menu item
-        mntmImportTable.addActionListener(new ActionListener()
+        mntmImportData.addActionListener(new ActionListener()
         {
             /**************************************************************************************
              * Select one or more files to import
@@ -2426,7 +2426,7 @@ public class CcddMain
                 {
                     // Open the table type editor
                     tableTypeEditorDialog = new CcddTableTypeEditorDialog(CcddMain.this,
-                                                                          tableTypeHandler.getTypes());
+                                                                          tableTypeHandler.getTableTypeNames());
                 }
                 // The table type editor is already open
                 else

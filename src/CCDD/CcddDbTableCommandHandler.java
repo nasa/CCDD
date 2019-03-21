@@ -9142,7 +9142,7 @@ public class CcddDbTableCommandHandler
         String[] tablesOfType = new String[0];
 
         // Step through each table type
-        for (String type : tableTypeHandler.getTypes())
+        for (String type : tableTypeHandler.getTableTypeNames())
         {
             boolean isOfType;
 

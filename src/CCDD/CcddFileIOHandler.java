@@ -2281,6 +2281,18 @@ public class CcddFileIOHandler
      *            true to replace macros with their corresponding values; false to leave the macros
      *            intact
      *
+     * @param includeAllTableTypes
+     *            true to include the all table type definitions in the export file
+     *
+     * @param includeAllDataTypes
+     *            true to include the all data type definitions in the export file
+     *
+     * @param includeAllInputTypes
+     *            true to include the all user-defined input type definitions in the export file
+     *
+     * @param includeAllMacros
+     *            true to include the all macro definitions in the export file
+     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
@@ -2342,6 +2354,10 @@ public class CcddFileIOHandler
                                                     final boolean overwriteFile,
                                                     final boolean singleFile,
                                                     final boolean replaceMacros,
+                                                    final boolean includeAllTableTypes,
+                                                    final boolean includeAllDataTypes,
+                                                    final boolean includeAllInputTypes,
+                                                    final boolean includeAllMacros,
                                                     final boolean includeReservedMsgIDs,
                                                     final boolean includeProjectFields,
                                                     final boolean includeGroups,
@@ -2375,6 +2391,10 @@ public class CcddFileIOHandler
                                      overwriteFile,
                                      singleFile,
                                      replaceMacros,
+                                     includeAllTableTypes,
+                                     includeAllDataTypes,
+                                     includeAllInputTypes,
+                                     includeAllMacros,
                                      includeReservedMsgIDs,
                                      includeProjectFields,
                                      includeGroups,
@@ -2434,6 +2454,18 @@ public class CcddFileIOHandler
      * @param replaceMacros
      *            true to replace macros with their corresponding values; false to leave the macros
      *            intact
+     *
+     * @param includeAllTableTypes
+     *            true to include the all table type definitions in the export file
+     *
+     * @param includeAllDataTypes
+     *            true to include the all data type definitions in the export file
+     *
+     * @param includeAllInputTypes
+     *            true to include the all user-defined input type definitions in the export file
+     *
+     * @param includeAllMacros
+     *            true to include the all macro definitions in the export file
      *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
@@ -2498,6 +2530,10 @@ public class CcddFileIOHandler
                                            final boolean overwriteFile,
                                            final boolean singleFile,
                                            final boolean replaceMacros,
+                                           final boolean includeAllTableTypes,
+                                           final boolean includeAllDataTypes,
+                                           final boolean includeAllInputTypes,
+                                           final boolean includeAllMacros,
                                            final boolean includeReservedMsgIDs,
                                            final boolean includeProjectFields,
                                            final boolean includeGroups,
@@ -2627,6 +2663,10 @@ public class CcddFileIOHandler
                     ioHandler.exportToFile(file,
                                            tablePaths,
                                            replaceMacros,
+                                           includeAllTableTypes,
+                                           includeAllDataTypes,
+                                           includeAllInputTypes,
+                                           includeAllMacros,
                                            includeReservedMsgIDs,
                                            includeProjectFields,
                                            includeGroups,
@@ -2675,6 +2715,10 @@ public class CcddFileIOHandler
                         ioHandler.exportToFile(file,
                                                new String[] {tablePath},
                                                replaceMacros,
+                                               includeAllTableTypes,
+                                               includeAllDataTypes,
+                                               includeAllInputTypes,
+                                               includeAllMacros,
                                                includeReservedMsgIDs,
                                                includeProjectFields,
                                                includeGroups,

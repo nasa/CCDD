@@ -1648,7 +1648,7 @@ public class CcddDbVerificationHandler
         CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
 
         // Step through each table type
-        for (String tableType : tableTypeHandler.getTypes())
+        for (String tableType : tableTypeHandler.getTableTypeNames())
         {
             // Get the list of all tables of this type
             List<String> tableOfType = dbTable.getAllTablesOfType(tableType,

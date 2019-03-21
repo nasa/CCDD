@@ -15,6 +15,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -289,6 +290,29 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
+     * Get the list of macro names
+     *
+     * @return List of macro names, sorted alphabetically; an empty list if no macros are defined
+     *********************************************************************************************/
+    protected List<String> getMacroNames()
+    {
+        // Create a list to hold the macro names
+        List<String> macroNames = new ArrayList<String>();
+
+        // Step through each macro
+        for (String[] macro : macros)
+        {
+            // Store the macro name in the list
+            macroNames.add(macro[MacrosColumn.MACRO_NAME.ordinal()]);
+        }
+
+        // Sort the macro names alphabetically
+        Collections.sort(macroNames, String.CASE_INSENSITIVE_ORDER);
+
+        return macroNames;
+    }
+
+    /**********************************************************************************************
      * Clear the list of expanded macro values. This should be done following any change to a
      * macro's unexpanded value so that the unexpanded value is reevaluated when next requested
      *********************************************************************************************/
@@ -322,7 +346,7 @@ public class CcddMacroHandler
             // Check if the supplied name matches the macro name, ignoring case
             if (macro[MacrosColumn.MACRO_NAME.ordinal()].equalsIgnoreCase(inputName))
             {
-                // Set the name to the stored macros name and stop searching
+                // Set the name to the stored macro name and stop searching
                 storedName = macro[MacrosColumn.MACRO_NAME.ordinal()];
                 break;
             }

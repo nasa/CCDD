@@ -539,18 +539,36 @@ public class CcddInputTypeHandler
      *
      * @return Array of all of the input type names
      *********************************************************************************************/
-    protected String[] getNames()
+    protected String[] getInputTypeNames()
     {
-        // Create an array to hold the input type names
+        return getNames(false);
+    }
+
+    /**********************************************************************************************
+     * Get an array of the input type names (all or user-defined only), excluding separators and
+     * breaks
+     *
+     * @param customOnly
+     *            true to only include user-defined input types; false to include all input types
+     *
+     * @return Array of all or only user-defined input type names, sorted alphabetically; an empty
+     *         list if no user-defined input types are defined and only user-defined types are
+     *         requested
+     *********************************************************************************************/
+    protected String[] getNames(boolean customOnly)
+    {
+        // Create a list to hold the input type names
         List<String> inputNames = new ArrayList<String>();
 
         // Step through each input type
         for (InputType inputType : inputTypes)
         {
-            // Check that this isn't a page format type
-            if (!inputType.getInputFormat().equals(InputTypeFormat.PAGE_FORMAT))
+            // Check that this isn't a page format type and if either all input types are to be
+            // included, or only the user-defined ones and this one is user-defined
+            if (!inputType.getInputFormat().equals(InputTypeFormat.PAGE_FORMAT)
+                && (!customOnly || inputType.isCustomInput()))
             {
-                // Store the input type name in the array
+                // Store the input type name in the list
                 inputNames.add(inputType.getInputName());
             }
         }
@@ -570,7 +588,7 @@ public class CcddInputTypeHandler
     protected String[] getDescriptions()
     {
         // Get the list of input type names, sorted alphabetically
-        String[] inputNames = getNames();
+        String[] inputNames = getInputTypeNames();
 
         // Create an array to hold the input type descriptions
         String[] inputDescriptions = new String[inputNames.length];

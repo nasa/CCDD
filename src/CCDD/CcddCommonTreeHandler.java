@@ -600,7 +600,7 @@ public class CcddCommonTreeHandler extends JTree
             typePattern = "(, (";
 
             // Step through each table type
-            for (String type : tableTypeHandler.getTypes())
+            for (String type : tableTypeHandler.getTableTypeNames())
             {
                 // Add the type name to the pattern
                 typePattern += Pattern.quote(type) + "|";
@@ -738,7 +738,7 @@ public class CcddCommonTreeHandler extends JTree
                         String newPath = "";
 
                         // Step through each table type
-                        for (String type : tableTypeHandler.getTypes())
+                        for (String type : tableTypeHandler.getTableTypeNames())
                         {
                             // Modify the existing path to include the new type node
                             newPath += path.replaceAll(Pattern.quote(prefix)

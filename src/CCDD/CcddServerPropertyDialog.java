@@ -387,18 +387,21 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         allowResize = false;
 
         // Add the server host to the dialog so that the user knows what credentials are required
-        JPanel serverPnl = new JPanel();
         JLabel serverLbl1 = new JLabel("Enter credentials for server: ");
         serverLbl1.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         serverLbl1.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        serverPnl.add(serverLbl1);
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.insets.bottom = 0;
+        selectPnl.add(serverLbl1, gbc);
         JLabel serverLbl2 = new JLabel(dbControl.getHost());
         serverLbl2.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         serverLbl2.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
-        serverPnl.add(serverLbl2);
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.insets.bottom = 0;
-        selectPnl.add(serverPnl, gbc);
+        gbc.insets.top = 0;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+        gbc.gridy++;
+        selectPnl.add(serverLbl2, gbc);
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.weightx = 1.0;
         gbc.gridwidth = 1;
