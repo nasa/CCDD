@@ -3841,86 +3841,97 @@ public abstract class CcddJTableHandler extends JTable
     @Override
     public void tableChanged(final TableModelEvent tme)
     {
-        // Check if a model data reload is not in progress, the table model is valid, the table has
-        // rows to display, and the table is showing on the screen. The columns are not correct
-        // until the model data reload is complete. If the table isn't showing yet then a null
-        // exception can infrequently occur in updateRowHeights() due to what appears to be a race
-        // condition or Swing bug
-        if (!isReloadData && tableModel != null && getRowCount() != 0 && table.isShowing())
+        // Check if the table model is valid
+        if (tableModel != null)
         {
-            // Flag to indicate if the changed row indices are valid
-            boolean isValid = true;
-
-            // First and last rows changed, in view coordinates
-            int firstRow = 0;
-            int lastRow = 0;
-
-            // Check if this is the header row or if the row isn't specified
-            if (tme == null || tme.getFirstRow() == TableModelEvent.HEADER_ROW)
+            // Check if a model data reload is not in progress, the table has rows to display, and
+            // the table is showing on the screen. The columns are not correct until the model data
+            // reload is complete. If the table isn't showing yet then a null exception can
+            // infrequently occur in updateRowHeights() due to what appears to be a race condition
+            // or Swing bug
+            if (!isReloadData && getRowCount() != 0 && table.isShowing())
             {
-                // Determine first and last rows that are currently visible. Get the coordinates of
-                // the table's visible rectangle
-                Rectangle visRect = getVisibleRect();
+                // Flag to indicate if the changed row indices are valid
+                boolean isValid = true;
 
-                // Determine the first (upper) row. If a column is being resized or the table has
-                // no rows then set to 0 (the first table row), otherwise set to the first visible
-                // row
-                firstRow = inLayout
-                                    ? 0
-                                    : Math.max(rowAtPoint(visRect.getLocation()), 0);
+                // First and last rows changed, in view coordinates
+                int firstRow = 0;
+                int lastRow = 0;
 
-                // Move the rectangle down the height of the table, then back 1 pixel to remain
-                // within the table boundaries
-                visRect.translate(0, visRect.height - 1);
-
-                // Get the last visible row plus 1 (as required by updateRowHeights). Defaults to 0
-                // if the table has no rows
-                lastRow = rowAtPoint(visRect.getLocation()) + 1;
-
-                // Check if the calculated last row is greater than the total number of rows in the
-                // table
-                if (lastRow == 0)
+                // Check if this is the header row or if the row isn't specified
+                if (tme == null || tme.getFirstRow() == TableModelEvent.HEADER_ROW)
                 {
-                    // Set the last row to the table's visible row count
-                    lastRow = getRowCount();
-                }
-            }
-            // A specific row or rows changed
-            else
-            {
-                // Call the baseline method. This is required in order for the session event log to
-                // display
-                super.tableChanged(tme);
+                    // Determine first and last rows that are currently visible. Get the
+                    // coordinates of the table's visible rectangle
+                    Rectangle visRect = getVisibleRect();
 
-                // Check if the row indices are invalid
-                if (tme.getFirstRow() >= tableModel.getRowCount()
-                    || tme.getLastRow() == Integer.MAX_VALUE)
-                {
-                    isValid = false;
+                    // Determine the first (upper) row. If a column is being resized or the table
+                    // has no rows then set to 0 (the first table row), otherwise set to the first
+                    // visible row
+                    firstRow = inLayout
+                                        ? 0
+                                        : Math.max(rowAtPoint(visRect.getLocation()), 0);
+
+                    // Move the rectangle down the height of the table, then back 1 pixel to remain
+                    // within the table boundaries
+                    visRect.translate(0, visRect.height - 1);
+
+                    // Get the last visible row plus 1 (as required by updateRowHeights). Defaults
+                    // to 0 if the table has no rows
+                    lastRow = rowAtPoint(visRect.getLocation()) + 1;
+
+                    // Check if the calculated last row is greater than the total number of rows in
+                    // the table
+                    if (lastRow == 0)
+                    {
+                        // Set the last row to the table's visible row count
+                        lastRow = getRowCount();
+                    }
                 }
-                // The row indices are valid
+                // A specific row or rows changed
                 else
                 {
-                    // Get the index of the first changed row in view coordinates
-                    firstRow = convertRowIndexToView(tme.getFirstRow());
+                    // Call the baseline method. This is required in order for the session event
+                    // log to display
+                    super.tableChanged(tme);
 
-                    // Check if the row is invisible
-                    if (firstRow == -1)
+                    // Check if the row indices are invalid
+                    if (tme.getFirstRow() >= tableModel.getRowCount()
+                        || tme.getLastRow() == Integer.MAX_VALUE)
                     {
-                        // Set the row index to the first row
-                        firstRow = 0;
+                        isValid = false;
                     }
+                    // The row indices are valid
+                    else
+                    {
+                        // Get the index of the first changed row in view coordinates
+                        firstRow = convertRowIndexToView(tme.getFirstRow());
 
-                    // Set the row index to the last changed row plus one
-                    lastRow = convertRowIndexToView(tme.getLastRow()) + 1;
+                        // Check if the row is invisible
+                        if (firstRow == -1)
+                        {
+                            // Set the row index to the first row
+                            firstRow = 0;
+                        }
+
+                        // Set the row index to the last changed row plus one
+                        lastRow = convertRowIndexToView(tme.getLastRow()) + 1;
+                    }
+                }
+
+                // Check if the row indices are valid
+                if (isValid)
+                {
+                    // Update the affected row(s) height(s)
+                    updateRowHeights(firstRow, lastRow);
                 }
             }
-
-            // Check if the row indices are valid
-            if (isValid)
+            // Check if the event exists
+            else if (tme != null)
             {
-                // Update the affected row(s) height(s)
-                updateRowHeights(firstRow, lastRow);
+                // Call the baseline method. This is required in order for the row view coordinates
+                // to be calculated
+                super.tableChanged(tme);
             }
         }
     }
