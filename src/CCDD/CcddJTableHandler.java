@@ -3841,25 +3841,28 @@ public abstract class CcddJTableHandler extends JTable
     @Override
     public void tableChanged(final TableModelEvent tme)
     {
-        // Check if the table model is valid
-        if (tableModel != null)
+        // Check if a model data reload is not in progress, the table model is valid, and the table
+        // has rows to display. The columns are not correct until the model data reload is complete
+        if (!isReloadData && tableModel != null && getRowCount() != 0)
         {
-            // Check if a model data reload is not in progress, the table has rows to display, and
-            // the table is showing on the screen. The columns are not correct until the model data
-            // reload is complete. If the table isn't showing yet then a null exception can
+            // Flag to indicate if the changed row indices are valid and the row heights need to be
+            // updated. Initialize to true if the table is showing on the screen, or false if the
+            // table isn't displayed. If the table isn't showing yet then a null exception can
             // infrequently occur in updateRowHeights() due to what appears to be a race condition
-            // or Swing bug
-            if (!isReloadData && getRowCount() != 0 && table.isShowing())
+            // or Swing bug. However, the default tableChanged() must be called under certain
+            // conditions even when the table isn't showing so that the conversion of view to/from
+            // model coordinates can be made
+            boolean isValid = table.isShowing();
+
+            // First and last rows changed, in view coordinates
+            int firstRow = 0;
+            int lastRow = 0;
+
+            // Check if this is the header row or if the row isn't specified
+            if (tme == null || tme.getFirstRow() == TableModelEvent.HEADER_ROW)
             {
-                // Flag to indicate if the changed row indices are valid
-                boolean isValid = true;
-
-                // First and last rows changed, in view coordinates
-                int firstRow = 0;
-                int lastRow = 0;
-
-                // Check if this is the header row or if the row isn't specified
-                if (tme == null || tme.getFirstRow() == TableModelEvent.HEADER_ROW)
+                // Check if the table if the table is showing on the screen
+                if (isValid)
                 {
                     // Determine first and last rows that are currently visible. Get the
                     // coordinates of the table's visible rectangle
@@ -3888,13 +3891,17 @@ public abstract class CcddJTableHandler extends JTable
                         lastRow = getRowCount();
                     }
                 }
-                // A specific row or rows changed
-                else
-                {
-                    // Call the baseline method. This is required in order for the session event
-                    // log to display
-                    super.tableChanged(tme);
+            }
+            // A specific row or rows changed
+            else
+            {
+                // Call the baseline method. This is required in order for the session event log to
+                // display and to allow conversion of view to/from model coordinates
+                super.tableChanged(tme);
 
+                // Check if the table if the table is showing on the screen
+                if (isValid)
+                {
                     // Check if the row indices are invalid
                     if (tme.getFirstRow() >= tableModel.getRowCount()
                         || tme.getLastRow() == Integer.MAX_VALUE)
@@ -3918,20 +3925,13 @@ public abstract class CcddJTableHandler extends JTable
                         lastRow = convertRowIndexToView(tme.getLastRow()) + 1;
                     }
                 }
-
-                // Check if the row indices are valid
-                if (isValid)
-                {
-                    // Update the affected row(s) height(s)
-                    updateRowHeights(firstRow, lastRow);
-                }
             }
-            // Check if the event exists
-            else if (tme != null)
+
+            // Check if the row indices are valid
+            if (isValid)
             {
-                // Call the baseline method. This is required in order for the row view coordinates
-                // to be calculated
-                super.tableChanged(tme);
+                // Update the affected row(s) height(s)
+                updateRowHeights(firstRow, lastRow);
             }
         }
     }
