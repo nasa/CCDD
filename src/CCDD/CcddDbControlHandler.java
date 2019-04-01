@@ -1453,6 +1453,9 @@ public class CcddDbControlHandler
      * @param ownerName
      *            name of the role or user that owns the database and its objects
      *
+     * @param administrator
+     *            project administrator name(s) (comma-separated)
+     *
      * @param description
      *            database description
      *
@@ -1460,6 +1463,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected boolean createDatabase(final String projectName,
                                      String ownerName,
+                                     String administrator,
                                      String description)
     {
         boolean successFlag = true;
@@ -1478,7 +1482,7 @@ public class CcddDbControlHandler
                                       + getQuotedName(databaseName)
                                       + " ENCODING 'UTF8'; "
                                       + buildDatabaseCommentCommand(projectName,
-                                                                    activeUser,
+                                                                    administrator,
                                                                     false,
                                                                     description)
                                       + buildOwnerCommand(ownerName,
@@ -1527,11 +1531,15 @@ public class CcddDbControlHandler
      * @param ownerName
      *            name of the role or user that owns the database and its objects
      *
+     * @param administrator
+     *            project administrator name(s) (comma-separated)
+     *
      * @param description
      *            database description
      *********************************************************************************************/
     protected void createDatabaseInBackground(final String projectName,
                                               final String ownerName,
+                                              final String administrator,
                                               final String description)
     {
         // Execute the command in the background
@@ -1544,7 +1552,7 @@ public class CcddDbControlHandler
             protected void execute()
             {
                 // Create the database
-                createDatabase(projectName, ownerName, description);
+                createDatabase(projectName, ownerName, administrator, description);
             }
         });
     }
@@ -2842,8 +2850,8 @@ public class CcddDbControlHandler
 
                 try
                 {
-                    // Get the database's creator
-                    String creator = getDatabaseAdmins(oldDatabase);
+                    // Get the database's administrator(s)
+                    String administrator = getDatabaseAdmins(oldDatabase);
 
                     // Check if the old and new database names are identical; this implies only the
                     // project name and/or description changed
@@ -2851,7 +2859,7 @@ public class CcddDbControlHandler
                     {
                         // Update the database's description
                         dbCommand.executeDbUpdate(buildDatabaseCommentCommand(newProject,
-                                                                              creator,
+                                                                              administrator,
                                                                               false,
                                                                               description),
                                                   ccddMain.getMainFrame());
@@ -2869,7 +2877,7 @@ public class CcddDbControlHandler
                                                   + getQuotedName(newDatabase)
                                                   + "; "
                                                   + buildDatabaseCommentCommand(newProject,
-                                                                                creator,
+                                                                                administrator,
                                                                                 false,
                                                                                 description),
                                                   ccddMain.getMainFrame());
@@ -2956,9 +2964,9 @@ public class CcddDbControlHandler
                     // in order to make changes to the current database)
                     if (!targetDatabase.equals(currentDatabase) || !openDatabase(DEFAULT_DATABASE))
                     {
-                        // Get the creator and owner of the database being copied; the copy will
-                        // have the same creator and owner
-                        String creator = getDatabaseAdmins(targetDatabase);
+                        // Get the administrator(s) and owner of the database being copied; the
+                        // copy will have the same administrator(s) and owner
+                        String administrator = getDatabaseAdmins(targetDatabase);
                         String ownerName = targetDatabase.equals(currentDatabase)
                                                                                   ? activeOwner
                                                                                   : queryDatabaseOwner(targetDatabase,
@@ -2974,7 +2982,7 @@ public class CcddDbControlHandler
                                                    + getQuotedName(targetDatabase)
                                                    + "; "
                                                    + buildDatabaseCommentCommand(copyProject,
-                                                                                 creator,
+                                                                                 administrator,
                                                                                  false,
                                                                                  description)
                                                    + buildOwnerCommand(ownerName,
@@ -3248,8 +3256,9 @@ public class CcddDbControlHandler
         // Convert the project name to its database equivalent
         String databaseName = convertProjectNameToDatabase(projectName);
 
-        // Build the command to backup the database
-        String command = "pg_dump " + getUserHostAndPort() + "-w -o -f ";
+        // Build the command to backup the database. Options: -w: no password, -o: dump OIDs, -O do
+        // not set ownership
+        String command = "pg_dump " + getUserHostAndPort() + "--no-password --oids --no-owner --file ";
 
         // Get the number of command line arguments. Since the backup file name may have spaces the
         // argument count must be made prior to appending it. The argument count is adjusted for
@@ -3305,6 +3314,9 @@ public class CcddDbControlHandler
      * @param ownerName
      *            name of the role or user that owns the database and its objects
      *
+     * @param administrator
+     *            project administrator name(s) (comma-separated)
+     *
      * @param description
      *            project description
      *
@@ -3317,6 +3329,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected void restoreDatabaseInBackground(final String projectName,
                                                final String ownerName,
+                                               final String administrator,
                                                final String description,
                                                final File restoreFile,
                                                final boolean overwriteExisting)
@@ -3332,6 +3345,7 @@ public class CcddDbControlHandler
             {
                 restoreDatabase(projectName,
                                 ownerName,
+                                administrator,
                                 description,
                                 restoreFile,
                                 overwriteExisting);
@@ -3348,6 +3362,9 @@ public class CcddDbControlHandler
      * @param ownerName
      *            name of the role or user that owns the database and its objects
      *
+     * @param administrator
+     *            project administrator name(s) (comma-separated)
+     *
      * @param description
      *            project description
      *
@@ -3360,6 +3377,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected void restoreDatabase(String projectName,
                                    String ownerName,
+                                   String administrator,
                                    String description,
                                    File restoreFile,
                                    boolean overwriteExisting)
@@ -3414,9 +3432,12 @@ public class CcddDbControlHandler
             restoreDatabaseName += seqName;
         }
 
-        // Check if an existing database is being overwritten; if no, create a new database to
+        // Check if an existing database is being overwritten; if not, create a new database to
         // which to restore the data and check that it is created successfully
-        if (overwriteExisting || createDatabase(restoreProjectName, ownerName, description))
+        if (overwriteExisting || createDatabase(restoreProjectName,
+                                                ownerName,
+                                                administrator,
+                                                description))
         {
             // Build the command to restore the database
             String command = "psql "

@@ -1941,15 +1941,19 @@ public class CcddCommandLineHandler
                              getSubArgument());
 
                 // Check if a required create sub-command is missing or blank
-                if (createName == null
-                    || createName.isEmpty()
-                    || createOwner == null
-                    || createOwner.isEmpty())
+                if (createName == null || createName.isEmpty())
                 {
                     // Set the flag to display the command line usage information and the error
                     // message
                     showUsage = true;
-                    throw new Exception("Missing project name and/or project owner");
+                    throw new Exception("Missing project name");
+                }
+
+                // Check if no owner is specified
+                if (createOwner == null || createOwner.isEmpty())
+                {
+                    // Set the owner and administrator to the current user
+                    createOwner = ccddMain.getDbControlHandler().getUser();
                 }
 
                 // Check if a connection is made to the PostgreSQL server
@@ -1959,6 +1963,7 @@ public class CcddCommandLineHandler
                     // project can't be created in a background thread since the operation may not
                     // be complete before subsequent database operations are commanded
                     if (!ccddMain.getDbControlHandler().createDatabase(createName,
+                                                                       createOwner,
                                                                        createOwner,
                                                                        createDescription))
                     {

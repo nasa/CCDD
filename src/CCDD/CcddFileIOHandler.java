@@ -54,6 +54,7 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
@@ -365,8 +366,7 @@ public class CcddFileIOHandler
      *            file's database comment
      *
      * @param projectOwner
-     *            owner of the project to restore; null to extract the owner name from the backup
-     *            file's database comment
+     *            owner of the project to restore; null to use the current user as the owner
      *
      * @param projectDescription
      *            description of the project to restore; null to extract the description from the
@@ -377,10 +377,6 @@ public class CcddFileIOHandler
                                            String projectOwner,
                                            String projectDescription)
     {
-        boolean ownerFound = projectOwner != null;
-        boolean nameDescProvided = projectName != null && projectDescription != null;
-        boolean commentFound = false;
-
         // Check if a blank backup file name is provided
         if (restoreFileName != null && restoreFileName.isEmpty())
         {
@@ -439,6 +435,8 @@ public class CcddFileIOHandler
             // Check if a file was chosen
             if (dataFile != null && dataFile[0] != null)
             {
+                boolean nameDescProvided = projectName != null && projectDescription != null;
+                boolean commentFound = false;
                 BufferedReader br = null;
                 BufferedWriter bw = null;
 
@@ -453,8 +451,18 @@ public class CcddFileIOHandler
                     }
 
                     boolean inComment = false;
+                    boolean inUsers = false;
+                    boolean isOwnerAdmin = false;
+                    String oid = "";
                     String line = null;
                     String commentText = "";
+
+                    // Check if no project owner is provided
+                    if (projectOwner == null)
+                    {
+                        // Set the current user as the owner of the restored project
+                        projectOwner = dbControl.getUser();
+                    }
 
                     // Create a temporary file in which to copy the backup file contents
                     tempFile = File.createTempFile(dataFile[0].getName(), "");
@@ -488,42 +496,61 @@ public class CcddFileIOHandler
                                     line = "DROP EXTENSION plpgsql;\n" + line;
                                 }
                             }
-                            // Check if this line is a SQL command that includes setting the owner.
-                            // This, along with the next two conditionals, changes the database
-                            // owner form the original one specified in the backup file to the
-                            // current user
-                            else if (line.matches(".+ OWNER TO .+;\\s*"))
+                            // Check if this is the beginning of the command to populate the user
+                            // access level table
+                            else if (line.startsWith("COPY "
+                                                     + InternalTable.USERS.getTableName()
+                                                     + " ("))
                             {
-                                // Change the original owner to the current user
-                                line = line.replaceFirst("OWNER TO .+;",
-                                                         "OWNER TO " + dbControl.getUser() + ";");
+                                // Set the flag to indicate the following lines contain the user
+                                // access level information
+                                inUsers = true;
                             }
-                            // Check if this line is a SQL command that revokes permissions for an
-                            // owner
-                            else if (line.matches("REVOKE .+ FROM " + projectOwner + ";\\s*"))
+                            // Check if this line follows the command to populate the user access
+                            // level table
+                            else if (inUsers)
                             {
-                                // Change the original owner to the current user
-                                line = line.replaceFirst("FROM .+;",
-                                                         "FROM " + dbControl.getUser() + ";");
-                            }
-                            // Check if this line is a SQL command that grants permissions to an
-                            // owner
-                            else if (line.matches("GRANT .+ TO " + projectOwner + ";\\s*"))
-                            {
-                                // Change the original owner to the current user
-                                line = line.replaceFirst("TO .+;",
-                                                         "TO " + dbControl.getUser() + ";");
-                            }
+                                // Check if this line defines a user's access level
+                                if (line.matches("\\d+\\s+[^\\s]+\\s+.+"))
+                                {
+                                    // Get the OID for this table entry
+                                    oid = line.replaceFirst("\\s.*", "");
 
-                            // Check if the database owner hasn't been found already and that the
-                            // line contains the owner information
-                            if (!ownerFound
-                                && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
-                            {
-                                // Get the owner and store it, and set the flag indicating the
-                                // owner is located
-                                projectOwner = line.replaceFirst(".*Owner: ", "");
-                                ownerFound = true;
+                                    if (line.matches("\\d+\\s+" + projectOwner + "+\\s+.+"))
+                                    {
+                                        // Set the flag to indicate the project owner is already in
+                                        // the user access level table
+                                        isOwnerAdmin = true;
+
+                                        // Make the project owner an administrator for the restored
+                                        // project
+                                        line.replaceFirst("(.+\\s+).+$",
+                                                          "$1"
+                                                                         + AccessLevel.ADMIN.getDisplayName());
+                                    }
+                                }
+                                // The last user access level definition was reached
+                                else
+                                {
+                                    // Set the flag so that subsequent lines are not considered a
+                                    // user access level definition
+                                    inUsers = false;
+
+                                    // Check if the owner for the restored project is not in the
+                                    // user access level table
+                                    if (!isOwnerAdmin)
+                                    {
+                                        // Add the project owner as an administrator for the
+                                        // restored project
+                                        line = (Integer.valueOf(oid) + 1)
+                                               + "\t"
+                                               + projectOwner
+                                               + "\t"
+                                               + AccessLevel.ADMIN.getDisplayName()
+                                               + "\n"
+                                               + line;
+                                    }
+                                }
                             }
 
                             // Check if the database comment hasn't been found already and that the
@@ -561,9 +588,11 @@ public class CcddFileIOHandler
                         bw.write(line + "\n");
                     }
 
-                    // Check if the project owner, name, and description exist
-                    if (ownerFound && (commentFound || nameDescProvided))
+                    // Check if the project name and description exist
+                    if (commentFound || nameDescProvided)
                     {
+                        String projectAdministrator = "";
+
                         // Flush the output file buffer so that none of the contents are lost
                         bw.flush();
 
@@ -589,7 +618,19 @@ public class CcddFileIOHandler
                             // Extract the project name (with case preserved) and description, and
                             // set the flag indicating the comment is located
                             projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                            projectAdministrator = comment[DatabaseComment.ADMINS.ordinal()];
                             projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
+                        }
+
+                        // Check if the project owner isn't in the administrator list embedded in
+                        // the database comment
+                        if (!projectAdministrator.matches("(?:^|,)" + projectOwner + "(?:,|$)"))
+                        {
+                            // Add the project owner as an administrator
+                            projectAdministrator += (projectAdministrator.isEmpty()
+                                                                                    ? ""
+                                                                                    : ",")
+                                                    + projectOwner;
                         }
 
                         // Check if the backup file is restored via the command line
@@ -600,6 +641,7 @@ public class CcddFileIOHandler
                             // when the restored database is created
                             dbControl.restoreDatabase(projectName,
                                                       projectOwner,
+                                                      projectAdministrator,
                                                       projectDescription,
                                                       tempFile,
                                                       true);
@@ -613,6 +655,7 @@ public class CcddFileIOHandler
                             // created
                             dbControl.restoreDatabaseInBackground(projectName,
                                                                   projectOwner,
+                                                                  projectAdministrator,
                                                                   projectDescription,
                                                                   tempFile,
                                                                   false);

@@ -124,7 +124,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
     private final String DIALOG_TITLE = "Manage User Access Level";
 
-    private final String ADMIN_LIST = "\n[Project admin(s): ";
+    private final String ADMIN_LIST = "[Project admin(s): ";
 
     /**********************************************************************************************
      * Project database manager dialog class constructor
@@ -691,6 +691,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                 // Create the project
                                 dbControl.createDatabaseInBackground(nameFld.getText(),
                                                                      getRadioButtonSelected(),
+                                                                     getRadioButtonSelected(),
                                                                      descriptionFld.getText());
                             }
 
@@ -965,7 +966,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Check if the event indicates a radio button selection change
                 if (pce.getPropertyName().equals(RADIO_BUTTON_CHANGE_EVENT))
                 {
-                    // Check if this is a rename, copy, or owner type dialog
+                    // Check if this is a rename or copy type dialog
                     if (dialogType == DbManagerDialogType.RENAME
                         || dialogType == DbManagerDialogType.COPY)
                     {
@@ -982,7 +983,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             {
                                 // Store the item description (without the administrator name(s))
                                 // and stop searching
-                                desc = data[DB_INFO].replaceFirst(Pattern.quote(ADMIN_LIST)
+                                desc = data[DB_INFO].replaceFirst("\\s*"
+                                                                  + Pattern.quote(ADMIN_LIST)
                                                                   + ".*\\]$",
                                                                   "");
                                 break;
@@ -1879,15 +1881,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 if (!comment[DatabaseComment.ADMINS.ordinal()].isEmpty())
                 {
                     // Append the project administrator(s) to the information field
-                    arrayItemData[index][DB_INFO] += ADMIN_LIST
+                    arrayItemData[index][DB_INFO] += (arrayItemData[index][DB_INFO].isEmpty()
+                                                                                              ? ""
+                                                                                              : "\n")
+                                                     + ADMIN_LIST
                                                      + comment[DatabaseComment.ADMINS.ordinal()].replaceAll(DATABASE_ADMIN_SEPARATOR,
                                                                                                             ", ")
                                                      + "]";
                 }
-
-                // Remove the leading line feed, in case the description is blank and the project
-                // creator is not
-                arrayItemData[index][DB_INFO] = arrayItemData[index][DB_INFO].trim();
             }
 
             index++;
