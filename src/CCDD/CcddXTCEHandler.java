@@ -2635,35 +2635,35 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // sequence container name, and the total array size
         String[] path = ((ContainerRefEntryType) seqEntry).getContainerRef().split("/");
 
-        // Check if the expected parts are present
-        if (path.length == ArrayContainerReference.values().length)
+        // Get the reference to the child space system indicated by the container reference. The
+        // first portion of the path is the name of the child space system
+        SpaceSystemType childSystem = getSpaceSystemByName(path[0], system);
+
+        // Check if the child space system exists and that the short description field contains the
+        // table path in its original (application) format. The container is ignored if these
+        // criteria aren't met
+        if (childSystem != null
+            && childSystem.getShortDescription() != null
+            && TableDefinition.isPathFormatValid(childSystem.getShortDescription()))
         {
-            // Get the reference to the child space system indicated by the container reference.
-            // The first portion of the path is the name of the child space system
-            SpaceSystemType childSystem = getSpaceSystemByName(path[0], system);
+            // Store the table's description
+            description = childSystem.getLongDescription();
 
-            // Check if the child space system exists and that the short description field contains
-            // the table path in its original (application) format. The container is ignored if
-            // these criteria aren't met
-            if (childSystem != null
-                && childSystem.getShortDescription() != null
-                && TableDefinition.isPathFormatValid(childSystem.getShortDescription()))
+            // Get the data type and variable name for the structure parameter
+            String[] typeAndName = TableInformation.getProtoVariableName(childSystem.getShortDescription()).split("\\.");
+
+            // Check if both the data type and variable name are present
+            if (typeAndName.length == 2)
             {
-                // Store the table's description
-                description = childSystem.getLongDescription();
+                // Store the variable name and data type
+                parameterName = typeAndName[1];
+                dataType = typeAndName[0];
 
-                // Get the data type and variable name for the structure parameter
-                String[] typeAndName = TableInformation.getProtoVariableName(childSystem.getShortDescription()).split("\\.");
-
-                // Check if both the data type and variable name are present
-                if (typeAndName.length == 2)
+                // Check if this parameter is an array
+                if (ArrayVariable.isArrayMember(parameterName))
                 {
-                    // Store the variable name and data type
-                    parameterName = typeAndName[1];
-                    dataType = typeAndName[0];
-
-                    // Check if this parameter is an array
-                    if (ArrayVariable.isArrayMember(parameterName))
+                    // Check if the expected parts are present
+                    if (path.length == ArrayContainerReference.values().length)
                     {
                         // Each member of a structure array is listed as an individual entry in the
                         // sequence container. For import purposes the array definition must be
@@ -2729,35 +2729,35 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Update the sequence container index in order to skip the array members
                         seqIndex = seqIndex2 - 1;
                     }
-                    // Not an array
-                    else
-                    {
-                        // Set the flag to indicate this is a valid container reference
-                        isValidReference = true;
-                    }
                 }
-                // Both the data type and variable name aren't present
+                // Not an array
                 else
                 {
                     // Set the flag to indicate this is a valid container reference
                     isValidReference = true;
-
-                    // Use whatever is in the short description as the type and variable name
-                    parameterName = typeAndName[0];
-                    dataType = typeAndName[0];
                 }
+            }
+            // Both the data type and variable name aren't present
+            else
+            {
+                // Set the flag to indicate this is a valid container reference
+                isValidReference = true;
 
-                // Check if the parameter is valid
-                if (isValidReference)
-                {
-                    // Store the parameter information
-                    containerInfo = new ParameterInformation(parameterName,
-                                                             dataType,
-                                                             arraySize,
-                                                             description,
-                                                             numArrayMembers,
-                                                             seqIndex);
-                }
+                // Use whatever is in the short description as the type and variable name
+                parameterName = typeAndName[0];
+                dataType = typeAndName[0];
+            }
+
+            // Check if the parameter is valid
+            if (isValidReference)
+            {
+                // Store the parameter information
+                containerInfo = new ParameterInformation(parameterName,
+                                                         dataType,
+                                                         arraySize,
+                                                         description,
+                                                         numArrayMembers,
+                                                         seqIndex);
             }
         }
 
