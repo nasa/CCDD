@@ -424,6 +424,8 @@ public class ConvertCStructureToCSV
                                                                        .trim()
                                                                        .split("\\s*,\\s*"))
                                 {
+                                    String ptr = "";
+
                                     // Initialize the array size, bit length, and description
                                     arraySize = "";
                                     bitLength = "";
@@ -467,7 +469,7 @@ public class ConvertCStructureToCSV
                                             // Remove the asterisk from the variable name and
                                             // append it to the data type
                                             variableName = variableName.replaceFirst("\\*\\s*", "");
-                                            dataType += " *";
+                                            ptr = " *";
                                         }
 
                                         // Add the variable name to the list. This prevents
@@ -475,7 +477,7 @@ public class ConvertCStructureToCSV
                                         variableNames.add(variableName);
 
                                         // Add the variable's definition to the output
-                                        structDataOut.add("\"" + dataType
+                                        structDataOut.add("\"" + dataType + ptr
                                                           + "\",\"" + variableName
                                                           + "\",\"" + arraySize
                                                           + "\",\"" + bitLength
