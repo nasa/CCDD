@@ -1552,9 +1552,8 @@ public class CcddClassesComponent
             if (pathName != null && !pathName.isEmpty())
             {
                 // Replace a leading tilde (~), if present, with the user's home path
-                pathName = pathName.replaceFirst("^~" + File.separator,
-                                                 System.getProperty("user.home")
-                                                                        + File.separator);
+                pathName = pathName.replaceFirst("^~" + Pattern.quote(File.separator),
+                                                 System.getProperty("user.home") + File.separator);
 
                 // Step through each folder in the path
                 for (String folder : pathName.split(Pattern.quote(File.separator)))

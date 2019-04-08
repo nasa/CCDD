@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="private" additionalparam=" -notimestamp" author="true" classpath="/opt/json-simple-1.1.1/json-simple-1.1.1.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-security-9.2.18.v20160721.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/servlet-api-3.1.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-util-9.2.18.v20160721.jar:XTCE.jar:EDS.jar:/opt/JDBC/postgresql-42.2.5.jre7.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-server-9.2.18.v20160721.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-io-9.2.18.v20160721.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-http-9.2.18.v20160721.jar:/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-servlet-9.2.18.v20160721.jar" destdir="Javadoc" doctitle="CFS Command &amp; Data Dictionary" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" overview="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/overview.html" packagenames="CCDD,images" source="1.7" sourcepath="src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>
