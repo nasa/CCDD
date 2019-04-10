@@ -8390,9 +8390,9 @@ public class CcddDbTableCommandHandler
                     // Step through each row
                     for (int row = 0; row < tableData.size(); row++)
                     {
-                        // Check if this is the row in the table data with the macro reference. If
-                        // not a prototype use the table's type to get the column index for the
-                        // variable name
+                        // Check if this is the row in the table data with the data type/macro
+                        // reference. If not a prototype use the table's type to get the column
+                        // index for the variable name
                         if (isPrototype
                                         ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
                                         : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString()))

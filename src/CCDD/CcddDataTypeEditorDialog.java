@@ -88,6 +88,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     // repeated searches for a the same data type
     private List<DataTypeReference> loadedReferences;
 
+    // Temporary OID
+    private int tempOID;
+
     // Dialog title
     private static final String DIALOG_TITLE = "Data Type Editor";
 
@@ -166,6 +169,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
+            // Assign temporary OIDs to the added rows so that these can be matched when building
+            // updates
+            tempOID = dataTypeTable.assignOIDsToNewRows(tempOID, DataTypesColumn.OID.ordinal());
+
             // Update the data type handler with the changes
             dataTypeHandler.setDataTypeData(getUpdatedData());
 
@@ -209,6 +216,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             {
                 modifications = new ArrayList<TableModification>();
                 loadedReferences = new ArrayList<DataTypeReference>();
+
+                // Initialize the temporary OID
+                tempOID = -1;
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -1249,37 +1259,42 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Step through each row in the data type table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)
         {
-            boolean matchFound = false;
-
-            // Step through each row in the committed version of the data type table data
-            for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
+            // Check if the OID isn't blank
+            if (!tableData[tblRow][DataTypesColumn.OID.ordinal()].toString().isEmpty())
             {
-                // Check if the index values match for these rows
-                if (tableData[tblRow][DataTypesColumn.OID.ordinal()].equals(committedData[comRow][DataTypesColumn.OID.ordinal()]))
+                boolean matchFound = false;
+
+                // Step through each row in the committed version of the data type table data
+                for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
-                    // Set the flags indicating this row has a match
-                    matchFound = true;
-
-                    boolean isChangedColumn = false;
-
-                    // Step through each column in the row
-                    for (int column = 0; column < tableData[tblRow].length; column++)
+                    // Check if the index values match for these rows
+                    if (tableData[tblRow][DataTypesColumn.OID.ordinal()].equals(committedData[comRow][DataTypesColumn.OID.ordinal()]))
                     {
-                        // Check if the current and committed values don't match
-                        if (!tableData[tblRow][column].equals(committedData[comRow][column]))
+                        // Set the flags indicating this row has a match
+                        matchFound = true;
+
+                        boolean isChangedColumn = false;
+
+                        // Step through each column in the row
+                        for (int column = 0; column < tableData[tblRow].length; column++)
                         {
-                            // Set the flag to indicate a column value changed and stop searching
-                            isChangedColumn = true;
-                            break;
+                            // Check if the current and committed values don't match
+                            if (!tableData[tblRow][column].equals(committedData[comRow][column]))
+                            {
+                                // Set the flag to indicate a column value changed and stop
+                                // searching
+                                isChangedColumn = true;
+                                break;
+                            }
                         }
-                    }
 
-                    // Check if any columns were changed
-                    if (isChangedColumn)
-                    {
-                        // Store the row modification information
-                        modifications.add(new TableModification(tableData[tblRow],
-                                                                committedData[comRow]));
+                        // Check if any columns were changed
+                        if (isChangedColumn)
+                        {
+                            // Store the row modification information
+                            modifications.add(new TableModification(tableData[tblRow],
+                                                                    committedData[comRow]));
+                        }
                     }
                 }
             }

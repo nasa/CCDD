@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":6,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":10,"i76":10,"i77":10,"i78":10,"i79":10,"i80":10,"i81":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":6,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":10,"i76":10,"i77":10,"i78":10,"i79":10,"i80":10,"i81":10,"i82":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -481,19 +481,26 @@ extends javax.swing.JTable</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#assignOIDsToNewRows-int-int-">assignOIDsToNewRows</a></span>(int&nbsp;tempOID,
+                   int&nbsp;oidColumn)</code>
+<div class="block">Assign OIDs to newly added table rows.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#calcAndSetColumnWidth-int-">calcAndSetColumnWidth</a></span>(int&nbsp;column)</code>
 <div class="block">Calculate and then set the minimum width for the specified column</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>private int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#calcAndSetColumnWidths--">calcAndSetColumnWidths</a></span>()</code>
 <div class="block">Calculate and then set the minimum width for each visible column and return the combined
  width of all of the columns</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#changeSelection-int-int-boolean-boolean-">changeSelection</a></span>(int&nbsp;rowIndex,
                int&nbsp;columnIndex,
@@ -502,7 +509,7 @@ extends javax.swing.JTable</pre>
 <div class="block">Override the method so that the a selected cell's row and column coordinates can be stored</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected java.lang.Object</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#cleanUpCellValue-java.lang.Object-int-int-">cleanUpCellValue</a></span>(java.lang.Object&nbsp;value,
                 int&nbsp;row,
@@ -510,43 +517,43 @@ extends javax.swing.JTable</pre>
 <div class="block">Clean-up of the cell value by removing any leading and trailing white space characters</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#clearSelection--">clearSelection</a></span>()</code>
 <div class="block">Override the method so that the all of the cells are deselected</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#columnMarginChanged-javax.swing.event.ChangeEvent-">columnMarginChanged</a></span>(javax.swing.event.ChangeEvent&nbsp;ce)</code>
 <div class="block">Handle a column resize event</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected javax.swing.table.JTableHeader</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#createDefaultTableHeader--">createDefaultTableHeader</a></span>()</code>
 <div class="block">Get the default table header object</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#deleteCell-boolean-">deleteCell</a></span>(boolean&nbsp;isReplaceSpecial)</code>
 <div class="block">Delete the contents of the selected cell(s)</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#deleteRow-boolean-">deleteRow</a></span>(boolean&nbsp;endEdit)</code>
 <div class="block">Delete the selected row(s) from the table</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#doLayout--">doLayout</a></span>()</code>
 <div class="block">Layout the table's columns and rows</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#doSpecialRendering-java.awt.Component-java.lang.String-boolean-int-int-">doSpecialRendering</a></span>(java.awt.Component&nbsp;component,
                   java.lang.String&nbsp;text,
@@ -556,111 +563,111 @@ extends javax.swing.JTable</pre>
 <div class="block">Performing any special cell text rendering in the table cells.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#formatToolTipText--">formatToolTipText</a></span>()</code>
 <div class="block">Format the tool tip text using HTML to wrap at a specified number of characters</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getColumnOrder--">getColumnOrder</a></span>()</code>
 <div class="block">Get the column order as a colon-separated string of column indices</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected int[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getColumnWidths--">getColumnWidths</a></span>()</code>
 <div class="block">Get the array of minimum widths of the visible table columns.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected java.lang.Object[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getEmptyRow--">getEmptyRow</a></span>()</code>
 <div class="block">Create an array of cell values containing empty strings to fill an inserted row.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getLastSelectionEnd--">getLastSelectionEnd</a></span>()</code>
 <div class="block">Get the end position of the selected text in the last cell edited</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getLastSelectionStart--">getLastSelectionStart</a></span>()</code>
 <div class="block">Get the start position of the selected text in the last cell edited</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getNextPopulatedRowNumber-int-">getNextPopulatedRowNumber</a></span>(int&nbsp;tableRow)</code>
 <div class="block">Get the next non-empty table row number starting at the supplied index.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>private int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getNumberOfPages-java.awt.print.Printable-java.awt.print.PageFormat-">getNumberOfPages</a></span>(java.awt.print.Printable&nbsp;delegate,
                 java.awt.print.PageFormat&nbsp;pageFormat)</code>
 <div class="block">Determine the number of pages required to print a printable object</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getScrollableTracksViewportWidth--">getScrollableTracksViewportWidth</a></span>()</code>
 <div class="block">Determine if the width of the table needs to be resized to fit the dialog containing it</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getSpecialReplacement-int-int-">getSpecialReplacement</a></span>(int&nbsp;row,
                      int&nbsp;column)</code>
 <div class="block">Get the character(s) used to replace a cell's contents when deleting the cell.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected java.lang.Object[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getTableData-boolean-">getTableData</a></span>(boolean&nbsp;excludeEmptyRows)</code>
 <div class="block">Get the cell values from the table model in an array.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.Object[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getTableDataList-boolean-">getTableDataList</a></span>(boolean&nbsp;excludeEmptyRows)</code>
 <div class="block">Get the cell values from the table model in a list.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddUndoHandler.html" title="class in CCDD">CcddUndoHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getUndoHandler--">getUndoHandler</a></span>()</code>
 <div class="block">Get the undo handler</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddUndoManager.html" title="class in CCDD">CcddUndoManager</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getUndoManager--">getUndoManager</a></span>()</code>
 <div class="block">Get the undo manager</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>protected javax.swing.JViewport</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#getViewport--">getViewport</a></span>()</code>
 <div class="block">Return the viewport of the scroll pane in which the table resides</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#highlightSearchText-java.util.regex.Pattern-">highlightSearchText</a></span>(java.util.regex.Pattern&nbsp;pattern)</code>
 <div class="block">Highlight text in the table cells matching the supplied pattern</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#insertEmptyRow-boolean-">insertEmptyRow</a></span>(boolean&nbsp;endEdit)</code>
 <div class="block">Insert an empty row into the table at the selection point</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#insertRow-boolean-CCDD.CcddConstants.TableInsertionPoint-java.lang.Object:A-">insertRow</a></span>(boolean&nbsp;endEdit,
          <a href="../CCDD/CcddConstants.TableInsertionPoint.html" title="enum in CCDD">CcddConstants.TableInsertionPoint</a>&nbsp;insertionPoint,
@@ -668,28 +675,28 @@ extends javax.swing.JTable</pre>
 <div class="block">Insert a row of data into the table at the selection point</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#insertRowData-int-java.lang.Object:A-">insertRowData</a></span>(int&nbsp;targetRow,
              java.lang.Object[]&nbsp;data)</code>
 <div class="block">Insert data into a new row inserted below the specified row</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isCellBlankable-int-int-">isCellBlankable</a></span>(int&nbsp;row,
                int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a table cell can be blanked.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isCellEditable-int-int-">isCellEditable</a></span>(int&nbsp;row,
               int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a table cell can be edited.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isCellSelected-int-int-">isCellSelected</a></span>(int&nbsp;row,
               int&nbsp;column)</code>
@@ -697,45 +704,45 @@ extends javax.swing.JTable</pre>
  cell is selected</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isColumnBoolean-int-">isColumnBoolean</a></span>(int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a column should be displayed as a check box.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isColumnHidden-int-">isColumnHidden</a></span>(int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a column should be hidden.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isColumnHighlight-int-">isColumnHighlight</a></span>(int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a column's cells can be displayed with the text
  highlighted.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isColumnHTML-int-">isColumnHTML</a></span>(int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a column's cells can be displayed with HTML
  formatting and multiple lines.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isColumnMultiLine-int-">isColumnMultiLine</a></span>(int&nbsp;column)</code>
 <div class="block">Placeholder for method to determine if a column's cells can be displayed as multiple lines.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isColumnResizable-int-">isColumnResizable</a></span>(int&nbsp;column)</code>
 <div class="block">Placeholder for method to allow resizing of the table columns.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isDataAlterable-java.lang.Object:A-int-int-">isDataAlterable</a></span>(java.lang.Object[]&nbsp;rowData,
                int&nbsp;row,
@@ -743,26 +750,26 @@ extends javax.swing.JTable</pre>
 <div class="block">Placeholder for method to determine if a table cell can be changed.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isFocusCell-int-int-">isFocusCell</a></span>(int&nbsp;row,
            int&nbsp;column)</code>
 <div class="block">Determine if the cell specified by the supplied coordinates has the focus</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isLastCellValid--">isLastCellValid</a></span>()</code>
 <div class="block">Get the status of the flag that indicates if the contents of the last cell edited is valid</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isTableChanged-java.lang.Object:A:A-">isTableChanged</a></span>(java.lang.Object[][]&nbsp;previousData)</code>
 <div class="block">Determine if any changes have been made compared to the most recently committed table data</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#isTableChanged-java.lang.Object:A:A-java.util.List-">isTableChanged</a></span>(java.lang.Object[][]&nbsp;previousData,
               java.util.List&lt;java.lang.Integer&gt;&nbsp;ignoreColumns)</code>
@@ -770,51 +777,51 @@ extends javax.swing.JTable</pre>
  ignoring the specified columns</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected abstract void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#loadAndFormatData--">loadAndFormatData</a></span>()</code>
 <div class="block">Placeholder for method to load and format the table data</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#loadDataArrayIntoTable-java.lang.Object:A:A-boolean-">loadDataArrayIntoTable</a></span>(java.lang.Object[][]&nbsp;tableData,
                       boolean&nbsp;undoable)</code>
 <div class="block">Load an array of data into the table</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#moveColumnLeft--">moveColumnLeft</a></span>()</code>
 <div class="block">Move the selected column(s) left one column</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#moveColumnRight--">moveColumnRight</a></span>()</code>
 <div class="block">Move the selected column(s) right one column</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#moveRowDown--">moveRowDown</a></span>()</code>
 <div class="block">Move the selected row(s) down one row</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#moveRowUp--">moveRowUp</a></span>()</code>
 <div class="block">Move the selected row(s) up one row</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#pasteClipboardData-boolean-boolean-">pasteClipboardData</a></span>(boolean&nbsp;isInsert,
                   boolean&nbsp;isAddIfNeeded)</code>
 <div class="block">Paste the contents of the clipboard into the table.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#pasteData-java.lang.Object:A-int-boolean-boolean-boolean-boolean-boolean-">pasteData</a></span>(java.lang.Object[]&nbsp;cellData,
          int&nbsp;numColumns,
@@ -826,7 +833,7 @@ extends javax.swing.JTable</pre>
 <div class="block">Paste the contents of the supplied cell data array into the table.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#performRowMove-int-int-int-CCDD.CcddJTableHandler.MoveCellSelection-int-">performRowMove</a></span>(int&nbsp;startRow,
               int&nbsp;endRow,
@@ -836,7 +843,7 @@ extends javax.swing.JTable</pre>
 <div class="block">Move the rows in the specified direction and update the cell selection</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>java.awt.Component</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#prepareRenderer-javax.swing.table.TableCellRenderer-int-int-">prepareRenderer</a></span>(javax.swing.table.TableCellRenderer&nbsp;renderer,
                int&nbsp;row,
@@ -845,7 +852,7 @@ extends javax.swing.JTable</pre>
  table's cells</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#printTable-java.lang.String-java.util.List-java.awt.Component-int-">printTable</a></span>(java.lang.String&nbsp;tableName,
           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
@@ -854,64 +861,64 @@ extends javax.swing.JTable</pre>
 <div class="block">Output the table to the user-selected printer (or file)</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#processTableContentChange--">processTableContentChange</a></span>()</code>
 <div class="block">Placeholder for any steps to perform when a change to the table's content occurs</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#removeRow-java.util.List-int-">removeRow</a></span>(java.util.List&lt;java.lang.Object[]&gt;&nbsp;tableData,
          int&nbsp;modelRow)</code>
 <div class="block">Remove a row from the table</div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#removeRows-int:A-">removeRows</a></span>(int[]&nbsp;rows)</code>
 <div class="block">Remove one or more rows from the table</div>
 </td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#resetHeaderOnLaFChange--">resetHeaderOnLaFChange</a></span>()</code>
 <div class="block">Reset the table header renderer and the mouse listener for column resizing (via mouse button
  double click) following a change to the look and feel</div>
 </td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#scrollToCell-int-int-">scrollToCell</a></span>(int&nbsp;row,
             int&nbsp;column)</code>
 <div class="block">Scroll the table so that the specified cell is visible</div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#scrollToRow-int-">scrollToRow</a></span>(int&nbsp;row)</code>
 <div class="block">Scroll the table so that the specified row is visible</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setCellEditors--">setCellEditors</a></span>()</code>
 <div class="block">Set the editors for the editable cells based on the column type</div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setCellRenderers-boolean-">setCellRenderers</a></span>(boolean&nbsp;centerText)</code>
 <div class="block">Set the table cell renderers</div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setEditorKeys-boolean-">setEditorKeys</a></span>(boolean&nbsp;isRowsAlterable)</code>
 <div class="block">Set the keys that initiate editing the cell with the focus and which keys do not.</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setFixedCharacteristics-javax.swing.JScrollPane-boolean-int-CCDD.CcddConstants.TableSelectionMode-boolean-CCDD.CcddClassesComponent.ModifiableColor-boolean-boolean-java.awt.Font-boolean-">setFixedCharacteristics</a></span>(javax.swing.JScrollPane&nbsp;scrollPane,
                        boolean&nbsp;isRowsAlterable,
@@ -926,33 +933,33 @@ extends javax.swing.JTable</pre>
 <div class="block">Set common table parameters and characteristics.</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setFocusCell-int-int-">setFocusCell</a></span>(int&nbsp;row,
             int&nbsp;column)</code>
 <div class="block">Set the cell with the focus</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setHeaderRenderer--">setHeaderRenderer</a></span>()</code>
 <div class="block">Set the table header renderer</div>
 </td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setLastCellValid-boolean-">setLastCellValid</a></span>(boolean&nbsp;isValid)</code>
 <div class="block">Set the status of the flag that indicates if the contents of the last cell edited is valid</div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setRowTextColor-int-java.awt.Color-">setRowTextColor</a></span>(int&nbsp;row,
                java.awt.Color&nbsp;color)</code>
 <div class="block">Set the text color for the specified row</div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setSelectedCells-int-int-int-int-">setSelectedCells</a></span>(int&nbsp;startRow,
                 int&nbsp;endRow,
@@ -961,32 +968,32 @@ extends javax.swing.JTable</pre>
 <div class="block">Select all of the cells in the specified range</div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setSelectedRow-int-">setSelectedRow</a></span>(int&nbsp;viewRow)</code>
 <div class="block">Select the specified row and scroll the table so that it is visible</div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setTableGrid--">setTableGrid</a></span>()</code>
 <div class="block">Enable the table grid and set the spacing and color</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setTableKeyboardTraversal--">setTableKeyboardTraversal</a></span>()</code>
 <div class="block">Change TAB/SHIFT-TAB behavior so that focus jumps between the table and any other components
  (i.e., the buttons in the dialog containing the table)</div>
 </td>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setTableSortable--">setTableSortable</a></span>()</code>
 <div class="block">Enable (if rows exist) or disable (if no rows exist) the capability to sort the table</div>
 </td>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#setUpdatableCharacteristics-java.lang.Object:A:A-java.lang.String:A-java.lang.String-java.lang.String:A-boolean-boolean-boolean-">setUpdatableCharacteristics</a></span>(java.lang.Object[][]&nbsp;tableData,
                            java.lang.String[]&nbsp;columnNames,
@@ -998,32 +1005,32 @@ extends javax.swing.JTable</pre>
 <div class="block">Set common table characteristics.</div>
 </td>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i78" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#tableChanged-javax.swing.event.TableModelEvent-">tableChanged</a></span>(javax.swing.event.TableModelEvent&nbsp;tme)</code>
 <div class="block">Handle a TableModelEvent event</div>
 </td>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i79" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#updateHiddenColumns--">updateHiddenColumns</a></span>()</code>
 <div class="block">Display or hide columns.</div>
 </td>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i80" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#updateModifierKeyStates-java.awt.event.KeyEvent-">updateModifierKeyStates</a></span>(java.awt.event.KeyEvent&nbsp;ke)</code>
 <div class="block">Update the flags indicating the state of the control and shift modifier keys.</div>
 </td>
 </tr>
-<tr id="i80" class="altColor">
+<tr id="i81" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#updateRowHeights-int-int-">updateRowHeights</a></span>(int&nbsp;first,
                 int&nbsp;last)</code>
 <div class="block">Update the table's row heights.</div>
 </td>
 </tr>
-<tr id="i81" class="rowColor">
+<tr id="i82" class="altColor">
 <td class="colFirst"><code>protected java.lang.Boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#validateCellContent-java.util.List-int-int-java.lang.Object-java.lang.Object-java.lang.Boolean-boolean-">validateCellContent</a></span>(java.util.List&lt;java.lang.Object[]&gt;&nbsp;tableData,
                    int&nbsp;row,
@@ -1681,6 +1688,30 @@ extends javax.swing.JTable</pre>
 <dd><code>tableRow</code> - next table row to check for data, model coordinates</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The next row number containing data</dd>
+</dl>
+</li>
+</ul>
+<a name="assignOIDsToNewRows-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assignOIDsToNewRows</h4>
+<pre>protected&nbsp;int&nbsp;assignOIDsToNewRows(int&nbsp;tempOID,
+                                  int&nbsp;oidColumn)</pre>
+<div class="block">Assign OIDs to newly added table rows. Some tables use OIDs, when building the table updates
+ used to generate the SQL commands to adjust the database, to match up a row that has had one
+ or more column values or its position in the table changed with the same row prior to the
+ change(s). New rows are initialized with a blank OID (the OID is assigned when the table is
+ written to the database). If a subsequent table store operation is performed then rows with
+ blank OIDs can't be matched, so assigning a temporary OID allows matching.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tempOID</code> - Starting number for the temporary OID. This should be negative so as not to
+            duplicate an actual OIDs in another table row</dd>
+<dd><code>oidColumn</code> - table column containing the OID, model coordinates</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The updated temporary OID value</dd>
 </dl>
 </li>
 </ul>

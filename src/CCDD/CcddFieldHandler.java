@@ -893,6 +893,7 @@ public class CcddFieldHandler
         // Check if the field exists
         if (existingField != null)
         {
+            System.out.println("field " + matchName + " with owner " + ownerName + " already exists - altering the name"); // TODO
             do
             {
                 // Alter the field name

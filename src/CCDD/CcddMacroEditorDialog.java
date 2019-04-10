@@ -79,6 +79,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     // so that the original cell contents can be restored
     private String[][] originalCellData;
 
+    // Temporary OID
+    private int tempOID;
+
     // Dialog title
     private static final String DIALOG_TITLE = "Macro Editor";
 
@@ -112,6 +115,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
+            // Assign temporary OIDs to the added rows so that these can be matched when building
+            // updates
+            tempOID = macroTable.assignOIDsToNewRows(tempOID, MacrosColumn.OID.ordinal());
+
             // Update the macro handler with the changes
             macroHandler.setMacroData(getUpdatedData());
 
@@ -179,6 +186,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             protected void execute()
             {
                 modifications = new ArrayList<TableModification>();
+
+                // Initialize the temporary OID
+                tempOID = -1;
 
                 // Initialize the list of macro references already loaded
                 macroHandler.initializeReferences();
@@ -960,37 +970,42 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Step through each row in the macro table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)
         {
-            boolean matchFound = false;
-
-            // Step through each row in the committed version of the macro table data
-            for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
+            // Check if the OID isn't blank
+            if (!tableData[tblRow][MacrosColumn.OID.ordinal()].toString().isEmpty())
             {
-                // Check if the index values match for these rows
-                if (tableData[tblRow][MacrosColumn.OID.ordinal()].equals(committedData[comRow][MacrosColumn.OID.ordinal()]))
+                boolean matchFound = false;
+
+                // Step through each row in the committed version of the macro table data
+                for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
-                    // Set the flags indicating this row has a match
-                    matchFound = true;
-
-                    boolean isChangedColumn = false;
-
-                    // Step through each column in the row
-                    for (int column = 0; column < tableData[tblRow].length; column++)
+                    // Check if the index values match for these rows
+                    if (tableData[tblRow][MacrosColumn.OID.ordinal()].equals(committedData[comRow][MacrosColumn.OID.ordinal()]))
                     {
-                        // Check if the current and committed values don't match
-                        if (!tableData[tblRow][column].equals(committedData[comRow][column]))
+                        // Set the flags indicating this row has a match
+                        matchFound = true;
+
+                        boolean isChangedColumn = false;
+
+                        // Step through each column in the row
+                        for (int column = 0; column < tableData[tblRow].length; column++)
                         {
-                            // Set the flag to indicate a column value changed and stop searching
-                            isChangedColumn = true;
-                            break;
+                            // Check if the current and committed values don't match
+                            if (!tableData[tblRow][column].equals(committedData[comRow][column]))
+                            {
+                                // Set the flag to indicate a column value changed and stop
+                                // searching
+                                isChangedColumn = true;
+                                break;
+                            }
                         }
-                    }
 
-                    // Check if any columns were changed
-                    if (isChangedColumn)
-                    {
-                        // Store the row modification information
-                        modifications.add(new TableModification(tableData[tblRow],
-                                                                committedData[comRow]));
+                        // Check if any columns were changed
+                        if (isChangedColumn)
+                        {
+                            // Store the row modification information
+                            modifications.add(new TableModification(tableData[tblRow],
+                                                                    committedData[comRow]));
+                        }
                     }
                 }
             }

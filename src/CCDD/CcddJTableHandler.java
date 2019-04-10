@@ -701,6 +701,46 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
+     * Assign OIDs to newly added table rows. Some tables use OIDs, when building the table updates
+     * used to generate the SQL commands to adjust the database, to match up a row that has had one
+     * or more column values or its position in the table changed with the same row prior to the
+     * change(s). New rows are initialized with a blank OID (the OID is assigned when the table is
+     * written to the database). If a subsequent table store operation is performed then rows with
+     * blank OIDs can't be matched, so assigning a temporary OID allows matching.
+     *
+     * @param tempOID
+     *            Starting number for the temporary OID. This should be negative so as not to
+     *            duplicate an actual OIDs in another table row
+     *
+     * @param oidColumn
+     *            table column containing the OID, model coordinates
+     *
+     * @return The updated temporary OID value
+     *********************************************************************************************/
+    protected int assignOIDsToNewRows(int tempOID, int oidColumn)
+    {
+        // Step through each row in the table
+        for (int row = 0; row < tableModel.getRowCount(); row++)
+        {
+            // Skip rows in the table that have no data
+            row = getNextPopulatedRowNumber(row);
+
+            // Check if the end of the table hasn't been reached and the OID is blank (i.e., this
+            // is a newly added row)
+            if (row < tableModel.getRowCount()
+                && tableModel.getValueAt(row, oidColumn).toString().isEmpty())
+            {
+                // Provide a temporary OID value so that the row can be matched when building
+                // updates
+                tableModel.setValueAt(String.valueOf(tempOID), row, oidColumn, false);
+                tempOID--;
+            }
+        }
+
+        return tempOID;
+    }
+
+    /**********************************************************************************************
      * Determine if any changes have been made compared to the most recently committed table data
      *
      * @param previousData
@@ -3710,7 +3750,16 @@ public abstract class CcddJTableHandler extends JTable
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
     {
-        JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
+        JComponent comp = null;
+        try
+        {
+            /* JComponent */ comp = (JComponent) super.prepareRenderer(renderer, row, column);
+        }
+        catch (Exception e)
+        {
+            System.out.println("row= " + row + "  col= " + column + "  numRow= " + getRowCount() + "  numCol= " + getColumnCount()); // TODO
+            e.printStackTrace(); // TODO
+        }
 
         // Get the index for this row's special text color, if any
         int index = rowColorIndex.indexOf(row);
@@ -3847,12 +3896,12 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Flag to indicate if the changed row indices are valid and the row heights need to be
             // updated. Initialize to true if the table is showing on the screen, or false if the
-            // table isn't displayed. If the table isn't showing yet then a null exception can
-            // infrequently occur in updateRowHeights() due to what appears to be a race condition
-            // or Swing bug. However, the default tableChanged() must be called under certain
-            // conditions even when the table isn't showing so that the conversion of view to/from
-            // model coordinates can be made
-            boolean isValid = table.isShowing();
+            // table isn't displayed. If the table (or its container) isn't showing yet then a null
+            // exception can infrequently occur in updateRowHeights() due to what appears to be a
+            // race condition or Swing bug. However, the default tableChanged() must be called
+            // under certain conditions even when the table isn't showing so that the conversion of
+            // view to/from model coordinates can be made
+            boolean isValid = table.isDisplayable();
 
             // First and last rows changed, in view coordinates
             int firstRow = 0;
@@ -3957,14 +4006,23 @@ public abstract class CcddJTableHandler extends JTable
             // Step through each visible column in the row
             for (int column = 0; column < getColumnCount(); column++)
             {
-                // Use the prepareRenderer() to calculate the height required to display the cell's
-                // contents
-                Component comp = super.prepareRenderer(getCellRenderer(row, column),
-                                                       row,
-                                                       column);
+                try
+                {
+                    // Use the prepareRenderer() to calculate the height required to display the
+                    // cell's
+                    // contents
+                    Component comp = super.prepareRenderer(getCellRenderer(row, column),
+                                                           row,
+                                                           column);
 
-                // Store the largest minimum height found
-                minRowHeight = Math.max(minRowHeight, comp.getPreferredSize().height);
+                    // Store the largest minimum height found
+                    minRowHeight = Math.max(minRowHeight, comp.getPreferredSize().height);
+                }
+                catch (Exception e)
+                {
+                    System.out.println("row= " + row + "  col= " + column + "  numRow= " + getRowCount() + "  numCol= " + getColumnCount()); // TODO
+                    e.printStackTrace(); // TODO
+                }
             }
 
             // Check if the new row height differs from the current height
