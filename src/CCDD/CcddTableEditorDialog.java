@@ -1760,6 +1760,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // Set the active editor to the selected tab
                     activeEditor = tableEditors.get(tabbedPane.getSelectedIndex());
 
+                    // Force the table row heights to update in case this is the first time this
+                    // table is showing in its editor
+                    activeEditor.getTable().tableChanged(null);
+
                     // Change the dialog's title to the active table's name
                     (CcddTableEditorDialog.this).setTitle(activeEditor.getOwnerName());
 

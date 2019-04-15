@@ -3518,7 +3518,7 @@ public class CcddDbControlHandler
             {
                 // Set the password file POSIX permissions as readable and writable by the user
                 // only
-                Set<PosixFilePermission> perms = new HashSet<>();
+                Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
                 perms.add(PosixFilePermission.OWNER_READ);
                 perms.add(PosixFilePermission.OWNER_WRITE);
                 Files.setPosixFilePermissions(file.toPath(), perms);

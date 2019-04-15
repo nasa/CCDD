@@ -89,6 +89,7 @@ public class CcddCommandLineHandler
     private boolean includeProjectFields;
     private boolean includeVariablePaths;
     private boolean includeGroups;
+    private boolean includeAssociations;
     private FileExtension fileExtn;
     private EndianType endianess;
     private boolean isHeaderBigEndian;
@@ -1373,6 +1374,7 @@ public class CcddCommandLineHandler
                                                                          includeReservedMsgIDs,
                                                                          includeProjectFields,
                                                                          includeGroups,
+                                                                         includeAssociations,
                                                                          includeVariablePaths,
                                                                          ccddMain.getVariableHandler(),
                                                                          separators,
@@ -1407,6 +1409,7 @@ public class CcddCommandLineHandler
                                                                                  includeReservedMsgIDs,
                                                                                  includeProjectFields,
                                                                                  includeGroups,
+                                                                                 includeAssociations,
                                                                                  includeVariablePaths,
                                                                                  ccddMain.getVariableHandler(),
                                                                                  separators,
@@ -1678,6 +1681,26 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 includeGroups = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include script associations
+        exportArgument.add(new CommandHandler("includeAssociations",
+                                              "Include script associations\n"
+                                                                     + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the script associations
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeAssociations = (Boolean) parmVal;
             }
         });
 

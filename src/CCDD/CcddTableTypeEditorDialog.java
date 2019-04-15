@@ -1242,6 +1242,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             // Set the active editor to the one indicated by the currently selected
                             // tab
                             activeEditor = typeEditors.get(tabbedPane.getSelectedIndex());
+
+                            // Force the table row heights to update in case this is the first time
+                            // this table is showing in its editor
+                            activeEditor.getTable().tableChanged(null);
                         }
                         // No table type exists
                         else

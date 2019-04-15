@@ -63,6 +63,7 @@ import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
@@ -797,14 +798,14 @@ public class CcddFileIOHandler
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
             /**************************************************************************************
-             * Import the selected table(s)
+             * Import the selected data
              *************************************************************************************/
             @Override
             protected void execute()
             {
                 // Create the import cancellation dialog
-                haltDlg = new CcddHaltDialog("Import Table(s)",
-                                             "Importing tables",
+                haltDlg = new CcddHaltDialog("Import Data(s)",
+                                             "Importing data",
                                              "import",
                                              100,
                                              dataFile.length,
@@ -941,6 +942,7 @@ public class CcddFileIOHandler
         try
         {
             int numFilesProcessed = 0;
+
             // Create a save point in case an error occurs while creating or modifying a table
             dbCommand.createSavePoint(parent);
 
@@ -1020,7 +1022,7 @@ public class CcddFileIOHandler
                     }
 
                     // Update the progress bar
-                    haltDlg.updateProgressBar("Creating table(s)...",
+                    haltDlg.updateProgressBar("Importing data...",
                                               haltDlg.getProgressBar().getValue());
                 }
 
@@ -1077,6 +1079,26 @@ public class CcddFileIOHandler
                                         openEditor,
                                         groupHandler,
                                         parent);
+
+            // Check if any new script associations have been added
+            if (ioHandler.getScriptAssociations() != null)
+            {
+                // Step through each association
+                for (int index = 0; index < ioHandler.getScriptAssociations().size(); index++)
+                {
+                    // Format the table members for storage in the database
+                    String[] assn = ioHandler.getScriptAssociations().get(index);
+                    assn[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler.convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()],
+                                                                                                                   true);
+                    ioHandler.getScriptAssociations().set(index, assn);
+                }
+
+                // Store the script associations
+                dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
+                                              ioHandler.getScriptAssociations(),
+                                              null,
+                                              parent);
+            }
 
             // Release the save point. This must be done within a transaction block, so it must be
             // done prior to the commit below
@@ -1761,16 +1783,30 @@ public class CcddFileIOHandler
         dbTable.storeInformationTable(InternalTable.TABLE_TYPES, null, null, parent);
 
         // Store the data types
-        dbTable.storeInformationTable(InternalTable.DATA_TYPES, CcddUtilities.removeArrayListColumn(dataTypeHandler.getDataTypeData(), DataTypesColumn.OID.ordinal()), null, parent);
+        dbTable.storeInformationTable(InternalTable.DATA_TYPES,
+                                      CcddUtilities.removeArrayListColumn(dataTypeHandler.getDataTypeData(),
+                                                                          DataTypesColumn.OID.ordinal()),
+                                      null,
+                                      parent);
 
         // Store the input types
-        dbTable.storeInformationTable(InternalTable.INPUT_TYPES, CcddUtilities.removeArrayListColumn(Arrays.asList(inputTypeHandler.getCustomInputTypeData()), InputTypesColumn.OID.ordinal()), null, parent);
+        dbTable.storeInformationTable(InternalTable.INPUT_TYPES,
+                                      CcddUtilities.removeArrayListColumn(Arrays.asList(inputTypeHandler.getCustomInputTypeData()),
+                                                                          InputTypesColumn.OID.ordinal()),
+                                      null,
+                                      parent);
 
         // Store the data fields
-        dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null, parent);
+        dbTable.storeInformationTable(InternalTable.FIELDS,
+                                      fieldHandler.getFieldDefnsFromInfo(),
+                                      null,
+                                      parent);
 
         // Store the groups
-        ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS, groupHandler.getGroupDefnsFromInfo(), null, parent);
+        ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS,
+                                                                  groupHandler.getGroupDefnsFromInfo(),
+                                                                  null,
+                                                                  parent);
 
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())
@@ -2004,7 +2040,6 @@ public class CcddFileIOHandler
         }
 
         return isImported;
-
     }
 
     /**********************************************************************************************
@@ -2345,6 +2380,9 @@ public class CcddFileIOHandler
      * @param includeGroups
      *            true to include the groups and group data field definitions in the export file
      *
+     * @param includeAssociations
+     *            true to include the script associations in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -2404,6 +2442,7 @@ public class CcddFileIOHandler
                                                     final boolean includeReservedMsgIDs,
                                                     final boolean includeProjectFields,
                                                     final boolean includeGroups,
+                                                    final boolean includeAssociations,
                                                     final boolean includeVariablePaths,
                                                     final CcddVariableHandler variableHandler,
                                                     final String[] separators,
@@ -2441,6 +2480,7 @@ public class CcddFileIOHandler
                                      includeReservedMsgIDs,
                                      includeProjectFields,
                                      includeGroups,
+                                     includeAssociations,
                                      includeVariablePaths,
                                      variableHandler,
                                      separators,
@@ -2519,6 +2559,9 @@ public class CcddFileIOHandler
      * @param includeGroups
      *            true to include the groups and group data field definitions in the export file
      *
+     * @param includeAssociations
+     *            true to include the script associations in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -2580,6 +2623,7 @@ public class CcddFileIOHandler
                                            final boolean includeReservedMsgIDs,
                                            final boolean includeProjectFields,
                                            final boolean includeGroups,
+                                           final boolean includeAssociations,
                                            final boolean includeVariablePaths,
                                            final CcddVariableHandler variableHandler,
                                            final String[] separators,
@@ -2713,6 +2757,7 @@ public class CcddFileIOHandler
                                            includeReservedMsgIDs,
                                            includeProjectFields,
                                            includeGroups,
+                                           includeAssociations,
                                            includeVariablePaths,
                                            variableHandler,
                                            separators,
@@ -2765,6 +2810,7 @@ public class CcddFileIOHandler
                                                includeReservedMsgIDs,
                                                includeProjectFields,
                                                includeGroups,
+                                               includeAssociations,
                                                includeVariablePaths,
                                                variableHandler,
                                                separators,
@@ -2814,15 +2860,15 @@ public class CcddFileIOHandler
             if (!errorFlag)
             {
                 eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  "Table export completed successfully");
+                                  "Data export completed successfully");
             }
             // An error occurred while exporting the table(s)
             else
             {
                 eventLog.logFailEvent(parent,
                                       "Export Error",
-                                      "Table export completed with errors",
-                                      "<html><b>Table export completed with errors");
+                                      "Data export completed with errors",
+                                      "<html><b>Data export completed with errors");
             }
         }
         catch (JAXBException | CCDDException jce)

@@ -32,11 +32,20 @@ public interface CcddImportExportInterface
     }
 
     /**********************************************************************************************
-     * Get the table definitions
+     * Get the imported table definitions
      *
-     * @return List of table definitions
+     * @return List of imported table definitions; an empty list if no table definitions exist in
+     *         the import file
      *********************************************************************************************/
     abstract List<TableDefinition> getTableDefinitions();
+
+    /**********************************************************************************************
+     * Get the list of original and new script associations
+     *
+     * @return List of original and new script associations; null if no new associations have been
+     *         added
+     *********************************************************************************************/
+    abstract List<String[]> getScriptAssociations();
 
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
@@ -106,12 +115,15 @@ public interface CcddImportExportInterface
      * @param includeProjectFields
      *            true to include the project-level data field definitions in the export file
      *
+     * @param includeGroups
+     *            true to include the groups and group data field definitions in the export file
+     *
+     * @param includeAssociations
+     *            true to include the script associations in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
-     *
-     * @param includeGroups
-     *            true to include the groups and group data field definitions in the export file
      *
      * @param variableHandler
      *            variable handler class reference; null if includeVariablePaths is false
@@ -142,8 +154,9 @@ public interface CcddImportExportInterface
                                boolean includeAllMacros,
                                boolean includeReservedMsgIDs,
                                boolean includeProjectFields,
-                               boolean includeVariablePaths,
                                boolean includeGroups,
+                               boolean includeAssociations,
+                               boolean includeVariablePaths,
                                CcddVariableHandler variableHandler,
                                String[] separators,
                                Object... extraInfo) throws JAXBException, CCDDException, Exception;

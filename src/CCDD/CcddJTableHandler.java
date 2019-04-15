@@ -3750,16 +3750,7 @@ public abstract class CcddJTableHandler extends JTable
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
     {
-        JComponent comp = null;
-        try
-        {
-            /* JComponent */ comp = (JComponent) super.prepareRenderer(renderer, row, column);
-        }
-        catch (Exception e)
-        {
-            System.out.println("row= " + row + "  col= " + column + "  numRow= " + getRowCount() + "  numCol= " + getColumnCount()); // TODO
-            e.printStackTrace(); // TODO
-        }
+        JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
         // Get the index for this row's special text color, if any
         int index = rowColorIndex.indexOf(row);
@@ -3901,7 +3892,7 @@ public abstract class CcddJTableHandler extends JTable
             // race condition or Swing bug. However, the default tableChanged() must be called
             // under certain conditions even when the table isn't showing so that the conversion of
             // view to/from model coordinates can be made
-            boolean isValid = table.isDisplayable();
+            boolean isValid = table.isShowing();
 
             // First and last rows changed, in view coordinates
             int firstRow = 0;
@@ -4006,23 +3997,14 @@ public abstract class CcddJTableHandler extends JTable
             // Step through each visible column in the row
             for (int column = 0; column < getColumnCount(); column++)
             {
-                try
-                {
-                    // Use the prepareRenderer() to calculate the height required to display the
-                    // cell's
-                    // contents
-                    Component comp = super.prepareRenderer(getCellRenderer(row, column),
-                                                           row,
-                                                           column);
+                // Use the prepareRenderer() to calculate the height required to display the cell's
+                // contents
+                Component comp = super.prepareRenderer(getCellRenderer(row, column),
+                                                       row,
+                                                       column);
 
-                    // Store the largest minimum height found
-                    minRowHeight = Math.max(minRowHeight, comp.getPreferredSize().height);
-                }
-                catch (Exception e)
-                {
-                    System.out.println("row= " + row + "  col= " + column + "  numRow= " + getRowCount() + "  numCol= " + getColumnCount()); // TODO
-                    e.printStackTrace(); // TODO
-                }
+                // Store the largest minimum height found
+                minRowHeight = Math.max(minRowHeight, comp.getPreferredSize().height);
             }
 
             // Check if the new row height differs from the current height

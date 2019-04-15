@@ -212,6 +212,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         rateHandler = ccddMain.getRateParameterHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
 
+        tableDefinitions = null;
+
         try
         {
             // Create the XML marshaller used to convert the CCDD project data into EDS XML format
@@ -238,14 +240,27 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Get the table definitions
+     * Get the imported table definitions
      *
-     * @return List of table definitions
+     * @return List of imported table definitions; an empty list if no table definitions exist in
+     *         the import file
      *********************************************************************************************/
     @Override
     public List<TableDefinition> getTableDefinitions()
     {
         return tableDefinitions;
+    }
+
+    /**********************************************************************************************
+     * Get the list of original and new script associations. Not used for EDS import
+     *
+     * @return List of original and new script associations; null if no new associations have been
+     *         added
+     *********************************************************************************************/
+    @Override
+    public List<String[]> getScriptAssociations()
+    {
+        return null;
     }
 
     /**********************************************************************************************
@@ -2114,6 +2129,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            * Not used for EDS export * true to include the groups and group data field
      *            definitions in the export file
      *
+     * @param includeAssociations
+     *            * Not used for EDS export * true to include the script associations in the export
+     *            file
+     *
      * @param includeVariablePaths
      *            * Not used for EDS export * true to include the variable path for each variable
      *            in a structure table, both in application format and using the user-defined
@@ -2148,6 +2167,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeGroups,
+                             boolean includeAssociations,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,

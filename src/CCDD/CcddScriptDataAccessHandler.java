@@ -5746,6 +5746,7 @@ public class CcddScriptDataAccessHandler
                                      false, // unused for XTCE export
                                      false, // unused for XTCE export
                                      false, // unused for XTCE export
+                                     false, // unused for XTCE export
                                      null, // unused for XTCE export
                                      null, // unused for XTCE export
                                      (isBigEndian

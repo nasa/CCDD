@@ -1076,7 +1076,7 @@ public class CcddMacroHandler
      *********************************************************************************************/
     protected void initializeMacroUpdates()
     {
-        modifications = new ArrayList<>();
+        modifications = new ArrayList<TableModification>();
         updatedMacros = CcddUtilities.copyListOfStringArrays(macros);
     }
 

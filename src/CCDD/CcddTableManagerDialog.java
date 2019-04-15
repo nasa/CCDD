@@ -99,12 +99,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox includeReservedMsgIDsCb;
     private JCheckBox includeProjectFieldsCb;
     private JCheckBox includeGroupsCb;
-    // TODO
+    private JCheckBox includeAssociationsCb;
     private JCheckBox includeAllTableTypesCb;
     private JCheckBox includeAllDataTypesCb;
     private JCheckBox includeAllInputTypesCb;
     private JCheckBox includeAllMacrosCb;
-    // end TODO
     private JCheckBox includeVariablePaths;
     private JTextField varPathSepFld;
     private JTextField typeNameSepFld;
@@ -725,6 +724,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                (includeGroupsCb != null
                                                                                                         ? includeGroupsCb.isSelected()
                                                                                                         : false),
+                                                                               (includeAssociationsCb != null
+                                                                                                              ? includeAssociationsCb.isSelected()
+                                                                                                              : false),
                                                                                (includeVariablePaths != null
                                                                                                              ? includeVariablePaths.isSelected()
                                                                                                              : false),
@@ -1076,13 +1078,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                              TableTreeType.TABLES);
 
             // Add a separator
-            JSeparator separator = new JSeparator();
-            separator.setForeground(dialogPnl.getBackground().darker());
+            JSeparator upperSep = new JSeparator();
+            upperSep.setForeground(dialogPnl.getBackground().darker());
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.insets.bottom = 0;
             gbc.weighty = 0.0;
             gbc.gridy++;
-            dialogPnl.add(separator, gbc);
+            dialogPnl.add(upperSep, gbc);
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
 
             // Check if exporting in CSV or JSON format
@@ -1189,10 +1191,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             if (dialogType == ManagerDialogType.EXPORT_CSV
                 || dialogType == ManagerDialogType.EXPORT_JSON)
             {
-                // Create a panel to contain the separator character labels and inputs
-                JPanel separatorPnl = new JPanel(new GridBagLayout());
-                separatorPnl.setBorder(emptyBorder);
-
                 // Create the macro replacement check box
                 replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
                 replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -1205,50 +1203,92 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.weightx = 0.0;
                 gbc.gridy++;
-                separatorPnl.add(replaceMacrosCb, gbc);
+                dialogPnl.add(replaceMacrosCb, gbc);
+
+                // Add a separator
+                JSeparator lowerSep = new JSeparator();
+                lowerSep.setForeground(dialogPnl.getBackground().darker());
+                gbc.weightx = 1.0;
+                gbc.gridy++;
+                dialogPnl.add(lowerSep, gbc);
+
+                // Create panels to contain the include labels and check boxes
+                JPanel lowerPnl = new JPanel(new GridBagLayout());
+                JPanel includePnl = new JPanel(new GridBagLayout());
+                JPanel separatorPnl = new JPanel(new GridBagLayout());
+                lowerPnl.setBorder(emptyBorder);
+                includePnl.setBorder(emptyBorder);
+                separatorPnl.setBorder(emptyBorder);
+                gbc.weightx = 0.0;
+                gbc.insets.top = 0;
+                gbc.gridy++;
+                dialogPnl.add(lowerPnl, gbc);
+                gbc.insets.left = 0;
+                gbc.gridy = 0;
+                lowerPnl.add(includePnl, gbc);
+                gbc.gridy++;
+                lowerPnl.add(separatorPnl, gbc);
+
+                // Add a dummy label so that when the dialog width increases the lower panel
+                // remains unchanged in size and position
+                gbc.weightx = 1.0;
+                gbc.gridx++;
+                lowerPnl.add(new JLabel(""), gbc);
+
+                // Add the "Include" label
+                JLabel includeLbl = new JLabel("Include:");
+                includeLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                gbc.weightx = 0.0;
+                gbc.gridx = 0;
+                gbc.gridy++;
+                includePnl.add(includeLbl, gbc);
 
                 // Create the include all table type definitions check box
-                includeAllTableTypesCb = new JCheckBox("Include all table type definitions");
+                includeAllTableTypesCb = new JCheckBox("All table type definitions");
                 includeAllTableTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllTableTypesCb.setBorder(emptyBorder);
                 includeAllTableTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all table types "
                                                                              + "definitions are included in each export file",
                                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.gridy++;
-                separatorPnl.add(includeAllTableTypesCb, gbc);
+                includePnl.add(includeAllTableTypesCb, gbc);
 
                 // Create the include all data type definitions check box
-                includeAllDataTypesCb = new JCheckBox("Include all data type definitions");
+                includeAllDataTypesCb = new JCheckBox("All data type definitions");
                 includeAllDataTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllDataTypesCb.setBorder(emptyBorder);
                 includeAllDataTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all data type definitions "
                                                                             + "are included in each export file",
                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.gridy++;
-                separatorPnl.add(includeAllDataTypesCb, gbc);
+                gbc.gridx++;
+                includePnl.add(includeAllDataTypesCb, gbc);
 
                 // Create the include all user-defined input type definitions check box
-                includeAllInputTypesCb = new JCheckBox("Include all user-defined input type definitions");
+                includeAllInputTypesCb = new JCheckBox("All user-defined input type definitions");
                 includeAllInputTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllInputTypesCb.setBorder(emptyBorder);
                 includeAllInputTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all user-defined input type definitions "
                                                                              + "are included in each export file",
                                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
                 gbc.gridy++;
-                separatorPnl.add(includeAllInputTypesCb, gbc);
+                includePnl.add(includeAllInputTypesCb, gbc);
 
                 // Create the include all macro definitions check box
-                includeAllMacrosCb = new JCheckBox("Include all macro definitions");
+                includeAllMacrosCb = new JCheckBox("All macro definitions");
                 includeAllMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllMacrosCb.setBorder(emptyBorder);
                 includeAllMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, all macro definitions "
                                                                          + "are included in each export file",
                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.gridy++;
-                separatorPnl.add(includeAllMacrosCb, gbc);
+                gbc.gridx++;
+                includePnl.add(includeAllMacrosCb, gbc);
 
                 // Create the reserved message ID inclusion check box
-                includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
+                includeReservedMsgIDsCb = new JCheckBox("Reserved message IDs");
                 includeReservedMsgIDsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeReservedMsgIDsCb.setBorder(emptyBorder);
                 includeReservedMsgIDsCb.setToolTipText(CcddUtilities.wrapText("If checked, the contents of the reserved "
@@ -1256,39 +1296,52 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                               + "their corresponding descriptions) is "
                                                                               + "included in each export file",
                                                                               ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
                 gbc.gridy++;
-                separatorPnl.add(includeReservedMsgIDsCb, gbc);
+                includePnl.add(includeReservedMsgIDsCb, gbc);
 
                 // Create the project-level data field inclusion check box
-                includeProjectFieldsCb = new JCheckBox("Include project data fields");
+                includeProjectFieldsCb = new JCheckBox("Project data fields");
                 includeProjectFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeProjectFieldsCb.setBorder(emptyBorder);
                 includeProjectFieldsCb.setToolTipText(CcddUtilities.wrapText("If checked, the project-level data field "
                                                                              + "definitions are included in each export file",
                                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.gridy++;
-                separatorPnl.add(includeProjectFieldsCb, gbc);
+                gbc.gridx++;
+                includePnl.add(includeProjectFieldsCb, gbc);
 
                 // Create the group definitions and data field inclusion check box
-                includeGroupsCb = new JCheckBox("Include group definitions and data fields");
+                includeGroupsCb = new JCheckBox("Group definitions and data fields");
                 includeGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeGroupsCb.setBorder(emptyBorder);
                 includeGroupsCb.setToolTipText(CcddUtilities.wrapText("If checked, the group and group data field "
                                                                       + "definitions are included in each export file",
                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
                 gbc.gridy++;
-                separatorPnl.add(includeGroupsCb, gbc);
+                includePnl.add(includeGroupsCb, gbc);
+
+                // Create the script associations inclusion check box
+                includeAssociationsCb = new JCheckBox("Script associations");
+                includeAssociationsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeAssociationsCb.setBorder(emptyBorder);
+                includeAssociationsCb.setToolTipText(CcddUtilities.wrapText("If checked, the script associations "
+                                                                            + " are included in each export file",
+                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx++;
+                includePnl.add(includeAssociationsCb, gbc);
 
                 // Create the check box for inclusion of variable paths
-                includeVariablePaths = new JCheckBox("Include variable paths");
+                includeVariablePaths = new JCheckBox("Variable paths");
                 includeVariablePaths.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeVariablePaths.setBorder(emptyBorder);
                 includeVariablePaths.setToolTipText(CcddUtilities.wrapText("If checked each variable's path in a structure table "
                                                                            + "is included, both in the application format and "
                                                                            + "using the separator characters specified by the user",
                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
                 gbc.gridy++;
-                separatorPnl.add(includeVariablePaths, gbc);
+                includePnl.add(includeVariablePaths, gbc);
 
                 // Create the variable path separator label and input field, and add them to the
                 // dialog panel
@@ -1296,7 +1349,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 varPathSepLbl.setEnabled(false);
                 gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                gbc.gridy++;
+                gbc.gridy = 0;
                 separatorPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField("_", 5);
                 varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1305,7 +1358,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 varPathSepFld.setBorder(border);
                 varPathSepFld.setEnabled(false);
-                gbc.weightx = 1.0;
                 gbc.gridx++;
                 separatorPnl.add(varPathSepFld, gbc);
 
@@ -1314,7 +1366,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 typeNameSepLbl.setEnabled(false);
-                gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 separatorPnl.add(typeNameSepLbl, gbc);
@@ -1325,7 +1376,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 typeNameSepFld.setBorder(border);
                 typeNameSepFld.setEnabled(false);
-                gbc.weightx = 1.0;
                 gbc.gridx++;
                 separatorPnl.add(typeNameSepFld, gbc);
 
@@ -1334,7 +1384,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
                 hideDataTypeCb.setEnabled(false);
-                gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 separatorPnl.add(hideDataTypeCb, gbc);
@@ -1375,11 +1424,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         hideDataTypeCb.setEnabled(((JCheckBox) ae.getSource()).isSelected());
                     }
                 });
-
-                gbc.insets.top = 0;
-                gbc.insets.left = 0;
-                gbc.gridy++;
-                dialogPnl.add(separatorPnl, gbc);
             }
 
             // Check if exporting in EDS or XTCE XML format
@@ -2146,6 +2190,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         && !(includeGroupsCb != null
                                                      ? includeGroupsCb.isSelected()
                                                      : false)
+                        && !(includeAssociationsCb != null
+                                                           ? includeAssociationsCb.isSelected()
+                                                           : false)
                         && !(includeVariablePaths != null
                                                           ? includeVariablePaths.isSelected()
                                                           : false))

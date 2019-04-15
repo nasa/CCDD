@@ -6384,7 +6384,8 @@ public class CcddConstants
         COPY_TABLE_DATA("Copy Table"),
         PROJECT_FIELD("Project Data Field"),
         INPUT_TYPE_DEFN("Input Type Definition"),
-        GROUP("Group");
+        GROUP("Group"),
+        SCRIPT_ASSOCIATION("Script Association");
 
         private final String tag;
 

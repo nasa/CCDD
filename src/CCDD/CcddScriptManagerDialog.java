@@ -1,5 +1,4 @@
 /**
- * CFS Command and Data Dictionary script association manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -64,7 +63,6 @@ import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
-import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
@@ -365,7 +363,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                                                  .replaceAll("<br>", "\n"))
                                                                        .split(Pattern.quote(ASSN_TABLE_SEPARATOR));
 
-                                    List<TreePath> paths = new ArrayList<>();
+                                    List<TreePath> paths = new ArrayList<TreePath>();
 
                                     // Step through each table name
                                     for (String tableName : tableNames)
@@ -932,7 +930,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
         try
         {
-            List<String> members = new ArrayList<>();
+            List<String> members = new ArrayList<String>();
 
             // Check if the tree is filtered by group
             if (tableTree.isFilteredByGroup())
@@ -984,9 +982,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             FileEnvVar scriptFile = new FileEnvVar(scriptNameFld.getText());
 
             // Check if the script association already exists in the list
-            if (isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),
-                                    members.toArray(new String[0]),
-                                    ignoreRow))
+            if (CcddScriptHandler.isAssociationExists(Arrays.asList(CcddUtilities.convertObjectToString(assnsTable.getTableData(false))),
+                                                      scriptFile.getAbsolutePathWithEnvVars(),
+                                                      members.toArray(new String[0]),
+                                                      ignoreRow))
             {
                 throw new CCDDException("An association with this script and table(s) "
                                         + "already exists in the script associations table");
@@ -1073,7 +1072,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *********************************************************************************************/
     private List<String[]> createAssociationsFromTable()
     {
-        List<String[]> currentAssociations = new ArrayList<>();
+        List<String[]> currentAssociations = new ArrayList<String[]>();
 
         // Step through each defined script association
         for (Object[] assn : assnsTable.getTableData(true))
@@ -1086,53 +1085,6 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         }
 
         return currentAssociations;
-    }
-
-    /**********************************************************************************************
-     * Compare a script association to the existing ones in the table
-     *
-     * @param scriptName
-     *            script file path + name
-     *
-     * @param tables
-     *            array of tables referenced by the script association
-     *
-     * @param ignoreRow
-     *            row to ignore when checking for an identical, existing association (as is
-     *            possible when replacing an association, if no changes are made); -1 to prevent a
-     *            duplicate association (as when adding an association)
-     *
-     * @return true if the script association already exists in the table
-     *********************************************************************************************/
-    private boolean isAssociationExists(String scriptName, String[] tables, int ignoreRow)
-    {
-        boolean isExists = false;
-
-        // Get the current associations from the table
-        List<Object[]> assn = assnsTable.getTableDataList(false);
-
-        // Step through the committed script associations
-        for (int row = 0; row < assn.size(); row++)
-        {
-            // Get the association members (single string format)with any HTML tags removed
-            String members = CcddUtilities.removeHTMLTags(assn.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
-
-            // Check if this isn't the current association being added (if applicable), and the
-            // script and tables match between the two script associations
-            if (row != ignoreRow
-                && scriptName.equals(assn.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
-                && CcddUtilities.isArraySetsEqual(tables,
-                                                  members.isEmpty()
-                                                                    ? new String[] {}
-                                                                    : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR))))
-            {
-                // Set the flag to indicate a match and quit searching
-                isExists = true;
-                break;
-            }
-        }
-
-        return isExists;
     }
 
     /**********************************************************************************************

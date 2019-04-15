@@ -35,6 +35,7 @@ import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.GroupDefinitionColumn;
+import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
@@ -59,6 +60,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddInputTypeHandler inputTypeHandler;
     private final CcddFieldHandler fieldHandler;
     private final CcddGroupHandler groupHandler;
+    private final CcddScriptHandler scriptHandler;
 
     // GUI component over which to center any error dialog
     private final Component parent;
@@ -66,13 +68,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
 
+    // List of original and new script associations
+    private List<String[]> associations;
+
     /**********************************************************************************************
      * CSV data type tags
      *********************************************************************************************/
     private enum CSVTags
     {
         COLUMN_DATA("_column_data_", null),
-        CELL_DATA("", null),
+        CELL_DATA("_table_cell_data_", null), // This is an internal tag and not used in the file
         NAME_TYPE("_name_type_", null),
         DESCRIPTION("_description_", null),
         DATA_FIELD("_data_field_", "_data_fields_"),
@@ -85,7 +90,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         PROJECT_DATA_FIELD("_project_data_field_", "_project_data_fields_"),
         VARIABLE_PATHS("_variable_path_", "_variable_paths_"),
         GROUP("_group_", null),
-        GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_");
+        GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"),
+        SCRIPT_ASSOCIATION("_script_association_", null);
 
         private final String tag;
         private final String alternateTag;
@@ -131,7 +137,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             return tag.equalsIgnoreCase(text)
                    || (alternateTag != null && alternateTag.equalsIgnoreCase(text));
         }
-
     }
 
     /**********************************************************************************************
@@ -160,18 +165,35 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
+        scriptHandler = ccddMain.getScriptHandler();
         this.groupHandler = groupHandler;
+
+        tableDefinitions = null;
+        associations = null;
     }
 
     /**********************************************************************************************
-     * Get the table definitions
+     * Get the imported table definitions
      *
-     * @return List of table definitions
+     * @return List of imported table definitions; an empty list if no table definitions exist in
+     *         the import file
      *********************************************************************************************/
     @Override
     public List<TableDefinition> getTableDefinitions()
     {
         return tableDefinitions;
+    }
+
+    /**********************************************************************************************
+     * Get the list of original and new script associations
+     *
+     * @return List of original and new script associations; null if no new associations have been
+     *         added
+     *********************************************************************************************/
+    @Override
+    public List<String[]> getScriptAssociations()
+    {
+        return associations;
     }
 
     /**********************************************************************************************
@@ -229,14 +251,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             boolean continueOnProjectFieldError = ignoreErrors;
             boolean continueOnGroupError = ignoreErrors;
             boolean continueOnGroupFieldError = ignoreErrors;
+            boolean continueOnAssociationError = ignoreErrors;
 
             ProjectDefinition projectDefn = new ProjectDefinition();
-            List<TableTypeDefinition> tableTypeDefns = new ArrayList<>();
-            List<String[]> dataTypeDefns = new ArrayList<>();
-            List<String[]> inputTypeDefns = new ArrayList<>();
-            List<String[]> macroDefns = new ArrayList<>();
-            List<String[]> reservedMsgIDDefns = new ArrayList<>();
-            tableDefinitions = new ArrayList<>();
+            List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
+            List<String[]> dataTypeDefns = new ArrayList<String[]>();
+            List<String[]> inputTypeDefns = new ArrayList<String[]>();
+            List<String[]> macroDefns = new ArrayList<String[]>();
+            List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
+            tableDefinitions = new ArrayList<TableDefinition>();
 
             // Make three passes through the file, first to get the input types (which must be
             // processed prior to adding a table type), second to get the table types, input types,
@@ -446,6 +469,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         case GROUP:
                                         case GROUP_DATA_FIELD:
                                         case VARIABLE_PATHS:
+                                        case SCRIPT_ASSOCIATION:
                                             break;
                                     }
                                 }
@@ -804,6 +828,40 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                             break;
 
+                                        case SCRIPT_ASSOCIATION:
+                                            // Check if all definitions are to be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number of inputs is
+                                                // present
+                                                if (columnValues.length == AssociationsColumn.values().length)
+                                                {
+                                                    // Check if the associations haven't been
+                                                    // loaded
+                                                    if (associations == null)
+                                                    {
+                                                        // Get the script associations from the
+                                                        // database
+                                                        associations = scriptHandler.getScriptAssociations(parent);
+                                                    }
+
+                                                    // Add the script association, checking for
+                                                    // errors
+                                                    continueOnAssociationError = addImportedScriptAssociation(continueOnAssociationError,
+                                                                                                              associations,
+                                                                                                              new String[] {columnValues[AssociationsColumn.NAME.ordinal()],
+                                                                                                                            columnValues[AssociationsColumn.DESCRIPTION.ordinal()],
+                                                                                                                            columnValues[AssociationsColumn.SCRIPT_FILE.ordinal()],
+                                                                                                                            CcddScriptHandler.convertAssociationMembersFormat(columnValues[AssociationsColumn.MEMBERS.ordinal()],
+                                                                                                                                                                              true)},
+                                                                                                              importFile.getAbsolutePath(),
+                                                                                                              scriptHandler,
+                                                                                                              parent);
+                                                }
+                                            }
+
+                                            break;
+
                                         case INPUT_TYPE:
                                         case CELL_DATA:
                                         case COLUMN_DATA:
@@ -997,6 +1055,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         case PROJECT_DATA_FIELD:
                                         case GROUP:
                                         case GROUP_DATA_FIELD:
+                                        case SCRIPT_ASSOCIATION:
                                             break;
 
                                         default:
@@ -1156,6 +1215,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param includeGroups
      *            true to include the groups and group data field definitions in the export file
      *
+     * @param includeAssociations
+     *            true to include the script associations in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -1188,6 +1250,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeGroups,
+                             boolean includeAssociations,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
@@ -1199,11 +1262,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
-            List<String> referencedTableTypes = new ArrayList<>();
-            List<String> referencedDataTypes = new ArrayList<>();
-            List<String> referencedInputTypes = new ArrayList<>();
-            List<String> referencedMacros = new ArrayList<>();
-            List<String[]> variablePaths = new ArrayList<>();
+            List<String> referencedTableTypes = new ArrayList<String>();
+            List<String> referencedDataTypes = new ArrayList<String>();
+            List<String> referencedInputTypes = new ArrayList<String>();
+            List<String> referencedMacros = new ArrayList<String>();
+            List<String[]> variablePaths = new ArrayList<String[]>();
 
             // Check if all table type definitions are to be exported
             if (includeAllTableTypes)
@@ -1333,7 +1396,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // Step through each column in the row
                         for (int column = 0; column < columnNames.length; column++)
                         {
-                            List<Integer> dataTypeColumns = new ArrayList<>();
+                            List<Integer> dataTypeColumns = new ArrayList<Integer>();
 
                             // Get the column indices for all columns that can contain a primitive
                             // data type
@@ -1600,7 +1663,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
 
-            // Check if the user elected to store the groups and if there are any groups defined
+            // Check if the user elected to store the groups
             if (includeGroups)
             {
                 // Get the group's information for the project
@@ -1666,6 +1729,32 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                    fieldInfo.getValue()));
                             }
                         }
+                    }
+                }
+            }
+
+            // Check if the user elected to store the script associations
+            if (includeAssociations)
+            {
+                // Get the script association information
+                associations = scriptHandler.getScriptAssociations(parent);
+
+                // Check if any associations exist
+                if (!associations.isEmpty())
+                {
+                    // Output the script association marker
+                    pw.printf("\n" + CSVTags.SCRIPT_ASSOCIATION.getTag() + "\n");
+
+                    // Step through each script association
+                    for (String[] assn : associations)
+                    {
+                        // Output the association information
+                        pw.printf("%s\n",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(assn[AssociationsColumn.NAME.ordinal()],
+                                                                           assn[AssociationsColumn.DESCRIPTION.ordinal()],
+                                                                           assn[AssociationsColumn.SCRIPT_FILE.ordinal()],
+                                                                           CcddScriptHandler.convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()],
+                                                                                                                             false)));
                     }
                 }
             }

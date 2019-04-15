@@ -179,6 +179,24 @@ public class CcddScriptHandler
     }
 
     /**********************************************************************************************
+     * Retrieve the script associations stored in the database
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *
+     * @return List containing the script associations
+     *********************************************************************************************/
+    protected List<String[]> getScriptAssociations(Component parent)
+    {
+        // Read the stored script associations from the database
+        List<String[]> associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                                       false,
+                                                                       parent);
+
+        return associations;
+    }
+
+    /**********************************************************************************************
      * Get a script association based on the association name
      *
      * @param assnName
@@ -195,9 +213,7 @@ public class CcddScriptHandler
         String[] association = null;
 
         // Step through each association stored in the project database
-        for (String[] assn : dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
-                                                              false,
-                                                              parent))
+        for (String[] assn : getScriptAssociations(parent))
         {
             // Check if the association's name matches the one supplied
             if (assnName.equals(assn[AssociationsColumn.NAME.ordinal()]))
@@ -215,25 +231,17 @@ public class CcddScriptHandler
      * Retrieve the script associations stored in the database and from these build the array for
      * display and selection of the script associations
      *
-     * @param allowSelectDisabled
-     *            true if disabled associations can be selected; false if not. In the script
-     *            manager disabled associations are selectable so that these can be deleted if
-     *            desired. Scripts that are selected and disabled are ignored when executing
-     *            scripts
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
      * @return Object array containing the script associations
      *********************************************************************************************/
-    private Object[][] getScriptAssociationData(boolean allowSelectDisabled, Component parent)
+    private Object[][] getScriptAssociationTableData(Component parent)
     {
         List<Object[]> associationsData = new ArrayList<Object[]>();
 
         // Read the stored script associations from the database
-        List<String[]> committedAssociations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
-                                                                                false,
-                                                                                parent);
+        List<String[]> committedAssociations = getScriptAssociations(parent);
 
         // Get the list of table names and their associated table type
         ArrayListMultiple protoNamesAndTableTypes = new ArrayListMultiple();
@@ -513,8 +521,7 @@ public class CcddScriptHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                int totalWidth = setUpdatableCharacteristics(getScriptAssociationData(allowSelectDisabled,
-                                                                                      parent),
+                int totalWidth = setUpdatableCharacteristics(getScriptAssociationTableData(parent),
                                                              AssociationsTableColumnInfo.getColumnNames(),
                                                              null,
                                                              AssociationsTableColumnInfo.getToolTips(),
@@ -1086,6 +1093,56 @@ public class CcddScriptHandler
         }
 
         return isValid;
+    }
+
+    /**********************************************************************************************
+     * Check if the supplied script association already exists in in the supplied association list
+     *
+     * @param associations
+     *            list of script associations to which to compare
+     *
+     * @param scriptName
+     *            script file path + name
+     *
+     * @param tables
+     *            array of tables referenced by the script association
+     *
+     * @param ignoreRow
+     *            row to ignore when checking for an identical, existing association (as is
+     *            possible when replacing an association, if no changes are made); -1 to prevent a
+     *            duplicate association (as when adding an association)
+     *
+     * @return true if the script association already exists in the list
+     *********************************************************************************************/
+    protected static boolean isAssociationExists(List<String[]> associations,
+                                                 String scriptName,
+                                                 String[] tables,
+                                                 int ignoreRow)
+    {
+        boolean isExists = false;
+
+        // Step through the committed script associations
+        for (int row = 0; row < associations.size(); row++)
+        {
+            // Get the association members (single string format) with any HTML tags removed
+            String members = CcddUtilities.removeHTMLTags(associations.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
+
+            // Check if this isn't the current association being added (if applicable), and the
+            // script and tables match between the two script associations
+            if (row != ignoreRow
+                && scriptName.equals(associations.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
+                && CcddUtilities.isArraySetsEqual(tables,
+                                                  members.isEmpty()
+                                                                    ? new String[] {}
+                                                                    : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR))))
+            {
+                // Set the flag to indicate a match and quit searching
+                isExists = true;
+                break;
+            }
+        }
+
+        return isExists;
     }
 
     /**********************************************************************************************

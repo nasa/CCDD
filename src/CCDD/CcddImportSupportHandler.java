@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 
@@ -22,6 +23,7 @@ import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.GroupDefinitionColumn;
+import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
@@ -509,6 +511,98 @@ public class CcddImportSupportHandler
                                         + "</b>' doesn't match the existing definition");
             }
         }
+    }
+
+    /**********************************************************************************************
+     * Add a script association after verifying the input parameters are valid (use defaults for
+     * field size, input type, or applicability if these parameters that are not supplied). For
+     * project-level or table type fields, if the field already exists for this owner compare the
+     * field definition's input type, required status, applicability, and value; if a mismatch is
+     * found allow the user to determine how to proceed (this check is unnecessary for table fields
+     * since the new ones either replace existing ones or are ignored, based on the import flags)
+     *
+     * @param continueOnError
+     *            current state of the flag that indicates if all script association errors should
+     *            be ignored
+     *
+     * @param associations
+     *            list of the current script associations
+     *
+     * @param assnDefn
+     *            array containing the script association
+     *
+     * @param fileName
+     *            import file name
+     *
+     * @param scriptHandler
+     *            script handler reference
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *
+     * @return true if the user elected to ignore the data field error
+     *
+     * @throws CCDDException
+     *             If the script file name is missing or the user elects to stop the import
+     *             operation due to an invalid input type TODO
+     *********************************************************************************************/
+    protected boolean addImportedScriptAssociation(boolean continueOnError,
+                                                   List<String[]> associations,
+                                                   String[] assnDefn,
+                                                   String fileName,
+                                                   CcddScriptHandler scriptHandler,
+                                                   Component parent) throws CCDDException
+    {
+        boolean addAssn = true;
+
+        // Check if the script file name is empty
+        if (assnDefn[AssociationsColumn.SCRIPT_FILE.ordinal()].isEmpty())
+        {
+            // Inform the user that the script file name is missing
+            throw new CCDDException("Script file name missing in import file '</b>"
+                                    + fileName
+                                    + "<b>'");
+        }
+
+        // TODO Need to check if an assn with the same name already exists and if an association
+        // with the same script+members exists
+
+        if (CcddScriptHandler.isAssociationExists(associations,
+                                                  assnDefn[AssociationsColumn.NAME.ordinal()],
+                                                  assnDefn[AssociationsColumn.MEMBERS.ordinal()].split(ASSN_TABLE_SEPARATOR.substring(0, 1)),
+                                                  -1))
+        {
+
+            // Set the flag to indicate the field shouldn't be added since it already exists
+            addAssn = false;
+
+            // Check if the error should be ignored or the import canceled
+            continueOnError = getErrorResponse(continueOnError,
+                                               "<html><b>Script association '</b>"
+                                                                + assnDefn[AssociationsColumn.NAME.ordinal()] // TODO
+                                                                                                              // MAY
+                                                                                                              // NOT
+                                                                                                              // HAVE
+                                                                                                              // A
+                                                                                                              // NAME
+                                                                + "<b>' doesn't match the existing assocation in import file '</b>"
+                                                                + fileName
+                                                                + "<b>'; continue?",
+                                               "Script Association Error",
+                                               "Ignore this association (keep existing association)",
+                                               "Ignore this and any remaining invalid associations (keep existing)",
+                                               "Stop importing",
+                                               parent);
+        }
+
+        // Check if the script association should be added
+        if (addAssn)
+        {
+            // Add the script association
+            associations.add(assnDefn);
+        }
+
+        return continueOnError;
     }
 
     /**********************************************************************************************

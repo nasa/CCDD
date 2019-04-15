@@ -54,6 +54,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeEditorColumnInfo;
+import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
@@ -82,6 +83,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddInputTypeHandler inputTypeHandler;
     private final CcddGroupHandler groupHandler;
+    private final CcddScriptHandler scriptHandler;
     private TableInformation tableInfo;
 
     // GUI component over which to center any error dialog
@@ -89,6 +91,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
     // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
+
+    // List of original and new script associations
+    private List<String[]> associations;
 
     /**********************************************************************************************
      * JSON handler class constructor
@@ -116,18 +121,35 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
+        scriptHandler = ccddMain.getScriptHandler();
         this.groupHandler = groupHandler;
+
+        tableDefinitions = null;
+        associations = null;
     }
 
     /**********************************************************************************************
-     * Get the table definitions
+     * Get the imported table definitions
      *
-     * @return List of table definitions
+     * @return List of imported table definitions; an empty list if no table definitions exist in
+     *         the import file
      *********************************************************************************************/
     @Override
     public List<TableDefinition> getTableDefinitions()
     {
         return tableDefinitions;
+    }
+
+    /**********************************************************************************************
+     * Get the list of original and new script associations
+     *
+     * @return List of original and new script associations; null if no new associations have been
+     *         added
+     *********************************************************************************************/
+    @Override
+    public List<String[]> getScriptAssociations()
+    {
+        return associations;
     }
 
     /**********************************************************************************************
@@ -325,6 +347,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             boolean continueOnDataFieldError = ignoreErrors;
             boolean continueOnTableTypeFieldError = ignoreErrors;
             boolean continueOnGroupError = ignoreErrors;
+            boolean continueOnAssociationError = ignoreErrors;
 
             // Create a JSON parser and use it to parse the import file contents
             JSONParser jsonParser = new JSONParser();
@@ -797,6 +820,40 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
+                // Get the script associations
+                defn = jsonObject.get(JSONTags.SCRIPT_ASSOCIATION.getTag());
+
+                // Check if the script associations exist
+                if (defn != null && defn instanceof JSONArray)
+                {
+                    // Check if the associations haven't been loaded
+                    if (associations == null)
+                    {
+                        // Get the script associations from the database
+                        associations = scriptHandler.getScriptAssociations(parent);
+                    }
+
+                    // Step through each script association
+                    for (JSONObject assnJO : parseJSONArray(defn))
+                    {
+                        // Add the script association, checking for errors
+                        continueOnAssociationError = addImportedScriptAssociation(continueOnAssociationError,
+                                                                                  associations,
+                                                                                  new String[] {getString(assnJO,
+                                                                                                          AssociationsColumn.NAME.getColumnName()),
+                                                                                                getString(assnJO,
+                                                                                                          AssociationsColumn.DESCRIPTION.getColumnName()),
+                                                                                                getString(assnJO,
+                                                                                                          AssociationsColumn.SCRIPT_FILE.getColumnName()),
+                                                                                                CcddScriptHandler.convertAssociationMembersFormat(getString(assnJO,
+                                                                                                                                                            AssociationsColumn.MEMBERS.getColumnName()),
+                                                                                                                                                  true)},
+                                                                                  importFile.getAbsolutePath(),
+                                                                                  scriptHandler,
+                                                                                  parent);
+                    }
+                }
+
                 // Add the data type if it's new or match it to an existing one with the same name
                 // if the type definitions are the same
                 dataTypeHandler.updateDataTypes(dataTypeDefns);
@@ -1047,6 +1104,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeGroups
      *            true to include the groups and group data field definitions in the export file
      *
+     * @param includeAssociations
+     *            true to include the script associations in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -1080,6 +1140,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeGroups,
+                             boolean includeAssociations,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
@@ -1328,6 +1389,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             // Add the referenced macro definition(s), if any, to the output
             outputJO = getMacroDefinitions(referencedMacros, outputJO);
 
+            // Add the referenced input type definition(s), if any, to the output
+            outputJO = getInputTypeDefinitions(referencedInputTypes, outputJO);
+
             // Check if the user elected to store the reserved message IDs
             if (includeReservedMsgIDs)
             {
@@ -1360,8 +1424,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 }
             }
 
-            // Add the referenced input type definition(s), if any, to the output
-            outputJO = getInputTypeDefinitions(referencedInputTypes, outputJO);
+            // Check if the user elected to store the script associations
+            if (includeAssociations)
+            {
+                // Add the script association(s), if any, to the output
+                getScriptAssociations(outputJO);
+            }
 
             // Check if variable paths are to be output
             if (includeVariablePaths)
@@ -2110,7 +2178,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the variable paths added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected OrderedJSONObject getVariablePaths(List<String[]> variablePaths, OrderedJSONObject outputJO)
+    protected OrderedJSONObject getVariablePaths(List<String[]> variablePaths,
+                                                 OrderedJSONObject outputJO)
     {
         // Check if there are any variable paths to output
         if (!variablePaths.isEmpty())
@@ -2667,4 +2736,55 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
         return response;
     };
+
+    /**********************************************************************************************
+     * Add the script association(s) to the specified JSON object. If no associations exist, then
+     * nothing is added to the JSON object
+     *
+     * @param outputJO
+     *            JSON object to which the script associations are added
+     *
+     * @return The supplied JSON object, with the script associations added (if any)
+     *********************************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected OrderedJSONObject getScriptAssociations(OrderedJSONObject outputJO)
+    {
+        JSONArray scriptAssnJA = new JSONArray();
+
+        // Get the script association information
+        associations = scriptHandler.getScriptAssociations(parent);
+
+        // Check if any associations exist
+        if (!associations.isEmpty())
+        {
+            OrderedJSONObject assnJO = new OrderedJSONObject();
+
+            // Step through each script association
+            for (String[] assn : associations)
+            {
+                assnJO = new OrderedJSONObject();
+
+                // Add the association column values to the output
+                assnJO.put(AssociationsColumn.NAME.getColumnName(),
+                           assn[AssociationsColumn.NAME.ordinal()]);
+                assnJO.put(AssociationsColumn.DESCRIPTION.getColumnName(),
+                           assn[AssociationsColumn.DESCRIPTION.ordinal()]);
+                assnJO.put(AssociationsColumn.SCRIPT_FILE.getColumnName(),
+                           assn[AssociationsColumn.SCRIPT_FILE.ordinal()]);
+                assnJO.put(AssociationsColumn.MEMBERS.getColumnName(),
+                           CcddScriptHandler.convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()],
+                                                                             false));
+                scriptAssnJA.add(assnJO);
+            }
+
+            // Check if any script association exists
+            if (!scriptAssnJA.isEmpty())
+            {
+                // Add the script association(s) to the JSON output
+                outputJO.put(JSONTags.SCRIPT_ASSOCIATION.getTag(), scriptAssnJA);
+            }
+        }
+
+        return outputJO;
+    }
 }

@@ -175,7 +175,7 @@ public class CcddInputTypeHandler
      *********************************************************************************************/
     CcddInputTypeHandler(CcddMain ccddMain)
     {
-        inputTypeMap = new HashMap<>();
+        inputTypeMap = new HashMap<String, InputType>();
         inputTypes = new ArrayList<InputType>(0);
         selectionInputTypes = new ArrayList<InputType>(0);
         this.ccddMain = ccddMain;
@@ -198,7 +198,7 @@ public class CcddInputTypeHandler
      *********************************************************************************************/
     CcddInputTypeHandler(String[][] inputTypesArray)
     {
-        inputTypeMap = new HashMap<>();
+        inputTypeMap = new HashMap<String, InputType>();
         inputTypes = new ArrayList<InputType>(0);
         selectionInputTypes = new ArrayList<InputType>(0);
 
