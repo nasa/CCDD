@@ -102,6 +102,10 @@ public class CcddLinkManagerHandler
     // Flag indicating the first rate selection change
     private boolean firstRateChange;
 
+    // Flag that indicates if the link manager dialog is undergoing initialization or the link tree
+    // is rebuilding
+    private boolean isInitializing;
+
     /**********************************************************************************************
      * Link manager handler class constructor
      *
@@ -128,6 +132,18 @@ public class CcddLinkManagerHandler
 
         // Create the link selection dialog
         initialize(availableRates);
+    }
+
+    /**********************************************************************************************
+     * Set the link manager initialization flag. When true this prevents the link manager dialog's
+     * update indicator from being updated
+     *
+     * @param enable
+     *            true is the link manager is initializing
+     *********************************************************************************************/
+    protected void setInitializing(boolean enable)
+    {
+        isInitializing = enable;
     }
 
     /**********************************************************************************************
@@ -230,6 +246,9 @@ public class CcddLinkManagerHandler
     {
         isNodeSelectionChanging = false;
 
+        // Set the flag to indicate the link manager dialog is being initialized
+        isInitializing = true;
+
         // Create borders for the dialog components
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
@@ -269,7 +288,11 @@ public class CcddLinkManagerHandler
             @Override
             protected void ownerHasChanged()
             {
-                linkDialog.updateChangeIndicator();
+                // Check if the update indicator should be refreshed
+                if (!isInitializing)
+                {
+                    linkDialog.updateChangeIndicator();
+                }
             }
         };
 
@@ -294,6 +317,9 @@ public class CcddLinkManagerHandler
                 // Check that a node selection change is not in progress
                 if (!isNodeSelectionChanging)
                 {
+                    // Set the flag to inhibit registering the node selection as a link change
+                    isInitializing = true;
+
                     // Set the flag to prevent link tree updates
                     isNodeSelectionChanging = true;
 
@@ -334,6 +360,7 @@ public class CcddLinkManagerHandler
                     }
 
                     // Reset the flag to allow link tree updates
+                    isInitializing = false;
                     isNodeSelectionChanging = false;
                 }
             }
@@ -457,10 +484,13 @@ public class CcddLinkManagerHandler
                                           String rateFilter,
                                           Component parent)
             {
+                // Set the flag to inhibit registering a link change due to the tree is being built
+                isInitializing = true;
                 super.buildTableTree(isExpanded,
                                      rateName,
                                      rateFilter,
                                      parent);
+                isInitializing = false;
 
                 // Clean up the links following rebuilding the tree
                 variableTree = this;
@@ -538,7 +568,7 @@ public class CcddLinkManagerHandler
             @Override
             public void insertUpdate(DocumentEvent de)
             {
-                linkDialog.updateChangeIndicator();
+                undoManager.ownerHasChanged();
             }
 
             /**************************************************************************************
@@ -547,7 +577,7 @@ public class CcddLinkManagerHandler
             @Override
             public void removeUpdate(DocumentEvent de)
             {
-                linkDialog.updateChangeIndicator();
+                undoManager.ownerHasChanged();
             }
 
             /**************************************************************************************
@@ -716,6 +746,9 @@ public class CcddLinkManagerHandler
         gbc.gridx = 0;
         gbc.gridy++;
         managerPnl.add(rateSelectPnl, gbc);
+
+        // Reset the flag now that initialization is complete
+        isInitializing = false;
     }
 
     /**********************************************************************************************
@@ -861,6 +894,10 @@ public class CcddLinkManagerHandler
                 // rate or empty ones) can be selected; invalid link nodes are grayed out
                 if (selected.length == 1)
                 {
+                    // Set the flag to prevent calls to update the dialog change indicator while
+                    // adding variables to the link
+                    isInitializing = true;
+
                     // Disable automatically ending the edit sequence. This allows all of the
                     // deleted link members to be grouped into a single sequence so that if undone,
                     // all members are restored together
@@ -873,6 +910,12 @@ public class CcddLinkManagerHandler
                     // get the node to display correctly when formatted as HTML
                     linkTree.fireTreeCollapsed(linkTree.getSelectionPath());
                     linkTree.fireTreeExpanded(linkTree.getSelectionPath());
+
+                    // Set the flag to so that the dialog change indicator can be updated
+                    isInitializing = false;
+
+                    // Update the link dialog's change indicator
+                    linkDialog.updateChangeIndicator();
 
                     // Re-enable automatic edit sequence ending, then end the edit sequence to
                     // group the deleted link members
@@ -1020,7 +1063,7 @@ public class CcddLinkManagerHandler
         }
 
         // Update the link dialog's change indicator
-        linkDialog.updateChangeIndicator();
+        undoManager.ownerHasChanged();
     }
 
     /**********************************************************************************************

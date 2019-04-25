@@ -1096,7 +1096,8 @@ public class CcddScriptHandler
     }
 
     /**********************************************************************************************
-     * Check if the supplied script association already exists in in the supplied association list
+     * Get the index from the supplied script association list for the association with the same
+     * script file name and members
      *
      * @param associations
      *            list of script associations to which to compare
@@ -1112,14 +1113,15 @@ public class CcddScriptHandler
      *            possible when replacing an association, if no changes are made); -1 to prevent a
      *            duplicate association (as when adding an association)
      *
-     * @return true if the script association already exists in the list
+     * @return The index number in the supplied list where the matching association occurs; -1 if
+     *         no match is found
      *********************************************************************************************/
-    protected static boolean isAssociationExists(List<String[]> associations,
-                                                 String scriptName,
-                                                 String[] tables,
-                                                 int ignoreRow)
+    protected static int getMatchingAssociation(List<String[]> associations,
+                                                String scriptName,
+                                                String[] tables,
+                                                int ignoreRow)
     {
-        boolean isExists = false;
+        int matchingIndex = -1;
 
         // Step through the committed script associations
         for (int row = 0; row < associations.size(); row++)
@@ -1136,13 +1138,13 @@ public class CcddScriptHandler
                                                                     ? new String[] {}
                                                                     : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR))))
             {
-                // Set the flag to indicate a match and quit searching
-                isExists = true;
+                // Store the matching row number and stop searching
+                matchingIndex = row;
                 break;
             }
         }
 
-        return isExists;
+        return matchingIndex;
     }
 
     /**********************************************************************************************

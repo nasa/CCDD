@@ -482,6 +482,10 @@
 <dd>
 <div class="block">Get the user access level editor column name</div>
 </dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.AssociationsTableColumnInfo.html#getColumnName--">getColumnName()</a></span> - Method in enum CCDD.<a href="../CCDD/CcddConstants.AssociationsTableColumnInfo.html" title="enum in CCDD">CcddConstants.AssociationsTableColumnInfo</a></dt>
+<dd>
+<div class="block">Get the script association table column name</div>
+</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.CopyTableEntry.html#getColumnName--">getColumnName()</a></span> - Method in enum CCDD.<a href="../CCDD/CcddConstants.CopyTableEntry.html" title="enum in CCDD">CcddConstants.CopyTableEntry</a></dt>
 <dd>
 <div class="block">Get the copy table column name</div>
@@ -2578,6 +2582,11 @@
 <dd>
 <div class="block">Get the first auto-completion list string that matches the input text</div>
 </dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getMatchingAssociation-java.util.List-java.lang.String-java.lang.String:A-int-">getMatchingAssociation(List&lt;String[]&gt;, String, String[], int)</a></span> - Static method in class CCDD.<a href="../CCDD/CcddScriptHandler.html" title="class in CCDD">CcddScriptHandler</a></dt>
+<dd>
+<div class="block">Get the index from the supplied script association list for the association with the same
+ script file name and members</div>
+</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType(long, boolean, boolean, boolean, boolean, CcddDataTypeHandler)</a></span> - Method in class CCDD.<a href="../CCDD/CcddImportSupportHandler.html" title="class in CCDD">CcddImportSupportHandler</a></dt>
 <dd>
 <div class="block">Get the data type name determined by the specified data type size and match criteria</div>
@@ -3619,7 +3628,35 @@
 <dd>
 <div class="block">Get a script association based on the association name</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationData-boolean-java.awt.Component-">getScriptAssociationData(boolean, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddScriptHandler.html" title="class in CCDD">CcddScriptHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddCSVHandler.html#getScriptAssociations--">getScriptAssociations()</a></span> - Method in class CCDD.<a href="../CCDD/CcddCSVHandler.html" title="class in CCDD">CcddCSVHandler</a></dt>
+<dd>
+<div class="block">Get the list of original and new script associations</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#getScriptAssociations--">getScriptAssociations()</a></span> - Method in class CCDD.<a href="../CCDD/CcddEDSHandler.html" title="class in CCDD">CcddEDSHandler</a></dt>
+<dd>
+<div class="block">Get the list of original and new script associations.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#getScriptAssociations--">getScriptAssociations()</a></span> - Method in interface CCDD.<a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></dt>
+<dd>
+<div class="block">Get the list of original and new script associations</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddJSONHandler.html#getScriptAssociations--">getScriptAssociations()</a></span> - Method in class CCDD.<a href="../CCDD/CcddJSONHandler.html" title="class in CCDD">CcddJSONHandler</a></dt>
+<dd>
+<div class="block">Get the list of original and new script associations</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddJSONHandler.html#getScriptAssociations-CCDD.CcddClassesComponent.OrderedJSONObject-">getScriptAssociations(CcddClassesComponent.OrderedJSONObject)</a></span> - Method in class CCDD.<a href="../CCDD/CcddJSONHandler.html" title="class in CCDD">CcddJSONHandler</a></dt>
+<dd>
+<div class="block">Add the script association(s) to the specified JSON object.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociations-java.awt.Component-">getScriptAssociations(Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddScriptHandler.html" title="class in CCDD">CcddScriptHandler</a></dt>
+<dd>
+<div class="block">Retrieve the script associations stored in the database</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getScriptAssociations--">getScriptAssociations()</a></span> - Method in class CCDD.<a href="../CCDD/CcddXTCEHandler.html" title="class in CCDD">CcddXTCEHandler</a></dt>
+<dd>
+<div class="block">Get the list of original and new script associations.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationTableData-java.awt.Component-">getScriptAssociationTableData(Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddScriptHandler.html" title="class in CCDD">CcddScriptHandler</a></dt>
 <dd>
 <div class="block">Retrieve the script associations stored in the database and from these build the array for
  display and selection of the script associations</div>
@@ -4370,23 +4407,23 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddCSVHandler.html#getTableDefinitions--">getTableDefinitions()</a></span> - Method in class CCDD.<a href="../CCDD/CcddCSVHandler.html" title="class in CCDD">CcddCSVHandler</a></dt>
 <dd>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#getTableDefinitions--">getTableDefinitions()</a></span> - Method in class CCDD.<a href="../CCDD/CcddEDSHandler.html" title="class in CCDD">CcddEDSHandler</a></dt>
 <dd>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#getTableDefinitions--">getTableDefinitions()</a></span> - Method in interface CCDD.<a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></dt>
 <dd>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddJSONHandler.html#getTableDefinitions--">getTableDefinitions()</a></span> - Method in class CCDD.<a href="../CCDD/CcddJSONHandler.html" title="class in CCDD">CcddJSONHandler</a></dt>
 <dd>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getTableDefinitions--">getTableDefinitions()</a></span> - Method in class CCDD.<a href="../CCDD/CcddXTCEHandler.html" title="class in CCDD">CcddXTCEHandler</a></dt>
 <dd>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddScriptDataAccessHandler.html#getTableDescription-java.lang.String-">getTableDescription(String)</a></span> - Method in class CCDD.<a href="../CCDD/CcddScriptDataAccessHandler.html" title="class in CCDD">CcddScriptDataAccessHandler</a></dt>
 <dd>

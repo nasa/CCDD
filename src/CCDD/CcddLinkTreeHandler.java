@@ -441,7 +441,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     protected List<String[]> createDefinitionsFromInformation()
     {
         // Initialize the link tree information list
-        List<String[]> definitions = new ArrayList<String[]>();
+        List<String[]> definitions = new ArrayList<String[]>(linkInformation.size());
 
         // Step through each link's information
         for (LinkInformation linkInfo : linkInformation)
@@ -472,14 +472,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     @Override
     protected void addLeafDefinition(List<String[]> treeDefns,
-                                     List<String> leafDefn,
+                                     String[] leafDefn,
                                      String filterValue)
     {
-        // Prepend the data stream rate name to the link definition
-        leafDefn.add(0, filterValue);
-
-        // Store the leaf node definition in the tree information list
-        treeDefns.add(leafDefn.toArray(new String[0]));
+        // Store the leaf node definition in the tree information list, with the data stream rate
+        // name prepended to the link definition
+        treeDefns.add(new String[] {filterValue, leafDefn[0], leafDefn[1]});
     }
 
     /**********************************************************************************************

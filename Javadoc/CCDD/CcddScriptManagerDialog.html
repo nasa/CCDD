@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -386,45 +386,37 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#isAssociationExists-java.lang.String-java.lang.String:A-int-">isAssociationExists</a></span>(java.lang.String&nbsp;scriptName,
-                   java.lang.String[]&nbsp;tables,
-                   int&nbsp;ignoreRow)</code>
-<div class="block">Compare a script association to the existing ones in the table</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#isAssociationsChanged--">isAssociationsChanged</a></span>()</code>
 <div class="block">Check if the script associations have changed</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#reloadAssociationsTable--">reloadAssociationsTable</a></span>()</code>
 <div class="block">Update the table tree and the associations table with the latest table and script
  associations information</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#removeAssociations--">removeAssociations</a></span>()</code>
 <div class="block">Remove the selected association(s) from the script associations table</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#replaceAssociation--">replaceAssociation</a></span>()</code>
 <div class="block">Replace the selected association in the script associations table</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#setControlsEnabled-boolean-">setControlsEnabled</a></span>(boolean&nbsp;enable)</code>
 <div class="block">Enable/disable the script manager dialog menu controls</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#updateChangeIndicator--">updateChangeIndicator</a></span>()</code>
 <div class="block">Update the change indicator for the script associations manager</div>
@@ -818,28 +810,6 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the script associations</dd>
-</dl>
-</li>
-</ul>
-<a name="isAssociationExists-java.lang.String-java.lang.String:A-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isAssociationExists</h4>
-<pre>private&nbsp;boolean&nbsp;isAssociationExists(java.lang.String&nbsp;scriptName,
-                                    java.lang.String[]&nbsp;tables,
-                                    int&nbsp;ignoreRow)</pre>
-<div class="block">Compare a script association to the existing ones in the table</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scriptName</code> - script file path + name</dd>
-<dd><code>tables</code> - array of tables referenced by the script association</dd>
-<dd><code>ignoreRow</code> - row to ignore when checking for an identical, existing association (as is
-            possible when replacing an association, if no changes are made); -1 to prevent a
-            duplicate association (as when adding an association)</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>true if the script association already exists in the table</dd>
 </dl>
 </li>
 </ul>

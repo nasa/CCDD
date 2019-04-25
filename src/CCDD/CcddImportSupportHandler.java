@@ -13,6 +13,8 @@ import static CCDD.CcddConstants.IGNORE_BUTTON;
 
 import java.awt.Component;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -21,10 +23,15 @@ import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
+import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.GroupDefinitionColumn;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
+import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddConstants.InternalTable.InputTypesColumn;
+import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
 /**************************************************************************************************
@@ -219,9 +226,7 @@ public class CcddImportSupportHandler
         if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].isEmpty())
         {
             // Inform the user that the field name is missing
-            throw new CCDDException("Data field name missing in import file '</b>"
-                                    + fileName
-                                    + "<b>'");
+            throw new CCDDException("Data field name missing");
         }
 
         // Check if the field size is empty
@@ -447,9 +452,7 @@ public class CcddImportSupportHandler
         if (groupDefn[GroupDefinitionColumn.NAME.ordinal()].isEmpty())
         {
             // Inform the user that the group name is missing
-            throw new CCDDException("Group name missing in import file '</b>"
-                                    + fileName
-                                    + "<b>'");
+            throw new CCDDException("Group name missing");
         }
 
         // Get the reference to the data field from the existing field information
@@ -514,12 +517,9 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Add a script association after verifying the input parameters are valid (use defaults for
-     * field size, input type, or applicability if these parameters that are not supplied). For
-     * project-level or table type fields, if the field already exists for this owner compare the
-     * field definition's input type, required status, applicability, and value; if a mismatch is
-     * found allow the user to determine how to proceed (this check is unnecessary for table fields
-     * since the new ones either replace existing ones or are ignored, based on the import flags)
+     * Add a script association after verifying the input parameters are valid (script file name is
+     * provided and the association doesn't already exist). If an association with the same name
+     * but different script file or members exists allow the user to determine how to proceed
      *
      * @param continueOnError
      *            current state of the flag that indicates if all script association errors should
@@ -543,8 +543,9 @@ public class CcddImportSupportHandler
      * @return true if the user elected to ignore the data field error
      *
      * @throws CCDDException
-     *             If the script file name is missing or the user elects to stop the import
-     *             operation due to an invalid input type TODO
+     *             If the script file name is missing, or an association with the same name but
+     *             different script file or members exists and the user elects to stop the import
+     *             operation
      *********************************************************************************************/
     protected boolean addImportedScriptAssociation(boolean continueOnError,
                                                    List<String[]> associations,
@@ -559,40 +560,68 @@ public class CcddImportSupportHandler
         if (assnDefn[AssociationsColumn.SCRIPT_FILE.ordinal()].isEmpty())
         {
             // Inform the user that the script file name is missing
-            throw new CCDDException("Script file name missing in import file '</b>"
-                                    + fileName
-                                    + "<b>'");
+            throw new CCDDException("Script file name missing");
         }
 
-        // TODO Need to check if an assn with the same name already exists and if an association
-        // with the same script+members exists
+        // Get the index of the association having the same script file and members (-1 if there is
+        // no matching association)
+        int matchingIndex = CcddScriptHandler.getMatchingAssociation(associations,
+                                                                     assnDefn[AssociationsColumn.SCRIPT_FILE.ordinal()],
+                                                                     assnDefn[AssociationsColumn.MEMBERS.ordinal()].split(Pattern.quote(ASSN_TABLE_SEPARATOR)),
+                                                                     -1);
 
-        if (CcddScriptHandler.isAssociationExists(associations,
-                                                  assnDefn[AssociationsColumn.NAME.ordinal()],
-                                                  assnDefn[AssociationsColumn.MEMBERS.ordinal()].split(ASSN_TABLE_SEPARATOR.substring(0, 1)),
-                                                  -1))
+        // Set the index to indicate no name is provided
+        int nameIndex = -2;
+
+        // Check if n association name is provided
+        if (!assnDefn[AssociationsColumn.NAME.ordinal()].isEmpty())
         {
+            // Set the index to indicate a name is provided but doesn't match an existing one
+            nameIndex = -1;
 
-            // Set the flag to indicate the field shouldn't be added since it already exists
+            // Step through the association definitions
+            for (int index = 0; index < associations.size(); index++)
+            {
+                // Check if the new association's name matches an existing one's
+                if (associations.get(index)[AssociationsColumn.NAME.ordinal()].equals(assnDefn[AssociationsColumn.NAME.ordinal()]))
+                {
+                    nameIndex = index;
+                    break;
+                }
+            }
+        }
+
+        // Check if no association name is provided but an association with matching script file
+        // and members already exists (the existing association may or may not have a name)
+        if (nameIndex == -2 && matchingIndex != -1)
+        {
+            // Set the flag to not store this association since it exists
+            addAssn = false;
+        }
+        // Check if the association name is in use or an association with the same script file and
+        // members exists
+        else if (nameIndex >= 0 || matchingIndex != -1)
+        {
+            // Set the flag to not store this association since it exists
             addAssn = false;
 
-            // Check if the error should be ignored or the import canceled
-            continueOnError = getErrorResponse(continueOnError,
-                                               "<html><b>Script association '</b>"
-                                                                + assnDefn[AssociationsColumn.NAME.ordinal()] // TODO
-                                                                                                              // MAY
-                                                                                                              // NOT
-                                                                                                              // HAVE
-                                                                                                              // A
-                                                                                                              // NAME
-                                                                + "<b>' doesn't match the existing assocation in import file '</b>"
-                                                                + fileName
-                                                                + "<b>'; continue?",
-                                               "Script Association Error",
-                                               "Ignore this association (keep existing association)",
-                                               "Ignore this and any remaining invalid associations (keep existing)",
-                                               "Stop importing",
-                                               parent);
+            // Check if the associations with the same name and script/members don't have the same
+            // index
+            if (nameIndex != matchingIndex)
+            {
+                // Check if the error should be ignored or the import canceled
+                continueOnError = getErrorResponse(continueOnError,
+                                                   "<html><b>Script association '</b>"
+                                                                    + assnDefn[AssociationsColumn.NAME.ordinal()]
+                                                                    + "<b>' doesn't match the existing assocation in import file '</b>"
+                                                                    + fileName
+                                                                    + "<b>'; continue?",
+                                                   "Script Association Error",
+                                                   "Ignore this association (keep existing association)",
+                                                   "Ignore this and any remaining invalid associations (keep existing)",
+                                                   "Stop importing",
+                                                   parent);
+            }
         }
 
         // Check if the script association should be added
@@ -632,17 +661,13 @@ public class CcddImportSupportHandler
      * @param funcCodeName
      *            command header variable name for the command function code; null if not present
      *            in the import file
-     *
-     * @throws CCDDException
-     *             If the data field with the same input type already exists and the imported field
-     *             doesn't match
      *********************************************************************************************/
     protected void setProjectHeaderTablesAndVariables(CcddFieldHandler fieldHandler,
                                                       boolean isCreateField,
                                                       String tlmHdrTable,
                                                       String cmdHdrTable,
                                                       String appIDName,
-                                                      String funcCodeName) throws CCDDException
+                                                      String funcCodeName)
     {
         ProjectDefinition projectDefn = new ProjectDefinition();
         tlmHeaderTable = tlmHdrTable;
@@ -895,6 +920,172 @@ public class CcddImportSupportHandler
         }
 
         return continueOnError;
+    }
+
+    /**********************************************************************************************
+     * Check input type definition parameters for validity
+     *
+     * @param inputTypeDefn
+     *            array containing the input type definition
+     *
+     * @return The input type definition, with the regular expression built if the definition
+     *         contains a selection item list
+     *
+     * @throws CCDDException
+     *             If an invalid input type parameter is detected
+     *********************************************************************************************/
+    protected static String[] checkInputTypeDefinition(String[] inputTypeDefn) throws CCDDException
+    {
+        // Check if the input type name is empty
+        if (inputTypeDefn[InputTypesColumn.NAME.ordinal()].isEmpty())
+        {
+            // Inform the user that the input type name is missing
+            throw new CCDDException("Input type name missing");
+        }
+
+        // Check if the input type format is empty
+        if (inputTypeDefn[InputTypesColumn.FORMAT.ordinal()].isEmpty())
+        {
+            // Inform the user that the input type format is missing
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+                                    + "' format missing");
+        }
+
+        // Check if the input type selection item list is provided
+        if (!inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty())
+        {
+            // Convert the items in the selection list to the corresponding regular expression
+            inputTypeDefn[InputTypesColumn.MATCH.ordinal()] = CcddInputTypeHandler.convertItemsToRegEx(inputTypeDefn[InputTypesColumn.ITEMS.ordinal()]);
+        }
+
+        // Check if the input type name is empty
+        if (inputTypeDefn[InputTypesColumn.MATCH.ordinal()].isEmpty())
+        {
+            // Inform the user that the input type regular expression is missing
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+                                    + "' regular expression missing");
+        }
+
+        try
+        {
+            // Validate the regular expression by attempting to compile it
+            Pattern.compile(inputTypeDefn[InputTypesColumn.MATCH.ordinal()]);
+        }
+        catch (PatternSyntaxException pse)
+        {
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+                                    + "' regular expression invalid; cause '</b>"
+                                    + pse.getMessage()
+                                    + "<b>'");
+        }
+
+        boolean isValid = false;
+
+        // Step through each input type format
+        for (InputTypeFormat type : InputTypeFormat.values())
+        {
+            // Check if the format is recognized
+            if (type.getFormatName().equals(inputTypeDefn[InputTypesColumn.FORMAT.ordinal()]))
+            {
+                // Check if the format type is user-selectable (i.e., not an internal-only format),
+                // and the format is valid with selection item if the items are provided
+                if (type.isUserSelectable()
+                    && (inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty()
+                        || type.isValidWithItems()))
+                {
+                    // Set the flag to indicate the format is valid
+                    isValid = true;
+                }
+
+                break;
+            }
+        }
+
+        // Check if the input type format is invalid
+        if (!isValid)
+        {
+            // Inform the user that the input type format is invalid
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+                                    + "' format invalid");
+        }
+
+        return inputTypeDefn;
+    }
+
+    /**********************************************************************************************
+     * Check the supplied macro definition parameters for validity
+     *
+     * @param macroDefn
+     *            array containing the macro definition
+     *
+     * @throws CCDDException
+     *             If an invalid macro parameter is detected
+     *********************************************************************************************/
+    protected static void checkMacroDefinition(String[] macroDefn) throws CCDDException
+    {
+        // Check if the macro name is empty
+        if (macroDefn[MacrosColumn.MACRO_NAME.ordinal()].isEmpty())
+        {
+            // Inform the user that the macro name is missing
+            throw new CCDDException("Macro name missing");
+        }
+
+        // Removing any spaces between the name and first left parenthesis
+        macroDefn[MacrosColumn.MACRO_NAME.ordinal()] = macroDefn[MacrosColumn.MACRO_NAME.ordinal()].replaceFirst("\\s+\\(",
+                                                                                                                 "(");
+
+        // Check if the macro name isn't valid
+        if (!macroDefn[MacrosColumn.MACRO_NAME.ordinal()].matches(DefaultInputType.MACRO_NAME.getInputMatch()))
+        {
+            // Inform the user that the macro name is invalid
+            throw new CCDDException("Macro name '"
+                                    + macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
+                                    + "' invalid");
+        }
+    }
+
+    /**********************************************************************************************
+     * Check the supplied data type definition parameters for validity
+     *
+     * @param dataTypeDefn
+     *            array containing the data type definition
+     *
+     * @throws CCDDException
+     *             If an invalid data type parameter is detected
+     *********************************************************************************************/
+    protected static void checkDataTypeDefinition(String[] dataTypeDefn) throws CCDDException
+    {
+        // Check if the data type names are both empty
+        if (dataTypeDefn[DataTypesColumn.C_NAME.ordinal()].isEmpty()
+            && dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
+        {
+            // Inform the user that the data type name is missing
+            throw new CCDDException("Data type user and C names missing");
+        }
+
+        // Check if the data type size isn't valid
+        if (!dataTypeDefn[DataTypesColumn.SIZE.ordinal()].matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
+        {
+            // Inform the user that the data type size is invalid
+            throw new CCDDException("Data type '"
+                                    + CcddDataTypeHandler.getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],
+                                                                          dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()])
+                                    + "' size invalid");
+        }
+
+        // Check if the base type isn't valid
+        if (BaseDataTypeInfo.getBaseType(dataTypeDefn[DataTypesColumn.BASE_TYPE.ordinal()]) == null)
+        {
+            // Inform the user that the base type is invalid
+            throw new CCDDException("Data type '"
+                                    + CcddDataTypeHandler.getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],
+                                                                          dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()])
+                                    + "' base type invalid");
+        }
     }
 
     /**********************************************************************************************

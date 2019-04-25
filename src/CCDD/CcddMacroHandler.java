@@ -100,7 +100,7 @@ public class CcddMacroHandler
         {
             this.macroName = macroName;
             List<String> dependentMacros = new ArrayList<String>();
-            String searchMacros = "(";
+            String searchMacros = "";
 
             // Get the list of macros that have a value that depends on the supplied macro. The
             // list also contains the supplied macro name
@@ -114,7 +114,7 @@ public class CcddMacroHandler
             }
 
             // Clean up the macro search name string
-            searchMacros = CcddUtilities.removeTrailer(searchMacros, "|") + ")";
+            searchMacros = CcddUtilities.removeTrailer(searchMacros, "|");
 
             // Get the references to the specified macro(s) in the data tables
             references = searchMacroReferences(searchMacros, parent);
@@ -528,6 +528,8 @@ public class CcddMacroHandler
      *********************************************************************************************/
     protected String getMacroValue(String macroName)
     {
+        // TODO NEED TO HANDLE MACROS IN THE FORMAT name(a[,b[,...]])
+
         String macroValue = null;
         isMacroRecursive = false;
 
@@ -1050,18 +1052,22 @@ public class CcddMacroHandler
     protected String[] searchMacroReferences(String macroName, Component parent)
     {
         // Get the references in the prototype tables that match the specified macro name
-        List<String> matches = new ArrayList<String>(Arrays.asList(ccddMain.getDbCommandHandler().getList(DatabaseListCommand.SEARCH,
-                                                                                                          new String[][] {{"_search_text_",
-                                                                                                                           macroName},
-                                                                                                                          {"_case_insensitive_",
-                                                                                                                           "true"},
-                                                                                                                          {"_allow_regex_",
-                                                                                                                           "true"},
-                                                                                                                          {"_selected_tables_",
-                                                                                                                           SearchType.DATA.toString()},
-                                                                                                                          {"_columns_",
-                                                                                                                           ""}},
-                                                                                                          parent)));
+        List<String> matches = new ArrayList<String>(Arrays.asList(ccddMain.getDbCommandHandler()
+                                                                           .getList(DatabaseListCommand.SEARCH,
+                                                                                    new String[][] {{"_search_text_",
+                                                                                                     "("
+                                                                                                                      + macroName.replaceAll("([\\(\\)])",
+                                                                                                                                             "\\\\\\\\$1")
+                                                                                                                      + ")"},
+                                                                                                    {"_case_insensitive_",
+                                                                                                     "true"},
+                                                                                                    {"_allow_regex_",
+                                                                                                     "true"},
+                                                                                                    {"_selected_tables_",
+                                                                                                     SearchType.DATA.toString()},
+                                                                                                    {"_columns_",
+                                                                                                     ""}},
+                                                                                    parent)));
 
         // Remove any references to the macro that appear in an array size column for an array
         // member (the reference in the array's definition is all that's needed)

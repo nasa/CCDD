@@ -2022,7 +2022,8 @@ public class CcddConstants
          * @param baseTypeName
          *            base data type name
          *
-         * @return Base data type with the specified name
+         * @return Base data type with the specified name; null if the name provided isn't a valid
+         *         base type
          *****************************************************************************************/
         protected static BaseDataTypeInfo getBaseType(String baseTypeName)
         {
@@ -2373,6 +2374,17 @@ public class CcddConstants
                           InputTypeFormat.HEXADECIMAL,
                           "Hexadecimal range; hexadecimal value followed optionally by a "
                                                        + "hyphen and a second hexadecimal value (see Hexadecimal)"),
+
+        // TODO Add an input type that allows the format: alphanumeric( [alphanumeric [ ,
+        // alphanumeric [ , ...]]) and use it for macro names
+        MACRO_NAME("Macro name",
+                   ALPHANUMERIC.getInputMatch() + "(\\(\\s*"
+                                 + ALPHANUMERIC.getInputMatch()
+                                 + "(\\s*,\\s*"
+                                 + ALPHANUMERIC.getInputMatch()
+                                 + ")*\\s*\\))?",
+                   InputTypeFormat.TEXT,
+                   "Macro name: alphanumeric[([alphanumeric[, alphanumeric[, ...]])] (see Alphanumeric)"),
 
         MESSAGE_NAME_AND_ID("Message name & ID",
                             "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:(?:0x)?[a-fA-F0-9]*\\s*"
@@ -5610,6 +5622,16 @@ public class CcddConstants
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
+        }
+
+        /******************************************************************************************
+         * Get the script association table column name
+         *
+         * @return Script association table column name
+         *****************************************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
         }
 
         /******************************************************************************************

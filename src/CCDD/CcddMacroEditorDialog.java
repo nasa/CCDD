@@ -631,8 +631,13 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         // Check if the macro name has been changed and if the name isn't blank
                         if (column == MacroEditorColumnInfo.NAME.ordinal())
                         {
+                            // Store the new macro name in the table data array after removing any
+                            // spaces between the name and first left parenthesis
+                            newValueS = newValueS.replaceFirst("\\s+\\(", "(");
+                            tableData.get(row)[column] = newValueS;
+
                             // Check if the macro name does not match the alphanumeric input type
-                            if (!newValueS.matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
+                            if (!newValueS.matches(DefaultInputType.MACRO_NAME.getInputMatch()))
                             {
                                 throw new CCDDException("Illegal character(s) in macro name");
                             }

@@ -982,10 +982,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             FileEnvVar scriptFile = new FileEnvVar(scriptNameFld.getText());
 
             // Check if the script association already exists in the list
-            if (CcddScriptHandler.isAssociationExists(Arrays.asList(CcddUtilities.convertObjectToString(assnsTable.getTableData(false))),
+            if (CcddScriptHandler.getMatchingAssociation(Arrays.asList(CcddUtilities.convertObjectToString(assnsTable.getTableData(false))),
                                                       scriptFile.getAbsolutePathWithEnvVars(),
                                                       members.toArray(new String[0]),
-                                                      ignoreRow))
+                                                      ignoreRow) != -1)
             {
                 throw new CCDDException("An association with this script and table(s) "
                                         + "already exists in the script associations table");

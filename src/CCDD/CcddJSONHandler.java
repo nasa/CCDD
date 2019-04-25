@@ -47,6 +47,7 @@ import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
@@ -54,7 +55,6 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeEditorColumnInfo;
-import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
@@ -379,13 +379,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         && !match.isEmpty()
                         && typeJO.keySet().size() < InputTypeEditorColumnInfo.values().length)
                     {
+                        // Check if the input type definition is valid
+                        String[] inputTypeDefn = checkInputTypeDefinition(new String[] {name,
+                                                                                        description,
+                                                                                        match,
+                                                                                        items,
+                                                                                        format,
+                                                                                        ""});
+
                         // Add the input type definition (add a blank to represent the OID)
-                        inputTypeDefns.add(new String[] {name,
-                                                         description,
-                                                         match,
-                                                         items,
-                                                         format,
-                                                         ""});
+                        inputTypeDefns.add(inputTypeDefn);
                     }
                     // The number of inputs is incorrect
                     else
@@ -575,8 +578,18 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             && !baseType.isEmpty()
                             && typeJO.keySet().size() < DataTypeEditorColumnInfo.values().length)
                         {
+                            // Build the data type definition
+                            String[] dataTypeDefn = new String[] {userName,
+                                                                  cName,
+                                                                  size,
+                                                                  baseType,
+                                                                  ""};
+
+                            // Check if the data type definition is valid
+                            checkDataTypeDefinition(dataTypeDefn);
+
                             // Add the data type definition (add a blank to represent the OID)
-                            dataTypeDefns.add(new String[] {userName, cName, size, baseType, ""});
+                            dataTypeDefns.add(dataTypeDefn);
                         }
                         // The number of inputs is incorrect
                         else
@@ -615,8 +628,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         if (!name.isEmpty()
                             && macroJO.keySet().size() < MacroEditorColumnInfo.values().length)
                         {
+                            // Build the macro definition
+                            String[] macroDefn = new String[] {name, value, ""};
+
+                            // Check if the macro definition is valid
+                            checkMacroDefinition(macroDefn);
+
                             // Add the macro definition (add a blank to represent the OID)
-                            macroDefns.add(new String[] {name, value, ""});
+                            macroDefns.add(macroDefn);
                         }
                         // The number of inputs is incorrect
                         else
@@ -840,13 +859,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         continueOnAssociationError = addImportedScriptAssociation(continueOnAssociationError,
                                                                                   associations,
                                                                                   new String[] {getString(assnJO,
-                                                                                                          AssociationsColumn.NAME.getColumnName()),
+                                                                                                          AssociationsTableColumnInfo.NAME.getColumnName()),
                                                                                                 getString(assnJO,
-                                                                                                          AssociationsColumn.DESCRIPTION.getColumnName()),
+                                                                                                          AssociationsTableColumnInfo.DESCRIPTION.getColumnName()),
                                                                                                 getString(assnJO,
-                                                                                                          AssociationsColumn.SCRIPT_FILE.getColumnName()),
+                                                                                                          AssociationsTableColumnInfo.SCRIPT_FILE.getColumnName()),
                                                                                                 CcddScriptHandler.convertAssociationMembersFormat(getString(assnJO,
-                                                                                                                                                            AssociationsColumn.MEMBERS.getColumnName()),
+                                                                                                                                                            AssociationsTableColumnInfo.MEMBERS.getColumnName()),
                                                                                                                                                   true)},
                                                                                   importFile.getAbsolutePath(),
                                                                                   scriptHandler,
@@ -2765,14 +2784,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 assnJO = new OrderedJSONObject();
 
                 // Add the association column values to the output
-                assnJO.put(AssociationsColumn.NAME.getColumnName(),
-                           assn[AssociationsColumn.NAME.ordinal()]);
-                assnJO.put(AssociationsColumn.DESCRIPTION.getColumnName(),
-                           assn[AssociationsColumn.DESCRIPTION.ordinal()]);
-                assnJO.put(AssociationsColumn.SCRIPT_FILE.getColumnName(),
-                           assn[AssociationsColumn.SCRIPT_FILE.ordinal()]);
-                assnJO.put(AssociationsColumn.MEMBERS.getColumnName(),
-                           CcddScriptHandler.convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()],
+                assnJO.put(AssociationsTableColumnInfo.NAME.getColumnName(),
+                           assn[AssociationsTableColumnInfo.NAME.ordinal()]);
+                assnJO.put(AssociationsTableColumnInfo.DESCRIPTION.getColumnName(),
+                           assn[AssociationsTableColumnInfo.DESCRIPTION.ordinal()]);
+                assnJO.put(AssociationsTableColumnInfo.SCRIPT_FILE.getColumnName(),
+                           assn[AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()]);
+                assnJO.put(AssociationsTableColumnInfo.MEMBERS.getColumnName(),
+                           CcddScriptHandler.convertAssociationMembersFormat(assn[AssociationsTableColumnInfo.MEMBERS.ordinal()],
                                                                              false));
                 scriptAssnJA.add(assnJO);
             }

@@ -3277,7 +3277,6 @@ public class CcddDbTableCommandHandler
                                                     + " != '"
                                                     + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
                                                     + "'; ");
-
                                 ordersAddCmd.append("UPDATE "
                                                     + InternalTable.ORDERS.getTableName()
                                                     + " SET "
@@ -8581,7 +8580,8 @@ public class CcddDbTableCommandHandler
                     {
                         // Get the original and updated user-defined macro names (with the
                         // delimiters)
-                        String oldName = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
+                        String oldName = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString())
+                                                         .replaceAll("([\\(\\)])", "\\\\\\\\$1");
                         String newName = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
 
                         // Execute the command to update the internal tables that reference

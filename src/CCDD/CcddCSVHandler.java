@@ -426,14 +426,17 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // present
                                                 if (columnValues.length == InputTypesColumn.values().length - 1)
                                                 {
+                                                    // Check if the input type definition is valid
+                                                    String[] inputTypeDefn = checkInputTypeDefinition(new String[] {columnValues[InputTypesColumn.NAME.ordinal()],
+                                                                                                                    columnValues[InputTypesColumn.DESCRIPTION.ordinal()],
+                                                                                                                    columnValues[InputTypesColumn.MATCH.ordinal()],
+                                                                                                                    columnValues[InputTypesColumn.ITEMS.ordinal()],
+                                                                                                                    columnValues[InputTypesColumn.FORMAT.ordinal()],
+                                                                                                                    ""});
+
                                                     // Add the input type definition (add a blank
                                                     // to represent the OID)
-                                                    inputTypeDefns.add(new String[] {columnValues[InputTypesColumn.NAME.ordinal()],
-                                                                                     columnValues[InputTypesColumn.DESCRIPTION.ordinal()],
-                                                                                     columnValues[InputTypesColumn.MATCH.ordinal()],
-                                                                                     columnValues[InputTypesColumn.ITEMS.ordinal()],
-                                                                                     columnValues[InputTypesColumn.FORMAT.ordinal()],
-                                                                                     ""});
+                                                    inputTypeDefns.add(inputTypeDefn);
                                                 }
                                                 // The number of inputs is incorrect
                                                 else
@@ -612,13 +615,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // present
                                                 if (columnValues.length == DataTypesColumn.values().length - 1)
                                                 {
+                                                    // Build the data type definition
+                                                    String[] dataTypeDefn = new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
+                                                                                          columnValues[DataTypesColumn.C_NAME.ordinal()],
+                                                                                          columnValues[DataTypesColumn.SIZE.ordinal()],
+                                                                                          columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
+                                                                                          ""};
+
+                                                    // Check if the data type definition is valid
+                                                    checkDataTypeDefinition(dataTypeDefn);
+
                                                     // Add the data type definition (add a blank to
                                                     // represent the OID)
-                                                    dataTypeDefns.add(new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
-                                                                                    columnValues[DataTypesColumn.C_NAME.ordinal()],
-                                                                                    columnValues[DataTypesColumn.SIZE.ordinal()],
-                                                                                    columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
-                                                                                    ""});
+                                                    dataTypeDefns.add(dataTypeDefn);
                                                 }
                                                 // The number of inputs is incorrect
                                                 else
@@ -649,13 +658,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 if (columnValues.length == 2
                                                     || columnValues.length == 1)
                                                 {
+                                                    // Build the macro definition
+                                                    String[] macroDefn = new String[] {columnValues[0],
+                                                                                       (columnValues.length == 2
+                                                                                                                 ? columnValues[1]
+                                                                                                                 : ""),
+                                                                                       ""};
+
+                                                    // Check if the macro definition is valid
+                                                    checkMacroDefinition(macroDefn);
+
                                                     // Add the macro definition (add a blank to
                                                     // represent the OID)
-                                                    macroDefns.add(new String[] {columnValues[0],
-                                                                                 (columnValues.length == 2
-                                                                                                           ? columnValues[1]
-                                                                                                           : ""),
-                                                                                 ""});
+                                                    macroDefns.add(macroDefn);
                                                 }
                                                 // The number of inputs is incorrect
                                                 else

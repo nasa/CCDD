@@ -660,7 +660,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 // Check if the table data has at least one row
                 if (rowData != null && rowData.length != 0)
                 {
-                    // Disable editing ...
+                    // Disable editing if ...
                     isAlterable = // ... the regular expression match column if the selection items
                                   // column isn't blank or the input format type is boolean
                                     (column != InputTypeEditorColumnInfo.MATCH.ordinal()
@@ -801,7 +801,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         {
                             // Convert the items in the cell to the corresponding regular
                             // expression
-                            String itemRegEx = inputTypeHandler.convertItemsToRegEx(newValueS);
+                            String itemRegEx = CcddInputTypeHandler.convertItemsToRegEx(newValueS);
 
                             // Check if the regular expression was created (null is returned if the
                             // item list cell is empty)

@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -608,7 +608,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
             java.lang.String[]&nbsp;tableNames,
             boolean&nbsp;replaceMacros,
             boolean&nbsp;includeAllTableTypes,
@@ -618,6 +618,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
             boolean&nbsp;includeReservedMsgIDs,
             boolean&nbsp;includeProjectFields,
             boolean&nbsp;includeGroups,
+            boolean&nbsp;includeAssociations,
             boolean&nbsp;includeVariablePaths,
             <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
             java.lang.String[]&nbsp;separators,
@@ -636,6 +637,12 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </td>
 </tr>
 <tr id="i18" class="altColor">
+<td class="colFirst"><code>java.util.List&lt;java.lang.String[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getScriptAssociations--">getScriptAssociations</a></span>()</code>
+<div class="block">Get the list of original and new script associations.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>private org.omg.space.xtce.SpaceSystemType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getSpaceSystemByName-java.lang.String-org.omg.space.xtce.SpaceSystemType-">getSpaceSystemByName</a></span>(java.lang.String&nbsp;systemName,
                     org.omg.space.xtce.SpaceSystemType&nbsp;startingSystem)</code>
@@ -643,13 +650,13 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  space system</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getTableDefinitions--">getTableDefinitions</a></span>()</code>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importCommandTable-org.omg.space.xtce.SpaceSystemType-org.omg.space.xtce.CommandMetaDataType-java.lang.String-java.lang.String-boolean-">importCommandTable</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                   org.omg.space.xtce.CommandMetaDataType&nbsp;cmdMetaData,
@@ -659,7 +666,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a command table from the specified command metadata</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
@@ -669,7 +676,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Import the the table definitions from an XTCE XML formatted file</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importStructureTable-org.omg.space.xtce.SpaceSystemType-org.omg.space.xtce.TelemetryMetaDataType-java.lang.String-java.lang.String-">importStructureTable</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                     org.omg.space.xtce.TelemetryMetaDataType&nbsp;tlmMetaData,
@@ -678,7 +685,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a structure table from the specified telemetry metadata</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddXTCEHandler.ParameterInformation.html" title="class in CCDD">CcddXTCEHandler.ParameterInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#processArgumentReference-org.omg.space.xtce.MetaCommandType.ArgumentList.Argument-java.util.List-org.omg.space.xtce.SequenceEntryType-int-">processArgumentReference</a></span>(org.omg.space.xtce.MetaCommandType.ArgumentList.Argument&nbsp;argument,
                         java.util.List&lt;org.omg.space.xtce.NameDescriptionType&gt;&nbsp;argTypeSet,
@@ -688,7 +695,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  array parameter reference to extract the parameter attributes</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddXTCEHandler.ParameterInformation.html" title="class in CCDD">CcddXTCEHandler.ParameterInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#processContainerReference-org.omg.space.xtce.SpaceSystemType-java.util.List-java.util.List-org.omg.space.xtce.SequenceEntryType-int-">processContainerReference</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                          java.util.List&lt;org.omg.space.xtce.SequenceEntryType&gt;&nbsp;tlmSequenceEntries,
@@ -699,7 +706,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  reference to extract the parameter name, data type, array size, and description</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddXTCEHandler.ParameterInformation.html" title="class in CCDD">CcddXTCEHandler.ParameterInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#processParameterReference-org.omg.space.xtce.ParameterSetType.Parameter-java.util.List-org.omg.space.xtce.SequenceEntryType-int-">processParameterReference</a></span>(org.omg.space.xtce.ParameterSetType.Parameter&nbsp;parameter,
                          java.util.List&lt;org.omg.space.xtce.NameDescriptionType&gt;&nbsp;parmTypeSet,
@@ -709,7 +716,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  array parameter reference to extract the parameter attributes</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>private org.omg.space.xtce.SpaceSystemType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#searchSpaceSystemsForName-java.lang.String-org.omg.space.xtce.SpaceSystemType-org.omg.space.xtce.SpaceSystemType-">searchSpaceSystemsForName</a></span>(java.lang.String&nbsp;systemName,
                          org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
@@ -718,7 +725,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  the search name</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>protected org.omg.space.xtce.NameDescriptionType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#setArgumentDataType-org.omg.space.xtce.SpaceSystemType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-java.lang.String-">setArgumentDataType</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
                    java.lang.String&nbsp;argumentName,
@@ -735,7 +742,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Set the command argument data type and set the specified attributes</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#setParameterDataType-org.omg.space.xtce.SpaceSystemType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-">setParameterDataType</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
                     java.lang.String&nbsp;parameterName,
@@ -751,7 +758,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Create the telemetry parameter data type and set the specified attributes</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#unbuildSpaceSystems-org.omg.space.xtce.SpaceSystemType-java.lang.String-CCDD.CcddImportExportInterface.ImportType-boolean-">unbuildSpaceSystems</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                    java.lang.String&nbsp;systemPath,
@@ -766,7 +773,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddImportSupportHandler.html" title="class in CCDD">CcddImportSupportHandler</a></h3>
-<code><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a>, <a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a>, <a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></code></li>
+<code><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkDataTypeDefinition-java.lang.String:A-">checkDataTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkInputTypeDefinition-java.lang.String:A-">checkInputTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a>, <a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -1303,12 +1310,30 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <li class="blockList">
 <h4>getTableDefinitions</h4>
 <pre>public&nbsp;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;&nbsp;getTableDefinitions()</pre>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddImportExportInterface.html#getTableDefinitions--">getTableDefinitions</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>List of table definitions</dd>
+<dd>List of imported table definitions; an empty list if no table definitions exist in
+         the import file</dd>
+</dl>
+</li>
+</ul>
+<a name="getScriptAssociations--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getScriptAssociations</h4>
+<pre>public&nbsp;java.util.List&lt;java.lang.String[]&gt;&nbsp;getScriptAssociations()</pre>
+<div class="block">Get the list of original and new script associations. Not used for EDS import</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#getScriptAssociations--">getScriptAssociations</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>List of original and new script associations; null if no new associations have been
+         added</dd>
 </dl>
 </li>
 </ul>
@@ -1589,7 +1614,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
+<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1605,6 +1630,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
                          boolean&nbsp;includeReservedMsgIDs,
                          boolean&nbsp;includeProjectFields,
                          boolean&nbsp;includeGroups,
+                         boolean&nbsp;includeAssociations,
                          boolean&nbsp;includeVariablePaths,
                          <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                          java.lang.String[]&nbsp;separators,
@@ -1616,7 +1642,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Export the specified tables in XTCE XML format to the specified file</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>exportFile</code> - reference to the user-specified output file</dd>
 <dd><code>tableNames</code> - array of table names to convert</dd>
@@ -1636,6 +1662,8 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
             definitions in the export file</dd>
 <dd><code>includeGroups</code> - * Not used for XTCE export * true to include the groups and group data field
             definitions in the export file</dd>
+<dd><code>includeAssociations</code> - * Not used for XTCE export * true to include the script associations in the
+            export file</dd>
 <dd><code>includeVariablePaths</code> - * Not used for XTCE export * true to include the variable path for each variable
             in a structure table, both in application format and using the user-defined
             separator characters</dd>

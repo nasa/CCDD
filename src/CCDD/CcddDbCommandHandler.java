@@ -208,10 +208,6 @@ public class CcddDbCommandHandler
             // Check if the server is no longer connected
             if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
             {
-                // TODO
-                System.out.println("cmd: " + commandType + " = " + command); // TODO
-                se.printStackTrace();
-
                 // Check if the attempt to reconnect to the server is successful
                 if (!ccddMain.getDbControlHandler().reconnectToDatabase())
                 {

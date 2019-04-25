@@ -377,7 +377,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @return Reference to the newly added child node
      *********************************************************************************************/
-    private ToolTipTreeNode addNode(ToolTipTreeNode parentNode,
+    private ToolTipTreeNode addNode(final ToolTipTreeNode parentNode,
                                     String nodeName,
                                     String toolTipText,
                                     TreeChildOrder order)
@@ -948,21 +948,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // primitive variable depending on the internal table type)
         if (node.getChildCount() == 0 && node.getLevel() > 1 + getHeaderNodeLevel())
         {
-            // Create storage for the leaf definition and path
-            List<String> leafDefinition = new ArrayList<String>();
-
             // Get the node path for the leaf
             String[] nodePath = cleanNodePath(node.getPath());
 
-            // Store the top level name
-            leafDefinition.add(nodePath[getGroupNodeLevel()]);
+            String[] leafDefinition = new String[2];
 
             // Get the leaf node's path, converted from an array to a string
-            leafDefinition.add(convertLeafNodePath(nodePath));
+            leafDefinition[1] = convertLeafNodePath(nodePath);
 
             // Check if a leaf exists for this node
-            if (!leafDefinition.get(1).isEmpty())
+            if (!leafDefinition[1].isEmpty())
             {
+                // Store the top level name
+                leafDefinition[0] = nodePath[getGroupNodeLevel()];
+
                 // Store the leaf node definition in the tree information list
                 addLeafDefinition(treeDefinitions, leafDefinition, filterValue);
             }
@@ -994,11 +993,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            string value that may be used to modify the tree; null or blank if not used
      *********************************************************************************************/
     protected void addLeafDefinition(List<String[]> treeDefns,
-                                     List<String> leafDefn,
+                                     String[] leafDefn,
                                      String filterValue)
     {
         // Store the leaf node definition in the tree information list
-        treeDefns.add(leafDefn.toArray(new String[0]));
+        treeDefns.add(leafDefn);
     }
 
     /**********************************************************************************************

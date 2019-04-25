@@ -267,7 +267,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTables</a></span>(java.lang.String&nbsp;filePath,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTables</a></span>(java.lang.String&nbsp;filePath,
                     java.lang.String[]&nbsp;tablePaths,
                     boolean&nbsp;overwriteFile,
                     boolean&nbsp;singleFile,
@@ -279,6 +279,7 @@ extends java.lang.Object</pre>
                     boolean&nbsp;includeReservedMsgIDs,
                     boolean&nbsp;includeProjectFields,
                     boolean&nbsp;includeGroups,
+                    boolean&nbsp;includeAssociations,
                     boolean&nbsp;includeVariablePaths,
                     <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                     java.lang.String[]&nbsp;separators,
@@ -299,7 +300,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTablesInBackground</a></span>(java.lang.String&nbsp;filePath,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTablesInBackground</a></span>(java.lang.String&nbsp;filePath,
                                 java.lang.String[]&nbsp;tablePaths,
                                 boolean&nbsp;overwriteFile,
                                 boolean&nbsp;singleFile,
@@ -311,6 +312,7 @@ extends java.lang.Object</pre>
                                 boolean&nbsp;includeReservedMsgIDs,
                                 boolean&nbsp;includeProjectFields,
                                 boolean&nbsp;includeGroups,
+                                boolean&nbsp;includeAssociations,
                                 boolean&nbsp;includeVariablePaths,
                                 <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                                 java.lang.String[]&nbsp;separators,
@@ -912,7 +914,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
+<a name="exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -930,6 +932,7 @@ extends java.lang.Object</pre>
                                                 boolean&nbsp;includeReservedMsgIDs,
                                                 boolean&nbsp;includeProjectFields,
                                                 boolean&nbsp;includeGroups,
+                                                boolean&nbsp;includeAssociations,
                                                 boolean&nbsp;includeVariablePaths,
                                                 <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                                                 java.lang.String[]&nbsp;separators,
@@ -969,6 +972,7 @@ extends java.lang.Object</pre>
 <dd><code>includeReservedMsgIDs</code> - true to include the contents of the reserved message ID table in the export file</dd>
 <dd><code>includeProjectFields</code> - true to include the project-level data field definitions in the export file</dd>
 <dd><code>includeGroups</code> - true to include the groups and group data field definitions in the export file</dd>
+<dd><code>includeAssociations</code> - true to include the script associations in the export file</dd>
 <dd><code>includeVariablePaths</code> - true to include the variable path for each variable in a structure table, both in
             application format and using the user-defined separator characters</dd>
 <dd><code>variableHandler</code> - variable handler class reference; null if includeVariablePaths is false</dd>
@@ -991,7 +995,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
+<a name="exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1009,6 +1013,7 @@ extends java.lang.Object</pre>
                                        boolean&nbsp;includeReservedMsgIDs,
                                        boolean&nbsp;includeProjectFields,
                                        boolean&nbsp;includeGroups,
+                                       boolean&nbsp;includeAssociations,
                                        boolean&nbsp;includeVariablePaths,
                                        <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                                        java.lang.String[]&nbsp;separators,
@@ -1045,6 +1050,7 @@ extends java.lang.Object</pre>
 <dd><code>includeReservedMsgIDs</code> - true to include the contents of the reserved message ID table in the export file</dd>
 <dd><code>includeProjectFields</code> - true to include the project-level data field definitions in the export file</dd>
 <dd><code>includeGroups</code> - true to include the groups and group data field definitions in the export file</dd>
+<dd><code>includeAssociations</code> - true to include the script associations in the export file</dd>
 <dd><code>includeVariablePaths</code> - true to include the variable path for each variable in a structure table, both in
             application format and using the user-defined separator characters</dd>
 <dd><code>variableHandler</code> - variable handler class reference; null if includeVariablePaths is false</dd>

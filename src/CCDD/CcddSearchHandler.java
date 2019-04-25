@@ -917,6 +917,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            PostgreSQL search_atables() function (must be false for this case; the case
      *            insensitive flag is provided directly to the function instead of being included
      *            in the matching string)
+     *
      * @param allowRegEx
      *            true if the search text can contain a regular expression
      *
@@ -947,9 +948,9 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                           : "")
                                             + ":"
                                             + (allowRegEx
-                                                          ? searchText
-                                                          : searchText.replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])",
-                                                                                  "\\\\$1")
+                                                          ? searchText.replaceAll("\\\\", "\\\\\\\\\\\\")
+                                                          : searchText.replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-\\\\])",
+                                                                                  "\\\\\\\\\\\\$1")
                                                                       .replaceAll("\\\\\\?", WILD_CARD_MARKER)
                                                                       .replaceAll("\\?", ".")
                                                                       .replaceAll(WILD_CARD_MARKER, "\\\\?")
@@ -972,6 +973,10 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
+        }
+        catch (Exception e)
+        {
+            CcddUtilities.displayException(e, parent);
         }
 
         return searchPattern;

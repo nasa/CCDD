@@ -144,6 +144,16 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
+     * Check if the group tree is filtered by table type
+     *
+     * @return true if the group tree is filtered by table type
+     *********************************************************************************************/
+    protected boolean isFilterByType()
+    {
+        return isFilterByType;
+    }
+
+    /**********************************************************************************************
      * Perform initialization steps prior to building the group tree
      *
      * @param ccddMain
@@ -669,7 +679,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     protected List<String[]> createDefinitionsFromInformation()
     {
         // Initialize the group tree information list
-        List<String[]> definitions = new ArrayList<String[]>();
+        List<String[]> definitions = new ArrayList<String[]>(groupHandler.getGroupInformation().size());
 
         // Step through each group's information
         for (GroupInformation grpInfo : groupHandler.getGroupInformation())
@@ -685,6 +695,72 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         }
 
         return definitions;
+    }
+
+    /**********************************************************************************************
+     * Override adding a group definition entry in order to look for and prune duplicates.
+     * Duplicates can occur if the tree is filtered by table type
+     *********************************************************************************************/
+    @Override
+    protected void addLeafDefinition(List<String[]> treeDefns,
+                                     String[] leafDefn,
+                                     String filterValue)
+    {
+        boolean isFound = false;
+        int index = 0;
+
+        // Check if the group tree is filtered by table type. If not filtered by table type the
+        // duplicate check can be skipped which can save a significant amount of time
+        if (isFilterByType)
+        {
+            // TODO THE for LOOP BELOW CAUSES A SIGNIFICANT SLOW DOWN (DEPENDING ON THE NUMBER OF
+            // GROUPS AND MEMBERS). EACH LOOP IS FAST, BUT THE TIME ADDS UP. A FASTER WAY OF
+            // SEARCHING THROUGH THE LIST WOULD HELP
+
+            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss.SSS");// TODO
+            // System.out.println("\nStart: " + dtf.format(LocalDateTime.now()));// TODO
+            // System.out.println(" ...done: " + dtf.format(LocalDateTime.now()));// TODO
+
+            // Step through the existing group definitions
+            for (String[] treeDefn : treeDefns)
+            {
+                // Check if the group names are the same
+                if (leafDefn[0].equals(treeDefn[0]))
+                {
+                    // Check if the table path length differs and the path to add
+                    // contains the existing path (that is, the added path is a
+                    // superset of the existing one)
+                    if (treeDefn[1].length() != leafDefn[1].length()
+                        && leafDefn[1].matches(treeDefn[1] + ",.+"))
+                    {
+                        // Replace the existing definition with the added one, set
+                        // the flag to indicate the added one has been handled, and
+                        // stop searching
+                        treeDefns.set(index, leafDefn);
+                        isFound = true;
+                        break;
+                    }
+                    // Check if this is an identical table path or a subset (due to
+                    // a table reference being pruned)
+                    else if (treeDefn[1].matches(leafDefn[1] + "(,.*)?"))
+                    {
+                        // Ignore the added definition, set the flag to indicate
+                        // the added one has been handled, and stop searching
+                        isFound = true;
+                        break;
+                    }
+                }
+
+                index++;
+            }
+        }
+
+        // The added group entry doesn't match an existing one
+        if (!isFound)
+        {
+            // Add the group entry to the definition list
+            super.addLeafDefinition(treeDefns, leafDefn, filterValue);
+        }
     }
 
     /**********************************************************************************************

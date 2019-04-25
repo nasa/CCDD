@@ -299,6 +299,13 @@ public class CcddMain
 
         for (String arg : args)
         {
+            // Check if the argument contains a space
+            if (arg.contains(" "))
+            {
+                // Enclose the argument in quotes
+                arg = "\"" + arg + "\"";
+            }
+
             cmdLn += arg + " ";
         }
 

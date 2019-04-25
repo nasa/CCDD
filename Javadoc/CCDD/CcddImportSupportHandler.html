@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":9,"i6":10,"i7":10,"i8":10,"i9":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -230,6 +230,18 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a></span>(boolean&nbsp;continueOnError,
+                            java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
+                            java.lang.String[]&nbsp;assnDefn,
+                            java.lang.String&nbsp;fileName,
+                            <a href="../CCDD/CcddScriptHandler.html" title="class in CCDD">CcddScriptHandler</a>&nbsp;scriptHandler,
+                            java.awt.Component&nbsp;parent)</code>
+<div class="block">Add a script association after verifying the input parameters are valid (script file name is
+ provided and the association doesn't already exist).</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a></span>(boolean&nbsp;continueOnError,
                                     <a href="../CCDD/CcddClassesDataTable.TableTypeDefinition.html" title="class in CCDD">CcddClassesDataTable.TableTypeDefinition</a>&nbsp;tableTypeDefn,
                                     java.lang.String[]&nbsp;columnDefn,
@@ -239,28 +251,46 @@ extends java.lang.Object</pre>
 <div class="block">Add a table type column definition after verifying the input parameters</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a></span>(<a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a>&nbsp;fieldHandler,
                               java.util.List&lt;java.lang.String[]&gt;&nbsp;dataFields)</code>
 <div class="block">Build the project-level and group data fields</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#checkDataTypeDefinition-java.lang.String:A-">checkDataTypeDefinition</a></span>(java.lang.String[]&nbsp;dataTypeDefn)</code>
+<div class="block">Check the supplied data type definition parameters for validity</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>protected static java.lang.String[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#checkInputTypeDefinition-java.lang.String:A-">checkInputTypeDefinition</a></span>(java.lang.String[]&nbsp;inputTypeDefn)</code>
+<div class="block">Check input type definition parameters for validity</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a></span>(java.lang.String[]&nbsp;macroDefn)</code>
+<div class="block">Check the supplied macro definition parameters for validity</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a></span>(java.lang.String&nbsp;path)</code>
 <div class="block">Replace each invalid character with an underscore and move any leading underscores to the
  end of each path segment</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected static <a href="../CCDD/CcddImportSupportHandler.BasePrimitiveDataType.html" title="enum in CCDD">CcddImportSupportHandler.BasePrimitiveDataType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a></span>(java.lang.String&nbsp;dataType,
                <a href="../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;dataTypeHandler)</code>
 <div class="block">Convert the primitive data type into the base equivalent</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a></span>(boolean&nbsp;continueOnError,
                 java.lang.String&nbsp;message,
@@ -274,7 +304,7 @@ extends java.lang.Object</pre>
  to an error condition.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a></span>(boolean&nbsp;continueOnError,
                 java.lang.String&nbsp;message,
@@ -287,7 +317,7 @@ extends java.lang.Object</pre>
  condition.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a></span>(long&nbsp;sizeInBytes,
                    boolean&nbsp;isInteger,
@@ -298,7 +328,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the data type name determined by the specified data type size and match criteria</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></span>(<a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a>&nbsp;fieldHandler,
                                   boolean&nbsp;isCreateField,
@@ -502,6 +532,40 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
+<a name="addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addImportedScriptAssociation</h4>
+<pre>protected&nbsp;boolean&nbsp;addImportedScriptAssociation(boolean&nbsp;continueOnError,
+                                               java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
+                                               java.lang.String[]&nbsp;assnDefn,
+                                               java.lang.String&nbsp;fileName,
+                                               <a href="../CCDD/CcddScriptHandler.html" title="class in CCDD">CcddScriptHandler</a>&nbsp;scriptHandler,
+                                               java.awt.Component&nbsp;parent)
+                                        throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<div class="block">Add a script association after verifying the input parameters are valid (script file name is
+ provided and the association doesn't already exist). If an association with the same name
+ but different script file or members exists allow the user to determine how to proceed</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>continueOnError</code> - current state of the flag that indicates if all script association errors should
+            be ignored</dd>
+<dd><code>associations</code> - list of the current script associations</dd>
+<dd><code>assnDefn</code> - array containing the script association</dd>
+<dd><code>fileName</code> - import file name</dd>
+<dd><code>scriptHandler</code> - script handler reference</dd>
+<dd><code>parent</code> - GUI component over which to center any error dialog</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if the user elected to ignore the data field error</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the script file name is missing, or an association with the same name but
+             different script file or members exists and the user elects to stop the import
+             operation</dd>
+</dl>
+</li>
+</ul>
 <a name="setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
@@ -513,8 +577,7 @@ extends java.lang.Object</pre>
                                                   java.lang.String&nbsp;tlmHdrTable,
                                                   java.lang.String&nbsp;cmdHdrTable,
                                                   java.lang.String&nbsp;appIDName,
-                                                  java.lang.String&nbsp;funcCodeName)
-                                           throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+                                                  java.lang.String&nbsp;funcCodeName)</pre>
 <div class="block">Set the telemetry header table name, command header table name, application ID variable
  name, and command function code variable name from the project database fields or default
  values, if not present in the import file. Based on the input flag build the project-level
@@ -531,9 +594,6 @@ extends java.lang.Object</pre>
             present in the import file</dd>
 <dd><code>funcCodeName</code> - command header variable name for the command function code; null if not present
             in the import file</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the data field with the same input type already exists and the imported field
-             doesn't match</dd>
 </dl>
 </li>
 </ul>
@@ -604,6 +664,60 @@ extends java.lang.Object</pre>
 <dd>true if the user elected to ignore errors of this type</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user selects the Cancel button</dd>
+</dl>
+</li>
+</ul>
+<a name="checkInputTypeDefinition-java.lang.String:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkInputTypeDefinition</h4>
+<pre>protected static&nbsp;java.lang.String[]&nbsp;checkInputTypeDefinition(java.lang.String[]&nbsp;inputTypeDefn)
+                                                      throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<div class="block">Check input type definition parameters for validity</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputTypeDefn</code> - array containing the input type definition</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The input type definition, with the regular expression built if the definition
+         contains a selection item list</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid input type parameter is detected</dd>
+</dl>
+</li>
+</ul>
+<a name="checkMacroDefinition-java.lang.String:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkMacroDefinition</h4>
+<pre>protected static&nbsp;void&nbsp;checkMacroDefinition(java.lang.String[]&nbsp;macroDefn)
+                                    throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<div class="block">Check the supplied macro definition parameters for validity</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>macroDefn</code> - array containing the macro definition</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid macro parameter is detected</dd>
+</dl>
+</li>
+</ul>
+<a name="checkDataTypeDefinition-java.lang.String:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkDataTypeDefinition</h4>
+<pre>protected static&nbsp;void&nbsp;checkDataTypeDefinition(java.lang.String[]&nbsp;dataTypeDefn)
+                                       throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<div class="block">Check the supplied data type definition parameters for validity</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataTypeDefn</code> - array containing the data type definition</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid data type parameter is detected</dd>
 </dl>
 </li>
 </ul>

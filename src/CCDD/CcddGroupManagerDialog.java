@@ -413,59 +413,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         GroupInformation renamedGroup = groupHandler.getGroupInformationByName(wasValue.toString());
                         renamedGroup.setName(isValue.toString());
                     }
-
-                    /******************************************************************************
-                     * Override adding a group definition entry in order to look for and prune
-                     * duplicates. Duplicates can occur if the tree is filtered by table type
-                     *****************************************************************************/
-                    @Override
-                    protected void addLeafDefinition(List<String[]> treeDefns,
-                                                     List<String> leafDefn,
-                                                     String filterValue)
-                    {
-                        boolean isFound = false;
-                        int index = 0;
-
-                        // Step through the existing group definitions
-                        for (String[] treeDefn : treeDefns)
-                        {
-                            // Check if the group names are the same
-                            if (leafDefn.get(0).equals(treeDefn[0]))
-                            {
-                                // Check if the table path length differs and the path to add
-                                // contains the existing path (that is, the added path is a
-                                // superset of the existing one)
-                                if (treeDefn[1].length() != leafDefn.get(1).length()
-                                    && leafDefn.get(1).matches(treeDefn[1] + ",.+"))
-                                {
-                                    // Replace the existing definition with the added one, set the
-                                    // flag to indicate the added one has been handled, and stop
-                                    // searching
-                                    treeDefns.set(index, treeDefn);
-                                    isFound = true;
-                                    break;
-                                }
-                                // Check if this is an identical table path or a subset (due to a
-                                // table reference being pruned)
-                                else if (treeDefn[1].matches(leafDefn.get(1) + "(,.*)?"))
-                                {
-                                    // Ignore the added definition, set the flag to indicate the
-                                    // added one has been handled, and stop searching
-                                    isFound = true;
-                                    break;
-                                }
-                            }
-
-                            index++;
-                        }
-
-                        // The added group entry doesn't match an existing one
-                        if (!isFound)
-                        {
-                            // Add the group entry to the definition list
-                            super.addLeafDefinition(treeDefns, leafDefn, filterValue);
-                        }
-                    }
                 };
 
                 // Get the references to the group and data field handlers created by the group
@@ -1179,6 +1126,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void addTableToGroupDefinition()
     {
+        // Set the flag to prevent calls to update the dialog change indicator while adding tables
+        // to the group
+        isInitializing = true;
+
         // Disable automatically ending the edit sequence. This allows all of the added group
         // members to be grouped into a single sequence so that if undone, all members are removed
         // together
@@ -1191,6 +1142,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Set the table type and application node enable status
         groupTree.setHeaderNodeEnable();
+
+        // Set the flag to so that the dialog change indicator can be updated
+        isInitializing = false;
 
         // Update the group dialog's change indicator
         updateChangeIndicator();
@@ -1206,6 +1160,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void removeTableFromGroup()
     {
+        // Set the flag to prevent calls to update the dialog change indicator while adding tables
+        // to the group
+        isInitializing = true;
+
         // Disable automatically ending the edit sequence. This allows all of the deleted group
         // members to be grouped into a single sequence so that if undone, all members are restored
         // together
@@ -1232,6 +1190,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Select the node for the group that had the table(s) removed
             groupTree.setSelectionPath(new TreePath(node.getPath()));
         }
+
+        // Set the flag to so that the dialog change indicator can be updated
+        isInitializing = false;
 
         // Update the group dialog's change indicator
         updateChangeIndicator();
@@ -1697,6 +1658,16 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Check if the current and committed definition differ
                 if (!Arrays.equals(currentGroupDefns.get(index), committedGroupDefns.get(index)))
                 {
+                    // System.out.println(index + ": " +
+                    // Arrays.toString(currentGroupDefns.get(index)) + " != " +
+                    // Arrays.toString(committedGroupDefns.get(index))); // TODO
+                    // System.out.println("Comm: "); // TODO
+                    // for (String[] s : committedGroupDefns)
+                    // System.out.println(" " + Arrays.toString(s)); // TODO
+                    // System.out.println("\nCurr: "); // TODO
+                    // for (String[] s : currentGroupDefns)
+                    // System.out.println(" " + Arrays.toString(s)); // TODO
+
                     // Set the flag indicating a match and stop searching
                     hasChanges = true;
                     break;

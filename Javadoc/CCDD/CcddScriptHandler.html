@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var methods = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -326,21 +326,36 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getMatchingAssociation-java.util.List-java.lang.String-java.lang.String:A-int-">getMatchingAssociation</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
+                      java.lang.String&nbsp;scriptName,
+                      java.lang.String[]&nbsp;tables,
+                      int&nbsp;ignoreRow)</code>
+<div class="block">Get the index from the supplied script association list for the association with the same
+ script file name and members</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationByName-java.lang.String-java.awt.Component-">getScriptAssociationByName</a></span>(java.lang.String&nbsp;assnName,
                           java.awt.Component&nbsp;parent)</code>
 <div class="block">Get a script association based on the association name</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociations-java.awt.Component-">getScriptAssociations</a></span>(java.awt.Component&nbsp;parent)</code>
+<div class="block">Retrieve the script associations stored in the database</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>private java.lang.Object[][]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationData-boolean-java.awt.Component-">getScriptAssociationData</a></span>(boolean&nbsp;allowSelectDisabled,
-                        java.awt.Component&nbsp;parent)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationTableData-java.awt.Component-">getScriptAssociationTableData</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the script associations stored in the database and from these build the array for
  display and selection of the script associations</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected javax.script.ScriptEngine</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">getScriptEngine</a></span>(java.lang.String&nbsp;scriptFileName,
                <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
@@ -351,20 +366,20 @@ extends java.lang.Object</pre>
 <div class="block">Create a script engine for the supplied script file name and table information.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#isAssociationAvailable-int-">isAssociationAvailable</a></span>(int&nbsp;row)</code>
 <div class="block">Check if the script association on the specified row in the associations table is available.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#logScriptCompletionStatus-java.util.List-boolean:A-">logScriptCompletionStatus</a></span>(java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
                          boolean[]&nbsp;isBad)</code>
 <div class="block">Log the result of the script association execution(s)</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#logScriptError-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">logScriptError</a></span>(java.lang.String&nbsp;scriptFileName,
               java.lang.String&nbsp;members,
@@ -373,7 +388,7 @@ extends java.lang.Object</pre>
 <div class="block">Log a script execution error</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#readTable-java.lang.String-java.awt.Component-">readTable</a></span>(java.lang.String&nbsp;tablePath,
          java.awt.Component&nbsp;parent)</code>
@@ -381,13 +396,13 @@ extends java.lang.Object</pre>
  tables.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#setHandlers--">setHandlers</a></span>()</code>
 <div class="block">Set the references to the table type and data type handler classes</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#setScriptDialog-CCDD.CcddFrameHandler-">setScriptDialog</a></span>(<a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameHandler</a>&nbsp;scriptDialog)</code>
 <div class="block">Set the reference to the active script manager or executive dialog.</div>
@@ -641,6 +656,22 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
+<a name="getScriptAssociations-java.awt.Component-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getScriptAssociations</h4>
+<pre>protected&nbsp;java.util.List&lt;java.lang.String[]&gt;&nbsp;getScriptAssociations(java.awt.Component&nbsp;parent)</pre>
+<div class="block">Retrieve the script associations stored in the database</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>parent</code> - GUI component over which to center any error dialog</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>List containing the script associations</dd>
+</dl>
+</li>
+</ul>
 <a name="getScriptAssociationByName-java.lang.String-java.awt.Component-">
 <!--   -->
 </a>
@@ -660,22 +691,17 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="getScriptAssociationData-boolean-java.awt.Component-">
+<a name="getScriptAssociationTableData-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getScriptAssociationData</h4>
-<pre>private&nbsp;java.lang.Object[][]&nbsp;getScriptAssociationData(boolean&nbsp;allowSelectDisabled,
-                                                      java.awt.Component&nbsp;parent)</pre>
+<h4>getScriptAssociationTableData</h4>
+<pre>private&nbsp;java.lang.Object[][]&nbsp;getScriptAssociationTableData(java.awt.Component&nbsp;parent)</pre>
 <div class="block">Retrieve the script associations stored in the database and from these build the array for
  display and selection of the script associations</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>allowSelectDisabled</code> - true if disabled associations can be selected; false if not. In the script
-            manager disabled associations are selectable so that these can be deleted if
-            desired. Scripts that are selected and disabled are ignored when executing
-            scripts</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Object array containing the script associations</dd>
@@ -808,6 +834,32 @@ extends java.lang.Object</pre>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the each key has a corresponding value; false if a value is missing</dd>
+</dl>
+</li>
+</ul>
+<a name="getMatchingAssociation-java.util.List-java.lang.String-java.lang.String:A-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMatchingAssociation</h4>
+<pre>protected static&nbsp;int&nbsp;getMatchingAssociation(java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
+                                            java.lang.String&nbsp;scriptName,
+                                            java.lang.String[]&nbsp;tables,
+                                            int&nbsp;ignoreRow)</pre>
+<div class="block">Get the index from the supplied script association list for the association with the same
+ script file name and members</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>associations</code> - list of script associations to which to compare</dd>
+<dd><code>scriptName</code> - script file path + name</dd>
+<dd><code>tables</code> - array of tables referenced by the script association</dd>
+<dd><code>ignoreRow</code> - row to ignore when checking for an identical, existing association (as is
+            possible when replacing an association, if no changes are made); -1 to prevent a
+            duplicate association (as when adding an association)</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index number in the supplied list where the matching association occurs; -1 if
+         no match is found</dd>
 </dl>
 </li>
 </ul>

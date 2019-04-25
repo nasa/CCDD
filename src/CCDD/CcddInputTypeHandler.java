@@ -506,7 +506,7 @@ public class CcddInputTypeHandler
      *
      * @return Regular expression that matches only the items in the selection list
      *********************************************************************************************/
-    protected String convertItemsToRegEx(String itemString)
+    protected static String convertItemsToRegEx(String itemString)
     {
         String itemRegEx = null;
 

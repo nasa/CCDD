@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -145,7 +145,7 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
             java.lang.String[]&nbsp;tableNames,
             boolean&nbsp;replaceMacros,
             boolean&nbsp;includeAllTableTypes,
@@ -154,8 +154,9 @@ var activeTableTab = "activeTableTab";
             boolean&nbsp;includeAllMacros,
             boolean&nbsp;includeReservedMsgIDs,
             boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeVariablePaths,
             boolean&nbsp;includeGroups,
+            boolean&nbsp;includeAssociations,
+            boolean&nbsp;includeVariablePaths,
             <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
             java.lang.String[]&nbsp;separators,
             java.lang.Object...&nbsp;extraInfo)</code>
@@ -163,12 +164,18 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#getTableDefinitions--">getTableDefinitions</a></span>()</code>
-<div class="block">Get the table definitions</div>
+<td class="colFirst"><code>java.util.List&lt;java.lang.String[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#getScriptAssociations--">getScriptAssociations</a></span>()</code>
+<div class="block">Get the list of original and new script associations</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#getTableDefinitions--">getTableDefinitions</a></span>()</code>
+<div class="block">Get the imported table definitions</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
@@ -200,10 +207,26 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>getTableDefinitions</h4>
 <pre>java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;&nbsp;getTableDefinitions()</pre>
-<div class="block">Get the table definitions</div>
+<div class="block">Get the imported table definitions</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>List of table definitions</dd>
+<dd>List of imported table definitions; an empty list if no table definitions exist in
+         the import file</dd>
+</dl>
+</li>
+</ul>
+<a name="getScriptAssociations--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getScriptAssociations</h4>
+<pre>java.util.List&lt;java.lang.String[]&gt;&nbsp;getScriptAssociations()</pre>
+<div class="block">Get the list of original and new script associations</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>List of original and new script associations; null if no new associations have been
+         added</dd>
 </dl>
 </li>
 </ul>
@@ -239,7 +262,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
+<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -254,8 +277,9 @@ var activeTableTab = "activeTableTab";
                   boolean&nbsp;includeAllMacros,
                   boolean&nbsp;includeReservedMsgIDs,
                   boolean&nbsp;includeProjectFields,
-                  boolean&nbsp;includeVariablePaths,
                   boolean&nbsp;includeGroups,
+                  boolean&nbsp;includeAssociations,
+                  boolean&nbsp;includeVariablePaths,
                   <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                   java.lang.String[]&nbsp;separators,
                   java.lang.Object...&nbsp;extraInfo)
@@ -274,9 +298,10 @@ var activeTableTab = "activeTableTab";
 <dd><code>includeAllMacros</code> - true to include the all macro definitions in the export file</dd>
 <dd><code>includeReservedMsgIDs</code> - true to include the contents of the reserved message ID table in the export file</dd>
 <dd><code>includeProjectFields</code> - true to include the project-level data field definitions in the export file</dd>
+<dd><code>includeGroups</code> - true to include the groups and group data field definitions in the export file</dd>
+<dd><code>includeAssociations</code> - true to include the script associations in the export file</dd>
 <dd><code>includeVariablePaths</code> - true to include the variable path for each variable in a structure table, both in
             application format and using the user-defined separator characters</dd>
-<dd><code>includeGroups</code> - true to include the groups and group data field definitions in the export file</dd>
 <dd><code>variableHandler</code> - variable handler class reference; null if includeVariablePaths is false</dd>
 <dd><code>separators</code> - string array containing the variable path separator character(s), show/hide data
             types flag ('true' or 'false'), and data type/variable name separator

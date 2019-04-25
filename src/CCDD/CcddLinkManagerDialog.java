@@ -352,7 +352,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
+                        activeHandler.setInitializing(true);
                         activeHandler.getUndoManager().undo();
+                        activeHandler.setInitializing(false);
 
                         // Update the link selection following an undo
                         activeHandler.getUndoHandler().setAllowUndo(false);
@@ -383,7 +385,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
+                        activeHandler.setInitializing(true);
                         activeHandler.getUndoManager().redo();
+                        activeHandler.setInitializing(false);
 
                         // Update the link definitions, selected link, link fields, and link tree
                         // node names

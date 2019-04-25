@@ -1221,9 +1221,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 separatorPnl.setBorder(emptyBorder);
                 gbc.weightx = 0.0;
                 gbc.insets.top = 0;
+                gbc.insets.left = 0;
                 gbc.gridy++;
                 dialogPnl.add(lowerPnl, gbc);
-                gbc.insets.left = 0;
                 gbc.gridy = 0;
                 lowerPnl.add(includePnl, gbc);
                 gbc.gridy++;
@@ -1242,7 +1242,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
-                gbc.gridy++;
+                gbc.gridy = 0;
                 includePnl.add(includeLbl, gbc);
 
                 // Create the include all table type definitions check box
@@ -1252,7 +1252,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 includeAllTableTypesCb.setToolTipText(CcddUtilities.wrapText("If checked, all table types "
                                                                              + "definitions are included in each export file",
                                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy++;
                 includePnl.add(includeAllTableTypesCb, gbc);
 
