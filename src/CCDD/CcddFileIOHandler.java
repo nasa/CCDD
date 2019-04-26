@@ -2758,7 +2758,7 @@ public class CcddFileIOHandler
                     // Export the formatted table data to the specified file
                     ioHandler.exportToFile(file,
                                            tablePaths,
-                                           true,
+                                           includeBuildInformation,
                                            replaceMacros,
                                            includeAllTableTypes,
                                            includeAllDataTypes,
@@ -2812,7 +2812,7 @@ public class CcddFileIOHandler
                         // name
                         ioHandler.exportToFile(file,
                                                new String[] {tablePath},
-                                               true,
+                                               includeBuildInformation,
                                                replaceMacros,
                                                includeAllTableTypes,
                                                includeAllDataTypes,
