@@ -713,39 +713,30 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // duplicate check can be skipped which can save a significant amount of time
         if (isFilterByType)
         {
-            // TODO THE for LOOP BELOW CAUSES A SIGNIFICANT SLOW DOWN (DEPENDING ON THE NUMBER OF
-            // GROUPS AND MEMBERS). EACH LOOP IS FAST, BUT THE TIME ADDS UP. A FASTER WAY OF
-            // SEARCHING THROUGH THE LIST WOULD HELP
-
-            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss.SSS");// TODO
-            // System.out.println("\nStart: " + dtf.format(LocalDateTime.now()));// TODO
-            // System.out.println(" ...done: " + dtf.format(LocalDateTime.now()));// TODO
-
             // Step through the existing group definitions
             for (String[] treeDefn : treeDefns)
             {
                 // Check if the group names are the same
                 if (leafDefn[0].equals(treeDefn[0]))
                 {
-                    // Check if the table path length differs and the path to add
-                    // contains the existing path (that is, the added path is a
-                    // superset of the existing one)
+                    // Check if the table path length differs and the path to add contains the
+                    // existing path (that is, the added path is a superset of the existing one)
                     if (treeDefn[1].length() != leafDefn[1].length()
-                        && leafDefn[1].matches(treeDefn[1] + ",.+"))
+                        && leafDefn[1].startsWith(treeDefn[1] + ","))
                     {
-                        // Replace the existing definition with the added one, set
-                        // the flag to indicate the added one has been handled, and
-                        // stop searching
+                        // Replace the existing definition with the added one, set the flag to
+                        // indicate the added one has been handled, and stop searching
                         treeDefns.set(index, leafDefn);
                         isFound = true;
                         break;
                     }
-                    // Check if this is an identical table path or a subset (due to
-                    // a table reference being pruned)
-                    else if (treeDefn[1].matches(leafDefn[1] + "(,.*)?"))
+                    // Check if this is an identical table path or a subset (due to a table
+                    // reference being pruned)
+                    else if (treeDefn[1].equals(leafDefn[1]) ||
+                             treeDefn[1].startsWith(leafDefn[1] + ","))
                     {
-                        // Ignore the added definition, set the flag to indicate
-                        // the added one has been handled, and stop searching
+                        // Ignore the added definition, set the flag to indicate the added one has
+                        // been handled, and stop searching
                         isFound = true;
                         break;
                     }
@@ -1121,6 +1112,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 public void actionPerformed(ActionEvent ae)
                 {
                     // Recreate the group definitions based on the current tree members
+                    // TODO FILTERING BY TYPE, THEN UNFILTERING CHANGES THE MEMBER ORDER!
                     groupDefinitions = createDefinitionsFromTree();
 
                     // Store the tree's current expansion state

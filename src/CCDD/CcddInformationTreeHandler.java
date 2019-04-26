@@ -897,9 +897,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // Initialize the definitions list
         treeDefinitions = createDefinitionsFromInformation();
 
+        // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss.SSS");// TODO
+        // System.out.println("\nStart: " + dtf.format(LocalDateTime.now()));// TODO
+
         // Start with the root node and step through the tree to find the child nodes and their
         // member variable paths and add these to the definition list
         buildDefinitionFromTree(root);
+
+        // System.out.println(" ...done: " + dtf.format(LocalDateTime.now()));// TODO
 
         return treeDefinitions;
     }

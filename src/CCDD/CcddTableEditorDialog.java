@@ -2032,6 +2032,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Check that the tab index is valid
         if (index != -1)
         {
+            System.out.println("updateChangeIndicator"); // TODO
+            // Thread.dumpStack();// TODO
             // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR,

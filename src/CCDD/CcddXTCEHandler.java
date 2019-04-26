@@ -2786,6 +2786,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param tableNames
      *            array of table names to convert
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param replaceMacros
      *            * Not used for XTCE export (all macros are expanded) * true to replace any
      *            embedded macros with their corresponding values
@@ -2857,6 +2860,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     @Override
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
+                             boolean includeBuildInformation,
                              boolean replaceMacros,
                              boolean includeAllTableTypes,
                              boolean includeAllDataTypes,
@@ -2876,6 +2880,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     {
         // Convert the table data into XTCE XML format
         convertTablesToXTCE(tableNames,
+                            includeBuildInformation,
                             (EndianType) extraInfo[0],
                             (boolean) extraInfo[1],
                             (String) extraInfo[2],
@@ -2900,6 +2905,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param tableNames
      *            array of table names to convert
+     *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
      *
      * @param endianess
      *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
@@ -2927,6 +2935,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *             error occurs executing an external (script) method
      *********************************************************************************************/
     private void convertTablesToXTCE(String[] tableNames,
+                                     boolean includeBuildInformation,
                                      EndianType endianess,
                                      boolean isHeaderBigEndian,
                                      String version,
@@ -2954,19 +2963,23 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     validationStatusAttr,
                                     versionAttr);
 
-        // Set the project's build information
-        AuthorSet author = factory.createHeaderTypeAuthorSet();
-        author.getAuthor().add(dbControl.getUser());
-        rootSystem.getHeader().setAuthorSet(author);
-        NoteSet note = factory.createHeaderTypeNoteSet();
-        note.getNote().add("CCDD Version: " + ccddMain.getCCDDVersionInformation());
-        note.getNote().add("Date: " + new Date().toString());
-        note.getNote().add("Project: " + dbControl.getProjectName());
-        note.getNote().add("Host: " + dbControl.getServer());
-        note.getNote().add("Endianess: " + (endianess == EndianType.BIG_ENDIAN
-                                                                               ? "big"
-                                                                               : "little"));
-        rootSystem.getHeader().setNoteSet(note);
+        // Check if the build information is to be output
+        if (includeBuildInformation)
+        {
+            // Set the project's build information
+            AuthorSet author = factory.createHeaderTypeAuthorSet();
+            author.getAuthor().add(dbControl.getUser());
+            rootSystem.getHeader().setAuthorSet(author);
+            NoteSet note = factory.createHeaderTypeNoteSet();
+            note.getNote().add("CCDD Version: " + ccddMain.getCCDDVersionInformation());
+            note.getNote().add("Date: " + new Date().toString());
+            note.getNote().add("Project: " + dbControl.getProjectName());
+            note.getNote().add("Host: " + dbControl.getServer());
+            note.getNote().add("Endianess: " + (endianess == EndianType.BIG_ENDIAN
+                                                                                   ? "big"
+                                                                                   : "little"));
+            rootSystem.getHeader().setNoteSet(note);
+        }
 
         // Get the names of the tables representing the CCSDS telemetry and command headers
         tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),

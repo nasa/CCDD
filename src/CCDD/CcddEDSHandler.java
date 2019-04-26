@@ -2097,6 +2097,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param tableNames
      *            array of table names to convert
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param replaceMacros
      *            * Not used for EDS export (all macros are expanded) * true to replace any
      *            embedded macros with their corresponding values
@@ -2159,6 +2162,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     @Override
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
+                             boolean includeBuildInformation,
                              boolean replaceMacros,
                              boolean includeAllTableTypes,
                              boolean includeAllDataTypes,
@@ -2175,6 +2179,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     {
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames,
+                           includeBuildInformation,
                            (EndianType) extraInfo[0],
                            (boolean) extraInfo[1]);
 
@@ -2195,6 +2200,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param tableNames
      *            array of table names to convert to EDS format
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param endianess
      *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
      *
@@ -2203,6 +2211,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            CCSDS)
      *********************************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
+                                    boolean includeBuildInformation,
                                     EndianType endianess,
                                     boolean isHeaderBigEndian)
     {
@@ -2228,16 +2237,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Store the modified (if needed) project name as the device name
         device.setName(deviceName);
 
-        // Set the device description field
-        device.setLongDescription(dbControl.getDatabaseDescription(dbControl.getDatabaseName())
-                                  + "\n\nAuthor: " + dbControl.getUser()
-                                  + "\nCCDD Version: " + ccddMain.getCCDDVersionInformation()
-                                  + "\nDate: " + new Date().toString()
-                                  + "\nProject: " + dbControl.getProjectName()
-                                  + "\nHost: " + dbControl.getServer()
-                                  + "\nEndianess: " + (endianess == EndianType.BIG_ENDIAN
-                                                                                          ? "big"
-                                                                                          : "little"));
+        // Check if the build information is to be output
+        if (includeBuildInformation)
+        {
+            // Set the device description field
+            device.setLongDescription(dbControl.getDatabaseDescription(dbControl.getDatabaseName())
+                                      + "\n\nAuthor: " + dbControl.getUser()
+                                      + "\nCCDD Version: " + ccddMain.getCCDDVersionInformation()
+                                      + "\nDate: " + new Date().toString()
+                                      + "\nProject: " + dbControl.getProjectName()
+                                      + "\nHost: " + dbControl.getServer()
+                                      + "\nEndianess: " + (endianess == EndianType.BIG_ENDIAN
+                                                                                              ? "big"
+                                                                                              : "little"));
+        }
+
         dataSheet.setDevice(device);
 
         // Add the project's name spaces, parameters, and commands

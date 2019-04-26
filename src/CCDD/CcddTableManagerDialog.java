@@ -700,6 +700,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                (singleFileRBtn != null
                                                                                                        ? singleFileRBtn.isSelected()
                                                                                                        : true),
+                                                                               true,
                                                                                (replaceMacrosCb != null
                                                                                                         ? replaceMacrosCb.isSelected()
                                                                                                         : true),

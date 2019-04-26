@@ -561,7 +561,8 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#convertTablesToXTCE-java.lang.String:A-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">convertTablesToXTCE</a></span>(java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#convertTablesToXTCE-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">convertTablesToXTCE</a></span>(java.lang.String[]&nbsp;tableNames,
+                   boolean&nbsp;includeBuildInformation,
                    <a href="../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a>&nbsp;endianess,
                    boolean&nbsp;isHeaderBigEndian,
                    java.lang.String&nbsp;version,
@@ -608,8 +609,9 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
             java.lang.String[]&nbsp;tableNames,
+            boolean&nbsp;includeBuildInformation,
             boolean&nbsp;replaceMacros,
             boolean&nbsp;includeAllTableTypes,
             boolean&nbsp;includeAllDataTypes,
@@ -1614,7 +1616,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
+<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1622,6 +1624,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <h4>exportToFile</h4>
 <pre>public&nbsp;void&nbsp;exportToFile(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
                          java.lang.String[]&nbsp;tableNames,
+                         boolean&nbsp;includeBuildInformation,
                          boolean&nbsp;replaceMacros,
                          boolean&nbsp;includeAllTableTypes,
                          boolean&nbsp;includeAllDataTypes,
@@ -1642,10 +1645,11 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Export the specified tables in XTCE XML format to the specified file</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>exportFile</code> - reference to the user-specified output file</dd>
 <dd><code>tableNames</code> - array of table names to convert</dd>
+<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
 <dd><code>replaceMacros</code> - * Not used for XTCE export (all macros are expanded) * true to replace any
             embedded macros with their corresponding values</dd>
 <dd><code>includeAllTableTypes</code> - * Not used for XTCE export * true to include the all table type definitions in
@@ -1687,13 +1691,14 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="convertTablesToXTCE-java.lang.String:A-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
+<a name="convertTablesToXTCE-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>convertTablesToXTCE</h4>
 <pre>private&nbsp;void&nbsp;convertTablesToXTCE(java.lang.String[]&nbsp;tableNames,
+                                 boolean&nbsp;includeBuildInformation,
                                  <a href="../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a>&nbsp;endianess,
                                  boolean&nbsp;isHeaderBigEndian,
                                  java.lang.String&nbsp;version,
@@ -1706,6 +1711,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tableNames</code> - array of table names to convert</dd>
+<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
 <dd><code>endianess</code> - EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian</dd>
 <dd><code>isHeaderBigEndian</code> - true if the telemetry and command headers are always big endian (e.g., as with
             CCSDS)</dd>

@@ -146,7 +146,8 @@ the order they are declared.</div>
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#convertTablesToEDS-java.lang.String:A-CCDD.CcddConstants.EndianType-boolean-">convertTablesToEDS</a></span>(java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#convertTablesToEDS-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-">convertTablesToEDS</a></span>(java.lang.String[]&nbsp;tableNames,
+                  boolean&nbsp;includeBuildInformation,
                   <a href="../../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a>&nbsp;endianess,
                   boolean&nbsp;isHeaderBigEndian)</code>
 <div class="block">Convert the project database contents to EDS XML format</div>
@@ -154,7 +155,8 @@ the order they are declared.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#convertTablesToXTCE-java.lang.String:A-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">convertTablesToXTCE</a></span>(java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#convertTablesToXTCE-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">convertTablesToXTCE</a></span>(java.lang.String[]&nbsp;tableNames,
+                   boolean&nbsp;includeBuildInformation,
                    <a href="../../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a>&nbsp;endianess,
                    boolean&nbsp;isHeaderBigEndian,
                    java.lang.String&nbsp;version,
@@ -167,10 +169,11 @@ the order they are declared.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTables</a></span>(java.lang.String&nbsp;filePath,
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTables</a></span>(java.lang.String&nbsp;filePath,
                     java.lang.String[]&nbsp;tablePaths,
                     boolean&nbsp;overwriteFile,
                     boolean&nbsp;singleFile,
+                    boolean&nbsp;includeBuildInformation,
                     boolean&nbsp;replaceMacros,
                     boolean&nbsp;includeAllTableTypes,
                     boolean&nbsp;includeAllDataTypes,
@@ -200,10 +203,11 @@ the order they are declared.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTablesInBackground</a></span>(java.lang.String&nbsp;filePath,
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTablesInBackground</a></span>(java.lang.String&nbsp;filePath,
                                 java.lang.String[]&nbsp;tablePaths,
                                 boolean&nbsp;overwriteFile,
                                 boolean&nbsp;singleFile,
+                                boolean&nbsp;includeBuildInformation,
                                 boolean&nbsp;replaceMacros,
                                 boolean&nbsp;includeAllTableTypes,
                                 boolean&nbsp;includeAllDataTypes,

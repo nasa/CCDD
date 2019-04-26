@@ -84,6 +84,7 @@ public class CcddCommandLineHandler
     private boolean includeAllDataTypes;
     private boolean includeAllInputTypes;
     private boolean includeAllMacros;
+    private boolean includeBuildInformation;
     private boolean replaceMacros;
     private boolean includeReservedMsgIDs;
     private boolean includeProjectFields;
@@ -447,6 +448,7 @@ public class CcddCommandLineHandler
         tablePaths = null;
         overwriteFile = false;
         singleFile = false;
+        includeBuildInformation = true;
         replaceMacros = false;
         includeReservedMsgIDs = false;
         includeProjectFields = false;
@@ -1366,6 +1368,7 @@ public class CcddCommandLineHandler
                                                                          tablePaths,
                                                                          overwriteFile,
                                                                          singleFile,
+                                                                         includeBuildInformation,
                                                                          replaceMacros,
                                                                          includeAllTableTypes,
                                                                          includeAllDataTypes,
@@ -1401,6 +1404,7 @@ public class CcddCommandLineHandler
                                                                                  tablePaths,
                                                                                  overwriteFile,
                                                                                  singleFile,
+                                                                                 includeBuildInformation,
                                                                                  replaceMacros,
                                                                                  includeAllTableTypes,
                                                                                  includeAllDataTypes,
@@ -1603,6 +1607,26 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 includeAllMacros = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include build information
+        exportArgument.add(new CommandHandler("includeBuildInformation",
+                                              "Include the CCDD version, project,\n"
+                                                                         + "  host, and user information",
+                                              "true or false (default: true)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to include the build information
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeBuildInformation = (Boolean) parmVal;
             }
         });
 

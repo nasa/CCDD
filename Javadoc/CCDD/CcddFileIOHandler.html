@@ -267,10 +267,11 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTables</a></span>(java.lang.String&nbsp;filePath,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTables</a></span>(java.lang.String&nbsp;filePath,
                     java.lang.String[]&nbsp;tablePaths,
                     boolean&nbsp;overwriteFile,
                     boolean&nbsp;singleFile,
+                    boolean&nbsp;includeBuildInformation,
                     boolean&nbsp;replaceMacros,
                     boolean&nbsp;includeAllTableTypes,
                     boolean&nbsp;includeAllDataTypes,
@@ -300,10 +301,11 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTablesInBackground</a></span>(java.lang.String&nbsp;filePath,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">exportSelectedTablesInBackground</a></span>(java.lang.String&nbsp;filePath,
                                 java.lang.String[]&nbsp;tablePaths,
                                 boolean&nbsp;overwriteFile,
                                 boolean&nbsp;singleFile,
+                                boolean&nbsp;includeBuildInformation,
                                 boolean&nbsp;replaceMacros,
                                 boolean&nbsp;includeAllTableTypes,
                                 boolean&nbsp;includeAllDataTypes,
@@ -914,7 +916,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
+<a name="exportSelectedTablesInBackground-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -924,6 +926,7 @@ extends java.lang.Object</pre>
                                                 java.lang.String[]&nbsp;tablePaths,
                                                 boolean&nbsp;overwriteFile,
                                                 boolean&nbsp;singleFile,
+                                                boolean&nbsp;includeBuildInformation,
                                                 boolean&nbsp;replaceMacros,
                                                 boolean&nbsp;includeAllTableTypes,
                                                 boolean&nbsp;includeAllDataTypes,
@@ -963,6 +966,7 @@ extends java.lang.Object</pre>
             that already exists</dd>
 <dd><code>singleFile</code> - true to store multiple tables in a single file; false to store each table in a
             separate file</dd>
+<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
 <dd><code>replaceMacros</code> - true to replace macros with their corresponding values; false to leave the macros
             intact</dd>
 <dd><code>includeAllTableTypes</code> - true to include the all table type definitions in the export file</dd>
@@ -995,7 +999,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
+<a name="exportSelectedTables-java.lang.String-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.lang.String-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1005,6 +1009,7 @@ extends java.lang.Object</pre>
                                        java.lang.String[]&nbsp;tablePaths,
                                        boolean&nbsp;overwriteFile,
                                        boolean&nbsp;singleFile,
+                                       boolean&nbsp;includeBuildInformation,
                                        boolean&nbsp;replaceMacros,
                                        boolean&nbsp;includeAllTableTypes,
                                        boolean&nbsp;includeAllDataTypes,
@@ -1041,6 +1046,7 @@ extends java.lang.Object</pre>
             that already exists</dd>
 <dd><code>singleFile</code> - true to store multiple tables in a single file; false to store each table in a
             separate file</dd>
+<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
 <dd><code>replaceMacros</code> - true to replace macros with their corresponding values; false to leave the macros
             intact</dd>
 <dd><code>includeAllTableTypes</code> - true to include the all table type definitions in the export file</dd>

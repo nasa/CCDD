@@ -212,7 +212,7 @@ public class CcddDbCommandHandler
                 if (!ccddMain.getDbControlHandler().reconnectToDatabase())
                 {
                     // Send the command again
-                    executeDbStatement(commandType, command, component);
+                    result = executeDbStatement(commandType, command, component);
                 }
                 // The connection attempt failed
                 else

@@ -94,6 +94,9 @@ public interface CcddImportExportInterface
      * @param tableNames
      *            array of table names to convert
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
@@ -147,6 +150,7 @@ public interface CcddImportExportInterface
      *********************************************************************************************/
     abstract void exportToFile(FileEnvVar exportFile,
                                String[] tableNames,
+                               boolean includeBuildInformation,
                                boolean replaceMacros,
                                boolean includeAllTableTypes,
                                boolean includeAllDataTypes,

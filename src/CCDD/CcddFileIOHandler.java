@@ -2355,6 +2355,9 @@ public class CcddFileIOHandler
      *            true to store multiple tables in a single file; false to store each table in a
      *            separate file
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param replaceMacros
      *            true to replace macros with their corresponding values; false to leave the macros
      *            intact
@@ -2434,6 +2437,7 @@ public class CcddFileIOHandler
                                                     final String[] tablePaths,
                                                     final boolean overwriteFile,
                                                     final boolean singleFile,
+                                                    final boolean includeBuildInformation,
                                                     final boolean replaceMacros,
                                                     final boolean includeAllTableTypes,
                                                     final boolean includeAllDataTypes,
@@ -2472,6 +2476,7 @@ public class CcddFileIOHandler
                                      tablePaths,
                                      overwriteFile,
                                      singleFile,
+                                     includeBuildInformation,
                                      replaceMacros,
                                      includeAllTableTypes,
                                      includeAllDataTypes,
@@ -2533,6 +2538,9 @@ public class CcddFileIOHandler
      * @param singleFile
      *            true to store multiple tables in a single file; false to store each table in a
      *            separate file
+     *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
      *
      * @param replaceMacros
      *            true to replace macros with their corresponding values; false to leave the macros
@@ -2615,6 +2623,7 @@ public class CcddFileIOHandler
                                            final String[] tablePaths,
                                            final boolean overwriteFile,
                                            final boolean singleFile,
+                                           final boolean includeBuildInformation,
                                            final boolean replaceMacros,
                                            final boolean includeAllTableTypes,
                                            final boolean includeAllDataTypes,
@@ -2749,6 +2758,7 @@ public class CcddFileIOHandler
                     // Export the formatted table data to the specified file
                     ioHandler.exportToFile(file,
                                            tablePaths,
+                                           true,
                                            replaceMacros,
                                            includeAllTableTypes,
                                            includeAllDataTypes,
@@ -2802,6 +2812,7 @@ public class CcddFileIOHandler
                         // name
                         ioHandler.exportToFile(file,
                                                new String[] {tablePath},
+                                               true,
                                                replaceMacros,
                                                includeAllTableTypes,
                                                includeAllDataTypes,

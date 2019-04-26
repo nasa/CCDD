@@ -145,8 +145,9 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
             java.lang.String[]&nbsp;tableNames,
+            boolean&nbsp;includeBuildInformation,
             boolean&nbsp;replaceMacros,
             boolean&nbsp;includeAllTableTypes,
             boolean&nbsp;includeAllDataTypes,
@@ -262,7 +263,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
+<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -270,6 +271,7 @@ var activeTableTab = "activeTableTab";
 <h4>exportToFile</h4>
 <pre>void&nbsp;exportToFile(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
                   java.lang.String[]&nbsp;tableNames,
+                  boolean&nbsp;includeBuildInformation,
                   boolean&nbsp;replaceMacros,
                   boolean&nbsp;includeAllTableTypes,
                   boolean&nbsp;includeAllDataTypes,
@@ -291,6 +293,7 @@ var activeTableTab = "activeTableTab";
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>exportFile</code> - reference to the user-specified output file</dd>
 <dd><code>tableNames</code> - array of table names to convert</dd>
+<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
 <dd><code>replaceMacros</code> - true to replace any embedded macros with their corresponding values</dd>
 <dd><code>includeAllTableTypes</code> - true to include the all table type definitions in the export file</dd>
 <dd><code>includeAllDataTypes</code> - true to include the all data type definitions in the export file</dd>

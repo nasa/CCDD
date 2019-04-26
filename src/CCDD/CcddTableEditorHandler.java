@@ -5612,9 +5612,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         table.arrangeColumns(tableTypeHandler.getDefaultColumnOrder(typeDefn.getName()));
     }
 
-    /******************************************************************************************
+    /**********************************************************************************************
      * Update the tab for this table in the table editor dialog change indicator
-     *****************************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void updateOwnerChangeIndicator()
     {

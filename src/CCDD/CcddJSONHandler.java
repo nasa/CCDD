@@ -1099,6 +1099,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param tableNames
      *            array of table names to convert
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
@@ -1151,6 +1154,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @Override
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
+                             boolean includeBuildInformation,
                              boolean replaceMacros,
                              boolean includeAllTableTypes,
                              boolean includeAllDataTypes,
@@ -1232,18 +1236,22 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             // This custom JSON object is used so that the stored order is reflected in the output
             OrderedJSONObject outputJO = new OrderedJSONObject();
 
-            // Create the file creation comment
-            outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
-                         "Created "
-                                                             + new Date().toString()
-                                                             + " : CCDD version = "
-                                                             + ccddMain.getCCDDVersionInformation()
-                                                             + " : project = "
-                                                             + dbControl.getDatabaseName()
-                                                             + " : host = "
-                                                             + dbControl.getServer()
-                                                             + " : user = "
-                                                             + dbControl.getUser());
+            // Check if the build information is to be output
+            if (includeBuildInformation)
+            {
+                // Create the file creation comment
+                outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
+                             "Created "
+                                                                 + new Date().toString()
+                                                                 + " : CCDD version = "
+                                                                 + ccddMain.getCCDDVersionInformation()
+                                                                 + " : project = "
+                                                                 + dbControl.getProjectName()
+                                                                 + " : host = "
+                                                                 + dbControl.getServer()
+                                                                 + " : user = "
+                                                                 + dbControl.getUser());
+            }
 
             // Check if any tables are provided
             if (tableNames.length != 0)

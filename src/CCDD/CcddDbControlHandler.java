@@ -910,8 +910,13 @@ public class CcddDbControlHandler
     {
         return "jdbc:postgresql://"
                + getServerAndDatabase(databaseName)
+               // + "?keepalives=1" // TODO THIS (SUPPOSEDLY) KEEPS THE CONNECTION ACTIVE. HOWEVER,
+               // WHAT MAY BE NEEDED IS TO BEEF UP (OR CORRECT) HANDLING OF A DROPPED CONNECTION
+               // (I.E., LET THE CONNECTION DIE; SIMPLY REINSTATE IT; THIS IS SUPPOSED TO BE HOW
+               // IT'S SET UP NOW BUT PEOPLE ARE EXPERIENCING DROP-OUTS)
                + (isSSL
-                        ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                        ? // "&"+ // TODO ADD '&' IF 'keepalives' IS USED
+                        "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
                         : "");
     }
 
@@ -2339,23 +2344,24 @@ public class CcddDbControlHandler
                                              ccddMain.getMainFrame());
             }
 
+            // The connection to the server must exist in order to reach this point, so set the
+            // connection status to indicate the server is connected. If connecting to a specific
+            // project, once the connection is completed the flag is updated accordingly
+            connectionStatus = TO_SERVER_ONLY;
+
             // Check if the default database is selected
             if (databaseName.equals(DEFAULT_DATABASE))
             {
-                // Set the connection status to indicate the default database is connected
-                connectionStatus = TO_SERVER_ONLY;
-
                 // Inform the user that the server connection succeeded
-                eventLog.logEvent(SUCCESS_MSG, "Connected to server as user '" + activeUser + "'");
+                eventLog.logEvent(SUCCESS_MSG,
+                                  (isReconnect
+                                               ? "Reconnected"
+                                               : "Connected")
+                                               + " to server as user '" + activeUser + "'");
             }
             // A database other than the default is selected
             else
             {
-                // The connection to the server must exist in order to reach this point, so set the
-                // connection status to indicate the server is connected. Once the project
-                // connection is completed the flag is updated accordingly
-                connectionStatus = TO_SERVER_ONLY;
-
                 // Get the database lock status (note that the database isn't locked if the GUI is
                 // hidden)
                 Boolean isLocked = getDatabaseLockStatus(databaseName);
@@ -2421,7 +2427,10 @@ public class CcddDbControlHandler
 
                 // Inform the user that the database connection succeeded
                 eventLog.logEvent(SUCCESS_MSG,
-                                  "Connected to project '"
+                                  (isReconnect
+                                               ? "Reconnected"
+                                               : "Connected")
+                                               + " to project '"
                                                + activeProject
                                                + "' as user '"
                                                + activeUser
@@ -2471,8 +2480,9 @@ public class CcddDbControlHandler
             errorFlag = true;
         }
 
-        // Check if a connection is established
-        if (!errorFlag)
+        // Check if a connection is established. Don't log the version information when
+        // reconnecting
+        if (!errorFlag && !isReconnect)
         {
             // Log the PostgreSQL and JDBC versions
             eventLog.logEvent(EventLogMessageType.STATUS_MSG,

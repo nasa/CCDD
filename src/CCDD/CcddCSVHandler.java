@@ -1206,6 +1206,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param tableNames
      *            array of table names to export
      *
+     * @param includeBuildInformation
+     *            true to include the CCDD version, project, host, and user information
+     *
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
@@ -1257,6 +1260,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     @Override
     public void exportToFile(FileEnvVar exportFile,
                              String[] tableNames,
+                             boolean includeBuildInformation,
                              boolean replaceMacros,
                              boolean includeAllTableTypes,
                              boolean includeAllDataTypes,
@@ -1334,18 +1338,22 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             bw = new BufferedWriter(fw);
             pw = new PrintWriter(bw);
 
-            // Output the file creation information
-            pw.printf("# Created "
-                      + new Date().toString()
-                      + " : CCDD version = "
-                      + ccddMain.getCCDDVersionInformation()
-                      + " : project = "
-                      + dbControl.getDatabaseName()
-                      + " : host = "
-                      + dbControl.getServer()
-                      + " : user = "
-                      + dbControl.getUser()
-                      + "\n");
+            // Check if the build information is to be output
+            if (includeBuildInformation)
+            {
+                // Output the file creation information
+                pw.printf("# Created "
+                          + new Date().toString()
+                          + " : CCDD version = "
+                          + ccddMain.getCCDDVersionInformation()
+                          + " : project = "
+                          + dbControl.getProjectName()
+                          + " : host = "
+                          + dbControl.getServer()
+                          + " : user = "
+                          + dbControl.getUser()
+                          + "\n");
+            }
 
             // Step through each table
             for (String tblName : tableNames)
