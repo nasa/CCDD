@@ -10,6 +10,7 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
+import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -599,6 +600,17 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     // Check if the column name has been changed and if the name isn't blank
                     if (column == TableTypeEditorColumnInfo.NAME.ordinal() && !newValueS.isEmpty())
                     {
+                        // Check if the name is too long
+                        if (newValueS.length() >= MAX_SQL_NAME_LENGTH)
+                        {
+                            // Inform the user that the name is too long
+                            throw new CCDDException("Column name '</b>"
+                                                    + newValueS
+                                                    + "<b>' too long ("
+                                                    + (MAX_SQL_NAME_LENGTH - 1)
+                                                    + " characters maximum)");
+                        }
+
                         // Check if the column name matches a default name (case insensitive)
                         if (newValueS.equalsIgnoreCase(DefaultColumn.PRIMARY_KEY.getDbName())
                             || newValueS.equalsIgnoreCase(DefaultColumn.ROW_INDEX.getDbName()))

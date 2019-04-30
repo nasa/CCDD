@@ -16,7 +16,6 @@ import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
-import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.RADIO_BUTTON_CHANGE_EVENT;
 import static CCDD.CcddConstants.REDO_ICON;
@@ -1081,15 +1080,6 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                     // Convert the project name into its database form
                     String databaseName = dbControl.convertProjectNameToDatabase(nameFld.getText());
-
-                    // Check if the name is too long
-                    if (databaseName.length() >= MAX_SQL_NAME_LENGTH)
-                    {
-                        // Inform the user that the name is too long
-                        throw new CCDDException("Project database name too long ("
-                                                + (MAX_SQL_NAME_LENGTH - 1)
-                                                + " characters maximum)");
-                    }
 
                     // Check that the selected database is not the currently open one (only the
                     // description can be altered for this case)

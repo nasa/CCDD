@@ -577,7 +577,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Retrieve a list of all data tables in the database. Any non-data tables are ignored
+     * Retrieve a list of all data tables in the database with the names in the user-viewable form.
+     * Any non-data tables are ignored
      *
      * @param parent
      *            GUI component over which to center any error dialog

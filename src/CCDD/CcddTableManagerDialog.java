@@ -2028,7 +2028,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                     + "<b>'");
         }
 
-        // Get the list of available tables
+        // Get the list of existing data tables
         String[] namesInUse = dbTable.queryTableList(CcddTableManagerDialog.this);
 
         // Step through each of the table names

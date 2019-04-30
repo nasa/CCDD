@@ -309,7 +309,7 @@ public class CcddDbControlHandler
         if (databaseName.length() >= MAX_SQL_NAME_LENGTH)
         {
             // Truncate the name to the maximum allowed length
-            databaseName = databaseName.substring(0, MAX_SQL_NAME_LENGTH);
+            databaseName = databaseName.substring(0, MAX_SQL_NAME_LENGTH - 1);
         }
 
         return databaseName;
