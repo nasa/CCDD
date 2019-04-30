@@ -714,16 +714,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         }
         catch (JAXBException je)
         {
-            // Inform the user that the database import failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot import XTCE XML from file '</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'; cause '</b>"
-                                                              + je.getMessage()
-                                                              + "<b>'",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
+            // Inform the user that the file cannot be parsed
+            throw new CCDDException("Parsing error; cause '</b>" + je.getMessage() + "<b>'");
         }
     }
 
@@ -1074,7 +1066,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         // Check if the data from all tables is to be read or if only a single table is to be read
         // but one of the target table type hasn't been found
-        if (importType == ImportType.IMPORT_ALL || (targetIsStructure && !isTelemetry && !isCmdToTlm) || (targetIsCommand && !isCommand))
+        if (importType == ImportType.IMPORT_ALL
+            || (targetIsStructure && !isTelemetry && !isCmdToTlm)
+            || (targetIsCommand && !isCommand))
 
         {
             // Step through each child system, if any

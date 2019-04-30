@@ -414,16 +414,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
         catch (JAXBException je)
         {
-            // Inform the user that the database import failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot import EDS XML from file '</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'; cause '</b>"
-                                                              + je.getMessage()
-                                                              + "<b>'",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
+            // Inform the user that the file cannot be parsed
+            throw new CCDDException("Parsing error; cause '</b>" + je.getMessage() + "<b>'");
         }
         catch (Exception e)
         {

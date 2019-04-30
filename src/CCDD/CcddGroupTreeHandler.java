@@ -1111,9 +1111,25 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
+                    // TODO FILTERING BY TYPE, THEN UNFILTERING CHANGES THE MEMBER ORDER! MAYBE
+                    // STORE THE LIST PRIOR TO FILTERING AND USE IT... SOMEHOW
                     // Recreate the group definitions based on the current tree members
-                    // TODO FILTERING BY TYPE, THEN UNFILTERING CHANGES THE MEMBER ORDER!
                     groupDefinitions = createDefinitionsFromTree();
+
+                    // TODO CHANGE TO BEING FILTERED...
+                    if (typeFilterChkBx.isSelected() && preFilterGrpDefns == null)
+                    {
+                        // STORE THE UNFILTERED DEFNS (ISSUE - WHAT IF ANOTHER FILTER IS IN EFFECT?
+                        // MAYBE ONLY STORE WHEN FIRST FILTER APPLIED, AND NULL WHEN NO FILTERS ARE
+                        // IN EFFECT)
+                        preFilterGrpDefns = new ArrayList<String[]>(groupDefinitions);
+                    }
+                    // Check if no filtering is in effect
+                    else if (!appFilterChkBx.isSelected())
+                    {
+                        preFilterGrpDefns = null;
+                    }
+                    // end TODO
 
                     // Store the tree's current expansion state
                     String expState = getExpansionState();
@@ -1246,4 +1262,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         return treePnl;
     }
+
+    // TODO
+    private List<String[]> preFilterGrpDefns;
 }

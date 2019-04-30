@@ -910,13 +910,8 @@ public class CcddDbControlHandler
     {
         return "jdbc:postgresql://"
                + getServerAndDatabase(databaseName)
-               // + "?keepalives=1" // TODO THIS (SUPPOSEDLY) KEEPS THE CONNECTION ACTIVE. HOWEVER,
-               // WHAT MAY BE NEEDED IS TO BEEF UP (OR CORRECT) HANDLING OF A DROPPED CONNECTION
-               // (I.E., LET THE CONNECTION DIE; SIMPLY REINSTATE IT; THIS IS SUPPOSED TO BE HOW
-               // IT'S SET UP NOW BUT PEOPLE ARE EXPERIENCING DROP-OUTS)
                + (isSSL
-                        ? // "&"+ // TODO ADD '&' IF 'keepalives' IS USED
-                        "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                        ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
                         : "");
     }
 
@@ -1602,13 +1597,7 @@ public class CcddDbControlHandler
                                        ccddMain.getMainFrame());
 
             // Create a temporary table for storing the results returned by the database functions
-            dbCommand.executeDbCommand("DROP TABLE IF EXISTS "
-                                       + TEMP_TABLE_NAME
-                                       + "; CREATE TEMPORARY TABLE "
-                                       + TEMP_TABLE_NAME
-                                       + " (temp_result text); "
-                                       + buildOwnerCommand(DatabaseObject.TABLE, TEMP_TABLE_NAME),
-                                       ccddMain.getMainFrame());
+            createTemporaryTable();
 
             // Step through each internal table type
             for (InternalTable intTable : InternalTable.values())
@@ -1838,6 +1827,23 @@ public class CcddDbControlHandler
         }
 
         return errorFlag;
+    }
+
+    /**********************************************************************************************
+     * Create a temporary table for storing the results returned by the database functions
+     *
+     * @throws SQLException
+     *             If an error occurs when creating the temporary table
+     *********************************************************************************************/
+    private void createTemporaryTable() throws SQLException
+    {
+        dbCommand.executeDbCommand("DROP TABLE IF EXISTS "
+                                   + TEMP_TABLE_NAME
+                                   + "; CREATE TEMPORARY TABLE "
+                                   + TEMP_TABLE_NAME
+                                   + " (temp_result text); "
+                                   + buildOwnerCommand(DatabaseObject.TABLE, TEMP_TABLE_NAME),
+                                   ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -2352,6 +2358,14 @@ public class CcddDbControlHandler
             // Check if the default database is selected
             if (databaseName.equals(DEFAULT_DATABASE))
             {
+                // Check if this is a reconnection attempt
+                if (isReconnect)
+                {
+                    // Recreate a temporary table for storing the results returned by the database
+                    // functions (this table is deleted by the server when the connection drops)
+                    createTemporaryTable();
+                }
+
                 // Inform the user that the server connection succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   (isReconnect
@@ -2407,6 +2421,14 @@ public class CcddDbControlHandler
 
                 // Set the connection status to indicate a database is connected
                 connectionStatus = TO_DATABASE;
+
+                // Check if this is a reconnection attempt
+                if (isReconnect)
+                {
+                    // Recreate a temporary table for storing the results returned by the database
+                    // functions (this table is deleted by the server when the connection drops)
+                    createTemporaryTable();
+                }
 
                 // Check if an automatic backup was scheduled via the command line argument
                 if (!backupFileName.isEmpty())

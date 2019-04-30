@@ -1055,15 +1055,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         catch (ParseException pe)
         {
             // Inform the user that the file cannot be parsed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot parse import file '</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'; cause '</b>"
-                                                              + pe.getMessage()
-                                                              + "<b>'",
-                                                      "File Warning",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         finally
         {

@@ -213,8 +213,6 @@ public abstract class CcddJTableHandler extends JTable
         // Add an undo edit manager and add it as a listener for undo/redo changes
         undoManager = new CcddUndoManager()
         {
-            boolean isEditing = false;// TODO
-
             /**************************************************************************************
              * Perform any steps necessary following a table content change
              *************************************************************************************/
@@ -230,15 +228,8 @@ public abstract class CcddJTableHandler extends JTable
                     @Override
                     public void run()
                     {
-                        // TODO if editing not active - this means a change isn't detected until
-                        // the editing stops
-                        // if (table.isEditing() != isEditing || !isEditing)
-                        {
-                            isEditing = table.isEditing();
-
-                            // Perform any table-specific steps following the table content change
-                            processTableContentChange();
-                        }
+                        // Perform any table-specific steps following the table content change
+                        processTableContentChange();
                     }
                 });
 

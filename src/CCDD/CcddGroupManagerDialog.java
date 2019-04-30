@@ -1642,12 +1642,22 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Store any changes to the currently selected group, if applicable
         updateSelectedGroupInformation();
 
+        // TODO FILTERING BY TYPE, THEN UNFILTERING CHANGES THE MEMBER ORDER DUE TO SORTING THE
+        // TABLES INTO (THEN BACK OUT OF) THEIR TABLE TYPE NODES! HOW CAN THE ORDER BE MAINTAINED,
+        // PARTICULARLY WHEN NODE ADDS/REMOVES CAN OCCUR WHILE FILTERED (ADDS SHOULD GO TO THE
+        // BOTTOM OF THE MEMBER LIST). MAYBE STORE A PRE-FILTERED LIST FOR COMPARISON - ANY MEMBERS
+        // THAT ARE IN THE PRE LIST GET PUT IN THAT ORDER (ISSUE - WHAT IF A MEMBER IS REMOVED,
+        // THEN ADDED BACK? IT SHOULD GO TO THE END OF THE LIST. IMPLIES THAT ADDS & REMOVES NEED
+        // TO BE APPLIED TO THE PRE-FILTER LIST)
         // Get the current group definitions from the group tree
         currentGroupDefns = groupTree.createDefinitionsFromTree();
 
         // Initialize the change flag to true if the number of current and committed group
         // definitions differ
         boolean hasChanges = currentGroupDefns.size() != committedGroupDefns.size();
+
+        if (hasChanges)
+            System.out.println("# of grp defns changed"); // TODO
 
         // Check if the number of groups is the same
         if (!hasChanges)
