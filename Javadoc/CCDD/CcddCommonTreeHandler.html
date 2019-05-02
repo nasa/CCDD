@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -424,42 +424,48 @@ extends javax.swing.JTree</pre>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a></span>()</code>
+<div class="block">Force the root node to redraw , preserving the tree expansion state</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a></span>()</code>
 <div class="block">Remove all nodes from the tree</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a></span>(java.lang.String&nbsp;text)</code>
 <div class="block">Remove HTML tag(s).</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a></span>(boolean&nbsp;enable)</code>
 <div class="block">Set the flag indicating if the data type portion of a node name (in the format
  dataType.variableName) should be hidden or displayed</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a></span>(java.lang.String&nbsp;expState)</code>
 <div class="block">Restore the tree expansion state</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a></span>(java.util.regex.Pattern&nbsp;searchPattern)</code>
 <div class="block">Set the pattern used for text matching in the node names</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a></span>(boolean&nbsp;isExpanded)</code>
 <div class="block">Expand or collapse all of the nodes in the tree</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a></span>(javax.swing.tree.DefaultTreeCellRenderer&nbsp;renderer,
                    <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node,
@@ -468,7 +474,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Set the tree icon for nodes representing a variable.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></span>()</code>
 <div class="block">Placeholder for method to respond to changes in selection of a table in the table tree</div>
@@ -816,6 +822,16 @@ extends javax.swing.JTree</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String representing the current tree expansion state</dd>
 </dl>
+</li>
+</ul>
+<a name="refreshTree--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>refreshTree</h4>
+<pre>protected&nbsp;void&nbsp;refreshTree()</pre>
+<div class="block">Force the root node to redraw , preserving the tree expansion state</div>
 </li>
 </ul>
 <a name="setExpansionState-java.lang.String-">

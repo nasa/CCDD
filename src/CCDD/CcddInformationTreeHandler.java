@@ -36,8 +36,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     // List to contain the node names and their child paths
     private List<String[]> treeDefinitions;
 
-    // Flags to indicate if the tree should be filtered by table type or by application
-    private boolean isFilterByType;
+    // Flags to indicate if the tree should be filtered by application
     private boolean isFilterByApp;
 
     // String value that may be used to modify the tree building method; null or blank if not
@@ -113,6 +112,17 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             infoTreeModel = undoHandler != null
                                                 ? undoHandler.new UndoableTreeModel(root)
                                                 {
+                                                    /***********************************************
+                                                     * Perform any actions needed following an undo
+                                                     * or redo operation that adds or removes a
+                                                     * node
+                                                     *********************************************/
+                                                    @Override
+                                                    protected void nodeAddRemoveCleanup()
+                                                    {
+                                                        CcddInformationTreeHandler.this.nodeAddRemoveCleanup();
+                                                    }
+
                                                     /**********************************************
                                                      * Perform any actions needed following an undo
                                                      * or redo operation that affects a node's user
@@ -143,7 +153,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             initialize(ccddMain, undoHandler, infoDefinitions);
 
             // Build the information tree
-            buildTree(false, false, filterValue, filterFlag, parent);
+            buildTree(false, filterValue, filterFlag, parent);
         }
     }
 
@@ -215,6 +225,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
+     * Placeholder for performing any actions needed following an undo or redo operation that adds
+     * or removes a node
+     *********************************************************************************************/
+    protected void nodeAddRemoveCleanup()
+    {
+    }
+
+    /**********************************************************************************************
      * Placeholder for performing any actions needed following an undo or redo operation that
      * affects a node's user object (name) filter nodes
      *
@@ -236,7 +254,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     @Override
     protected int getHeaderNodeLevel()
     {
-        return (isFilterByApp ? 1 : 0) + (isFilterByType ? 1 : 0);
+        return (isFilterByApp ? 1 : 0);
     }
 
     /**********************************************************************************************
@@ -306,9 +324,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Create the information tree root node and set the tree model
      *
-     * @param isFilterByType
-     *            true if the tree is filtered by table type
-     *
      * @param isFilterByApp
      *            true if the tree is filtered by application status
      *
@@ -322,13 +337,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected void buildTree(boolean isFilterByType,
-                             boolean isFilterByApp,
+    protected void buildTree(boolean isFilterByApp,
                              String filterValue,
                              boolean filterFlag,
                              Component parent)
     {
-        this.isFilterByType = isFilterByType;
         this.isFilterByApp = isFilterByApp;
         this.filterValue = filterValue;
 
@@ -897,14 +910,15 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // Initialize the definitions list
         treeDefinitions = createDefinitionsFromInformation();
 
+        // TODO TIME AN OPERATION USING THESE STEPS:
         // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss.SSS");// TODO
         // System.out.println("\nStart: " + dtf.format(LocalDateTime.now()));// TODO
+        // ...perform operation
+        // System.out.println(" ...done: " + dtf.format(LocalDateTime.now()));// TODO
 
         // Start with the root node and step through the tree to find the child nodes and their
         // member variable paths and add these to the definition list
         buildDefinitionFromTree(root);
-
-        // System.out.println(" ...done: " + dtf.format(LocalDateTime.now()));// TODO
 
         return treeDefinitions;
     }

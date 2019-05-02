@@ -476,7 +476,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             selectedRate = rate;
 
             // Rebuild the application tree using the selected rate as a filter
-            applicationTree.buildTree(false, false, rate, true, ccddMain.getMainFrame());
+            applicationTree.buildTree(false, rate, true, ccddMain.getMainFrame());
 
             // Set the node color based on the selected rate
             applicationTree.adjustNodeText(applicationTree.getRootNode(), excludedList);

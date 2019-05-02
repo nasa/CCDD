@@ -2643,13 +2643,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 {
                     setEnableDataType(!hideTypeChkBx.isSelected());
 
-                    // Store the tree's current expansion state
-                    String expState = getExpansionState();
-
                     // Force the root node to draw with the node additions
-                    ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
-
-                    setExpansionState(expState);
+                    refreshTree();
                 }
             });
         }

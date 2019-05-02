@@ -2904,7 +2904,7 @@ public class CcddConstants
         ARG_TYPE_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
                    "Command argument 1 data type",
-                   DefaultInputType.PRIMITIVE,
+                   DefaultInputType.PRIM_AND_STRUCT,
                    false,
                    false,
                    false,

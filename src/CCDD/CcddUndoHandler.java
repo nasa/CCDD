@@ -3346,6 +3346,14 @@ public class CcddUndoHandler
 
         /******************************************************************************************
          * Placeholder for performing any actions needed following an undo or redo operation that
+         * adds or removes a node
+         *****************************************************************************************/
+        protected void nodeAddRemoveCleanup()
+        {
+        }
+
+        /******************************************************************************************
+         * Placeholder for performing any actions needed following an undo or redo operation that
          * affects a node's user object (name)
          *
          * @param wasValue
@@ -3426,6 +3434,9 @@ public class CcddUndoHandler
                 // Remove the child from the parent
                 parent.remove(index);
 
+                // Perform any clean-up actions required due to adding or removing a node
+                nodeAddRemoveCleanup();
+
                 // Notify any listeners that the node was re-added
                 nodesWereRemoved(parent, new int[] {index}, new Object[] {child});
 
@@ -3447,6 +3458,9 @@ public class CcddUndoHandler
 
                 // Add the child to the parent
                 parent.insert(child, index);
+
+                // Perform any clean-up actions required due to adding or removing a node
+                nodeAddRemoveCleanup();
 
                 // Check if the tree's expansion state was stored and that the state has changed
                 if (expState != null && !expState.equals(tree.getExpansionState()))
@@ -3631,6 +3645,9 @@ public class CcddUndoHandler
                 // Insert the child back into the parent
                 parent.insert(child, index);
 
+                // Perform any clean-up actions required due to adding or removing a node
+                nodeAddRemoveCleanup();
+
                 // Check if the tree's expansion state was stored and that the state has changed
                 if (expState != null && !expState.equals(tree.getExpansionState()))
                 {
@@ -3673,6 +3690,9 @@ public class CcddUndoHandler
 
                 // Remove the child from the parent
                 parent.remove(index);
+
+                // Perform any clean-up actions required due to adding or removing a node
+                nodeAddRemoveCleanup();
 
                 // Notify all listeners that the child was removed
                 nodesWereRemoved(parent, new int[] {index}, new Object[] {child});

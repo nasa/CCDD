@@ -1302,8 +1302,7 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     private List<TableDefinition> orderTableDefinitionsByReference(List<TableDefinition> tableDefinitions)
     {
-        // TODO THIS HAS BEEN TESTED **ONLY**A**LITTLE**!!! IF IT WORKS FOR ALL CASES THEN IT MAY
-        // CAN BE OPTIMIZED
+        // TODO THIS MAY CAN BE OPTIMIZED
 
         List<TableDefinition> orderedTableDefinitions = new ArrayList<TableDefinition>();
         List<String> orderedTableNames = new ArrayList<String>();

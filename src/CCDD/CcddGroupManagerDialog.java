@@ -322,8 +322,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                      * Override building the group tree so that change updates can be inhibited
                      *****************************************************************************/
                     @Override
-                    protected void buildTree(boolean filterByType,
-                                             boolean filterByApp,
+                    protected void buildTree(boolean filterByApp,
                                              String scheduleRate,
                                              boolean isApplicationOnly,
                                              Component parent)
@@ -331,8 +330,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // Set the flag to inhibit registering a group change due to the tree is
                         // being built
                         isInitializing = true;
-                        super.buildTree(filterByType,
-                                        filterByApp,
+                        super.buildTree(filterByApp,
                                         scheduleRate,
                                         isApplicationOnly,
                                         parent);
@@ -395,6 +393,17 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             isInitializing = false;
                             isNodeSelectionChanging = false;
                         }
+                    }
+
+                    /******************************************************************************
+                     * Set the table type and application node enable enable state following an
+                     * undo or redo operation that adds or removes a node
+                     *****************************************************************************/
+                    @Override
+                    protected void nodeAddRemoveCleanup()
+                    {
+                        // Set the table type and application node enable status
+                        groupTree.setHeaderNodeEnable();
                     }
 
                     /******************************************************************************
@@ -777,9 +786,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     {
                         undoManager.undo();
 
-                        // Set the table type and application node enable status
-                        groupTree.setHeaderNodeEnable();
-
                         // Check if a single group is selected
                         if (selectedGroup != null)
                         {
@@ -812,9 +818,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         undoManager.redo();
-
-                        // Set the table type and application node enable status
-                        groupTree.setHeaderNodeEnable();
 
                         // Update the data field background colors
                         fieldPnlHndlr.setFieldBackgound();
@@ -1143,6 +1146,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Set the table type and application node enable status
         groupTree.setHeaderNodeEnable();
 
+        // Force the root node to draw with the node additions
+        groupTree.refreshTree();
+
         // Set the flag to so that the dialog change indicator can be updated
         isInitializing = false;
 
@@ -1190,6 +1196,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Select the node for the group that had the table(s) removed
             groupTree.setSelectionPath(new TreePath(node.getPath()));
         }
+
+        // Force the root node to draw with the node removals
+        groupTree.refreshTree();
 
         // Set the flag to so that the dialog change indicator can be updated
         isInitializing = false;
@@ -1642,22 +1651,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Store any changes to the currently selected group, if applicable
         updateSelectedGroupInformation();
 
-        // TODO FILTERING BY TYPE, THEN UNFILTERING CHANGES THE MEMBER ORDER DUE TO SORTING THE
-        // TABLES INTO (THEN BACK OUT OF) THEIR TABLE TYPE NODES! HOW CAN THE ORDER BE MAINTAINED,
-        // PARTICULARLY WHEN NODE ADDS/REMOVES CAN OCCUR WHILE FILTERED (ADDS SHOULD GO TO THE
-        // BOTTOM OF THE MEMBER LIST). MAYBE STORE A PRE-FILTERED LIST FOR COMPARISON - ANY MEMBERS
-        // THAT ARE IN THE PRE LIST GET PUT IN THAT ORDER (ISSUE - WHAT IF A MEMBER IS REMOVED,
-        // THEN ADDED BACK? IT SHOULD GO TO THE END OF THE LIST. IMPLIES THAT ADDS & REMOVES NEED
-        // TO BE APPLIED TO THE PRE-FILTER LIST)
         // Get the current group definitions from the group tree
         currentGroupDefns = groupTree.createDefinitionsFromTree();
 
         // Initialize the change flag to true if the number of current and committed group
         // definitions differ
         boolean hasChanges = currentGroupDefns.size() != committedGroupDefns.size();
-
-        if (hasChanges)
-            System.out.println("# of grp defns changed"); // TODO
 
         // Check if the number of groups is the same
         if (!hasChanges)
@@ -1668,16 +1667,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Check if the current and committed definition differ
                 if (!Arrays.equals(currentGroupDefns.get(index), committedGroupDefns.get(index)))
                 {
-                    // System.out.println(index + ": " +
-                    // Arrays.toString(currentGroupDefns.get(index)) + " != " +
-                    // Arrays.toString(committedGroupDefns.get(index))); // TODO
-                    // System.out.println("Comm: "); // TODO
-                    // for (String[] s : committedGroupDefns)
-                    // System.out.println(" " + Arrays.toString(s)); // TODO
-                    // System.out.println("\nCurr: "); // TODO
-                    // for (String[] s : currentGroupDefns)
-                    // System.out.println(" " + Arrays.toString(s)); // TODO
-
                     // Set the flag indicating a match and stop searching
                     hasChanges = true;
                     break;

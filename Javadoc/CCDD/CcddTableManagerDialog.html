@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -548,12 +548,19 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableManagerDialog.html#setFilePath-boolean-CCDD.CcddConstants.FileExtension-">setFilePath</a></span>(boolean&nbsp;isAddFileName,
+           <a href="../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a>&nbsp;fileExtn)</code>
+<div class="block">Set the path/file selection field contents</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableManagerDialog.html#verifySelection--">verifySelection</a></span>()</code>
 <div class="block">Verify that the dialog content is valid</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableManagerDialog.html#verifyTableName-java.lang.String-">verifyTableName</a></span>(java.lang.String&nbsp;tableName)</code>
 <div class="block">Verify that the supplied table name is valid</div>
@@ -1242,6 +1249,24 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <dd><code>dialogPnl</code> - panel to which to add the input field</dd>
 <dd><code>enabled</code> - true if the fields are initially enabled, false if disabled</dd>
 <dd><code>dialogGbc</code> - dialog panel GridBagLayout layout constraints</dd>
+</dl>
+</li>
+</ul>
+<a name="setFilePath-boolean-CCDD.CcddConstants.FileExtension-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFilePath</h4>
+<pre>private&nbsp;void&nbsp;setFilePath(boolean&nbsp;isAddFileName,
+                         <a href="../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a>&nbsp;fileExtn)</pre>
+<div class="block">Set the path/file selection field contents</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isAddFileName</code> - true to add the file name to the path (if not already present); false to remove
+            the file name (if present). The presence of a file name is determined by checking
+            if the field contents ends with a file extension</dd>
+<dd><code>fileExtn</code> - file extension type</dd>
 </dl>
 </li>
 </ul>

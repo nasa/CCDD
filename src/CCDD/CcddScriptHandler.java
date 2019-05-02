@@ -63,9 +63,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
@@ -112,6 +114,7 @@ public class CcddScriptHandler
 
     // Components referenced by multiple methods
     private JCheckBox hideScriptFilePath;
+    private JCheckBox hideUnavailableAssns;
     private JTextField envVarOverrideFld;
     private static CcddHaltDialog haltDlg;
 
@@ -135,6 +138,9 @@ public class CcddScriptHandler
     private String varPathSeparator;
     private String typeNameSeparator;
     private boolean excludeDataTypes;
+
+    // Row filter, used to show/hide unavailable associations
+    private RowFilter<TableModel, Object> rowFilter;
 
     /**********************************************************************************************
      * Script handler class constructor
@@ -371,6 +377,47 @@ public class CcddScriptHandler
             assnsPnl.add(assnsLbl, gbc);
             gbc.gridy++;
         }
+
+        // Create the check box for hiding/showing the rows with unavailable associations (due to a
+        // missing script or table). This must be created before the row filter is created, which
+        // in turn must be created before the associations table is created
+        hideUnavailableAssns = new JCheckBox("Hide unavailable script associations", false);
+        hideUnavailableAssns.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        hideUnavailableAssns.setBorder(BorderFactory.createEmptyBorder());
+        hideUnavailableAssns.setToolTipText(CcddUtilities.wrapText("Remove associations that cannot be executed (due to a "
+                                                                   + "missing script or table) from the associations table",
+                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+        // Add a listener for check box selection changes
+        hideUnavailableAssns.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Handle a change in the hide unavailable associations check box state
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Issue a table change event so the unavailable association rows are shown/hidden
+                ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
+                ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
+            }
+        });
+
+        // Create a row filter for displaying the unavailable associations
+        rowFilter = new RowFilter<TableModel, Object>()
+        {
+            /**************************************************************************************
+             * Determine if the row should be displayed
+             *************************************************************************************/
+            @Override
+            public boolean include(Entry<? extends TableModel, ? extends Object> entry)
+            {
+                // Hide the row if it represents an unavailable association member and the hide
+                // check box is selected; otherwise display the row
+                return !(hideUnavailableAssns.isSelected()
+                         && !isAssociationAvailable((Integer) entry.getIdentifier()));
+            }
+        };
 
         // Create the table to display the search results
         assnsTable = new CcddJTableHandler()
@@ -616,6 +663,14 @@ public class CcddScriptHandler
                 // rows in the table
                 if (sorter != null)
                 {
+                    // Check if the row filter hasn't been set and that there is an unavailable
+                    // association row filter
+                    if (sorter.getRowFilter() == null && rowFilter != null)
+                    {
+                        // Apply the row filter that shows/hides the array members
+                        sorter.setRowFilter(rowFilter);
+                    }
+
                     // Add a sort comparator for the script file column
                     sorter.setComparator(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal(), new Comparator<String>()
                     {
@@ -725,6 +780,10 @@ public class CcddScriptHandler
         gbc.weighty = 0.0;
         gbc.gridy++;
         assnsPnl.add(hideScriptFilePath, gbc);
+
+        // Add the check box for showing/hiding unavailable associations
+        gbc.gridy++;
+        assnsPnl.add(hideUnavailableAssns, gbc);
 
         // Create a panel to contain the environment variable override label and field
         JPanel envVarOverridePnl = new JPanel(new GridBagLayout());

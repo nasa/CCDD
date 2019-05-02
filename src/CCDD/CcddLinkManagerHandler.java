@@ -708,7 +708,7 @@ public class CcddLinkManagerHandler
                     // Force the link tree to be rebuilt now that the tree path order is
                     // established (via setting the rate filter). This forces the link variables to
                     // appear in the same order as they are listed in their prototype tables
-                    linkTree.buildTree(false, false, rateName, false, linkDialog);
+                    linkTree.buildTree(false, rateName, false, linkDialog);
 
                     // Set the flag to prevent rebuilding the link tree when subsequent rate
                     // selection changes are made

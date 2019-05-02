@@ -29,7 +29,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
@@ -149,10 +148,6 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the assignment tree from the database. Retain the tree's current expansion state
      *
-     * @param filterByType
-     *            true if the tree is filtered by table type. This is not applicable to the
-     *            assignment tree, which can only contain structure references
-     *
      * @param filterByApp
      *            true if the tree is filtered by application. This is not applicable to the
      *            assignment tree, which can only contain structure references
@@ -167,8 +162,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByType,
-                             boolean filterByApp,
+    protected void buildTree(boolean filterByApp,
                              String filterValue,
                              boolean filterFlag,
                              Component parent)
@@ -176,7 +170,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Store the tree's current expansion state
         String expState = getExpansionState();
 
-        super.buildTree(false, false, filterValue, filterFlag, parent);
+        super.buildTree(false, filterValue, filterFlag, parent);
 
         // Get the tree's root node
         ToolTipTreeNode root = getRootNode();
@@ -533,13 +527,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             {
                 setEnableDataType(!hideTypeChkBx.isSelected());
 
-                // Store the tree's current expansion state
-                String expState = getExpansionState();
-
                 // Force the root node to draw with the node additions
-                ((DefaultTreeModel) treeModel).nodeStructureChanged(getRootNode());
-
-                setExpansionState(expState);
+                refreshTree();
             }
         });
 

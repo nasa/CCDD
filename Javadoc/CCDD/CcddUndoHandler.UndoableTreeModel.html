@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -229,19 +229,26 @@ extends javax.swing.tree.DefaultTreeModel</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddUndoHandler.UndoableTreeModel.html#nodeAddRemoveCleanup--">nodeAddRemoveCleanup</a></span>()</code>
+<div class="block">Placeholder for performing any actions needed following an undo or redo operation that
+ adds or removes a node</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddUndoHandler.UndoableTreeModel.html#nodeRenameCleanup-java.lang.Object-java.lang.Object-">nodeRenameCleanup</a></span>(java.lang.Object&nbsp;wasValue,
                  java.lang.Object&nbsp;isValue)</code>
 <div class="block">Placeholder for performing any actions needed following an undo or redo operation that
  affects a node's user object (name)</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddUndoHandler.UndoableTreeModel.html#removeNodeFromParent-javax.swing.tree.MutableTreeNode-">removeNodeFromParent</a></span>(javax.swing.tree.MutableTreeNode&nbsp;child)</code>
 <div class="block">Remove the specified node from its parent node</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddUndoHandler.UndoableTreeModel.html#valueForPathChanged-javax.swing.tree.TreePath-java.lang.Object-">valueForPathChanged</a></span>(javax.swing.tree.TreePath&nbsp;path,
                    java.lang.Object&nbsp;newValue)</code>
@@ -372,6 +379,17 @@ extends javax.swing.tree.DefaultTreeModel</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>child</code> - node to remove</dd>
 </dl>
+</li>
+</ul>
+<a name="nodeAddRemoveCleanup--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>nodeAddRemoveCleanup</h4>
+<pre>protected&nbsp;void&nbsp;nodeAddRemoveCleanup()</pre>
+<div class="block">Placeholder for performing any actions needed following an undo or redo operation that
+ adds or removes a node</div>
 </li>
 </ul>
 <a name="nodeRenameCleanup-java.lang.Object-java.lang.Object-">

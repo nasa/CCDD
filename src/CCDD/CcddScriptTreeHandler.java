@@ -101,9 +101,6 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the script tree
      *
-     * @param filterByType
-     *            true if the tree is filtered by table type. This is not used for the script tree
-     *
      * @param filterByApp
      *            true if the tree is filtered by application. This is not used for the script tree
      *
@@ -118,13 +115,12 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByType,
-                             boolean filterByApp,
+    protected void buildTree(boolean filterByApp,
                              String filterValue,
                              boolean filterFlag,
                              Component parent)
     {
-        super.buildTree(false, false, filterValue, filterFlag, parent);
+        super.buildTree(false, filterValue, filterFlag, parent);
 
         // Register the tool tip manager for the script tree (otherwise the tool tips aren't
         // displayed)

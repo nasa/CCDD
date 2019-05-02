@@ -493,6 +493,21 @@ public class CcddCommonTreeHandler extends JTree
     }
 
     /**********************************************************************************************
+     * Force the root node to redraw , preserving the tree expansion state
+     *********************************************************************************************/
+    protected void refreshTree()
+    {
+        // Store the tree's current expansion state
+        String expState = getExpansionState();
+
+        // Force the root node to redraw
+        ((DefaultTreeModel) treeModel).nodeStructureChanged((TreeNode) ((DefaultTreeModel) treeModel).getRoot());
+
+        // Restore the tree's expansion state
+        setExpansionState(expState);
+    }
+
+    /**********************************************************************************************
      * Restore the tree expansion state
      *
      * @param expState

@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":6,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":6,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10};
+var methods = {"i0":6,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":6,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":6,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -237,18 +237,14 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#isFilterByApp">isFilterByApp</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#isFilterByType">isFilterByType</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#root">root</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#treeDefinitions">treeDefinitions</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#treePathOrder">treePathOrder</a></span></code>&nbsp;</td>
 </tr>
@@ -406,8 +402,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#buildTree-boolean-boolean-java.lang.String-boolean-java.awt.Component-">buildTree</a></span>(boolean&nbsp;isFilterByType,
-         boolean&nbsp;isFilterByApp,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#buildTree-boolean-java.lang.String-boolean-java.awt.Component-">buildTree</a></span>(boolean&nbsp;isFilterByApp,
          java.lang.String&nbsp;filterValue,
          boolean&nbsp;filterFlag,
          java.awt.Component&nbsp;parent)</code>
@@ -522,34 +517,41 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#nodeAddRemoveCleanup--">nodeAddRemoveCleanup</a></span>()</code>
+<div class="block">Placeholder for performing any actions needed following an undo or redo operation that adds
+ or removes a node</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#nodeRenameCleanup-java.lang.Object-java.lang.Object-">nodeRenameCleanup</a></span>(java.lang.Object&nbsp;wasValue,
                  java.lang.Object&nbsp;isValue)</code>
 <div class="block">Placeholder for performing any actions needed following an undo or redo operation that
  affects a node's user object (name) filter nodes</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#removeNodeAndEmptyAncestors-CCDD.CcddClassesComponent.ToolTipTreeNode-">removeNodeAndEmptyAncestors</a></span>(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;removeNode)</code>
 <div class="block">Remove the specified child node, and its ancestors until a node with other children or the
  top level node is reached</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#removeSelectedTopLevelNodes--">removeSelectedTopLevelNodes</a></span>()</code>
 <div class="block">Remove the currently selected top level node(s) and all of its child nodes from the
  information tree</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#renameRootChildNode-java.lang.Object-java.lang.Object-">renameRootChildNode</a></span>(java.lang.Object&nbsp;oldName,
                    java.lang.Object&nbsp;newName)</code>
 <div class="block">Rename a top-level node (a node that is a direct child of the root node)</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInformationTreeHandler.html#setTreePathOrder-java.util.List-">setTreePathOrder</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;treePathOrder)</code>
 <div class="block">Set the list of all tree paths in the table tree in the order to be used when placing a path
@@ -562,7 +564,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddCommonTreeHandler</a></h3>
-<code><a href="../CCDD/CcddCommonTreeHandler.html#addChildNodes-CCDD.CcddClassesComponent.ToolTipTreeNode-java.util.List-java.util.List-boolean-">addChildNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#adjustExpansionState-java.lang.String-boolean-boolean-boolean-boolean-boolean-java.util.List-CCDD.CcddGroupHandler-CCDD.CcddTableTypeHandler-">adjustExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#clearDisabledNodes--">clearDisabledNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#createNameFromPath-java.lang.Object:A-int-">createNameFromPath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#expandCollapseSelectedNodes--">expandCollapseSelectedNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a>, <a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></code></li>
+<code><a href="../CCDD/CcddCommonTreeHandler.html#addChildNodes-CCDD.CcddClassesComponent.ToolTipTreeNode-java.util.List-java.util.List-boolean-">addChildNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#adjustExpansionState-java.lang.String-boolean-boolean-boolean-boolean-boolean-java.util.List-CCDD.CcddGroupHandler-CCDD.CcddTableTypeHandler-">adjustExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#clearDisabledNodes--">clearDisabledNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#createNameFromPath-java.lang.Object:A-int-">createNameFromPath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#expandCollapseSelectedNodes--">expandCollapseSelectedNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a>, <a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a>, <a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.javax.swing.JTree">
@@ -647,15 +649,6 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <li class="blockList">
 <h4>treeDefinitions</h4>
 <pre>private&nbsp;java.util.List&lt;java.lang.String[]&gt; treeDefinitions</pre>
-</li>
-</ul>
-<a name="isFilterByType">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isFilterByType</h4>
-<pre>private&nbsp;boolean isFilterByType</pre>
 </li>
 </ul>
 <a name="isFilterByApp">
@@ -779,6 +772,17 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="nodeAddRemoveCleanup--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>nodeAddRemoveCleanup</h4>
+<pre>protected&nbsp;void&nbsp;nodeAddRemoveCleanup()</pre>
+<div class="block">Placeholder for performing any actions needed following an undo or redo operation that adds
+ or removes a node</div>
+</li>
+</ul>
 <a name="nodeRenameCleanup-java.lang.Object-java.lang.Object-">
 <!--   -->
 </a>
@@ -874,21 +878,19 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </dl>
 </li>
 </ul>
-<a name="buildTree-boolean-boolean-java.lang.String-boolean-java.awt.Component-">
+<a name="buildTree-boolean-java.lang.String-boolean-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildTree</h4>
-<pre>protected&nbsp;void&nbsp;buildTree(boolean&nbsp;isFilterByType,
-                         boolean&nbsp;isFilterByApp,
+<pre>protected&nbsp;void&nbsp;buildTree(boolean&nbsp;isFilterByApp,
                          java.lang.String&nbsp;filterValue,
                          boolean&nbsp;filterFlag,
                          java.awt.Component&nbsp;parent)</pre>
 <div class="block">Create the information tree root node and set the tree model</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isFilterByType</code> - true if the tree is filtered by table type</dd>
 <dd><code>isFilterByApp</code> - true if the tree is filtered by application status</dd>
 <dd><code>filterValue</code> - string value that may be used to modify the tree building method; null or blank
             if not filtering</dd>

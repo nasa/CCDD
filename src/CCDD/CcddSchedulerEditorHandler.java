@@ -899,7 +899,6 @@ public class CcddSchedulerEditorHandler
                 {
                     // (Re)build the assignment tree using the message's variables
                     assignmentTree.buildTree(false,
-                                             false,
                                              schedulerHndlr.getRateName()
                                                     + TLM_SCH_SEPARATOR
                                                     + message.getName(),

@@ -1104,19 +1104,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Set up storage for the store in file(s) radio buttons
                 ButtonGroup storeInRBtnGroup = new ButtonGroup();
-                JRadioButton multipleFileRBtn = new JRadioButton("Multiple files", true);
-                multipleFileRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                multipleFileRBtn.setBorder(emptyBorder);
-                storeInRBtnGroup.add(multipleFileRBtn);
-                gbc.gridx++;
-                storeInPnl.add(multipleFileRBtn, gbc);
-                singleFileRBtn = new JRadioButton("Single file", true);
+                singleFileRBtn = new JRadioButton("Single file");
                 singleFileRBtn.setSelected(false);
                 singleFileRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 singleFileRBtn.setBorder(emptyBorder);
                 storeInRBtnGroup.add(singleFileRBtn);
                 gbc.gridx++;
                 storeInPnl.add(singleFileRBtn, gbc);
+                JRadioButton multipleFileRBtn = new JRadioButton("Multiple files");
+                multipleFileRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                multipleFileRBtn.setBorder(emptyBorder);
+                storeInRBtnGroup.add(multipleFileRBtn);
+                gbc.gridx++;
+                storeInPnl.add(multipleFileRBtn, gbc);
 
                 // Add the store in file(s) selection components to the dialog
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -1137,8 +1137,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        // Set the export label text
+                        // Set the file/path label text
                         exportLbl.setText("Enter or select an export file");
+
+                        // Add the file name to the path in the file/path field
+                        setFilePath(true, fileExtn);
                     }
                 });
 
@@ -1151,10 +1154,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        // Set the export label text
-                        exportLbl.setText("Enter or select an export path");
+                        if (((JRadioButton) ae.getSource()).isSelected())
+                        {
+                            // Set the file/path label text
+                            exportLbl.setText("Enter or select an export path");
+
+                            // Remove the file name from the path in the file/path field
+                            setFilePath(false, fileExtn);
+                        }
                     }
                 });
+
+                // Set single file as the initial selection
+                singleFileRBtn.setSelected(true);
             }
         }
         // The export command originated from a table editor dialog menu
@@ -1840,6 +1852,67 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
+     * Set the path/file selection field contents
+     *
+     * @param isAddFileName
+     *            true to add the file name to the path (if not already present); false to remove
+     *            the file name (if present). The presence of a file name is determined by checking
+     *            if the field contents ends with a file extension
+     *
+     * @param fileExtn
+     *            file extension type
+     *********************************************************************************************/
+    private void setFilePath(boolean isAddFileName, FileExtension fileExtn)
+    {
+        // Get the contents of the file/path field
+        String path = pathFld.getText().trim();
+
+        // Set the flag if the field contains a file name. A name is detected if a period (the file
+        // extension separator character) follows the last file separator character. Note that a
+        // folder with a period in the name can fool this
+        boolean hasFileName = path.lastIndexOf(File.separator) <= path.lastIndexOf(".");
+
+        // Check if the file name should be added and it's not already present
+        if (isAddFileName && !hasFileName)
+        {
+            // Add the file name to the path already present in the field. The file name defaults
+            // to the database name when the export command is issued from the main window. If
+            // issued from a table editor then the editor's table name is used to create the file
+            // name
+            path += File.separator
+                    + (callingEditorDlg == null
+                                                ? dbControl.getDatabaseName()
+                                                : callingEditorDlg.getTableEditor()
+                                                                  .getTableInformation()
+                                                                  .getTablePath()
+                                                                  .replaceAll("[^a-zA-Z0-9_]",
+                                                                              "_"))
+                    + fileExtn.getExtension();
+        }
+        // Check if the file name should be removed and it's present
+        else if (!isAddFileName && hasFileName)
+        {
+            // Get the index of the last file separator character in the field
+            int index = path.lastIndexOf(File.separator);
+
+            // Check if no separator exists (only the file name is present)
+            if (index == -1)
+            {
+                path = "";
+            }
+            // The separator exists
+            else
+            {
+                // Remove the file name form the path
+                path = path.substring(0, index);
+            }
+        }
+
+        // Store the (updated) path (and file, if applicable) in the field
+        pathFld.setText(path);
+    }
+
+    /**********************************************************************************************
      * Create the path/file selection panel
      *
      * @param fileExtn
@@ -1869,41 +1942,20 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         JPanel pathPnl = new JPanel(new GridBagLayout());
         pathPnl.setBorder(emptyBorder);
 
-        // Set the flag to indicate that the input fields expects a path versus a file name
-        boolean isPath = (dialogType == ManagerDialogType.EXPORT_CSV
-                          || dialogType == ManagerDialogType.EXPORT_JSON)
-                         && callingEditorDlg == null;
-
-        String fileName = "";
-
-        // Check if input field expects file name
-        if (!isPath)
-        {
-            // Set the default file name
-            fileName = File.separator
-                       + (callingEditorDlg == null
-                                                   ? dbControl.getDatabaseName()
-                                                   : callingEditorDlg.getTableEditor()
-                                                                     .getTableInformation()
-                                                                     .getTablePath()
-                                                                     .replaceAll("[^a-zA-Z0-9_]", "_"))
-                       + fileExtn.getExtension();
-        }
-
-        // Create the path/file selection dialog labels and fields
-        exportLbl = new JLabel(isPath
-                                      ? "Enter or select an export path"
-                                      : "Enter or select an export file");
+        // Create the file/path selection dialog labels and fields
+        exportLbl = new JLabel("Enter or select an export file");
         exportLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(exportLbl, gbc);
 
-        // Create a text field for entering & displaying the path/file
-        pathFld = new JTextField(ModifiablePathInfo.TABLE_EXPORT_PATH.getPath() + fileName, 20);
+        // Create a text field for entering & displaying the path/file. The initial file name is
+        // based on the database name
+        pathFld = new JTextField(ModifiablePathInfo.TABLE_EXPORT_PATH.getPath(), 20);
         pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         pathFld.setEditable(true);
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         pathFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         pathFld.setBorder(border);
+        setFilePath(true, fileExtn);
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);

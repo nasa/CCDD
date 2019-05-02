@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.INVALID_TEXT_COLOR;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -63,8 +64,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private ToolTipTreeNode root;
     private CcddFieldHandler fieldHandler;
 
-    // Flags to indicate if the tree should be filtered by table type and filtered by application
-    private boolean isFilterByType;
+    // Flag to indicate if the tree should be filtered by application
     private boolean isFilterByApp;
 
     // Flag indicating if the group tree nodes are expanded or not
@@ -144,16 +144,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Check if the group tree is filtered by table type
-     *
-     * @return true if the group tree is filtered by table type
-     *********************************************************************************************/
-    protected boolean isFilterByType()
-    {
-        return isFilterByType;
-    }
-
-    /**********************************************************************************************
      * Perform initialization steps prior to building the group tree
      *
      * @param ccddMain
@@ -195,6 +185,18 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
+     * Get the node level that skips any active filter nodes and accounts for the table type node
+     * level
+     *
+     * @return Node level for tree nodes below the active filter nodes
+     *********************************************************************************************/
+    @Override
+    protected int getHeaderNodeLevel()
+    {
+        return super.getHeaderNodeLevel() + 1;
+    }
+
+    /**********************************************************************************************
      * Remove the selected group(s) from the group information class and group tree
      *********************************************************************************************/
     protected void removeSelectedGroups()
@@ -232,9 +234,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the group tree
      *
-     * @param filterByType
-     *            true if the tree is filtered by table type
-     *
      * @param filterByApp
      *            true if the tree is filtered by application status
      *
@@ -249,18 +248,16 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByType,
-                             boolean filterByApp,
+    protected void buildTree(boolean filterByApp,
                              String scheduleRate,
                              boolean isApplicationOnly,
                              Component parent)
     {
-        this.isFilterByType = filterByType;
         this.isFilterByApp = filterByApp;
         this.scheduleRate = scheduleRate;
         this.isApplicationOnly = isApplicationOnly;
 
-        super.buildTree(isFilterByType, isFilterByApp, scheduleRate, isApplicationOnly, parent);
+        super.buildTree(isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
         // Tree nodes for the table types if filtering by type and for application status if
         // filtering
@@ -284,12 +281,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Check if the table types are to be used to filter the table tree
-        if (isFilterByType)
-        {
-            // Create the node storage for the table types
-            typeNodes = new ToolTipTreeNode[tableTypeHandler.getTableTypeNames().length];
-        }
+        // Create the node storage for the table types
+        typeNodes = new ToolTipTreeNode[tableTypeHandler.getTableTypeNames().length];
 
         // Check if the application statuses are to be used to filter the group tree
         if (isFilterByApp)
@@ -320,23 +313,19 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 // supplied)
                 if (scheduleRate == null || scheduleRate.isEmpty())
                 {
-                    // Check if the table types are to be used to filter the table tree
-                    if (isFilterByType)
-                    {
-                        int index = 0;
+                    int index = 0;
 
-                        // Step through each table type
-                        for (String type : tableTypeHandler.getTableTypeNames())
-                        {
-                            // Create the node for this table type and add it to the tree model
-                            typeNodes[index] = new ToolTipTreeNode(type,
-                                                                   tableTypeHandler.getTypeDefinition(type)
-                                                                                   .getDescription());
-                            ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index],
-                                                                            groupNode,
-                                                                            index);
-                            index++;
-                        }
+                    // Step through each table type
+                    for (String type : tableTypeHandler.getTableTypeNames())
+                    {
+                        // Create the node for this table type and add it to the tree model
+                        typeNodes[index] = new ToolTipTreeNode(type,
+                                                               tableTypeHandler.getTypeDefinition(type)
+                                                                               .getDescription());
+                        ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index],
+                                                                        groupNode,
+                                                                        index);
+                        index++;
                     }
 
                     // Step through each table belonging to the group
@@ -352,7 +341,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             for (int nodeIndex = 0; nodeIndex < appNodes.length && !isFound; nodeIndex++)
                             {
                                 // Step through each current group node
-                                for (int index = 0; index < appNodes[nodeIndex].getChildCount(); index++)
+                                for (index = 0; index < appNodes[nodeIndex].getChildCount(); index++)
                                 {
                                     // Check if the group name matches the node name
                                     if (groupName.equals(((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index)).getUserObject()
@@ -368,8 +357,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 }
                             }
                         }
-                        // Check if the groups are filtered by table type
-                        else if (isFilterByType)
+                        // Groups are not filtered by application status
+                        else
                         {
                             // Locate the index of this table's comment in the comment list
                             int commentIndex = tableComments.indexOf(TableInformation.getPrototypeName(table));
@@ -393,7 +382,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                         String[] sourcePath = table.split(",");
 
                                         // Step through each table reference in the path
-                                        for (int index = 0; index < sourcePath.length; index++)
+                                        for (index = 0; index < sourcePath.length; index++)
                                         {
                                             // Get the comment for this table reference
                                             commentIndex = tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index]));
@@ -419,23 +408,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                           0);
                                         break;
                                     }
-                                }
-                            }
-                        }
-                        // Groups are not filtered by type or application status
-                        else
-                        {
-                            // Step through each current group node
-                            for (int index = 0; index < root.getChildCount(); index++)
-                            {
-                                // Check if the group name matches the node name
-                                if (groupName.equals(root.getChildAt(index).toString()))
-                                {
-                                    // Add the table to the node and stop searching
-                                    addNodeToInfoNode((ToolTipTreeNode) root.getChildAt(index),
-                                                      table.split(","),
-                                                      0);
-                                    break;
                                 }
                             }
                         }
@@ -519,7 +491,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 }
 
                 // Build the group tree with the specified group moved from/to the Application node
-                buildTree(isFilterByType, isFilterByApp, null, false, parent);
+                buildTree(isFilterByApp, null, false, parent);
 
                 // Restore the expansion state
                 setExpansionState(expState);
@@ -532,28 +504,24 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     protected void setHeaderNodeEnable()
     {
-        // Check if the groups are filtered by table type or by application statues
-        if (isFilterByType || isFilterByApp)
+        // Step through the root node's children, if any
+        for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
         {
-            // Step through the root node's children, if any
-            for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
+            // Get the node referenced
+            ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the node is a table type or application header
+            if (node.getLevel() < getItemNodeLevel()
+                && node.getLevel() != getGroupNodeLevel()
+                && node != root)
             {
-                // Get the node referenced
-                ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+                // Get the node name with any HTML tags removed
+                String nodeName = CcddUtilities.removeHTMLTags(node.getUserObject().toString());
 
-                // Check if the node is a table type or application header
-                if (node.getLevel() < getItemNodeLevel()
-                    && node.getLevel() != getGroupNodeLevel()
-                    && node != root)
-                {
-                    // Get the node name with any HTML tags removed
-                    String nodeName = CcddUtilities.removeHTMLTags(node.getUserObject().toString());
-
-                    // Flag the node as disabled if it has no children
-                    node.setUserObject(node.getChildCount() == 0
-                                                                 ? DISABLED_TEXT_COLOR + nodeName
-                                                                 : nodeName);
-                }
+                // Flag the node as disabled if it has no children
+                node.setUserObject(node.getChildCount() == 0
+                                                             ? DISABLED_TEXT_COLOR + nodeName
+                                                             : nodeName);
             }
         }
     }
@@ -576,7 +544,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // Check if the tree is filtered by table type and the target node is not a table type
         // node. This occurs when transferring a node from the table tree to the group tree in the
         // group manager, but is not needed when building the group tree
-        if (isFilterByType && node.getLevel() <= getHeaderNodeLevel())
+        if (node.getLevel() <= getHeaderNodeLevel())
         {
             // Remove any HTML tags and convert the path to a string array
             String[] tablePath = cleanNodePath(sourcePath);
@@ -709,41 +677,36 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         boolean isFound = false;
         int index = 0;
 
-        // Check if the group tree is filtered by table type. If not filtered by table type the
-        // duplicate check can be skipped which can save a significant amount of time
-        if (isFilterByType)
+        // Step through the existing group definitions
+        for (String[] treeDefn : treeDefns)
         {
-            // Step through the existing group definitions
-            for (String[] treeDefn : treeDefns)
+            // Check if the group names are the same
+            if (leafDefn[0].equals(treeDefn[0]))
             {
-                // Check if the group names are the same
-                if (leafDefn[0].equals(treeDefn[0]))
+                // Check if the table path length differs and the path to add contains the
+                // existing path (that is, the added path is a superset of the existing one)
+                if (treeDefn[1].length() != leafDefn[1].length()
+                    && leafDefn[1].startsWith(treeDefn[1] + ","))
                 {
-                    // Check if the table path length differs and the path to add contains the
-                    // existing path (that is, the added path is a superset of the existing one)
-                    if (treeDefn[1].length() != leafDefn[1].length()
-                        && leafDefn[1].startsWith(treeDefn[1] + ","))
-                    {
-                        // Replace the existing definition with the added one, set the flag to
-                        // indicate the added one has been handled, and stop searching
-                        treeDefns.set(index, leafDefn);
-                        isFound = true;
-                        break;
-                    }
-                    // Check if this is an identical table path or a subset (due to a table
-                    // reference being pruned)
-                    else if (treeDefn[1].equals(leafDefn[1]) ||
-                             treeDefn[1].startsWith(leafDefn[1] + ","))
-                    {
-                        // Ignore the added definition, set the flag to indicate the added one has
-                        // been handled, and stop searching
-                        isFound = true;
-                        break;
-                    }
+                    // Replace the existing definition with the added one, set the flag to
+                    // indicate the added one has been handled, and stop searching
+                    treeDefns.set(index, leafDefn);
+                    isFound = true;
+                    break;
                 }
-
-                index++;
+                // Check if this is an identical table path or a subset (due to a table
+                // reference being pruned)
+                else if (treeDefn[1].equals(leafDefn[1]) ||
+                         treeDefn[1].startsWith(leafDefn[1] + ","))
+                {
+                    // Ignore the added definition, set the flag to indicate the added one has
+                    // been handled, and stop searching
+                    isFound = true;
+                    break;
+                }
             }
+
+            index++;
         }
 
         // The added group entry doesn't match an existing one
@@ -913,8 +876,12 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // types
         setCellRenderer(new VariableTreeCellRenderer()
         {
+            // Tree node row height storage. Setting a row's preferred height to 0 causes it to not
+            // be displayed
+            int rowHeight = 0;
+
             /**************************************************************************************
-             * Display the variable nodes using a special icon in the tree
+             * Display the group nodes using a special icon in the tree
              *************************************************************************************/
             @Override
             public Component getTreeCellRendererComponent(JTree tree,
@@ -926,13 +893,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                           boolean hasFocus)
             {
                 // Display the node name
-                super.getTreeCellRendererComponent(tree,
-                                                   value,
-                                                   sel,
-                                                   expanded,
-                                                   leaf,
-                                                   row,
-                                                   hasFocus);
+                Component comp = super.getTreeCellRendererComponent(tree,
+                                                                    value,
+                                                                    sel,
+                                                                    expanded,
+                                                                    leaf,
+                                                                    row,
+                                                                    hasFocus);
 
                 // Get the tree level for this node
                 int level = ((ToolTipTreeNode) value).getLevel();
@@ -942,6 +909,29 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 {
                     // Display an icon indicating a group
                     setIcon(new ImageIcon(getClass().getResource(GROUP_ICON)));
+                }
+
+                // Check if the node row height hasn't been stored
+                if (rowHeight == 0)
+                {
+                    // Store the normal node row height
+                    rowHeight = comp.getPreferredSize().height;
+                }
+
+                ToolTipTreeNode node = (ToolTipTreeNode) value;
+
+                // Check if the node should be hidden
+                if (!(node.getLevel() != getGroupNodeLevel() + 1
+                      || !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR)))
+                {
+                    // Set the hidden node's row height to zero
+                    comp.setPreferredSize(new Dimension(comp.getPreferredSize().width, 0));
+                }
+                // The node should be displayed
+                else
+                {
+                    // Set the node's row height to the normal value
+                    comp.setPreferredSize(new Dimension(comp.getPreferredSize().width, rowHeight));
                 }
 
                 return this;
@@ -1076,23 +1066,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 {
                     setEnableDataType(!hideTypeChkBx.isSelected());
 
-                    // Store the tree's current expansion state
-                    String expState = getExpansionState();
-
                     // Force the root node to draw with the node additions
-                    ((DefaultTreeModel) treeModel).nodeStructureChanged(getRootNode());
-
-                    setExpansionState(expState);
+                    refreshTree();
                 }
             });
-
-            // Create a type filter check box
-            final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
-            typeFilterChkBx.setBorder(emptyBorder);
-            typeFilterChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            typeFilterChkBx.setSelected(false);
-            gbc.gridy++;
-            treePnl.add(typeFilterChkBx, gbc);
 
             // Create an application filter check box
             final JCheckBox appFilterChkBx = new JCheckBox("Filter by application");
@@ -1101,72 +1078,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             appFilterChkBx.setSelected(false);
             gbc.gridy++;
             treePnl.add(appFilterChkBx, gbc);
-
-            // Create a listener for changes in selection of the type filter check box
-            typeFilterChkBx.addActionListener(new ActionListener()
-            {
-                /**********************************************************************************
-                 * Handle a change to the type filter check box selection
-                 *********************************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    // TODO FILTERING BY TYPE, THEN UNFILTERING CHANGES THE MEMBER ORDER! MAYBE
-                    // STORE THE LIST PRIOR TO FILTERING AND USE IT... SOMEHOW
-                    // Recreate the group definitions based on the current tree members
-                    groupDefinitions = createDefinitionsFromTree();
-
-                    // TODO CHANGE TO BEING FILTERED...
-                    if (typeFilterChkBx.isSelected() && preFilterGrpDefns == null)
-                    {
-                        // STORE THE UNFILTERED DEFNS (ISSUE - WHAT IF ANOTHER FILTER IS IN EFFECT?
-                        // MAYBE ONLY STORE WHEN FIRST FILTER APPLIED, AND NULL WHEN NO FILTERS ARE
-                        // IN EFFECT)
-                        preFilterGrpDefns = new ArrayList<String[]>(groupDefinitions);
-                    }
-                    // Check if no filtering is in effect
-                    else if (!appFilterChkBx.isSelected())
-                    {
-                        preFilterGrpDefns = null;
-                    }
-                    // end TODO
-
-                    // Store the tree's current expansion state
-                    String expState = getExpansionState();
-
-                    // Rebuild the tree based on the filter selection
-                    buildTree(typeFilterChkBx.isSelected(),
-                              appFilterChkBx.isSelected(),
-                              scheduleRate,
-                              isApplicationOnly,
-                              parent);
-
-                    final List<String> topNodePrefixes = new ArrayList<String>();
-
-                    // Step through each node immediately below the root node
-                    for (int index = 0; index < root.getChildCount(); index++)
-                    {
-                        // Add the node name to the list of prefixes
-                        topNodePrefixes.add("["
-                                            + root.getUserObject()
-                                            + ", "
-                                            + ((ToolTipTreeNode) root.getChildAt(index)).getUserObject());
-                    }
-
-                    // Adjust the expansion state to account for the change in filtering, then
-                    // restore the expansion state
-                    expState = adjustExpansionState(expState,
-                                                    appFilterChkBx.isSelected(),
-                                                    false,
-                                                    typeFilterChkBx.isSelected(),
-                                                    true,
-                                                    true,
-                                                    topNodePrefixes,
-                                                    groupHandler,
-                                                    tableTypeHandler);
-                    setExpansionState(expState);
-                }
-            });
 
             // Create a listener for changes in selection of the application filter check box
             appFilterChkBx.addActionListener(new ActionListener()
@@ -1184,8 +1095,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     String expState = getExpansionState();
 
                     // Rebuild the tree based on the filter selection
-                    buildTree(typeFilterChkBx.isSelected(),
-                              appFilterChkBx.isSelected(),
+                    buildTree(appFilterChkBx.isSelected(),
                               scheduleRate,
                               isApplicationOnly,
                               parent);
@@ -1240,7 +1150,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     expState = adjustExpansionState(expState,
                                                     appFilterChkBx.isSelected(),
                                                     true,
-                                                    typeFilterChkBx.isSelected(),
+                                                    true,
                                                     false,
                                                     true,
                                                     topNodePrefixes,
@@ -1262,7 +1172,4 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         return treePnl;
     }
-
-    // TODO
-    private List<String[]> preFilterGrpDefns;
 }

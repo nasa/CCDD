@@ -319,10 +319,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the link tree from the database
      *
-     * @param filterByType
-     *            true if the tree is filtered by table type. This is not applicable to the link
-     *            tree, which can only contain structure references
-     *
      * @param filterByApp
      *            true if the tree is filtered by application. This is not applicable to the link
      *            tree, which can only contain structure references
@@ -338,13 +334,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByType,
-                             boolean filterByApp,
+    protected void buildTree(boolean filterByApp,
                              String filterValue,
                              boolean filterFlag,
                              Component parent)
     {
-        super.buildTree(false, false, filterValue, filterFlag, parent);
+        super.buildTree(false, filterValue, filterFlag, parent);
 
         // Get the tree's root node
         ToolTipTreeNode root = getRootNode();
@@ -867,13 +862,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             {
                 setEnableDataType(!hideTypeChkBx.isSelected());
 
-                // Store the tree's current expansion state
-                String expState = getExpansionState();
-
                 // Force the root node to draw with the node additions
-                ((DefaultTreeModel) treeModel).nodeStructureChanged(getRootNode());
-
-                setExpansionState(expState);
+                refreshTree();
             }
         });
 

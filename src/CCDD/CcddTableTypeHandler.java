@@ -77,7 +77,7 @@ public class CcddTableTypeHandler
                                                                                 DefaultInputType.UNITS},
                                                                                {COL_ARGUMENT + " ### " + COL_DATA_TYPE,
                                                                                 "Command argument ### data type",
-                                                                                DefaultInputType.PRIMITIVE},
+                                                                                DefaultInputType.PRIM_AND_STRUCT},
                                                                                {COL_ARGUMENT + " ### " + COL_ARRAY_SIZE,
                                                                                 "Command argument ### array size",
                                                                                 DefaultInputType.ARRAY_INDEX},
