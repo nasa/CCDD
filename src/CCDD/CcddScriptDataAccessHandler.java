@@ -3477,8 +3477,8 @@ public class CcddScriptDataAccessHandler
      * @param structureName
      *            prototype name of the structure to check
      *
-     * @return true if the specified structure is referenced by more than one root structure at
-     *         least one of these structures is not associated with the script ; false otherwise
+     * @return true if the specified structure is referenced by more than one root structure and at
+     *         least one of these structures is not associated with the script; false otherwise
      *********************************************************************************************/
     public boolean isStructureSharedExternally(String structureName)
     {

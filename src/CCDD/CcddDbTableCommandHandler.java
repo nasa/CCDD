@@ -1305,6 +1305,9 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
+                    List<Integer> dataTypeColumns = new ArrayList<Integer>();
+                    String command = "";
+
                     // Convert each of the table names to lower case and bound it with double
                     // quotes if it matches a PostgreSQL reserved word. PostgreSQL automatically
                     // assumes lower case (unless the name is quoted), so forcing the name to lower
@@ -1313,10 +1316,52 @@ public class CcddDbTableCommandHandler
                     String dbTableName = dbControl.getQuotedName(tableName);
                     String dbNewName = dbControl.getQuotedName(newName);
 
-                    // Get the table's comment so that it can be rebuilt with the new table name
-                    String[] comment = queryDataTableComment(tableName, tableDialog);
+                    // Get the comments for all data tables
+                    String[][] comments = queryDataTableComments(tableDialog);
 
-                    String command = "";
+                    // Get the table's comment so that it can be rebuilt with the new table name
+                    String[] comment = getTableComment(tableName.toLowerCase(), comments);
+
+                    // Step through each root table
+                    for (String rootTable : getRootTables(false, tableDialog))
+                    {
+                        // Get the root table's comment and from it get the table's type
+                        comment = getTableComment(rootTable.toLowerCase(), comments);
+                        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
+                        dataTypeColumns.clear();
+
+                        // Step through each default input type
+                        for (DefaultInputType inputType : DefaultInputType.values())
+                        {
+                            // Check if the input type represents a data type
+                            if (inputType.getInputFormat().equals(InputTypeFormat.DATA_TYPE))
+                            {
+                                // Add all of the column indices of this input type to the list of
+                                // data type column indices
+                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(inputType));
+                            }
+                        }
+
+                        // Step through each data type column index
+                        for (Integer column : dataTypeColumns)
+                        {
+                            // Get the database name of the data type column
+                            String dataTypeColName = typeDefn.getColumnNamesDatabase()[column];
+
+                            // Append the command to change the references in the root table to the
+                            // original renamed table's name to the new name
+                            command += "UPDATE "
+                                       + dbControl.getQuotedName(rootTable)
+                                       + " SET "
+                                       + dataTypeColName
+                                       + " = '"
+                                       + newName
+                                       + "' WHERE "
+                                       + dataTypeColName
+                                       + " = '"
+                                       + tableName + "'; ";
+                        }
+                    }
 
                     // Check if the old and new names differ in more than capitalization
                     if (!dbTableName.equals(dbNewName))
@@ -1363,14 +1408,6 @@ public class CcddDbTableCommandHandler
                     // Update the table comment to reflect the name with case intact
                     command += buildDataTableComment(newName,
                                                      comment[TableCommentIndex.TYPE.ordinal()]);
-
-                    // Search for all occurrences of the old table name in those tables containing
-                    // a data type column and replace the references with the new table name
-                    command += "SELECT update_data_type_names('"
-                               + tableName
-                               + "', '"
-                               + newName
-                               + "');";
 
                     // Execute the command to change the table's name, including the table's
                     // original name (before conversion to all lower case) that's stored as a

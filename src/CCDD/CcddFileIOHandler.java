@@ -499,6 +499,14 @@ public class CcddFileIOHandler
                                     line = "DROP EXTENSION plpgsql;\n" + line;
                                 }
                             }
+                            // TODO
+                            // Check if this line adds a comment to the plpgsql language
+                            else if (line.startsWith("COMMENT ON EXTENSION plpgsql"))
+                            {
+                                // Ignore the comment; this can cause an ownership error and the
+                                // comment isn't needed
+                                line = "";
+                            }
                             // Check if this is the beginning of the command to populate the user
                             // access level table
                             else if (line.startsWith("COPY "
@@ -554,6 +562,25 @@ public class CcddFileIOHandler
                                                + line;
                                     }
                                 }
+                            }
+                            // TODO
+                            // Check if this line is a SQL command that revokes permissions for an
+                            // owner other than PUBLIC
+                            else if (line.matches("REVOKE .+ FROM .+;\\s*")
+                                     && !line.matches("REVOKE .+ FROM PUBLIC;\\s*"))
+                            {
+                                // Change the original owner to the current user
+                                line = line.replaceFirst("FROM .+;",
+                                                         "FROM " + projectOwner + ";");
+                            }
+                            // Check if this line is a SQL command that grants permissions to an
+                            // owner other than PUBLIC
+                            else if (line.matches("GRANT .+ TO .+;\\s*")
+                                     && !line.matches("GRANT .+ TO PUBLIC;\\s*"))
+                            {
+                                // Change the original owner to the current user
+                                line = line.replaceFirst("TO .+;",
+                                                         "TO " + projectOwner + ";");
                             }
 
                             // Check if the database comment hasn't been found already and that the

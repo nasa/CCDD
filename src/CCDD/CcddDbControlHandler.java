@@ -2120,38 +2120,6 @@ public class CcddDbControlHandler
                                                ccddMain.getMainFrame());
                 }
 
-                // Database function to search for all tables containing a data type column, and
-                // replace a target value with a new value
-                dbCommand.executeDbCommand(deleteFunction("update_data_type_names")
-                                           + "CREATE FUNCTION update_data_type_names(oldType text, "
-                                           + "newType text) RETURNS VOID AS $$ BEGIN DECLARE row "
-                                           + "record; BEGIN TRUNCATE "
-                                           + TEMP_TABLE_NAME
-                                           + "; INSERT INTO "
-                                           + TEMP_TABLE_NAME
-                                           + " SELECT t.tablename AS temp_result "
-                                           + "FROM pg_tables AS t WHERE t.schemaname = 'public' "
-                                           + "AND substr(t.tablename, 1, "
-                                           + INTERNAL_TABLE_PREFIX.length()
-                                           + ") != '"
-                                           + INTERNAL_TABLE_PREFIX
-                                           + "'; FOR row IN SELECT * FROM "
-                                           + TEMP_TABLE_NAME
-                                           + " LOOP IF EXISTS (SELECT 1 FROM "
-                                           + "information_schema.columns WHERE table_name = "
-                                           + "row.temp_result AND column_name = '"
-                                           + dbDataType
-                                           + "') THEN EXECUTE E'UPDATE ' || row.temp_result || E' SET "
-                                           + dbDataType
-                                           + " = ''' || newType || E''' WHERE "
-                                           + dbDataType
-                                           + " = ''' || oldType || E''''; END IF; "
-                                           + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
-                                           + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                                               "update_data_type_names(oldType text,"
-                                                                                        + " newType text)"),
-                                           ccddMain.getMainFrame());
-
                 // Inform the user that the database function creation succeeded
                 eventLog.logEvent(SUCCESS_MSG, "Database structure functions created");
             }
