@@ -728,10 +728,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             for (int otherRow = 0; otherRow < getRowCount(); otherRow++)
                             {
                                 // Check if this row isn't the one being edited, and if the data
-                                // type name matches the one being added (case insensitive)
+                                // type name matches the one being added (case sensitive)
                                 if (otherRow != row
-                                    && newValueS.equalsIgnoreCase(CcddDataTypeHandler.getDataTypeName(tableData.get(otherRow)[DataTypeEditorColumnInfo.USER_NAME.ordinal()].toString(),
-                                                                                                      tableData.get(otherRow)[DataTypeEditorColumnInfo.C_NAME.ordinal()].toString())))
+                                    && newValueS.equals(CcddDataTypeHandler.getDataTypeName(tableData.get(otherRow)[DataTypeEditorColumnInfo.USER_NAME.ordinal()].toString(),
+                                                                                            tableData.get(otherRow)[DataTypeEditorColumnInfo.C_NAME.ordinal()].toString())))
                                 {
                                     throw new CCDDException("Data type name already in use");
                                 }

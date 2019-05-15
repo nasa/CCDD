@@ -35,6 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -1306,6 +1308,32 @@ public class CcddFileIOHandler
 
         List<TableDefinition> orderedTableDefinitions = new ArrayList<TableDefinition>();
         List<String> orderedTableNames = new ArrayList<String>();
+
+        // Sort the table definitions by the table path+names. This is to ensure a prototype isn't
+        // created as an ancestor when a child already exists that defines the prototype (if the
+        // actual prototype exists or the flag to replace existing tables is set then this isn't
+        // necessary)
+        Collections.sort(tableDefinitions, new Comparator<Object>()
+        {
+            /**************************************************************************************
+             * Compare table names
+             *
+             * @param tblInfo1
+             *            first table's information
+             *
+             * @param tblInfo2
+             *            second table's information
+             *
+             * @return -1 if the first table's name is lexically less than the second table's name;
+             *         0 if the two table names are the same; 1 if the first table's name is
+             *         lexically greater than the second table's name
+             *************************************************************************************/
+            @Override
+            public int compare(Object tblInfo1, Object tblInfo2)
+            {
+                return ((TableDefinition) tblInfo1).getName().compareTo(((TableDefinition) tblInfo2).getName());
+            }
+        });
 
         // Step through each table definition
         for (TableDefinition tableDefn : tableDefinitions)

@@ -36,7 +36,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddClassesComponent.ToolTipTreeNode;

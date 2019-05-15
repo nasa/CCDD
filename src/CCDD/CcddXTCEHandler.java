@@ -3191,6 +3191,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // references are ignored
                 processedTables.add(tableName);
 
+                System.out.println("Load table: " + loadTableName); // TODO
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(loadTableName,
                                                                    true,

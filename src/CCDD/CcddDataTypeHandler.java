@@ -227,8 +227,9 @@ public class CcddDataTypeHandler
         // Step through each defined data type
         for (String[] type : dataTypes)
         {
-            // Check if the supplied name matches this data type's name
-            if (dataTypeName.equalsIgnoreCase(getDataTypeName(type)))
+            // Check if the supplied name matches this data type's name. The names are case
+            // sensitive
+            if (dataTypeName.equals(getDataTypeName(type)))
             {
                 // Store the data type information and stop searching
                 dataType = type;

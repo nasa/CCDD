@@ -1767,11 +1767,11 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <pre>protected&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;getSelectedTablesWithChildren()</pre>
 <div class="block">Get a list of the tables (with their paths) represented by the selected nodes. If a header
  node (i.e., a non-table node, such as a group or type node) is selected then all of its
- child tables are added to the list</div>
+ child tables are added to the list. HTML tags are removed from the returned table path+names</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the table path+names of the selected node(s) with no duplicate table
-         references</dd>
+         references and with any HTML tags removed</dd>
 </dl>
 </li>
 </ul>
@@ -1784,13 +1784,13 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <pre>protected&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;getTablesWithChildren(java.util.List&lt;java.lang.String&gt;&nbsp;tables)</pre>
 <div class="block">Get a list of the specified table name(s), and include all descendant tables for those
  tables that are root structures. The node with the default instance node name is used to
- search for root table descendants</div>
+ search for root table descendants. HTML tags are removed from the returned table path+names</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tables</code> - list of tables for which the descendants are required</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the table path+names of the specified table(s) with the descendants
-         of these tables (if applicable and any exist)</dd>
+         of these tables (if applicable and any exist) and with any HTML tags removed</dd>
 </dl>
 </li>
 </ul>
@@ -1805,10 +1805,12 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  node (i.e., a non-table node one level above a table node, such as a group or type node) is
  selected then its descendants are checked, recursively, until the level containing tables is
  found; these tables are added to the list. If a selected node isn't a header node then
- ignore the node if it has a selected ancestor node</div>
+ ignore the node if it has a selected ancestor node. HTML tags are removed from the returned
+ table path+names</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>List containing the table path+names of the selected node(s)</dd>
+<dd>List containing the table path+names of the selected node(s) with any HTML tags
+         removed</dd>
 </dl>
 </li>
 </ul>
@@ -1820,13 +1822,14 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <h4>getTablesWithoutChildren</h4>
 <pre>protected&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;getTablesWithoutChildren(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node)</pre>
 <div class="block">Get a list of the table names that are the descendants of the specified node (do not include
- any duplicates or children of these descendants, if any). This is a recursive method</div>
+ any duplicates or children of these descendants, if any). HTML tags are removed from the
+ returned table path+names. This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>node</code> - tree node for which to get the table names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the table path+names of the specified node, excluding any duplicates
-         and children of these descendant tables</dd>
+         and children of these descendant tables, with any HTML tags removed</dd>
 </dl>
 </li>
 </ul>

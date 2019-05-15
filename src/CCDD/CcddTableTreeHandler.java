@@ -1944,10 +1944,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get a list of the tables (with their paths) represented by the selected nodes. If a header
      * node (i.e., a non-table node, such as a group or type node) is selected then all of its
-     * child tables are added to the list
+     * child tables are added to the list. HTML tags are removed from the returned table path+names
      *
      * @return List containing the table path+names of the selected node(s) with no duplicate table
-     *         references
+     *         references and with any HTML tags removed
      *********************************************************************************************/
     protected List<String> getSelectedTablesWithChildren()
     {
@@ -1981,7 +1981,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         for (Object[] childPath : childPaths)
                         {
                             // Get the table's full path (with the root table)
-                            String fullPath = getFullVariablePath(childPath);
+                            String fullPath = CcddUtilities.removeHTMLTags(getFullVariablePath(childPath));
 
                             // Check if the table isn't already in the list
                             if (!fullPath.isEmpty() && !tables.contains(fullPath))
@@ -2000,7 +2000,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 else
                 {
                     // Get the table's full path (with the root table)
-                    String fullPath = getFullVariablePath(node.getPath());
+                    String fullPath = CcddUtilities.removeHTMLTags(getFullVariablePath(node.getPath()));
 
                     // Check if the table isn't already in the list
                     if (!tables.contains(fullPath))
@@ -2018,13 +2018,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get a list of the specified table name(s), and include all descendant tables for those
      * tables that are root structures. The node with the default instance node name is used to
-     * search for root table descendants
+     * search for root table descendants. HTML tags are removed from the returned table path+names
      *
      * @param tables
      *            list of tables for which the descendants are required
      *
      * @return List containing the table path+names of the specified table(s) with the descendants
-     *         of these tables (if applicable and any exist)
+     *         of these tables (if applicable and any exist) and with any HTML tags removed
      *********************************************************************************************/
     protected List<String> getTablesWithChildren(List<String> tables)
     {
@@ -2052,7 +2052,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 for (Object[] childPath : childPaths)
                 {
                     // Get the table's full path (with the root table)
-                    String fullPath = getFullVariablePath(childPath);
+                    String fullPath = CcddUtilities.removeHTMLTags(getFullVariablePath(childPath));
 
                     // Check if the table isn't already in the list
                     if (!tablesWithChildren.contains(fullPath))
@@ -2072,9 +2072,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * node (i.e., a non-table node one level above a table node, such as a group or type node) is
      * selected then its descendants are checked, recursively, until the level containing tables is
      * found; these tables are added to the list. If a selected node isn't a header node then
-     * ignore the node if it has a selected ancestor node
+     * ignore the node if it has a selected ancestor node. HTML tags are removed from the returned
+     * table path+names
      *
-     * @return List containing the table path+names of the selected node(s)
+     * @return List containing the table path+names of the selected node(s) with any HTML tags
+     *         removed
      *********************************************************************************************/
     protected List<String> getSelectedTablesWithoutChildren()
     {
@@ -2095,7 +2097,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     && !tables.contains(node.getUserObject().toString()))
                 {
                     // Add the selected table to the list
-                    tables.add(getFullVariablePath(node.getPath()));
+                    tables.add(CcddUtilities.removeHTMLTags(getFullVariablePath(node.getPath())));
                 }
 
                 // Step through all of the tables that are descendants of this node (excluding any
@@ -2117,13 +2119,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
     /**********************************************************************************************
      * Get a list of the table names that are the descendants of the specified node (do not include
-     * any duplicates or children of these descendants, if any). This is a recursive method
+     * any duplicates or children of these descendants, if any). HTML tags are removed from the
+     * returned table path+names. This is a recursive method
      *
      * @param node
      *            tree node for which to get the table names
      *
      * @return List containing the table path+names of the specified node, excluding any duplicates
-     *         and children of these descendant tables
+     *         and children of these descendant tables, with any HTML tags removed
      *********************************************************************************************/
     protected List<String> getTablesWithoutChildren(ToolTipTreeNode node)
     {
@@ -2155,7 +2158,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             if (!isParentSelected)
             {
                 // Get the table's full path
-                String fullPath = getFullVariablePath(node.getPath());
+                String fullPath = CcddUtilities.removeHTMLTags(getFullVariablePath(node.getPath()));
 
                 // Check if the list doesn't already contain the table
                 if (!tables.contains(fullPath))

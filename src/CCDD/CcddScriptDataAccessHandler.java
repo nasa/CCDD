@@ -3467,6 +3467,41 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public boolean isStructureShared(String structureName)
     {
+        return isStructureShared(structureName, false);
+    }
+
+    /**********************************************************************************************
+     * Determine if the specified structure is referenced by more than one root structure, and that
+     * at least one of the structures is not associated with the script
+     *
+     * @param structureName
+     *            prototype name of the structure to check
+     *
+     * @return true if the specified structure is referenced by more than one root structure at
+     *         least one of these structures is not associated with the script ; false otherwise
+     *********************************************************************************************/
+    public boolean isStructureSharedExternally(String structureName)
+    {
+        return isStructureShared(structureName, true);
+    }
+
+    /**********************************************************************************************
+     * Determine if the specified structure is referenced by more than one root structure. A flag
+     * is used to confine the check to structures not associated with the script
+     *
+     * @param structureName
+     *            prototype name of the structure to check
+     *
+     * @param isExternal
+     *            true to only check if the structure is shared by at least one structure not
+     *            associated with the script
+     *
+     * @return true if the specified structure is referenced by more than one root structure and,
+     *         if the check is for external shared references, that the structure is shared with a
+     *         root structure not associated with the script ; false otherwise
+     *********************************************************************************************/
+    private boolean isStructureShared(String structureName, boolean isExternal)
+    {
         boolean isShared = false;
 
         // Check if a structure name is provided
@@ -3480,17 +3515,39 @@ public class CcddScriptDataAccessHandler
             // Check that the target structure appears in at least two paths
             if (memberPaths.size() > 1)
             {
+                List<String> structureTableNames = null;
+                boolean isTargetExternal = false;
+
                 // Get the root table for the first path
                 String target = tableTree.getVariableRootFromNodePath(memberPaths.get(0));
+
+                // Check if looking for externally shared references only
+                if (isExternal)
+                {
+                    // Get the list of all structure table names associated with the script
+                    structureTableNames = Arrays.asList(getStructureTableNames());
+
+                    // Set the flag to true if the target is external
+                    isTargetExternal = !structureTableNames.contains(target);
+                }
 
                 // Step through the remaining paths
                 for (int index = 1; index < memberPaths.size(); index++)
                 {
-                    // Check if the root table differs from the first path's root table
-                    if (!target.equals(tableTree.getVariableRootFromNodePath(memberPaths.get(index))))
+                    // Get the root table for the comparison path
+                    String compare = tableTree.getVariableRootFromNodePath(memberPaths.get(index));
+
+                    // Check if the comparison root table differs from the first path's root table
+                    // and, if checking for externally shared structures, that the shared structure
+                    // isn't referenced by a table associated with the script
+                    if (!target.equals(compare)
+                        && (!isExternal
+                            || isTargetExternal
+                            || !structureTableNames.contains(compare)))
                     {
                         // Set the flag indicating that the target structure is referenced by more
-                        // than one root table and stop searching
+                        // than one root table and at least one is not among the associated
+                        // structure tables, and stop searching
                         isShared = true;
                         break;
                     }

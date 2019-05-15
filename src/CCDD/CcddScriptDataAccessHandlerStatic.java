@@ -566,6 +566,11 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.isStructureShared(structureName);
     }
 
+    public boolean isStructureSharedExternally(String structureName)
+    {
+        return accessHandler.isStructureSharedExternally(structureName);
+    }
+
     public static String[] getVariablePaths()
     {
         return accessHandler.getVariablePaths();
