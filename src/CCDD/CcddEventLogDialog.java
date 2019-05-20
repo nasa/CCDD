@@ -1020,40 +1020,6 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 }
             });
         }
-
-        // Check if the event log file exists
-        if (isLogWrite)
-        {
-            try
-            {
-                // Use a StringBuilder to concatenate the log message in case the message is
-                // lengthy (StringBuilder is much faster than string concatenation using '+')
-                StringBuilder logEntry = new StringBuilder(server
-                                                           + "|"
-                                                           + database
-                                                           + "|"
-                                                           + user
-                                                           + "|"
-                                                           + timestamp
-                                                           + "|"
-                                                           + type.getTypeName()
-                                                           + "|");
-                logEntry.append(message);
-
-                // Write the message to the event log file
-                logWriter.println(logEntry.toString());
-                logWriter.flush();
-            }
-            catch (Exception e)
-            {
-                // Inform the user that an error occurred writing to the log
-                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>Cannot write to event log",
-                                                          "Log Error",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-            }
-        }
     }
 
     /**********************************************************************************************
@@ -1153,6 +1119,40 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
         // Update the log entry counter
         indexNum++;
+
+        // Check if the event log file exists
+        if (isLogWrite)
+        {
+            try
+            {
+                // Use a StringBuilder to concatenate the log message in case the message is
+                // lengthy (StringBuilder is much faster than string concatenation using '+')
+                StringBuilder logEntry = new StringBuilder(server
+                                                           + "|"
+                                                           + database
+                                                           + "|"
+                                                           + user
+                                                           + "|"
+                                                           + timestamp
+                                                           + "|"
+                                                           + type.getTypeName()
+                                                           + "|");
+                logEntry.append(logMessage);
+
+                // Write the message to the event log file
+                logWriter.println(logEntry.toString());
+                logWriter.flush();
+            }
+            catch (Exception e)
+            {
+                // Inform the user that an error occurred writing to the log
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>Cannot write to event log",
+                                                          "Log Error",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+        }
     }
 
     /**********************************************************************************************

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -95,19 +94,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     // Flag indicating if a change in column order occurred
     private boolean columnOrderChange;
 
-    // Flag indicating the table type definition has an invalid input type
-    private boolean isBadType;
-
-    // Table type indicator
-    private TableTypeIndicator typeOfTable;
-
-    // Table types
-    private static enum TableTypeIndicator
-    {
-        IS_STRUCTURE,
-        IS_COMMAND,
-        IS_OTHER;
-    }
+    // Table type
+    private String typeOfTable;
 
     /**********************************************************************************************
      * Table type editor handler class constructor
@@ -144,10 +132,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
             // Set the flag to indicate the current table type: structure, command, or other
             typeOfTable = typeDefinition.isStructure()
-                                                       ? TableTypeIndicator.IS_STRUCTURE
+                                                       ? TYPE_STRUCTURE
                                                        : (typeDefinition.isCommand()
-                                                                                     ? TableTypeIndicator.IS_COMMAND
-                                                                                     : TableTypeIndicator.IS_OTHER);
+                                                                                     ? TYPE_COMMAND
+                                                                                     : TYPE_OTHER);
         }
         // This is a new type
         else
@@ -158,10 +146,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
             // Set the flag to indicate that the table type currently represents neither a
             // structure or a command
-            typeOfTable = TableTypeIndicator.IS_OTHER;
+            typeOfTable = TYPE_OTHER;
         }
-
-        isBadType = false;
 
         // Create a copy of the field information
         setCommittedInformation();
@@ -440,7 +426,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             protected boolean isColumnHidden(int column)
             {
                 return column == TableTypeEditorColumnInfo.INDEX.ordinal()
-                       || (typeOfTable != TableTypeIndicator.IS_STRUCTURE
+                       || (!typeOfTable.equals(TYPE_STRUCTURE)
                            && (column == TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
                                || column == TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()));
             }
@@ -684,26 +670,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                     + newValueS
                                                     + "<b>'");
                         }
-
-                        // Get the table type (structure, command, or other) based on the column
-                        // definition input types
-                        TableTypeIndicator typeOfTableNew = getTypeOfTable();
-
-                        // Check if the table type changed and if the table type represents a
-                        // structure or command
-                        if (typeOfTableNew != typeOfTable
-                            && typeOfTableNew != TableTypeIndicator.IS_OTHER)
-                        {
-                            // Get the invalid input types, if any
-                            String msg = getInvalidInputTypes(typeOfTableNew);
-
-                            // Check if an input type defined as unique is used more than once in
-                            // the table type definition
-                            if (!msg.isEmpty())
-                            {
-                                throw new CCDDException(msg);
-                            }
-                        }
                     }
                 }
                 catch (CCDDException ce)
@@ -823,11 +789,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     }
                     // Check if the cell is in a column that is required in order to define the
                     // table type as a structure or command table
-                    else if (DefaultColumn.isTypeRequiredColumn((typeOfTable == TableTypeIndicator.IS_STRUCTURE
-                                                                                                                ? TYPE_STRUCTURE
-                                                                                                                : (typeOfTable == TableTypeIndicator.IS_COMMAND
-                                                                                                                                                                ? TYPE_COMMAND
-                                                                                                                                                                : TYPE_OTHER)),
+                    else if (DefaultColumn.isTypeRequiredColumn(typeOfTable,
                                                                 inputTypeHandler,
                                                                 inputTypeHandler.getInputTypeByName(table.getValueAt(row,
                                                                                                                      inputTypeIndex)
@@ -859,90 +821,65 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected void processTableContentChange()
             {
-                // Check if there are no duplicated input types that are defined as unique
-                if (!isBadType)
+                // Get the table type based on the column definition input types
+                String typeOfTableNew = getTypeOfTable();
+
+                // Check if the table type changed
+                if (typeOfTableNew != typeOfTable)
                 {
-                    // Get the table type based on the column definition input types
-                    TableTypeIndicator typeOfTableNew = getTypeOfTable();
+                    // Store the new table type
+                    typeOfTable = typeOfTableNew;
 
-                    // Check if the table type changed to/from representing a structure
-                    if (typeOfTableNew != typeOfTable)
-                    {
-                        // Store the new table type
-                        typeOfTable = typeOfTableNew;
-
-                        // Show/hide the structure table type specific editor columns
-                        table.updateHiddenColumns();
-
-                        // Update the input type combo box item list, enabling and/or disabling
-                        // items based on those currently in use
-                        comboBox.setModel(new DefaultComboBoxModel<String>(getInputTypeNames()));
-                    }
-
-                    // Check if the table type represents a structure
-                    if (typeOfTableNew == TableTypeIndicator.IS_STRUCTURE)
-                    {
-                        // Step through each row (column definition) in the table
-                        for (int row = 0; row < table.getModel().getRowCount(); row++)
-                        {
-                            // Get the reference to the table model to shorten subsequent calls
-                            UndoableTableModel tableModel = (UndoableTableModel) table.getModel();
-
-                            // Get the column definition's input type
-                            InputType inputType = inputTypeHandler.getInputTypeByName(tableModel.getValueAt(row,
-                                                                                                            TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
-                                                                                                .toString());
-
-                            // Check if the input type is a default, versus a custom type
-                            if (inputType != null)
-                            {
-                                // Check if this column represents the variable name, data type,
-                                // array size, bit length, enumeration, or variable path
-                                if (inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE))
-                                    || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIM_AND_STRUCT))
-                                    || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARRAY_INDEX))
-                                    || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BIT_LENGTH))
-                                    || inputType.getInputFormat().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION).getInputFormat())
-                                    || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE_PATH)))
-                                {
-                                    // Select the structure and pointer allowed check boxes since
-                                    // these columns always are valid for structure and pointer
-                                    // data types
-                                    tableModel.setValueAt(true,
-                                                          row,
-                                                          TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal(),
-                                                          false);
-                                    tableModel.setValueAt(true,
-                                                          row,
-                                                          TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal(),
-                                                          false);
-                                }
-                                // Check if this is the rate column
-                                else if (inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.RATE)))
-                                {
-                                    // Deselect the structure allowed and set the pointer allowed
-                                    // check boxes since a rate column isn't valid for a structure
-                                    // data type but is valid for a pointer data type
-                                    tableModel.setValueAt(false,
-                                                          row,
-                                                          TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal(),
-                                                          false);
-                                    tableModel.setValueAt(true,
-                                                          row,
-                                                          TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal(),
-                                                          false);
-                                }
-                            }
-                        }
-                    }
-
-                    // Update the change indicator for the table
-                    editorDialog.updateChangeIndicator(CcddTableTypeEditorHandler.this);
+                    // Show/hide the structure table type specific editor columns
+                    table.updateHiddenColumns();
                 }
 
-                // Reset the bad input type flag so that subsequent table type changes are
-                // processed
-                isBadType = false;
+                // Check if the table type represents a structure
+                if (typeOfTableNew.equals(TYPE_STRUCTURE))
+                {
+                    // Step through each row (column definition) in the table
+                    for (int row = 0; row < table.getModel().getRowCount(); row++)
+                    {
+                        // Get the reference to the table model to shorten subsequent calls
+                        UndoableTableModel tableModel = (UndoableTableModel) table.getModel();
+
+                        // Get the column definition's input type
+                        InputType inputType = inputTypeHandler.getInputTypeByName(tableModel.getValueAt(row,
+                                                                                                        TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
+                                                                                            .toString());
+
+                        // Check if this column represents the variable name, data type, array
+                        // size, bit length, enumeration, or variable path
+                        if (inputType != null
+                            && (inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE))
+                                ||
+                                inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIM_AND_STRUCT))
+                                ||
+                                inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARRAY_INDEX))
+                                ||
+                                inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BIT_LENGTH))
+                                ||
+                                inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION))
+                                ||
+                                inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE_PATH))
+                                || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.RATE))))
+                        {
+                            // Set the structure and pointer allowed check boxes based on the
+                            // default column definition
+                            tableModel.setValueAt(typeDefinition.isStructureAllowed()[typeDefinition.getColumnIndexByInputType(inputType)],
+                                                  row,
+                                                  TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal(),
+                                                  false);
+                            tableModel.setValueAt(typeDefinition.isPointerAllowed()[typeDefinition.getColumnIndexByInputType(inputType)],
+                                                  row,
+                                                  TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal(),
+                                                  false);
+                        }
+                    }
+                }
+
+                // Update the change indicator for the table
+                editorDialog.updateChangeIndicator(CcddTableTypeEditorHandler.this);
             }
         };
 
@@ -986,9 +923,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Get the table type based on the column definition input types
      *
-     * @return Table type indicator
+     * @return Table type: TYPE_STRUCTURE for a structure table, TYPE_COMMAND for a command table,
+     *         or TYPE_OTHER for any other table type
      *********************************************************************************************/
-    private TableTypeIndicator getTypeOfTable()
+    private String getTypeOfTable()
     {
         // Set the flags that indicate if the table type currently represents a structure or a
         // command
@@ -1048,35 +986,28 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         }
 
         return isStructure
-                           ? TableTypeIndicator.IS_STRUCTURE
+                           ? TYPE_STRUCTURE
                            : (isCommand
-                                        ? TableTypeIndicator.IS_COMMAND
-                                        : TableTypeIndicator.IS_OTHER);
+                                        ? TYPE_COMMAND
+                                        : TYPE_OTHER);
     }
 
     /**********************************************************************************************
      * Get the input types that are defined as unique, but are referenced by more than one column
      * definition
      *
-     * @param tableTypeInd
-     *            TableTypeIndicator, indicating the type of table to check
-     *
-     * @return Blank if there are no duplicated input type that are defined as unique; otherwise, a
-     *         text message indicating the invalid input types
+     * @return true if there are duplicated input types that are defined as unique
      *********************************************************************************************/
-    private String getInvalidInputTypes(TableTypeIndicator tableTypeInd)
+    protected boolean isInvalidInputTypes()
     {
+        boolean isBadType = false;
         String invalidTypes = "";
 
-        // Get the table type from the table type indicator
-        String tableType = tableTypeInd == TableTypeIndicator.IS_STRUCTURE
-                                                                           ? TYPE_STRUCTURE
-                                                                           : (tableTypeInd == TableTypeIndicator.IS_COMMAND
-                                                                                                                            ? TYPE_COMMAND
-                                                                                                                            : null);
+        // Get the table type
+        String tableType = getTypeOfTable();
 
         // Check if the table type currently represents a structure or command
-        if (tableType != null)
+        if (!tableType.equals(TYPE_OTHER))
         {
             // Get the table type data array
             Object[][] typeData = table.getTableData(true);
@@ -1111,75 +1042,29 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     }
                 }
             }
-        }
 
-        // Check if an invalid input type exists
-        if (!invalidTypes.isEmpty())
-        {
-            // Update the invalid input type message
-            invalidTypes = "Tables of type '"
-                           + tableType
-                           + "' may not have more than one column with "
-                           + "input type(s):</b><br>&#160;&#160;&#160;"
-                           + CcddUtilities.removeTrailer(invalidTypes, ", ");
-
-            // Set the flag to indicate the table type definition has an invalid input type. This
-            // flag is used to inhibit processing of the table content change
-            isBadType = true;
-        }
-
-        return invalidTypes;
-    }
-
-    /**********************************************************************************************
-     * Get the item names for the combo box containing the available table type input types for
-     * display in the table's Input Type cells. Enable/disable the items based on the current usage
-     * in the table type and the type's input type flag settings
-     *
-     * @return Array of item names for the combo box containing the available table type input
-     *         types for display in the table's Input Type cells
-     *********************************************************************************************/
-    private String[] getInputTypeNames()
-    {
-        // Get the list of all input types
-        String[] inputNames = inputTypeHandler.getInputTypeNames();
-
-        // Step through each row in the table type
-        for (int row = 0; row < table.getRowCount(); row++)
-        {
-            // Step through each input type
-            for (int index = 0; index < inputNames.length; index++)
+            // Check if an invalid input type exists
+            if (!invalidTypes.isEmpty())
             {
-                // Get the input type for this row
-                String inputType = table.getModel().getValueAt(row,
-                                                               TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
-                                        .toString();
+                // Set the flag to indicate the table type definition has an invalid input type
+                isBadType = true;
 
-                // Get the input name without any HTML tags
-                String inputName = CcddUtilities.removeHTMLTags(inputNames[index]);
+                // Inform the user that the input value is invalid
+                new CcddDialogHandler().showMessageDialog(editorDialog,
+                                                          "<html><b>"
+                                                                        + "Tables of type '"
+                                                                        + tableType
+                                                                        + "' may not have more than one column with "
+                                                                        + "input type(s):</b><br>&#160;&#160;&#160;"
+                                                                        + CcddUtilities.removeTrailer(invalidTypes, ", "),
+                                                          "Invalid Input",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
 
-                // Check if the input type should be disabled based on the following criteria:
-                if (
-                // The input type matches the one on this row and this input type can only be used
-                // once in a table type
-                (inputType.equals(inputNames[index])
-                 && ((typeOfTable == TableTypeIndicator.IS_STRUCTURE
-                      && DefaultColumn.isInputTypeUnique(TYPE_STRUCTURE, inputNames[index]))
-                     || (typeOfTable == TableTypeIndicator.IS_COMMAND
-                         && DefaultColumn.isInputTypeUnique(TYPE_COMMAND, inputNames[index]))))
-
-                    // The table type doesn't represent a structure and the input type is the
-                    // variable path
-                    || (typeOfTable != TableTypeIndicator.IS_STRUCTURE
-                        && inputName.equals(DefaultInputType.VARIABLE_PATH.getInputName())))
-                {
-                    // Set the input type so that it appears disabled in the list
-                    inputNames[index] = DISABLED_TEXT_COLOR + inputNames[index];
-                }
             }
         }
 
-        return inputNames;
+        return isBadType;
     }
 
     /**********************************************************************************************
@@ -1189,29 +1074,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private void setUpInputTypeColumn()
     {
         // Create a combo box for displaying table type input types
-        comboBox = new PaddedComboBox(getInputTypeNames(),
+        comboBox = new PaddedComboBox(inputTypeHandler.getInputTypeNames(),
                                       inputTypeHandler.getDescriptions(),
-                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont())
-        {
-            /**************************************************************************************
-             * Override so that items flagged as disabled (grayed out) are correctly identified and
-             * selected
-             *************************************************************************************/
-            @Override
-            public void setSelectedItem(Object anObject)
-            {
-                // Check if the specified item with the disable tag prepended is in the combo box
-                // list
-                if (getIndexOfItem(DISABLED_TEXT_COLOR + anObject.toString()) != -1)
-                {
-                    // Update the specified item to include the disable tag
-                    anObject = DISABLED_TEXT_COLOR + anObject;
-                }
-
-                // Set the selected item to the specified item, if it exists in the list
-                super.setSelectedItem(anObject);
-            }
-        };
+                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
         // Get the index of the input type column in view coordinates
         inputTypeIndex = table.convertColumnIndexToView(TableTypeEditorColumnInfo.INPUT_TYPE.ordinal());

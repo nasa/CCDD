@@ -1103,10 +1103,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         changedTypes.add(activeEditor.getTypeName());
 
                         // Only update the table in the database if a cell's content has changed,
-                        // none of the required columns is missing a value, and the user confirms
-                        // the action
+                        // none of the required columns is missing a value, no duplicate input
+                        // types exists for types defined as unique, and the user confirms the
+                        // action
                         if (activeEditor.isTableChanged()
                             && !activeEditor.checkForMissingColumns()
+                            && !activeEditor.isInvalidInputTypes()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
                                                                          "<html><b>Store changes in project database?",
                                                                          "Store Changes",

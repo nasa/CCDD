@@ -499,7 +499,6 @@ public class CcddFileIOHandler
                                     line = "DROP EXTENSION plpgsql;\n" + line;
                                 }
                             }
-                            // TODO
                             // Check if this line adds a comment to the plpgsql language
                             else if (line.startsWith("COMMENT ON EXTENSION plpgsql"))
                             {
@@ -563,7 +562,6 @@ public class CcddFileIOHandler
                                     }
                                 }
                             }
-                            // TODO
                             // Check if this line is a SQL command that revokes permissions for an
                             // owner other than PUBLIC
                             else if (line.matches("REVOKE .+ FROM .+;\\s*")
