@@ -273,7 +273,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
+<td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupDatabase-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupDatabase</a></span>(java.lang.String&nbsp;projectName,
               <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
 <div class="block">Backup a project database</div>
@@ -2290,13 +2290,15 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>backupDatabase</h4>
-<pre>protected&nbsp;void&nbsp;backupDatabase(java.lang.String&nbsp;projectName,
-                              <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</pre>
+<pre>protected&nbsp;boolean&nbsp;backupDatabase(java.lang.String&nbsp;projectName,
+                                 <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</pre>
 <div class="block">Backup a project database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>projectName</code> - project name</dd>
 <dd><code>backupFile</code> - file to which to backup the database</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if an the database could not be backed up</dd>
 </dl>
 </li>
 </ul>

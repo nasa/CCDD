@@ -328,13 +328,16 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>backupDatabase</h4>
-<pre>private&nbsp;void&nbsp;backupDatabase(<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a>&nbsp;dbControl)</pre>
+<pre>private&nbsp;void&nbsp;backupDatabase(<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a>&nbsp;dbControl)
+                     throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
 <div class="block">Backup the project database. Store the backup file in the folder specified in the program
  preferences (or the CCDD start-up folder if no preference is specified). The file name is a
  combination of the project's database name and the current date/time stamp</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dbControl</code> - reference to the database control class</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the project database cannot be backed up and the user elects to not continue</dd>
 </dl>
 </li>
 </ul>

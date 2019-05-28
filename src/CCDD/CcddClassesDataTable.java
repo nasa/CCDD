@@ -4254,9 +4254,7 @@ public class CcddClassesDataTable
                 if (table.isRowSelected(row))
                 {
                     // Get the variable path for this row with the HTML tag removed
-                    String tableName = table.getModel()
-                                            .getValueAt(row, tableNameColumn)
-                                            .toString();
+                    String tableName = table.getValueAt(row, tableNameColumn).toString();
 
                     // Check if the table meets the criteria for inclusion in the list of tables to
                     // open

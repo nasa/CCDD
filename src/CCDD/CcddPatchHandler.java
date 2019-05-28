@@ -146,8 +146,11 @@ public class CcddPatchHandler
      *
      * @param dbControl
      *            reference to the database control class
+     * 
+     * @throws CCDDException
+     *             If the project database cannot be backed up and the user elects to not continue
      *********************************************************************************************/
-    private void backupDatabase(CcddDbControlHandler dbControl)
+    private void backupDatabase(CcddDbControlHandler dbControl) throws CCDDException
     {
         // Set the flag if the current user's password is non-blank. Depending on the
         // authentication set-up and operating system, the password may still be required by the
@@ -170,16 +173,28 @@ public class CcddPatchHandler
         // blank)
         if (isPasswordSet)
         {
-            // Back up the project database before applying the patch
-            dbControl.backupDatabase(dbControl.getProjectName(),
-                                     new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath().isEmpty()
-                                                                                                                 ? ""
-                                                                                                                 : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                                                                                   + File.separator)
-                                                    + dbControl.getDatabaseName()
-                                                    + "_"
-                                                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                    + FileExtension.DBU.getExtension()));
+            // Check if backing up the project database failed
+            if (dbControl.backupDatabase(dbControl.getProjectName(),
+                                         new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath().isEmpty()
+                                                                                                                     ? ""
+                                                                                                                     : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                                                                                       + File.separator)
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension())))
+            {
+                // Inform the user that the backup failed and check if the user elects to not
+                // continue the patch operation
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Unable to back up project database, continue?",
+                                                              "Backup Project", // TODO
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    throw new CCDDException("Unable to back up project database");
+                }
+            }
         }
     }
 

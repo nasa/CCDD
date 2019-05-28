@@ -3248,8 +3248,10 @@ public class CcddDbControlHandler
      *
      * @param backupFile
      *            file to which to backup the database
+     *
+     * @return true if an the database could not be backed up
      *********************************************************************************************/
-    protected void backupDatabase(String projectName, FileEnvVar backupFile)
+    protected boolean backupDatabase(String projectName, FileEnvVar backupFile)
     {
         String errorType = "";
 
@@ -3300,6 +3302,8 @@ public class CcddDbControlHandler
                                                            + "'",
                                   "<html><b>Project '</b>" + projectName + "<b>' backup failed");
         }
+
+        return !errorType.isEmpty();
     }
 
     /**********************************************************************************************
