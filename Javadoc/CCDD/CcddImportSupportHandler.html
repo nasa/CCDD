@@ -221,8 +221,9 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a></span>(java.lang.String[]&nbsp;groupDefn,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-boolean-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a></span>(java.lang.String[]&nbsp;groupDefn,
                           java.lang.String&nbsp;fileName,
+                          boolean&nbsp;replaceExistingGroups,
                           <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler)</code>
 <div class="block">Add a group's information from the supplied group definition after verifying the input
  parameters</div>
@@ -510,7 +511,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="addImportedGroupDefinition-java.lang.String:A-java.lang.String-CCDD.CcddGroupHandler-">
+<a name="addImportedGroupDefinition-java.lang.String:A-java.lang.String-boolean-CCDD.CcddGroupHandler-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -518,6 +519,7 @@ extends java.lang.Object</pre>
 <h4>addImportedGroupDefinition</h4>
 <pre>protected&nbsp;void&nbsp;addImportedGroupDefinition(java.lang.String[]&nbsp;groupDefn,
                                           java.lang.String&nbsp;fileName,
+                                          boolean&nbsp;replaceExistingGroups,
                                           <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler)
                                    throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
 <div class="block">Add a group's information from the supplied group definition after verifying the input
@@ -526,6 +528,7 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>groupDefn</code> - array containing the group definition</dd>
 <dd><code>fileName</code> - import file name</dd>
+<dd><code>replaceExistingGroups</code> - true to replace existing group definitions</dd>
 <dd><code>groupHandler</code> - group handler reference</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the group name or member table list is missing</dd>

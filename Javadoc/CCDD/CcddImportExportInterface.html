@@ -178,11 +178,12 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
-              boolean&nbsp;replaceExistingMacros)</code>
+              boolean&nbsp;replaceExistingMacros,
+              boolean&nbsp;replaceExistingGroups)</code>
 <div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
@@ -231,7 +232,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">
+<a name="importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -241,7 +242,8 @@ var activeTableTab = "activeTableTab";
                     <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
                     <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
                     boolean&nbsp;ignoreErrors,
-                    boolean&nbsp;replaceExistingMacros)
+                    boolean&nbsp;replaceExistingMacros,
+                    boolean&nbsp;replaceExistingGroups)
              throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
                     java.io.IOException,
                     java.lang.Exception</pre>
@@ -256,6 +258,7 @@ var activeTableTab = "activeTableTab";
             importing all tables</dd>
 <dd><code>ignoreErrors</code> - true to ignore all errors in the import file</dd>
 <dd><code>replaceExistingMacros</code> - true to replace the values for existing macros</dd>
+<dd><code>replaceExistingGroups</code> - true to replace existing group definitions</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If data is missing, extraneous, or an error in the import file</dd>
 <dd><code>java.io.IOException</code> - If an import file I/O error occurs</dd>

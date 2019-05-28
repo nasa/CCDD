@@ -217,6 +217,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param replaceExistingMacros
      *            true to replace the values for existing macros
      *
+     * @param replaceExistingGroups
+     *            true to replace existing group definitions
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -231,7 +234,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
                                boolean ignoreErrors,
-                               boolean replaceExistingMacros) throws CCDDException,
+                               boolean replaceExistingMacros,
+                               boolean replaceExistingGroups) throws CCDDException,
                                                               IOException,
                                                               Exception
     {
@@ -789,6 +793,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                              columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
                                                                                              columnValues[GroupDefinitionColumn.MEMBERS.ordinal()]},
                                                                                importFile.getAbsolutePath(),
+                                                                               replaceExistingGroups,
                                                                                groupHandler);
                                                 }
                                                 // The number of inputs is incorrect
@@ -1707,7 +1712,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                            Boolean.toString(groupInfo.isApplication())));
 
                         // Step through each group table member
-                        for (String member : groupInfo.getTableMembers())
+                        for (String member : groupInfo.getTablesAndAncestors())
                         {
                             // Output the table member
                             pw.printf((isFirst

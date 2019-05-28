@@ -670,11 +670,12 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
-              boolean&nbsp;replaceExistingMacros)</code>
+              boolean&nbsp;replaceExistingMacros,
+              boolean&nbsp;replaceExistingGroups)</code>
 <div class="block">Import the the table definitions from an XTCE XML formatted file</div>
 </td>
 </tr>
@@ -775,7 +776,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddImportSupportHandler.html" title="class in CCDD">CcddImportSupportHandler</a></h3>
-<code><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkDataTypeDefinition-java.lang.String:A-">checkDataTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkInputTypeDefinition-java.lang.String:A-">checkInputTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a>, <a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></code></li>
+<code><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-boolean-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkDataTypeDefinition-java.lang.String:A-">checkDataTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkInputTypeDefinition-java.lang.String:A-">checkInputTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a>, <a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -1339,7 +1340,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">
+<a name="importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1349,14 +1350,15 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
                            <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
                            <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
                            boolean&nbsp;ignoreErrors,
-                           boolean&nbsp;replaceExistingMacros)
+                           boolean&nbsp;replaceExistingMacros,
+                           boolean&nbsp;replaceExistingGroups)
                     throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
                            java.io.IOException,
                            java.lang.Exception</pre>
 <div class="block">Import the the table definitions from an XTCE XML formatted file</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-">importFromFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>importFile</code> - reference to the user-specified XML input file</dd>
 <dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
@@ -1365,6 +1367,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <dd><code>targetTypeDefn</code> - table type definition of the table in which to import the data; ignored if
             importing all tables</dd>
 <dd><code>replaceExistingMacros</code> - not used for XTCE import</dd>
+<dd><code>replaceExistingGroups</code> - not used for XTCE import</dd>
 <dd><code>ignoreErrors</code> - true to ignore all errors in the import file</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If data is missing, extraneous, or an error in the import file</dd>

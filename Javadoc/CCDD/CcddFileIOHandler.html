@@ -344,7 +344,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#importFile-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">importFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#importFile-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">importFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
           boolean&nbsp;backupFirst,
           boolean&nbsp;replaceExistingTables,
           boolean&nbsp;appendExistingFields,
@@ -352,13 +352,14 @@ extends java.lang.Object</pre>
           boolean&nbsp;openEditor,
           boolean&nbsp;ignoreErrors,
           boolean&nbsp;replaceExistingMacros,
+          boolean&nbsp;replaceExistingGroups,
           java.awt.Component&nbsp;parent)</code>
 <div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">importFileInBackground</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddFileIOHandler.html#importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">importFileInBackground</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFile,
                       boolean&nbsp;backupFirst,
                       boolean&nbsp;replaceExisting,
                       boolean&nbsp;appendExistingFields,
@@ -366,6 +367,7 @@ extends java.lang.Object</pre>
                       boolean&nbsp;openEditor,
                       boolean&nbsp;ignoreErrors,
                       boolean&nbsp;replaceExistingMacros,
+                      boolean&nbsp;replaceExistingGroups,
                       java.awt.Component&nbsp;parent)</code>
 <div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
 </td>
@@ -705,7 +707,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">
+<a name="importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -719,6 +721,7 @@ extends java.lang.Object</pre>
                                       boolean&nbsp;openEditor,
                                       boolean&nbsp;ignoreErrors,
                                       boolean&nbsp;replaceExistingMacros,
+                                      boolean&nbsp;replaceExistingGroups,
                                       java.awt.Component&nbsp;parent)</pre>
 <div class="block">Import one or more files, creating new tables and optionally replacing existing ones. The
  file(s) may contain definitions for more than one table. This method is executed in a
@@ -737,11 +740,12 @@ extends java.lang.Object</pre>
 <dd><code>openEditor</code> - true to open a table editor for each imported table</dd>
 <dd><code>ignoreErrors</code> - true to ignore all errors in the import file</dd>
 <dd><code>replaceExistingMacros</code> - true to replace the values for existing macros</dd>
+<dd><code>replaceExistingGroups</code> - true to replace existing group definitions</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
 </ul>
-<a name="importFile-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">
+<a name="importFile-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -755,6 +759,7 @@ extends java.lang.Object</pre>
                              boolean&nbsp;openEditor,
                              boolean&nbsp;ignoreErrors,
                              boolean&nbsp;replaceExistingMacros,
+                             boolean&nbsp;replaceExistingGroups,
                              java.awt.Component&nbsp;parent)</pre>
 <div class="block">Import one or more files, creating new tables and optionally replacing existing ones. The
  file(s) may contain definitions for more than one table. This method is executed in a
@@ -773,6 +778,7 @@ extends java.lang.Object</pre>
 <dd><code>openEditor</code> - true to open a table editor for each imported table</dd>
 <dd><code>ignoreErrors</code> - true to ignore all errors in the import file</dd>
 <dd><code>replaceExistingMacros</code> - true to replace the values for existing macros</dd>
+<dd><code>replaceExistingGroups</code> - true to replace existing group definitions</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true is the import operation completes successfully</dd>

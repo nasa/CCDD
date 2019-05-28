@@ -91,6 +91,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox appendExistingFieldsCb;
     private JCheckBox useExistingFieldsCb;
     private JCheckBox replaceExistingMacrosCb;
+    private JCheckBox replaceExistingGroupsCb;
     private JRadioButton singleFileRBtn;
     private JCheckBox openEditorCb;
     private JCheckBox ignoreErrorsCb;
@@ -655,6 +656,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      openEditorCb.isSelected(),
                                                                      ignoreErrorsCb.isSelected(),
                                                                      replaceExistingMacrosCb.isSelected(),
+                                                                     replaceExistingGroupsCb.isSelected(),
                                                                      CcddTableManagerDialog.this);
                             }
 
@@ -1017,6 +1019,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(replaceExistingMacrosCb, gbc);
+
+        // Create a check box for indicating existing group definitions can be replaced
+        replaceExistingGroupsCb = new JCheckBox("Replace existing groups");
+        replaceExistingGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        replaceExistingGroupsCb.setBorder(emptyBorder);
+        replaceExistingGroupsCb.setToolTipText(CcddUtilities.wrapText("Replace group definitions for groups that already exist",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridy++;
+        dialogPnl.add(replaceExistingGroupsCb, gbc);
 
         // Create a check box for indicating that the a table editor should be opened for each
         // imported table

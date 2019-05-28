@@ -74,6 +74,7 @@ public class CcddCommandLineHandler
     private boolean openEditor;
     private boolean ignoreErrors;
     private boolean replaceExistingMacros;
+    private boolean replaceExistingGroups;
 
     // Export command parameters
     private String filePath;
@@ -1112,6 +1113,7 @@ public class CcddCommandLineHandler
                                                                    false,
                                                                    ignoreErrors,
                                                                    replaceExistingMacros,
+                                                                   replaceExistingGroups,
                                                                    null))
                         {
                             throw new Exception();
@@ -1129,6 +1131,7 @@ public class CcddCommandLineHandler
                                                                            openEditor,
                                                                            ignoreErrors,
                                                                            replaceExistingMacros,
+                                                                           replaceExistingGroups,
                                                                            ccddMain.getMainFrame());
                     }
                 }
@@ -1318,6 +1321,25 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 replaceExistingMacros = (Boolean) parmVal;
+            }
+        });
+
+        // Import command - replace existing group definitions
+        importArgument.add(new CommandHandler("replaceExistingGroups",
+                                              "Replace existing group definitions",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to replace existing groups definitions
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                replaceExistingGroups = (Boolean) parmVal;
             }
         });
 

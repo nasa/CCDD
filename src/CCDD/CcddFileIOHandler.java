@@ -808,6 +808,9 @@ public class CcddFileIOHandler
      * @param replaceExistingMacros
      *            true to replace the values for existing macros
      *
+     * @param replaceExistingGroups
+     *            true to replace existing group definitions
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -819,6 +822,7 @@ public class CcddFileIOHandler
                                           final boolean openEditor,
                                           final boolean ignoreErrors,
                                           final boolean replaceExistingMacros,
+                                          final boolean replaceExistingGroups,
                                           final Component parent)
     {
         // Execute the import operation in the background
@@ -847,6 +851,7 @@ public class CcddFileIOHandler
                            openEditor,
                            ignoreErrors,
                            replaceExistingMacros,
+                           replaceExistingGroups,
                            parent);
             }
 
@@ -906,6 +911,9 @@ public class CcddFileIOHandler
      * @param replaceExistingMacros
      *            true to replace the values for existing macros
      *
+     * @param replaceExistingGroups
+     *            true to replace existing group definitions
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -919,6 +927,7 @@ public class CcddFileIOHandler
                                  boolean openEditor,
                                  boolean ignoreErrors,
                                  boolean replaceExistingMacros,
+                                 boolean replaceExistingGroups,
                                  Component parent)
     {
         boolean errorFlag = false;
@@ -1036,7 +1045,8 @@ public class CcddFileIOHandler
                                          ImportType.IMPORT_ALL,
                                          null,
                                          ignoreErrors,
-                                         replaceExistingMacros);
+                                         replaceExistingMacros,
+                                         replaceExistingGroups);
 
                 // Check if the halt dialog is active (import operation is executed in the
                 // background)
@@ -2224,6 +2234,7 @@ public class CcddFileIOHandler
                                          ImportType.FIRST_DATA_ONLY,
                                          tableHandler.getTableTypeDefinition(),
                                          ignoreErrorsCb.isSelected(),
+                                         false,
                                          false);
                 tableDefinitions = ioHandler.getTableDefinitions();
 

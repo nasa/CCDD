@@ -284,6 +284,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param replaceExistingMacros
      *            not used for EDS import
      *
+     * @param replaceExistingGroups
+     *            not used for EDS import
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -298,7 +301,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
                                boolean ignoreErrors,
-                               boolean replaceExistingMacros) throws CCDDException,
+                               boolean replaceExistingMacros,
+                               boolean replaceExistingGroups) throws CCDDException,
                                                               IOException,
                                                               Exception
     {

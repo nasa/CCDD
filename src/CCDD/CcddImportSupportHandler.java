@@ -438,6 +438,9 @@ public class CcddImportSupportHandler
      * @param fileName
      *            import file name
      *
+     * @param replaceExistingGroups
+     *            true to replace existing group definitions
+     *
      * @param groupHandler
      *            group handler reference
      *
@@ -446,6 +449,7 @@ public class CcddImportSupportHandler
      *********************************************************************************************/
     protected void addImportedGroupDefinition(String[] groupDefn,
                                               String fileName,
+                                              boolean replaceExistingGroups,
                                               CcddGroupHandler groupHandler) throws CCDDException
     {
         // Check if the group name is empty
@@ -457,6 +461,15 @@ public class CcddImportSupportHandler
 
         // Get the reference to the data field from the existing field information
         GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupDefn[GroupDefinitionColumn.NAME.ordinal()]);
+
+        // Check if the group with this name already exists and the user has elected to replace
+        // existing groups
+        if (groupInfo != null && replaceExistingGroups)
+        {
+            // Remove the existing group
+            groupHandler.removeGroupInformation(groupDefn[GroupDefinitionColumn.NAME.ordinal()]);
+            groupInfo = null;
+        }
 
         // Check if this is a new group
         if (groupInfo == null)

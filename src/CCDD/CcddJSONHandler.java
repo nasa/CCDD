@@ -309,6 +309,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param replaceExistingMacros
      *            true to replace the values for existing macros
      *
+     * @param replaceExistingGroups
+     *            true to replace existing group definitions
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -323,7 +326,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
                                boolean ignoreErrors,
-                               boolean replaceExistingMacros) throws CCDDException,
+                               boolean replaceExistingMacros,
+                               boolean replaceExistingGroups) throws CCDDException,
                                                               IOException,
                                                               Exception
     {
@@ -782,6 +786,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                      isApplication,
                                                                      members},
                                                        importFile.getAbsolutePath(),
+                                                       replaceExistingGroups,
                                                        groupHandler);
                         }
                         // The number of inputs is incorrect

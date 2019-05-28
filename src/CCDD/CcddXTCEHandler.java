@@ -580,6 +580,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param replaceExistingMacros
      *            not used for XTCE import
      *
+     * @param replaceExistingGroups
+     *            not used for XTCE import
+     *
      * @param ignoreErrors
      *            true to ignore all errors in the import file
      *
@@ -597,7 +600,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                ImportType importType,
                                TypeDefinition targetTypeDefn,
                                boolean ignoreErrors,
-                               boolean replaceExistingMacros) throws CCDDException,
+                               boolean replaceExistingMacros,
+                               boolean replaceExistingGroups) throws CCDDException,
                                                               IOException,
                                                               Exception
     {

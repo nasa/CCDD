@@ -68,6 +68,9 @@ public interface CcddImportExportInterface
      * @param replaceExistingMacros
      *            true to replace the values for existing macros
      *
+     * @param replaceExistingGroups
+     *            true to replace existing group definitions
+     *
      * @throws CCDDException
      *             If data is missing, extraneous, or an error in the import file
      *
@@ -81,7 +84,8 @@ public interface CcddImportExportInterface
                                  ImportType importType,
                                  TypeDefinition targetTypeDefn,
                                  boolean ignoreErrors,
-                                 boolean replaceExistingMacros) throws CCDDException,
+                                 boolean replaceExistingMacros,
+                                 boolean replaceExistingGroups) throws CCDDException,
                                                                 IOException,
                                                                 Exception;
 
