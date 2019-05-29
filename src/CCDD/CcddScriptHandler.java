@@ -898,6 +898,15 @@ public class CcddScriptHandler
                 // Check if this is the pseudo-group containing all tables
                 if (groupName.equals(ALL_TABLES_GROUP_NODE_NAME))
                 {
+                    // Check if the table tree hasn't been created
+                    if (tableTree == null)
+                    {
+                        // Build a table tree with all tables
+                        tableTree = new CcddTableTreeHandler(ccddMain,
+                                                             TableTreeType.TABLES,
+                                                             parent);
+                    }
+
                     // Get a list containing all prototype table names
                     tablePaths = tableTree.getTablesWithoutChildren(tableTree.getNodeByNodeName(DEFAULT_PROTOTYPE_NODE_NAME));
 

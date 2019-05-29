@@ -8787,6 +8787,25 @@ public class CcddDbTableCommandHandler
             CcddUtilities.displayException(e, dialog);
         }
 
+        // Check if an error occurred
+        if (errorFlag)
+        {
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(dialog);
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(dialog,
+                                      "Cannot revert changes to project; cause '"
+                                              + se.getMessage()
+                                              + "'",
+                                      "<html><b>Cannot revert changes to project");
+            }
+        }
+
         return errorFlag;
     }
 
