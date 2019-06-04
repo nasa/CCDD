@@ -2301,6 +2301,11 @@ public class CcddDbControlHandler
             // grouped prior to committing
             connection.setAutoCommit(false);
 
+            // The connection to the server must exist in order to reach this point, so set the
+            // connection status to indicate the server is connected. If connecting to a specific
+            // project, once the connection is completed the flag is updated accordingly
+            connectionStatus = TO_SERVER_ONLY;
+
             // Store the database connection in the database command handler
             dbCommand.setConnection(connection);
 
@@ -2317,11 +2322,6 @@ public class CcddDbControlHandler
                                              null,
                                              ccddMain.getMainFrame());
             }
-
-            // The connection to the server must exist in order to reach this point, so set the
-            // connection status to indicate the server is connected. If connecting to a specific
-            // project, once the connection is completed the flag is updated accordingly
-            connectionStatus = TO_SERVER_ONLY;
 
             // Check if the default database is selected
             if (databaseName.equals(DEFAULT_DATABASE))

@@ -171,7 +171,7 @@ public class CcddDbCommandHandler
         eventLog.logEvent(COMMAND_MSG, command);
 
         // Check if no valid database connection exists
-        if (statement == null)
+        if (statement == null || !ccddMain.getDbControlHandler().isServerConnected())
         {
             throw new SQLException("no database connection");
         }

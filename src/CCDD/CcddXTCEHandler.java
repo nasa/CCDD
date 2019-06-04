@@ -2053,7 +2053,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             for (Dimension dim : ((ArrayParameterRefEntryType) seqEntry).getDimensionList().getDimension())
             {
                 // Build the array size string
-                arraySize += String.valueOf(dim.getEndingIndex().getFixedValue() + 1) + ",";
+                arraySize += String.valueOf(Integer.valueOf(dim.getEndingIndex().getFixedValue()) + 1) + ",";
             }
 
             arraySize = CcddUtilities.removeTrailer(arraySize, ",");
@@ -2364,7 +2364,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     for (Dimension dim : ((ArrayParameterRefEntryType) seqEntry).getDimensionList().getDimension())
                     {
                         // Build the array size string
-                        arraySize += String.valueOf(dim.getEndingIndex().getFixedValue() + 1) + ",";
+                        arraySize += String.valueOf(Integer.valueOf(dim.getEndingIndex().getFixedValue()) + 1) + ",";
                     }
 
                     arraySize = CcddUtilities.removeTrailer(arraySize, ",");
@@ -3195,7 +3195,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // references are ignored
                 processedTables.add(tableName);
 
-                System.out.println("Load table: " + loadTableName); // TODO
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(loadTableName,
                                                                    true,
