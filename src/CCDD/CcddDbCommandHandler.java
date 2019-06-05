@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.EventLogMessageType.COMMAND_MSG;
 
 import java.awt.Component;
@@ -18,8 +19,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DbCommandType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 
 /**************************************************************************************************
@@ -171,7 +175,7 @@ public class CcddDbCommandHandler
         eventLog.logEvent(COMMAND_MSG, command);
 
         // Check if no valid database connection exists
-        if (statement == null || !ccddMain.getDbControlHandler().isServerConnected())
+        if (!ccddMain.getDbControlHandler().isServerConnected())
         {
             throw new SQLException("no database connection");
         }
@@ -205,30 +209,14 @@ public class CcddDbCommandHandler
         }
         catch (SQLException se)
         {
-            // Check if the server is no longer connected
-            if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
+            try
             {
-                // Check if the attempt to reconnect to the server is successful
-                if (!ccddMain.getDbControlHandler().reconnectToDatabase())
+                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
+                // is enabled. Auto-commit is usually disabled, but there are instances where
+                // it's enabled so this check is required to prevent an exception
+                if (connection.getAutoCommit() == false)
                 {
-                    // Send the command again
-                    result = executeDbStatement(commandType, command, component);
-                }
-                // The connection attempt failed
-                else
-                {
-                    throw new SQLException("Connection to server lost");
-                }
-            }
-            // The server is connected
-            else
-            {
-                try
-                {
-                    // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
-                    // is enabled. Auto-commit is usually disabled, but there are instances where
-                    // it's enabled so this check is required to prevent an exception
-                    if (connection.getAutoCommit() == false)
+                    try
                     {
                         // Check if no save point exists
                         if (savePoint == null)
@@ -244,23 +232,57 @@ public class CcddDbCommandHandler
                             connection.rollback(savePoint);
                         }
                     }
-                }
-                catch (SQLException se2)
-                {
-                    // Inform the user that rolling back the changes failed
-                    eventLog.logFailEvent(component,
-                                          "Cannot revert changes to project; cause '"
-                                                     + se2.getMessage()
-                                                     + "'",
-                                          "<html><b>Cannot revert changes to project");
-                }
-                finally
-                {
-                    savePoint = null;
+                    catch (SQLException se2)
+                    {
+                        // Inform the user that rolling back the changes failed
+                        eventLog.logFailEvent(component,
+                                              "Cannot revert changes to project; cause '"
+                                                         + se2.getMessage()
+                                                         + "'",
+                                              "<html><b>Cannot revert changes to project");
+                    }
+                    finally
+                    {
+                        savePoint = null;
+                    }
                 }
 
                 // Re-throw the exception so that the caller can handle it
-                throw new SQLException(se.getMessage());
+                throw new SQLException("Invalid SQL command; " + se.getMessage());
+            }
+            catch (SQLException se3)
+            {
+                // Check if the server is no longer connected
+                if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
+                {
+                    // Execute at least once; continue to execute as long as the user elects to
+                    // attempt to reconnect
+                    while (true)
+                    {
+                        // Check if the attempt to reconnect to the server is successful
+                        if (!ccddMain.getDbControlHandler().reconnectToDatabase())
+                        {
+                            // Send the command again
+                            return executeDbStatement(commandType, command, component);
+                        }
+                        // The connection attempt failed. Check if the user elects to try
+                        // reconnecting again
+                        else if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                           "<html><b>Server connection lost and "
+                                                                                                    + "reconnection attempt failed; try again?",
+                                                                           "Server Connection Lost",
+                                                                           JOptionPane.QUESTION_MESSAGE,
+                                                                           DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                        {
+                            throw new SQLException("Connection to server lost");
+                        }
+                    }
+                }
+                // The server is connected. Shouldn't be able to get to this
+                else
+                {
+                    throw new SQLException(se3.getMessage());
+                }
             }
         }
 

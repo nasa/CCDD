@@ -1138,7 +1138,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // together
         undoHandler.setAutoEndEditSequence(false);
 
-        // Add the selected variable(s) to the group tree
+        // Add the selected table(s) to the group tree
         groupTree.addSourceNodesToTargetNode(tableTree.getSelectedVariables(false),
                                              tableTree.getHeaderNodeLevel(),
                                              false);
@@ -1298,7 +1298,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Insert the new group into the group tree
             groupTree.addInformationNode(groupNameFld.getText(),
                                          descriptionFld.getText(),
-                                         appCb.isSelected());
+                                         appCb.isSelected(),
+                                         true);
 
             // Check if the check box indicating this group represents an application is selected
             if (appCb.isSelected())

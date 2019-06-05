@@ -2283,6 +2283,9 @@ public class CcddDbControlHandler
         {
             connectionStatus = NO_CONNECTION;
 
+            // Set the time allowed for the connection to occur
+            DriverManager.setLoginTimeout(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize());
+
             // Connect the user to the database
             connection = DriverManager.getConnection(getDatabaseURL(databaseName),
                                                      activeUser,

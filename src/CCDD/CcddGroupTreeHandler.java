@@ -232,6 +232,58 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
+     * Add a new node to the tree's root node, or the application node is filtering by application
+     * is active. Add the table types as nodes to the new node depending on the supplied flag
+     *
+     * @param nodeName
+     *            name of the node to add
+     *
+     * @param toolTipText
+     *            tool tip text for the new node
+     *
+     * @param isApp
+     *            true if the group represents a CFS application
+     *
+     * @param isAddTableTypes
+     *            true if nodes with the names of the table types should be added to the new node
+     *
+     * @return Array of table type nodes added to the group node; null if the table type nodes
+     *         aren't added
+     *********************************************************************************************/
+    protected ToolTipTreeNode[] addInformationNode(String nodeName,
+                                                   String toolTipText,
+                                                   boolean isApp,
+                                                   boolean isAddTableTypes)
+    {
+        ToolTipTreeNode[] typeNodes = null;
+
+        // Add the node to the tree
+        ToolTipTreeNode groupNode = super.addInformationNode(nodeName, toolTipText, isApp);
+
+        // Check if the table type nodes should be added
+        if (isAddTableTypes)
+        {
+            int index = 0;
+            typeNodes = new ToolTipTreeNode[tableTypeHandler.getTableTypeNames().length];
+
+            // Step through each table type
+            for (String type : tableTypeHandler.getTableTypeNames())
+            {
+                // Create the node for this table type and add it to the group node
+                typeNodes[index] = new ToolTipTreeNode(type,
+                                                       tableTypeHandler.getTypeDefinition(type)
+                                                                       .getDescription());
+                ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index],
+                                                                groupNode,
+                                                                index);
+                index++;
+            }
+        }
+
+        return typeNodes;
+    }
+
+    /**********************************************************************************************
      * Build the group tree
      *
      * @param filterByApp
@@ -260,8 +312,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         super.buildTree(isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
         // Tree nodes for the table types if filtering by type and for application status if
-        // filtering
-        // by application
+        // filtering by application
         ToolTipTreeNode[] typeNodes = null;
         ToolTipTreeNode[] appNodes = null;
 
@@ -280,9 +331,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // Set the flag to indicate that the group tree is being built. This flag is used to
         // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
-
-        // Create the node storage for the table types
-        typeNodes = new ToolTipTreeNode[tableTypeHandler.getTableTypeNames().length];
 
         // Check if the application statuses are to be used to filter the group tree
         if (isFilterByApp)
@@ -305,29 +353,15 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             if (!isApplicationOnly || groupInfo.isApplication())
             {
                 // Create a node for the group and add it to the group tree
-                ToolTipTreeNode groupNode = addInformationNode(groupName,
-                                                               groupInfo.getDescription(),
-                                                               groupInfo.isApplication());
+                typeNodes = addInformationNode(groupName,
+                                               groupInfo.getDescription(),
+                                               groupInfo.isApplication(),
+                                               scheduleRate == null || scheduleRate.isEmpty());
 
                 // Check if the table nodes should be displayed (i.e., no schedule rate is
                 // supplied)
-                if (scheduleRate == null || scheduleRate.isEmpty())
+                if (typeNodes != null)
                 {
-                    int index = 0;
-
-                    // Step through each table type
-                    for (String type : tableTypeHandler.getTableTypeNames())
-                    {
-                        // Create the node for this table type and add it to the tree model
-                        typeNodes[index] = new ToolTipTreeNode(type,
-                                                               tableTypeHandler.getTypeDefinition(type)
-                                                                               .getDescription());
-                        ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index],
-                                                                        groupNode,
-                                                                        index);
-                        index++;
-                    }
-
                     // Step through each table belonging to the group
                     for (String table : groupInfo.getTablesAndAncestors())
                     {
@@ -341,7 +375,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             for (int nodeIndex = 0; nodeIndex < appNodes.length && !isFound; nodeIndex++)
                             {
                                 // Step through each current group node
-                                for (index = 0; index < appNodes[nodeIndex].getChildCount(); index++)
+                                for (int index = 0; index < appNodes[nodeIndex].getChildCount(); index++)
                                 {
                                     // Check if the group name matches the node name
                                     if (groupName.equals(((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index)).getUserObject()
@@ -382,7 +416,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                         String[] sourcePath = table.split(",");
 
                                         // Step through each table reference in the path
-                                        for (index = 0; index < sourcePath.length; index++)
+                                        for (int index = 0; index < sourcePath.length; index++)
                                         {
                                             // Get the comment for this table reference
                                             commentIndex = tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index]));
