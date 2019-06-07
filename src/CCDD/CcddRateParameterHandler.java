@@ -457,6 +457,7 @@ public class CcddRateParameterHandler
 
         // Get the rate parameters from the database
         String[] rateValues = dbTable.queryTableComment(InternalTable.TLM_SCHEDULER.getTableName(),
+                                                        RateParameter.values().length,
                                                         ccddMain.getMainFrame());
 
         try

@@ -691,7 +691,7 @@ public class CcddDbTableCommandHandler
         for (String comment : comments)
         {
             // Parse the comment into its separate parameters
-            parsedComments[index] = comment.split(",");
+            parsedComments[index] = comment.split(",", TableCommentIndex.values().length);
             index++;
         }
 
@@ -704,12 +704,15 @@ public class CcddDbTableCommandHandler
      * @param tableName
      *            table name
      *
+     * @param numParts
+     *            number of parts into which to split the comment
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
      * @return Array containing the separate elements of the table comment
      *********************************************************************************************/
-    protected String[] queryTableComment(String tableName, Component parent)
+    protected String[] queryTableComment(String tableName, int numParts, Component parent)
     {
         // Create an list to contain the comment elements
         List<String> parts = new ArrayList<String>();
@@ -731,7 +734,7 @@ public class CcddDbTableCommandHandler
             if (text != null)
             {
                 // Step through each element of the comment
-                for (String part : text.split(","))
+                for (String part : text.split(",", numParts))
                 {
                     // Store the element in the comment array
                     parts.add(part);
@@ -770,7 +773,7 @@ public class CcddDbTableCommandHandler
     protected String[] queryDataTableComment(String tableName, Component parent)
     {
         // Get the table's comment, broken into its separate elements
-        String comment[] = queryTableComment(tableName, parent);
+        String comment[] = queryTableComment(tableName, TableCommentIndex.values().length, parent);
 
         // Create an array to contain the data table comment elements and initialize each to a
         // blank

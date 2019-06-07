@@ -782,7 +782,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i59" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableComment-java.lang.String-java.awt.Component-">queryTableComment</a></span>(java.lang.String&nbsp;tableName,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableComment-java.lang.String-int-java.awt.Component-">queryTableComment</a></span>(java.lang.String&nbsp;tableName,
+                 int&nbsp;numParts,
                  java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the comment for the specified table</div>
 </td>
@@ -1584,18 +1585,20 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="queryTableComment-java.lang.String-java.awt.Component-">
+<a name="queryTableComment-java.lang.String-int-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>queryTableComment</h4>
 <pre>protected&nbsp;java.lang.String[]&nbsp;queryTableComment(java.lang.String&nbsp;tableName,
+                                               int&nbsp;numParts,
                                                java.awt.Component&nbsp;parent)</pre>
 <div class="block">Retrieve the comment for the specified table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tableName</code> - table name</dd>
+<dd><code>numParts</code> - number of parts into which to split the comment</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the separate elements of the table comment</dd>

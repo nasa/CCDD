@@ -89,6 +89,7 @@ public class CcddApplicationParameterHandler
     {
         // Get the application parameters from the database
         String[] appValues = dbTable.queryTableComment(InternalTable.APP_SCHEDULER.getTableName(),
+                                                       ApplicationParameter.values().length,
                                                        ccddMain.getMainFrame());
 
         try
