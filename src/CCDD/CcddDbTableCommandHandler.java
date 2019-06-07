@@ -1329,8 +1329,8 @@ public class CcddDbTableCommandHandler
                     for (String rootTable : getRootTables(false, tableDialog))
                     {
                         // Get the root table's comment and from it get the table's type
-                        comment = getTableComment(rootTable.toLowerCase(), comments);
-                        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
+                        String[] rootComment = getTableComment(rootTable.toLowerCase(), comments);
+                        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(rootComment[TableCommentIndex.TYPE.ordinal()]);
                         dataTypeColumns.clear();
 
                         // Step through each default input type
