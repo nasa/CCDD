@@ -146,7 +146,7 @@ public class CcddPatchHandler
      *
      * @param dbControl
      *            reference to the database control class
-     * 
+     *
      * @throws CCDDException
      *             If the project database cannot be backed up and the user elects to not continue
      *********************************************************************************************/
@@ -188,7 +188,7 @@ public class CcddPatchHandler
                 // continue the patch operation
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Unable to back up project database, continue?",
-                                                              "Backup Project", // TODO
+                                                              "Backup Project",
                                                               JOptionPane.QUESTION_MESSAGE,
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {

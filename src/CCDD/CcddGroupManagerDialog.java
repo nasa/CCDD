@@ -1301,12 +1301,15 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                          appCb.isSelected(),
                                          true);
 
+            // Hide the group's empty table type nodes
+            groupTree.setHeaderNodeEnable();
+
             // Check if the check box indicating this group represents an application is selected
             if (appCb.isSelected())
             {
                 // Get the field information and data fields for the new group
                 GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupNameFld.getText());
-                List<FieldInformation> fieldInfo = CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation());
+                List<FieldInformation> fieldInfo = groupInfo.getFieldInformation();
 
                 // Step through each default application data field
                 for (DefaultApplicationField field : DefaultApplicationField.values())

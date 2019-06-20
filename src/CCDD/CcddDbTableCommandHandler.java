@@ -2977,8 +2977,8 @@ public class CcddDbTableCommandHandler
                                                              deletions,
                                                              msgIDRefChk));
 
-            // Check if no command was generated (e.g., the additions, modifications, and deletions
-            // lists are empty)
+            // Check if a command was generated (e.g., the additions, modifications, and deletions
+            // lists aren't empty)
             if (command.length() != 0)
             {
                 // Execute the commands

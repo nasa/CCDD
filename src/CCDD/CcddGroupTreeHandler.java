@@ -954,6 +954,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
                 ToolTipTreeNode node = (ToolTipTreeNode) value;
 
+                // REset the preferred width so that the node's size is correctly calculated
+                comp.setPreferredSize(null);
+
                 // Check if the node should be hidden
                 if (!(node.getLevel() != getGroupNodeLevel() + 1
                       || !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR)))
