@@ -938,6 +938,22 @@ public class CcddSchedulerEditorHandler
                 }
             }
 
+            // Execute after other pending EDT calls. This allows the table row heights to be
+            // updated correctly
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                /**********************************************************************************
+                 * Since the schedule table change involves a GUI update use invokeLater to execute
+                 * the call on the event dispatch thread
+                 *********************************************************************************/
+                @Override
+                public void run()
+                {
+                    schTableModel.fireTableDataChanged();
+                    schTableModel.fireTableStructureChanged();
+                }
+            });
+
             // Update the scheduler dialog's change indicator
             schedulerHndlr.getSchedulerDialog().updateChangeIndicator();
         }

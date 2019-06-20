@@ -50,7 +50,6 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableCommentIndex;
-import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary group tree handler class
@@ -273,9 +272,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 typeNodes[index] = new ToolTipTreeNode(type,
                                                        tableTypeHandler.getTypeDefinition(type)
                                                                        .getDescription());
-                ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index],
-                                                                groupNode,
-                                                                index);
+                ((DefaultTreeModel) getModel()).insertNodeInto(typeNodes[index],
+                                                               groupNode,
+                                                               index);
+
                 index++;
             }
         }
