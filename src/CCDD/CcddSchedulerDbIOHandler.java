@@ -330,7 +330,6 @@ public class CcddSchedulerDbIOHandler
                 {
                     int subIndex = -1;
                     Message message = null;
-                    Variable variable = null;
 
                     // Separate the message's name and the sub-index, if any
                     String[] nameAndIndex = messageName.split("\\.");
@@ -397,6 +396,8 @@ public class CcddSchedulerDbIOHandler
                     // Check if the message has a member
                     if (!member.isEmpty())
                     {
+                        Variable variable = null;
+
                         // Split the member column to remove the rate and extract the variable name
                         String varName = member.split("\\" + TLM_SCH_SEPARATOR, 2)[1];
 
@@ -423,7 +424,7 @@ public class CcddSchedulerDbIOHandler
                         }
 
                         // Check if the rate is a sub-rate
-                        if (variable.getRate() < period)
+                        if (variable.getRate() < (1 / period))
                         {
                             // Assign the variable to the sub-message and store the message index
                             message.getSubMessage(subIndex).addVariable(variable);

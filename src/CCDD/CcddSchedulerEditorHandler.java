@@ -164,6 +164,27 @@ public class CcddSchedulerEditorHandler
     }
 
     /**********************************************************************************************
+     * Force the scheduler table to redraw so that the row heights are calculated correctly
+     *********************************************************************************************/
+    protected void redrawTable()
+    {
+        // Execute after other pending EDT calls. This allows the table row heights to be updated
+        // correctly
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            /**************************************************************************************
+             * Since the schedule table change involves a GUI update use invokeLater to execute the
+             * call on the event dispatch thread
+             *************************************************************************************/
+            @Override
+            public void run()
+            {
+                schTableModel.fireTableStructureChanged();
+            }
+        });
+    }
+
+    /**********************************************************************************************
      * Create a telemetry table
      *********************************************************************************************/
     @SuppressWarnings("serial")
@@ -938,21 +959,8 @@ public class CcddSchedulerEditorHandler
                 }
             }
 
-            // Execute after other pending EDT calls. This allows the table row heights to be
-            // updated correctly
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                /**********************************************************************************
-                 * Since the schedule table change involves a GUI update use invokeLater to execute
-                 * the call on the event dispatch thread
-                 *********************************************************************************/
-                @Override
-                public void run()
-                {
-                    schTableModel.fireTableDataChanged();
-                    schTableModel.fireTableStructureChanged();
-                }
-            });
+            // Force the scheduler table to redraw so that the row heights are calculated correctly
+            redrawTable();
 
             // Update the scheduler dialog's change indicator
             schedulerHndlr.getSchedulerDialog().updateChangeIndicator();

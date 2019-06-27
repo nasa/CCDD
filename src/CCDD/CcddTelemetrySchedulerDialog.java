@@ -435,6 +435,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                     {
                         // Set the active editor to the one indicated by the currently selected tab
                         activeSchHandler = schHandlers.get(tabbedPane.getSelectedIndex());
+
+                        // Force the scheduler table to redraw so that the row heights are
+                        // calculated correctly
+                        schHandlers.get(tabbedPane.getSelectedIndex()).getSchedulerEditor().redrawTable();
                     }
                 });
 
