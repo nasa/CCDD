@@ -382,8 +382,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                             if (path.getPathCount() > tableTree.getHeaderNodeLevel())
                                             {
                                                 // Load the selected table's data into a table
-                                                // editor and close this dialog
-                                                dbTable.loadTableDataInBackground(tableTree.getFullVariablePath(path.getPath()),
+                                                // editor and close this dialog; remove the HTML
+                                                // tags from the table name
+                                                dbTable.loadTableDataInBackground(CcddUtilities.removeHTMLTags(tableTree.getFullVariablePath(path.getPath())),
                                                                                   callingEditorDlg);
                                                 closeDialog();
                                             }

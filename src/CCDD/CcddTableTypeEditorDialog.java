@@ -9,7 +9,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
-import static CCDD.CcddConstants.COL_ARGUMENT;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
@@ -47,14 +46,11 @@ import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.OverwriteFieldValueType;
-import CCDD.CcddConstants.TableInsertionPoint;
-import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -86,7 +82,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmCopy;
     private JMenuItem mntmPaste;
     private JMenuItem mntmInsert;
-    private JMenuItem mntmInsertCmdArgs;
     private JMenuItem mntmInsertRow;
     private JMenuItem mntmDeleteRow;
     private JMenuItem mntmMoveUp;
@@ -255,12 +250,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         mntmClearValues.setEnabled(enable
                                    && activeEditor != null
                                    && !activeEditor.getPanelFieldInformation().isEmpty());
-
-        // Set the menu item based on the input flag and if the editor represents a command table
-        // type
-        mntmInsertCmdArgs.setEnabled(enableIfType
-                                     && activeEditor != null
-                                     && activeEditor.getTypeDefinition().isCommand());
     }
 
     /**********************************************************************************************
@@ -411,7 +400,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
                 mnEdit.addSeparator();
                 mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, 1, "Clear the current table type contents");
-                mntmInsertCmdArgs = ccddMain.createMenuItem(mnEdit, "Add command arguments", KeyEvent.VK_A, 1, "Add the default columns for a command argument");
 
                 // Create the Row menu and menu items
                 JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
@@ -683,80 +671,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             activeEditor.getTable().selectAll();
                             activeEditor.getTable().removeRows(activeEditor.getTable().getSelectedRows());
                         }
-                    }
-
-                    /******************************************************************************
-                     * Get the table for which the action is performed
-                     *
-                     * @return Table for which the action is performed
-                     *****************************************************************************/
-                    @Override
-                    protected CcddJTableHandler getTable()
-                    {
-                        return getActiveTable();
-                    }
-                });
-
-                // Add a listener for the Insert command arguments command
-                mntmInsertCmdArgs.addActionListener(new ValidateCellActionListener()
-                {
-                    /******************************************************************************
-                     * Insert the default columns for a command argument
-                     *****************************************************************************/
-                    @Override
-                    protected void performAction(ActionEvent ae)
-                    {
-                        boolean isIndexUsed;
-                        int argumentIndex = 1;
-
-                        do
-                        {
-                            // Set the flag to indicate that the argument index isn't used
-                            isIndexUsed = false;
-
-                            // Step through each column definition column name in the table type
-                            for (int row = 0; row < activeEditor.getTable().getModel().getRowCount(); row++)
-                            {
-                                // Get the column definition column name
-                                String columnName = activeEditor.getTable().getModel().getValueAt(row,
-                                                                                                  TableTypeEditorColumnInfo.NAME.ordinal())
-                                                                .toString();
-
-                                // Check if the column name begins with the default command
-                                // argument name for this argument index
-                                if (columnName.startsWith(COL_ARGUMENT + " " + argumentIndex + " "))
-                                {
-                                    // Set the flag to indicate that the argument index is used,
-                                    // increment the argument index, and stop searching
-                                    isIndexUsed = true;
-                                    argumentIndex++;
-                                    break;
-                                }
-                            }
-                        } while (isIndexUsed);
-                        // Continue to search the column names while a match is found
-
-                        // Step through each new command argument column
-                        for (Object[] cmdArgCol : CcddTableTypeHandler.getCommandArgumentColumns())
-                        {
-                            // Insert the column definition into the table type editor
-                            activeEditor.getTable().insertRow(false,
-                                                              TableInsertionPoint.END,
-                                                              new Object[] {"",
-                                                                            cmdArgCol[0].toString().replaceFirst("###",
-                                                                                                                 String.valueOf(argumentIndex)),
-                                                                            cmdArgCol[1].toString().replaceFirst("###",
-                                                                                                                 String.valueOf(argumentIndex)),
-                                                                            ((DefaultInputType) cmdArgCol[2]).getInputName(),
-                                                                            false,
-                                                                            false,
-                                                                            false,
-                                                                            false});
-                        }
-
-                        // End the edit sequence so that the additions can be undone/redone
-                        // together
-                        activeEditor.getTable().getUndoManager().endEditSequence();
                     }
 
                     /******************************************************************************
@@ -1439,7 +1353,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                 editor.getTypeAdditions(),
                                                 editor.getTypeModifications(),
                                                 editor.getTypeDeletions(),
-                                                editor.getColumnOrderChange(),
+                                                editor.isColumnOrderChange(),
                                                 editor.getTypeDefinition(),
                                                 editor.getFieldAdditions(),
                                                 editor.getFieldModifications(),
@@ -1488,7 +1402,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                     editor.getTypeAdditions(),
                                                     editor.getTypeModifications(),
                                                     editor.getTypeDeletions(),
-                                                    editor.getColumnOrderChange(),
+                                                    editor.isColumnOrderChange(),
                                                     editor.getTypeDefinition(),
                                                     editor.getFieldAdditions(),
                                                     editor.getFieldModifications(),

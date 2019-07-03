@@ -135,12 +135,20 @@ extends <a href="../CCDD/CcddInputFieldPanelHandler.html" title="class in CCDD">
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#cmdArgStructureCbx">cmdArgStructureCbx</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#columnOrderChange">columnOrderChange</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddClassesComponent.PaddedComboBox.html" title="class in CCDD">CcddClassesComponent.PaddedComboBox</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#comboBox">comboBox</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#committedCmdArgStruct">committedCmdArgStruct</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private java.lang.Object[][]</code></td>
@@ -277,81 +285,81 @@ extends <a href="../CCDD/CcddInputFieldPanelHandler.html" title="class in CCDD">
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getColumnOrderChange--">getColumnOrderChange</a></span>()</code>
-<div class="block">Get the column order change status</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getFieldAdditions--">getFieldAdditions</a></span>()</code>
 <div class="block">Get the data field additions</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getFieldDeletions--">getFieldDeletions</a></span>()</code>
 <div class="block">Get the data field deletions</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getFieldModifications--">getFieldModifications</a></span>()</code>
 <div class="block">Get the data field changes</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddUndoManager.html" title="class in CCDD">CcddUndoManager</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getFieldPanelUndoManager--">getFieldPanelUndoManager</a></span>()</code>
 <div class="block">Get the UndoManager for this table editor</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTable--">getTable</a></span>()</code>
 <div class="block">Get the table handler</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTypeAdditions--">getTypeAdditions</a></span>()</code>
 <div class="block">Get the column additions for this table type</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTypeDefinition--">getTypeDefinition</a></span>()</code>
 <div class="block">Get the reference to the table type definition as it exists prior to making the updates</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTypeDeletions--">getTypeDeletions</a></span>()</code>
 <div class="block">Get the column deletions for this table type</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTypeModifications--">getTypeModifications</a></span>()</code>
 <div class="block">Get the column changes for this table type</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTypeName--">getTypeName</a></span>()</code>
 <div class="block">Get the table type name</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#getTypeOfTable--">getTypeOfTable</a></span>()</code>
 <div class="block">Get the table type based on the column definition input types</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#initialize-CCDD.CcddMain-">initialize</a></span>(<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain)</code>
 <div class="block">Create the table type editor</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeEditorHandler.html#isColumnOrderChange--">isColumnOrderChange</a></span>()</code>
+<div class="block">Get the column order change status</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
@@ -499,6 +507,15 @@ extends <a href="../CCDD/CcddInputFieldPanelHandler.html" title="class in CCDD">
 <pre>private&nbsp;<a href="../CCDD/CcddClassesComponent.PaddedComboBox.html" title="class in CCDD">CcddClassesComponent.PaddedComboBox</a> comboBox</pre>
 </li>
 </ul>
+<a name="cmdArgStructureCbx">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cmdArgStructureCbx</h4>
+<pre>private&nbsp;javax.swing.JCheckBox cmdArgStructureCbx</pre>
+</li>
+</ul>
 <a name="tableTypeName">
 <!--   -->
 </a>
@@ -542,6 +559,15 @@ extends <a href="../CCDD/CcddInputFieldPanelHandler.html" title="class in CCDD">
 <li class="blockList">
 <h4>committedDescription</h4>
 <pre>private&nbsp;java.lang.String committedDescription</pre>
+</li>
+</ul>
+<a name="committedCmdArgStruct">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>committedCmdArgStruct</h4>
+<pre>private&nbsp;boolean committedCmdArgStruct</pre>
 </li>
 </ul>
 <a name="typeAdditions">
@@ -816,13 +842,13 @@ extends <a href="../CCDD/CcddInputFieldPanelHandler.html" title="class in CCDD">
 </dl>
 </li>
 </ul>
-<a name="getColumnOrderChange--">
+<a name="isColumnOrderChange--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getColumnOrderChange</h4>
-<pre>protected&nbsp;boolean&nbsp;getColumnOrderChange()</pre>
+<h4>isColumnOrderChange</h4>
+<pre>protected&nbsp;boolean&nbsp;isColumnOrderChange()</pre>
 <div class="block">Get the column order change status</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

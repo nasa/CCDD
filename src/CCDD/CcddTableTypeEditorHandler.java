@@ -18,12 +18,18 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
@@ -41,6 +47,8 @@ import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -63,6 +71,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     // Components referenced by multiple methods
     private CcddJTableHandler table;
     private PaddedComboBox comboBox;
+    private JCheckBox cmdArgStructureCbx;
 
     // Name of this editor's table type
     private String tableTypeName;
@@ -78,8 +87,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     // Storage for the most recent committed field information
     private List<FieldInformation> committedFieldInfo;
 
-    // Type description
+    // Storage for the most recent committed type description
     private String committedDescription;
+
+    // Storage for the most recent committed command argument structure status
+    private boolean committedCmdArgStruct;
 
     // Lists of type content changes to process
     private final List<String[]> typeAdditions;
@@ -94,7 +106,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     // Flag indicating if a change in column order occurred
     private boolean columnOrderChange;
 
-    // Table type
+    // Table type (TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER)
     private String typeOfTable;
 
     /**********************************************************************************************
@@ -126,9 +138,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Check if the type definition exists
         if (typeDefinition != null)
         {
-            // Store the type's data and description
+            // Store the type's data, description, and command argument reference status
             committedData = typeDefinition.getData();
             committedDescription = typeDefinition.getDescription();
+            committedCmdArgStruct = typeDefinition.isCommandArgumentStructure();
 
             // Set the flag to indicate the current table type: structure, command, or other
             typeOfTable = typeDefinition.isStructure()
@@ -140,9 +153,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // This is a new type
         else
         {
-            // Initialize the type data and description
+            // Initialize the type data, description, and command argument reference status
             committedData = new Object[0][0];
             committedDescription = "";
+            committedCmdArgStruct = false;
 
             // Set the flag to indicate that the table type currently represents neither a
             // structure or a command
@@ -310,7 +324,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      *
      * @return true if the table type's column order changed
      *********************************************************************************************/
-    protected boolean getColumnOrderChange()
+    protected boolean isColumnOrderChange()
     {
         return columnOrderChange;
     }
@@ -337,6 +351,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             // Store the current table data and description as the last committed
             committedData = table.getTableData(true);
             committedDescription = getDescription();
+            committedCmdArgStruct = cmdArgStructureCbx.isSelected();
             setCommittedInformation();
 
             // Send a change event so that the editor tab name reflects that the table has changed
@@ -394,6 +409,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                 return isFieldChanged
                        || !committedDescription.equals(getDescription())
+                       || committedCmdArgStruct != cmdArgStructureCbx.isSelected()
                        || super.isTableChanged(data);
             }
 
@@ -837,6 +853,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the table type represents a structure
                 if (typeOfTableNew.equals(TYPE_STRUCTURE))
                 {
+                    // Show the command argument selection check box
+                    cmdArgStructureCbx.setVisible(true);
+
                     // Step through each row (column definition) in the table
                     for (int row = 0; row < table.getModel().getRowCount(); row++)
                     {
@@ -877,6 +896,12 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         }
                     }
                 }
+                // The table type doesn't represent a structure
+                else
+                {
+                    // Hide the command argument selection check box
+                    cmdArgStructureCbx.setVisible(false);
+                }
 
                 // Update the change indicator for the table
                 editorDialog.updateChangeIndicator(CcddTableTypeEditorHandler.this);
@@ -908,10 +933,42 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Set the undo/redo manager and handler for the description and data field values
         setEditPanelUndo(table.getUndoManager(), table.getUndoHandler());
 
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        1.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(0, 0, 0, 0),
+                                                        0,
+                                                        0);
+
+        // Add a check box for selecting if a structure represents command arguments
+        JPanel editorPnl = new JPanel(new GridBagLayout());
+        cmdArgStructureCbx = new JCheckBox("Structure represents command arguments",
+                                           typeDefinition.isCommandArgumentStructure());
+        cmdArgStructureCbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        cmdArgStructureCbx.setBorder(BorderFactory.createEmptyBorder());
+        cmdArgStructureCbx.setToolTipText(CcddUtilities.wrapText("Structures based on this type contain refernces to command arguments",
+                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        cmdArgStructureCbx.setVisible(getTypeOfTable().equals(TYPE_STRUCTURE));
+
+        // Add the table and the checkbox to the panel
+        editorPnl.add(scrollPane, gbc);
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.weighty = 0.0;
+        gbc.gridy++;
+        editorPnl.add(cmdArgStructureCbx, gbc);
+
         // Create the input field panel to contain the type editor
         createDescAndDataFieldPanel(ccddMain,
                                     editorDialog,
-                                    scrollPane,
+                                    editorPnl,
                                     CcddFieldHandler.getFieldTypeName(tableTypeName),
                                     committedDescription,
                                     committedFieldInfo);
@@ -1119,8 +1176,15 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Get the table type data array
         Object[][] typeData = table.getTableData(true);
 
-        // Create/replace the type definition
-        tableTypeHandler.createReplaceTypeDefinition(tableTypeName, getDescription(), typeData);
+        // Create/replace the type definition. The description is prepended with a '0' is the table
+        // type doesn't represent a command argument structure, and a '1' if it does
+        tableTypeHandler.createReplaceTypeDefinition(tableTypeName,
+                                                     (cmdArgStructureCbx != null
+                                                      && cmdArgStructureCbx.isSelected()
+                                                                                         ? "1"
+                                                                                         : "0")
+                                                                    + getDescription(),
+                                                     typeData);
 
         // Remove existing changes, if any
         typeAdditions.clear();

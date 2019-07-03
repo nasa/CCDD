@@ -395,8 +395,8 @@ public class CcddRateParameterHandler
         // Step through each table type
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
-            // Check if the type represents a structure
-            if (typeDefn.isStructure())
+            // Check if the type represents a telemetry structure
+            if (typeDefn.isTelemetryStructure())
             {
                 // Step through each column in the type definition
                 for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)

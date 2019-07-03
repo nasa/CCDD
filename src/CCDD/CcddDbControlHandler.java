@@ -49,6 +49,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
@@ -76,7 +77,6 @@ import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
-import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary database control handler class
@@ -1861,76 +1861,18 @@ public class CcddDbControlHandler
         {
             try
             {
-                // Structure-defining column names, as used by the database
-                String dbVariableName = null;
-                String dbDataType = null;
-                String dbArraySize = null;
-                String dbBitLength = null;
-                String dbRate = null;
-
-                String compareColumns = "";
-
-                // Use the default structure column names for certain default columns
-                dbVariableName = DefaultColumn.VARIABLE_NAME.getDbName();
-                dbDataType = DefaultColumn.DATA_TYPE.getDbName();
-                dbArraySize = DefaultColumn.ARRAY_SIZE.getDbName();
-                dbBitLength = DefaultColumn.BIT_LENGTH.getDbName();
+                // Use the default structure column names for those columns required by a structure
+                String dbVariableName = DefaultColumn.VARIABLE_NAME.getDbName();
+                String dbDataType = DefaultColumn.DATA_TYPE.getDbName();
+                String dbArraySize = DefaultColumn.ARRAY_SIZE.getDbName();
+                String dbBitLength = DefaultColumn.BIT_LENGTH.getDbName();
 
                 // Create a string containing the partial command for determining if the columns
                 // that are necessary to define a structure table are present in a table
                 String defStructCols = "(column_name = '" + dbVariableName + "' OR "
                                        + "column_name = '" + dbDataType + "' OR "
                                        + "column_name = '" + dbArraySize + "' OR "
-                                       + "column_name = '" + dbBitLength + "' OR ";
-
-                List<String> rateColNames = new ArrayList<String>();
-
-                // Step through each table type definition
-                for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
-                {
-                    // Check if the type represents a structure
-                    if (typeDefn.isStructure())
-                    {
-                        // Get this type's first rate column name
-                        dbRate = typeDefn.getDbColumnNameByInputType(DefaultInputType.RATE);
-
-                        // Create the portion of the command comparing the column name to the first
-                        // rate column name
-                        String rateColName = "column_name = '" + dbRate + "') OR ";
-
-                        // Check if this rate column name doesn't already exist in the comparison
-                        if (!rateColNames.contains(rateColName))
-                        {
-                            // Add the rate name so that it won't be added again
-                            rateColNames.add(rateColName);
-
-                            // Create a string containing the partial command for determining if
-                            // the columns that are necessary to define a structure table are
-                            // present in a table
-                            compareColumns += defStructCols
-                                              + "column_name = '"
-                                              + dbRate
-                                              + "') OR ";
-                        }
-                    }
-                }
-
-                // Check if no structure table type exists
-                if (compareColumns.isEmpty())
-                {
-                    // Get the default rate column name
-                    dbRate = DefaultColumn.RATE.getDbName();
-
-                    // Create a string containing the partial command for determining if the
-                    // columns that are necessary to define a structure table are present in a
-                    // table
-                    compareColumns = defStructCols + "column_name = '" + dbRate + "')";
-                }
-                // At least one structure table type exists
-                else
-                {
-                    compareColumns = CcddUtilities.removeTrailer(compareColumns, " OR ");
-                }
+                                       + "column_name = '" + dbBitLength + "')";
 
                 // Create functions for gathering the structure table member information sorted
                 // alphabetically by name or numerically by row index
@@ -1960,7 +1902,7 @@ public class CcddDbControlHandler
                                                + " LOOP IF EXISTS (SELECT * FROM "
                                                + "(SELECT COUNT(*) FROM information_schema.columns "
                                                + "WHERE table_name = row.temp_result AND ("
-                                               + compareColumns
+                                               + defStructCols
                                                + ")) AS alias1 WHERE count = '"
                                                + DefaultColumn.getTypeRequiredColumnCount(TYPE_STRUCTURE)
                                                + "') THEN RETURN QUERY EXECUTE E'SELECT ''' || "
@@ -2119,6 +2061,37 @@ public class CcddDbControlHandler
                                                                                             + "(name text)"),
                                                ccddMain.getMainFrame());
                 }
+
+                // Create the function to get the data type and variable name from tables of the
+                // supplied table type(s) in the format tableName,dataType.variableName
+                dbCommand.executeDbCommand(deleteFunction("find_command_arguments")
+                                           + "CREATE OR REPLACE FUNCTION find_command_arguments("
+                                           + "table_types text[]) RETURNS table(var_path text) "
+                                           + "AS $$ BEGIN DECLARE row record; BEGIN TRUNCATE "
+                                           + TEMP_TABLE_NAME
+                                           + "; INSERT INTO "
+                                           + TEMP_TABLE_NAME
+                                           + " SELECT tbl_name FROM (SELECT split_part("
+                                           + "obj_description, ',', 1) AS tbl_name, split_part("
+                                           + "obj_description, ',', 2) AS tbl_type FROM (SELECT "
+                                           + "obj_description(oid) FROM pg_class WHERE relkind = "
+                                           + "'r' AND obj_description(oid) != '') AS tbl_desc) AS "
+                                           + "temp_result WHERE table_types @> ARRAY[tbl_type] ORDER "
+                                           + "BY temp_result ASC; FOR row IN SELECT temp_result FROM "
+                                           + TEMP_TABLE_NAME
+                                           + " LOOP IF EXISTS (SELECT 1 FROM "
+                                           + "information_schema.columns WHERE table_name = lower("
+                                           + "row.temp_result)) THEN RETURN QUERY EXECUTE E'SELECT "
+                                           + "''' || row.temp_result || '''::text UNION SELECT ''' "
+                                           + "|| row.temp_result || '''::text || '','' || "
+                                           + dbDataType
+                                           + " || ''.'' || "
+                                           + dbVariableName
+                                           + " FROM ' || row.temp_result || E''; END IF; END LOOP; "
+                                           + "END; END; $$ LANGUAGE plpgsql; "
+                                           + buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                               "find_command_arguments(table_types text[])"),
+                                           ccddMain.getMainFrame());
 
                 // Inform the user that the database function creation succeeded
                 eventLog.logEvent(SUCCESS_MSG, "Database structure functions created");
@@ -2281,16 +2254,29 @@ public class CcddDbControlHandler
 
         try
         {
+            System.out.println("\nconnectToDatabase"); // TODO
             connectionStatus = NO_CONNECTION;
 
+            // TODO QUESTION AS TO WHETHER setLoginTimeout() DOES ANYTHING. TRIED SETTING PROPERTY
+            // INSTEAD BUT IT HAD NO DISCERNABLE EFFECT; SAME FOR SETTING socketTimeout
             // Set the time allowed for the connection to occur
-            DriverManager.setLoginTimeout(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize());
+            // DriverManager.setLoginTimeout(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize());
+            Properties properties = new Properties();
+            properties.put("connectTimeout", String.valueOf(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize() * 1000));
+
+            System.out.println(" attempt conn"); // TODO GETS HUNG UP ON THE CALL BELOW SOMETIMES.
+                                                 // WHY DOESN'T IT TIME OUT AND THROW AN EXCEPTION?
+            // connection = DriverManager.getConnection(getDatabaseURL(databaseName) + "?user=" +
+            // activeUser + "&password=" + activePassword + "&socketTimeout=5000", properties);
 
             // Connect the user to the database
             connection = DriverManager.getConnection(getDatabaseURL(databaseName),
                                                      activeUser,
                                                      activePassword);
+            // end TODO
+
             dbCommand.setStatement(connection.createStatement());
+            System.out.println("  conn success"); // TODO
 
             // Reset the flag that indicates a connection failure occurred due to a missing or
             // invalid user name or password
@@ -2432,6 +2418,7 @@ public class CcddDbControlHandler
         }
         catch (SQLException se)
         {
+            System.out.println("  conn failed"); // TODO
             // Check if the connection failed due to a missing or invalid password
             if ((se.getMessage().contains("authentication failed")
                  || se.getMessage().contains("password"))
@@ -2485,6 +2472,7 @@ public class CcddDbControlHandler
                                                               + getJDBCVersion());
         }
 
+        System.out.println("  return " + errorFlag); // TODO
         return errorFlag;
     }
 

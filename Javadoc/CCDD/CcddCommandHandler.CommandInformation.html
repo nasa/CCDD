@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -135,7 +135,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#arguments">arguments</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#commandArgument">commandArgument</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
@@ -146,10 +146,6 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#commandName">commandName</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#numArgs">numArgs</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#table">table</a></span></code>&nbsp;</td>
 </tr>
@@ -171,7 +167,7 @@ extends java.lang.Object</pre>
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#CommandInformation-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">CommandInformation</a></span>(java.lang.String&nbsp;table,
                   java.lang.String&nbsp;commandName,
                   java.lang.String&nbsp;commandCode,
-                  java.lang.String&nbsp;arguments)</code>
+                  java.lang.String&nbsp;commandArgument)</code>
 <div class="block">Command information class constructor</div>
 </td>
 </tr>
@@ -192,8 +188,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#getArguments--">getArguments</a></span>()</code>
-<div class="block">Get the command arguments</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#getCommandArgument--">getCommandArgument</a></span>()</code>
+<div class="block">Get the command argument variable</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -209,12 +205,6 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#getNumArgs--">getNumArgs</a></span>()</code>
-<div class="block">Get the number of arguments that are valid for this command</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.CommandInformation.html#getTable--">getTable</a></span>()</code>
 <div class="block">Get the command table in which the command is defined</div>
@@ -269,22 +259,13 @@ extends java.lang.Object</pre>
 <pre>private final&nbsp;java.lang.String commandCode</pre>
 </li>
 </ul>
-<a name="arguments">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>arguments</h4>
-<pre>private final&nbsp;java.lang.String arguments</pre>
-</li>
-</ul>
-<a name="numArgs">
+<a name="commandArgument">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>numArgs</h4>
-<pre>private final&nbsp;int numArgs</pre>
+<h4>commandArgument</h4>
+<pre>private final&nbsp;java.lang.String commandArgument</pre>
 </li>
 </ul>
 </li>
@@ -304,14 +285,14 @@ extends java.lang.Object</pre>
 <pre>CommandInformation(java.lang.String&nbsp;table,
                    java.lang.String&nbsp;commandName,
                    java.lang.String&nbsp;commandCode,
-                   java.lang.String&nbsp;arguments)</pre>
+                   java.lang.String&nbsp;commandArgument)</pre>
 <div class="block">Command information class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>table</code> - command table in which the command is defined</dd>
 <dd><code>commandName</code> - command name</dd>
 <dd><code>commandCode</code> - command code</dd>
-<dd><code>arguments</code> - names of the command's arguments, separated by line feeds</dd>
+<dd><code>commandArgument</code> - command argument variable</dd>
 </dl>
 </li>
 </ul>
@@ -365,31 +346,17 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="getArguments--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getArguments</h4>
-<pre>protected&nbsp;java.lang.String&nbsp;getArguments()</pre>
-<div class="block">Get the command arguments</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Command arguments</dd>
-</dl>
-</li>
-</ul>
-<a name="getNumArgs--">
+<a name="getCommandArgument--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getNumArgs</h4>
-<pre>protected&nbsp;int&nbsp;getNumArgs()</pre>
-<div class="block">Get the number of arguments that are valid for this command</div>
+<h4>getCommandArgument</h4>
+<pre>protected&nbsp;java.lang.String&nbsp;getCommandArgument()</pre>
+<div class="block">Get the command argument variable</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of arguments that are valid for this command</dd>
+<dd>Command argument variable</dd>
 </dl>
 </li>
 </ul>

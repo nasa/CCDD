@@ -106,6 +106,10 @@ public class CcddConstants
     protected static final String TYPE_COMMAND = "Command";
     protected static final String TYPE_OTHER = "Other";
 
+    // Default telemetry and command argument structure reference table type names
+    protected static final String STRUCT_TELEMETRY = "Structure: Tlm";
+    protected static final String STRUCT_CMD_ARG_REF = "Structure: Cmd Arg Ref";
+
     // Column names/prefixes
     protected static final String COL_ARGUMENT = "Arg";
     protected static final String COL_DATA_TYPE = "Data Type";
@@ -2184,6 +2188,7 @@ public class CcddConstants
         MINIMUM(true, true),
         MAXIMUM(true, true),
         VARIABLE_PATH(false, false),
+        VARIABLE_REF(true, false),
         MESSAGE_ID(false, false),
         PAGE_FORMAT(false, false);
 
@@ -2256,12 +2261,6 @@ public class CcddConstants
                            "One or more alphanumeric entries (see Alphanumeric) "
                                                  + "separated by one or more white space characters"),
 
-        ARGUMENT_NAME("Argument name",
-                      ALPHANUMERIC.getInputMatch(),
-                      InputTypeFormat.TEXT,
-                      "Command argument name; same constraints as for an "
-                                            + "alphanumeric (see Alphanumeric)"),
-
         ARRAY_INDEX("Array index",
                     "^\\s*\\+??\\s*0*([1-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([1-9]|[1-9]\\d+))*",
                     InputTypeFormat.ARRAY,
@@ -2277,6 +2276,18 @@ public class CcddConstants
                 "(?i)true|false",
                 InputTypeFormat.BOOLEAN,
                 "Boolean value; true or false"),
+
+        COMMAND_ARGUMENT("Command argument",
+                         ALPHANUMERIC.getInputMatch()
+                                             + "(?:,"
+                                             + ALPHANUMERIC.getInputMatch()
+                                             + "\\."
+                                             + ALPHANUMERIC.getInputMatch()
+                                             + ")?",
+                         InputTypeFormat.VARIABLE_REF,
+                         "Command argument variable reference in the format root<,parent.variable> "
+                                                       + "where 'root', 'parent', and 'variable' have the same constraint as for "
+                                                       + "an alphanumeric (see Alphanumeric)"),
 
         COMMAND_CODE("Command code",
                      "^(?:0x)?[a-fA-F0-9]*",
@@ -2827,7 +2838,7 @@ public class CcddConstants
              "Rate",
              "Downlink data rate, samples/second",
              DefaultInputType.RATE,
-             true,
+             false,
              false,
              false,
              false,
@@ -2868,104 +2879,16 @@ public class CcddConstants
                         true,
                         false),
 
-        ARG_NAME_1(TYPE_COMMAND,
-                   COL_ARGUMENT + " 1 Name",
-                   "Command argument 1 name",
-                   DefaultInputType.ARGUMENT_NAME,
-                   false,
-                   false,
-                   false,
-                   false,
-                   true,
-                   false),
-
-        ARG_DESCRIPTION_1(TYPE_COMMAND,
-                          COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
-                          "Command argument 1 description",
-                          DefaultInputType.DESCRIPTION,
-                          false,
-                          false,
-                          false,
-                          false,
-                          true,
-                          false),
-
-        ARG_UNITS_1(TYPE_COMMAND,
-                    COL_ARGUMENT + " 1 " + COL_UNITS,
-                    "Command argument 1 units",
-                    DefaultInputType.UNITS,
-                    false,
-                    false,
-                    false,
-                    false,
-                    true,
-                    false),
-
-        ARG_TYPE_1(TYPE_COMMAND,
-                   COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
-                   "Command argument 1 data type",
-                   DefaultInputType.PRIM_AND_STRUCT,
-                   false,
-                   false,
-                   false,
-                   false,
-                   true,
-                   false),
-
-        ARG_ARRAY_SIZE_1(TYPE_COMMAND,
-                         COL_ARGUMENT + " 1 " + COL_ARRAY_SIZE,
-                         "Command argument 1 array size",
-                         DefaultInputType.ARRAY_INDEX,
-                         false,
-                         false,
-                         false,
+        COMMAND_ARGUMENT(TYPE_COMMAND,
+                         "Command Argument",
+                         "Command argument variable reference",
+                         DefaultInputType.COMMAND_ARGUMENT,
+                         true,
                          false,
                          true,
-                         false),
-
-        ARG_BIT_LENGTH_1(TYPE_COMMAND,
-                         COL_ARGUMENT + " 1 " + COL_BIT_LENGTH,
-                         "Command argument 1 bit length",
-                         DefaultInputType.BIT_LENGTH,
                          false,
                          false,
-                         false,
-                         false,
-                         true,
-                         false),
-
-        ARG_ENUMS_1(TYPE_COMMAND,
-                    COL_ARGUMENT + " 1 " + COL_ENUMERATION,
-                    "Command argument 1 enumeration",
-                    DefaultInputType.ENUMERATION,
-                    false,
-                    false,
-                    false,
-                    false,
-                    true,
-                    false),
-
-        ARG_MIN_1(TYPE_COMMAND,
-                  COL_ARGUMENT + " 1 " + COL_MINIMUM,
-                  "Command argument 1 minimum value",
-                  DefaultInputType.MINIMUM,
-                  false,
-                  false,
-                  false,
-                  false,
-                  true,
-                  false),
-
-        ARG_MAX_1(TYPE_COMMAND,
-                  COL_ARGUMENT + " 1 " + COL_MAXIMUM,
-                  "Command argument 1 maximum value",
-                  DefaultInputType.MAXIMUM,
-                  false,
-                  false,
-                  false,
-                  false,
-                  true,
-                  false);
+                         true);
 
         private final String tableType;
         private final String columnName;
@@ -3143,31 +3066,6 @@ public class CcddConstants
         }
 
         /******************************************************************************************
-         * Get the array of default table types
-         *
-         * @return Array containing the default table types
-         *****************************************************************************************/
-        protected static String[] getTableTypes()
-        {
-            List<String> tableTypes = new ArrayList<String>();
-
-            // Step through the default columns
-            for (DefaultColumn defCol : DefaultColumn.values())
-            {
-                // Check if the table type is not already in the list and that it's not a common
-                // column
-                if (!tableTypes.contains(defCol.tableType)
-                    && !defCol.tableType.isEmpty())
-                {
-                    // Add the table type to the list
-                    tableTypes.add(defCol.tableType);
-                }
-            }
-
-            return tableTypes.toArray(new String[0]);
-        }
-
-        /******************************************************************************************
          * Get the number of columns that are required to define the specified table type
          *
          * @param type
@@ -3277,50 +3175,59 @@ public class CcddConstants
         {
             String columnDefn = "";
 
-            // Get the array of default table types
-            String[] defTypes = getTableTypes();
+            // Build the array of default table types and type names
+            String[][] defTypes = new String[][] {{TYPE_STRUCTURE, STRUCT_TELEMETRY},
+                                                  {TYPE_COMMAND, TYPE_COMMAND},
+                                                  {TYPE_STRUCTURE, STRUCT_CMD_ARG_REF}};
 
             // Step through each table type
-            for (String type : defTypes)
+            for (String[] type : defTypes)
             {
                 int index = 0;
 
                 // Step through the default columns
                 for (DefaultColumn defCol : DefaultColumn.values())
                 {
-                    // Check if the table type matches the current column's type or if it's a
-                    // column common to all tables
-                    if (type.equals(defCol.tableType) || defCol.tableType.isEmpty())
+                    // Check if the column common is to all tables, or the table type matches the
+                    // current column's type. The rate column is only assigned to the telemetry
+                    // structure
+                    if (defCol.tableType.isEmpty()
+                        || (type[0].equals(defCol.tableType)
+                            && (!defCol.inputType.equals(DefaultInputType.RATE)
+                                || type[1].equals(STRUCT_TELEMETRY))))
                     {
                         String typeDescription = defCol.description;
 
                         // Check if this is the primary key column. The description for this column
-                        // is used to hold the table type's description
+                        // is used to hold the table type's description. The first character
+                        // determines if the table type represents a command argument structure
+                        // ('0' if not, any other character if so)
                         if (defCol.columnName.equals(PRIMARY_KEY.columnName))
                         {
                             // Check if this is a structure table type
-                            if (type.equals(TYPE_STRUCTURE))
+                            if (type[1].equals(STRUCT_TELEMETRY))
                             {
                                 // Set the description of the structure table type
-                                typeDescription = "Telemetry and data structure table definition";
+                                typeDescription = "0Telemetry and data structure table definition";
                             }
                             // Check if this is a command table type
-                            else if (type.equals(TYPE_COMMAND))
+                            else if (type[1].equals(TYPE_COMMAND))
                             {
                                 // Set the description of the command table type
-                                typeDescription = "Command table definition";
+                                typeDescription = "0Command table definition";
                             }
-                            // Not a structure or command table type
-                            else
+                            // Check if this is a command argument structure table type
+                            else if (type[1].equals(STRUCT_CMD_ARG_REF))
                             {
-                                // Use the generic table type description
-                                typeDescription = "User-defined table definition";
+                                // Set the description of the command argument structure reference
+                                // table type
+                                typeDescription = "1Command argument structure reference table definition";
                             }
                         }
 
                         // Add the column definition
                         columnDefn += "('"
-                                      + type
+                                      + type[1]
                                       + "', "
                                       + index
                                       + ", '"
@@ -3357,10 +3264,13 @@ public class CcddConstants
          * @param type
          *            Default table type name
          *
+         * @param includeRate
+         *            true to include the Rate column (ignored if the type is not a structure)
+         *
          * @return Default column definitions array for the specified table type; and empty array
          *         if the type is not one of the default types
          *****************************************************************************************/
-        protected static Object[][] getDefaultColumnDefinitions(String type)
+        protected static Object[][] getDefaultColumnDefinitions(String type, boolean includeRate)
         {
             List<Object[]> typeData = new ArrayList<Object[]>();
 
@@ -3368,7 +3278,8 @@ public class CcddConstants
             for (DefaultColumn defCol : DefaultColumn.values())
             {
                 // Check if the table type matches the current column's type
-                if (type.equals(defCol.tableType))
+                if (type.equals(defCol.tableType)
+                    && (!defCol.inputType.equals(DefaultInputType.RATE) || includeRate))
                 {
                     // Add the column definition to the list
                     typeData.add(new Object[] {0,
@@ -5531,8 +5442,8 @@ public class CcddConstants
     {
         COMMAND_NAME("Command Name", "Command name"),
         COMMAND_CODE("Command Code", "Command code"),
-        COMMAND_TABLE("Command Table", "Table containing the command"),
-        ARGUMENTS("Arguments", "Command argument names");
+        COMMAND_ARGUMENTS("Command Argument(s)", "Command argument variable name(s)"),
+        COMMAND_TABLE("Command Table", "Table containing the command");
 
         private final String columnName;
         private final String toolTip;
@@ -6559,6 +6470,10 @@ public class CcddConstants
                        + ") != '"
                        + INTERNAL_TABLE_PREFIX
                        + "') alias1) alias2 ORDER BY description ASC;"),
+
+        // Get the list of table name, data type, and variable names for the specified table
+        // type(s) in the format tableName,dataType.variableName
+        TABLE_DATA_VAR_NAMES("SELECT * from find_command_arguments('{_table_types_}');"),
 
         // Get the list of stored scripts, sorted alphabetically
         SCRIPTS("SELECT script_name FROM (SELECT obj_description AS "

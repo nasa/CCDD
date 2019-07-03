@@ -245,7 +245,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Add the table type definition
                     tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
                                                                  "",
-                                                                 DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()));
+                                                                 DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected(),
+                                                                                                           true));
 
                     // Add the new table type to the project database
                     dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
@@ -340,9 +341,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     savedDefn = tableTypeHandler.getTypeDefinition(activeTypeName);
 
                     // Delete the type definition and tables of the deleted type
-                    dbTable.deleteTableType(activeTypeName,
-                                            savedDefn.isStructure(),
-                                            savedDefn.isCommand(),
+                    dbTable.deleteTableType(savedDefn,
                                             CcddTableTypeManagerDialog.this,
                                             editorDialog);
                 }

@@ -41,8 +41,7 @@ public class CcddCommandHandler
         private final String table;
         private final String commandName;
         private final String commandCode;
-        private final String arguments;
-        private final int numArgs;
+        private final String commandArgument;
 
         /******************************************************************************************
          * Command information class constructor
@@ -56,20 +55,18 @@ public class CcddCommandHandler
          * @param commandCode
          *            command code
          *
-         * @param arguments
-         *            names of the command's arguments, separated by line feeds
+         * @param commandArgument
+         *            command argument variable
          *****************************************************************************************/
-        CommandInformation(String table, String commandName, String commandCode, String arguments)
+        CommandInformation(String table,
+                           String commandName,
+                           String commandCode,
+                           String commandArgument)
         {
             this.table = table;
             this.commandName = commandName;
             this.commandCode = commandCode;
-            this.arguments = arguments;
-
-            // Store the number of command arguments
-            numArgs = arguments.isEmpty()
-                                          ? 0
-                                          : arguments.split("\\n").length;
+            this.commandArgument = commandArgument;
         }
 
         /******************************************************************************************
@@ -103,23 +100,13 @@ public class CcddCommandHandler
         }
 
         /******************************************************************************************
-         * Get the command arguments
+         * Get the command argument variable
          *
-         * @return Command arguments
+         * @return Command argument variable
          *****************************************************************************************/
-        protected String getArguments()
+        protected String getCommandArgument()
         {
-            return arguments;
-        }
-
-        /******************************************************************************************
-         * Get the number of arguments that are valid for this command
-         *
-         * @return The number of arguments that are valid for this command
-         *****************************************************************************************/
-        protected int getNumArgs()
-        {
-            return numArgs;
+            return commandArgument;
         }
     }
 
@@ -156,27 +143,65 @@ public class CcddCommandHandler
      * @param commandCode
      *            command code
      *
+     * @param commandArg
+     *            command argument structure path
+     *
      * @param table
      *            command table to which the command belongs
-     *
-     * @param numArgs
-     *            number of arguments that are valid for this command
      *
      * @return Command reference string
      *********************************************************************************************/
     protected String buildCommandReference(String commandName,
                                            String commandCode,
-                                           String table,
-                                           int numArgs)
+                                           String commandArg,
+                                           String table)
     {
         return commandName
                + " (code: "
                + commandCode
                + ", owner: "
                + table
-               + ", args: "
-               + numArgs
+               + ", arg: "
+               + getCommandArgumentVariables(commandArg, ", ")
                + ")";
+    }
+
+    /**********************************************************************************************
+     * Get the argument variable names for the specified command argument structure reference
+     *
+     * @param argumentStructRef
+     *            command argument structure reference path
+     *
+     * @param separator
+     *            character(s) used to separate each command argument variable name
+     *
+     * @return The argument variable names for the specified command argument structure reference
+     *         separated by the supplied separator character(s); and empty string if the structure
+     *         has no variables
+     *********************************************************************************************/
+    protected String getCommandArgumentVariables(String argumentStructRef, String separator)
+    {
+        String commandArgs = "";
+
+        // Get the path to the command's argument structure
+        String commandArgumentStart = argumentStructRef + ",";
+
+        // Step through each variable
+        for (String argVariable : ccddMain.getVariableHandler().getStructureAndVariablePaths())
+        {
+            // Get the index in the variable path to the period preceding the variable name
+            int variableStart = argVariable.lastIndexOf(".");
+
+            // Check if this is a variable belonging to the command's argument structure (but not a
+            // child of a child structure)
+            if (argVariable.startsWith(commandArgumentStart))
+            {
+                // Ad the argument variable to the string
+                commandArgs += argVariable.substring(variableStart + 1) + separator;
+            }
+        }
+
+        return CcddUtilities.removeTrailer(commandArgs, separator);
     }
 
     /**********************************************************************************************
@@ -194,8 +219,8 @@ public class CcddCommandHandler
             // Add the command information to the list
             allCommandNames.add(buildCommandReference(cmdInfo.getCommandName(),
                                                       cmdInfo.getCommandCode(),
-                                                      cmdInfo.getTable(),
-                                                      cmdInfo.getNumArgs()));
+                                                      cmdInfo.getCommandArgument(),
+                                                      cmdInfo.getTable()));
         }
 
         return allCommandNames;
@@ -227,36 +252,12 @@ public class CcddCommandHandler
                 // Set the flag to indicate the project has a command table
                 hasCmdTable = true;
 
-                // Get the column indices for the command argument names
-                List<Integer> argNameColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.ARGUMENT_NAME);
-
                 // Begin building the column name string
                 String columnNames = typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
                                      + ", "
                                      + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
-                                     + ", ";
-
-                // Check if the table type has any argument name columns
-                if (argNameColumns.size() != 0)
-                {
-                    // Step through each argument name column
-                    for (Integer argNameCol : argNameColumns)
-                    {
-                        // Append the argument name column name to the column name string
-                        columnNames += typeDefn.getColumnNamesDatabaseQuoted()[argNameCol]
-                                       + " || E'\\n' || ";
-                    }
-
-                    // Clean up the column name string
-                    columnNames = CcddUtilities.removeTrailer(columnNames, "|| E'\\n' || ")
-                                  + "AS arg_names";
-                }
-                // The table type has no argument name columns
-                else
-                {
-                    // Insert a blank for the argument name
-                    columnNames += "''";
-                }
+                                     + ", "
+                                     + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)];
 
                 // Append the command to obtain the specified column information from the command
                 // table
@@ -290,9 +291,7 @@ public class CcddCommandHandler
                     commandInformation.add(new CommandInformation(commands.getString(1),
                                                                   commands.getString(2),
                                                                   commands.getString(3),
-                                                                  commands.getString(4)
-                                                                          .replaceAll("^\\s|\\s$",
-                                                                                      "")));
+                                                                  commands.getString(4)));
                 }
             }
             catch (SQLException se)
@@ -345,7 +344,8 @@ public class CcddCommandHandler
             // Add the command information to the command references input type and refresh any
             // open editors
             ccddMain.getInputTypeHandler().updateCommandReferences();
-            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
+            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null,
+                                                                       ccddMain.getMainFrame());
         }
     }
 }

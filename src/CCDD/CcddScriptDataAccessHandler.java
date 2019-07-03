@@ -45,7 +45,6 @@ import org.omg.space.xtce.SpaceSystemType;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.ArrayVariable;
-import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -1580,13 +1579,13 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get the variable rate(s) at the specified row in the structure data
+     * Get the variable rate(s) at the specified row in the telemetry structure data
      *
      * @param row
      *            table data row index
      *
-     * @return Array containing the variable rate(s) at the specified row in the structure data; an
-     *         empty array if the row index is invalid
+     * @return Array containing the variable rate(s) at the specified row in the telemetry
+     *         structure data; an empty array if the row index is invalid
      *********************************************************************************************/
     public String[] getStructureRates(int row)
     {
@@ -1595,8 +1594,8 @@ public class CcddScriptDataAccessHandler
         // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
-        // Check if the table type exists and represents a structure
-        if (typeDefn != null && typeDefn.isStructure())
+        // Check if the table type exists and represents a telemetry structure
+        if (typeDefn != null && typeDefn.isTelemetryStructure())
         {
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
@@ -1754,91 +1753,41 @@ public class CcddScriptDataAccessHandler
         return commandCode;
     }
 
+    // TODO ADD TO GUIDE
     /**********************************************************************************************
-     * Get the number of arguments associated with the command table type at the specified row in
-     * the command data. Macro expansion is controlled by the input flag
+     * Get the command argument variable path+name at the specified row in the command data, with
+     * any macro name replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Number of arguments associated with the command table type at the specified row in
-     *         the command data; -1 if the table type is invalid
+     * @return Command argument variable path+name at the specified row in the command data, with
+     *         any macro replaced by its corresponding value; null if the row index is invalid
      *********************************************************************************************/
-    public int getNumCommandArguments(int row)
+    public String getCommandArgument(int row)
     {
-        return getNumCommandArguments(getCommandTypeNameByRow(row));
+        return getCommandArgument(row, true);
     }
 
+    // TODO ADD TO GUIDE
     /**********************************************************************************************
-     * Get the number of arguments associated with the specified command table type
-     *
-     * @param tableType
-     *            table type (case insensitive)
-     *
-     * @return Number of arguments associated with the specified command table type; -1 if the
-     *         table type is invalid
-     *********************************************************************************************/
-    public int getNumCommandArguments(String tableType)
-    {
-        int numArguments = -1;
-
-        // Get the table type definition based on the table type name
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the number of arguments associated with this command table type
-            numArguments = typeDefn.getAssociatedCommandArgumentColumns(false).size();
-        }
-
-        return numArguments;
-    }
-
-    /**********************************************************************************************
-     * Get the argument name for the command argument specified at the specified row in the command
-     * data, with any macro name replaced by its corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
+     * Get the command argument variable path+name at the specified row in the command data, with
+     * any embedded macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Get the argument name for the command argument specified at the specified row in the
-     *         command data, with any macro replaced by its corresponding value; null if the
-     *         argument number or row index is invalid
+     * @return Command argument variable path+name at the specified row in the command data, with
+     *         any embedded macro(s) left in place; null if the row index is invalid
      *********************************************************************************************/
-    public String getCommandArgName(int argumentNumber, int row)
+    public String getCommandArgumentWithMacros(int row)
     {
-        return getCommandArgName(argumentNumber, row, true);
+        return getCommandArgument(row, false);
     }
 
     /**********************************************************************************************
-     * Get the argument name for the command argument specified at the specified row in the command
-     * data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument name for the command argument specified at the specified row in the
-     *         command data, with any embedded macro(s) left in place; null if the argument number
-     *         or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgNameWithMacros(int argumentNumber, int row)
-    {
-        return getCommandArgName(argumentNumber, row, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument name for the command argument specified at the specified row in the command
-     * data. Macro expansion is controlled by the input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
+     * Get the command argument variable path+name at the specified row in the command data. Macro
+     * expansion is controlled by the input flag
      *
      * @param row
      *            table data row index
@@ -1847,12 +1796,12 @@ public class CcddScriptDataAccessHandler
      *            true to replace any macros with their corresponding value; false to return the
      *            data with any macro names in place
      *
-     * @return Argument name for the command argument specified at the specified row in the command
-     *         data; null if the argument number or row index is invalid
+     * @return Command argument variable path+name at the specified row in the command data; null
+     *         if the row index is invalid
      *********************************************************************************************/
-    private String getCommandArgName(int argumentNumber, int row, boolean expandMacros)
+    private String getCommandArgument(int row, boolean expandMacros)
     {
-        String argName = null;
+        String commandArgument = null;
 
         // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
@@ -1860,749 +1809,41 @@ public class CcddScriptDataAccessHandler
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
+            // Get the reference to the table information
+            TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
-            // Check if the argument number is valid and that the argument name exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getName() != -1)
+            // Get the command argument variable name
+            commandArgument = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)].toString();
+
+            // Check if any macros should be expanded
+            if (expandMacros)
             {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument name
-                argName = tableInfo.getData()[row][commandArguments.get(argumentNumber).getName()].toString();
-
-                // Check if any macros should be expanded
-                if (expandMacros)
-                {
-                    // Expand any macros
-                    argName = macroHandler.getMacroExpansion(argName);
-                }
+                // Expand any macros
+                commandArgument = macroHandler.getMacroExpansion(commandArgument);
             }
         }
 
-        return argName;
+        return commandArgument;
     }
 
-    /**********************************************************************************************
-     * Get the argument data type for the command argument specified at the specified row in the
-     * command data
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Argument data type for the command argument specified at the specified row in the
-     *         command data; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgDataType(int argumentNumber, int row)
-    {
-        String argDataType = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid and that the argument data type exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getDataType() != -1)
-            {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument data type
-                argDataType = tableInfo.getData()[row][commandArguments.get(argumentNumber).getDataType()].toString();
-            }
-        }
-
-        return argDataType;
-    }
-
-    /**********************************************************************************************
-     * Get the argument array size for the command argument specified at the specified row in the
-     * command data, with any macro name replaced by its corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument array size for the command argument specified at the specified row
-     *         in the command data, with any macro replaced by its corresponding value; null if the
-     *         argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgArraySize(int argumentNumber, int row)
-    {
-        return getCommandArgArraySize(argumentNumber, row, true);
-    }
-
-    /**********************************************************************************************
-     * Get the argument array size for the command argument specified at the specified row in the
-     * command data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument array size for the command argument specified at the specified row
-     *         in the command data, with any embedded macro(s) left in place; null if the argument
-     *         number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgArraySizeWithMacros(int argumentNumber, int row)
-    {
-        return getCommandArgArraySize(argumentNumber, row, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument array size for the command argument specified at the specified row in the
-     * command data. Macro expansion is controlled by the input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param expandMacros
-     *            true to replace any macros with their corresponding value; false to return the
-     *            data with any macro names in place
-     *
-     * @return Argument array size for the command argument specified at the specified row in the
-     *         command data; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    private String getCommandArgArraySize(int argumentNumber, int row, boolean expandMacros)
-    {
-        String argArraySize = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid and that the argument array size exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getArraySize() != -1)
-            {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument array size
-                argArraySize = tableInfo.getData()[row][commandArguments.get(argumentNumber).getArraySize()].toString();
-
-                // Check if any macros should be expanded
-                if (expandMacros)
-                {
-                    // Expand any macros
-                    argArraySize = macroHandler.getMacroExpansion(argArraySize);
-                }
-            }
-        }
-
-        return argArraySize;
-    }
-
-    /**********************************************************************************************
-     * Get the argument bit length for the command argument specified at the specified row in the
-     * command data, with any macro name replaced by its corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument bit length for the command argument specified at the specified row
-     *         in the command data, with any macro replaced by its corresponding value; null if the
-     *         argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgBitLength(int argumentNumber, int row)
-    {
-        return getCommandArgBitLength(argumentNumber, row, true);
-    }
-
-    /**********************************************************************************************
-     * Get the argument bit length for the command argument specified at the specified row in the
-     * command data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument bit length for the command argument specified at the specified row
-     *         in the command data, with any embedded macro(s) left in place; null if the argument
-     *         number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgBitLengthWithMacros(int argumentNumber, int row)
-    {
-        return getCommandArgBitLength(argumentNumber, row, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument bit length for the command argument specified at the specified row in the
-     * command data. Macro expansion is controlled by the input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param expandMacros
-     *            true to replace any macros with their corresponding value; false to return the
-     *            data with any macro names in place
-     *
-     * @return Argument bit length for the command argument specified at the specified row in the
-     *         command data; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    private String getCommandArgBitLength(int argumentNumber, int row, boolean expandMacros)
-    {
-        String argBitLength = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid and that the argument bit length exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getBitLength() != -1)
-            {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument bit length
-                argBitLength = tableInfo.getData()[row][commandArguments.get(argumentNumber).getBitLength()].toString();
-
-                // Check if any macros should be expanded
-                if (expandMacros)
-                {
-                    // Expand any macros
-                    argBitLength = macroHandler.getMacroExpansion(argBitLength);
-                }
-            }
-        }
-
-        return argBitLength;
-    }
-
-    /**********************************************************************************************
-     * Get the argument enumeration for the command argument specified at the specified row in the
-     * command data, with any macro name replaced by its corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument enumeration for the command argument specified at the specified row
-     *         in the command data, with any macro replaced by its corresponding value; null if the
-     *         argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgEnumeration(int argumentNumber, int row)
-    {
-        return getCommandArgEnumeration(argumentNumber, row, true);
-    }
-
-    /**********************************************************************************************
-     * Get the argument enumeration for the command argument specified at the specified row in the
-     * command data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument enumeration for the command argument specified at the specified row
-     *         in the command data, with any embedded macro(s) left in place; null if the argument
-     *         number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgEnumerationWithMacros(int argumentNumber, int row)
-    {
-        return getCommandArgEnumeration(argumentNumber, row, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument enumeration for the command argument specified at the specified row in the
-     * command data. Macro expansion is controlled by the input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param expandMacros
-     *            true to replace any macros with their corresponding value; false to return the
-     *            data with any macro names in place
-     *
-     * @return Argument enumeration for the command argument specified at the specified row in the
-     *         command data; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    private String getCommandArgEnumeration(int argumentNumber, int row, boolean expandMacros)
-    {
-        String argEnumeration = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid and that the argument enumeration exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getEnumeration() != -1)
-            {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument enumeration
-                argEnumeration = tableInfo.getData()[row][commandArguments.get(argumentNumber).getEnumeration()].toString();
-
-                // Check if any macros should be expanded
-                if (expandMacros)
-                {
-                    // Expand any macros
-                    argEnumeration = macroHandler.getMacroExpansion(argEnumeration);
-                }
-            }
-        }
-
-        return argEnumeration;
-    }
-
-    /**********************************************************************************************
-     * Get the argument minimum value (as a string) for the command argument specified at the
-     * specified row in the command data, with any macro name replaced by its corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument minimum value (as a string) for the command argument specified at
-     *         the specified row in the command data, with any macro replaced by its corresponding
-     *         value; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgMinimum(int argumentNumber, int row)
-    {
-        return getCommandArgMinimum(argumentNumber, row, true);
-    }
-
-    /**********************************************************************************************
-     * Get the argument minimum value (as a string) for the command argument specified at the
-     * specified row in the command data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument minimum value (as a string) for the command argument specified at
-     *         the specified row in the command data, with any embedded macro(s) left in place;
-     *         null if the argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgMinimumWithMacros(int argumentNumber, int row)
-    {
-        return getCommandArgMinimum(argumentNumber, row, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument minimum value (as a string) for the command argument specified at the
-     * specified row in the command data. Macro expansion is controlled by the input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param expandMacros
-     *            true to replace any macros with their corresponding value; false to return the
-     *            data with any macro names in place
-     *
-     * @return Argument minimum value (as a string) for the command argument specified at the
-     *         specified row in the command data; null if the argument number or row index is
-     *         invalid
-     *********************************************************************************************/
-    private String getCommandArgMinimum(int argumentNumber, int row, boolean expandMacros)
-    {
-        String argMinimum = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid and that the argument minimum value exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getMinimum() != -1)
-            {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument minimum value
-                argMinimum = tableInfo.getData()[row][commandArguments.get(argumentNumber).getMinimum()].toString();
-
-                // Check if any macros should be expanded
-                if (expandMacros)
-                {
-                    // Expand any macros
-                    argMinimum = macroHandler.getMacroExpansion(argMinimum);
-                }
-            }
-        }
-
-        return argMinimum;
-    }
-
-    /**********************************************************************************************
-     * Get the argument maximum value (as a string) for the command argument specified at the
-     * specified row in the command data, with any macro name replaced by its corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument maximum value (as a string) for the command argument specified at
-     *         the specified row in the command data, with any macro replaced by its corresponding
-     *         value; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgMaximum(int argumentNumber, int row)
-    {
-        return getCommandArgMaximum(argumentNumber, row, true);
-    }
-
-    /**********************************************************************************************
-     * Get the argument maximum value (as a string) for the command argument specified at the
-     * specified row in the command data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Get the argument maximum value (as a string) for the command argument specified at
-     *         the specified row in the command data, with any embedded macro(s) left in place;
-     *         null if the argument number or row index is invalid
-     *********************************************************************************************/
-    public String getCommandArgMaximumWithMacros(int argumentNumber, int row)
-    {
-        return getCommandArgMaximum(argumentNumber, row, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument maximum value (as a string) for the command argument specified at the
-     * specified row in the command data. Macro expansion is controlled by the input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param expandMacros
-     *            true to replace any macros with their corresponding value; false to return the
-     *            data with any macro names in place
-     *
-     * @return Argument maximum value (as a string) for the command argument specified at the
-     *         specified row in the command data; null if the argument number or row index is
-     *         invalid
-     *********************************************************************************************/
-    private String getCommandArgMaximum(int argumentNumber, int row, boolean expandMacros)
-    {
-        String argMaximum = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid and that the argument maximum value exists
-            if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getMaximum() != -1)
-            {
-                // Get the reference to the table information
-                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                // Get the argument maximum value
-                argMaximum = tableInfo.getData()[row][commandArguments.get(argumentNumber).getMaximum()].toString();
-
-                // Check if any macros should be expanded
-                if (expandMacros)
-                {
-                    // Expand any macros
-                    argMaximum = macroHandler.getMacroExpansion(argMaximum);
-                }
-            }
-        }
-
-        return argMaximum;
-    }
-
-    /**********************************************************************************************
-     * Get the argument value (as a string) for the column belonging to the command argument
-     * specified at the specified row in the command data, with any macro name replaced by its
-     * corresponding value
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param columnName
-     *            name of the argument column for which the value is requested
-     *
-     * @return Get the argument value (as a string) for the column belonging to the command
-     *         argument specified at the specified row in the command data, with any macro replaced
-     *         by its corresponding value; null if the argument number, row index, or column name
-     *         is invalid
-     *********************************************************************************************/
-    public String getCommandArgByColumnName(int argumentNumber, int row, String columnName)
-    {
-        return getCommandArgByColumnName(argumentNumber, row, columnName, true);
-    }
-
-    /**********************************************************************************************
-     * Get the argument value (as a string) for the column belonging to the command argument
-     * specified at the specified row in the command data, with any embedded macro(s) left in place
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param columnName
-     *            name of the argument column for which the value is requested
-     *
-     * @return Get the argument value (as a string) for the column belonging to the command
-     *         argument specified at the specified row in the command data, with any embedded
-     *         macro(s) left in place; null if the argument number, row index, or column name is
-     *         invalid
-     *********************************************************************************************/
-    public String getCommandArgByColumnNameWithMacros(int argumentNumber, int row, String columnName)
-    {
-        return getCommandArgByColumnName(argumentNumber, row, columnName, false);
-    }
-
-    /**********************************************************************************************
-     * Get the argument value (as a string) for the column belonging to the specified command
-     * argument at the specified row in the command data. Macro expansion is controlled by the
-     * input flag
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @param columnName
-     *            name of the argument column for which the value is requested
-     *
-     * @param expandMacros
-     *            true to replace any macros with their corresponding value; false to return the
-     *            data with any macro names in place
-     *
-     * @return Argument value (as a string) for the column belonging to the specified command
-     *         argument at the specified row in the command data; null if the argument number, row
-     *         index, or column name is invalid
-     *********************************************************************************************/
-    private String getCommandArgByColumnName(int argumentNumber,
-                                             int row,
-                                             String columnName,
-                                             boolean expandMacros)
-    {
-        String argValue = null;
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid
-            if (argumentNumber < commandArguments.size())
-            {
-                AssociatedColumns cmdColumns = commandArguments.get(argumentNumber);
-
-                // Get the index of the specified column
-                int tgtColumn = typeDefn.getColumnIndexByUserName(columnName);
-
-                // Check if the column belongs to the specified command argument
-                if (tgtColumn == cmdColumns.getName()
-                    || tgtColumn == cmdColumns.getDataType()
-                    || tgtColumn == cmdColumns.getArraySize()
-                    || tgtColumn == cmdColumns.getBitLength()
-                    || tgtColumn == cmdColumns.getDescription()
-                    || tgtColumn == cmdColumns.getUnits()
-                    || tgtColumn == cmdColumns.getEnumeration()
-                    || tgtColumn == cmdColumns.getMinimum()
-                    || tgtColumn == cmdColumns.getMaximum()
-                    || cmdColumns.getOther().contains(tgtColumn))
-                {
-                    // Get the reference to the table information
-                    TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                    // Get the argument value
-                    argValue = tableInfo.getData()[row][tgtColumn].toString();
-
-                    // Check if any macros should be expanded
-                    if (expandMacros)
-                    {
-                        // Expand any macros
-                        argValue = macroHandler.getMacroExpansion(argValue);
-                    }
-                }
-            }
-        }
-
-        return argValue;
-    }
-
-    /**********************************************************************************************
-     * Get the array of column names belonging to the specified command argument at the specified
-     * row in the command data
-     *
-     * @param argumentNumber
-     *            command argument index. The first argument is 0
-     *
-     * @param row
-     *            table data row index
-     *
-     * @return Array of column names belonging to the specified command argument at the specified
-     *         row in the command data; null if the argument number or row index is invalid
-     *********************************************************************************************/
-    public String[] getCommandArgColumnNames(int argumentNumber, int row)
-    {
-        List<String> argColumns = new ArrayList<String>();
-
-        // Get the table type definition for the command table referenced in the specified row
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
-
-        // Check if the table type exists and represents a command
-        if (typeDefn != null && typeDefn.isCommand())
-        {
-            // Get the list of command arguments associated with this command table type
-            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-            // Check if the argument number is valid
-            if (argumentNumber < commandArguments.size())
-            {
-                AssociatedColumns cmdColumns = commandArguments.get(argumentNumber);
-
-                // Add the argument name column name (this column must be present)
-                argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getName()]);
-
-                // Check if the argument data type column is present
-                if (cmdColumns.getDataType() != -1)
-                {
-                    // Add the argument data type column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getDataType()]);
-                }
-
-                // Check if the argument array size column is present
-                if (cmdColumns.getArraySize() != -1)
-                {
-                    // Add the argument array size column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getArraySize()]);
-                }
-
-                // Check if the argument bit length column is present
-                if (cmdColumns.getBitLength() != -1)
-                {
-                    // Add the argument bit length column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getBitLength()]);
-                }
-
-                // Check if the argument description column is present
-                if (cmdColumns.getDescription() != -1)
-                {
-                    // Add the argument description column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getDescription()]);
-                }
-
-                // Check if the argument units column is present
-                if (cmdColumns.getUnits() != -1)
-                {
-                    // Add the argument units column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getUnits()]);
-                }
-
-                // Check if the argument enumeration column is present
-                if (cmdColumns.getEnumeration() != -1)
-                {
-                    // Add the argument enumeration column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getEnumeration()]);
-                }
-
-                // Check if the argument minimum column is present
-                if (cmdColumns.getMinimum() != -1)
-                {
-                    // Add the argument minimum column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getMinimum()]);
-                }
-
-                // Check if the argument maximum column is present
-                if (cmdColumns.getMaximum() != -1)
-                {
-                    // Add the argument maximum column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getMaximum()]);
-                }
-
-                // Step through the other columns associated with this command argument
-                for (Integer otherColumn : cmdColumns.getOther())
-                {
-                    // Add the argument column name
-                    argColumns.add(typeDefn.getColumnNamesUser()[otherColumn]);
-                }
-            }
-        }
-
-        return argColumns.toArray(new String[0]);
-    }
+    // TODO REMOVE FROM GUIDE
+    // getNumCommandArguments(int row)
+    // getNumCommandArguments(String tableType)
+    // getCommandArgName(int argumentNumber, int row)
+    // getCommandArgNameWithMacros(int argumentNumber, int row)
+    // getCommandArgDataType(int argumentNumber, int row)
+    // getCommandArgArraySize(int argumentNumber, int row)
+    // getCommandArgBitLength(int argumentNumber, int row)
+    // getCommandArgBitLengthWithMacros(int argumentNumber, int row)
+    // getCommandArgEnumeration(int argumentNumber, int row)
+    // getCommandArgEnumerationWithMacros(int argumentNumber, int row)
+    // getCommandArgMinimum(int argumentNumber, int row)
+    // getCommandArgMinimumWithMacros(int argumentNumber, int row)
+    // getCommandArgMaximum(int argumentNumber, int row)
+    // getCommandArgMaximumWithMacros(int argumentNumber, int row)
+    // getCommandArgByColumnName(int argumentNumber, int row, String columnName)
+    // getCommandArgByColumnNameWithMacros(int argumentNumber, int row, String columnName)
+    // getCommandArgColumnNames(int argumentNumber, int row)
 
     /**********************************************************************************************
      * Get the table type name referenced in the specified row of the structure table type data.
@@ -3589,8 +2830,8 @@ public class CcddScriptDataAccessHandler
             // Add the command information to the list
             commandList.add(new String[] {commandInfo.getCommandName(),
                                           commandInfo.getCommandCode(),
-                                          commandInfo.getTable(),
-                                          commandInfo.getArguments()});
+                                          commandInfo.getCommandArgument(),
+                                          commandInfo.getTable()});
         }
 
         return commandList.toArray(new String[0]);
@@ -6202,6 +5443,9 @@ public class CcddScriptDataAccessHandler
      * @param cmdCodeColumn
      *            command code column index
      *
+     * @param cmdArgumentColumn
+     *            command argument structure column index
+     *
      * @param cmdDescColumn
      *            command description column index
      *
@@ -6221,6 +5465,7 @@ public class CcddScriptDataAccessHandler
                                               String[][] tableData,
                                               int cmdNameColumn,
                                               int cmdCodeColumn,
+                                              int cmdArgumentColumn,
                                               int cmdDescColumn,
                                               boolean isCmdHeader,
                                               String cmdHdrSysPath,
@@ -6233,6 +5478,7 @@ public class CcddScriptDataAccessHandler
                                                tableData,
                                                cmdNameColumn,
                                                cmdCodeColumn,
+                                               cmdArgumentColumn,
                                                cmdDescColumn,
                                                isCmdHeader,
                                                cmdHdrSysPath,
@@ -6254,6 +5500,9 @@ public class CcddScriptDataAccessHandler
      *
      * @param applicationID
      *            application ID
+     *
+     * @param cmdArgStruct
+     *            command argument structure name
      *
      * @param isCmdHeader
      *            true if this table represents the command header
@@ -6281,6 +5530,7 @@ public class CcddScriptDataAccessHandler
                                String commandName,
                                String cmdFuncCode,
                                String applicationID,
+                               String cmdArgStruct,
                                boolean isCmdHeader,
                                String cmdHdrSysPath,
                                String[] argumentNames,
@@ -6295,6 +5545,7 @@ public class CcddScriptDataAccessHandler
                                    commandName,
                                    cmdFuncCode,
                                    applicationID,
+                                   cmdArgStruct,
                                    isCmdHeader,
                                    cmdHdrSysPath,
                                    argumentNames,

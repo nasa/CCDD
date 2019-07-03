@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":9,"i16":10,"i17":10,"i18":10,"i19":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":9,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -157,30 +157,26 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>protected static java.lang.Object[][]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#commandArgumentColumns">commandArgumentColumns</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#dbControl">dbControl</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#dbTable">dbTable</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#fieldHandler">fieldHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddInputTypeHandler.html" title="class in CCDD">CcddInputTypeHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#inputTypeHandler">inputTypeHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#isNewField">isNewField</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#typeDefinitions">typeDefinitions</a></span></code>&nbsp;</td>
 </tr>
@@ -242,7 +238,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
+<td class="colFirst"><code>protected <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#createTypeDefinition-java.lang.String-java.lang.String-java.lang.Object:A:A-">createTypeDefinition</a></span>(java.lang.String&nbsp;typeName,
                     java.lang.String&nbsp;description,
                     java.lang.Object[][]&nbsp;typeData)</code>
@@ -272,85 +268,79 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>protected static java.lang.Object[][]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getCommandArgumentColumns--">getCommandArgumentColumns</a></span>()</code>
-<div class="block">Get the array of command argument column definitions</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getDefaultColumnOrder-java.lang.String-">getDefaultColumnOrder</a></span>(java.lang.String&nbsp;typeName)</code>
 <div class="block">Get the default column order string</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getStructEnumColNames-boolean-">getStructEnumColNames</a></span>(boolean&nbsp;useDbName)</code>
 <div class="block">Get the list of unique structure table enumeration column names</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getStructureTableTypes--">getStructureTableTypes</a></span>()</code>
 <div class="block">Get the list of structure table types</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getTableTypeNames--">getTableTypeNames</a></span>()</code>
 <div class="block">Get an array of the name of the defined table types</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getTypeDefinition-java.lang.String-">getTypeDefinition</a></span>(java.lang.String&nbsp;typeName)</code>
 <div class="block">Get the table type definition for the specified table type</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getTypeDefinitions--">getTypeDefinitions</a></span>()</code>
 <div class="block">Get the list of table type definitions</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getTypeDefinitionsCopy--">getTypeDefinitionsCopy</a></span>()</code>
 <div class="block">Get a copy of the list of table type definitions</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getTypeInformation--">getTypeInformation</a></span>()</code>
 <div class="block">Get an array of the type names and descriptions, sorted by type name</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#getVisibleColumnIndex-int-">getVisibleColumnIndex</a></span>(int&nbsp;columnIndex)</code>
 <div class="block">Get the visible column index based on the database column index</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#setTypeDefinitions-java.util.List-">setTypeDefinitions</a></span>(java.util.List&lt;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&gt;&nbsp;typeDefinitions)</code>
 <div class="block">Set the list of table type definitions</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#updateInputTypes-java.util.List-">updateInputTypes</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;inputTypeNames)</code>
 <div class="block">Update the input type for each table type definition column following a change to the input
  type definitions</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddConstants.TableTypeUpdate.html" title="enum in CCDD">CcddConstants.TableTypeUpdate</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#updateTableTypes-CCDD.CcddClassesDataTable.TableTypeDefinition-">updateTableTypes</a></span>(<a href="../CCDD/CcddClassesDataTable.TableTypeDefinition.html" title="class in CCDD">CcddClassesDataTable.TableTypeDefinition</a>&nbsp;tableTypeDefn)</code>
 <div class="block">Check if specified table type is new or matches an existing one.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#updateTableTypes-java.util.List-">updateTableTypes</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableTypeDefinition.html" title="class in CCDD">CcddClassesDataTable.TableTypeDefinition</a>&gt;&nbsp;tableTypeDefinitions)</code>
 <div class="block">Check if the specified table types are new or match an existing one.</div>
@@ -435,19 +425,10 @@ extends java.lang.Object</pre>
 <a name="isNewField">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>isNewField</h4>
 <pre>private&nbsp;boolean isNewField</pre>
-</li>
-</ul>
-<a name="commandArgumentColumns">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>commandArgumentColumns</h4>
-<pre>protected static final&nbsp;java.lang.Object[][] commandArgumentColumns</pre>
 </li>
 </ul>
 </li>
@@ -591,9 +572,9 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>createTypeDefinition</h4>
-<pre>private&nbsp;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;createTypeDefinition(java.lang.String&nbsp;typeName,
-                                                                 java.lang.String&nbsp;description,
-                                                                 java.lang.Object[][]&nbsp;typeData)</pre>
+<pre>protected&nbsp;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;createTypeDefinition(java.lang.String&nbsp;typeName,
+                                                                   java.lang.String&nbsp;description,
+                                                                   java.lang.Object[][]&nbsp;typeData)</pre>
 <div class="block">Create a new table type definition</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -806,7 +787,7 @@ extends java.lang.Object</pre>
 <a name="updateTableTypes-CCDD.CcddClassesDataTable.TableTypeDefinition-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>updateTableTypes</h4>
 <pre>private&nbsp;<a href="../CCDD/CcddConstants.TableTypeUpdate.html" title="enum in CCDD">CcddConstants.TableTypeUpdate</a>&nbsp;updateTableTypes(<a href="../CCDD/CcddClassesDataTable.TableTypeDefinition.html" title="class in CCDD">CcddClassesDataTable.TableTypeDefinition</a>&nbsp;tableTypeDefn)
@@ -824,20 +805,6 @@ extends java.lang.Object</pre>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an imported data field name will cause an existing table's field to be
              renamed and the user elects to cancel the update</dd>
-</dl>
-</li>
-</ul>
-<a name="getCommandArgumentColumns--">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getCommandArgumentColumns</h4>
-<pre>protected static&nbsp;java.lang.Object[][]&nbsp;getCommandArgumentColumns()</pre>
-<div class="block">Get the array of command argument column definitions</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Array of command argument column definitions</dd>
 </dl>
 </li>
 </ul>

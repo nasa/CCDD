@@ -31,6 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -58,9 +59,9 @@ import javax.swing.text.JTextComponent;
 import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.ArrayVariable;
-import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.DataTypeEnumPair;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.MinMaxPair;
 import CCDD.CcddClassesDataTable.RateInformation;
@@ -109,12 +110,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // Cell editor for data type cell in a row that has an enumeration
     private DefaultCellEditor enumDataTypeCellEditor;
 
-    // List containing associated data type and enumeration pairings, and command argument name,
-    // data type, enumeration, minimum, and maximum column groupings
-    private List<AssociatedColumns> associatedColumns;
+    // List containing associated data type and enumeration column pairings
+    private List<DataTypeEnumPair> typeEnumPair;
 
-    // List containing associated minimum and maximum column indices not already associated with a
-    // command argument
+    // List containing associated minimum and maximum column pairings
     private List<MinMaxPair> minMaxPair;
 
     // Array containing the names of all structure tables
@@ -123,12 +122,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // Column header tool tip text
     private String[] toolTips;
 
-    // Column indices for the primary key, row index, variable path, message ID name(s), and
-    // variable path (in model coordinates)
+    // Column indices for the primary key, row index, variable path, message ID name(s), variable
+    // path, and command argument (in model coordinates)
     private final int primaryKeyIndex;
     private final int rowIndex;
     private List<Integer> msgIDNameIndex;
     private int variablePathIndex;
+    private int cmdArgumentIndex;
 
     // Column indices for the variable name, data type, array size, bit length, enumeration(s), and
     // rate(s) (in model coordinates). These are only set for structure tables representing
@@ -489,9 +489,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Update the data type column to the new prototype structure name for any references to the
-     * original prototype structure name, if this table represents a structure. The update is
-     * treated as a committed change
+     * Replace references to the original prototype structure name in all data type columns with
+     * the new prototype structure name. The update is treated as a committed change
      *
      * @param oldPrototype
      *            original prototype name
@@ -501,19 +500,62 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void updateDataTypeReferences(String oldPrototype, String newPrototype)
     {
-        // Check if the table is a structure and has a data type column
-        if (typeDefn.isStructure() && dataTypeIndex != -1)
+        List<Integer> dataTypeColumns = new ArrayList<Integer>();
+        List<Integer> varRefColumns = new ArrayList<Integer>();
+
+        // Step through each input type used in the table type
+        for (InputType inputType : typeDefn.getInputTypesList())
         {
-            // Step through each row in the table
-            for (int row = 0; row < tableModel.getRowCount(); row++)
+            // Check if the input type represents a data type
+            if (inputType.getInputFormat().equals(InputTypeFormat.DATA_TYPE))
+            {
+                // Add all of the column indices of this input type to the list of data type column
+                // indices
+                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(inputType));
+            }
+
+            // Check if the input type represents a variable reference
+            if (inputType.getInputFormat().equals(InputTypeFormat.VARIABLE_REF))
+            {
+                // Add all of the column indices of this input type to the list of data type column
+                // indices
+                varRefColumns.addAll(typeDefn.getColumnIndicesByInputType(inputType));
+            }
+        }
+
+        // Step through each row in the table
+        for (int row = 0; row < tableModel.getRowCount(); row++)
+        {
+            // Step through each data type column index
+            for (Integer column : dataTypeColumns)
             {
                 // Check if the data type matches the old prototype name
-                if (tableModel.getValueAt(row, dataTypeIndex).toString().equals(oldPrototype))
+                if (tableModel.getValueAt(row, column).toString().equals(oldPrototype))
                 {
                     // Replace the data type with the new data type name. Treat the update as
                     // having been committed to the database
-                    tableModel.setValueAt(newPrototype, row, dataTypeIndex, false);
-                    committedTableInfo.getData()[row][dataTypeIndex] = newPrototype;
+                    tableModel.setValueAt(newPrototype, row, column, false);
+                    committedTableInfo.getData()[row][column] = newPrototype;
+                }
+            }
+
+            // Step through each variable reference column index
+            for (Integer column : varRefColumns)
+            {
+                // Get the cell value
+                String value = tableModel.getValueAt(row, column).toString();
+
+                // Check if the variable reference contains a reference to the old prototype name
+                if (value.matches("(^|.+,)" + oldPrototype + "(\\..+|,.+|$)"))
+                {
+                    // Update the variable reference using the new prototype name
+                    value = value.replaceAll("(^|,)" + oldPrototype + "(\\.|,|$)",
+                                             "$1" + newPrototype + "$2");
+
+                    // Replace the data type with the new data type name. Treat the update as
+                    // having been committed to the database
+                    tableModel.setValueAt(value, row, column, false);
+                    committedTableInfo.getData()[row][column] = value;
                 }
             }
         }
@@ -842,7 +884,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             rateIndex = new ArrayList<Integer>();
         }
 
-        // Get the list of message names & IDs column(s)
+        // Get the index of the command argument column
+        cmdArgumentIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT);
+
+        // Get the list of message names & IDs columns indices
         msgIDNameIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_REFERENCE);
 
         // Set the variable path column index. This column is only active for a structure table,
@@ -1613,21 +1658,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     else
                     {
                         // Step through each column grouping
-                        for (AssociatedColumns colGrp : associatedColumns)
+                        for (DataTypeEnumPair colGrp : typeEnumPair)
                         {
-                            // Check if the cell is non-alterable based on the following criteria:
-                            if (
-                            // This is an enumeration or bit length column, and the associated data
-                            // type isn't an integer type (signed or unsigned)
-                            (column == colGrp.getEnumeration() || column == colGrp.getBitLength())
-                                && !dataTypeHandler.isInteger(rowCopy[colGrp.getDataType()].toString())
-
-                                // This is a minimum or maximum value column, and no data type is
-                                // defined or the data type isn't a primitive
-                                || ((column == colGrp.getMinimum()
-                                     || column == colGrp.getMaximum())
-                                    && (rowCopy[colGrp.getDataType()].toString().isEmpty()
-                                        || !dataTypeHandler.isPrimitive(rowCopy[colGrp.getDataType()].toString()))))
+                            // Check if this is an enumeration column and the associated data type
+                            // isn't an integer type (signed or unsigned)
+                            if (column == colGrp.getEnumeration()
+                                && !dataTypeHandler.isInteger(rowCopy[colGrp.getDataType()].toString()))
                             {
                                 // Set the flag to prevent altering the data value and stop
                                 // searching
@@ -1697,19 +1733,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // (signed and unsigned)
                     cellEditor = enumDataTypeCellEditor;
                 }
-                // Check if this is a data type and enumeration pairing or a command argument
-                // column grouping
+                // Check if this is a data type and enumeration pairing
                 else
                 {
                     // Step through each column grouping
-                    for (AssociatedColumns colGrp : associatedColumns)
+                    for (DataTypeEnumPair colGrp : typeEnumPair)
                     {
                         // Check if the column for which the cell editor is requested is a data
                         // type column, and that the associated enumeration cell isn't blank
                         if (modelColumn == colGrp.getDataType()
                             && colGrp.getEnumeration() != -1
-                            && !getExpandedValueAt(modelRow,
-                                                   colGrp.getEnumeration()).isEmpty())
+                            && !getExpandedValueAt(modelRow, colGrp.getEnumeration()).isEmpty())
                         {
                             // Select the combo box cell editor that displays only integer data
                             // types (signed and unsigned) and stop searching
@@ -1808,6 +1842,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         newValueS = newValueS.replaceFirst("^" + REPLACE_INDICATOR, "");
                     }
 
+                    // Check if this is the command argument column
+                    if (column == cmdArgumentIndex)
+                    {
+                        // Remove the data type highlight
+                        newValueS = CcddUtilities.removeHTMLTags(newValueS);
+                    }
+
                     // Check that the new value isn't blank
                     if (!newValueS.isEmpty())
                     {
@@ -1830,47 +1871,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                             + typeDefn.getColumnNamesUser()[column]
                                                             + "<b>'; value must be unique");
                                 }
-                            }
-                        }
-
-                        // Step through each column grouping
-                        for (AssociatedColumns colGrp : associatedColumns)
-                        {
-                            // Check if this is a name column
-                            if (column == colGrp.getName())
-                            {
-                                // Step through the column groupings
-                                for (AssociatedColumns otherColGrp : associatedColumns)
-                                {
-                                    // Check if this is not the argument being checked and if the
-                                    // name matches the name of another command argument
-                                    if (!colGrp.equals(otherColGrp)
-                                        && newValueS.equals(getExpandedValueAt(tableData,
-                                                                               row,
-                                                                               otherColGrp.getName())))
-                                    {
-                                        throw new CCDDException("Invalid input value in table '</b>"
-                                                                + currentTableInfo.getTablePath()
-                                                                + "<b>' for column '</b>"
-                                                                + typeDefn.getColumnNamesUser()[column]
-                                                                + "<b>'; command argument names must be unique for a command");
-                                    }
-                                }
-                            }
-                            // Check if this is the minimum or maximum value columns
-                            else if (column == colGrp.getMinimum()
-                                     || column == colGrp.getMaximum())
-                            {
-                                // Verify that the minimum/maximum value is valid for the
-                                // argument's data type, and stop searching
-                                validateMinMaxContent(tableData,
-                                                      row,
-                                                      column,
-                                                      newValueS,
-                                                      colGrp.getDataType(),
-                                                      colGrp.getMinimum(),
-                                                      colGrp.getMaximum());
-                                break;
                             }
                         }
 
@@ -2349,13 +2349,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                 // Create the drop-down combo box for the column with the name 'data type' that
                 // displays the available data types, including primitive types and the names of
-                // tables that represent structures, and add a mouse listener to handle mouse click
-                // events. Set up any command argument data type, argument name, enumeration,
-                // minimum, and maximum groupings
+                // tables that represent structures
                 setUpDataTypeColumns(null, null);
 
-                // Set up any minimum and maximum pairings (excluding those associated with command
-                // argument groupings)
+                // Set up any minimum and maximum pairings
                 setUpMinMaxColumns();
 
                 // Create drop-down combo boxes that display the available sample rates for the
@@ -2365,7 +2362,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Create drop-down combo boxes that display a list of selection items
                 setUpSelectionColumns();
 
-                // Create the mouse listener for the data type column
+                // Create the mouse listener for the data type and command argument columns
                 createDataTypeColumnMouseListener();
             }
 
@@ -3875,8 +3872,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void createDataTypeColumnMouseListener()
     {
-        // Check if the table has a data type column
-        if (dataTypeIndex != -1)
+        // Check if the table has a data type or command argument column
+        if (dataTypeIndex != -1 || cmdArgumentIndex != -1)
         {
             // Add a mouse listener to the table to handle mouse clicks on the data type column
             table.addMouseListener(new MouseAdapter()
@@ -3890,11 +3887,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check if the right mouse button is double clicked
                     if (me.getClickCount() == 2 && SwingUtilities.isRightMouseButton(me))
                     {
-                        // Get the table column that was selected
+                        // Get the table column that was selected (view and model coordinates)
                         int column = table.columnAtPoint(me.getPoint());
+                        int modelColumn = table.convertColumnIndexToModel(column);
 
-                        // Check if the data type column was clicked
-                        if (table.convertColumnIndexToModel(column) == dataTypeIndex)
+                        // Check if the data type or command argument column was clicked
+                        if (modelColumn == dataTypeIndex || modelColumn == cmdArgumentIndex)
                         {
                             // Get the table row that was selected
                             int row = table.rowAtPoint(me.getPoint());
@@ -3918,8 +3916,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                 if (isCellValueFound(row, column))
                                 {
                                     // Open the child table associated with the selected row's
-                                    // variable name and data type, if valid
-                                    openChildTable(row);
+                                    // variable name and data type (or command argument), if valid
+                                    openChildTable(row, modelColumn);
                                 }
                             }
                         }
@@ -3972,12 +3970,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Step through each combo box item
             for (int index = 0; index < comboBox.getItemCount() && !found; index++)
             {
-                // Check if the cell matches the combo box item, or if the column displays a
-                // message ID name list that the name is present in the list item, ignoring the ID
-                // value
-                if (comboBox.getItemAt(index).equals(value)
+                // Check if the cell matches the combo box item. When making the comparison for a
+                // command argument column ignore the data type highlight, and for a message ID
+                // name ignore the message ID
+                if ((cmdArgumentIndex == modelColumn
+                     && CcddUtilities.removeHTMLTags(comboBox.getItemAt(index).toString()).matches(value))
                     || (msgIDNameIndex.contains(modelColumn)
-                        && comboBox.getItemAt(index).toString().matches(value + " \\(.*")))
+                        && comboBox.getItemAt(index).toString().matches(value + " \\(.*"))
+                    || comboBox.getItemAt(index).equals(value))
                 {
                     // Set the flag indicating that the cell value is valid and stop searching
                     found = true;
@@ -3990,36 +3990,116 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Open the child table indicated by the data type row and column. If the variable and data
-     * type for the specified row doesn't represent a child table then do nothing
+     * Open the child table indicated by the data type or command argument row and column. If the
+     * variable and data type, or command argument, for the specified row doesn't represent a child
+     * table then do nothing
      *
      * @param row
-     *            table row number containing the variable name and data type; view coordinates
+     *            table row number containing the variable name and data type, or command argument;
+     *            view coordinates
+     *
+     * @param column
+     *            table row number containing the command argument; model coordinates
      *********************************************************************************************/
-    private void openChildTable(int row)
+    private void openChildTable(int row, int column)
     {
         // Convert the row to the model index
         int modelRow = table.convertRowIndexToModel(row);
 
-        // Get the data type displayed in the combo box cell
-        String dataType = getExpandedValueAt(modelRow, dataTypeIndex);
-
-        // Check that the data type isn't a primitive (i.e., it's a structure) and that this isn't
-        // an array definition row
-        if (!dataTypeHandler.isPrimitive(dataType)
-            && isCanHaveArrays()
-            && (ArrayVariable.isArrayMember(getExpandedValueAt(modelRow, variableNameIndex))
-                || getExpandedValueAt(modelRow, arraySizeIndex).isEmpty()))
+        // Check if a data type cell was selected
+        if (typeDefn.isStructure())
         {
-            // Get the row's primary key, variable name, and array size
-            String rowPrimaryKey = tableModel.getValueAt(modelRow, primaryKeyIndex).toString();
-            String variableName = getExpandedValueAt(modelRow, variableNameIndex);
-            String arraySize = getExpandedValueAt(modelRow, arraySizeIndex);
+            // Get the data type displayed in the combo box cell
+            String dataType = getExpandedValueAt(modelRow, dataTypeIndex);
 
+            // Check that the data type isn't a primitive (i.e., it's a structure) and that this
+            // isn't an array definition row
+            if (!dataTypeHandler.isPrimitive(dataType)
+                && isCanHaveArrays()
+                && (ArrayVariable.isArrayMember(getExpandedValueAt(modelRow, variableNameIndex))
+                    || getExpandedValueAt(modelRow, arraySizeIndex).isEmpty()))
+            {
+                // Get the row's primary key, variable name, and array size
+                String rowPrimaryKey = tableModel.getValueAt(modelRow, primaryKeyIndex).toString();
+                String variableName = getExpandedValueAt(modelRow, variableNameIndex);
+                String arraySize = getExpandedValueAt(modelRow, arraySizeIndex);
+
+                // Get the number of rows that have been committed to the database for this table
+                int numCommitted = committedTableInfo != null
+                                                              ? committedTableInfo.getData().length
+                                                              : 0;
+
+                // Step through each row in the committed version of the table data
+                for (int comRow = 0; comRow < numCommitted; comRow++)
+                {
+                    // Check if the primary key values match for these rows, indicating this row
+                    // represents the same one in both the committed and current table data
+                    if (rowPrimaryKey.equals(committedTableInfo.getData()[comRow][primaryKeyIndex]))
+                    {
+                        // Check that the variable name isn't blank and if the variable name, data
+                        // type, and array size values match for these rows. Only a child table
+                        // with these parameters committed may be opened
+                        if (!variableName.isEmpty()
+                            && variableName.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][variableNameIndex].toString()))
+                            && dataType.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][dataTypeIndex].toString()))
+                            && arraySize.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][arraySizeIndex].toString())))
+                        {
+                            // Check if the table isn't a prototype (i.e., it's a child structure),
+                            // or if it is a prototype that it's a top-level (root) structure
+                            if (!currentTableInfo.isPrototype()
+                                || dbTable.isRootStructure(currentTableInfo.getTablePath()))
+                            {
+                                // Load the selected child table's data into a table editor
+                                dbTable.loadTableDataInBackground(currentTableInfo.getTablePath()
+                                                                  + ","
+                                                                  + dataType
+                                                                  + "."
+                                                                  + variableName,
+                                                                  editorDialog);
+                            }
+                            // The selection is a child of a prototype, and the prototype isn't a
+                            // top-level (root) structure
+                            else
+                            {
+                                // Load the selected child table's prototype data into a table
+                                // editor. Since the prototype table is itself a child table, it
+                                // can't have its own child tables
+                                dbTable.loadTableDataInBackground(dataType, editorDialog);
+
+                                // Inform the user that the prototype of the selected table is
+                                // opened
+                                new CcddDialogHandler().showMessageDialog(parent,
+                                                                          "<html><b>Since prototype table '</b>"
+                                                                                  + currentTableInfo.getPrototypeName()
+                                                                                  + "<b>' is a child of another table it "
+                                                                                  + "cannot have its own child tables; "
+                                                                                  + "therefore the <i>prototype</i>, "
+                                                                                  + "instead of an instance, of table '</b>"
+                                                                                  + dataType
+                                                                                  + "<b>' was opened",
+                                                                          "Edit Table",
+                                                                          JOptionPane.INFORMATION_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                            }
+                        }
+
+                        // Stop searching for a matching key
+                        break;
+                    }
+                }
+            }
+        }
+        // This is a command argument cell
+        else
+        {
             // Get the number of rows that have been committed to the database for this table
             int numCommitted = committedTableInfo != null
                                                           ? committedTableInfo.getData().length
                                                           : 0;
+
+            // Get the row's primary key, variable name, and array size
+            String rowPrimaryKey = tableModel.getValueAt(modelRow, primaryKeyIndex).toString();
+            String commandArg = getExpandedValueAt(modelRow, column);
 
             // Step through each row in the committed version of the table data
             for (int comRow = 0; comRow < numCommitted; comRow++)
@@ -4028,50 +4108,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // represents the same one in both the committed and current table data
                 if (rowPrimaryKey.equals(committedTableInfo.getData()[comRow][primaryKeyIndex]))
                 {
-                    // Check that the variable name isn't blank and if the variable name, data
-                    // type, and array size values match for these rows. Only a child table with
-                    // these parameters committed may be opened
-                    if (!variableName.isEmpty()
-                        && variableName.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][variableNameIndex].toString()))
-                        && dataType.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][dataTypeIndex].toString()))
-                        && arraySize.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][arraySizeIndex].toString())))
+                    // Check that the variable path isn't blank and the parent data
+                    // type is a structure, and the paths match for these rows
+                    if (!commandArg.isEmpty()
+                        && commandArg.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData()[comRow][column].toString()))
+                        && !dataTypeHandler.isPrimitive(TableInformation.getParentTable(commandArg)))
                     {
-                        // Check if the table isn't a prototype (i.e., it's a child structure), or
-                        // if it is a prototype that it's a top-level (root) structure
-                        if (!currentTableInfo.isPrototype()
-                            || dbTable.isRootStructure(currentTableInfo.getTablePath()))
-                        {
-                            // Load the selected child table's data into a table editor
-                            dbTable.loadTableDataInBackground(currentTableInfo.getTablePath()
-                                                              + ","
-                                                              + dataType
-                                                              + "."
-                                                              + variableName,
-                                                              editorDialog);
-                        }
-                        // The selection is a child of a prototype, and the prototype isn't a
-                        // top-level (root) structure
-                        else
-                        {
-                            // Load the selected child table's prototype data into a table editor.
-                            // Since the prototype table is itself a child table, it can't have its
-                            // own child tables
-                            dbTable.loadTableDataInBackground(dataType, editorDialog);
-
-                            // Inform the user that the prototype of the selected table is opened
-                            new CcddDialogHandler().showMessageDialog(parent,
-                                                                      "<html><b>Since prototype table '</b>"
-                                                                              + currentTableInfo.getPrototypeName()
-                                                                              + "<b>' is a child of another table it "
-                                                                              + "cannot have its own child tables; "
-                                                                              + "therefore the <i>prototype</i>, "
-                                                                              + "instead of an instance, of table '</b>"
-                                                                              + dataType
-                                                                              + "<b>' was opened",
-                                                                      "Edit Table",
-                                                                      JOptionPane.INFORMATION_MESSAGE,
-                                                                      DialogOption.OK_OPTION);
-                        }
+                        // Load the selected child table's data into a table editor
+                        dbTable.loadTableDataInBackground(commandArg, editorDialog);
                     }
 
                     // Stop searching for a matching key
@@ -4097,9 +4141,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void setUpDataTypeColumns(String[] allStructTbls, CcddTableTreeHandler tblTree)
     {
-        // (Re)create a list to contain data type and enumeration pairings, and command argument
-        // column groupings
-        associatedColumns = new ArrayList<AssociatedColumns>();
+        // (Re)create a list to contain data type and enumeration pairings
+        typeEnumPair = new ArrayList<DataTypeEnumPair>();
 
         // Set to null to force the enumeration cell editor and associated combo box to be rebuilt
         enumDataTypeCellEditor = null;
@@ -4121,12 +4164,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Set the data type and enumeration column pairing(s) for structure tables
             setStructureDataTypeEnumAssociations();
         }
-        // Check if this is a command table
-        else if (typeDefn.isCommand())
-        {
-            // Set the associated command argument columns
-            setCommandArgumentAssociations();
-        }
     }
 
     /**********************************************************************************************
@@ -4146,8 +4183,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         validStructureDataTypes = null;
         invalidDataTypes = null;
 
-        // Get the lists of columns that display primitive data types and primitive & structure
-        // data types
+        // Get the lists of columns that display primitive data types, primitive & structure
+        // data types, and command argument types
         List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE);
         List<Integer> primAndStructColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT);
 
@@ -4218,6 +4255,70 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Set the column table editor to the combo box
                 dataTypeColumn.setCellEditor(new ComboBoxCellEditor(comboBox));
             }
+
+            // Create the enumerated data type cell editor
+            createEnumDataTypeCellEditor();
+        }
+
+        // Check if a column displaying command argument data type+variable names exists
+        if (cmdArgumentIndex != -1)
+        {
+            List<String> cmdArgs = new ArrayList<String>();
+            String tableTypes = "";
+
+            // Create a combo box for displaying data type+variable names
+            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+
+            // Step through each table type definition
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+            {
+                // Check if the table type represents a command argument structure
+                if (typeDefn.isCommandArgumentStructure())
+                {
+                    // Add the table type to the string
+                    tableTypes += typeDefn.getName() + ",";
+                }
+            }
+
+            // Check if any command argument table types exist
+            if (!tableTypes.isEmpty())
+            {
+                // Step through all command argument tables with their data types and variable
+                // names
+                for (String argVar : dbTable.queryDataTypeAndVariablesTypeList(CcddUtilities.removeTrailer(tableTypes,
+                                                                                                           ","),
+                                                                               editorDialog))
+                {
+                    // Check if the variable is a structure
+                    if (!dataTypeHandler.isPrimitive(TableInformation.getPrototypeName(argVar)))
+                    {
+                        // Add the argument structure path to the list
+                        cmdArgs.add(argVar);
+                    }
+                }
+
+                // Sort the list of data type + variable names alphabetically, ignoring case
+                Collections.sort(cmdArgs, String.CASE_INSENSITIVE_ORDER);
+            }
+
+            // Step through each data type + variable name
+            for (String cmdArg : cmdArgs)
+            {
+                // Highlight the data type
+                cmdArg = CcddUtilities.highlightDataType(cmdArg);
+
+                // Add the data type + variable name to the combo box list
+                comboBox.addItem(cmdArg);
+            }
+
+            // Enable item matching for the combo box
+            comboBox.enableItemMatching(table);
+
+            // Get the column reference for this command argument column
+            TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(cmdArgumentIndex));
+
+            // Set the column table editor to the combo box
+            dataTypeColumn.setCellEditor(new ComboBoxCellEditor(comboBox));
 
             // Create the enumerated data type cell editor
             createEnumDataTypeCellEditor();
@@ -4353,22 +4454,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         for (int enumIndex : enumerationIndex)
         {
             // Add the data type and enumeration column index pair to the list
-            associatedColumns.add(new AssociatedColumns(dataTypeIndex, enumIndex));
+            typeEnumPair.add(new DataTypeEnumPair(dataTypeIndex, enumIndex));
         }
     }
 
     /**********************************************************************************************
-     * Associate the command table's command argument columns
-     *********************************************************************************************/
-    private void setCommandArgumentAssociations()
-    {
-        associatedColumns.addAll(typeDefn.getAssociatedCommandArgumentColumns(false));
-    }
-
-    /**********************************************************************************************
      * Set up the minimum/maximum value groups and associate these columns with the data type
-     * column. Only those minimum and maximum columns not already associated with a command
-     * argument group are included in these pairings
+     * column
      *********************************************************************************************/
     private void setUpMinMaxColumns()
     {
@@ -4418,33 +4510,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Check if either a minimum or maximum column was found
             if (minColumn != -1 || maxColumn != -1)
             {
-                // Step through each command argument column grouping
-                for (AssociatedColumns cmdArg : associatedColumns)
-                {
-                    // Check if the command argument's minimum column matches the current minimum
-                    // column index
-                    if (cmdArg.getMinimum() == minColumn)
-                    {
-                        // Reset the minimum column index so that it isn't reused
-                        minColumn = -1;
-                    }
-
-                    // Check if the command argument's maximum column matches the current maximum
-                    // column index
-                    if (cmdArg.getMaximum() == maxColumn)
-                    {
-                        // Reset the maximum column index so that it isn't reused
-                        maxColumn = -1;
-                    }
-                }
-
-                // Check if either a minimum or maximum column exists not already associated with a
-                // command argument
-                if (minColumn != -1 || maxColumn != -1)
-                {
-                    // Add the new minimum/maximum column pairing to the list
-                    minMaxPair.add(new MinMaxPair(minColumn, maxColumn));
-                }
+                // Add the new minimum/maximum column pairing to the list
+                minMaxPair.add(new MinMaxPair(minColumn, maxColumn));
             }
         }
     }

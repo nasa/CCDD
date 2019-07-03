@@ -275,7 +275,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 ((DefaultTreeModel) getModel()).insertNodeInto(typeNodes[index],
                                                                groupNode,
                                                                index);
-
                 index++;
             }
         }
@@ -312,7 +311,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         super.buildTree(isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
         // Tree nodes for the table types if filtering by type and for application status if
-        // filtering by application
+        // filtering
+        // by application
         ToolTipTreeNode[] typeNodes = null;
         ToolTipTreeNode[] appNodes = null;
 
@@ -968,7 +968,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 else
                 {
                     // Set the node's row height to the normal value
-                    comp.setPreferredSize(new Dimension(comp.getPreferredSize().width, rowHeight));
+                    comp.setPreferredSize(new Dimension(comp.getPreferredSize().width,
+                                                        rowHeight));
                 }
 
                 return this;

@@ -146,8 +146,7 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#deleteCommandReference-CCDD.CcddClassesDataTable.TableInformation-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteCommandReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
-                      java.lang.String&nbsp;commandName,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#deleteCommandReference-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteCommandReference</a></span>(java.lang.String&nbsp;commandName,
                       <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
                       java.lang.StringBuilder&nbsp;valuesDelCmd,
                       java.lang.StringBuilder&nbsp;fieldsDelCmd)</code>
@@ -157,7 +156,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#deleteVariableReference-CCDD.CcddClassesDataTable.TableInformation-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteVariableReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#deleteVariableReference-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteVariableReference</a></span>(java.lang.String&nbsp;protoTableName,
                        java.lang.String&nbsp;variableName,
                        <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
                        java.lang.StringBuilder&nbsp;valuesDelCmd,
@@ -168,18 +167,18 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyCommandReference-CCDD.CcddClassesDataTable.TableInformation-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">modifyCommandReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyCommandReference-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">modifyCommandReference</a></span>(java.lang.String&nbsp;tablePath,
                       java.lang.String&nbsp;oldCommandName,
                       java.lang.String&nbsp;newCommandName,
                       java.lang.String&nbsp;oldCommandCode,
                       java.lang.String&nbsp;newCommandCode,
-                      int&nbsp;oldNumArgs,
-                      int&nbsp;newNumArgs,
+                      java.lang.String&nbsp;oldCommandArg,
+                      java.lang.String&nbsp;newCommandArg,
                       <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
                       java.lang.StringBuilder&nbsp;valuesModCmd,
                       java.lang.StringBuilder&nbsp;fieldsModCmd)</code>
-<div class="block">Update any references to a command that had its name changed in every table cell and data
- field with a command reference input type</div>
+<div class="block">Update any references to a command that had its name, code, or argument path changed in
+ every table cell and data field with a command reference input type</div>
 </td>
 </tr>
 <tr class="rowColor">

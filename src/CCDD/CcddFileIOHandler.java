@@ -1340,7 +1340,6 @@ public class CcddFileIOHandler
     private List<TableDefinition> orderTableDefinitionsByReference(List<TableDefinition> tableDefinitions)
     {
         // TODO THIS MAY CAN BE OPTIMIZED
-
         List<TableDefinition> orderedTableDefinitions = new ArrayList<TableDefinition>();
         List<String> orderedTableNames = new ArrayList<String>();
 
@@ -1506,8 +1505,7 @@ public class CcddFileIOHandler
         // Check if the user elected to enable replacement of existing macro values
         if (replaceExistingMacros)
         {
-            // Verify that the new macro values are valid for the current instances of the
-            // macros
+            // Verify that the new macro values are valid for the current instances of the macros
             macroHandler.validateMacroUsage(parent);
 
             // Update the usage of the macros in the tables
@@ -1974,6 +1972,7 @@ public class CcddFileIOHandler
                 {
                     throw new CCDDException();
                 }
+
             }
             // Not a prototype table. Check if the child structure table exists
             else if (isExists)

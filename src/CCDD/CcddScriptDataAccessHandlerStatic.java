@@ -317,96 +317,14 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getCommandCodeWithMacros(row);
     }
 
-    public static int getNumCommandArguments(int row)
+    public String getCommandArgumentStructure(int row)
     {
-        return accessHandler.getNumCommandArguments(row);
+        return accessHandler.getCommandArgument(row);
     }
 
-    public static int getNumCommandArguments(String tableType)
+    public String getCommandArgumentStructureWithMacros(int row)
     {
-        return accessHandler.getNumCommandArguments(tableType);
-    }
-
-    public static String getCommandArgName(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgName(argumentNumber, row);
-    }
-
-    public static String getCommandArgNameWithMacros(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgNameWithMacros(argumentNumber, row);
-    }
-
-    public static String getCommandArgDataType(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgDataType(argumentNumber, row);
-    }
-
-    public static String getCommandArgArraySize(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgArraySize(argumentNumber, row);
-    }
-
-    public static String getCommandArgArraySizeWithMacros(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgArraySizeWithMacros(argumentNumber, row);
-    }
-
-    public static String getCommandArgBitLength(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgBitLength(argumentNumber, row);
-    }
-
-    public static String getCommandArgBitLengthWithMacros(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgBitLengthWithMacros(argumentNumber, row);
-    }
-
-    public static String getCommandArgEnumeration(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgEnumeration(argumentNumber, row);
-    }
-
-    public static String getCommandArgEnumerationWithMacros(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgEnumerationWithMacros(argumentNumber, row);
-    }
-
-    public static String getCommandArgMinimum(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgMinimum(argumentNumber, row);
-    }
-
-    public static String getCommandArgMinimumWithMacros(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgMinimumWithMacros(argumentNumber, row);
-    }
-
-    public static String getCommandArgMaximum(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgMaximum(argumentNumber, row);
-    }
-
-    public static String getCommandArgMaximumWithMacros(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgMaximumWithMacros(argumentNumber, row);
-    }
-
-    public static String getCommandArgByColumnName(int argumentNumber, int row, String columnName)
-    {
-        return accessHandler.getCommandArgByColumnName(argumentNumber, row, columnName);
-    }
-
-    public static String getCommandArgByColumnNameWithMacros(int argumentNumber,
-                                                             int row,
-                                                             String columnName)
-    {
-        return accessHandler.getCommandArgByColumnNameWithMacros(argumentNumber, row, columnName);
-    }
-
-    public static String[] getCommandArgColumnNames(int argumentNumber, int row)
-    {
-        return accessHandler.getCommandArgColumnNames(argumentNumber, row);
+        return accessHandler.getCommandArgumentWithMacros(row);
     }
 
     public static String getStructureTypeNameByRow(int row)
@@ -1165,6 +1083,7 @@ public class CcddScriptDataAccessHandlerStatic
                                                      String[][] tableData,
                                                      int cmdNameColumn,
                                                      int cmdCodeColumn,
+                                                     int cmdArgumentColumn,
                                                      int cmdDescColumn,
                                                      boolean isCmdHeader,
                                                      String cmdHdrSysPath,
@@ -1174,6 +1093,7 @@ public class CcddScriptDataAccessHandlerStatic
                                                  tableData,
                                                  cmdNameColumn,
                                                  cmdCodeColumn,
+                                                 cmdArgumentColumn,
                                                  cmdDescColumn,
                                                  isCmdHeader,
                                                  cmdHdrSysPath,
@@ -1184,6 +1104,7 @@ public class CcddScriptDataAccessHandlerStatic
                                       String commandName,
                                       String cmdFuncCode,
                                       String applicationID,
+                                      String cmdArgStruct,
                                       boolean isCmdHeader,
                                       String cmdHdrSysPath,
                                       String[] argumentNames,
@@ -1195,6 +1116,7 @@ public class CcddScriptDataAccessHandlerStatic
                                      commandName,
                                      cmdFuncCode,
                                      applicationID,
+                                     cmdArgStruct,
                                      isCmdHeader,
                                      cmdHdrSysPath,
                                      argumentNames,

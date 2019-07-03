@@ -133,7 +133,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddSearchDialog.html#dataTablesOnlyCb">dataTablesOnlyCb</a></span> - Variable in class CCDD.<a href="../CCDD/CcddSearchDialog.html" title="class in CCDD">CcddSearchDialog</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.AssociatedColumns.html#dataType">dataType</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesDataTable.AssociatedColumns.html" title="class in CCDD">CcddClassesDataTable.AssociatedColumns</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.DataTypeEnumPair.html#dataType">dataType</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesDataTable.DataTypeEnumPair.html" title="class in CCDD">CcddClassesDataTable.DataTypeEnumPair</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TelemetryData.html#dataType">dataType</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesDataTable.TelemetryData.html" title="class in CCDD">CcddClassesDataTable.TelemetryData</a></dt>
 <dd>&nbsp;</dd>
@@ -176,6 +176,10 @@
 <dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.DataTypeEditorColumnInfo.html#DataTypeEditorColumnInfo-java.lang.String-java.lang.String-java.lang.String-boolean-">DataTypeEditorColumnInfo(String, String, String, boolean)</a></span> - Constructor for enum CCDD.<a href="../CCDD/CcddConstants.DataTypeEditorColumnInfo.html" title="enum in CCDD">CcddConstants.DataTypeEditorColumnInfo</a></dt>
 <dd>
 <div class="block">Data type editor column information constructor</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.DataTypeEnumPair.html#DataTypeEnumPair-int-int-">DataTypeEnumPair(int, int)</a></span> - Constructor for class CCDD.<a href="../CCDD/CcddClassesDataTable.DataTypeEnumPair.html" title="class in CCDD">CcddClassesDataTable.DataTypeEnumPair</a></dt>
+<dd>
+<div class="block">Data type and enumeration column pairing class constructor</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#dataTypeHandler">dataTypeHandler</a></span> - Variable in class CCDD.<a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddCommonTreeHandler</a></dt>
 <dd>&nbsp;</dd>
@@ -494,7 +498,7 @@
 <dd>
 <div class="block">Delete the contents of the selected cell(s)</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteCommandReference-CCDD.CcddClassesDataTable.TableInformation-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteCommandReference(CcddClassesDataTable.TableInformation, String, CcddInputTypeHandler.ReferenceCheckResults, StringBuilder, StringBuilder)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteCommandReference-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteCommandReference(String, CcddInputTypeHandler.ReferenceCheckResults, StringBuilder, StringBuilder)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
 <dd>
 <div class="block">Blank any references to a command that has been deleted in every table cell and data field
  with a command reference input type</div>
@@ -565,7 +569,7 @@
 <dd>
 <div class="block">Delete one or more prototype or script tables.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTableType-java.lang.String-boolean-boolean-CCDD.CcddTableTypeManagerDialog-java.awt.Component-">deleteTableType(String, boolean, boolean, CcddTableTypeManagerDialog, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTableType-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddTableTypeManagerDialog-java.awt.Component-">deleteTableType(CcddTableTypeHandler.TypeDefinition, CcddTableTypeManagerDialog, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
 <dd>
 <div class="block">Delete a table type and all tables of the deleted type.</div>
 </dd>
@@ -579,7 +583,7 @@
 <div class="block">Build the command to delete the specified variable references from the telemetry scheduler
  table</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteVariableReference-CCDD.CcddClassesDataTable.TableInformation-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteVariableReference(CcddClassesDataTable.TableInformation, String, CcddInputTypeHandler.ReferenceCheckResults, StringBuilder, StringBuilder)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteVariableReference-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteVariableReference(String, String, CcddInputTypeHandler.ReferenceCheckResults, StringBuilder, StringBuilder)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
 <dd>
 <div class="block">Blank any references to a variable that has been deleted in every table cell and data field
  with a variable reference input type</div>
@@ -595,8 +599,6 @@
 <div class="block">Enclose database text string objects with a delimiter.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddInputFieldPanelHandler.html#descAndFldPnl">descAndFldPnl</a></span> - Variable in class CCDD.<a href="../CCDD/CcddInputFieldPanelHandler.html" title="class in CCDD">CcddInputFieldPanelHandler</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.AssociatedColumns.html#description">description</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesDataTable.AssociatedColumns.html" title="class in CCDD">CcddClassesDataTable.AssociatedColumns</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.FieldInformation.html#description">description</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a></dt>
 <dd>&nbsp;</dd>

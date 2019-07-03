@@ -8,15 +8,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.COL_ARGUMENT;
-import static CCDD.CcddConstants.COL_ARRAY_SIZE;
-import static CCDD.CcddConstants.COL_BIT_LENGTH;
-import static CCDD.CcddConstants.COL_DATA_TYPE;
-import static CCDD.CcddConstants.COL_DESCRIPTION;
-import static CCDD.CcddConstants.COL_ENUMERATION;
-import static CCDD.CcddConstants.COL_MAXIMUM;
-import static CCDD.CcddConstants.COL_MINIMUM;
-import static CCDD.CcddConstants.COL_UNITS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -29,7 +20,6 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
-import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
@@ -64,35 +54,6 @@ public class CcddTableTypeHandler
 
     // Flag indicating that a data field was created for a table type
     private boolean isNewField;
-
-    // Command argument column definitions
-    protected final static Object[][] commandArgumentColumns = new Object[][] {{COL_ARGUMENT + " ### Name",
-                                                                                "Command argument ### name",
-                                                                                DefaultInputType.ARGUMENT_NAME},
-                                                                               {COL_ARGUMENT + " ### " + COL_DESCRIPTION,
-                                                                                "Command argument ### description",
-                                                                                DefaultInputType.DESCRIPTION},
-                                                                               {COL_ARGUMENT + " ### " + COL_UNITS,
-                                                                                "Command argument ### units",
-                                                                                DefaultInputType.UNITS},
-                                                                               {COL_ARGUMENT + " ### " + COL_DATA_TYPE,
-                                                                                "Command argument ### data type",
-                                                                                DefaultInputType.PRIM_AND_STRUCT},
-                                                                               {COL_ARGUMENT + " ### " + COL_ARRAY_SIZE,
-                                                                                "Command argument ### array size",
-                                                                                DefaultInputType.ARRAY_INDEX},
-                                                                               {COL_ARGUMENT + " ### " + COL_BIT_LENGTH,
-                                                                                "Command argument ### bit length",
-                                                                                DefaultInputType.BIT_LENGTH},
-                                                                               {COL_ARGUMENT + " ### " + COL_ENUMERATION,
-                                                                                "Command argument ### enumeration",
-                                                                                DefaultInputType.ENUMERATION},
-                                                                               {COL_ARGUMENT + " ### " + COL_MINIMUM,
-                                                                                "Command argument ### minimum value",
-                                                                                DefaultInputType.MINIMUM},
-                                                                               {COL_ARGUMENT + " ### " + COL_MAXIMUM,
-                                                                                "Command argument ### maximum value",
-                                                                                DefaultInputType.MAXIMUM}};
 
     /**********************************************************************************************
      * Table type definition class
@@ -380,11 +341,34 @@ public class CcddTableTypeHandler
         /******************************************************************************************
          * Get the table type description
          *
-         * @return table type description
+         * @return Table type description
          *****************************************************************************************/
         protected String getDescription()
         {
-            return columnToolTip.get(0);
+            return columnToolTip.get(0).length() < 2
+                                                     ? ""
+                                                     : columnToolTip.get(0).substring(1);
+        }
+
+        /******************************************************************************************
+         * Set the table type description
+         *
+         * @param description
+         *            table type description
+         *****************************************************************************************/
+        protected void setDescription(String description)
+        {
+            columnToolTip.set(0, description);
+        }
+
+        /******************************************************************************************
+         * Check if the table type represents a command argument structure
+         *
+         * @return true if the table type represents a command argument structure
+         *****************************************************************************************/
+        protected boolean isCommandArgumentStructure()
+        {
+            return !columnToolTip.get(0).startsWith("0");
         }
 
         /******************************************************************************************
@@ -810,6 +794,19 @@ public class CcddTableTypeHandler
 
         /******************************************************************************************
          * Determine if this table type contains all of the default protected columns of the
+         * Structure table type in addition to a column with the Rate input type
+         *
+         * @return true if this table type contains all of the protected columns of the Structure
+         *         table type in addition to a column with the Rate input type; i.e., this table
+         *         type represents a telemetry structure table
+         *****************************************************************************************/
+        protected boolean isTelemetryStructure()
+        {
+            return isStructure() && getColumnIndicesByInputType(DefaultInputType.RATE).size() != 0;
+        }
+
+        /******************************************************************************************
+         * Determine if this table type contains all of the default protected columns of the
          * Command table type
          *
          * @return true if this table type contains all of the protected columns of the Command
@@ -888,192 +885,6 @@ public class CcddTableTypeHandler
             }
 
             return varRow;
-        }
-
-        /******************************************************************************************
-         * Get the list of groupings of associated command argument columns
-         *
-         * @param useViewIndex
-         *            true to adjust the column indices to view coordinates; false to keep the
-         *            coordinates in model coordinates
-         *
-         * @return List of groupings of associated command argument columns; empty list if no
-         *         command arguments exist
-         *****************************************************************************************/
-        protected List<AssociatedColumns> getAssociatedCommandArgumentColumns(boolean useViewIndex)
-        {
-            List<AssociatedColumns> associatedColumns = new ArrayList<AssociatedColumns>();
-
-            // Initialize the starting command argument name, data type, array size, bit length,
-            // enumeration, minimum, maximum, and other columns
-            int nameColumn = -1;
-            int dataTypeColumn = -1;
-            int arrayColumn = -1;
-            int bitColumn = -1;
-            int enumColumn = -1;
-            int minColumn = -1;
-            int maxColumn = -1;
-            int descColumn = -1;
-            int unitsColumn = -1;
-            List<Integer> otherColumn = null;
-
-            // Get the column input types
-            InputType[] inputTypes = getInputTypes();
-
-            // Step through each column defined for this table's type
-            for (int index = 0; index < getColumnCountDatabase(); index++)
-            {
-                // Check if the column expects a command argument name
-                if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARGUMENT_NAME)))
-                {
-                    // Save the name column index and initialize the associated column indices
-                    nameColumn = index;
-                    dataTypeColumn = -1;
-                    arrayColumn = -1;
-                    bitColumn = -1;
-                    enumColumn = -1;
-                    minColumn = -1;
-                    maxColumn = -1;
-                    descColumn = -1;
-                    unitsColumn = -1;
-                    otherColumn = new ArrayList<Integer>();
-
-                    // Step through the remaining columns defined for this table's type
-                    for (index++; index < getColumnCountDatabase(); index++)
-                    {
-                        // Check if the column expects a command argument name
-                        if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARGUMENT_NAME)))
-                        {
-                            // Adjust the loop index and stop searching since this is the beginning
-                            // of the next argument's columns
-                            index--;
-                            break;
-                        }
-
-                        // Check that this isn't the command name or command code column (these are
-                        // never part of an argument grouping)
-                        if (!inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_NAME))
-                            && !inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_CODE)))
-                        {
-                            // Check that this is a data type column
-                            if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIMITIVE))
-                                || inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIM_AND_STRUCT)))
-                            {
-                                // Save the data type column index
-                                dataTypeColumn = index;
-                            }
-                            // Check that this is an array size column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARRAY_INDEX)))
-                            {
-                                // Save the array size column index
-                                arrayColumn = index;
-                            }
-                            // Check that this is a bit length column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BIT_LENGTH)))
-                            {
-                                // Save the bit length column index
-                                bitColumn = index;
-                            }
-                            // Check that this is an enumeration column
-                            else if (inputTypes[index].getInputFormat()
-                                                      .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION).getInputFormat()))
-                            {
-                                // Save the enumeration column index
-                                enumColumn = index;
-                            }
-                            // Check that this is a minimum column
-                            else if (inputTypes[index].getInputFormat()
-                                                      .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MINIMUM).getInputFormat()))
-                            {
-                                // Save the minimum column index
-                                minColumn = index;
-                            }
-                            // Check that this is a maximum column
-                            else if (inputTypes[index].getInputFormat()
-                                                      .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MAXIMUM).getInputFormat()))
-                            {
-                                // Save the maximum column index
-                                maxColumn = index;
-                            }
-                            // Check that this is a description column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.DESCRIPTION)))
-                            {
-                                // Save the description column index
-                                descColumn = index;
-                            }
-                            // Check that this is a units column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.UNITS)))
-                            {
-                                // Save the units column index
-                                unitsColumn = index;
-                            }
-                            // Not one of the recognized column input types, so treat as an 'other'
-                            // column
-                            else
-                            {
-                                // Add the column to the list of other columns associated with this
-                                // command argument
-                                otherColumn.add(index);
-                            }
-                        }
-                    }
-
-                    // Add the name, data type, array size, bit length, enumeration, minimum,
-                    // maximum, and associated columns column index group to the list
-                    associatedColumns.add(new AssociatedColumns(useViewIndex,
-                                                                nameColumn,
-                                                                dataTypeColumn,
-                                                                arrayColumn,
-                                                                bitColumn,
-                                                                enumColumn,
-                                                                minColumn,
-                                                                maxColumn,
-                                                                descColumn,
-                                                                unitsColumn,
-                                                                otherColumn));
-                }
-            }
-
-            return associatedColumns;
-        }
-
-        /**********************************************************************************************
-         * Add a set of default command argument columns to the table type definition using the
-         * specified argument index to determine the column names
-         *
-         * @param argumentIndex
-         *            argument index for the argument column names
-         *********************************************************************************************/
-        protected void addCommandArgumentColumns(int argumentIndex)
-        {
-            // Get the current number of columns defined for the table type. The new columns are
-            // appended to the existing ones
-            int columnIndex = getColumnCountDatabase();
-
-            // Step through each command argument column to add
-            for (Object[] cmdArgCol : commandArgumentColumns)
-            {
-                // Update the argument name with the argument index
-                String argName = cmdArgCol[0].toString().replaceFirst("###",
-                                                                      String.valueOf(argumentIndex));
-
-                // Add the command argument column. The argument description is updated with the
-                // argument index
-                addColumn(columnIndex,
-                          convertVisibleToDatabase(argName,
-                                                   ((DefaultInputType) cmdArgCol[2]).getInputName(),
-                                                   false),
-                          argName,
-                          cmdArgCol[1].toString().replaceFirst("###",
-                                                               String.valueOf(argumentIndex)),
-                          inputTypeHandler.getInputTypeByDefaultType((DefaultInputType) cmdArgCol[2]),
-                          false,
-                          false,
-                          false,
-                          false);
-
-                columnIndex++;
-            }
         }
     }
 
@@ -1270,9 +1081,9 @@ public class CcddTableTypeHandler
      *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    private TypeDefinition createTypeDefinition(String typeName,
-                                                String description,
-                                                Object[][] typeData)
+    protected TypeDefinition createTypeDefinition(String typeName,
+                                                  String description,
+                                                  Object[][] typeData)
     {
         // Create a new type definition
         TypeDefinition typeDefn = new TypeDefinition(typeName);
@@ -1936,15 +1747,5 @@ public class CcddTableTypeHandler
         }
 
         return typeUpdate;
-    }
-
-    /**********************************************************************************************
-     * Get the array of command argument column definitions
-     *
-     * @return Array of command argument column definitions
-     *********************************************************************************************/
-    protected static Object[][] getCommandArgumentColumns()
-    {
-        return commandArgumentColumns;
     }
 }

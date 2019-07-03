@@ -29,7 +29,6 @@ import org.json.simple.parser.ParseException;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.OrderedJSONObject;
-import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -58,7 +57,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private CcddTableTypeHandler tableTypeHandler;
     private CcddRateParameterHandler rateHandler;
     private CcddVariableHandler variableHandler;
-    private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
     private CcddFieldHandler fieldHandler;
@@ -1203,13 +1201,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 {
                     responseJO = new OrderedJSONObject();
 
-                    // Check if the link handler exists
-                    if (linkHandler == null)
-                    {
-                        // Create a link handler
-                        linkHandler = new CcddLinkHandler(ccddMain, ccddMain.getMainFrame());
-                    }
-
                     // Store the table name and its size in bytes
                     responseJO.put(JSONTags.TABLE_NAME.getTag(),
                                    (isSingle
@@ -1752,8 +1743,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Get the table's type definition
                 typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                // Check if the table represents a structure
-                if (typeDefn.isStructure())
+                // Check if the table represents a telemetry structure
+                if (typeDefn.isTelemetryStructure())
                 {
                     // Check if the table type changed. This accounts for multiple table types that
                     // represent structures, and prevents reloading the table type information for
@@ -1951,8 +1942,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         TypeDefinition typeDefn = null;
         int commandNameIndex = -1;
         int commandCodeIndex = -1;
+        int commandArgumentIndex = -1;
         int commandDescriptionIndex = -1;
-        List<AssociatedColumns> commandArguments = null;
         List<String> groupTables = null;
 
         // Table type name for the previous table type loaded
@@ -2011,16 +2002,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the command name column
                         commandCodeIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(DefaultInputType.COMMAND_CODE));
 
+                        // Get the command argument column
+                        commandArgumentIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(DefaultInputType.COMMAND_ARGUMENT));
+
                         // Check if a command description column exists
                         if ((descColName = typeDefn.getColumnNameByInputType(DefaultInputType.DESCRIPTION)) != null)
                         {
                             // Get the command description column
                             commandDescriptionIndex = typeDefn.getColumnIndexByUserName(descColName);
                         }
-
-                        // Get the list containing command argument column indices for each
-                        // argument grouping
-                        commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
                     }
 
                     // Check if the macro names should be replaced with the corresponding macro
@@ -2041,8 +2031,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // on this row is skipped
                         if (!(cellValue = tableInfo.getData()[row][commandNameIndex].toString()).isEmpty())
                         {
-                            JSONArray commandArgumentsJA = new JSONArray();
-
                             // Store the name of the command table from which this command is taken
                             commandJO.put("Command Table Name", commandTable);
 
@@ -2058,6 +2046,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                               cellValue);
                             }
 
+                            // Check if the command argument is present
+                            if (!(cellValue = tableInfo.getData()[row][commandArgumentIndex].toString()).isEmpty())
+                            {
+                                // Store the command argument in the JSON output
+                                commandJO.put(typeDefn.getColumnNamesUser()[commandArgumentIndex],
+                                              cellValue);
+                            }
+
                             // Check if the command description is present
                             if (commandDescriptionIndex != -1
                                 && !(cellValue = tableInfo.getData()[row][commandDescriptionIndex].toString()).isEmpty())
@@ -2065,93 +2061,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                 // Store the command description in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandDescriptionIndex],
                                               cellValue);
-                            }
-
-                            // Step through each command argument associated with the current
-                            // command row
-                            for (AssociatedColumns cmdArgument : commandArguments)
-                            {
-                                OrderedJSONObject commandArgumentJO = new OrderedJSONObject();
-
-                                // Check if the command argument name column has a value. If not,
-                                // all associated argument values are skipped
-                                if (!(cellValue = tableInfo.getData()[row][cmdArgument.getName()].toString()).isEmpty())
-                                {
-                                    // Store the command argument name in the JSON output
-                                    commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getName()],
-                                                          cellValue);
-
-                                    // Check if the command argument data type column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getDataType()].toString()).isEmpty())
-                                    {
-                                        // Store the data type in the JSON output
-                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getDataType()],
-                                                              cellValue);
-                                    }
-
-                                    // Check if the command argument array size column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getArraySize()].toString()).isEmpty())
-                                    {
-                                        // Store the array size in the JSON output
-                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getArraySize()],
-                                                              cellValue);
-                                    }
-
-                                    // Check if the command argument bit length column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getBitLength()].toString()).isEmpty())
-                                    {
-                                        // Store the bit length in the JSON output
-                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getBitLength()],
-                                                              cellValue);
-                                    }
-
-                                    // Check if the command argument enumeration column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getEnumeration()].toString()).isEmpty())
-                                    {
-                                        // Store the enumeration in the JSON output
-                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getEnumeration()],
-                                                              cellValue);
-                                    }
-
-                                    // Check if the command argument minimum column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getMinimum()].toString()).isEmpty())
-                                    {
-                                        // Store the minimum value in the JSON output
-                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getMinimum()],
-                                                              cellValue);
-                                    }
-
-                                    // Check if the command argument maximum column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getMaximum()].toString()).isEmpty())
-                                    {
-                                        // Store the maximum value in the JSON output
-                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getMaximum()],
-                                                              cellValue);
-                                    }
-
-                                    // Step through any other columns associated with this command
-                                    // argument
-                                    for (int otherArg : cmdArgument.getOther())
-                                    {
-                                        // Check if the other argument column has a value
-                                        if (!(cellValue = tableInfo.getData()[row][otherArg].toString()).isEmpty())
-                                        {
-                                            // Store the value in the JSON output
-                                            commandArgumentJO.put(typeDefn.getColumnNamesUser()[otherArg],
-                                                                  cellValue);
-                                        }
-                                    }
-                                }
-
-                                // Store the command arguments in the JSON array
-                                commandArgumentsJA.add(commandArgumentJO);
-                            }
-
-                            // Check if the command has an argument
-                            if (!commandArgumentsJA.isEmpty())
-                            {
-                                // Store the command arguments in the JSON output
-                                commandJO.put("Arguments", commandArgumentsJA);
                             }
                         }
 

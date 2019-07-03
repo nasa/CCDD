@@ -7,14 +7,18 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -23,9 +27,11 @@ import javax.swing.JOptionPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
+import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -40,6 +46,8 @@ import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddConstants.TableCommentIndex;
+import CCDD.CcddInputTypeHandler.InputTypeReference;
+import CCDD.CcddInputTypeHandler.ReferenceCheckResults;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -112,6 +120,10 @@ public class CcddPatchHandler
         // Only patches that must be performed after handler initialization should be implemented
         else
         {
+            // Patch #06012019 - Convert command tables to the new command table / command argument
+            // structure table format
+            updateCommandTables();
+
             // Patch #11052018: Part B - Add inherited fields to tables that don't already have the
             // field
             updateFieldsPart2();
@@ -195,6 +207,1058 @@ public class CcddPatchHandler
                     throw new CCDDException("Unable to back up project database");
                 }
             }
+        }
+    }
+
+    /**********************************************************************************************
+     * The command table types are altered by removing any argument columns and adding a command
+     * argument structure reference column. Every command table is modified as follows: Remove the
+     * argument columns and add a command argument structure reference column. For each individual
+     * command an argument structure is created; within this structure a variable is added for each
+     * of the command's arguments. An argument reference structure table type definition is created
+     * from which an argument reference structure is created that has references for each of the
+     * newly create argument structures (making these argument structures children of the argument
+     * reference structure). The updated command table's argument structure reference column is
+     * populated with a reference to the argument reference structure. Older versions of CCDD are
+     * not compatible with the project database after applying this patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error occurs while applying
+     *             the patch
+     *********************************************************************************************/
+    private void updateCommandTables() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+        CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+        CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
+        try
+        {
+            boolean isPatched = false;
+            CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+            CcddInputTypeHandler inputTypeHandler = ccddMain.getInputTypeHandler();
+
+            // Step through each table type definition
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+            {
+                // Check if the table represents a command
+                if (typeDefn.isCommand())
+                {
+                    // Stop searching since the database is already updated
+                    isPatched = true;
+                    break;
+                }
+            }
+
+            // Check if the patch hasn't been applied
+            if (!isPatched)
+            {
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update the command "
+                                                                                       + "tables?<br><br></b>"
+                                                                                       + "The command table types are altered by "
+                                                                                       + "removing any argument columns and adding "
+                                                                                       + "a command argument structure reference "
+                                                                                       + "column. Every command table is modified "
+                                                                                       + "as follows: Remove the argument columns "
+                                                                                       + "and add a command argument structure "
+                                                                                       + "reference column. For each individual "
+                                                                                       + "command an argument structure is created; "
+                                                                                       + "within this structure a variable is added "
+                                                                                       + "for each of the command's arguments. An "
+                                                                                       + "argument reference structure table type "
+                                                                                       + "definition is created from which an "
+                                                                                       + "argument reference structure is created "
+                                                                                       + "that has references for each of the newly "
+                                                                                       + "create argument structures (making these "
+                                                                                       + "argument structures children of the "
+                                                                                       + "argument reference structure). The updated "
+                                                                                       + "command table's argument structure "
+                                                                                       + "reference column is populated with a "
+                                                                                       + "reference to the argument reference "
+                                                                                       + "structure. <br><b><i>Older versions of "
+                                                                                       + "CCDD will be incompatible with this "
+                                                                                       + "project database after applying the patch",
+                                                              "Apply Patch #06012019",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    throw new CCDDException("User elected to not install patch (#06012019)");
+                }
+
+                // Back up the project database before applying the patch
+                backupDatabase(dbControl);
+
+                // Create a save point in case an error occurs while applying the patch
+                dbCommand.createSavePoint(ccddMain.getMainFrame());
+
+                // Create the command argument structure table type
+                TypeDefinition cmdArgTableType = tableTypeHandler.createReplaceTypeDefinition(STRUCT_CMD_ARG_REF,
+                                                                                              "1Command argument structure reference table definition",
+                                                                                              DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE,
+                                                                                                                                        false));
+
+                StringBuilder cmdRefInpTypeCmd = new StringBuilder("");
+                List<TypeDefinition> newCommandArgTypes = new ArrayList<TypeDefinition>();
+                int cmdArgStructSeq = 1;
+
+                // Get the references in the table type and data field internal tables that use the
+                // command reference input type. If a command name, code, or argument is changed or
+                // deleted then the tables and fields may require updating
+                ReferenceCheckResults cmdRefChkResults = inputTypeHandler.getInputTypeReferences(DefaultInputType.COMMAND_REFERENCE,
+                                                                                                 ccddMain.getMainFrame());
+
+                // Get the number of table type definitions before any new ones are added
+                int numTypes = tableTypeHandler.getTypeDefinitions().size();
+
+                // Step through each existing table type definition
+                for (int typeIndex = 0; typeIndex < numTypes; typeIndex++)
+                {
+                    // Get the reference to the existing table type definition
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinitions().get(typeIndex);
+
+                    // Check if this isn't the command argument structure reference table type just
+                    // added
+                    if (!typeDefn.getName().equals(STRUCT_CMD_ARG_REF))
+                    {
+                        // Update the type's definition to include the flag that indicates if the
+                        // type represents a command argument structure
+                        typeDefn.setDescription("0" + typeDefn.getColumnToolTips()[0]);
+                    }
+
+                    // Get the column indices for the command name and code
+                    int cmdNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME);
+                    int cmdCodeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE);
+
+                    // Check if the type represents a command (old format; minus the command
+                    // argument structure column)
+                    if (cmdNameIndex != -1
+                        && cmdCodeIndex != -1
+                        && !typeDefn.isStructure())
+                    {
+                        List<Integer[]> cmdArgGroups = new ArrayList<Integer[]>();
+                        List<Integer> commandColumns = new ArrayList<Integer>();
+                        List<String> commandTableNames = new ArrayList<String>();
+                        List<String> commandTableDescriptions = new ArrayList<String>();
+                        String command = "";
+
+                        // Read the contents of the command table type
+                        ResultSet typesData = dbCommand.executeDbQuery("SELECT * FROM "
+                                                                       + InternalTable.TABLE_TYPES.getTableName()
+                                                                       + " WHERE "
+                                                                       + TableTypesColumn.TYPE_NAME.getColumnName()
+                                                                       + " = '"
+                                                                       + typeDefn.getName()
+                                                                       + "' ORDER BY "
+                                                                       + TableTypesColumn.INDEX.getColumnName()
+                                                                       + ";",
+                                                                       ccddMain.getMainFrame());
+
+                        int colIndex = -1;
+                        int cmdIndex = 0;
+                        List<Object[]> cmdColDefnData = new ArrayList<Object[]>();
+                        boolean keepGoing = true;
+                        boolean readNext = true;
+
+                        // Step through each of the query results
+                        while (keepGoing)
+                        {
+                            // Check if the next result entry should be read (if the last entry
+                            // read below is an argument name then the current entry applies)
+                            if (readNext)
+                            {
+                                // Get the next entry
+                                keepGoing = typesData.next();
+
+                                // Check if this is the last result entry
+                                if (!keepGoing)
+                                {
+                                    // Stop processing this command table type
+                                    break;
+                                }
+
+                                // Increment the grouped column index
+                                colIndex++;
+                            }
+
+                            // Set the flag for the next loop
+                            readNext = true;
+
+                            // Check if this is not the primary key or index columns
+                            if (typesData.getInt(TableTypesColumn.INDEX.ordinal() + 1) >= NUM_HIDDEN_COLUMNS)
+                            {
+                                // Check if the column expects a command argument name
+                                if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1).equals("Argument name"))
+                                {
+                                    List<Integer> argColGroup = new ArrayList<Integer>();
+
+                                    // Change the input type for the argument name to that for a
+                                    // variable so that it's recognized
+                                    typeDefn.getInputTypesList().set(colIndex,
+                                                                     inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
+
+                                    // Add the argument name column index to the list of argument
+                                    // columns
+                                    argColGroup.add(colIndex);
+
+                                    // Get the column input types
+                                    InputType[] inputTypes = typeDefn.getInputTypes();
+
+                                    // Step through the remaining columns defined for this table's
+                                    // type
+                                    for (colIndex++; colIndex < typeDefn.getColumnCountDatabase(); colIndex++)
+                                    {
+                                        typesData.next();
+
+                                        // Check if the column expects a command argument name
+                                        if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1).equals("Argument name"))
+                                        {
+                                            // Change the input type for the argument name to that
+                                            // for a variable so that it's recognized
+                                            typeDefn.getInputTypesList().set(colIndex,
+                                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
+                                            readNext = false;
+                                            break;
+                                        }
+
+                                        // Check if the column expects a primitive data type
+                                        if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1).equals(DefaultInputType.PRIMITIVE.getInputName()))
+                                        {
+                                            // Change the input type for the primitive data type to
+                                            // that for a primitive & structure data type
+                                            typeDefn.getInputTypesList().set(colIndex,
+                                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.DATA_TYPE.getInputType()));
+                                        }
+                                        // Check if the column expects a command argument name
+                                        else if (typesData.getString(TableTypesColumn.COLUMN_NAME_DB.ordinal() + 1).contains("description"))
+                                        {
+                                            // Change the input type for the argument name to that
+                                            // for a variable so that it's recognized
+                                            typeDefn.getInputTypesList().set(colIndex,
+                                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.DESCRIPTION_STRUCT.getInputType()));
+                                        }
+                                        else if (typesData.getString(TableTypesColumn.COLUMN_NAME_DB.ordinal() + 1).contains("units"))
+                                        {
+                                            // Change the input type for the argument name to that
+                                            // for a variable so that it's recognized
+                                            typeDefn.getInputTypesList().set(colIndex,
+                                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.UNITS.getInputType()));
+                                        }
+
+                                        // Check that this isn't the command name or command code
+                                        // column (these are never part of an argument grouping)
+                                        if (!inputTypes[colIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_NAME))
+                                            && !inputTypes[colIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_CODE)))
+                                        {
+                                            // Add the command argument column index to the
+                                            // argument list
+                                            argColGroup.add(colIndex);
+                                        }
+                                        // This column belongs to the command itself and not an
+                                        // argument
+                                        else
+                                        {
+                                            cmdColDefnData.add(typeDefn.getData()[cmdIndex]);
+                                            commandColumns.add(colIndex);
+                                            cmdIndex++;
+                                        }
+                                    }
+
+                                    // Add the argument column group to the list
+                                    cmdArgGroups.add(argColGroup.toArray(new Integer[0]));
+                                }
+                                // This column belongs to the command itself
+                                else
+                                {
+                                    cmdColDefnData.add(typeDefn.getData()[cmdIndex]);
+                                    commandColumns.add(colIndex);
+                                    cmdIndex++;
+                                }
+                            }
+                        }
+
+                        typesData.close();
+
+                        // Add the new command argument structure column definition
+                        cmdColDefnData.add(new Object[] {0,
+                                                         DefaultColumn.COMMAND_ARGUMENT.getName(),
+                                                         DefaultColumn.COMMAND_ARGUMENT.getDescription(),
+                                                         DefaultColumn.COMMAND_ARGUMENT.getInputType().getInputName(),
+                                                         DefaultColumn.COMMAND_ARGUMENT.isRowValueUnique(),
+                                                         DefaultColumn.COMMAND_ARGUMENT.isProtected(),
+                                                         DefaultColumn.COMMAND_ARGUMENT.isStructureAllowed(),
+                                                         DefaultColumn.COMMAND_ARGUMENT.isPointerAllowed()});
+
+                        // Create the command table type with the new command argument column and
+                        // without the individual argument columns. Adjust the name so there is no
+                        // conflict; the name is restored when the original table type is replaced
+                        // by this one
+                        TypeDefinition newCmdTypeDefn = tableTypeHandler.createTypeDefinition(typeDefn.getName() + "@",
+                                                                                              typeDefn.getColumnToolTips()[0],
+                                                                                              cmdColDefnData.toArray(new Object[0][0]));
+
+                        List<InputType> defaultInputTypes = new ArrayList<InputType>();
+
+                        // Step through the default columns
+                        for (DefaultColumn defCol : DefaultColumn.values())
+                        {
+                            // Check if the current column's type is for a structure (excluding the
+                            // rate column)
+                            if (defCol.getTableType().equals(TYPE_STRUCTURE)
+                                && !defCol.getInputType().equals(DefaultInputType.RATE))
+                            {
+                                // Add the column input type to the list
+                                defaultInputTypes.add(inputTypeHandler.getInputTypeByDefaultType(defCol.getInputType()));
+                            }
+                        }
+
+                        // Step through each table of this command type
+                        for (String commandTableName : dbTable.getAllTablesOfType(typeDefn.getName(),
+                                                                                  null,
+                                                                                  ccddMain.getMainFrame()))
+                        {
+                            // Load the command table's information
+                            TableInformation cmdTableInfo = dbTable.loadTableData(commandTableName,
+                                                                                  false,
+                                                                                  false,
+                                                                                  ccddMain.getMainFrame());
+
+                            // Check if an error occurred loading the command table
+                            if (cmdTableInfo.isErrorFlag())
+                            {
+                                throw new CCDDException("Cannot load command table " + commandTableName);
+                            }
+
+                            TypeDefinition newCmdArgStructType = null;
+                            List<Object[]> typeData = new ArrayList<Object[]>();
+                            List<String> argStructRefs = new ArrayList<String>();
+
+                            // Store the command table name and description
+                            commandTableNames.add(commandTableName);
+                            commandTableDescriptions.add(cmdTableInfo.getDescription());
+
+                            // Check if the table has commands defined
+                            if (cmdTableInfo.getData().length != 0)
+                            {
+                                List<String[]> argNamesAndNumber = new ArrayList<String[]>();
+
+                                ///////////////////////////////////////////////////////////////////
+                                // Create the command argument structure reference table used by
+                                // all commands in this command table
+                                ///////////////////////////////////////////////////////////////////
+                                List<Object[]> argRefTableData = new ArrayList<Object[]>();
+                                String cmdArgRefTableName = "CmdArgRef_" + commandTableName;
+
+                                // Create a command argument structure table based on the newly
+                                // create type. All of the command arguments are stored in this
+                                // table
+                                if (dbTable.createTable(new String[] {cmdArgRefTableName},
+                                                        "Command "
+                                                                                           + commandTableName
+                                                                                           + " argument structure references",
+                                                        STRUCT_CMD_ARG_REF,
+                                                        ccddMain.getMainFrame()))
+                                {
+                                    throw new CCDDException("Cannot create command argument structure reference table");
+                                }
+
+                                // Load the command argument structure table
+                                TableInformation cmdArgTableInfo = dbTable.loadTableData(cmdArgRefTableName,
+                                                                                         false,
+                                                                                         false,
+                                                                                         ccddMain.getMainFrame());
+
+                                // Check if an error occurred loading the command argument
+                                // structure table
+                                if (cmdArgTableInfo.isErrorFlag())
+                                {
+                                    throw new CCDDException("Cannot load command argument structure table");
+                                }
+
+                                ///////////////////////////////////////////////////////////////////
+                                // Create the command argument structure table type used by all
+                                // commands in this command table
+                                ///////////////////////////////////////////////////////////////////
+
+                                // Add the default structure column definitions to the list (minus
+                                // the rate column)
+                                typeData.addAll(Arrays.asList(DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE,
+                                                                                                        false)));
+
+                                // Step through each command argument column grouping
+                                for (Integer[] cmdArgGroup : cmdArgGroups)
+                                {
+                                    int numEnum = 0;
+                                    int numMin = 0;
+                                    int numMax = 0;
+
+                                    // Step through each column in this argument group
+                                    for (Integer argCol : cmdArgGroup)
+                                    {
+                                        boolean isAdd = false;
+                                        String columnName = null;
+                                        String description = null;
+                                        boolean isRowValueUnique = false;
+                                        boolean isRequired = false;
+                                        boolean isStructureAllowed = false;
+                                        boolean isPointerAllowed = false;
+                                        DefaultColumn defCol = null;
+
+                                        // Get the input type reference to shorten subsequent calls
+                                        InputType inputType = typeDefn.getInputTypes()[argCol];
+
+                                        // Check if this is the enumeration input type
+                                        if (inputType.getInputName().equals(DefaultInputType.ENUMERATION.getInputName()))
+                                        {
+                                            numEnum++;
+
+                                            // Check if this isn't the first enumeration column
+                                            // (the first is a default)
+                                            if (numEnum > 1)
+                                            {
+                                                isAdd = true;
+                                                defCol = DefaultColumn.ENUMERATION;
+                                                columnName = typeDefn.getColumnNamesUser()[argCol];
+                                                description = typeDefn.getColumnToolTips()[argCol];
+                                            }
+                                        }
+                                        // Check if this is the minimum input type
+                                        else if (inputType.getInputName().equals(DefaultInputType.MINIMUM.getInputName()))
+                                        {
+                                            numMin++;
+
+                                            // Check if this isn't the first minimum column (the
+                                            // first is a default)
+                                            if (numMin > 1)
+                                            {
+                                                isAdd = true;
+                                                defCol = DefaultColumn.MINIMUM;
+                                                columnName = typeDefn.getColumnNamesUser()[argCol];
+                                                description = typeDefn.getColumnToolTips()[argCol];
+                                            }
+                                        }
+                                        // Check if this is the maximum input type
+                                        else if (inputType.getInputName().equals(DefaultInputType.MAXIMUM.getInputName()))
+                                        {
+                                            numMax++;
+
+                                            // Check if this isn't the first maximum column (the
+                                            // first is a default)
+                                            if (numMax > 1)
+                                            {
+                                                isAdd = true;
+                                                defCol = DefaultColumn.MAXIMUM;
+                                                columnName = typeDefn.getColumnNamesUser()[argCol];
+                                                description = typeDefn.getColumnToolTips()[argCol];
+                                            }
+                                        }
+                                        // Check if the column type is not a default column
+                                        else if (!inputType.getInputName().equals(DefaultInputType.VARIABLE.getInputName())
+                                                 && !inputType.getInputName().equals(DefaultInputType.PRIM_AND_STRUCT.getInputName())
+                                                 && !inputType.getInputName().equals(DefaultInputType.PRIMITIVE.getInputName())
+                                                 && !inputType.getInputName().equals(DefaultInputType.ARRAY_INDEX.getInputName())
+                                                 && !inputType.getInputName().equals(DefaultInputType.BIT_LENGTH.getInputName())
+                                                 && !typeDefn.getColumnNamesDatabase()[argCol].contains("description")
+                                                 && !typeDefn.getColumnNamesDatabase()[argCol].contains("units"))
+                                        {
+                                            isAdd = true;
+                                            columnName = typeDefn.getColumnNamesUser()[argCol];
+                                            description = typeDefn.getColumnToolTips()[argCol];
+                                            isRowValueUnique = typeDefn.isRowValueUnique()[argCol];
+                                            isRequired = typeDefn.isRequired()[argCol];
+                                            isStructureAllowed = typeDefn.isStructureAllowed()[argCol];
+                                            isPointerAllowed = typeDefn.isPointerAllowed()[argCol];
+                                        }
+
+                                        // Check if a column needs to be added
+                                        if (isAdd)
+                                        {
+                                            // Check if the column has the same definition as a
+                                            // default column
+                                            if (defCol != null)
+                                            {
+                                                // Check if no column name is set
+                                                if (columnName == null)
+                                                {
+                                                    // Use the default column name
+                                                    columnName = defCol.getName();
+                                                }
+
+                                                // Check if no column description is set
+                                                if (description == null)
+                                                {
+                                                    // Use the default column description
+                                                    description = defCol.getDescription();
+                                                }
+
+                                                // Use the default column flags
+                                                isRowValueUnique = defCol.isRowValueUnique();
+                                                isRequired = defCol.isProtected();
+                                                isStructureAllowed = defCol.isStructureAllowed();
+                                                isPointerAllowed = defCol.isPointerAllowed();
+                                            }
+                                            // The column doesn't have the same definition as a
+                                            // default column
+                                            else
+                                            {
+                                                // Use the column definition from the command table
+                                                // type
+                                                columnName = typeDefn.getColumnNamesUser()[argCol];
+                                                description = typeDefn.getColumnToolTips()[argCol];
+                                                isRowValueUnique = typeDefn.isRowValueUnique()[argCol];
+                                                isRequired = typeDefn.isRequired()[argCol];
+                                                isStructureAllowed = typeDefn.isStructureAllowed()[argCol];
+                                                isPointerAllowed = typeDefn.isPointerAllowed()[argCol];
+                                            }
+
+                                            // Add the command argument structure column definition
+                                            typeData.add(new Object[] {0,
+                                                                       columnName,
+                                                                       description,
+                                                                       inputType.getInputName(),
+                                                                       isRowValueUnique,
+                                                                       isRequired,
+                                                                       isStructureAllowed,
+                                                                       isPointerAllowed});
+                                        }
+                                    }
+                                }
+
+                                ///////////////////////////////////////////////////////////////////
+                                // Determine if a command argument structure table type already
+                                // exists that matches the one for this command. If so, then use it
+                                // for defining the command argument structures; otherwise create a
+                                // new table type and use it
+                                ///////////////////////////////////////////////////////////////////
+                                newCmdArgStructType = null;
+
+                                for (TypeDefinition cmdArgStructType : newCommandArgTypes)
+                                {
+                                    // Check if the type definitions have the same number of
+                                    // columns
+                                    if (cmdArgStructType.getColumnCountVisible() == typeData.size())
+                                    {
+                                        boolean isFound = false;
+
+                                        // Step through each column definition in the new command
+                                        // argument structure table type
+                                        for (Object[] newColDefn : typeData)
+                                        {
+                                            isFound = false;
+
+                                            // Step through each column definition in the existing
+                                            // command argument structure table type
+                                            for (Object[] colDefn : cmdArgStructType.getData())
+                                            {
+                                                // ALter the column index in order for the array
+                                                // comparison to not fail due to an index mismatch.
+                                                // If a new type needs to be created the indices
+                                                // are assigned at that point so changing them here
+                                                // has no effect
+                                                newColDefn[TableTypesColumn.INDEX.ordinal() - 0] = colDefn[TableTypesColumn.INDEX.ordinal() - 0];// TODO
+                                                                                                                                                 // 1
+                                                                                                                                                 // ->
+                                                                                                                                                 // 0
+
+                                                // Check if the column definitions match
+                                                if (CcddUtilities.isArraySetsEqual(colDefn,
+                                                                                   newColDefn))
+                                                {
+                                                    // Set the flag to indicate a matching column
+                                                    // exists and stop searching
+                                                    isFound = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            // Check if no matching column exists
+                                            if (!isFound)
+                                            {
+                                                // This type definition isn't a match; stop
+                                                // searching
+                                                break;
+                                            }
+                                        }
+
+                                        // Check if the column definitions for this type definition
+                                        // match the new type
+                                        if (isFound)
+                                        {
+                                            // Store the reference to the existing type definition
+                                            // and stop searching
+                                            newCmdArgStructType = cmdArgStructType;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // Check if no matching type definition exists
+                                if (newCmdArgStructType == null)
+                                {
+                                    // Create a new command argument structure table type for this
+                                    // command table
+                                    newCmdArgStructType = tableTypeHandler.createReplaceTypeDefinition("Structure: Cmd Arg "
+                                                                                                       + cmdArgStructSeq,
+                                                                                                       "0Command argument structure table definition",
+                                                                                                       typeData.toArray(new Object[0][0]));
+                                    newCommandArgTypes.add(newCmdArgStructType);
+                                    cmdArgStructSeq++;
+                                }
+
+                                int missingNameSeq = 1;
+
+                                // Step through each command defined in this command table
+                                for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().length; cmdRow++)
+                                {
+                                    String argNameString = "";
+
+                                    ///////////////////////////////////////////////////////////////
+                                    // Create the command argument structure table for this command
+                                    ///////////////////////////////////////////////////////////////
+                                    Object[] cmdArgRef = new Object[cmdArgTableType.getColumnCountDatabase()];
+                                    Arrays.fill(cmdArgRef, "");
+
+                                    // Get the command name
+                                    String cmdName = cmdTableInfo.getData()[cmdRow][cmdNameIndex].toString();
+
+                                    // Check if no command name is defined
+                                    if (cmdName.isEmpty())
+                                    {
+                                        // Create a command name
+                                        cmdName = commandTableName
+                                                  + "_missing_cmd_name_"
+                                                  + missingNameSeq;
+                                        cmdTableInfo.getData()[cmdRow][cmdNameIndex] = cmdName;
+                                        missingNameSeq++;
+                                    }
+
+                                    // Build the name of the prototype structure table for this
+                                    // command argument
+                                    String cmdArgStructName = "cmdArg_" + commandTableName + "_" + cmdName;
+
+                                    // Create a prototype for the command argument structure table
+                                    if (dbTable.createTable(new String[] {cmdArgStructName},
+                                                            "Command argument structure",
+                                                            newCmdArgStructType.getName(),
+                                                            ccddMain.getMainFrame()))
+                                    {
+                                        throw new Exception("Cannot create command argument structure table");
+                                    }
+
+                                    // Build the path to the argument's structure variable. The
+                                    // path is in the format root,dataType.variableName where root
+                                    // = the command argument reference structure table name,
+                                    // dataType = the command argument structure prototype table
+                                    // name, and variableName is the command name
+                                    String argStructRef = cmdArgTableInfo.getRootTable()
+                                                          + ","
+                                                          + cmdArgStructName
+                                                          + "."
+                                                          + cmdName;
+
+                                    // Add the argument structure reference to the list
+                                    argStructRefs.add(argStructRef);
+
+                                    // Add the argument variable and structure to the argument
+                                    // structure reference table
+                                    cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.VARIABLE)] = cmdName;
+                                    cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)] = cmdArgStructName;
+
+                                    // Load the command argument structure table's information
+                                    TableInformation argTableInfo = dbTable.loadTableData(argStructRef,
+                                                                                          false,
+                                                                                          false,
+                                                                                          ccddMain.getMainFrame());
+
+                                    // Check if an error occurred loading the command argument
+                                    // structure table
+                                    if (argTableInfo.isErrorFlag())
+                                    {
+                                        throw new CCDDException("Cannot load command argument structure table");
+                                    }
+
+                                    List<Object[]> argTableData = new ArrayList<Object[]>();
+
+                                    // Step through each command argument column grouping
+                                    for (Integer[] cmdArgGroup : cmdArgGroups)
+                                    {
+                                        Object[] cmdArg = new Object[newCmdArgStructType.getColumnCountDatabase()];
+                                        Arrays.fill(cmdArg, "");
+
+                                        // Step through each column in this argument group
+                                        for (Integer argCol : cmdArgGroup)
+                                        {
+                                            // Copy the command table's argument column value into
+                                            // the new command argument structure table row. The
+                                            // input type determines the column to which the value
+                                            // belongs
+                                            cmdArg[newCmdArgStructType.getColumnIndexByInputType(typeDefn.getInputTypes()[argCol])] = cmdTableInfo.getData()[cmdRow][argCol];
+
+                                            // Check if this is the argument variable name and
+                                            // isn't blank
+                                            if (!cmdTableInfo.getData()[cmdRow][argCol].toString().isEmpty()
+                                                && typeDefn.getInputTypes()[argCol].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE)))
+                                            {
+                                                // Add the argument variable name to the string
+                                                argNameString += cmdTableInfo.getData()[cmdRow][argCol] + ", ";
+                                            }
+                                        }
+
+                                        boolean hasData = false;
+
+                                        // Step through each cell in the row
+                                        for (Object cell : cmdArg)
+                                        {
+                                            // Check if the cell isn't empty
+                                            if (!cell.toString().isEmpty())
+                                            {
+                                                // Set the flag to indicate a non-empty cell and
+                                                // stop searching
+                                                hasData = true;
+                                                break;
+                                            }
+                                        }
+
+                                        // Check if the row isn't empty
+                                        if (hasData)
+                                        {
+                                            argTableData.add(cmdArg);
+                                        }
+                                    }
+
+                                    ///////////////////////////////////////////////////////////////
+                                    // Create the command argument structure table
+                                    ///////////////////////////////////////////////////////////////
+
+                                    // Add the command argument name string and number to the list
+                                    argNamesAndNumber.add(new String[] {CcddUtilities.removeTrailer(argNameString,
+                                                                                                    ", "),
+                                                                        String.valueOf(argTableData.size())});
+
+                                    // Set the argument structure's table data
+                                    argTableInfo.setData(argTableData.toArray(new Object[0][0]));
+
+                                    // Build the string of the argument structure table's column
+                                    // names
+                                    String argColumnNames = "";
+
+                                    // Step through each column name in the argument structure
+                                    // table
+                                    for (String argColumnName : newCmdArgStructType.getColumnNamesDatabaseQuoted())
+                                    {
+                                        // Add the column name
+                                        argColumnNames += argColumnName + ", ";
+                                    }
+
+                                    argColumnNames = CcddUtilities.removeTrailer(argColumnNames, ", ");
+                                    String argCommand = "";
+
+                                    // Step through each row in the argument structure table's data
+                                    for (int argRow = 0; argRow < argTableInfo.getData().length; argRow++)
+                                    {
+                                        // Begin building the command to populate the argument
+                                        // structure table
+                                        argCommand += "INSERT INTO "
+                                                      + cmdArgStructName.toLowerCase()
+                                                      + " ("
+                                                      + argColumnNames
+                                                      + ") VALUES ("
+                                                      + (argRow + 1)
+                                                      + ", "
+                                                      + (argRow + 1)
+                                                      + ", ";
+
+                                        // Step through each column in the argument structure
+                                        // table's data
+                                        for (int argColumn = NUM_HIDDEN_COLUMNS; argColumn < argTableInfo.getData()[argRow].length; argColumn++)
+                                        {
+                                            // Store the argument structure value in the command
+                                            argCommand += "'"
+                                                          + argTableInfo.getData()[argRow][argColumn]
+                                                          + "', ";
+                                        }
+
+                                        argCommand = CcddUtilities.removeTrailer(argCommand, ", ")
+                                                     + "); ";
+                                    }
+
+                                    // Store the data into the argument structure database table
+                                    dbCommand.executeDbCommand(argCommand,
+                                                               ccddMain.getMainFrame());
+
+                                    // Check if the row contains data
+                                    if (!cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString().isEmpty())
+                                    {
+                                        argRefTableData.add(cmdArgRef);
+                                    }
+                                }
+
+                                ///////////////////////////////////////////////////////////////////
+                                // Update the command table
+                                ///////////////////////////////////////////////////////////////////
+
+                                // Build the string of the updated command table's column names
+                                String cmdColumnNames = "";
+
+                                // Step through each column name in the updated command table
+                                for (String cmdColumnName : newCmdTypeDefn.getColumnNamesDatabaseQuoted())
+                                {
+                                    // Add the column name
+                                    cmdColumnNames += cmdColumnName + ", ";
+                                }
+
+                                cmdColumnNames = CcddUtilities.removeTrailer(cmdColumnNames, ", ");
+
+                                // Step through each row in the original command table's data
+                                for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().length; cmdRow++)
+                                {
+                                    // Begin building the command to populate the command table
+                                    command += "INSERT INTO "
+                                               + commandTableName.toLowerCase()
+                                               + " ("
+                                               + cmdColumnNames
+                                               + ") VALUES ("
+                                               + cmdTableInfo.getData()[cmdRow][DefaultColumn.PRIMARY_KEY.ordinal()]
+                                               + ", "
+                                               + cmdTableInfo.getData()[cmdRow][DefaultColumn.ROW_INDEX.ordinal()]
+                                               + ", ";
+
+                                    // Step through each column in the original command table's
+                                    // data
+                                    for (int cmdColumn = NUM_HIDDEN_COLUMNS; cmdColumn < cmdTableInfo.getData()[cmdRow].length; cmdColumn++)
+                                    {
+                                        // Check if this column belongs to the command versus to an
+                                        // argument
+                                        if (commandColumns.contains(cmdColumn))
+                                        {
+                                            // Store the command value in the command
+                                            command += "'"
+                                                       + cmdTableInfo.getData()[cmdRow][cmdColumn]
+                                                       + "', ";
+                                        }
+                                    }
+
+                                    // Store the variable path for the command
+                                    command += "'" + argStructRefs.get(cmdRow) + "'); ";
+                                }
+
+                                ///////////////////////////////////////////////////////////////////
+                                // Build the command argument reference table
+                                ///////////////////////////////////////////////////////////////////
+
+                                // Set the argument structure reference's table data
+                                cmdArgTableInfo.setData(argRefTableData.toArray(new Object[0][0]));
+
+                                // Build the string of the argument structure reference table's
+                                // column names
+                                String argRefColumnNames = "";
+
+                                // Step through each column name in the argument structure
+                                // reference table
+                                for (String argRefColumnName : cmdArgTableType.getColumnNamesDatabaseQuoted())
+                                {
+                                    // Add the column name
+                                    argRefColumnNames += argRefColumnName + ", ";
+                                }
+
+                                argRefColumnNames = CcddUtilities.removeTrailer(argRefColumnNames, ", ");
+                                String argRefCommand = "";
+
+                                // Step through each row in the argument structure table's data
+                                for (int argRefRow = 0; argRefRow < cmdArgTableInfo.getData().length; argRefRow++)
+                                {
+                                    // Begin building the command to populate the argument
+                                    // structure reference table
+                                    argRefCommand += "INSERT INTO "
+                                                     + cmdArgTableInfo.getRootTable().toLowerCase()
+                                                     + " ("
+                                                     + argRefColumnNames
+                                                     + ") VALUES ("
+                                                     + (argRefRow + 1)
+                                                     + ", "
+                                                     + (argRefRow + 1)
+                                                     + ", ";
+
+                                    // Step through each column in the argument structure reference
+                                    // table's data
+                                    for (int argRefColumn = NUM_HIDDEN_COLUMNS; argRefColumn < cmdArgTableInfo.getData()[argRefRow].length; argRefColumn++)
+                                    {
+                                        // Store the argument structure reference value in the
+                                        // command
+                                        argRefCommand += "'"
+                                                         + cmdArgTableInfo.getData()[argRefRow][argRefColumn]
+                                                         + "', ";
+                                    }
+
+                                    argRefCommand = CcddUtilities.removeTrailer(argRefCommand, ", ")
+                                                    + "); ";
+                                }
+
+                                // Store the data into the argument structure reference table
+                                dbCommand.executeDbCommand(argRefCommand, ccddMain.getMainFrame());
+
+                                ///////////////////////////////////////////////////////////////////
+                                // Update any table cells or data fields with the command reference
+                                // input type
+                                ///////////////////////////////////////////////////////////////////
+
+                                // Step through each row in the command table's data
+                                for (int cmdRow = 0; cmdRow < argNamesAndNumber.size(); cmdRow++)
+                                {
+                                    // Build the original and new command references
+                                    String oldCmdRef = cmdTableInfo.getData()[cmdRow][cmdNameIndex]
+                                                       + " (code: "
+                                                       + cmdTableInfo.getData()[cmdRow][cmdCodeIndex]
+                                                       + ", owner: "
+                                                       + cmdTableInfo.getTablePath()
+                                                       + ", args: "
+                                                       + argNamesAndNumber.get(cmdRow)[1]
+                                                       + ")";
+                                    String newCmdRef = cmdTableInfo.getData()[cmdRow][cmdNameIndex]
+                                                       + " (code: "
+                                                       + cmdTableInfo.getData()[cmdRow][cmdCodeIndex]
+                                                       + ", owner: "
+                                                       + cmdTableInfo.getTablePath()
+                                                       + ", arg: "
+                                                       + argNamesAndNumber.get(cmdRow)[0]
+                                                       + ")";
+
+                                    // Step through each table type command reference input type
+                                    // reference
+                                    for (InputTypeReference cmdRef : cmdRefChkResults.getReferences())
+                                    {
+                                        // Step through each table of this table type
+                                        for (String table : cmdRef.getTables())
+                                        {
+                                            // Update references to the command reference from the
+                                            // table
+                                            cmdRefInpTypeCmd.append("UPDATE "
+                                                                    + dbControl.getQuotedName(table)
+                                                                    + " SET "
+                                                                    + cmdRef.getColumnDb()
+                                                                    + " = '"
+                                                                    + newCmdRef
+                                                                    + "' WHERE "
+                                                                    + cmdRef.getColumnDb()
+                                                                    + " = E'"
+                                                                    + oldCmdRef
+                                                                    + "'; ");
+                                        }
+                                    }
+
+                                    // Check if a data field has the command reference input type
+                                    if (cmdRefChkResults.isFieldUsesType())
+                                    {
+                                        // Update the data field value if the command path matches
+                                        cmdRefInpTypeCmd.append("UPDATE "
+                                                                + InternalTable.FIELDS.getTableName()
+                                                                + " SET "
+                                                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                                + " = E'"
+                                                                + newCmdRef
+                                                                + "' WHERE "
+                                                                + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                                + " = E'"
+                                                                + DefaultInputType.COMMAND_REFERENCE.getInputName()
+                                                                + "' AND "
+                                                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                                + " = E'"
+                                                                + oldCmdRef
+                                                                + "'; ");
+                                    }
+                                }
+                            }
+                        }
+
+                        // Replace the original command table type with the new one
+                        newCmdTypeDefn.setName(typeDefn.getName());
+                        tableTypeHandler.getTypeDefinitions().set(typeIndex, newCmdTypeDefn);
+
+                        // Delete the original command tables. References to this command table in
+                        // the internal tables, including data fields, are preserved
+                        if (dbTable.deleteTable(commandTableNames.toArray(new String[0]),
+                                                null,
+                                                ccddMain.getMainFrame()))
+                        {
+                            throw new CCDDException();
+                        }
+
+                        // Step through each command table of the current table type. These are
+                        // created one at a time so that each can have its description restored
+                        for (int index = 0; index < commandTableNames.size(); index++)
+                        {
+                            // Create the updated command table
+                            if (dbTable.createTable(new String[] {commandTableNames.get(index)},
+                                                    commandTableDescriptions.get(index),
+                                                    typeDefn.getName(),
+                                                    ccddMain.getMainFrame()))
+                            {
+                                throw new CCDDException();
+                            }
+                        }
+
+                        // Update the command table by replacing the original contents with the
+                        // updated values
+                        dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+                    }
+                }
+
+                // Update the table types table in the database
+                dbCommand.executeDbCommand(dbTable.storeTableTypesInfoTableCommand(),
+                                           ccddMain.getMainFrame());
+
+                // Clean up the lists to reflect the changes to the database
+                dbTable.updateListsAndReferences(ccddMain.getMainFrame());
+
+                // Update the command reference input type cells and fields
+                dbCommand.executeDbCommand(cmdRefInpTypeCmd.toString(), ccddMain.getMainFrame());
+
+                // Release the save point. This must be done within a transaction block, so it must
+                // be done prior to the commit below
+                dbCommand.releaseSavePoint(ccddMain.getMainFrame());
+
+                // Commit the change(s) to the database
+                dbControl.getConnection().commit();
+
+                // Inform the user that updating the database command tables completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                                                   + dbControl.getProjectName()
+                                                                   + "' command tables conversion  complete");
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the command tables failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot convert project '"
+                                                           + dbControl.getProjectName()
+                                                           + "' command tables to new format; cause '"
+                                                           + e.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot convert project '</b>"
+                                                                  + dbControl.getProjectName()
+                                                                  + "<b>' command tables to new format "
+                                                                  + "(project database will be closed)");
+
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(ccddMain.getMainFrame());
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot revert changes to project; cause '"
+                                                               + se.getMessage()
+                                                               + "'",
+                                      "<html><b>Cannot revert changes to project");
+            }
+
+            throw new CCDDException();
         }
     }
 

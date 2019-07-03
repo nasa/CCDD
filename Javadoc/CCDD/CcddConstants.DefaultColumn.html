@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10,"i7":10,"i8":9,"i9":9,"i10":10,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":9,"i17":9,"i18":9};
+var methods = {"i0":9,"i1":9,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10,"i7":10,"i8":9,"i9":10,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":9,"i16":9,"i17":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -143,37 +143,13 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
 <th class="colOne" scope="col">Enum Constant and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_ARRAY_SIZE_1">ARG_ARRAY_SIZE_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_BIT_LENGTH_1">ARG_BIT_LENGTH_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_DESCRIPTION_1">ARG_DESCRIPTION_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_ENUMS_1">ARG_ENUMS_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_MAX_1">ARG_MAX_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_MIN_1">ARG_MIN_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_NAME_1">ARG_NAME_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_TYPE_1">ARG_TYPE_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARG_UNITS_1">ARG_UNITS_1</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ARRAY_SIZE">ARRAY_SIZE</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#BIT_LENGTH">BIT_LENGTH</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#COMMAND_ARGUMENT">COMMAND_ARGUMENT</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#COMMAND_CODE">COMMAND_CODE</a></span></code>&nbsp;</td>
@@ -305,7 +281,8 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected static java.lang.Object[][]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#getDefaultColumnDefinitions-java.lang.String-">getDefaultColumnDefinitions</a></span>(java.lang.String&nbsp;type)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#getDefaultColumnDefinitions-java.lang.String-boolean-">getDefaultColumnDefinitions</a></span>(java.lang.String&nbsp;type,
+                           boolean&nbsp;includeRate)</code>
 <div class="block">Get the default column definitions for the specified table type for use in populating
  new table type definitions</div>
 </td>
@@ -335,24 +312,18 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>protected static java.lang.String[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#getTableTypes--">getTableTypes</a></span>()</code>
-<div class="block">Get the array of default table types</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#getTypeRequiredColumnCount-java.lang.String-">getTypeRequiredColumnCount</a></span>(java.lang.String&nbsp;type)</code>
 <div class="block">Get the number of columns that are required to define the specified table type</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isInputRequired--">isInputRequired</a></span>()</code>
 <div class="block">Get the column input required status</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isInputTypeUnique-java.lang.String-java.lang.String-">isInputTypeUnique</a></span>(java.lang.String&nbsp;compareTableType,
                  java.lang.String&nbsp;compareInputType)</code>
@@ -360,31 +331,31 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
  input type pairs</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isPointerAllowed--">isPointerAllowed</a></span>()</code>
 <div class="block">Get the pointer data type allowed status</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isProtected--">isProtected</a></span>()</code>
 <div class="block">Get the column protected status</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isRowValueUnique--">isRowValueUnique</a></span>()</code>
 <div class="block">Get the row value unique status</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isStructureAllowed--">isStructureAllowed</a></span>()</code>
 <div class="block">Get the structure data type allowed status</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#isTypeRequiredColumn-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddClassesDataTable.InputType-">isTypeRequiredColumn</a></span>(java.lang.String&nbsp;compareTableType,
                     <a href="../CCDD/CcddInputTypeHandler.html" title="class in CCDD">CcddInputTypeHandler</a>&nbsp;inputTypeHandler,
@@ -393,13 +364,13 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
  to define the specified type</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static <a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#valueOf-java.lang.String-">valueOf</a></span>(java.lang.String&nbsp;name)</code>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>static <a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#values--">values</a></span>()</code>
 <div class="block">Returns an array containing the constants of this enum type, in
@@ -570,85 +541,13 @@ the order they are declared.</div>
 <pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> DESCRIPTION_CMD</pre>
 </li>
 </ul>
-<a name="ARG_NAME_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_NAME_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_NAME_1</pre>
-</li>
-</ul>
-<a name="ARG_DESCRIPTION_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_DESCRIPTION_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_DESCRIPTION_1</pre>
-</li>
-</ul>
-<a name="ARG_UNITS_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_UNITS_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_UNITS_1</pre>
-</li>
-</ul>
-<a name="ARG_TYPE_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_TYPE_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_TYPE_1</pre>
-</li>
-</ul>
-<a name="ARG_ARRAY_SIZE_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_ARRAY_SIZE_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_ARRAY_SIZE_1</pre>
-</li>
-</ul>
-<a name="ARG_BIT_LENGTH_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_BIT_LENGTH_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_BIT_LENGTH_1</pre>
-</li>
-</ul>
-<a name="ARG_ENUMS_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_ENUMS_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_ENUMS_1</pre>
-</li>
-</ul>
-<a name="ARG_MIN_1">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ARG_MIN_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_MIN_1</pre>
-</li>
-</ul>
-<a name="ARG_MAX_1">
+<a name="COMMAND_ARGUMENT">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>ARG_MAX_1</h4>
-<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ARG_MAX_1</pre>
+<h4>COMMAND_ARGUMENT</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> COMMAND_ARGUMENT</pre>
 </li>
 </ul>
 </li>
@@ -940,20 +839,6 @@ not permitted.)</div>
 </dl>
 </li>
 </ul>
-<a name="getTableTypes--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getTableTypes</h4>
-<pre>protected static&nbsp;java.lang.String[]&nbsp;getTableTypes()</pre>
-<div class="block">Get the array of default table types</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Array containing the default table types</dd>
-</dl>
-</li>
-</ul>
 <a name="getTypeRequiredColumnCount-java.lang.String-">
 <!--   -->
 </a>
@@ -1027,18 +912,20 @@ not permitted.)</div>
 </dl>
 </li>
 </ul>
-<a name="getDefaultColumnDefinitions-java.lang.String-">
+<a name="getDefaultColumnDefinitions-java.lang.String-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getDefaultColumnDefinitions</h4>
-<pre>protected static&nbsp;java.lang.Object[][]&nbsp;getDefaultColumnDefinitions(java.lang.String&nbsp;type)</pre>
+<pre>protected static&nbsp;java.lang.Object[][]&nbsp;getDefaultColumnDefinitions(java.lang.String&nbsp;type,
+                                                                  boolean&nbsp;includeRate)</pre>
 <div class="block">Get the default column definitions for the specified table type for use in populating
  new table type definitions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>type</code> - Default table type name</dd>
+<dd><code>includeRate</code> - true to include the Rate column (ignored if the type is not a structure)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Default column definitions array for the specified table type; and empty array
          if the type is not one of the default types</dd>

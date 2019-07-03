@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -208,10 +208,10 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.html#buildCommandReference-java.lang.String-java.lang.String-java.lang.String-int-">buildCommandReference</a></span>(java.lang.String&nbsp;commandName,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.html#buildCommandReference-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">buildCommandReference</a></span>(java.lang.String&nbsp;commandName,
                      java.lang.String&nbsp;commandCode,
-                     java.lang.String&nbsp;table,
-                     int&nbsp;numArgs)</code>
+                     java.lang.String&nbsp;commandArg,
+                     java.lang.String&nbsp;table)</code>
 <div class="block">Build the command reference string</div>
 </td>
 </tr>
@@ -222,6 +222,13 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.html#getCommandArgumentVariables-java.lang.String-java.lang.String-">getCommandArgumentVariables</a></span>(java.lang.String&nbsp;argumentStructRef,
+                           java.lang.String&nbsp;separator)</code>
+<div class="block">Get the argument variable names for the specified command argument structure reference</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddCommandHandler.CommandInformation.html" title="class in CCDD">CcddCommandHandler.CommandInformation</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandHandler.html#getCommandInformation--">getCommandInformation</a></span>()</code>
 <div class="block">Get the list of command information</div>
@@ -329,7 +336,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="buildCommandReference-java.lang.String-java.lang.String-java.lang.String-int-">
+<a name="buildCommandReference-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -337,17 +344,37 @@ extends java.lang.Object</pre>
 <h4>buildCommandReference</h4>
 <pre>protected&nbsp;java.lang.String&nbsp;buildCommandReference(java.lang.String&nbsp;commandName,
                                                  java.lang.String&nbsp;commandCode,
-                                                 java.lang.String&nbsp;table,
-                                                 int&nbsp;numArgs)</pre>
+                                                 java.lang.String&nbsp;commandArg,
+                                                 java.lang.String&nbsp;table)</pre>
 <div class="block">Build the command reference string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>commandName</code> - command name</dd>
 <dd><code>commandCode</code> - command code</dd>
+<dd><code>commandArg</code> - command argument structure path</dd>
 <dd><code>table</code> - command table to which the command belongs</dd>
-<dd><code>numArgs</code> - number of arguments that are valid for this command</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command reference string</dd>
+</dl>
+</li>
+</ul>
+<a name="getCommandArgumentVariables-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCommandArgumentVariables</h4>
+<pre>protected&nbsp;java.lang.String&nbsp;getCommandArgumentVariables(java.lang.String&nbsp;argumentStructRef,
+                                                       java.lang.String&nbsp;separator)</pre>
+<div class="block">Get the argument variable names for the specified command argument structure reference</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>argumentStructRef</code> - command argument structure reference path</dd>
+<dd><code>separator</code> - character(s) used to separate each command argument variable name</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The argument variable names for the specified command argument structure reference
+         separated by the supplied separator character(s); and empty string if the structure
+         has no variables</dd>
 </dl>
 </li>
 </ul>

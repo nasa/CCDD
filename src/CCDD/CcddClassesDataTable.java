@@ -8,7 +8,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
-import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.SELECTION_ITEM_LIST_SEPARATOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 
@@ -870,7 +869,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the rate column index
          *
-         * @return List containing the rate column indices; null if no rate column exists
+         * @return List containing the rate column indices; null for an addition or deletion, and
+         *         an empty list if no rate column exists for a modification
          *****************************************************************************************/
         protected List<Integer> getRateColumn()
         {
@@ -1507,151 +1507,27 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Command argument class. Contains associated command argument name, data type, enumeration,
-     * minimum value, and maximum value column indices in view or model coordinates (as specified)
+     * Data type & enumeration column pairing class. Contains associated data type and enumeration
+     * column indices
      *********************************************************************************************/
-    public static class AssociatedColumns
+    public static class DataTypeEnumPair
     {
-        private final int name;
         private final int dataType;
-        private final int arraySize;
-        private final int bitLength;
         private final int enumeration;
-        private final MinMaxPair minMax;
-        private final int description;
-        private final int units;
-        private final List<Integer> other;
 
         /******************************************************************************************
-         * Command argument class constructor for setting associated command argument columns
-         *
-         * @param useViewIndex
-         *            true to adjust the column indices to view coordinates; false to keep the
-         *            coordinates in model coordinates
-         *
-         * @param name
-         *            command argument name data type column index, model coordinates; -1 if none
+         * Data type & enumeration column pairing class constructor
          *
          * @param dataType
-         *            command argument data type column index, model coordinates; -1 if none
-         *
-         * @param arraySize
-         *            command argument array size column index, model coordinates; -1 if none
-         *
-         * @param bitLength
-         *            command argument bit length column index, model coordinates; -1 if none
+         *            data type column index, model coordinates
          *
          * @param enumeration
-         *            command argument enumeration column index, model coordinates; -1 if none
-         *
-         * @param minimum
-         *            command argument minimum value column index, model coordinates; -1 if none
-         *
-         * @param maximum
-         *            command argument maximum value column index, model coordinates; -1 if none
-         *
-         * @param description
-         *            command argument description column index, model coordinates; -1 if none
-         *
-         * @param units
-         *            command argument units column index, model coordinates; -1 if none
-         *
-         * @param other
-         *            list of other associated column indices, model coordinates; null if none
+         *            enumeration column index, model coordinates
          *****************************************************************************************/
-        protected AssociatedColumns(boolean useViewIndex,
-                                    int name,
-                                    int dataType,
-                                    int arraySize,
-                                    int bitLength,
-                                    int enumeration,
-                                    int minimum,
-                                    int maximum,
-                                    int description,
-                                    int units,
-                                    List<Integer> other)
+        protected DataTypeEnumPair(int dataType, int enumeration)
         {
-            // Store the column indices. Adjust to view coordinates based on the input flag
-            this.name = name
-                        - (useViewIndex
-                                        ? NUM_HIDDEN_COLUMNS
-                                        : 0);
-            this.dataType = dataType
-                            - (useViewIndex
-                                            ? NUM_HIDDEN_COLUMNS
-                                            : 0);
-            this.arraySize = arraySize
-                             - (useViewIndex
-                                             ? NUM_HIDDEN_COLUMNS
-                                             : 0);
-            this.bitLength = bitLength
-                             - (useViewIndex
-                                             ? NUM_HIDDEN_COLUMNS
-                                             : 0);
-            this.enumeration = enumeration
-                               - (useViewIndex
-                                               ? NUM_HIDDEN_COLUMNS
-                                               : 0);
-            this.minMax = new MinMaxPair(minimum
-                                         - (useViewIndex
-                                                         ? NUM_HIDDEN_COLUMNS
-                                                         : 0),
-                                         maximum
-                                                               - (useViewIndex
-                                                                               ? NUM_HIDDEN_COLUMNS
-                                                                               : 0));
-            this.description = description - (useViewIndex
-                                                           ? NUM_HIDDEN_COLUMNS
-                                                           : 0);
-            this.units = units - (useViewIndex
-                                               ? NUM_HIDDEN_COLUMNS
-                                               : 0);
-
-            // Check if other associated columns are provided
-            if (other != null)
-            {
-                this.other = new ArrayList<Integer>();
-
-                // Step through each associated column
-                for (int column : other)
-                {
-                    // Store the column index. Adjust to view coordinates based on the input flag
-                    this.other.add(column
-                                   - (useViewIndex
-                                                   ? NUM_HIDDEN_COLUMNS
-                                                   : 0));
-                }
-            }
-            // No other columns are provided
-            else
-            {
-                this.other = null;
-            }
-        }
-
-        /******************************************************************************************
-         * Command argument class constructor for setting structure table data type and enumeration
-         * pairings
-         *
-         * @param dataType
-         *            command argument data type column index, model coordinates
-         *
-         * @param enumeration
-         *            command argument enumeration column index, model coordinates
-         *****************************************************************************************/
-        AssociatedColumns(int dataType, int enumeration)
-        {
-            this(false, -1, dataType, -1, -1, enumeration, -1, -1, -1, -1, null);
-        }
-
-        /******************************************************************************************
-         * Get the command argument name column index
-         *
-         * @return Command argument name column index
-         *****************************************************************************************/
-        public int getName()
-        {
-            return name;
+            this.dataType = dataType;
+            this.enumeration = enumeration;
         }
 
         /******************************************************************************************
@@ -1665,26 +1541,6 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the command argument array size column index
-         *
-         * @return Command argument array size column index
-         *****************************************************************************************/
-        public int getArraySize()
-        {
-            return arraySize;
-        }
-
-        /******************************************************************************************
-         * Get the command argument bit length column index
-         *
-         * @return Command argument bit length column index
-         *****************************************************************************************/
-        public int getBitLength()
-        {
-            return bitLength;
-        }
-
-        /******************************************************************************************
          * Get the command argument enumeration column index
          *
          * @return Command argument enumeration column index
@@ -1693,61 +1549,11 @@ public class CcddClassesDataTable
         {
             return enumeration;
         }
-
-        /******************************************************************************************
-         * Get the command argument minimum column index
-         *
-         * @return Command argument minimum column index
-         *****************************************************************************************/
-        public int getMinimum()
-        {
-            return minMax.getMinimum();
-        }
-
-        /******************************************************************************************
-         * Get the command argument maximum column index
-         *
-         * @return Command argument maximum column index
-         *****************************************************************************************/
-        public int getMaximum()
-        {
-            return minMax.getMaximum();
-        }
-
-        /******************************************************************************************
-         * Get the command argument description column index
-         *
-         * @return Command argument description column index
-         *****************************************************************************************/
-        public int getDescription()
-        {
-            return description;
-        }
-
-        /******************************************************************************************
-         * Get the command argument units column index
-         *
-         * @return Command argument units column index
-         *****************************************************************************************/
-        public int getUnits()
-        {
-            return units;
-        }
-
-        /******************************************************************************************
-         * Get the other command argument index(ices)
-         *
-         * @return Other command argument index(ices)
-         *****************************************************************************************/
-        protected List<Integer> getOther()
-        {
-            return other;
-        }
     }
 
     /**********************************************************************************************
-     * Minimum/maximum pairing class. Contains associated minimum value and maximum value column
-     * indices
+     * Minimum & maximum column pairing class. Contains associated minimum value and maximum value
+     * column indices
      *********************************************************************************************/
     protected static class MinMaxPair
     {
@@ -1755,13 +1561,13 @@ public class CcddClassesDataTable
         private final int maxColumn;
 
         /******************************************************************************************
-         * Minimum/maximum pairing class constructor
+         * Minimum/maximum column pairing class constructor
          *
          * @param minColumn
-         *            minimum value column index
+         *            minimum value column index, model coordinates
          *
          * @param maxColumn
-         *            maximum value column index
+         *            maximum value column index, model coordinates
          *****************************************************************************************/
         MinMaxPair(int minColumn, int maxColumn)
         {

@@ -709,8 +709,9 @@ public class CcddKeyboardHandler
                              || ke.getKeyCode() == KeyEvent.VK_C
                              || ke.getKeyCode() == KeyEvent.VK_M))
                 {
-                    // Get the input type based on the key pressed: variable reference for Alt-V,
-                    // command reference for Alt-C, and message reference for Alt-M
+                    // Get the input type based on the key pressed: variable reference for
+                    // Alt-Shift-V, command reference for Alt-Shift-C, and message reference for
+                    // Alt-Shift-M
                     DefaultInputType refInputType = ke.getKeyCode() == KeyEvent.VK_V
                                                                                      ? DefaultInputType.VARIABLE_REFERENCE
                                                                                      : (ke.getKeyCode() == KeyEvent.VK_C

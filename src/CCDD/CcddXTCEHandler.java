@@ -96,7 +96,6 @@ import org.omg.space.xtce.ValueEnumerationType;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.ArrayVariable;
-import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
@@ -124,7 +123,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddMacroHandler macroHandler;
     private final CcddFieldHandler fieldHandler;
-    private final CcddRateParameterHandler rateHandler;
     private final CcddInputTypeHandler inputTypeHandler;
 
     // GUI component over which to center any error dialog
@@ -160,21 +158,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     // Table type definitions
     private TypeDefinition structureTypeDefn;
     private TypeDefinition commandTypeDefn;
-    private TypeDefinition commandAllTypeDefn;
 
-    // Flags to indicate if a telemetry and command table is defined in the import file, and if a
-    // command header is defined, which entails converting command information into a structure
-    private boolean isTelemetry;
-    private boolean isCommand;
-    private boolean isCmdToTlm;
-
-    // List of the associated command arguments
-    private List<AssociatedColumns> commandArguments;
-
-    // Maximum number of command arguments for all command tables defined in the import file (for
-    // normal command tables and for the command header tables converted into structures)
-    private int maxNumArguments;
-    private int maxNumArgumentsAll;
+    // Flags to indicate if a structure table type and a command table type is defined in the
+    // import file
+    private boolean isStructureExists;
+    private boolean isCommandExists;
 
     // Structure column indices
     private int variableNameIndex;
@@ -190,12 +178,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     // Command column indices
     private int commandNameIndex;
     private int cmdFuncCodeIndex;
+    private int cmdArgumentIndex;
     private int cmdDescriptionIndex;
 
     // Number of visible structure and command table columns
     private int numStructureColumns;
     private int numCommandColumns;
-    private int numCommandColumnsAll;
 
     // Text appended to the parameter and command type and array references
     private static String TYPE = "_Type";
@@ -470,7 +458,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         dataTypeHandler = ccddMain.getDataTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
-        rateHandler = ccddMain.getRateParameterHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Check if a reference to a script engine is provided
@@ -678,7 +665,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 boolean onlyCmdToStruct = importType == ImportType.FIRST_DATA_ONLY
                                           && targetTypeDefn.isStructure();
 
-                // Set the flag to indicate if the target is a structure table
                 // Step through each space system
                 for (SpaceSystemType system : rootSystem.getSpaceSystem())
                 {
@@ -695,24 +681,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                // Check if a command header was the table imported, but not a command table (the
-                // command header in converted into a structure so for this case the command table
-                // type is no longer needed)
-                if (isCmdToTlm
-                    && ((importType == ImportType.IMPORT_ALL && !isCommand)
-                        || (importType == ImportType.FIRST_DATA_ONLY
-                            && targetTypeDefn.isStructure())))
+                // Check if a structure table type was created by the import operation, but no
+                // structure tables were imported
+                if (!isStructureExists)
                 {
-                    // Remove the command table type definition
-                    tableTypeHandler.getTypeDefinitions().remove(commandTypeDefn);
+                    // Remove the unused structure table type definition
+                    tableTypeHandler.getTypeDefinitions().remove(structureTypeDefn);
+
+                    // Update the database functions that collect structure table members and
+                    // structure-defining column data
+                    dbControl.createStructureColumnFunctions();
                 }
 
-                // Check if the special command table type used for command-to-structure
-                // conversions exists
-                if (commandAllTypeDefn != null)
+                // Check if a command table type was created by the import operation, but no
+                // command tables were imported
+                if (!isCommandExists)
                 {
-                    // Remove the special command table type definition
-                    tableTypeHandler.getTypeDefinitions().remove(commandAllTypeDefn);
+                    // Remove the unused command table type definition
+                    tableTypeHandler.getTypeDefinitions().remove(commandTypeDefn);
                 }
             }
         }
@@ -752,10 +738,28 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                             ImportType importType,
                                             TypeDefinition targetTypeDefn) throws CCDDException
     {
-        isTelemetry = false;
-        isCommand = false;
-        maxNumArguments = 1;
-        maxNumArgumentsAll = 1;
+        isStructureExists = false;
+        isCommandExists = false;
+
+        // Step through each table type definition
+        for (TypeDefinition tableType : tableTypeHandler.getTypeDefinitions())
+        {
+            // Check if the type represents a structure
+            if (tableType.isStructure())
+            {
+                // Set the flag to indicate a structure table type exists prior to the import
+                // operation
+                isStructureExists = true;
+            }
+
+            // Check if the type represents a command
+            if (tableType.isCommand())
+            {
+                // Set the flag to indicate a command table type exists prior to the import
+                // operation
+                isCommandExists = true;
+            }
+        }
 
         // Set the flags to indicate if the target is a structure or command table
         boolean targetIsStructure = importType == ImportType.IMPORT_ALL
@@ -765,16 +769,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                       ? true
                                                                       : targetTypeDefn.isCommand();
 
-        // Step through each space system
-        for (SpaceSystemType system : rootSystem.getSpaceSystem())
-        {
-            // Recursively step through the XTCE-formatted data and extract the telemetry and
-            // command information
-            findMetaData(system, importType, targetIsStructure, targetIsCommand);
-        }
-
         // Check if a structure table type needs to be defined
-        if ((isTelemetry || isCmdToTlm) && targetIsStructure)
+        if (targetIsStructure || targetIsCommand)
         {
             // Check if all tables are to be imported
             if (importType == ImportType.IMPORT_ALL)
@@ -788,7 +784,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                             "XTCE import structure table type");
 
                 // Step through each default structure column
-                for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE))
+                for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE,
+                                                                                     false))
                 {
                     // Add the column to the table type definition
                     addImportedTableTypeColumnDefinition(true,
@@ -838,17 +835,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Update the database functions that collect structure table members and
             // structure-defining column data
             dbControl.createStructureColumnFunctions();
-
-            // Check if the number of rate columns changed due to the type update
-            if (rateHandler.setRateInformation())
-            {
-                // Store the rate parameters in the project database
-                dbTable.storeRateParameters(parent);
-            }
         }
 
         // Check if a command table type needs to be defined
-        if ((isCommand && targetIsCommand) || (isCmdToTlm && targetIsStructure))
+        if (targetIsCommand)
         {
             // Check if all tables are to be imported or the target is a structure table
             if (importType == ImportType.IMPORT_ALL || targetIsStructure)
@@ -862,7 +852,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                             "XTCE import command table type");
 
                 // Step through each default command column
-                for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND))
+                for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND,
+                                                                                     false))
                 {
                     // Add the column to the table type definition
                     addImportedTableTypeColumnDefinition(true,
@@ -871,66 +862,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                          importFile.getAbsolutePath(),
                                                          inputTypeHandler,
                                                          parent);
-                }
-
-                // Get the current number of columns defined for the command table type. The new
-                // columns are appended to the existing ones
-                int columnIndex = tableTypeDefn.getColumns().size();
-
-                // Two XTCE command table types are created using the default command columns. The
-                // first is for the 'normal' command table; i.e., those that don't represent the
-                // command header. This table type is stored in the project database following the
-                // import operation. The second command table type accounts for those commands that
-                // represent the command header, which are translated into structures. These
-                // potentially have more argument columns than the normal commands. During import
-                // this larger table type is used to temporarily store the command information. The
-                // table type is then deleted upon completion of the import operation, which
-                // prevents storing an unused table type in the project
-                commandAllTypeDefn = tableTypeHandler.createReplaceTypeDefinition(typeName + "_special",
-                                                                                  "XTCE import special command table type",
-                                                                                  DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND));
-
-                // Store the maximum number of command arguments (comparing the normal command
-                // tables and command header tables)
-                maxNumArgumentsAll = Math.max(maxNumArgumentsAll, maxNumArguments);
-
-                // Step through each additional command argument column set
-                for (int argIndex = 2; argIndex <= maxNumArgumentsAll; argIndex++)
-                {
-                    // Check if the argument count is within that for a normal command table
-                    if (argIndex <= maxNumArguments)
-                    {
-                        // Step through each command argument column to add
-                        for (Object[] cmdArgCol : CcddTableTypeHandler.commandArgumentColumns)
-                        {
-                            // Update the argument name with the argument index
-                            String argName = cmdArgCol[0].toString().replaceFirst("###",
-                                                                                  String.valueOf(argIndex));
-
-                            // Add the command argument column. The argument description is updated
-                            // with the argument index
-                            addImportedTableTypeColumnDefinition(true,
-                                                                 tableTypeDefn,
-                                                                 new String[] {String.valueOf(columnIndex),
-                                                                               argName,
-                                                                               cmdArgCol[1].toString().replaceFirst("###",
-                                                                                                                    String.valueOf(argIndex)),
-                                                                               ((DefaultInputType) cmdArgCol[2]).getInputName(),
-                                                                               Boolean.toString(false),
-                                                                               Boolean.toString(false),
-                                                                               Boolean.toString(false),
-                                                                               Boolean.toString(false)},
-                                                                 importFile.getAbsolutePath(),
-                                                                 inputTypeHandler,
-                                                                 parent);
-
-                            columnIndex++;
-                        }
-                    }
-
-                    // Add the default columns for this command argument to the overall command
-                    // table type
-                    commandAllTypeDefn.addCommandArgumentColumns(argIndex);
                 }
 
                 // Add the command table type definition
@@ -955,132 +886,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 commandTypeDefn = targetTypeDefn;
             }
 
-            // Get the list containing the associated column indices for each argument grouping
-            commandArguments = commandAllTypeDefn == null
-                                                          ? commandTypeDefn.getAssociatedCommandArgumentColumns(true)
-                                                          : commandAllTypeDefn.getAssociatedCommandArgumentColumns(true);
-
             // Get the command table column indices
             commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME));
             cmdFuncCodeIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE));
+            cmdArgumentIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT));
             cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION));
 
             // Store the number of columns defined in the command table types
             numCommandColumns = commandTypeDefn.getColumnCountVisible();
-            numCommandColumnsAll = commandAllTypeDefn == null
-                                                              ? numCommandColumns
-                                                              : commandAllTypeDefn.getColumnCountVisible();
-        }
-    }
-
-    /**********************************************************************************************
-     * Recursively scan the import file in order to determine if any structure or command tables
-     * exist. If a command table determine the maximum number of command arguments its commands
-     * require
-     *
-     * @param system
-     *            space system
-     *
-     * @param importType
-     *            import type: ImportType.ALL to import all information in the import file;
-     *            ImportType.FIRST_DATA_ONLY to import data from the first table defined in the
-     *            import file
-     *
-     * @param targetIsStructure
-     *            true if the table type definition of the table in which to import the data
-     *            represents a structure; ignored if importing all tables
-     *
-     * @param targetIsCommand
-     *            true if the table type definition of the table in which to import the data
-     *            represents a command; ignored if importing all tables
-     *********************************************************************************************/
-    private void findMetaData(SpaceSystemType system,
-                              ImportType importType,
-                              boolean targetIsStructure,
-                              boolean targetIsCommand)
-    {
-        // Get the child system's telemetry metadata information
-        TelemetryMetaDataType tlmMetaData = system.getTelemetryMetaData();
-
-        // Check if the telemetry metadata information exists. If so, then the assumption is made
-        // that this is a structure table
-        if (tlmMetaData != null)
-        {
-            isTelemetry = true;
-        }
-
-        // Get the child system's command metadata information
-        CommandMetaDataType cmdMetaData = system.getCommandMetaData();
-
-        // Check if the command metadata information exists. If so, then the assumption is made
-        // that this is a command table
-        if (cmdMetaData != null)
-        {
-            // Get the reference to the meta-command set
-            MetaCommandSet commandSet = cmdMetaData.getMetaCommandSet();
-
-            // Check if the meta-command set exists
-            if (commandSet != null)
-            {
-                // Step through each entry in the meta-command set
-                for (Object metaCommand : commandSet.getMetaCommandOrMetaCommandRefOrBlockMetaCommand())
-                {
-                    // Check if the entry is a meta-command type
-                    if (metaCommand instanceof MetaCommandType)
-                    {
-                        // Get the command container reference to shorten subsequent calls
-                        CommandContainerType cmdContainer = ((MetaCommandType) metaCommand).getCommandContainer();
-
-                        // Check if the command is flagged as abstract. This denotes a command
-                        // header which is converted to a structure, and therefore necessitates
-                        // creating a structure table type to contain it as well as a special
-                        // command table type to handle the (possibly) extra command arguments
-                        if (((MetaCommandType) metaCommand).isAbstract())
-                        {
-                            isCmdToTlm = true;
-
-                            // Check if the command has any arguments
-                            if (cmdContainer != null && cmdContainer.getEntryList() != null)
-                            {
-                                // Get the maximum number of arguments needed for the commands that
-                                // are converted to structures (i.e., command header tables)
-                                maxNumArgumentsAll = Math.max(maxNumArgumentsAll,
-                                                              cmdContainer.getEntryList().getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().size());
-
-                            }
-                        }
-                        // The command isn't flagged as abstract. This denotes a command table
-                        else
-                        {
-                            isCommand = true;
-
-                            // Check if the command has any arguments
-                            if (cmdContainer != null && cmdContainer.getEntryList() != null)
-                            {
-                                // Get the maximum number of arguments needed for the commands that
-                                // aren't converted to structures
-                                maxNumArguments = Math.max(maxNumArguments,
-                                                           cmdContainer.getEntryList().getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().size());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Check if the data from all tables is to be read or if only a single table is to be read
-        // but one of the target table type hasn't been found
-        if (importType == ImportType.IMPORT_ALL
-            || (targetIsStructure && !isTelemetry && !isCmdToTlm)
-            || (targetIsCommand && !isCommand))
-
-        {
-            // Step through each child system, if any
-            for (SpaceSystemType childSystem : system.getSpaceSystem())
-            {
-                // Process this system's children, if any
-                findMetaData(childSystem, importType, targetIsStructure, targetIsCommand);
-            }
         }
     }
 
@@ -1386,6 +1199,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the structure table definition contains any variable definitions
             if (!tableDefn.getData().isEmpty())
             {
+                isStructureExists = true;
+
                 // Create a data field for the system path
                 tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                 "System path",
@@ -1440,27 +1255,30 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         if (metaCmdSet != null)
         {
             int rowIndex = 0;
-            TableDefinition structTableDefn = null;
+            TableDefinition cmdHdrTableDefn = null;
+
+            // Get the default structure column indices
+            int argNameColumn = structureTypeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+            int typeColumn = structureTypeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+            int sizeColumn = structureTypeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+            int bitColumn = structureTypeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
+            int enumColumn = structureTypeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.ENUMERATION);
+            int descColumn = structureTypeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
+            int unitsColumn = structureTypeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
+            int minColumn = structureTypeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MINIMUM);
+            int maxColumn = structureTypeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MAXIMUM);
 
             // Create a table definition for this command table. If the name space also includes a
             // telemetry metadata (which creates a structure table) then ensure the two tables have
             // different names
-            TableDefinition tableDefn = new TableDefinition(tableName
-                                                            + (system.getTelemetryMetaData() == null
-                                                                                                     ? ""
-                                                                                                     : "_cmd"),
-                                                            system.getLongDescription());
+            TableDefinition cmdTableDefn = new TableDefinition(tableName
+                                                               + (system.getTelemetryMetaData() == null
+                                                                                                        ? ""
+                                                                                                        : "_cmd"),
+                                                               system.getLongDescription());
 
             // Set the new command table's table type name
-            tableDefn.setTypeName(commandTypeDefn.getName());
-
-            // Check if the description column belongs to a command argument
-            if (commandArguments.size() != 0
-                && cmdDescriptionIndex > commandArguments.get(0).getName())
-            {
-                // Reset the command description index to indicate no description exists
-                cmdDescriptionIndex = -1;
-            }
+            cmdTableDefn.setTypeName(commandTypeDefn.getName());
 
             // Get the command argument information
             ArgumentTypeSetType argTypeSetType = cmdMetaData.getArgumentTypeSet();
@@ -1482,11 +1300,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // Get the command type as a meta command type to shorten subsequent calls
                     MetaCommandType metaCmd = (MetaCommandType) cmd;
 
-                    // Create a new row of data in the table definition to contain this command's
-                    // information. Initialize all columns to blanks except for the command name
-                    String[] rowData = new String[numCommandColumnsAll];
-                    Arrays.fill(rowData, null);
-                    rowData[commandNameIndex] = metaCmd.getName();
+                    // Create a new row of data to contain this command's information. Each row is
+                    // added as a command to the command table
+                    String[] cmdRowData = new String[numCommandColumns];
+                    Arrays.fill(cmdRowData, null);
+                    cmdRowData[commandNameIndex] = metaCmd.getName();
 
                     // Get the base meta-command reference
                     BaseMetaCommand baseMetaCmd = metaCmd.getBaseMetaCommand();
@@ -1508,7 +1326,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     boolean isExists = false;
 
                                     // Step through the data fields already added to this table
-                                    for (String[] fieldInfo : tableDefn.getDataFields())
+                                    for (String[] fieldInfo : cmdTableDefn.getDataFields())
                                     {
                                         // Check if a data field with the name matching the
                                         // application ID variable name already exists. This is the
@@ -1529,17 +1347,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     {
                                         // Create a data field for the table containing the
                                         // application ID and stop searching
-                                        tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
-                                                                                                        applicationIDName,
-                                                                                                        "Application name and ID",
-                                                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID),
-                                                                                                        Math.min(Math.max(argAssn.getArgumentValue().length(),
-                                                                                                                          5),
-                                                                                                                 40),
-                                                                                                        false,
-                                                                                                        ApplicabilityType.ALL,
-                                                                                                        argAssn.getArgumentValue(),
-                                                                                                        false));
+                                        cmdTableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                                                                                                           applicationIDName,
+                                                                                                           "Application name and ID",
+                                                                                                           inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID),
+                                                                                                           Math.min(Math.max(argAssn.getArgumentValue().length(),
+                                                                                                                             5),
+                                                                                                                    40),
+                                                                                                           false,
+                                                                                                           ApplicabilityType.ALL,
+                                                                                                           argAssn.getArgumentValue(),
+                                                                                                           false));
                                     }
                                 }
                                 // Check if the argument name matches the command function code
@@ -1547,7 +1365,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 else if (argAssn.getArgumentName().equals(cmdFuncCodeName))
                                 {
                                     // Store the command function code
-                                    rowData[cmdFuncCodeIndex] = argAssn.getArgumentValue();
+                                    cmdRowData[cmdFuncCodeIndex] = argAssn.getArgumentValue();
+                                }
+                                // Check if the argument name matches the command argument
+                                // structure column input type name
+                                else if (argAssn.getArgumentName().equals(DefaultInputType.COMMAND_ARGUMENT.getInputName()))
+                                {
+                                    // Store the command argument
+                                    cmdRowData[cmdArgumentIndex] = argAssn.getArgumentValue();
                                 }
                             }
                         }
@@ -1558,15 +1383,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     if (metaCmd.getLongDescription() != null && cmdDescriptionIndex != -1)
                     {
                         // Store the command description in the row's description column
-                        rowData[cmdDescriptionIndex] = metaCmd.getLongDescription();
+                        cmdRowData[cmdDescriptionIndex] = metaCmd.getLongDescription();
                     }
 
                     // Check if the command container entry list exists
                     if (metaCmd.getCommandContainer() != null
                         && metaCmd.getCommandContainer().getEntryList() != null)
                     {
-                        int cmdArgIndex = 0;
-
                         // Get the reference to the sequence container's entry list to shorten
                         // subsequent calls
                         List<JAXBElement<? extends SequenceEntryType>> sequenceEntries = metaCmd.getCommandContainer()
@@ -1630,90 +1453,117 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if this is a valid parameter or container reference
                             if (argInfo != null)
                             {
-                                // Increment the argument index
-                                cmdArgIndex++;
+                                // Create a new row of data to contain this command's argument
+                                // information (each row is added to the command's argument
+                                // structure table)
+                                String[] argRowData = new String[structureTypeDefn.getColumnCountDatabase()];
+                                Arrays.fill(argRowData, null);
 
                                 // Update the sequence index. A container reference to an array
                                 // causes this index to update in order to skip the array member
                                 // container references; otherwise no change is made to the index
                                 seqIndex = argInfo.getSeqIndex();
 
-                                // Check if the command argument index is within the range dictated
-                                // by the table type definition
-                                if (cmdArgIndex <= commandArguments.size())
+                                // Check if the command argument name is present
+                                if (argNameColumn != -1 && argInfo.getParameterName() != null)
                                 {
-                                    // Get the command argument reference
-                                    AssociatedColumns acmdArg = commandArguments.get(cmdArgIndex - 1);
+                                    // Store the command argument name
+                                    argRowData[argNameColumn] = argInfo.getParameterName();
+                                }
 
-                                    // Check if the command argument name is present
-                                    if (acmdArg.getName() != -1
-                                        && argInfo.getParameterName() != null)
+                                // Check if the command argument data type is present
+                                if (typeColumn != -1 && argInfo.getDataType() != null)
+                                {
+                                    // Store the command argument data type
+                                    argRowData[typeColumn] = argInfo.getDataType();
+                                }
+
+                                // Check if the command argument array size is present
+                                if (sizeColumn != -1 && argInfo.getArraySize() != null)
+                                {
+                                    // Store the command argument array size
+                                    argRowData[sizeColumn] = argInfo.getArraySize();
+                                }
+
+                                // Check if the command argument bit length is present
+                                if (bitColumn != -1 && argInfo.getBitLength() != null)
+                                {
+                                    // Store the command argument bit length
+                                    argRowData[bitColumn] = argInfo.getBitLength();
+                                }
+
+                                // Check if the command argument enumeration is present
+                                if (enumColumn != -1 && argInfo.getEnumeration() != null)
+                                {
+                                    // Store the command argument enumeration
+                                    argRowData[enumColumn] = argInfo.getEnumeration();
+                                }
+
+                                // Check if the command argument description is present
+                                if (descColumn != -1 && argInfo.getDescription() != null)
+                                {
+                                    // Store the command argument description
+                                    argRowData[descColumn] = argInfo.getDescription();
+                                }
+
+                                // Check if the command argument units
+                                // is present
+                                if (unitsColumn != -1 && argInfo.getUnits() != null)
+                                {
+                                    // Store the command argument units
+                                    argRowData[unitsColumn] = argInfo.getUnits();
+                                }
+
+                                // Check if the command argument minimum is present
+                                if (minColumn != -1 && argInfo.getMinimum() != null)
+                                {
+                                    // Store the command argument minimum
+                                    argRowData[minColumn] = argInfo.getMinimum();
+                                }
+
+                                // Check if the command argument maximum is present
+                                if (maxColumn != -1 && argInfo.getMaximum() != null)
+                                {
+                                    // Store the command argument maximum
+                                    argRowData[maxColumn] = argInfo.getMaximum();
+                                }
+
+                                // Check if this is a command header type
+                                if (metaCmd.isAbstract())
+                                {
+                                    // Check if the structure table definition hasn't been created
+                                    if (cmdHdrTableDefn == null)
                                     {
-                                        // Store the command argument name
-                                        rowData[acmdArg.getName()] = argInfo.getParameterName();
+                                        // Create a structure table definition to contain this
+                                        // command header
+                                        cmdHdrTableDefn = new TableDefinition(tableName,
+                                                                              system.getLongDescription());
+
+                                        // Set the new structure table's table type name
+                                        cmdHdrTableDefn.setTypeName(structureTypeDefn.getName());
                                     }
 
-                                    // Check if the command argument data type is present
-                                    if (acmdArg.getDataType() != -1
-                                        && argInfo.getDataType() != null)
-                                    {
-                                        // Store the command argument data type
-                                        rowData[acmdArg.getDataType()] = argInfo.getDataType();
-                                    }
+                                    // Get the total number of array members for the command
+                                    // argument; set to 0 if the argument isn't an array
+                                    int numArrayMembers = argRowData[sizeColumn] != null
+                                                          && !argRowData[sizeColumn].isEmpty()
+                                                                                               ? ArrayVariable.getNumMembersFromArraySize(argRowData[sizeColumn])
+                                                                                               : 0;
 
-                                    // Check if the command argument array size is present
-                                    if (acmdArg.getArraySize() != -1
-                                        && argInfo.getArraySize() != null)
-                                    {
-                                        // Store the command argument array size
-                                        rowData[acmdArg.getArraySize()] = argInfo.getArraySize();
-                                    }
-
-                                    // Check if the command argument bit length is present
-                                    if (acmdArg.getBitLength() != -1
-                                        && argInfo.getBitLength() != null)
-                                    {
-                                        // Store the command argument bit length
-                                        rowData[acmdArg.getBitLength()] = argInfo.getBitLength();
-                                    }
-
-                                    // Check if the command argument enumeration is present
-                                    if (acmdArg.getEnumeration() != -1
-                                        && argInfo.getEnumeration() != null)
-                                    {
-                                        // Store the command argument enumeration
-                                        rowData[acmdArg.getEnumeration()] = argInfo.getEnumeration();
-                                    }
-
-                                    // Check if the command argument description is present
-                                    if (acmdArg.getDescription() != -1
-                                        && argInfo.getDescription() != null)
-                                    {
-                                        // Store the command argument description
-                                        rowData[acmdArg.getDescription()] = argInfo.getDescription();
-                                    }
-
-                                    // Check if the command argument units
-                                    // is present
-                                    if (acmdArg.getUnits() != -1 && argInfo.getUnits() != null)
-                                    {
-                                        // Store the command argument units
-                                        rowData[acmdArg.getUnits()] = argInfo.getUnits();
-                                    }
-
-                                    // Check if the command argument minimum is present
-                                    if (acmdArg.getMinimum() != -1 && argInfo.getMinimum() != null)
-                                    {
-                                        // Store the command argument minimum
-                                        rowData[acmdArg.getMinimum()] = argInfo.getMinimum();
-                                    }
-
-                                    // Check if the command argument maximum is present
-                                    if (acmdArg.getMaximum() != -1 && argInfo.getMaximum() != null)
-                                    {
-                                        // Store the command argument maximum
-                                        rowData[acmdArg.getMaximum()] = argInfo.getMaximum();
-                                    }
+                                    // Add the command argument as a variable to the command header
+                                    // structure table
+                                    rowIndex = addVariableDefinitionToStructure(cmdHdrTableDefn,
+                                                                                rowIndex,
+                                                                                numArrayMembers,
+                                                                                argRowData[argNameColumn],
+                                                                                argRowData[typeColumn],
+                                                                                argRowData[sizeColumn],
+                                                                                argRowData[bitColumn],
+                                                                                argRowData[descColumn],
+                                                                                argRowData[unitsColumn],
+                                                                                argRowData[enumColumn],
+                                                                                argRowData[minColumn],
+                                                                                argRowData[maxColumn]);
                                 }
                             }
                         }
@@ -1729,53 +1579,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // that apply to the command table type are added; the excess columns
                             // in the row data array for those commands translated to a structure
                             // (i.e., command header tables) are removed
-                            tableDefn.addData(Arrays.copyOf(rowData, numCommandColumns));
+                            cmdTableDefn.addData(Arrays.copyOf(cmdRowData, numCommandColumns));
                         }
                     }
                     // The command is a header type. Convert it to a structure unless importing
                     // only a single command table
                     else if (structureTypeDefn != null)
                     {
-                        // Check if the structure table definition hasn't been created
-                        if (structTableDefn == null)
-                        {
-                            // Create a structure table definition to contain this command header
-                            structTableDefn = new TableDefinition(tableName,
-                                                                  system.getLongDescription());
-
-                            // Set the new structure table's table type name
-                            structTableDefn.setTypeName(structureTypeDefn.getName());
-                        }
-
-                        // Step through each command argument in the command header
-                        for (AssociatedColumns cmdArg : commandArguments)
-                        {
-                            // Get the total number of array members for the command argument; set
-                            // to 0 if the argument isn't an array
-                            int numArrayMembers = rowData[cmdArg.getArraySize()] != null
-                                                  && !rowData[cmdArg.getArraySize()].isEmpty()
-                                                                                               ? ArrayVariable.getNumMembersFromArraySize(rowData[cmdArg.getArraySize()])
-                                                                                               : 0;
-
-                            // Add the command argument as a variable to the command header
-                            // structure table
-                            rowIndex = addVariableDefinitionToStructure(structTableDefn,
-                                                                        rowIndex,
-                                                                        numArrayMembers,
-                                                                        rowData[cmdArg.getName()],
-                                                                        rowData[cmdArg.getDataType()],
-                                                                        rowData[cmdArg.getArraySize()],
-                                                                        rowData[cmdArg.getBitLength()],
-                                                                        rowData[cmdArg.getDescription()],
-                                                                        rowData[cmdArg.getUnits()],
-                                                                        rowData[cmdArg.getEnumeration()],
-                                                                        rowData[cmdArg.getMinimum()],
-                                                                        rowData[cmdArg.getMaximum()]);
-
-                        }
+                        isStructureExists = true;
 
                         // Create a data field for the system path
-                        structTableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                        cmdHdrTableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                               "System path",
                                                                                               "System Path",
                                                                                               inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
@@ -1788,7 +1602,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                               false));
 
                         // Add the command header structure table definition to the list
-                        tableDefinitions.add(structTableDefn);
+                        tableDefinitions.add(cmdHdrTableDefn);
                     }
                 }
             }
@@ -1796,23 +1610,25 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the command table definition contains any commands. If the entire table was
             // converted to a structure then there won't be any data rows, in which case the
             // command table doesn't get generated
-            if (!tableDefn.getData().isEmpty())
+            if (!cmdTableDefn.getData().isEmpty())
             {
+                isCommandExists = true;
+
                 // Create a data field for the system path
-                tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
-                                                                                "System path",
-                                                                                "System Path",
-                                                                                inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
-                                                                                Math.min(Math.max(systemPath.length(),
-                                                                                                  5),
-                                                                                         40),
-                                                                                false,
-                                                                                ApplicabilityType.ALL,
-                                                                                systemPath,
-                                                                                false));
+                cmdTableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                                                                                   "System path",
+                                                                                   "System Path",
+                                                                                   inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
+                                                                                   Math.min(Math.max(systemPath.length(),
+                                                                                                     5),
+                                                                                            40),
+                                                                                   false,
+                                                                                   ApplicabilityType.ALL,
+                                                                                   systemPath,
+                                                                                   false));
 
                 // Add the command table definition to the list
-                tableDefinitions.add(tableDefn);
+                tableDefinitions.add(cmdTableDefn);
             }
         }
     }
@@ -3195,7 +3011,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // references are ignored
                 processedTables.add(tableName);
 
-                // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(loadTableName,
                                                                    true,
                                                                    false,
@@ -3314,17 +3129,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Check if this is a structure table
                         if (typeDefn.isStructure())
                         {
-                            // Get the default column indices
-                            int varColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
-                            int typeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
-                            int sizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
-                            int bitColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
-                            int enumColumn = typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.ENUMERATION);
-                            int descColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
-                            int unitsColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
-                            int minColumn = typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MINIMUM);
-                            int maxColumn = typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MAXIMUM);
-
                             // Expand any macros in the table path
                             tableName = macroHandler.getMacroExpansion(tableName);
 
@@ -3335,107 +3139,21 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // CommandMetaData
                             if (isCmdHdrTable)
                             {
-                                // Set the number of argument columns per command argument
-                                int columnsPerArg = CcddTableTypeHandler.commandArgumentColumns.length;
-
-                                // Initialize the offset in the command row so that space if
-                                // created for the command name and description, then created an
-                                // array to contain the converted command table data
-                                int argOffset = 2;
-                                String[][] tableData = new String[1][tableInfo.getData().length
-                                                                     * columnsPerArg
-                                                                     + 2];
-
-                                // Initialize the storage for the command argument column indices
-                                commandArguments = new ArrayList<AssociatedColumns>();
-
-                                // Store the command header table name (use only the variable name
-                                // portion if this is a child table) and description as the command
-                                // name and description
-                                tableData[0][0] = tableName.replaceFirst("[^\\.]+\\.", "");
-                                tableData[0][1] = tableInfo.getDescription();
-
-                                // Step through each row in the command header table
-                                for (String[] rowData : CcddUtilities.convertObjectToString(tableInfo.getData()))
-                                {
-                                    // Check if this isn't an array member (the array definition is
-                                    // sufficient to define the array elements)
-                                    if (!ArrayVariable.isArrayMember(rowData[varColumn]))
-                                    {
-                                        // Store the components of each variable within the command
-                                        // header in the form of a command argument
-                                        tableData[0][argOffset] = varColumn != -1
-                                                                                  ? rowData[varColumn]
-                                                                                  : null;
-                                        tableData[0][argOffset + 1] = typeColumn != -1
-                                                                                       ? rowData[typeColumn]
-                                                                                       : null;
-                                        tableData[0][argOffset + 2] = sizeColumn != -1
-                                                                                       ? rowData[sizeColumn]
-                                                                                       : null;
-                                        tableData[0][argOffset + 3] = bitColumn != -1
-                                                                                      ? rowData[bitColumn]
-                                                                                      : null;
-                                        tableData[0][argOffset + 4] = enumColumn != -1
-                                                                                       ? rowData[enumColumn]
-                                                                                       : null;
-                                        tableData[0][argOffset + 5] = minColumn != -1
-                                                                                      ? rowData[minColumn]
-                                                                                      : null;
-                                        tableData[0][argOffset + 6] = maxColumn != -1
-                                                                                      ? rowData[maxColumn]
-                                                                                      : null;
-                                        tableData[0][argOffset + 7] = descColumn != -1
-                                                                                       ? rowData[descColumn]
-                                                                                       : null;
-                                        tableData[0][argOffset + 8] = unitsColumn != -1
-                                                                                        ? rowData[unitsColumn]
-                                                                                        : null;
-
-                                        // Store the column indices for each of the command header
-                                        // arguments
-                                        commandArguments.add(new AssociatedColumns(false,
-                                                                                   (varColumn != -1
-                                                                                                    ? argOffset
-                                                                                                    : -1),
-                                                                                   (typeColumn != -1
-                                                                                                     ? argOffset + 1
-                                                                                                     : -1),
-                                                                                   (sizeColumn != -1
-                                                                                                     ? argOffset + 2
-                                                                                                     : -1),
-                                                                                   (bitColumn != -1
-                                                                                                    ? argOffset + 3
-                                                                                                    : -1),
-                                                                                   (enumColumn != -1
-                                                                                                     ? argOffset + 4
-                                                                                                     : -1),
-                                                                                   (minColumn != -1
-                                                                                                    ? argOffset + 5
-                                                                                                    : -1),
-                                                                                   (maxColumn != -1
-                                                                                                    ? argOffset + 6
-                                                                                                    : -1),
-                                                                                   (descColumn != -1
-                                                                                                     ? argOffset + 7
-                                                                                                     : -1),
-                                                                                   (unitsColumn != -1
-                                                                                                      ? argOffset + 8
-                                                                                                      : -1),
-                                                                                   null));
-
-                                        // Increment the offset for the next row
-                                        argOffset += columnsPerArg;
-                                    }
-                                }
-
                                 // Add the command header or descendant arguments to the command
-                                // header space system
+                                // header space system. Use the header table name (only the
+                                // variable name portion if this is a child table) as the command
+                                // name, the table name itself as the command argument, and the
+                                // table's description as the command description (the column
+                                // indices in this array are used as the name, argument, and
+                                // description column indices)
                                 addSpaceSystemCommands(parentSystem,
-                                                       tableData,
+                                                       new String[][] {{tableName.replaceFirst("[^\\.]+\\.", ""),
+                                                                        tableName,
+                                                                        tableInfo.getDescription()}},
                                                        0,
                                                        -1,
                                                        1,
+                                                       2,
                                                        true,
                                                        cmdHdrSysPath,
                                                        null);
@@ -3448,15 +3166,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 addSpaceSystemParameters(parentSystem,
                                                          tableName,
                                                          CcddUtilities.convertObjectToString(tableInfo.getData()),
-                                                         varColumn,
-                                                         typeColumn,
-                                                         sizeColumn,
-                                                         bitColumn,
-                                                         enumColumn,
-                                                         descColumn,
-                                                         unitsColumn,
-                                                         minColumn,
-                                                         maxColumn,
+                                                         typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE),
+                                                         typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT),
+                                                         typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX),
+                                                         typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH),
+                                                         typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.ENUMERATION),
+                                                         typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION),
+                                                         typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS),
+                                                         typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MINIMUM),
+                                                         typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MAXIMUM),
                                                          isTlmHdrTable,
                                                          tlmHdrSysPath,
                                                          dbTable.isRootStructure(loadTableName),
@@ -3466,32 +3184,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // This is a command table
                         else
                         {
-                            // Get the list containing the associated column indices for each
-                            // argument grouping
-                            commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
-
-                            // Get the first description type column in the command table type
-                            // definition
-                            int cmdDescColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
-
-                            // Check if the description belongs to a command argument and not the
-                            // overall command. All columns prior to the first argument name apply
-                            // to the entire command
-                            if (commandArguments.size() != 0
-                                && commandArguments.get(0).getDescription() != -1
-                                && cmdDescColumn == commandArguments.get(0).getDescription())
-                            {
-                                // There is no column for the command description, so reset its
-                                // column index
-                                cmdDescColumn = -1;
-                            }
-
                             // Add the command(s) from this table to the parent system
                             addSpaceSystemCommands(parentSystem,
                                                    CcddUtilities.convertObjectToString(tableInfo.getData()),
                                                    typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME),
                                                    typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE),
-                                                   cmdDescColumn,
+                                                   typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT),
+                                                   typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION),
                                                    false,
                                                    cmdHdrSysPath,
                                                    applicationID);
@@ -3887,7 +3586,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Add the variable, if it has a primitive data type, to the parameter set and
                 // parameter type set. Variables with structure data types are defined in the
-                // container set
+                // container set. Note that a structure variable produces a ContainerRefEntry;
+                // there is no place for the structure variable's description so it's discarded
                 addParameterAndType(spaceSystem,
                                     rowData[varColumn],
                                     rowData[typeColumn],
@@ -4708,6 +4408,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param cmdCodeColumn
      *            command code column index
      *
+     * @param cmdArgumentColumn
+     *            command argument column index
+     *
      * @param cmdDescColumn
      *            command description column index
      *
@@ -4727,6 +4430,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                           String[][] tableData,
                                           int cmdNameColumn,
                                           int cmdCodeColumn,
+                                          int cmdArgumentColumn,
                                           int cmdDescColumn,
                                           boolean isCmdHeader,
                                           String cmdHdrSysPath,
@@ -4747,11 +4451,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                          (endianess == EndianType.BIG_ENDIAN),
                                          isHeaderBigEndian,
                                          cmdHeaderTable,
-                                         commandArguments.toArray(new AssociatedColumns[0]),
                                          spaceSystem,
                                          tableData,
                                          cmdNameColumn,
                                          cmdCodeColumn,
+                                         cmdArgumentColumn,
                                          cmdDescColumn,
                                          isCmdHeader,
                                          cmdHdrSysPath,
@@ -4779,17 +4483,18 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         if (useInternal)
         {
             // Step through each row in the table
-            for (String[] rowData : tableData)
+            for (String[] cmdRowData : tableData)
             {
                 // Check if the command name exists; if the argument name is missing then the
                 // entire argument is ignored
-                if (cmdNameColumn != -1 && !rowData[cmdNameColumn].isEmpty())
+                if (cmdNameColumn != -1 && !cmdRowData[cmdNameColumn].isEmpty())
                 {
                     // Store the command name
-                    String commandName = cleanSystemPath(rowData[cmdNameColumn]);
+                    String commandName = cleanSystemPath(cmdRowData[cmdNameColumn]);
 
                     // Initialize the command attributes and argument names list
-                    String cmdFuncCode = null;
+                    String commandFuncCode = null;
+                    String commandArgStruct = null;
                     String commandDescription = null;
                     List<String> argumentNames = new ArrayList<String>();
                     List<String> argDataTypes = new ArrayList<String>();
@@ -4802,160 +4507,217 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         createCommandMetadata(spaceSystem);
                     }
 
-                    // Check if the command code exists
-                    if (cmdCodeColumn != -1 && !rowData[cmdCodeColumn].isEmpty())
+                    // Check if the command code column and value exist
+                    if (cmdCodeColumn != -1 && !cmdRowData[cmdCodeColumn].isEmpty())
                     {
                         // Store the command code
-                        cmdFuncCode = rowData[cmdCodeColumn];
+                        commandFuncCode = cmdRowData[cmdCodeColumn];
+                    }
+
+                    // Check if the command argument column and value exist
+                    if (cmdArgumentColumn != -1 && !cmdRowData[cmdArgumentColumn].isEmpty())
+                    {
+                        // Store the command argument
+                        commandArgStruct = cmdRowData[cmdArgumentColumn];
                     }
 
                     // Check if the command description exists
-                    if (cmdDescColumn != -1 && !rowData[cmdDescColumn].isEmpty())
+                    if (cmdDescColumn != -1 && !cmdRowData[cmdDescColumn].isEmpty())
                     {
                         // Store the command description
-                        commandDescription = rowData[cmdDescColumn];
+                        commandDescription = cmdRowData[cmdDescColumn];
                     }
 
-                    // Step through each command argument column grouping
-                    for (AssociatedColumns cmdArg : commandArguments)
+                    // Check if an argument structure is provided for the command
+                    if (commandArgStruct != null && !commandArgStruct.isEmpty())
                     {
-                        // Initialize the command argument attributes
-                        String argumentName = null;
-                        String dataType = null;
-                        String arraySize = null;
-                        String bitLength = null;
-                        String enumeration = null;
-                        String minimum = null;
-                        String maximum = null;
-                        String units = null;
-                        String description = null;
-                        int stringSize = 1;
+                        // Get the information from the database for the specified table
+                        TableInformation tableInfo = dbTable.loadTableData(commandArgStruct,
+                                                                           true,
+                                                                           false,
+                                                                           parent);
 
-                        // Check if the command argument name and data type exist
-                        if (cmdArg.getName() != -1
-                            && !rowData[cmdArg.getName()].isEmpty()
-                            && cmdArg.getDataType() != -1 &&
-                            !rowData[cmdArg.getDataType()].isEmpty())
+                        // Check if the table's data successfully loaded
+                        if (!tableInfo.isErrorFlag())
                         {
-                            String uniqueID = "";
-                            int dupCount = 0;
+                            // Get the table type and from the type get the type definition
+                            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                            // Store the command argument name and data type
-                            argumentName = rowData[cmdArg.getName()];
-                            dataType = rowData[cmdArg.getDataType()];
-
-                            // Check if the description column exists
-                            if (cmdArg.getDescription() != -1 && !rowData[cmdArg.getDescription()].isEmpty())
+                            // Check if the table type represents a structure
+                            if (typeDefn != null && typeDefn.isStructure())
                             {
-                                // Store the command argument description
-                                description = rowData[cmdArg.getDescription()];
-                            }
+                                // Get the default column indices
+                                int argNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                                int typeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                                int sizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                                int bitColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
+                                int enumColumn = typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.ENUMERATION);
+                                int descColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
+                                int unitsColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
+                                int minColumn = typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MINIMUM);
+                                int maxColumn = typeDefn.getColumnIndexByInputTypeFormat(InputTypeFormat.MAXIMUM);
 
-                            // Check if the array size column exists
-                            if (cmdArg.getArraySize() != -1 && !rowData[cmdArg.getArraySize()].isEmpty())
-                            {
-                                // Store the command argument array size value
-                                arraySize = rowData[cmdArg.getArraySize()];
+                                // Replace all macro names with their corresponding values
+                                tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
 
-                                // Check if the command argument has a string data type
-                                if (dataTypeHandler.isString(rowData[cmdArg.getDataType()]))
+                                // Step through each variable (command name) in the command
+                                // argument structure
+                                for (String[] argRowData : CcddUtilities.convertObjectToString(tableInfo.getData()))
                                 {
-                                    // Separate the array dimension values and get the string size
-                                    int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
-                                    stringSize = arrayDims[0];
+                                    // Check if the command argument name exists and isn't an array
+                                    // member (only the array definition is used to define a
+                                    // command argument), and that the data type exists
+                                    if (argNameColumn != -1
+                                        && !argRowData[argNameColumn].isEmpty()
+                                        && !ArrayVariable.isArrayMember(argRowData[argNameColumn])
+                                        && typeColumn != -1 &&
+                                        !argRowData[typeColumn].isEmpty())
+                                    {
+                                        // Initialize the command argument attributes
+                                        String argumentName = null;
+                                        String dataType = null;
+                                        String arraySize = null;
+                                        String bitLength = null;
+                                        String enumeration = null;
+                                        String minimum = null;
+                                        String maximum = null;
+                                        String units = null;
+                                        String description = null;
+                                        int stringSize = 1;
+
+                                        String uniqueID = "";
+                                        int dupCount = 0;
+
+                                        // Store the command argument name and data type
+                                        argumentName = argRowData[argNameColumn];
+                                        dataType = argRowData[typeColumn];
+
+                                        // Check if the description column exists
+                                        if (descColumn != -1 &&
+                                            !argRowData[descColumn].isEmpty())
+                                        {
+                                            // Store the command argument description
+                                            description = argRowData[descColumn];
+                                        }
+
+                                        // Check if the array size column exists
+                                        if (sizeColumn != -1 &&
+                                            !argRowData[sizeColumn].isEmpty())
+                                        {
+                                            // Store the command argument array size value
+                                            arraySize = argRowData[sizeColumn];
+
+                                            // Check if the command argument has a string data type
+                                            if (dataTypeHandler.isString(argRowData[typeColumn]))
+                                            {
+                                                // Separate the array dimension values and get the
+                                                // string size
+                                                int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
+                                                stringSize = arrayDims[0];
+                                            }
+                                        }
+
+                                        // Check if the bit length column exists
+                                        if (bitColumn != -1 &&
+                                            !argRowData[bitColumn].isEmpty())
+                                        {
+                                            // Store the command argument bit length value
+                                            bitLength = argRowData[bitColumn];
+                                        }
+
+                                        // Check if the enumeration column exists
+                                        if (enumColumn != -1 &&
+                                            !argRowData[enumColumn].isEmpty())
+                                        {
+                                            // Store the command argument enumeration value
+                                            enumeration = argRowData[enumColumn];
+                                        }
+
+                                        // Check if the units column exists
+                                        if (unitsColumn != -1
+                                            && !argRowData[unitsColumn].isEmpty())
+                                        {
+                                            // Store the command argument units
+                                            units = argRowData[unitsColumn];
+                                        }
+
+                                        // Check if the minimum column exists
+                                        if (minColumn != -1 &&
+                                            !argRowData[minColumn].isEmpty())
+                                        {
+                                            // Store the command argument minimum value
+                                            minimum = argRowData[minColumn];
+                                        }
+
+                                        // Check if the maximum column exists
+                                        if (maxColumn != -1 &&
+                                            !argRowData[maxColumn].isEmpty())
+                                        {
+                                            // Store the command argument maximum value
+                                            maximum = argRowData[maxColumn];
+                                        }
+
+                                        // Step through the list of argument names used so far
+                                        for (String argName : argumentNames)
+                                        {
+                                            // Check if the current argument name matches an
+                                            // existing one
+                                            if (argumentName.equals(argName))
+                                            {
+                                                // Increment the duplicate name count
+                                                dupCount++;
+                                            }
+                                        }
+
+                                        // Check if a duplicate argument name exists
+                                        if (dupCount != 0)
+                                        {
+                                            // Set the unique ID to the counter value
+                                            uniqueID = String.valueOf(dupCount + 1);
+                                        }
+
+                                        // Add the name and array status to the lists
+                                        argumentNames.add(argumentName);
+                                        argDataTypes.add(dataType);
+                                        argArraySizes.add(arraySize);
+
+                                        // Check if the data type is a primitive. The data type for
+                                        // the command can be a structure reference if this is the
+                                        // command header table or a descendant table of the
+                                        // command header table
+                                        if (dataTypeHandler.isPrimitive(dataType))
+                                        {
+                                            // Get the reference to the argument type set
+                                            ArgumentTypeSetType argument = spaceSystem.getCommandMetaData().getArgumentTypeSet();
+
+                                            // Check if the argument type set doesn't exist
+                                            if (argument == null)
+                                            {
+                                                // Create the argument type set
+                                                argument = factory.createArgumentTypeSetType();
+                                                spaceSystem.getCommandMetaData().setArgumentTypeSet(argument);
+                                            }
+
+                                            // Set the command argument data type information
+                                            NameDescriptionType type = setArgumentDataType(spaceSystem,
+                                                                                           argumentName,
+                                                                                           dataType,
+                                                                                           arraySize,
+                                                                                           bitLength,
+                                                                                           enumeration,
+                                                                                           units,
+                                                                                           minimum,
+                                                                                           maximum,
+                                                                                           description,
+                                                                                           stringSize,
+                                                                                           uniqueID);
+
+                                            // Add the command argument type to the command space
+                                            // system
+                                            argument.getStringArgumentTypeOrEnumeratedArgumentTypeOrIntegerArgumentType().add(type);
+                                        }
+                                    }
                                 }
-                            }
-
-                            // Check if the bit length column exists
-                            if (cmdArg.getBitLength() != -1 && !rowData[cmdArg.getBitLength()].isEmpty())
-                            {
-                                // Store the command argument bit length value
-                                bitLength = rowData[cmdArg.getBitLength()];
-                            }
-
-                            // Check if the enumeration column exists
-                            if (cmdArg.getEnumeration() != -1 && !rowData[cmdArg.getEnumeration()].isEmpty())
-                            {
-                                // Store the command argument enumeration value
-                                enumeration = rowData[cmdArg.getEnumeration()];
-                            }
-
-                            // Check if the units column exists
-                            if (cmdArg.getUnits() != -1 && !rowData[cmdArg.getUnits()].isEmpty())
-                            {
-                                // Store the command argument units
-                                units = rowData[cmdArg.getUnits()];
-                            }
-
-                            // Check if the minimum column exists
-                            if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
-                            {
-                                // Store the command argument minimum value
-                                minimum = rowData[cmdArg.getMinimum()];
-                            }
-
-                            // Check if the maximum column exists
-                            if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
-                            {
-                                // Store the command argument maximum value
-                                maximum = rowData[cmdArg.getMaximum()];
-                            }
-
-                            // Step through the list of argument names used so far
-                            for (String argName : argumentNames)
-                            {
-                                // Check if the current argument name matches an existing one
-                                if (argumentName.equals(argName))
-                                {
-                                    // Increment the duplicate name count
-                                    dupCount++;
-                                }
-                            }
-
-                            // Check if a duplicate argument name exists
-                            if (dupCount != 0)
-                            {
-                                // Set the unique ID to the counter value
-                                uniqueID = String.valueOf(dupCount + 1);
-                            }
-
-                            // Add the name and array status to the lists
-                            argumentNames.add(argumentName);
-                            argDataTypes.add(dataType);
-                            argArraySizes.add(arraySize);
-
-                            // Check if the data type is a primitive. The data type for the command
-                            // can be a structure reference if this is the command header table or
-                            // a descendant table of the command header table
-                            if (dataTypeHandler.isPrimitive(dataType))
-                            {
-                                // get the reference to the argument type set
-                                ArgumentTypeSetType argument = spaceSystem.getCommandMetaData().getArgumentTypeSet();
-
-                                // Check if the argument type set doesn't exist
-                                if (argument == null)
-                                {
-                                    // Create the argument type set
-                                    argument = factory.createArgumentTypeSetType();
-                                    spaceSystem.getCommandMetaData().setArgumentTypeSet(argument);
-                                }
-
-                                // Set the command argument data type information
-                                NameDescriptionType type = setArgumentDataType(spaceSystem,
-                                                                               argumentName,
-                                                                               dataType,
-                                                                               arraySize,
-                                                                               bitLength,
-                                                                               enumeration,
-                                                                               units,
-                                                                               minimum,
-                                                                               maximum,
-                                                                               description,
-                                                                               stringSize,
-                                                                               uniqueID);
-
-                                // Add the command argument type to the command space system
-                                argument.getStringArgumentTypeOrEnumeratedArgumentTypeOrIntegerArgumentType().add(type);
                             }
                         }
                     }
@@ -4963,7 +4725,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // Add the command metadata set information
                     addCommand(spaceSystem,
                                commandName,
-                               cmdFuncCode,
+                               commandFuncCode,
+                               commandArgStruct,
                                applicationID,
                                isCmdHeader,
                                cmdHdrSysPath,
@@ -4987,6 +4750,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param cmdFuncCode
      *            command code
+     *
+     * @param cmdArgument
+     *            command argument name
      *
      * @param applicationID
      *            application ID
@@ -5016,6 +4782,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     protected void addCommand(SpaceSystemType spaceSystem,
                               String commandName,
                               String cmdFuncCode,
+                              String cmdArgument,
                               String applicationID,
                               boolean isCmdHeader,
                               String cmdHdrSysPath,
@@ -5041,6 +4808,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                          commandName,
                                          cmdFuncCodeName,
                                          cmdFuncCode,
+                                         DefaultInputType.COMMAND_ARGUMENT.getInputName(),
+                                         cmdArgument,
                                          applicationIDName,
                                          applicationID,
                                          isCmdHeader,
@@ -5214,6 +4983,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         argAssn = factory.createMetaCommandTypeBaseMetaCommandArgumentAssignmentListArgumentAssignment();
                         argAssn.setArgumentName(cmdFuncCodeName);
                         argAssn.setArgumentValue(cmdFuncCode);
+                        argAssnList.getArgumentAssignment().add(argAssn);
+                    }
+
+                    // Check if a command argument is provided
+                    if (cmdArgument != null && !cmdArgument.isEmpty())
+                    {
+                        // Store the command argument
+                        argAssn = factory.createMetaCommandTypeBaseMetaCommandArgumentAssignmentListArgumentAssignment();
+                        argAssn.setArgumentName(DefaultInputType.COMMAND_ARGUMENT.getInputName());
+                        argAssn.setArgumentValue(cmdArgument);
                         argAssnList.getArgumentAssignment().add(argAssn);
                     }
 

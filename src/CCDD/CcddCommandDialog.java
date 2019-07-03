@@ -436,8 +436,9 @@ public class CcddCommandDialog extends CcddDialogHandler
                 // Add the command information to the list
                 commandList.add(new Object[] {commandInfo.getCommandName(),
                                               commandInfo.getCommandCode(),
-                                              commandInfo.getTable(),
-                                              commandInfo.getArguments()});
+                                              commandHandler.getCommandArgumentVariables(commandInfo.getCommandArgument(),
+                                                                                         "\n"),
+                                              commandInfo.getTable()});
             }
         }
 

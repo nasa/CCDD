@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -189,32 +189,39 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateCommandTables--">updateCommandTables</a></span>()</code>
+<div class="block">The command table types are altered by removing any argument columns and adding a command
+ argument structure reference column.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateFieldsPart1--">updateFieldsPart1</a></span>()</code>
 <div class="block">Update the fields table to include a field_inherited column and set each field's default
  status.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateFieldsPart2--">updateFieldsPart2</a></span>()</code>
 <div class="block">After updating the fields table to include a field_inherited column add inherited fields to
  those tables that don't already have the field.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateMessageNamesAndIDs--">updateMessageNamesAndIDs</a></span>()</code>
 <div class="block">Update the project database table type and data field table references to the message ID
  name and message ID input types.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updatePaddingVariables--">updatePaddingVariables</a></span>()</code>
 <div class="block">Update the padding variable format from '__pad#' to 'pad#__'.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateUserAccess--">updateUserAccess</a></span>()</code>
 <div class="block">Update the project database so that user access levels are supported</div>
@@ -338,6 +345,31 @@ extends java.lang.Object</pre>
 <dd><code>dbControl</code> - reference to the database control class</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the project database cannot be backed up and the user elects to not continue</dd>
+</dl>
+</li>
+</ul>
+<a name="updateCommandTables--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateCommandTables</h4>
+<pre>private&nbsp;void&nbsp;updateCommandTables()
+                          throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<div class="block">The command table types are altered by removing any argument columns and adding a command
+ argument structure reference column. Every command table is modified as follows: Remove the
+ argument columns and add a command argument structure reference column. For each individual
+ command an argument structure is created; within this structure a variable is added for each
+ of the command's arguments. An argument reference structure table type definition is created
+ from which an argument reference structure is created that has references for each of the
+ newly create argument structures (making these argument structures children of the argument
+ reference structure). The updated command table's argument structure reference column is
+ populated with a reference to the argument reference structure. Older versions of CCDD are
+ not compatible with the project database after applying this patch</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while applying
+             the patch</dd>
 </dl>
 </li>
 </ul>

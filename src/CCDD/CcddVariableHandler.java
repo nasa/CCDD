@@ -224,14 +224,16 @@ public class CcddVariableHandler
         // Step through each variable path
         for (int index = 0; index < structureAndVariablePaths.size(); index++)
         {
+            // Get the path+variable
+            String path = structureAndVariablePaths.get(index);
+
             // Check if the variable path is a valid variable. The structureAndVariablePaths list
             // includes non-root structures and their children; these are not valid variables (they
             // are in the list for size and offset purposes), so are not included in the list
-            // returned
             if (isVariable.get(index))
             {
                 // Add the variable path to the list
-                allVariableNames.add(structureAndVariablePaths.get(index));
+                allVariableNames.add(path);
             }
         }
 

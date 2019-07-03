@@ -169,6 +169,8 @@ public class CcddDbCommandHandler
                                       String command,
                                       Component component) throws SQLException
     {
+        // System.out.println("\nexecuteDbStatement: " + command.substring(0,
+        // Math.min(command.length(), 20)) + " ..."); // TODO
         Object result = null;
 
         // Log the command
@@ -211,6 +213,7 @@ public class CcddDbCommandHandler
         {
             try
             {
+                System.out.println(" exception"); // TODO
                 // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
                 // is enabled. Auto-commit is usually disabled, but there are instances where
                 // it's enabled so this check is required to prevent an exception
@@ -252,16 +255,20 @@ public class CcddDbCommandHandler
             }
             catch (SQLException se3)
             {
+                System.out.println("  exception 3"); // TODO
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
                 {
+                    System.out.println("   no connection"); // TODO
                     // Execute at least once; continue to execute as long as the user elects to
                     // attempt to reconnect
                     while (true)
                     {
+                        System.out.println("    attempt reconnect"); // TODO
                         // Check if the attempt to reconnect to the server is successful
                         if (!ccddMain.getDbControlHandler().reconnectToDatabase())
                         {
+                            System.out.println("     reconnected -> resend"); // TODO
                             // Send the command again
                             return executeDbStatement(commandType, command, component);
                         }
@@ -274,17 +281,22 @@ public class CcddDbCommandHandler
                                                                            JOptionPane.QUESTION_MESSAGE,
                                                                            DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
+                            System.out.println("     user quit; throw"); // TODO
                             throw new SQLException("Connection to server lost");
                         }
+
+                        System.out.println("     try again"); // TODO
                     }
                 }
                 // The server is connected. Shouldn't be able to get to this
                 else
                 {
+                    System.out.println("   how did it get here? throw"); // TODO
                     throw new SQLException(se3.getMessage());
                 }
             }
         }
+        // System.out.println(" exit"); // TODO
 
         return result;
     }

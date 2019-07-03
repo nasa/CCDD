@@ -179,23 +179,23 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#cmdDescriptionIndex">cmdDescriptionIndex</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#cmdArgumentIndex">cmdArgumentIndex</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#cmdFuncCodeIndex">cmdFuncCodeIndex</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#cmdDescriptionIndex">cmdDescriptionIndex</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#cmdFuncCodeIndex">cmdFuncCodeIndex</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#cmdHeaderPath">cmdHeaderPath</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#COMMAND">COMMAND</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.AssociatedColumns.html" title="class in CCDD">CcddClassesDataTable.AssociatedColumns</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#commandArguments">commandArguments</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
@@ -255,31 +255,23 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#isCmdToTlm">isCmdToTlm</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#isCommandExists">isCommandExists</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#isCommand">isCommand</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#isStructureExists">isStructureExists</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#isTelemetry">isTelemetry</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#macroHandler">macroHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private javax.xml.bind.Marshaller</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#marshaller">marshaller</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#maximumIndex">maximumIndex</a></span></code>&nbsp;</td>
-</tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#maxNumArguments">maxNumArguments</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#maximumIndex">maximumIndex</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private int</code></td>
@@ -302,42 +294,38 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#project">project</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private <a href="../CCDD/CcddRateParameterHandler.html" title="class in CCDD">CcddRateParameterHandler</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#rateHandler">rateHandler</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#structureTypeDefn">structureTypeDefn</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#tableDefinitions">tableDefinitions</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#tableTypeHandler">tableTypeHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#TELEMETRY">TELEMETRY</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#TYPE">TYPE</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#typeDefn">typeDefn</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#unitsIndex">unitsIndex</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private javax.xml.bind.Unmarshaller</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#unmarshaller">unmarshaller</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#variableNameIndex">variableNameIndex</a></span></code>&nbsp;</td>
 </tr>
@@ -385,9 +373,10 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#addCommand-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String-java.lang.String-java.lang.String-boolean-java.util.List-java.lang.String-">addCommand</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#addCommand-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.util.List-java.lang.String-">addCommand</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
           java.lang.String&nbsp;commandName,
           java.lang.String&nbsp;cmdFuncCode,
+          java.lang.String&nbsp;cmdArgStruct,
           java.lang.String&nbsp;applicationID,
           boolean&nbsp;isCmdHeader,
           java.util.List&lt;org.ccsds.schema.sois.seds.CommandArgumentType&gt;&nbsp;arguments,
@@ -405,10 +394,11 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#addNamespaceCommands-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String:A:A-int-int-int-boolean-java.lang.String-">addNamespaceCommands</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#addNamespaceCommands-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String:A:A-int-int-int-int-boolean-java.lang.String-">addNamespaceCommands</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
                     java.lang.String[][]&nbsp;tableData,
                     int&nbsp;cmdNameColumn,
                     int&nbsp;cmdCodeColumn,
+                    int&nbsp;cmdArgumentColumn,
                     int&nbsp;cmdDescColumn,
                     boolean&nbsp;isCmdHeader,
                     java.lang.String&nbsp;applicationID)</code>
@@ -444,12 +434,29 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#addVariableDefinitionToStructure-CCDD.CcddClassesDataTable.TableDefinition-int-int-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">addVariableDefinitionToStructure</a></span>(<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&nbsp;tableDefn,
+                                int&nbsp;rowIndex,
+                                int&nbsp;numArrayMembers,
+                                java.lang.String&nbsp;variableName,
+                                java.lang.String&nbsp;dataType,
+                                java.lang.String&nbsp;arraySize,
+                                java.lang.String&nbsp;bitLength,
+                                java.lang.String&nbsp;description,
+                                java.lang.String&nbsp;units,
+                                java.lang.String&nbsp;enumeration,
+                                java.lang.String&nbsp;minimum,
+                                java.lang.String&nbsp;maximum)</code>
+<div class="block">Add a variable definition's column values to a structure table</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#buildNamespaces-java.lang.String:A-">buildNamespaces</a></span>(java.lang.String[]&nbsp;tableNames)</code>
 <div class="block">Build the name spaces for the list of tables specified</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#convertTablesToEDS-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-">convertTablesToEDS</a></span>(java.lang.String[]&nbsp;tableNames,
                   boolean&nbsp;includeBuildInformation,
@@ -458,26 +465,26 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Convert the project database contents to EDS XML format</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>private org.ccsds.schema.sois.seds.InterfaceDeclarationType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#createCommandSet-org.ccsds.schema.sois.seds.NamespaceType-">createCommandSet</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace)</code>
 <div class="block">Create the command set for the specified name space</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>private org.ccsds.schema.sois.seds.EnumerationListType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#createEnumerationList-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String-">createEnumerationList</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
                      java.lang.String&nbsp;enumeration)</code>
 <div class="block">Build an enumeration list from the supplied enumeration string</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>private org.ccsds.schema.sois.seds.InterfaceDeclarationType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#createParameterSet-org.ccsds.schema.sois.seds.NamespaceType-">createParameterSet</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace)</code>
 <div class="block">Create the parameter set for the specified name space</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#createTableTypeDefinitions-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">createTableTypeDefinitions</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
                           <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
@@ -485,7 +492,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Scan the import file in order to determine if any structure or command tables exist.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
             java.lang.String[]&nbsp;tableNames,
@@ -504,15 +511,6 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
             java.lang.String[]&nbsp;separators,
             java.lang.Object...&nbsp;extraInfo)</code>
 <div class="block">Export the project in EDS XML format to the specified file</div>
-</td>
-</tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#findMetaData-org.ccsds.schema.sois.seds.NamespaceType-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">findMetaData</a></span>(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
-            <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-            boolean&nbsp;targetIsStructure,
-            boolean&nbsp;targetIsCommand)</code>
-<div class="block">Scan the import file in order to determine if any structure or command tables exist.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
@@ -704,15 +702,6 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <pre>private final&nbsp;<a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a> fieldHandler</pre>
 </li>
 </ul>
-<a name="rateHandler">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>rateHandler</h4>
-<pre>private final&nbsp;<a href="../CCDD/CcddRateParameterHandler.html" title="class in CCDD">CcddRateParameterHandler</a> rateHandler</pre>
-</li>
-</ul>
 <a name="inputTypeHandler">
 <!--   -->
 </a>
@@ -830,49 +819,22 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <pre>private&nbsp;<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a> commandTypeDefn</pre>
 </li>
 </ul>
-<a name="isTelemetry">
+<a name="isStructureExists">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>isTelemetry</h4>
-<pre>private&nbsp;boolean isTelemetry</pre>
+<h4>isStructureExists</h4>
+<pre>private&nbsp;boolean isStructureExists</pre>
 </li>
 </ul>
-<a name="isCommand">
+<a name="isCommandExists">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>isCommand</h4>
-<pre>private&nbsp;boolean isCommand</pre>
-</li>
-</ul>
-<a name="isCmdToTlm">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isCmdToTlm</h4>
-<pre>private&nbsp;boolean isCmdToTlm</pre>
-</li>
-</ul>
-<a name="commandArguments">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>commandArguments</h4>
-<pre>private&nbsp;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.AssociatedColumns.html" title="class in CCDD">CcddClassesDataTable.AssociatedColumns</a>&gt; commandArguments</pre>
-</li>
-</ul>
-<a name="maxNumArguments">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>maxNumArguments</h4>
-<pre>private&nbsp;int maxNumArguments</pre>
+<h4>isCommandExists</h4>
+<pre>private&nbsp;boolean isCommandExists</pre>
 </li>
 </ul>
 <a name="variableNameIndex">
@@ -972,6 +934,15 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <li class="blockList">
 <h4>cmdFuncCodeIndex</h4>
 <pre>private&nbsp;int cmdFuncCodeIndex</pre>
+</li>
+</ul>
+<a name="cmdArgumentIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cmdArgumentIndex</h4>
+<pre>private&nbsp;int cmdArgumentIndex</pre>
 </li>
 </ul>
 <a name="cmdDescriptionIndex">
@@ -1169,31 +1140,6 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="findMetaData-org.ccsds.schema.sois.seds.NamespaceType-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>findMetaData</h4>
-<pre>private&nbsp;void&nbsp;findMetaData(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
-                          <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-                          boolean&nbsp;targetIsStructure,
-                          boolean&nbsp;targetIsCommand)</pre>
-<div class="block">Scan the import file in order to determine if any structure or command tables exist. If a
- command table determine the maximum number of command arguments its commands require</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>namespace</code> - name space</dd>
-<dd><code>importType</code> - import type: ImportType.ALL to import all information in the import file;
-            ImportType.FIRST_DATA_ONLY to import data from the first table defined in the
-            import file</dd>
-<dd><code>targetIsStructure</code> - true if the table type definition of the table in which to import the data
-            represents a structure; ignored if importing all tables</dd>
-<dd><code>targetIsCommand</code> - true if the table type definition of the table in which to import the data
-            represents a command; ignored if importing all tables</dd>
-</dl>
-</li>
-</ul>
 <a name="unbuildSpaceSystems-org.ccsds.schema.sois.seds.NamespaceType-CCDD.CcddImportExportInterface.ImportType-boolean-">
 <!--   -->
 </a>
@@ -1270,6 +1216,44 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
             false to store (non-header) command tables</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an input error is detected</dd>
+</dl>
+</li>
+</ul>
+<a name="addVariableDefinitionToStructure-CCDD.CcddClassesDataTable.TableDefinition-int-int-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addVariableDefinitionToStructure</h4>
+<pre>private&nbsp;int&nbsp;addVariableDefinitionToStructure(<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&nbsp;tableDefn,
+                                             int&nbsp;rowIndex,
+                                             int&nbsp;numArrayMembers,
+                                             java.lang.String&nbsp;variableName,
+                                             java.lang.String&nbsp;dataType,
+                                             java.lang.String&nbsp;arraySize,
+                                             java.lang.String&nbsp;bitLength,
+                                             java.lang.String&nbsp;description,
+                                             java.lang.String&nbsp;units,
+                                             java.lang.String&nbsp;enumeration,
+                                             java.lang.String&nbsp;minimum,
+                                             java.lang.String&nbsp;maximum)</pre>
+<div class="block">Add a variable definition's column values to a structure table</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tableDefn</code> - table definition reference</dd>
+<dd><code>rowIndex</code> - index of the row in which to insert the data</dd>
+<dd><code>numArrayMembers</code> - number of array members; 0 if not an array parameter</dd>
+<dd><code>variableName</code> - variable name; null to not specify</dd>
+<dd><code>dataType</code> - parameter data type; null to not specify</dd>
+<dd><code>arraySize</code> - parameter array size; null or blank if the parameter isn't an array</dd>
+<dd><code>bitLength</code> - parameter bit length; null or blank if not a bit-wise parameter</dd>
+<dd><code>description</code> - parameter description; null to not specify</dd>
+<dd><code>units</code> - parameter units; null to not specify</dd>
+<dd><code>enumeration</code> - enumeration in the format &lt;enum label&gt;|&lt;enum value&gt;[|...][,...]; null to not specify</dd>
+<dd><code>minimum</code> - minimum parameter value</dd>
+<dd><code>maximum</code> - maximum parameter value</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Updated row index</dd>
 </dl>
 </li>
 </ul>
@@ -1508,7 +1492,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="addNamespaceCommands-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String:A:A-int-int-int-boolean-java.lang.String-">
+<a name="addNamespaceCommands-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String:A:A-int-int-int-int-boolean-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1518,6 +1502,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
                                   java.lang.String[][]&nbsp;tableData,
                                   int&nbsp;cmdNameColumn,
                                   int&nbsp;cmdCodeColumn,
+                                  int&nbsp;cmdArgumentColumn,
                                   int&nbsp;cmdDescColumn,
                                   boolean&nbsp;isCmdHeader,
                                   java.lang.String&nbsp;applicationID)</pre>
@@ -1528,13 +1513,14 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <dd><code>tableData</code> - table data array</dd>
 <dd><code>cmdNameColumn</code> - command name column index</dd>
 <dd><code>cmdCodeColumn</code> - command code column index</dd>
+<dd><code>cmdArgumentColumn</code> - command argument column index</dd>
 <dd><code>cmdDescColumn</code> - command description column index</dd>
 <dd><code>isCmdHeader</code> - true if this table represents the command header</dd>
 <dd><code>applicationID</code> - application ID</dd>
 </dl>
 </li>
 </ul>
-<a name="addCommand-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String-java.lang.String-java.lang.String-boolean-java.util.List-java.lang.String-">
+<a name="addCommand-org.ccsds.schema.sois.seds.NamespaceType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.util.List-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1543,6 +1529,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <pre>private&nbsp;void&nbsp;addCommand(org.ccsds.schema.sois.seds.NamespaceType&nbsp;namespace,
                         java.lang.String&nbsp;commandName,
                         java.lang.String&nbsp;cmdFuncCode,
+                        java.lang.String&nbsp;cmdArgStruct,
                         java.lang.String&nbsp;applicationID,
                         boolean&nbsp;isCmdHeader,
                         java.util.List&lt;org.ccsds.schema.sois.seds.CommandArgumentType&gt;&nbsp;arguments,
@@ -1553,6 +1540,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <dd><code>namespace</code> - name space</dd>
 <dd><code>commandName</code> - command name</dd>
 <dd><code>cmdFuncCode</code> - command code</dd>
+<dd><code>cmdArgStruct</code> - command argument name</dd>
 <dd><code>applicationID</code> - application ID</dd>
 <dd><code>isCmdHeader</code> - true if this table represents the command header</dd>
 <dd><code>arguments</code> - list of command argument types</dd>
