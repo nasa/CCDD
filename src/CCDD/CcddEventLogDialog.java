@@ -772,6 +772,22 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                          + getDateTimeStamp("yyyyMMdd_HHmmss")
                                          + ".log");
 
+                // Get the path to the log folder
+                File logDirectory = logFile.getParentFile();
+
+                // Check if the folder doesn't exist; if not then check if the folder is created
+                if (!logDirectory.isDirectory() && logDirectory.mkdir())
+                {
+                    // Inform the user that the folder was created for the log file
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Folder '</b>"
+                                                                                       + logDirectory.getAbsolutePath()
+                                                                                       + "<b>' created for event log file",
+                                                              "Create Log Folder",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+                }
+
                 // Attempt to create the log file and check if it can be written to
                 if (logFile.createNewFile() && logFile.canWrite())
                 {
@@ -831,7 +847,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                               "<html><b>Cannot locate event log file '</b>"
                                                                                        + file[0].getAbsolutePath()
                                                                                        + "<b>'",
-                                                              "File Error",
+                                                              "Log Error",
                                                               JOptionPane.ERROR_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
