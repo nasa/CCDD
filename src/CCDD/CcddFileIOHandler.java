@@ -508,9 +508,9 @@ public class CcddFileIOHandler
                             }
                             // Check if this is the beginning of the command to populate the user
                             // access level table
-                            else if (line.startsWith("COPY "
-                                                     + InternalTable.USERS.getTableName()
-                                                     + " ("))
+                            else if (line.matches("COPY (?:[^\\.]+\\.)?"
+                                                  + InternalTable.USERS.getTableName()
+                                                  + " .+"))
                             {
                                 // Set the flag to indicate the following lines contain the user
                                 // access level information
