@@ -696,8 +696,11 @@ public class CcddImportSupportHandler
                                                         DefaultInputType.XML_TLM_HDR);
         }
         // The telemetry header table name is set in the import file. Check if the project-level
-        // data fields are to be created
-        else if (isCreateField)
+        // data fields are to be created and the telemetry header table name field doesn't already
+        // exist
+        else if (isCreateField
+                 && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                               DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the telemetry header table name data field definition
             projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
@@ -721,8 +724,10 @@ public class CcddImportSupportHandler
                                                         DefaultInputType.XML_CMD_HDR);
         }
         // The command header table name is set in the import file. Check if the project-level data
-        // fields are to be created
-        else if (isCreateField)
+        // fields are to be created and the command header table name field doesn't already exist
+        else if (isCreateField
+                 && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                               DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the command header table name data field definition
             projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
@@ -753,8 +758,11 @@ public class CcddImportSupportHandler
             }
         }
         // The application ID variable name is set in the import file. Check if the project-level
-        // data fields are to be created
-        else if (isCreateField)
+        // data fields are to be created and the application ID variable name field doesn't already
+        // exist
+        else if (isCreateField
+                 && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                               DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the application ID variable name data field definition
             projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
@@ -786,8 +794,11 @@ public class CcddImportSupportHandler
             }
         }
         // The command function code variable name is set in the import file. Check if the
-        // project-level data fields are to be created
-        else if (isCreateField)
+        // project-level data fields are to be created and the command function code variable name
+        // field doesn't already exist
+        else if (isCreateField
+                 && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                               DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the application ID variable name data field definition
             projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
@@ -805,7 +816,7 @@ public class CcddImportSupportHandler
         }
 
         // Check if the project-level data fields are to be created
-        if (isCreateField)
+        if (!projectDefn.getDataFields().isEmpty())
         {
             // Build the imported project-level data fields, if any
             buildProjectAndGroupDataFields(fieldHandler, projectDefn.getDataFields());
