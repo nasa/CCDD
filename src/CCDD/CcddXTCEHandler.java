@@ -1310,7 +1310,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     BaseMetaCommand baseMetaCmd = metaCmd.getBaseMetaCommand();
 
                     // Check if the base meta-command exists
-                    if (baseMetaCmd != null)
+                    if (baseMetaCmd != null && baseMetaCmd.getArgumentAssignmentList() != null)
                     {
                         // Step through each argument assignment
                         for (ArgumentAssignment argAssn : baseMetaCmd.getArgumentAssignmentList().getArgumentAssignment())
@@ -1868,8 +1868,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Step through each dimension for the array variable
             for (Dimension dim : ((ArrayParameterRefEntryType) seqEntry).getDimensionList().getDimension())
             {
-                // Build the array size string
-                arraySize += String.valueOf(Integer.valueOf(dim.getEndingIndex().getFixedValue()) + 1) + ",";
+                // Check if the fixed value exists
+                if (dim.getEndingIndex().getFixedValue() != null)
+                {
+                    // Build the array size string
+                    arraySize += String.valueOf(Integer.valueOf(dim.getEndingIndex().getFixedValue()) + 1) + ",";
+                }
             }
 
             arraySize = CcddUtilities.removeTrailer(arraySize, ",");
@@ -2179,8 +2183,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // Step through each dimension for the array variable
                     for (Dimension dim : ((ArrayParameterRefEntryType) seqEntry).getDimensionList().getDimension())
                     {
-                        // Build the array size string
-                        arraySize += String.valueOf(Integer.valueOf(dim.getEndingIndex().getFixedValue()) + 1) + ",";
+                        // Check if the fixed value exists
+                        if (dim.getEndingIndex().getFixedValue() != null)
+                        {
+                            // Build the array size string
+                            arraySize += String.valueOf(Integer.valueOf(dim.getEndingIndex().getFixedValue()) + 1) + ",";
+                        }
                     }
 
                     arraySize = CcddUtilities.removeTrailer(arraySize, ",");
