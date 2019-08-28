@@ -2825,8 +2825,18 @@ public class CcddScriptDataAccessHandler
                     // Get the variable data type
                     String dataType = getStructureTableData(dataTypeColumnName, row);
 
-                    // Check if this data type is one of the structures
-                    if (dataType != null && structureNames.contains(dataType))
+                    // Check if the data type is a pointer to a structure
+                    if (dataTypeHandler.isPointer(dataType))
+                    {
+                        // Extract the structure from the data type's C name
+                        dataType = dataTypeHandler.getDataTypeByName(dataType)[DataTypesColumn.C_NAME.ordinal()].replaceFirst("\\s\\*", "");
+                    }
+
+                    // Check if this data type is one of the structures and not already added to
+                    // the list
+                    if (dataType != null
+                        && structureNames.contains(dataType)
+                        && !allStructs.contains(dataType))
                     {
                         // Add the structure to the structure list
                         allStructs.add(dataType);
@@ -2844,13 +2854,8 @@ public class CcddScriptDataAccessHandler
                 // last structure in the list
                 for (int index = allStructs.size() - 2; index >= 0; index--)
                 {
-                    // Check if the ordered list doesn't already contain the structure name in
-                    // order to eliminate duplicates
-                    if (!orderedNames.contains(allStructs.get(index)))
-                    {
-                        // Add the structure name to the list
-                        orderedNames.add(allStructs.get(index));
-                    }
+                    // Add the structure name to the list
+                    orderedNames.add(allStructs.get(index));
                 }
             }
 
