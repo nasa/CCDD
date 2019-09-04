@@ -831,7 +831,7 @@ public class CcddMacroHandler
                     if (exprResult != null)
                     {
                         // Set the value to expression result
-                        expandedText = String.valueOf((int) ((double) exprResult));
+                        multiText += String.valueOf((int) ((double) exprResult)) + ",";
                     }
                     // The substring isn't an expression
                     else
