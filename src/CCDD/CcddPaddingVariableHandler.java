@@ -429,14 +429,14 @@ public class CcddPaddingVariableHandler
                                 row = addPaddingVariable(row, numPads, 0);
                             }
 
+                            // Set the byte count to the size of the child structure so that
+                            // subsequent variables account for this when aligning
+                            byteCount = childPadInfo.totalSize;
+
                             // Stop searching since the matching table was found
                             break;
                         }
                     }
-
-                    // Reset the byte count since every structure is padded to the alignment
-                    // boundary
-                    byteCount = 0;
                 }
             }
 
@@ -898,13 +898,15 @@ public class CcddPaddingVariableHandler
                 }
             }
 
-            // Check if the structure has any non-zero size elements
-            if (padInfo.largestDataType != 0)
+            // Check if the structure has any non-zero size elements and does not end on the
+            // alignment point
+            if (padInfo.largestDataType != 0
+                && (padInfo.totalSize % padInfo.largestDataType) != 0)
             {
                 // Round up the total structure size to the next alignment point (padding variables
                 // will be added as needed to meet this size)
-                padInfo.totalSize += padInfo.largestDataType
-                                     - (padInfo.totalSize % padInfo.largestDataType);
+                padInfo.totalSize += padInfo.largestDataType -
+                                     (padInfo.totalSize % padInfo.largestDataType);
             }
 
             // Set the flag indicating this structure's sizes are calculated
