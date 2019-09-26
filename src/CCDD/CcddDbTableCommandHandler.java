@@ -2353,9 +2353,21 @@ public class CcddDbTableCommandHandler
                             // Check if the table contains the column
                             if (column != -1)
                             {
-                                // Replace the value in the table with the one from the custom
-                                // values table
-                                tableInfo.getData()[row][column] = rowData.getString(ValuesColumn.VALUE.getColumnName());
+                                // Check if the input type for this column is a boolean
+                                if (typeDefn.getInputTypes()[column].getInputFormat() == InputTypeFormat.BOOLEAN)
+                                {
+                                    // Store the column value as a boolean
+                                    tableInfo.getData()[row][column] = tableInfo.getData()[row][column].toString().equalsIgnoreCase("true")
+                                                                                                                                            ? true
+                                                                                                                                            : false;
+                                }
+                                // Not a boolean
+                                else
+                                {
+                                    // Replace the value in the table with the one from the custom
+                                    // values table
+                                    tableInfo.getData()[row][column] = rowData.getString(ValuesColumn.VALUE.getColumnName());
+                                }
                             }
                         }
                     }
