@@ -173,7 +173,7 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Enclose database text string objects with a delimiter. The default delimiter is single
      * quotes. If the text contains single quotes or a backslash then $$ is used instead, unless
-     * the text already contains $$, in which case $_$ is used as the delimiter
+     * the text already contains $$ or ends with $, in which case $_$ is used as the delimiter
      *
      * @param object
      *            object to be stored in the database
@@ -194,8 +194,8 @@ public class CcddDbTableCommandHandler
             // Check if the item contains a single quote or backslash character
             if (objectS.contains("'") || objectS.contains("\\"))
             {
-                // Check if the item doesn't contain $$
-                if (!objectS.contains("$$"))
+                // Check if the item doesn't contain $$ or end with $
+                if (!objectS.contains("$$") && !objectS.endsWith("$"))
                 {
                     // Use $$ as the delimiter
                     delim = "$$";
