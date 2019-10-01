@@ -493,7 +493,7 @@ public class CcddVariableHandler
                 // Check if the path contains a data type
                 if (varPath.matches(".+,.+\\..+"))
                 {
-                    // Extract the data type from the variable path
+                    // Extract the last variable's data type from the variable path
                     String dataType = varPath.substring(varPath.lastIndexOf(",") + 1,
                                                         varPath.lastIndexOf("."));
 

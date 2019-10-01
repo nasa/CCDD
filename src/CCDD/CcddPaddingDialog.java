@@ -24,12 +24,16 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddConstants.TableTreeType;
@@ -40,6 +44,8 @@ import CCDD.CcddConstants.TableTreeType;
 @SuppressWarnings("serial")
 public class CcddPaddingDialog extends CcddDialogHandler
 {
+    private JCheckBox alignChildStructsCb;
+
     /**********************************************************************************************
      * Variable padding selection dialog class constructor
      *
@@ -60,6 +66,9 @@ public class CcddPaddingDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize(final CcddMain ccddMain)
     {
+        // Create an empty border
+        Border emptyBorder = BorderFactory.createEmptyBorder();
+
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -78,7 +87,7 @@ public class CcddPaddingDialog extends CcddDialogHandler
 
         // Create a panel to contain the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+        dialogPnl.setBorder(emptyBorder);
 
         // Build the table tree showing both table prototypes and table instances; i.e., parent
         // tables with their child tables (i.e., parents with children)
@@ -97,6 +106,15 @@ public class CcddPaddingDialog extends CcddDialogHandler
                                                     false,
                                                     ccddMain.getMainFrame()),
                       gbc);
+
+        // TODO
+        // Create a check box for indicating existing tables can be replaced
+        alignChildStructsCb = new JCheckBox("Replace existing tables");
+        alignChildStructsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        alignChildStructsCb.setBorder(emptyBorder);
+        alignChildStructsCb.setToolTipText(CcddUtilities.wrapText("Replace data tables that already exist with the imported table",
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        alignChildStructsCb.setSelected(true);
 
         // Add/update padding button
         JButton btnAddUpdate = CcddButtonPanelHandler.createButton("Add/Update",
