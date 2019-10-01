@@ -752,7 +752,7 @@ public class CcddPatchHandler
                                             // command argument structure table type
                                             for (Object[] colDefn : cmdArgStructType.getData())
                                             {
-                                                // ALter the column index in order for the array
+                                                // Alter the column index in order for the array
                                                 // comparison to not fail due to an index mismatch.
                                                 // If a new type needs to be created the indices
                                                 // are assigned at that point so changing them here
@@ -1781,13 +1781,13 @@ public class CcddPatchHandler
                 // Check if the user elects to not apply the patch
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Apply patch to update the database to support user access "
-                                                                                       + "support user access levels?<br><br></b>"
-                                                                                       + "Changes the database to support user "
-                                                                                       + "access levels. <b>The current user is set "
-                                                                                       + "as the creator/administrator of "
-                                                                                       + "the database!</b> Older versions of CCDD "
-                                                                                       + "will remain compatible with this project "
-                                                                                       + "database after applying the patch",
+                                                                                       + "levels?<br><br></b>Changes the database "
+                                                                                       + "to support user access levels. <b>The "
+                                                                                       + "current user is set as the creator/"
+                                                                                       + "administrator of the database!</b> "
+                                                                                       + "Older versions of CCDD will remain "
+                                                                                       + "compatible with this project database "
+                                                                                       + "after applying the patch",
                                                               "Apply Patch #07242018",
                                                               JOptionPane.QUESTION_MESSAGE,
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)

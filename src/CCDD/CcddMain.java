@@ -3093,7 +3093,7 @@ public class CcddMain
             progPrefs.put(LOOK_AND_FEEL, selectedLaF);
 
             // Set the adjustments to the selected look & feel
-            setLaFAdjustments(selectedLaF);
+            setLaFAdjustments();
         }
         // Look & feel failed to load
         catch (Exception e)

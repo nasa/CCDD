@@ -2254,7 +2254,7 @@ public class CcddDbControlHandler
 
         try
         {
-            System.out.println("\nconnectToDatabase"); // TODO
+            // System.out.println("\nconnectToDatabase"); // TODO
             connectionStatus = NO_CONNECTION;
 
             // TODO QUESTION AS TO WHETHER setLoginTimeout() DOES ANYTHING. TRIED SETTING PROPERTY
@@ -2264,8 +2264,9 @@ public class CcddDbControlHandler
             Properties properties = new Properties();
             properties.put("connectTimeout", String.valueOf(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize() * 1000));
 
-            System.out.println(" attempt conn"); // TODO GETS HUNG UP ON THE CALL BELOW SOMETIMES.
-                                                 // WHY DOESN'T IT TIME OUT AND THROW AN EXCEPTION?
+            // System.out.println(" attempt conn"); // TODO GETS HUNG UP ON THE CALL BELOW
+            // SOMETIMES.
+            // WHY DOESN'T IT TIME OUT AND THROW AN EXCEPTION?
             // connection = DriverManager.getConnection(getDatabaseURL(databaseName) + "?user=" +
             // activeUser + "&password=" + activePassword + "&socketTimeout=5000", properties);
 
@@ -2276,7 +2277,7 @@ public class CcddDbControlHandler
             // end TODO
 
             dbCommand.setStatement(connection.createStatement());
-            System.out.println("  conn success"); // TODO
+            // System.out.println(" conn success"); // TODO
 
             // Reset the flag that indicates a connection failure occurred due to a missing or
             // invalid user name or password
@@ -2418,7 +2419,7 @@ public class CcddDbControlHandler
         }
         catch (SQLException se)
         {
-            System.out.println("  conn failed"); // TODO
+            // System.out.println(" conn failed"); // TODO
             // Check if the connection failed due to a missing or invalid password
             if ((se.getMessage().contains("authentication failed")
                  || se.getMessage().contains("password"))
@@ -2472,7 +2473,7 @@ public class CcddDbControlHandler
                                                               + getJDBCVersion());
         }
 
-        System.out.println("  return " + errorFlag); // TODO
+        // System.out.println(" return " + errorFlag); // TODO
         return errorFlag;
     }
 

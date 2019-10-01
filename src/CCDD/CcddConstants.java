@@ -6889,11 +6889,8 @@ public class CcddConstants
 
     /**********************************************************************************************
      * Set GUI adjustment(s) based on the selected look and feel
-     *
-     * @param lookAndFeel
-     *            name of the look and feel in effect
      *********************************************************************************************/
-    protected static void setLaFAdjustments(String lookAndFeel)
+    protected static void setLaFAdjustments()
     {
         // Find the width, in pixels, needed to display a vertical scroll bar by creating a dummy
         // scroll bar. Set the scroll bar to null afterwards to free up its memory

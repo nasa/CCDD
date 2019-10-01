@@ -1507,8 +1507,8 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Data type & enumeration column pairing class. Contains associated data type and enumeration
-     * column indices
+     * Data type and enumeration column pairing class. Contains associated data type and
+     * enumeration column indices
      *********************************************************************************************/
     public static class DataTypeEnumPair
     {
@@ -1516,7 +1516,7 @@ public class CcddClassesDataTable
         private final int enumeration;
 
         /******************************************************************************************
-         * Data type & enumeration column pairing class constructor
+         * Data type and enumeration column pairing class constructor
          *
          * @param dataType
          *            data type column index, model coordinates
@@ -1552,8 +1552,8 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Minimum & maximum column pairing class. Contains associated minimum value and maximum value
-     * column indices
+     * Minimum and maximum column pairing class. Contains associated minimum value and maximum
+     * value column indices
      *********************************************************************************************/
     protected static class MinMaxPair
     {

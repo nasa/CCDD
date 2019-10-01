@@ -1282,7 +1282,7 @@ extends java.lang.Object</pre>
 <pre>protected static&nbsp;java.lang.Object&nbsp;delimitText(java.lang.Object&nbsp;object)</pre>
 <div class="block">Enclose database text string objects with a delimiter. The default delimiter is single
  quotes. If the text contains single quotes or a backslash then $$ is used instead, unless
- the text already contains $$, in which case $_$ is used as the delimiter</div>
+ the text already contains $$ or ends with $, in which case $_$ is used as the delimiter</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>object</code> - object to be stored in the database</dd>
