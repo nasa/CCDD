@@ -2310,9 +2310,9 @@ public class CcddDbTableCommandHandler
                                 if (typeDefn.getInputTypes()[column].getInputFormat() == InputTypeFormat.BOOLEAN)
                                 {
                                     // Store the column value as a boolean
-                                    tableInfo.getData()[row][column] = tableInfo.getData()[row][column].toString().equalsIgnoreCase("true")
-                                                                                                                                            ? true
-                                                                                                                                            : false;
+                                    tableInfo.getData()[row][column] = rowData.getString(ValuesColumn.VALUE.getColumnName()).equalsIgnoreCase("true")
+                                                                                                                                                      ? true
+                                                                                                                                                      : false;
                                 }
                                 // Not a boolean
                                 else
