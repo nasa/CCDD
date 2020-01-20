@@ -2961,6 +2961,9 @@ public abstract class CcddJTableHandler extends JTable
      *            false to replace the cell value with a blank; true to replace the cell contents
      *            with one or more special replacement characters
      *********************************************************************************************/
+    /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+    ** it will be at runtime
+    */
     @SuppressWarnings("unchecked")
     protected void deleteCell(boolean isReplaceSpecial)
     {

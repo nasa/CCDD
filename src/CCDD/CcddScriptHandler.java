@@ -656,6 +656,9 @@ public class CcddScriptHandler
                 super.setTableSortable();
 
                 // Get a reference to the sorter
+                /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+                ** it will be at runtime
+                */
                 @SuppressWarnings("unchecked")
                 TableRowSorter<UndoableTableModel> sorter = (TableRowSorter<UndoableTableModel>) getRowSorter();
 

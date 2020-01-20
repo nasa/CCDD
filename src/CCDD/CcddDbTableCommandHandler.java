@@ -3197,11 +3197,25 @@ public class CcddDbTableCommandHandler
                                         boolean skipInternalTables)
     {
         StringBuilder addCmd = new StringBuilder("");
+        ResultSet queryResult;
+        int nextKeyValue = 0;
+        
+        try {
+            /* Retrieve the largest key value in the database and then add 1 to it. This will 
+            ** be the value used for the next insert to keep them unique. 
+            */
+            queryResult = dbCommand.executeDbQuery("SELECT _key_ FROM " + dbTableName + 
+        	    " WHERE _key_ = (SELECT MAX(_key_) FROM " + dbTableName + ");", ccddMain.getMainFrame());
+            queryResult.next();
+            nextKeyValue = queryResult.getInt(1) + 1;
+        } catch (Exception e) {
+		e.printStackTrace();
+        }
 
         // Check if there are any table additions
         if (!additions.isEmpty())
         {
-            List<String> stringArrays = new ArrayList<String>();
+            List<String>  stringArrays = new ArrayList<String>();
             StringBuilder valuesAddCmd = new StringBuilder("");
             StringBuilder groupsAddCmd = new StringBuilder("");
             StringBuilder fieldsAddCmd = new StringBuilder("");
@@ -3221,7 +3235,8 @@ public class CcddDbTableCommandHandler
             // Step through each addition
             for (TableModification add : additions)
             {
-                addCmd.append("(DEFAULT, ");
+                addCmd.append("(" + Integer.toString(nextKeyValue) + ", ");
+                nextKeyValue++;
 
                 // For each column in the matching row
                 for (int column = 0; column < add.getRowData().length; column++)

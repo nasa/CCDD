@@ -96,11 +96,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox openEditorCb;
     private JCheckBox ignoreErrorsCb;
     private JCheckBox backupFirstCb;
+    private JCheckBox deleteNonExistingFilesCb;
+    private JCheckBox doReservedMessageIDsExistCb;
+    private JCheckBox importEntireDatabaseCb;
+    private JCheckBox includesProjectFieldsCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
     private JCheckBox includeProjectFieldsCb;
     private JCheckBox includeGroupsCb;
     private JCheckBox includeAssociationsCb;
+    private JCheckBox includeTlmSchedCB;
+    private JCheckBox includeAppSchedCB;
+    private JCheckBox exportEntireDatabaseCb;
     private JCheckBox includeAllTableTypesCb;
     private JCheckBox includeAllDataTypesCb;
     private JCheckBox includeAllInputTypesCb;
@@ -461,8 +468,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                         break;
 
-                    case IMPORT:
+                    case IMPORT_JSON:
                         break;
+                    case IMPORT_CSV:
+                    	break;
+                    case IMPORT_EDS:
+                    	break;
+                    case IMPORT_XTCE:
+                    	break;
 
                     case EXPORT_CSV:
                     case EXPORT_XTCE:
@@ -622,21 +635,15 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                             break;
 
-                        case IMPORT:
+                        case IMPORT_JSON:
                             // Allow the user to select the data file path + name(s) from which to
                             // import, and the import options
                             FileEnvVar[] filePath = choosePathFile(ccddMain,
                                                                    caller,
                                                                    null,
                                                                    "export",
-                                                                   new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
-                                                                                                                              FileExtension.CSV.getExtensionName()),
-                                                                                                  new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
-                                                                                                                              FileExtension.EDS.getExtensionName()),
-                                                                                                  new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                                              FileExtension.JSON.getExtensionName()),
-                                                                                                  new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
-                                                                                                                              FileExtension.XTCE.getExtensionName())},
+                                                                   new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                                              FileExtension.JSON.getExtensionName())},
                                                                    false,
                                                                    true,
                                                                    "Import Data",
@@ -658,10 +665,20 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      ignoreErrorsCb.isSelected(),
                                                                      replaceExistingMacrosCb.isSelected(),
                                                                      replaceExistingGroupsCb.isSelected(),
+                                                                     deleteNonExistingFilesCb.isSelected(),
+                                                                     doReservedMessageIDsExistCb.isSelected(),
+                                                                     includesProjectFieldsCb.isSelected(),
+                                                                     FileExtension.JSON,
                                                                      CcddTableManagerDialog.this);
                             }
 
                             break;
+                        case IMPORT_CSV:
+                        	break;
+                        case IMPORT_EDS:
+                        	break;
+                        case IMPORT_XTCE:
+                        	break;
 
                         case EXPORT_CSV:
                         case EXPORT_XTCE:
@@ -731,6 +748,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                (includeAssociationsCb != null
                                                                                                               ? includeAssociationsCb.isSelected()
                                                                                                               : false),
+                                                                               (includeTlmSchedCB != null
+                                                   							   							   ? includeTlmSchedCB.isSelected()
+                                   							   									   		   : false),
+                                                                               (includeAppSchedCB != null
+                                                   							   							   ? includeAppSchedCB.isSelected()
+                                   							   									   		   : false),
                                                                                (includeVariablePaths != null
                                                                                                              ? includeVariablePaths.isSelected()
                                                                                                              : false),
@@ -942,36 +965,46 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private JPanel createImportPanel(GridBagConstraints gbc)
     {
-        // Create a panel to hold the dialog components
+        /* Create a panel to hold the dialog components */
         JPanel dialogPnl = new JPanel(new GridBagLayout());
+        
+        /* Create a check box for indicating if an entire database is to be imported */
+        importEntireDatabaseCb = new JCheckBox("Importing an entire database");
+        importEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        importEntireDatabaseCb.setBorder(emptyBorder);
+        importEntireDatabaseCb.setToolTipText(CcddUtilities.wrapText("Check this box if a complete database is about to be imported.",
+                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.bottom = 0;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        dialogPnl.add(importEntireDatabaseCb, gbc);
 
-        // Create a check box for indicating existing tables can be replaced
+        /* Create a check box for indicating existing tables can be replaced */
         replaceExistingTablesCb = new JCheckBox("Replace existing tables");
         replaceExistingTablesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingTablesCb.setBorder(emptyBorder);
         replaceExistingTablesCb.setToolTipText(CcddUtilities.wrapText("Replace data tables that already exist with the imported table",
                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-        // Add a listener for changes to the Replace Existing Tables check box selection status
-        replaceExistingTablesCb.addActionListener(new ActionListener()
-        {
+        /* Add a listener for changes to the Replace Existing Tables check box selection status */
+        replaceExistingTablesCb.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Handle a change to the Replace Existing Tables check box selection status
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Set the Append Existing Fields check box status based on the Replace Existing
-                // Tables check box status
+            public void actionPerformed(ActionEvent ae) {
+                /* Set the Append Existing Fields check box status based on the Replace Existing
+                ** Tables check box status
+                */
                 appendExistingFieldsCb.setEnabled(replaceExistingTablesCb.isSelected());
             }
         });
 
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.top = 0;
+        gbc.gridy++;
         dialogPnl.add(replaceExistingTablesCb, gbc);
 
-        // Create a check box for indicating existing data fields are retained
+        /* Create a check box for indicating existing data fields are retained */
         appendExistingFieldsCb = new JCheckBox("Append existing data fields");
         appendExistingFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         appendExistingFieldsCb.setBorder(emptyBorder);
@@ -979,17 +1012,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         appendExistingFieldsCb.setEnabled(false);
 
-        // Add a listener for changes to the Append Existing Fields check box selection status
-        appendExistingFieldsCb.addActionListener(new ActionListener()
-        {
+        /* Add a listener for changes to the Append Existing Fields check box selection status */
+        appendExistingFieldsCb.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Handle a change to the Append Existing Fields check box selection status
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Set the Use Existing Fields check box status based on the Append Existing Fields
-                // check box status
+            public void actionPerformed(ActionEvent ae) {
+                /* Set the Use Existing Fields check box status based on the Append Existing Fields
+                ** check box status
+                */
                 useExistingFieldsCb.setEnabled(appendExistingFieldsCb.isSelected());
             }
         });
@@ -999,7 +1031,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(appendExistingFieldsCb, gbc);
 
-        // Create a check box for indicating existing tables can be replaced
+        /* Create a check box for indicating existing tables can be replaced */
         useExistingFieldsCb = new JCheckBox("Use existing field if duplicate");
         useExistingFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         useExistingFieldsCb.setBorder(emptyBorder);
@@ -1011,17 +1043,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(useExistingFieldsCb, gbc);
 
-        // Create a check box for indicating existing macro values can be replaced
+        /* Create a check box for indicating existing macro values can be replaced */
         replaceExistingMacrosCb = new JCheckBox("Replace existing macro values");
         replaceExistingMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingMacrosCb.setBorder(emptyBorder);
         replaceExistingMacrosCb.setToolTipText(CcddUtilities.wrapText("Replace macro values for macros that already exist",
                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridy++;
+        gbc.gridy = 0;
+        gbc.gridx++;
         dialogPnl.add(replaceExistingMacrosCb, gbc);
 
-        // Create a check box for indicating existing group definitions can be replaced
+        /* Create a check box for indicating existing group definitions can be replaced */
         replaceExistingGroupsCb = new JCheckBox("Replace existing groups");
         replaceExistingGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingGroupsCb.setBorder(emptyBorder);
@@ -1031,8 +1064,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(replaceExistingGroupsCb, gbc);
 
-        // Create a check box for indicating that the a table editor should be opened for each
-        // imported table
+        /* Create a check box for indicating that the a table editor should be opened for each
+        ** imported table
+        */
         openEditorCb = new JCheckBox("Open editor for each imported table");
         openEditorCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         openEditorCb.setBorder(emptyBorder);
@@ -1041,8 +1075,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(openEditorCb, gbc);
 
-        // Create a check box for indicating that all errors in the import file should be
-        // ignored
+        /* Create a check box for indicating that all errors in the import file should be
+        ** ignored
+        */
         ignoreErrorsCb = new JCheckBox("Ignore all import file errors");
         ignoreErrorsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         ignoreErrorsCb.setBorder(emptyBorder);
@@ -1052,8 +1087,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(ignoreErrorsCb, gbc);
 
-        // Create a check box for indicating that the project should be backed up prior to
-        // importing tables
+        /* Create a check box for indicating that the project should be backed up prior to
+        ** importing tables
+        */
         backupFirstCb = new JCheckBox("Backup project before importing");
         backupFirstCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         backupFirstCb.setBorder(emptyBorder);
@@ -1062,8 +1098,66 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.insets.bottom = 0;
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
+        gbc.gridx = 0;
         dialogPnl.add(backupFirstCb, gbc);
+        
+        /* Create a check box for indicating if files that are not in the import should be deleted
+        ** from the database.
+        */
+        deleteNonExistingFilesCb = new JCheckBox("Delete absent files");
+        deleteNonExistingFilesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        deleteNonExistingFilesCb.setBorder(emptyBorder);
+        deleteNonExistingFilesCb.setToolTipText(CcddUtilities.wrapText("If a file is not in the import it will be deleted from the database."
+        																+ "Use this selection when importing entire database from JSON.",
+                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.bottom = 0;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridx++;
+        dialogPnl.add(deleteNonExistingFilesCb, gbc);
+        
+        /* Create a check box for indicating if the files to be imported contain reserved message IDs */
+        doReservedMessageIDsExistCb = new JCheckBox("Includes reserved message IDs");
+        doReservedMessageIDsExistCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        doReservedMessageIDsExistCb.setBorder(emptyBorder);
+        doReservedMessageIDsExistCb.setToolTipText(CcddUtilities.wrapText("Check this box if the files that are about to be imported contain"
+        																	+ " Reserved message IDs.",
+                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.bottom = 0;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridx = 0;
+        gbc.gridy++;
+        dialogPnl.add(doReservedMessageIDsExistCb, gbc);
+        
+        /* Create a check box for indicating if the fies to be imported include project fields */
+        includesProjectFieldsCb = new JCheckBox("Includes project fields");
+        includesProjectFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        includesProjectFieldsCb.setBorder(emptyBorder);
+        includesProjectFieldsCb.setToolTipText(CcddUtilities.wrapText("Check this box if the files to be imported include project fields.",
+                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.bottom = 0;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridx++;
+        dialogPnl.add(includesProjectFieldsCb, gbc);
+        
+        /* Add a listener for changes to the i,port entire database check box selection status */
+        importEntireDatabaseCb.addActionListener(new ActionListener() {
+            /**************************************************************************************
+             * Handle a change to the Replace Existing Tables check box selection status
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+            	replaceExistingTablesCb.setEnabled(!importEntireDatabaseCb.isSelected());
+            	replaceExistingTablesCb.setSelected(importEntireDatabaseCb.isSelected());
 
+            	replaceExistingGroupsCb.setEnabled(!importEntireDatabaseCb.isSelected());
+            	replaceExistingGroupsCb.setSelected(importEntireDatabaseCb.isSelected());
+
+            	deleteNonExistingFilesCb.setEnabled(!importEntireDatabaseCb.isSelected());
+            	deleteNonExistingFilesCb.setSelected(importEntireDatabaseCb.isSelected());
+            	
+                appendExistingFieldsCb.setEnabled(importEntireDatabaseCb.isSelected());
+            }
+        });
         return dialogPnl;
     }
 
@@ -1082,16 +1176,15 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     {
         JPanel dialogPnl = null;
 
-        // Check if the export command originated from the main menu
-        if (callingEditorDlg == null)
-        {
-            // Create a panel containing a table tree for the dialog components
+        /* Check if the export command originated from the main menu */
+        if (callingEditorDlg == null) {
+            /* Create a panel containing a table tree for the dialog components */
             dialogPnl = createSelectionPanel("Select table(s) to export",
                                              gbc,
                                              TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                              TableTreeType.TABLES);
 
-            // Add a separator
+            /* Add a separator */
             JSeparator upperSep = new JSeparator();
             upperSep.setForeground(dialogPnl.getBackground().darker());
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
@@ -1101,24 +1194,21 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             dialogPnl.add(upperSep, gbc);
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
 
-            // Check if exporting in CSV or JSON format
-            if (dialogType == ManagerDialogType.EXPORT_CSV
-                || dialogType == ManagerDialogType.EXPORT_JSON)
-            {
-                // Create a panel to contain the store in file(s) radio buttons
+            /* Check if exporting in CSV or JSON format */
+            if (dialogType == ManagerDialogType.EXPORT_CSV || dialogType == ManagerDialogType.EXPORT_JSON) {
+                /* Create a panel to contain the store in file(s) radio buttons */
                 JPanel storeInPnl = new JPanel(new GridBagLayout());
                 storeInPnl.setBorder(emptyBorder);
 
-                // Create the label for the store in file(s) radio button panel
+                /* Create the label for the store in file(s) radio button panel */
                 JLabel storeInLbl = new JLabel("Store in");
                 storeInLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = 0;
                 storeInPnl.add(storeInLbl, gbc);
 
-                // Set up storage for the store in file(s) radio buttons
+                /* Set up storage for the store in file(s) radio buttons */
                 ButtonGroup storeInRBtnGroup = new ButtonGroup();
                 singleFileRBtn = new JRadioButton("Single file");
-                singleFileRBtn.setSelected(false);
                 singleFileRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 singleFileRBtn.setBorder(emptyBorder);
                 storeInRBtnGroup.add(singleFileRBtn);
@@ -1131,7 +1221,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 storeInPnl.add(multipleFileRBtn, gbc);
 
-                // Add the store in file(s) selection components to the dialog
+                /* Add the store in file(s) selection components to the dialog */
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.fill = GridBagConstraints.NONE;
                 gbc.weightx = 0.0;
@@ -1141,66 +1231,59 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.weightx = 1.0;
                 gbc.fill = GridBagConstraints.BOTH;
 
-                // Add a listener for the single file radio button selection changes
-                singleFileRBtn.addActionListener(new ActionListener()
-                {
+                /* Add a listener for the single file radio button selection changes */
+                singleFileRBtn.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Respond to changes in selection of a the store in single file radio button
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Set the file/path label text
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Set the file/path label text */
                         exportLbl.setText("Enter or select an export file");
 
-                        // Add the file name to the path in the file/path field
+                        /* Add the file name to the path in the file/path field */
                         setFilePath(true, fileExtn);
                     }
                 });
 
-                // Add a listener for the multiple file radio button selection changes
-                multipleFileRBtn.addActionListener(new ActionListener()
-                {
+                /* Add a listener for the multiple file radio button selection changes */
+                multipleFileRBtn.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Respond to changes in selection of a the store in multiple file radio button
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        if (((JRadioButton) ae.getSource()).isSelected())
-                        {
-                            // Set the file/path label text
+                    public void actionPerformed(ActionEvent ae) {
+                        if (((JRadioButton) ae.getSource()).isSelected()) {
+                            /* Set the file/path label text */
                             exportLbl.setText("Enter or select an export path");
 
-                            // Remove the file name from the path in the file/path field
+                            /* Remove the file name from the path in the file/path field */
                             setFilePath(false, fileExtn);
                         }
                     }
                 });
 
-                // Set single file as the initial selection
-                singleFileRBtn.setSelected(true);
+                /* Set single file as the initial selection */
+                multipleFileRBtn.setSelected(true);
             }
         }
-        // The export command originated from a table editor dialog menu
-        else
-        {
-            // Create an empty panel for the dialog components
+        /* The export command originated from a table editor dialog menu */
+        else {
+            /* Create an empty panel for the dialog components */
             dialogPnl = new JPanel(new GridBagLayout());
             gbc.insets.bottom = 0;
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         }
 
-        // Check that the panel was created; i.e., that there are tables available for exporting
-        if (dialogPnl != null)
-        {
-            // Add the export storage path components to the dialog
+        /* Check that the panel was created; i.e., that there are tables available for exporting */
+        if (dialogPnl != null) {
+            /* Add the export storage path components to the dialog */
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
 
-            // Create a check box for indicating existing files can be replaced
+            /* Create a check box for indicating existing files can be replaced */
             overwriteFileCb = new JCheckBox("Overwrite existing file"
                                             + (dialogType == ManagerDialogType.EXPORT_CSV
                                                || dialogType == ManagerDialogType.EXPORT_JSON
@@ -1212,33 +1295,22 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.gridy++;
             dialogPnl.add(overwriteFileCb, gbc);
+            
+            /* Overwrite files is set to checked by default */
+            overwriteFileCb.setSelected(true);
 
-            // Check if exporting in CSV or JSON format
-            if (dialogType == ManagerDialogType.EXPORT_CSV
-                || dialogType == ManagerDialogType.EXPORT_JSON)
-            {
-                // Create the macro replacement check box
-                replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
-                replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                replaceMacrosCb.setBorder(emptyBorder);
-                replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
-                                                                      + "corresponding values prior to exporting the "
-                                                                      + "table(s).  If not checked, the macro names are "
-                                                                      + "retained and the macro information is stored "
-                                                                      + "with the exported table(s)",
-                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.weightx = 0.0;
-                gbc.gridy++;
-                dialogPnl.add(replaceMacrosCb, gbc);
 
-                // Add a separator
+            /* Check if exporting in CSV or JSON format */
+            if (dialogType == ManagerDialogType.EXPORT_CSV || dialogType == ManagerDialogType.EXPORT_JSON) {
+
+                /* Add a separator */
                 JSeparator lowerSep = new JSeparator();
                 lowerSep.setForeground(dialogPnl.getBackground().darker());
                 gbc.weightx = 1.0;
                 gbc.gridy++;
                 dialogPnl.add(lowerSep, gbc);
 
-                // Create panels to contain the include labels and check boxes
+                /* Create panels to contain the include labels and check boxes */
                 JPanel lowerPnl = new JPanel(new GridBagLayout());
                 JPanel includePnl = new JPanel(new GridBagLayout());
                 JPanel separatorPnl = new JPanel(new GridBagLayout());
@@ -1255,13 +1327,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 lowerPnl.add(separatorPnl, gbc);
 
-                // Add a dummy label so that when the dialog width increases the lower panel
-                // remains unchanged in size and position
+                /* Add a dummy label so that when the dialog width increases the lower panel
+                ** remains unchanged in size and position
+                */
                 gbc.weightx = 1.0;
                 gbc.gridx++;
                 lowerPnl.add(new JLabel(""), gbc);
 
-                // Add the "Include" label
+                /* Add the "Include" label */
                 JLabel includeLbl = new JLabel("Include:");
                 includeLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
@@ -1270,8 +1343,53 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 includePnl.add(includeLbl, gbc);
+                
+                /* Create the export entire database check box */
+                exportEntireDatabaseCb = new JCheckBox("Export full database");
+                exportEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                exportEntireDatabaseCb.setBorder(emptyBorder);
+                exportEntireDatabaseCb.setToolTipText(CcddUtilities.wrapText("Check this box if exporting the entire database",
+                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.gridy++;
+                includePnl.add(exportEntireDatabaseCb, gbc);
 
-                // Create the include all table type definitions check box
+                /* Add a listener for changes to the export entire database check box selection status */
+                exportEntireDatabaseCb.addActionListener(new ActionListener()
+                {
+                    /**************************************************************************************
+                     * Handle a change to the Replace Existing Tables check box selection status
+                     *************************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                    	includeAllTableTypesCb.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeAllTableTypesCb.setSelected(exportEntireDatabaseCb.isSelected());
+                    	
+                    	includeAllDataTypesCb.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeAllDataTypesCb.setSelected(exportEntireDatabaseCb.isSelected());
+
+                    	includeAllInputTypesCb.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeAllInputTypesCb.setSelected(exportEntireDatabaseCb.isSelected());
+
+                    	includeAllMacrosCb.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeAllMacrosCb.setSelected(exportEntireDatabaseCb.isSelected());
+
+                    	includeGroupsCb.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeGroupsCb.setSelected(exportEntireDatabaseCb.isSelected());
+                    	
+                    	includeAssociationsCb.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeAssociationsCb.setSelected(exportEntireDatabaseCb.isSelected());
+                    	
+                    	includeTlmSchedCB.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeTlmSchedCB.setSelected(exportEntireDatabaseCb.isSelected());
+                    	
+                    	includeAppSchedCB.setEnabled(!exportEntireDatabaseCb.isSelected());
+                    	includeAppSchedCB.setSelected(exportEntireDatabaseCb.isSelected());
+                    }
+                });
+                
+                /* Create the include all table type definitions check box */
                 includeAllTableTypesCb = new JCheckBox("All table type definitions");
                 includeAllTableTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllTableTypesCb.setBorder(emptyBorder);
@@ -1282,7 +1400,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 includePnl.add(includeAllTableTypesCb, gbc);
 
-                // Create the include all data type definitions check box
+                /* Create the include all data type definitions check box */
                 includeAllDataTypesCb = new JCheckBox("All data type definitions");
                 includeAllDataTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllDataTypesCb.setBorder(emptyBorder);
@@ -1292,7 +1410,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 includePnl.add(includeAllDataTypesCb, gbc);
 
-                // Create the include all user-defined input type definitions check box
+                /* Create the include all user-defined input type definitions check box */
                 includeAllInputTypesCb = new JCheckBox("All user-defined input type definitions");
                 includeAllInputTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllInputTypesCb.setBorder(emptyBorder);
@@ -1303,7 +1421,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 includePnl.add(includeAllInputTypesCb, gbc);
 
-                // Create the include all macro definitions check box
+                /* Create the include all macro definitions check box */
                 includeAllMacrosCb = new JCheckBox("All macro definitions");
                 includeAllMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAllMacrosCb.setBorder(emptyBorder);
@@ -1313,7 +1431,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 includePnl.add(includeAllMacrosCb, gbc);
 
-                // Create the reserved message ID inclusion check box
+                /* Create the reserved message ID inclusion check box */
                 includeReservedMsgIDsCb = new JCheckBox("Reserved message IDs");
                 includeReservedMsgIDsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeReservedMsgIDsCb.setBorder(emptyBorder);
@@ -1326,7 +1444,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 includePnl.add(includeReservedMsgIDsCb, gbc);
 
-                // Create the project-level data field inclusion check box
+                /* Create the project-level data field inclusion check box */
                 includeProjectFieldsCb = new JCheckBox("Project data fields");
                 includeProjectFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeProjectFieldsCb.setBorder(emptyBorder);
@@ -1336,7 +1454,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 includePnl.add(includeProjectFieldsCb, gbc);
 
-                // Create the group definitions and data field inclusion check box
+                /* Create the group definitions and data field inclusion check box */
                 includeGroupsCb = new JCheckBox("Group definitions and data fields");
                 includeGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeGroupsCb.setBorder(emptyBorder);
@@ -1347,7 +1465,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 includePnl.add(includeGroupsCb, gbc);
 
-                // Create the script associations inclusion check box
+                /* Create the script associations inclusion check box */
                 includeAssociationsCb = new JCheckBox("Script associations");
                 includeAssociationsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAssociationsCb.setBorder(emptyBorder);
@@ -1356,8 +1474,29 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.gridx++;
                 includePnl.add(includeAssociationsCb, gbc);
+                
+                /* Create the table definitions inclusion check box */
+                includeTlmSchedCB = new JCheckBox("Tlm Scheduler");
+                includeTlmSchedCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeTlmSchedCB.setBorder(emptyBorder);
+                includeTlmSchedCB.setToolTipText(CcddUtilities.wrapText("If checked, the telemetry scheduler "
+                														 + " table will be exported in a file",
+                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
+                gbc.gridy++;
+                includePnl.add(includeTlmSchedCB, gbc);
+                
+                /* Create the table definitions inclusion check box */
+                includeAppSchedCB = new JCheckBox("App Scheduler");
+                includeAppSchedCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeAppSchedCB.setBorder(emptyBorder);
+                includeAppSchedCB.setToolTipText(CcddUtilities.wrapText("If checked, the application scheduler "
+                														 + " table will be exported in a file",
+                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx++;
+                includePnl.add(includeAppSchedCB, gbc);
 
-                // Create the check box for inclusion of variable paths
+                /* Create the check box for inclusion of variable paths */
                 includeVariablePaths = new JCheckBox("Variable paths");
                 includeVariablePaths.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeVariablePaths.setBorder(emptyBorder);
@@ -1365,16 +1504,31 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                            + "is included, both in the application format and "
                                                                            + "using the separator characters specified by the user",
                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.gridx = 0;
+            	gbc.gridx = 0;
                 gbc.gridy++;
                 includePnl.add(includeVariablePaths, gbc);
+                
+                /* Create the macro replacement check box */
+                replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
+                replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                replaceMacrosCb.setBorder(emptyBorder);
+                replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
+                                                                      + "corresponding values prior to exporting the "
+                                                                      + "table(s).  If not checked, the macro names are "
+                                                                      + "retained and the macro information is stored "
+                                                                      + "with the exported table(s)",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx++;
+                includePnl.add(replaceMacrosCb, gbc);
 
-                // Create the variable path separator label and input field, and add them to the
-                // dialog panel
+                /* Create the variable path separator label and input field, and add them to the
+                ** dialog panel
+                */
                 final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 varPathSepLbl.setEnabled(false);
                 gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+                gbc.gridx = 0;
                 gbc.gridy = 0;
                 separatorPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField("_", 5);
@@ -1387,8 +1541,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 separatorPnl.add(varPathSepFld, gbc);
 
-                // Create the data type/variable name separator label and input field, and add them
-                // to the dialog panel
+                /* Create the data type/variable name separator label and input field, and add them
+                ** to the dialog panel
+                */
                 final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 typeNameSepLbl.setEnabled(false);
@@ -1405,7 +1560,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 separatorPnl.add(typeNameSepFld, gbc);
 
-                // Create a check box for hiding data types
+                /* Create a check box for hiding data types */
                 hideDataTypeCb = new JCheckBox("Hide data types");
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
@@ -1414,33 +1569,31 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 separatorPnl.add(hideDataTypeCb, gbc);
 
-                // Add a listener for the hide data type check box
-                hideDataTypeCb.addActionListener(new ActionListener()
-                {
+                /* Add a listener for the hide data type check box */
+                hideDataTypeCb.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Handle a change in the hide data type check box status
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Enable/disable the data type/variable name separator input label and
-                        // field
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Enable/disable the data type/variable name separator input label and
+                        ** field
+                        */
                         typeNameSepLbl.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
                         typeNameSepFld.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
                     }
                 });
 
-                // Add a listener for the variable paths check box selection changes
-                includeVariablePaths.addActionListener(new ActionListener()
-                {
+                /* Add a listener for the variable paths check box selection changes */
+                includeVariablePaths.addActionListener(new ActionListener() {
                     /**********************************************************************************
                      * Respond to changes in selection of the include variable paths check box
                      *********************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Enable/disable the separator inputs based on the inclusion check box
-                        // state
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Enable/disable the separator inputs based on the inclusion check box
+                        ** state
+                        */
                         varPathSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected());
                         varPathSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected());
                         typeNameSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected()
@@ -1452,21 +1605,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 });
             }
 
-            // Check if exporting in EDS or XTCE XML format
-            if (dialogType == ManagerDialogType.EXPORT_EDS
-                || dialogType == ManagerDialogType.EXPORT_XTCE)
-            {
-                // Create a panel to contain the endianess radio buttons
+            /* Check if exporting in EDS or XTCE XML format */
+            if (dialogType == ManagerDialogType.EXPORT_EDS || dialogType == ManagerDialogType.EXPORT_XTCE) {
+                /* Create a panel to contain the endianess radio buttons */
                 JPanel endianessPnl = new JPanel(new GridBagLayout());
                 endianessPnl.setBorder(emptyBorder);
 
-                // Create the label for the endianess radio button panel
+                /* Create the label for the endianess radio button panel */
                 JLabel endianessLbl = new JLabel("Endianess");
                 endianessLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = 0;
                 endianessPnl.add(endianessLbl, gbc);
 
-                // Set up storage for the endianess radio buttons
+                /* Set up storage for the endianess radio buttons */
                 ButtonGroup endianessRBtnGroup = new ButtonGroup();
                 bigRBtn = new JRadioButton("Big", true);
                 bigRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -1481,36 +1632,33 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 endianessPnl.add(littleRBtn, gbc);
 
-                // Add a listener for big endian radio button selection
-                bigRBtn.addActionListener(new ActionListener()
-                {
+                /* Add a listener for big endian radio button selection */
+                bigRBtn.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Respond to a change in selection of the big endian radio button
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Disable the big endian header check box (since all of the output is big
-                        // endian)
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Disable the big endian header check box (since all of the output is big
+                        ** endian)
+                        */
                         headerBigCBox.setEnabled(false);
                     }
                 });
 
-                // Add a listener for little endian radio button selection
-                littleRBtn.addActionListener(new ActionListener()
-                {
+                /* Add a listener for little endian radio button selection */
+                littleRBtn.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Respond to a change in selection of the little endian radio button
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Enable the big endian header check box
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Enable the big endian header check box */
                         headerBigCBox.setEnabled(true);
                     }
                 });
 
-                // Create the header endianess check box
+                /* Create the header endianess check box */
                 headerBigCBox = new JCheckBox("Headers are big endian");
                 headerBigCBox.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 headerBigCBox.setBorder(emptyBorder);
@@ -1520,7 +1668,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 endianessPnl.add(headerBigCBox, gbc);
 
-                // Add the endianess selection components to the dialog
+                /* Add the endianess selection components to the dialog */
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.fill = GridBagConstraints.NONE;
                 gbc.weightx = 0.0;
@@ -1529,13 +1677,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 dialogPnl.add(endianessPnl, gbc);
             }
 
-            // Check if exporting in XTCE XML format
-            if (dialogType == ManagerDialogType.EXPORT_XTCE)
-            {
-                // Create a panel to contain the script file components
+            /* Check if exporting in XTCE XML format */
+            if (dialogType == ManagerDialogType.EXPORT_XTCE) {
+                /* Create a panel to contain the script file components */
                 JPanel scriptPnl = new JPanel(new GridBagLayout());
 
-                // Create the use external (script) methods check box
+                /* Create the use external (script) methods check box */
                 useExternalCBox = new JCheckBox("Use external methods");
                 useExternalCBox.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 useExternalCBox.setBorder(emptyBorder);
@@ -1564,23 +1711,21 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 scriptPnl.add(scriptNameFld, gbc);
 
-                // Create a button for choosing an output script
+                /* Create a button for choosing an output script */
                 final JButton btnSelectScript = CcddButtonPanelHandler.createButton("Select...",
                                                                                     SCRIPTS_ICON,
                                                                                     KeyEvent.VK_S,
                                                                                     "Open the script selection dialog");
                 btnSelectScript.setEnabled(false);
 
-                // Add a listener for the Select script button
-                btnSelectScript.addActionListener(new ActionListener()
-                {
+                /* Add a listener for the Select script button */
+                btnSelectScript.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Select a script
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Allow the user to select the script file path + name
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Allow the user to select the script file path + name */
                         FileEnvVar[] scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                                          CcddTableManagerDialog.this,
                                                                                          null,
@@ -1592,35 +1737,33 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                                      null),
                                                                                          DialogOption.OK_CANCEL_OPTION);
 
-                        // Check if a script file is selected
-                        if (scriptFile != null && scriptFile[0] != null)
-                        {
-                            // Display the file name in the script name field
+                        /* Check if a script file is selected */
+                        if (scriptFile != null && scriptFile[0] != null) {
+                            /* Display the file name in the script name field */
                             scriptNameFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
 
-                            // Store the XTCE export script file name
+                            /* Store the XTCE export script file name */
                             ccddMain.getProgPrefs().put(ModifiablePathInfo.XTCE_EXPORT_SCRIPT.getPreferenceKey(),
                                                         scriptNameFld.getText());
                         }
                     }
                 });
 
-                // Add the select script button to the dialog
+                /* Add the select script button to the dialog */
                 gbc.weightx = 0.0;
                 gbc.gridx++;
                 scriptPnl.add(btnSelectScript, gbc);
 
-                // Add a listener for the variable paths check box selection changes
-                useExternalCBox.addActionListener(new ActionListener()
-                {
+                /* Add a listener for the variable paths check box selection changes */
+                useExternalCBox.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Respond to changes in selection of the include variable paths check box
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Enable/disable the separator inputs based on the inclusion check box
-                        // state
+                    public void actionPerformed(ActionEvent ae) {
+                        /* Enable/disable the separator inputs based on the inclusion check box
+                        ** state
+                        */
                         scriptNameLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected());
                         scriptNameFld.setEnabled(((JCheckBox) ae.getSource()).isSelected());
                         btnSelectScript.setEnabled(((JCheckBox) ae.getSource()).isSelected());
@@ -1631,11 +1774,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 dialogPnl.add(scriptPnl, gbc);
 
-                // Create the panels to hold the XTCE components of the dialog
+                /* Create the panels to hold the XTCE components of the dialog */
                 JPanel infoPnl = new JPanel(new GridBagLayout());
                 JPanel classPnl = new JPanel(new GridBagLayout());
 
-                // Create the attributes label
+                /* Create the attributes label */
                 JLabel descriptionLbl = new JLabel("XTCE Attributes");
                 descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 descriptionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
@@ -1645,7 +1788,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 dialogPnl.add(descriptionLbl, gbc);
 
-                // Create the version label
+                /* Create the version label */
                 JLabel versionLbl = new JLabel("Version");
                 versionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 versionLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
@@ -1653,7 +1796,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.weightx = 0.0;
                 infoPnl.add(versionLbl, gbc);
 
-                // Create the version input field
+                /* Create the version input field */
                 versionFld = new JTextField("1.0");
                 versionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 versionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1664,7 +1807,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 infoPnl.add(versionFld, gbc);
 
-                // Create the validation status label
+                /* Create the validation status label */
                 JLabel validStatLbl = new JLabel("Validation Status");
                 validStatLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 validStatLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
@@ -1674,7 +1817,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 infoPnl.add(validStatLbl, gbc);
 
-                // Create the validation status input field
+                /* Create the validation status input field */
                 validStatFld = new JTextField("Working");
                 validStatFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 validStatFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1683,7 +1826,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 infoPnl.add(validStatFld, gbc);
 
-                // Create the classification label
+                /* Create the classification label */
                 JLabel classLbl = new JLabel("Classification");
                 classLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 classLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
@@ -1692,7 +1835,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 infoPnl.add(classLbl, gbc);
 
-                // Create the first level classification label
+                /* Create the first level classification label */
                 JLabel class1Lbl = new JLabel("First level");
                 class1Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 class1Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
@@ -1702,7 +1845,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 classPnl.add(class1Lbl, gbc);
 
-                // Create the first classification input fields
+                /* Create the first classification input fields */
                 class1Fld = new JTextField("DOMAIN");
                 class1Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 class1Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1712,7 +1855,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 classPnl.add(class1Fld, gbc);
 
-                // Create the second level classification label
+                /* Create the second level classification label */
                 JLabel class2Lbl = new JLabel("Second level");
                 class2Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 class2Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
@@ -1721,7 +1864,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 classPnl.add(class2Lbl, gbc);
 
-                // Create the second level classification input fields
+                /* Create the second level classification input fields */
                 class2Fld = new JTextField("SYSTEM");
                 class2Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 class2Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1731,7 +1874,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 classPnl.add(class2Fld, gbc);
 
-                // Create the third level classification label
+                /* Create the third level classification label */
                 JLabel class3Lbl = new JLabel("Third level");
                 class3Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 class3Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
@@ -1741,7 +1884,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 classPnl.add(class3Lbl, gbc);
 
-                // Create the third level classification input fields
+                /* Create the third level classification input fields */
                 class3Fld = new JTextField("INTERFACE");
                 class3Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 class3Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1751,14 +1894,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 classPnl.add(class3Fld, gbc);
 
-                // Add the classifications panel to the information panel
+                /* Add the classifications panel to the information panel */
                 classPnl.setBorder(BorderFactory.createEtchedBorder());
                 gbc.gridwidth = 2;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 infoPnl.add(classPnl, gbc);
 
-                // Add the information panel to the dialog panel
+                /* Add the information panel to the dialog panel */
                 infoPnl.setBorder(BorderFactory.createEtchedBorder());
                 gbc.insets.bottom = 0;
                 gbc.gridwidth = 1;
@@ -1956,7 +2099,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         pathPnl.setBorder(emptyBorder);
 
         // Create the file/path selection dialog labels and fields
-        exportLbl = new JLabel("Enter or select an export file");
+        exportLbl = new JLabel("Enter or select an export path");
         exportLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(exportLbl, gbc);
 
@@ -1968,7 +2111,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         pathFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         pathFld.setBorder(border);
-        setFilePath(true, fileExtn);
+        setFilePath(false, fileExtn);
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
@@ -2203,7 +2346,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                     break;
 
-                case IMPORT:
+                case IMPORT_JSON:
                     // Remove any leading or trailing white space characters from the file
                     // path/name
                     getFileNameField().setText(getFileNameField().getText().trim());
@@ -2226,6 +2369,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     }
 
                     break;
+                case IMPORT_CSV:
+                	break;
+                case IMPORT_EDS:
+                	break;
+                case IMPORT_XTCE:
+                	break;
 
                 case EXPORT_CSV:
                 case EXPORT_JSON:
@@ -2259,6 +2408,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         && !(includeAssociationsCb != null
                                                            ? includeAssociationsCb.isSelected()
                                                            : false)
+                        && !(includeTlmSchedCB != null
+						  								? includeTlmSchedCB.isSelected()
+	  													: false)
+                        && !(includeAppSchedCB != null
+						  								? includeAppSchedCB.isSelected()
+	  													: false)
                         && !(includeVariablePaths != null
                                                           ? includeVariablePaths.isSelected()
                                                           : false))

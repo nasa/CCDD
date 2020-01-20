@@ -832,6 +832,9 @@ public class CcddUtilities
      * @return One-dimensional array with the contents of the second array appended to the first
      *         array
      *********************************************************************************************/
+    /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+    ** it will be at runtime
+    */
     @SuppressWarnings("unchecked")
     protected static <T> T[] concatenateArrays(T[] array1, T[] array2)
     {
@@ -877,6 +880,9 @@ public class CcddUtilities
      * @return Two-dimensional array with the contents of the second array appended to the first
      *         array
      *********************************************************************************************/
+    /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+    ** it will be at runtime
+    */
     @SuppressWarnings("unchecked")
     protected static <T> T[][] concatenateArrays(T[][] array1, T[][] array2)
     {

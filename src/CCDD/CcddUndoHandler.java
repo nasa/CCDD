@@ -318,6 +318,9 @@ public class CcddUndoHandler
          *
          * @return true if the list changed as a result of the call
          *****************************************************************************************/
+        /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+        ** it will be at runtime
+        */
         @SuppressWarnings("unchecked")
         protected boolean addAll(Collection<? extends E> listItems, boolean undoable)
         {
@@ -365,6 +368,9 @@ public class CcddUndoHandler
          *
          * @return true if the list contained the specified element
          *****************************************************************************************/
+        /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+        ** it will be at runtime
+        */
         @SuppressWarnings("unchecked")
         protected boolean remove(Object listItem, boolean undoable)
         {
@@ -458,6 +464,9 @@ public class CcddUndoHandler
          *
          * @return true if the list changed as a result of the call
          *****************************************************************************************/
+        /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+        ** it will be at runtime
+        */
         @SuppressWarnings("unchecked")
         protected boolean removeAll(Collection<?> listItems, boolean undoable)
         {

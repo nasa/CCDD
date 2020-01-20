@@ -3081,6 +3081,9 @@ public class CcddClassesComponent
             {
                 if (lse.getValueIsAdjusting() == false)
                 {
+                    /* Suppress warnings is used because when this code is compiled some of it is not legal, but 
+                    ** it will be at runtime
+                    */
                     @SuppressWarnings("unchecked")
                     JList<String> list = (JList<String>) lse.getSource();
                     String selectedValue = CcddUtilities.removeHTMLTags(list.getSelectedValue());

@@ -391,7 +391,10 @@ public class CcddConstants
         RENAME,
         COPY,
         DELETE,
-        IMPORT,
+        IMPORT_JSON,
+        IMPORT_CSV,
+        IMPORT_EDS,
+        IMPORT_XTCE,
         EXPORT_CSV,
         EXPORT_XTCE,
         EXPORT_EDS,
@@ -587,6 +590,16 @@ public class CcddConstants
         SAME,
         EMPTY,
         NONE
+    }
+    
+    // Various data types that can be exported
+    protected static enum exportDataTypes
+    {
+        GROUPS,
+        MACROS,
+        ASSOCIATIONS,
+        TELEMSCHEDULER,
+        APPSCHEDULER
     }
 
     // Command line priority range
@@ -3754,6 +3767,27 @@ public class CcddConstants
                 return columnName;
             }
         }
+        
+        protected static enum AppSchedulerComment
+        {
+        	MAXIMUM_MESSAGES_PER_TIME_SLOT("Maximum Messages Per Time Slot"),
+            MAXIMUM_MESSAGES_PER_SECOND("Maximum Messages Per Second"),
+            MAXIMUM_MESSAGES_PER_CYCLE("Maximum Messages Per Cycle"),
+            NUMBER_OF_TIME_SLOTS("Number of Time Slots");
+        	
+        	private final String name;
+        	
+        	AppSchedulerComment(String name)
+        	{
+        		this.name = name;
+        	}
+        	
+        	protected String getName()
+        	{
+        		return name;
+        	}
+        }
+
 
         /******************************************************************************************
          * Groups table columns
@@ -4265,6 +4299,31 @@ public class CcddConstants
 
             return columnName;
         }
+        
+        protected static enum TlmSchedulerComments
+    	{
+    		
+        	
+        	RATE_COLUMN_NAME("Rate Column Name"),
+    		RATE_DATASTREAM_NAME("Rate Datastream Name"),
+    		RATE_MAXIMUM_MESSAGES_PER_CYCLE("Rate Maximum Messages Per Cycle"),
+    		RATE_MAXIMUM_BYTES_PER_SECOND("Rate Maximum Bytes Per Second");
+    		
+    		private final String name;
+    		
+    		
+    		TlmSchedulerComments(String name)
+    		{
+    			this.name = name;
+    			
+    		}
+
+    		protected String getName()
+            {
+                return name;
+            }
+    		
+    	}
 
         /******************************************************************************************
          * Get the internal table column data type by index
@@ -6318,7 +6377,16 @@ public class CcddConstants
         PROJECT_FIELD("Project Data Field"),
         INPUT_TYPE_DEFN("Input Type Definition"),
         GROUP("Group"),
-        SCRIPT_ASSOCIATION("Script Association");
+        SCRIPT_ASSOCIATION("Script Association"),
+        TLM_SCHEDULER("Telemetry Scheduler"),
+    	TLM_SCHEDULER_COMMENT("Telemetry Scheduler Comments"),
+    	MAXIMUM_SECONDS_PER_MESSAGE("Maximum Seconds Per Message"),
+		MAXIMUM_MESSAGES_PER_SECOND("Maximum Messages Per Second"),
+		INCLUDE_UNEVEN_RATES("Include Uneven Rates"),
+		RATE_INFORMATION("Rate Information"),
+    	APP_SCHEDULER("Application Scheduler"),
+    	APP_SCHEDULER_COMMENT("Application Scheduler Comment");
+
 
         private final String tag;
 

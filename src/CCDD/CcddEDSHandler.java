@@ -253,6 +253,113 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     {
         return null;
     }
+    
+    /**********************************************************************************************
+     * Get the list of original and new telemetry scheduler data. Not used for EDS import
+     *
+     * @return List of original and new telemetry scheduler data; null if no new associations have been
+     *         added
+     *********************************************************************************************/
+    @Override
+	public List<String[]> getTlmSchedulerData() 
+    {
+		return null;
+	}
+
+	/**********************************************************************************************
+     * Get the list of original and new application scheduler data
+     *
+     * @return List of original and new application scheduler data; null if no new associations have been
+     *         added
+     *********************************************************************************************/
+	@Override
+	public List<String[]> getAppSchedulerData() 
+	{
+		return null;
+	}
+	
+    /**********************************************************************************************
+     * Build the information from the internal table in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *
+     * @param importType
+     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
+     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
+     *            only the data for the first table defined
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    public void importInternalTables(FileEnvVar importFile, 
+    								 ImportType importType, 
+    								 boolean ignoreErrors) throws CCDDException, IOException, Exception
+    {
+    	/* TODO */
+    	return;
+    }
+    
+    /**********************************************************************************************
+     * Build the information from the input and data type definition(s) in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    public void importTableInfo(FileEnvVar importFile,
+    							 ImportType importType,
+    							 boolean ignoreErrors) throws CCDDException, IOException, Exception
+    {
+    	/* TODO */
+    	return;
+    }
+    
+    /**********************************************************************************************
+     * Build the information from the input and data type definition(s) in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    public void importInputTypes(FileEnvVar importFile,
+    							 ImportType importType,
+    							 boolean ignoreErrors) throws CCDDException, IOException, Exception
+    {
+    	/* TODO */
+    	return;
+    }
 
     /**********************************************************************************************
      * Import the the table definitions from an EDS XML formatted file
@@ -2055,7 +2162,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Export the project in EDS XML format to the specified file
+     * Export the project tables in EDS XML format to the specified file
      *
      * @param exportFile
      *            reference to the user-specified output file
@@ -2070,22 +2177,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            * Not used for EDS export (all macros are expanded) * true to replace any
      *            embedded macros with their corresponding values
      *
-     * @param includeAllTableTypes
-     *            * Not used for EDS export * true to include the all table type definitions in the
-     *            export file
-     *
-     * @param includeAllDataTypes
-     *            * Not used for EDS export * true to include the all data type definitions in the
-     *            export file
-     *
-     * @param includeAllInputTypes
-     *            * Not used for XTCE export * true to include the all user-defined input type
-     *            definitions in the export file
-     *
-     * @param includeAllMacros
-     *            * Not used for EDS export * true to include the all macro definitions in the
-     *            export file
-     *
      * @param includeReservedMsgIDs
      *            * Not used for EDS export * true to include the contents of the reserved message
      *            ID table in the export file
@@ -2093,14 +2184,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param includeProjectFields
      *            * Not used for EDS export * true to include the project-level data field
      *            definitions in the export file
-     *
-     * @param includeGroups
-     *            * Not used for EDS export * true to include the groups and group data field
-     *            definitions in the export file
-     *
-     * @param includeAssociations
-     *            * Not used for EDS export * true to include the script associations in the export
-     *            file
      *
      * @param includeVariablePaths
      *            * Not used for EDS export * true to include the variable path for each variable
@@ -2126,22 +2209,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void exportToFile(FileEnvVar exportFile,
-                             String[] tableNames,
-                             boolean includeBuildInformation,
-                             boolean replaceMacros,
-                             boolean includeAllTableTypes,
-                             boolean includeAllDataTypes,
-                             boolean includeAllInputTypes,
-                             boolean includeAllMacros,
-                             boolean includeReservedMsgIDs,
-                             boolean includeProjectFields,
-                             boolean includeGroups,
-                             boolean includeAssociations,
-                             boolean includeVariablePaths,
-                             CcddVariableHandler variableHandler,
-                             String[] separators,
-                             Object... extraInfo) throws JAXBException, MarshalException, Exception
+    public void exportTables(FileEnvVar exportFile,
+				            String[] tableNames,
+				            boolean includeBuildInformation,
+				            boolean replaceMacros,
+				            boolean includeReservedMsgIDs,
+				            boolean includeProjectFields,
+				            boolean includeVariablePaths,
+				            CcddVariableHandler variableHandler,
+				            String[] separators,
+				            Object... extraInfo) throws JAXBException,
+				                                 MarshalException,
+				                                 CCDDException,
+				                                 Exception
     {
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames,
