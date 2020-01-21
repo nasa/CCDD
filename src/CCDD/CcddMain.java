@@ -114,6 +114,7 @@ public class CcddMain
     private final CcddScriptHandler scriptHandler;
     private CcddScriptExecutiveDialog scriptExecutiveDialog;
     private CcddScriptManagerDialog scriptManagerDialog;
+    private CcddSchedulerDbIOHandler schedulerHandler;
     private CcddRateParameterHandler rateHandler;
     private CcddApplicationParameterHandler appHandler;
     private final CcddKeyboardHandler keyboardHandler;
@@ -167,7 +168,7 @@ public class CcddMain
     private JMenuItem mntmCopyTable;
     private JMenuItem mntmDeleteTable;
     private JMenuItem mntmPadding;
-    private JMenuItem mntmImportData;
+    private JMenuItem mntmImportJSON;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmExportEDS;
     private JMenuItem mntmExportJSON;
@@ -660,6 +661,16 @@ public class CcddMain
     {
         return scriptHandler;
     }
+    
+    /**********************************************************************************************
+     * Get the scheduler handler
+     *
+     * @return Scheduler handler
+     *********************************************************************************************/
+    protected CcddSchedulerDbIOHandler getSchedulerHandler()
+    {
+        return schedulerHandler;
+    }
 
     /**********************************************************************************************
      * Get the rate parameter handler
@@ -1095,7 +1106,7 @@ public class CcddMain
         mntmCopyTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmDeleteTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmPadding.setEnabled(activateIfDatabase && activateIfReadWrite);
-        mntmImportData.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmImportJSON.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmExportCSV.setEnabled(activateIfDatabase);
         mntmExportEDS.setEnabled(activateIfDatabase);
         mntmExportJSON.setEnabled(activateIfDatabase);
@@ -1885,7 +1896,8 @@ public class CcddMain
         mntmCopyTable = createMenuItem(mnData, "Copy table", KeyEvent.VK_C, 1, "Copy selected data table");
         mntmDeleteTable = createMenuItem(mnData, "Delete table(s)", KeyEvent.VK_L, 1, "Delete selected data table(s)");
         mnData.addSeparator();
-        mntmImportData = createMenuItem(mnData, "Import data", KeyEvent.VK_I, 1, "Import selected CSV, JSON, or EDS/XTCE XML file(s) data");
+        JMenu mnImport = createSubMenu(mnData, "Import data", KeyEvent.VK_I, 1, null);
+        mntmImportJSON = createMenuItem(mnImport, "JSON", KeyEvent.VK_J, 1, "Import selected JSON data");
         JMenu mnExport = createSubMenu(mnData, "Export data", KeyEvent.VK_X, 1, null);
         mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data in CSV format");
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data in EDS XML format");
@@ -2227,7 +2239,7 @@ public class CcddMain
                                              null,
                                              frameCCDD))
                 {
-                    fileIOHandler.restoreDatabaseFromFile();
+                    fileIOHandler.restoreDatabaseFromDBU();
                 }
             }
         });
@@ -2337,7 +2349,7 @@ public class CcddMain
         });
 
         // Add a listener for the Import Data menu item
-        mntmImportData.addActionListener(new ActionListener()
+        mntmImportJSON.addActionListener(new ActionListener()
         {
             /**************************************************************************************
              * Select one or more files to import
@@ -2345,7 +2357,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_JSON);
             }
         });
 

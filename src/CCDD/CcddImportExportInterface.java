@@ -46,6 +46,94 @@ public interface CcddImportExportInterface
      *         added
      *********************************************************************************************/
     abstract List<String[]> getScriptAssociations();
+    
+    /**********************************************************************************************
+     * Get the list of original and new telemetry scheduler messages
+     *
+     * @return List of original and new telemetry scheduler messages; null if no telemetry scheduler messages
+     *         have been added
+     *         
+     *********************************************************************************************/  
+	abstract List<String[]> getTlmSchedulerData();
+	
+	/**********************************************************************************************
+     * Get the list of original and new application scheduler data
+     *
+     * @return List of original and new application scheduler data; null if no new data has been
+     *         added
+     *********************************************************************************************/
+	abstract List<String[]> getAppSchedulerData();
+	
+    /**********************************************************************************************
+     * Build the information from the internal table in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *
+     * @param importType
+     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
+     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
+     *            only the data for the first table defined
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    abstract void importInternalTables(FileEnvVar importFile, 
+    								 ImportType importType, 
+    								 boolean ignoreErrors) throws CCDDException, IOException, Exception;
+    
+    /**********************************************************************************************
+     * Build the information from the input and data type definition(s) in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    abstract void importTableInfo(FileEnvVar importFile,
+    							 ImportType importType,
+    							 boolean ignoreErrors) throws CCDDException, IOException, Exception;
+    
+    /**********************************************************************************************
+     * Build the information from the input and data type definition(s) in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    abstract void importInputTypes(FileEnvVar importFile,
+    							 ImportType importType,
+    							 boolean ignoreErrors) throws CCDDException, IOException, Exception;
 
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
@@ -90,7 +178,7 @@ public interface CcddImportExportInterface
                                                                 Exception;
 
     /**********************************************************************************************
-     * Export the project to the specified file
+     * Export each table in the project to the specified file
      *
      * @param exportFile
      *            reference to the user-specified output file
@@ -104,29 +192,11 @@ public interface CcddImportExportInterface
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
-     * @param includeAllTableTypes
-     *            true to include the all table type definitions in the export file
-     *
-     * @param includeAllDataTypes
-     *            true to include the all data type definitions in the export file
-     *
-     * @param includeAllInputTypes
-     *            true to include the all user-defined input type definitions in the export file
-     *
-     * @param includeAllMacros
-     *            true to include the all macro definitions in the export file
-     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
      * @param includeProjectFields
      *            true to include the project-level data field definitions in the export file
-     *
-     * @param includeGroups
-     *            true to include the groups and group data field definitions in the export file
-     *
-     * @param includeAssociations
-     *            true to include the script associations in the export file
      *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
@@ -152,18 +222,12 @@ public interface CcddImportExportInterface
      * @throws Exception
      *             If an unanticipated error occurs
      *********************************************************************************************/
-    abstract void exportToFile(FileEnvVar exportFile,
+    abstract void exportTables(FileEnvVar exportFile,
                                String[] tableNames,
                                boolean includeBuildInformation,
                                boolean replaceMacros,
-                               boolean includeAllTableTypes,
-                               boolean includeAllDataTypes,
-                               boolean includeAllInputTypes,
-                               boolean includeAllMacros,
                                boolean includeReservedMsgIDs,
                                boolean includeProjectFields,
-                               boolean includeGroups,
-                               boolean includeAssociations,
                                boolean includeVariablePaths,
                                CcddVariableHandler variableHandler,
                                String[] separators,

@@ -26,7 +26,6 @@ import javax.swing.JOptionPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
-import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
@@ -194,6 +193,113 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     public List<String[]> getScriptAssociations()
     {
         return associations;
+    }
+
+    /**********************************************************************************************
+     * Get the list of telemetry scheduler messages
+     *
+     * @return List of original and new telemetry scheduler messages; null if no new messages 
+     * 		   have been added        
+     *********************************************************************************************/
+    @Override
+	public List<String[]> getTlmSchedulerData() 
+    {
+		return null;
+	}
+
+	/**********************************************************************************************
+     * Get the list of original and new application scheduler data
+     *
+     * @return List of original and new application scheduler data; null if no new associations 
+     * have been added
+     *********************************************************************************************/
+	@Override
+	public List<String[]> getAppSchedulerData() 
+	{
+		return null;
+	}
+	
+    /**********************************************************************************************
+     * Build the information from the internal table in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *
+     * @param importType
+     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
+     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
+     *            only the data for the first table defined
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    public void importInternalTables(FileEnvVar importFile, 
+    								 ImportType importType, 
+    								 boolean ignoreErrors) throws CCDDException, IOException, Exception
+    {
+    	/* TODO */
+    	return;
+    }
+    
+    /**********************************************************************************************
+     * Build the information from the input and data type definition(s) in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    public void importTableInfo(FileEnvVar importFile,
+    							 ImportType importType,
+    							 boolean ignoreErrors) throws CCDDException, IOException, Exception
+    {
+    	/* TODO */
+    	return;
+    }
+    
+    /**********************************************************************************************
+     * Build the information from the input and data type definition(s) in the current file
+     *
+     * @param importFile
+     *            import file reference
+     *            
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
+     *********************************************************************************************/
+    public void importInputTypes(FileEnvVar importFile,
+    							 ImportType importType,
+    							 boolean ignoreErrors) throws CCDDException, IOException, Exception
+    {
+    	/* TODO */
+    	return;
     }
 
     /**********************************************************************************************
@@ -1203,7 +1309,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Export the project in CSV format to the specified file
+     * Export the project tables in CSV format to the specified file
      *
      * @param exportFile
      *            reference to the user-specified output file
@@ -1217,29 +1323,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param replaceMacros
      *            true to replace any embedded macros with their corresponding values
      *
-     * @param includeAllTableTypes
-     *            true to include the all table type definitions in the export file
-     *
-     * @param includeAllDataTypes
-     *            true to include the all data type definitions in the export file
-     *
-     * @param includeAllInputTypes
-     *            true to include the all user-defined input type definitions in the export file
-     *
-     * @param includeAllMacros
-     *            true to include the all macro definitions in the export file
-     *
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
      * @param includeProjectFields
      *            true to include the project-level data field definitions in the export file
-     *
-     * @param includeGroups
-     *            true to include the groups and group data field definitions in the export file
-     *
-     * @param includeAssociations
-     *            true to include the script associations in the export file
      *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
@@ -1263,18 +1351,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void exportToFile(FileEnvVar exportFile,
+    public void exportTables(FileEnvVar exportFile,
                              String[] tableNames,
                              boolean includeBuildInformation,
                              boolean replaceMacros,
-                             boolean includeAllTableTypes,
-                             boolean includeAllDataTypes,
-                             boolean includeAllInputTypes,
-                             boolean includeAllMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
-                             boolean includeGroups,
-                             boolean includeAssociations,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
@@ -1291,34 +1373,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             List<String> referencedInputTypes = new ArrayList<String>();
             List<String> referencedMacros = new ArrayList<String>();
             List<String[]> variablePaths = new ArrayList<String[]>();
-
-            // Check if all table type definitions are to be exported
-            if (includeAllTableTypes)
-            {
-                // Add all table type definitions to the referenced table types list
-                referencedTableTypes.addAll(Arrays.asList(tableTypeHandler.getTableTypeNames()));
-            }
-
-            // Check if all data type definitions are to be exported
-            if (includeAllDataTypes)
-            {
-                // Add all data type definitions to the referenced table types list
-                referencedDataTypes.addAll(dataTypeHandler.getDataTypeNames());
-            }
-
-            // Check if all input type definitions are to be exported
-            if (includeAllInputTypes)
-            {
-                // Add all input type definitions to the referenced table types list
-                referencedInputTypes.addAll(Arrays.asList(inputTypeHandler.getNames(true)));
-            }
-
-            // Check if all macro definitions are to be exported
-            if (includeAllMacros)
-            {
-                // Add all macro definitions to the referenced table types list
-                referencedMacros.addAll(macroHandler.getMacroNames());
-            }
 
             // Check if all variable paths are to be exported. This is only possible if no tables
             // are specified; otherwise only those variables in the table are exported
@@ -1687,102 +1741,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                            Boolean.toString(fieldInfo.isRequired()),
                                                                            fieldInfo.getApplicabilityType().getApplicabilityName(),
                                                                            fieldInfo.getValue()));
-                    }
-                }
-            }
-
-            // Check if the user elected to store the groups
-            if (includeGroups)
-            {
-                // Get the group's information for the project
-                List<GroupInformation> groupInformation = groupHandler.getGroupInformation();
-
-                // Check if the project contains any groups
-                if (!groupInformation.isEmpty())
-                {
-                    // Step through each group's information
-                    for (GroupInformation groupInfo : groupInformation)
-                    {
-                        boolean isFirst = true;
-
-                        // Output the group marker and the group information
-                        pw.printf("\n" + CSVTags.GROUP.getTag() + "\n%s,\"",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(groupInfo.getName(),
-                                                                           groupInfo.getDescription(),
-                                                                           Boolean.toString(groupInfo.isApplication())));
-
-                        // Step through each group table member
-                        for (String member : groupInfo.getTablesAndAncestors())
-                        {
-                            // Output the table member
-                            pw.printf((isFirst
-                                               ? ""
-                                               : ";")
-                                      + member);
-
-                            isFirst = false;
-                        }
-
-                        pw.printf("\"\n");
-
-                        // Build the data field information for the group
-                        List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName()));
-
-                        // Check if the group contains any data fields
-                        if (!fieldInformation.isEmpty())
-                        {
-                            // Output the group data field marker
-                            pw.printf(CSVTags.GROUP_DATA_FIELD.getTag() + "\n");
-
-                            // Step through each data field
-                            for (FieldInformation fieldInfo : fieldInformation)
-                            {
-                                // Check if if the input type is user-defined and this input type
-                                // is not already output
-                                if (fieldInfo.getInputType().isCustomInput()
-                                    && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
-                                {
-                                    // Add the input type to the list of those referenced
-                                    referencedInputTypes.add(fieldInfo.getInputType().getInputName());
-                                }
-
-                                // Output the field information
-                                pw.printf("%s\n",
-                                          CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
-                                                                                   fieldInfo.getDescription(),
-                                                                                   Integer.toString(fieldInfo.getSize()),
-                                                                                   fieldInfo.getInputType().getInputName(),
-                                                                                   Boolean.toString(fieldInfo.isRequired()),
-                                                                                   fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                                   fieldInfo.getValue()));
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Check if the user elected to store the script associations
-            if (includeAssociations)
-            {
-                // Get the script association information
-                associations = scriptHandler.getScriptAssociations(parent);
-
-                // Check if any associations exist
-                if (!associations.isEmpty())
-                {
-                    // Output the script association marker
-                    pw.printf("\n" + CSVTags.SCRIPT_ASSOCIATION.getTag() + "\n");
-
-                    // Step through each script association
-                    for (String[] assn : associations)
-                    {
-                        // Output the association information
-                        pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(assn[AssociationsColumn.NAME.ordinal()],
-                                                                           assn[AssociationsColumn.DESCRIPTION.ordinal()],
-                                                                           assn[AssociationsColumn.SCRIPT_FILE.ordinal()],
-                                                                           CcddScriptHandler.convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()],
-                                                                                                                             false)));
                     }
                 }
             }

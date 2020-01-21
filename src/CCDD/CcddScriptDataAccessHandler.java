@@ -5038,16 +5038,10 @@ public class CcddScriptDataAccessHandler
             xtceHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
 
             // Export the specified tables to the specified output file in XTCE XML format
-            xtceHandler.exportToFile(new FileEnvVar(outputFileName),
+            xtceHandler.exportTables(new FileEnvVar(outputFileName),
                                      getTableNames(),
                                      true,
                                      true, // unused for XTCE export
-                                     false, // unused for XTCE export
-                                     false, // unused for XTCE export
-                                     false, // unused for XTCE export
-                                     false, // unused for XTCE export
-                                     false, // unused for XTCE export
-                                     false, // unused for XTCE export
                                      false, // unused for XTCE export
                                      false, // unused for XTCE export
                                      false, // unused for XTCE export

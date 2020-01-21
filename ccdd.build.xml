@@ -1,45 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project CFS_CDD with libraries in sub-folder">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
+<project default="create_run_jar" name="Create Runnable Jar for Project ccdd-public with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR file Export Wizard-->
+    <!--ANT 1.7 is required-->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="/home/bryan/eclipse-workspace"/>
+    <property name="dir.jarfile" value="${dir.buildfile}"/>
     <target name="create_run_jar">
-    	<property file="ccdd.build.version"/>
-        <buildnumber file="ccdd.build.number"/>
-        <tstamp>
-            <format property="TODAY" pattern="M-d-yyyy"/>
-        </tstamp>
-        <jar destfile="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD.jar">
+        <jar destfile="${dir.jarfile}/CCDD.jar">
             <manifest>
-                <attribute name="Main-Class" value="CCDD.CcddMain"/>
-                <attribute name="Class-Path" value=". CCDD_lib/EDS.jar CCDD_lib/XTCE.jar CCDD_lib/json-simple-1.1.1.jar CCDD_lib/jetty-http-9.2.18.v20160721.jar CCDD_lib/jetty-io-9.2.18.v20160721.jar CCDD_lib/jetty-security-9.2.18.v20160721.jar CCDD_lib/jetty-server-9.2.18.v20160721.jar CCDD_lib/jetty-servlet-9.2.18.v20160721.jar CCDD_lib/jetty-util-9.2.18.v20160721.jar CCDD_lib/servlet-api-3.1.jar CCDD_lib/postgresql-9.4.1207.jre7.jar"/>
-                <attribute name="CCDD-Version" value="${build.version}.${build.number}"/>
-                <attribute name="Build-Date" value="${TODAY}"/>
-                <attribute name="Created-By" value="NASA JSC: ER6/Kevin McCluney"/>
-          </manifest>
-            <fileset dir="/home/rmcclune/COP_CFS_Workspace/CFS_CDD_Test/bin"/>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="CCDD.CcddMain"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ c_struct_to_csv_convert.jar EDS.jar jetty-http-9.2.18.v20160721.jar jetty-io-9.2.18.v20160721.jar jetty-security-9.2.18.v20160721.jar jetty-server-9.2.18.v20160721.jar jetty-servlet-9.2.18.v20160721.jar jetty-util-9.2.18.v20160721.jar json-simple-1.1.1.jar postgresql-9.4.1207.jre7.jar servlet-api-3.1.jar XTCE.jar CCDD.jar org.apache.commons.io.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.jarfile}/bin"/>
+            <fileset dir="${dir.jarfile}/C_struct_to_CSV_conversion"/>
+            <zipfileset dir="${dir.jarfile}/C_struct_to_CSV_conversion" includes="c_struct_to_csv_convert.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="EDS.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-http-9.2.18.v20160721.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-io-9.2.18.v20160721.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-security-9.2.18.v20160721.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-server-9.2.18.v20160721.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-servlet-9.2.18.v20160721.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-util-9.2.18.v20160721.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="json-simple-1.1.1.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="postgresql-9.4.1207.jre7.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="servlet-api-3.1.jar"/>
+            <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="XTCE.jar"/>
+            <zipfileset dir="${dir.jarfile}" includes="CCDD.jar"/>
+            <zipfileset dir="/home/bryan/Downloads" includes="org.apache.commons.io.jar"/>
         </jar>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD_Test/ccdd.build.number" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2"/>
-    	<copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD_Test/ccdd.build.version" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2"/>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD_Test/ccdd.build.xml" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2"/>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD_Test/overview.html" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2"/>
-        <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/Javadoc"/>
-        <mkdir dir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/Javadoc"/>
-        <copy todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/Javadoc">
-        	<fileset dir="/home/rmcclune/COP_CFS_Workspace/CFS_CDD_Test/Javadoc" includes="**"/>
-        </copy>
-        <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <mkdir dir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/JDBC/postgresql-9.4.1207.jre7.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/EDS.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/XTCE.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/json-simple-1.1.1/json-simple-1.1.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-http-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-io-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-security-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-server-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-servlet-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-util-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
-        <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/servlet-api-3.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/CCDD2/CCDD_lib"/>
     </target>
 </project>
-
