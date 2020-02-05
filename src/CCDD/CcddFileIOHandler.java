@@ -84,6 +84,7 @@ import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddConstants.exportDataTypes;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.io.FileUtils;
 
 
@@ -277,47 +278,47 @@ public class CcddFileIOHandler
             }
             /* If the .snapshot directory exists, delete its contents */
             else {
-        	try {
-        	    File directory = new File(snapshotFilePath);
-        	    FileUtils.cleanDirectory(directory);
-        	} catch (IOException ioe) {
-        	    CcddUtilities.displayException(ioe, parent);
-        	    ioe.printStackTrace();
-        	    errorFlag = true;
-        	}
+            	try {
+            	    File directory = new File(snapshotFilePath);
+            	    FileUtils.cleanDirectory(directory);
+            	} catch (IOException ioe) {
+            	    CcddUtilities.displayException(ioe, parent);
+            	    ioe.printStackTrace();
+            	    errorFlag = true;
+            	}
             }
             
             /* Backup current database state to .snapshot directory before import. */
             exportSelectedTables(snapshotFilePath,                  /* filePath                */
-        	                 tablePaths.toArray(new String[0]), /* tablePaths              */
-        	                 true,                              /* overwriteFile           */
-        	                 false,                             /* singleFile              */
-        	                 false,                             /* includeBuildInformation */
-        	                 replaceExistingMacros,             /* replaceMacros           */
-        	                 true,                              /* includeAllTableTypes    */
-        	                 true,                              /* includeAllDataTypes     */
-        	                 true,                              /* includeAllInputTypes    */
-        	                 true,                              /* includeAllMacros        */
-        	                 doReservedMessageIDsExist,         /* includeReservedMsgIDs   */
-        	                 includesProjectFields,             /* includeProjectFields    */
-        	                 true,                              /* includeGroups           */
-        	                 true,                              /* includeAssociations     */
-        	                 true,                              /* includeTlmSched         */
-        	                 true,                              /* includeAppSched         */
-        	                 false,                             /* includeVariablePaths    */
-        	                 ccddMain.getVariableHandler(),     /* variableHandler         */
-        	                 null,                              /* separators              */
-        	                 FileExtension.JSON,                /* fileExtn                */
-        	                 null,                              /* endianess               */
-        	                 false,                             /* isHeaderBigEndian       */
-        	                 null,                              /* version                 */
-        	                 null,                              /* validationStatus        */
-        	                 null,                              /* classification1         */
-        	                 null,                              /* classification2         */
-        	                 null,                              /* classification3         */
-        	                 false,                             /* useExternal             */
-        	                 null,                              /* scriptFileName          */
-        	                 null);                             /* parent                  */
+                                 tablePaths.toArray(new String[0]), /* tablePaths              */
+                                 true,                              /* overwriteFile           */
+                                 false,                             /* singleFile              */
+                                 false,                             /* includeBuildInformation */
+                                 replaceExistingMacros,             /* replaceMacros           */
+                                 true,                              /* includeAllTableTypes    */
+                                 true,                              /* includeAllDataTypes     */
+                                 true,                              /* includeAllInputTypes    */
+                                 true,                              /* includeAllMacros        */
+                                 doReservedMessageIDsExist,         /* includeReservedMsgIDs   */
+                                 includesProjectFields,             /* includeProjectFields    */
+                                 true,                              /* includeGroups           */
+                                 true,                              /* includeAssociations     */
+                                 true,                              /* includeTlmSched         */
+                                 true,                              /* includeAppSched         */
+                                 false,                             /* includeVariablePaths    */
+                                 ccddMain.getVariableHandler(),     /* variableHandler         */
+                                 null,                              /* separators              */
+                                 FileExtension.JSON,                /* fileExtn                */
+                                 null,                              /* endianess               */
+                                 false,                             /* isHeaderBigEndian       */
+                                 null,                              /* version                 */
+                                 null,                              /* validationStatus        */
+                                 null,                              /* classification1         */
+                                 null,                              /* classification2         */
+                                 null,                              /* classification3         */
+                                 false,                             /* useExternal             */
+                                 null,                              /* scriptFileName          */
+                                 null);                             /* parent                  */
 
             /* Create a File array for all files in the .snapshot hidden directory. */
     	    List<File> snapshotFiles = new ArrayList<>(Arrays.asList(new File(snapshotFilePath).listFiles()));
@@ -325,136 +326,137 @@ public class CcddFileIOHandler
             /* Create a FileEnvVar array for all files in the user-supplied directory. */
     	    List<FileEnvVar> importFiles = new ArrayList<>();
 		
-    	    for (FileEnvVar dataFile : dataFiles) {
-    		/* Only import files that end with .json */
-    		if (dataFile.getName().endsWith(".json")) {
-    		    importFiles.add(new FileEnvVar(dataFile.getPath()));
-    		}
+            for (FileEnvVar dataFile : dataFiles) {
+                /* Only import files that end with .json */
+                if (dataFile.getName().endsWith(".json")) {
+                    importFiles.add(new FileEnvVar(dataFile.getPath()));
+                }
             }
 
             List<File> deletedFiles = new ArrayList<>(snapshotFiles);
     		
-	    /* Step through each file in the deleted files array */
-	    for (int index = 0; index < deletedFiles.size(); index++) {
-		/* Step through each file in the import array */
-		if (index > 1500) {
-		    System.out.println("Line: " + Integer.toString(index));
-		}
-		for (int index2 = 0; index2 < importFiles.size(); index2++) {
-		    /* Do the filenames equal each other?  Or, is the deletedFile element in question not a JSON? */
-		    if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName())) {
-			/* This file exists. Determine if it has been modified or not before deletion */
-			try {
-			    boolean areEqual = FileUtils.contentEquals(new File(importFiles.get(index2).getPath()), new File(deletedFiles.get(index).getPath()));
-			    if (areEqual) {
-			        /* The files are the same so nothing will be done with this file. Remove it from the importFiles list */
-			        importFiles.remove(index2);
+    	    /* Step through each file in the deleted files array */
+    	    for (int index = 0; index < deletedFiles.size(); index++) {
+                /* Step through each file in the import array */
+                if (index > 1500) {
+                    System.out.println("Line: " + Integer.toString(index));
+                }
+                for (int index2 = 0; index2 < importFiles.size(); index2++) {
+                    /* Do the filenames equal each other?  Or, is the deletedFile element in question not a JSON? */
+                    if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName())) {
+                        /* This file exists. Determine if it has been modified or not before deletion */
+                        try {
+                            boolean areEqual = FileUtils.contentEquals(new File(importFiles.get(index2).getPath()), new File(deletedFiles.get(index).getPath()));
+                            if (areEqual) {
+                                /* The files are the same so nothing will be done with this file. Remove it from the importFiles list */
+                                importFiles.remove(index2);
                             }
-			    /* The file exists so remove it from the deletedFiles list */
-			    deletedFiles.remove(index);
-			    index--;
-				
-			} catch (IOException ioe) {
-		            CcddUtilities.displayException(ioe, parent);
-		            ioe.printStackTrace();
-		            errorFlag = true;
-			}
-			break;
-		    } else if (!deletedFiles.get(index).getName().endsWith(".json")) {
-			/* This isn't a JSON file */
-			deletedFiles.remove(index);
-			index--;
-			break;
-		    }
+                            /* The file exists so remove it from the deletedFiles list */
+                            deletedFiles.remove(index);
+                            index--;
+            				
+                        } catch (IOException ioe) {
+                            CcddUtilities.displayException(ioe, parent);
+                            ioe.printStackTrace();
+                            errorFlag = true;
+                        }
+                        break;
+                    } else if (!deletedFiles.get(index).getName().endsWith(".json")) {
+                        /* This isn't a JSON file */
+                        deletedFiles.remove(index);
+                        index--;
+                        break;
+                    }
                 }
             }
-	    
-	    /* Does the user want non-existing files to be deleted? */
-	    if (deleteNonExistingFiles == true) {
-		/* Is there anything to delete? */
-		if (deletedFiles.size() != 0) {
-		    /* Inform the user that there are tables scheduled to be deleted. */
-		    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-			                                      "<html><b>Some tables are going to be deleted.</b>",
-			                                      "Deletion Warning",
-			                                      JOptionPane.WARNING_MESSAGE,
-			                                      DialogOption.OK_OPTION);
-	    		
-		    /* Here, deal with the differing formats in how the filenames are stored vs. how table paths are stored. */
-		    List<String> pathList = tableTree.getTableTreePathList(null);
-		    List<String> deletePathList = new ArrayList<String>();
-	    	
-	    	    /* Check if there are paths in the table tree that correspond to the deleted filenames. Add them to a list. */
-		    for (String dir : pathList) {
-			String pathReplace = dir.replaceAll("\\,", "_").replaceAll("\\.", "_");
-			for (File fileToDelete : deletedFiles) {
-			    if ((fileToDelete.getName().replace(".json", "")).equals(pathReplace)) {
-				deletePathList.add(dir);
-	    		    }
-			}
-	    	    }
-		
-		    /* Now that we have a list of the table paths for the deleted tables, turn it into an array and delete them. */
-		    String[] deleteTableNames = deletePathList.toArray(new String[deletePathList.size()]);
-		    dbTable.deleteTable(deleteTableNames,
-			                null,
-			                null);
-	    	
-	    	    /* If tables were deleted then that means the database has been altered */
-	    	    dataWasChanged = true;
-		}
+    	    /* End of checking for deleted files */
+    	    
+            /* Does the user want non-existing files to be deleted? */
+            if (deleteNonExistingFiles == true) {
+                /* Is there anything to delete? */
+                if (deletedFiles.size() != 0) {
+                    /* Inform the user that there are tables scheduled to be deleted. */
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Some tables are going to be deleted.</b>",
+                                                              "Deletion Warning",
+                                                              JOptionPane.WARNING_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+        	    		
+                    /* Here, deal with the differing formats in how the filenames are stored vs. how table paths are stored. */
+                    List<String> pathList = tableTree.getTableTreePathList(null);
+                    List<String> deletePathList = new ArrayList<String>();
+        	    	
+                    /* Check if there are paths in the table tree that correspond to the deleted filenames. Add them to a list. */
+                    for (String dir : pathList) {
+                        String pathReplace = dir.replaceAll("\\,", "_").replaceAll("\\.", "_");
+                        for (File fileToDelete : deletedFiles) {
+                            if ((fileToDelete.getName().replace(".json", "")).equals(pathReplace)) {
+                                deletePathList.add(dir);
+        	                }
+                        }
+    	            }
+        		
+        		    /* Now that we have a list of the table paths for the deleted tables, turn it into an array and delete them. */
+        		    String[] deleteTableNames = deletePathList.toArray(new String[deletePathList.size()]);
+        		    dbTable.deleteTable(deleteTableNames,
+        			                    null,
+        			                    null);
+        	    	
+    	            /* If tables were deleted then that means the database has been altered */
+                    dataWasChanged = true;
+                }
             }
-	    
-	    /* Do any files remain after trimming the duplicate files? Import them here. */
-	    if (importFiles.size() > 0) {
-		/* Create the import cancellation dialog */
-		haltDlg = new CcddHaltDialog("Import Data(s)",
-			                     "Importing data",
-			                     "import",
-			                     100,
-			                     importFiles.size(),
-			                     ccddMain.getMainFrame());
-
-    		/* Import file into database */
+    	    
+            /* Do any files remain after trimming the duplicate files? Import them here. */
+            if (importFiles.size() > 0) {
+                /* Create the import cancellation dialog */
+                haltDlg = new CcddHaltDialog("Import Data(s)",
+                                             "Importing data",
+                                             "import",
+                                             100,
+                                             importFiles.size(),
+                                             ccddMain.getMainFrame());
+        
+                /* Import file into database */
                 importFile(importFiles,
-                	   backupFirst,
-                	   replaceExistingTables,
-                	   appendExistingFields,
-                	   useExistingFields,
-                	   openEditor,
-                	   ignoreErrors,
-                	   replaceExistingMacros,
-                	   replaceExistingGroups,
-                	   ManagerDialogType.IMPORT_JSON,
-                	   parent);
-    		    
-    		dataWasChanged = true;
-    	    }
-	    
-	    /* If we reach here, that means there's nothing to add and nothing to delete. */
-	    if (dataWasChanged == false) {
-		/* Inform the user that there are no perceptible changes to the files relative to current db state. */
-		new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-			                                  "<html><b>The selected folder does not contain updates to the database tables.</b>",
-			                                  "No Changes Made",
-			                                  JOptionPane.INFORMATION_MESSAGE,
-			                                  DialogOption.OK_OPTION);
-    	    }
-	    
-	    /* If the snapshot directory exists than delete it */
-	    if (Files.isDirectory(Paths.get(snapshotFilePath))) {
-		/* Step through each file in the existent .snapshot directory */
-		for (File file : new File(snapshotFilePath).listFiles()) {
-		    /* Delete each file */
-		    file.delete();
-    		}
-    	    }
-	} catch (NullPointerException e) {
+                           backupFirst,
+                           replaceExistingTables,
+                           appendExistingFields,
+                           useExistingFields,
+                           openEditor,
+                           ignoreErrors,
+                           replaceExistingMacros,
+                           replaceExistingGroups,
+                           ManagerDialogType.IMPORT_JSON,
+                           parent);
+            		    
+                dataWasChanged = true;
+            }
+    	    
+            /* If we reach here, that means there's nothing to add and nothing to delete. */
+            if (dataWasChanged == false) {
+                /* Inform the user that there are no perceptible changes to the files relative to current db state. */
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>The selected folder does not contain updates to the database tables.</b>",
+                                                          "No Changes Made",
+                                                          JOptionPane.INFORMATION_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+    	    
+            /* If the snapshot directory exists than delete it */
+            if (Files.isDirectory(Paths.get(snapshotFilePath))) {
+                /* Step through each file in the existent .snapshot directory */
+                for (File file : new File(snapshotFilePath).listFiles()) {
+                    /* Delete each file */
+                    file.delete();
+                }
+            }
+        } catch (NullPointerException e) {
             CcddUtilities.displayException(e, parent);
             e.printStackTrace();
             errorFlag = true;
-    	}
-    	return errorFlag;
+        }
+        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -1956,78 +1958,53 @@ public class CcddFileIOHandler
                             if (isReplace
                                 || !dbTable.isTableExists(typeAndVar[0], ccddMain.getMainFrame()))
                             {
+                                /* The code will attempt to recreate the ancestor which is not desired if it has not
+                                 * changed. Check to see if the ancestor was found in the list of changed files. if 
+                                 * not it will not be recreated below on line 1990.
+                                 */
+                                boolean tableFound = false;
+                                for (int index2 = 0; index2 < tableDefinitions.size(); index2++) {
+                                    if (tableDefinitions.get(index2).getName() == typeAndVar[0]) {
+                                        tableFound = true;
+                                    }
+                                }
+                                
+                                TableInformation ancestorPreInfo = dbTable.loadTableData(typeAndVar[0], true, false, ccddMain.getMainFrame());
                                 // Create the table information for the new prototype table
-                                TableInformation ancestorInfo = new TableInformation(tableDefn.getTypeName(),
-                                                                                     typeAndVar[0],
+                                TableInformation ancestorInfo = new TableInformation(ancestorPreInfo.getType(),
+                                                                                     ancestorPreInfo.getTablePath(),
                                                                                      new String[0][0],
                                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
-                                                                                     "",
+                                                                                     ancestorPreInfo.getDescription(),
                                                                                      new ArrayList<FieldInformation>());
+                                
 
                                 // Check if this is the child table and not one of its ancestors
                                 if (index == ancestors.length - 1)
                                 {
                                     // Create a list to store a copy of the cell data
                                     List<String> protoData = new ArrayList<String>(tableDefn.getData());
-
-                                    // Check if this is the child of a non-root structure
-                                    if (isChildOfNonRoot)
-                                    {
-                                        // Since this child defines its prototype, use all of the
-                                        // table data
-                                        protoData = tableDefn.getData();
-                                    }
-                                    // This is the child of a root structure (an instance of the
-                                    // table). The instance will contain all of the imported data,
-                                    // but the prototype that's created for the child will only get
-                                    // the data for columns that are flagged as required. This
-                                    // prevents successive children from overwriting the prototype
-                                    // with instance-specific cell values
-                                    else
-                                    {
-                                        // Step through each row of the cell data
-                                        for (int cellIndex = 0; cellIndex < tableDefn.getData().size(); cellIndex += numColumns)
-                                        {
-                                            // Step through each column in the row
-                                            for (int colIndex = 0; colIndex < numColumns; colIndex++)
-                                            {
-                                                // Check if the column is not required by the table
-                                                // type
-                                                if (!DefaultColumn.isTypeRequiredColumn((typeDefn.isStructure()
-                                                                                                                ? TYPE_STRUCTURE
-                                                                                                                : (typeDefn.isCommand()
-                                                                                                                                        ? TYPE_COMMAND
-                                                                                                                                        : TYPE_OTHER)),
-                                                                                        inputTypeHandler,
-                                                                                        typeDefn.getInputTypesVisible()[colIndex]))
-                                                {
-                                                    // Replace the non-required column value with a
-                                                    // blank. The child's non-required values are
-                                                    // therefore not inherited from the prototype
-                                                    protoData.set(cellIndex + colIndex, "");
-                                                }
-                                            }
-                                        }
-                                    }
-
+                                    
                                     // Create the prototype of the child table and populate it with
                                     // the protected column data
-                                    if (!createImportedTable(ancestorInfo,
-                                                             protoData,
-                                                             numColumns,
-                                                             replaceExistingTables,
-                                                             openEditor,
-                                                             allTables,
-                                                             parent))
-                                    {
-                                        // Add the skipped table to the list
-                                        skippedTables.add(ancestorInfo.getTablePath());
-                                    }
-                                    // The table was created
-                                    else
-                                    {
-                                        // Add the table name to the list of existing tables
-                                        allTables.add(ancestorInfo.getTablePath());
+                                    if (tableFound) {
+                                        if (!createImportedTable(ancestorInfo,
+                                                                 protoData,
+                                                                 numColumns,
+                                                                 replaceExistingTables,
+                                                                 openEditor,
+                                                                 allTables,
+                                                                 parent))
+                                        {
+                                            // Add the skipped table to the list
+                                            skippedTables.add(ancestorInfo.getTablePath());
+                                        }
+                                        // The table was created
+                                        else
+                                        {
+                                            // Add the table name to the list of existing tables
+                                            allTables.add(ancestorInfo.getTablePath());
+                                        }
                                     }
                                 }
                                 // This is an ancestor of the child table
