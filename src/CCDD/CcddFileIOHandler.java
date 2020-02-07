@@ -10,9 +10,6 @@ package CCDD;
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
-import static CCDD.CcddConstants.TYPE_COMMAND;
-import static CCDD.CcddConstants.TYPE_OTHER;
-import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
 import java.awt.Component;
@@ -60,7 +57,6 @@ import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
-import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
@@ -84,7 +80,6 @@ import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddConstants.exportDataTypes;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.io.FileUtils;
 
 
@@ -2999,7 +2994,7 @@ public class CcddFileIOHandler
         if (singleFile) {
             outputType = "Single";
         } else {
-            outputType = "Multiple";   
+            outputType = "Multiple";
         }
 
     	/* Create new JSON Handler to export internal tables to different files */
@@ -3092,6 +3087,16 @@ public class CcddFileIOHandler
 
             /* Get directory where the file will be exported to */
             FileEnvVar exportFile = new FileEnvVar(filePath);
+            
+            /* Delete the contents of the directory */
+            try {
+                File directory = new File(filePath);
+                FileUtils.cleanDirectory(directory);
+            } catch (IOException ioe) {
+                CcddUtilities.displayException(ioe, parent);
+                ioe.printStackTrace();
+                errorFlag = true;
+            }
             
             /* Check if the tables are to be exported to a single file or multiple files */
             if (singleFile) {
