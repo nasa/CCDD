@@ -169,6 +169,7 @@ public class CcddMain
     private JMenuItem mntmDeleteTable;
     private JMenuItem mntmPadding;
     private JMenuItem mntmImportJSON;
+    private JMenuItem mntmImportCSV;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmExportEDS;
     private JMenuItem mntmExportJSON;
@@ -1107,6 +1108,7 @@ public class CcddMain
         mntmDeleteTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmPadding.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmImportJSON.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmImportCSV.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmExportCSV.setEnabled(activateIfDatabase);
         mntmExportEDS.setEnabled(activateIfDatabase);
         mntmExportJSON.setEnabled(activateIfDatabase);
@@ -1898,6 +1900,7 @@ public class CcddMain
         mnData.addSeparator();
         JMenu mnImport = createSubMenu(mnData, "Import data", KeyEvent.VK_I, 1, null);
         mntmImportJSON = createMenuItem(mnImport, "JSON", KeyEvent.VK_J, 1, "Import selected JSON data");
+        mntmImportCSV = createMenuItem(mnImport, "CSV", KeyEvent.VK_J, 1, "Import selected CSV data");
         JMenu mnExport = createSubMenu(mnData, "Export data", KeyEvent.VK_X, 1, null);
         mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data in CSV format");
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data in EDS XML format");
@@ -2358,6 +2361,19 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_JSON);
+            }
+        });
+        
+        // Add a listener for the Import Data menu item
+        mntmImportCSV.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Select one or more files to import
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_CSV);
             }
         });
 

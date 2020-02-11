@@ -1095,19 +1095,19 @@ public class CcddFileIOHandler
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected boolean importFileInBackground(final FileEnvVar[] dataFile,
-                                          final boolean backupFirst,
-                                          final boolean replaceExisting,
-                                          final boolean appendExistingFields,
-                                          final boolean useExistingFields,
-                                          final boolean openEditor,
-                                          final boolean ignoreErrors,
-                                          final boolean replaceExistingMacros,
-                                          final boolean replaceExistingGroups,
-                                          final boolean deleteNonExistingFiles,
-                                          final boolean doReservedMessageIDsExist,
-                                          final boolean includesProjectFields,
-                                          final FileExtension  importFileType,
-                                          final Component parent)
+                                             final boolean backupFirst,
+                                             final boolean replaceExisting,
+                                             final boolean appendExistingFields,
+                                             final boolean useExistingFields,
+                                             final boolean openEditor,
+                                             final boolean ignoreErrors,
+                                             final boolean replaceExistingMacros,
+                                             final boolean replaceExistingGroups,
+                                             final boolean deleteNonExistingFiles,
+                                             final boolean doReservedMessageIDsExist,
+                                             final boolean includesProjectFields,
+                                             final FileExtension importFileType,
+                                             final Component parent)
     {
         /* Execute the import operation in the background */
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
@@ -1118,18 +1118,32 @@ public class CcddFileIOHandler
             protected void execute() {
             	if (importFileType == FileExtension.JSON) {
 	            	errorFlag = jsonImport(dataFile,
-	                		          backupFirst,
-	                                  replaceExisting,
-	                                  appendExistingFields,
-	                                  useExistingFields,
-	                                  openEditor,
-	                                  ignoreErrors,
-	                                  replaceExistingMacros,
-	                                  replaceExistingGroups,
-	                                  deleteNonExistingFiles,
-	                                  doReservedMessageIDsExist,
-	                                  includesProjectFields,
-	                                  parent);
+	                                       backupFirst,
+	                                       replaceExisting,
+	                                       appendExistingFields,
+	                                       useExistingFields,
+	                                       openEditor,
+	                                       ignoreErrors,
+	                                       replaceExistingMacros,
+	                                       replaceExistingGroups,
+	                                       deleteNonExistingFiles,
+	                                       doReservedMessageIDsExist,
+	                                       includesProjectFields,
+	                                       parent);
+            	} else if (importFileType == FileExtension.CSV) {
+            	    List<FileEnvVar> dataFiles = Arrays.asList(dataFile);
+            	    // Import the selected table(s)
+                    importFile(dataFiles,
+                               backupFirst,
+                               replaceExisting,
+                               appendExistingFields,
+                               useExistingFields,
+                               openEditor,
+                               ignoreErrors,
+                               replaceExistingMacros,
+                               replaceExistingGroups,
+                               ManagerDialogType.IMPORT_CSV,
+                               parent);
             	}
             }
 
