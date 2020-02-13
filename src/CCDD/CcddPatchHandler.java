@@ -226,6 +226,7 @@ public class CcddPatchHandler
      *             If the user elects to not install the patch or an error occurs while applying
      *             the patch
      *********************************************************************************************/
+    /* TODO: This function is 1000 lines long....... refactor if time permits */
     private void updateCommandTables() throws CCDDException
     {
         CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
@@ -342,6 +343,7 @@ public class CcddPatchHandler
                         List<Integer> commandColumns = new ArrayList<Integer>();
                         List<String> commandTableNames = new ArrayList<String>();
                         List<String> commandTableDescriptions = new ArrayList<String>();
+                        List<String> commands = new ArrayList<String>();
                         String command = "";
 
                         // Read the contents of the command table type
@@ -521,8 +523,8 @@ public class CcddPatchHandler
                         {
                             // Load the command table's information
                             TableInformation cmdTableInfo = dbTable.loadTableData(commandTableName,
-                                                                                  false,
-                                                                                  false,
+                                                                                  true, /* Load description? */
+                                                                                  false, /* Load columnOrder? */
                                                                                   ccddMain.getMainFrame());
 
                             // Check if an error occurred loading the command table
@@ -556,8 +558,8 @@ public class CcddPatchHandler
                                 // table
                                 if (dbTable.createTable(new String[] {cmdArgRefTableName},
                                                         "Command "
-                                                                                           + commandTableName
-                                                                                           + " argument structure references",
+                                                            + commandTableName
+                                                            + " argument structure references",
                                                         STRUCT_CMD_ARG_REF,
                                                         ccddMain.getMainFrame()))
                                 {
@@ -586,6 +588,7 @@ public class CcddPatchHandler
                                 // the rate column)
                                 typeData.addAll(Arrays.asList(DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE,
                                                                                                         false)));
+                                int typeDataIndex = typeData.size();
 
                                 // Step through each command argument column grouping
                                 for (Integer[] cmdArgGroup : cmdArgGroups)
@@ -670,6 +673,31 @@ public class CcddPatchHandler
                                             isRequired = typeDefn.isRequired()[argCol];
                                             isStructureAllowed = typeDefn.isStructureAllowed()[argCol];
                                             isPointerAllowed = typeDefn.isPointerAllowed()[argCol];
+                                            
+                                            /* If the name is "Arg 1 Access", "Arg 1 Default Value" or "Arg 1 Verification Test Num" it will
+                                             * be changed to "Access", "Default Value" and "Verification Test Num". If it is Arg 2 or above
+                                             * it will not be added to the new structure at all. Each argument is now placed in its own
+                                             * instance of a Structure: Cmd Arg table so you will never need an Arg 2 or above value in
+                                             * any given table.
+                                             */
+                                            if (columnName.equals("Arg 1 Access")) {
+                                                columnName = "Access";
+                                                defCol = DefaultColumn.COMMAND_ARGUMENT;
+                                            } else if (columnName.equals("Arg 1 Default Value")) {
+                                                columnName = "Default Value";
+                                                defCol = DefaultColumn.COMMAND_ARGUMENT;
+                                            } else if (columnName.equals("Arg 1 Verification Test Num")) {
+                                                columnName = "Verification Test Num";
+                                                defCol = DefaultColumn.COMMAND_ARGUMENT;
+                                                
+                                                /* remove the argument number from the description */
+                                                description = description.substring(0, 17) + description.substring(18);
+                                            } else if (columnName.substring(0, 3).equals("Arg")) {
+                                                /* If it is Arg 2 or above it will not be added to the new structure at all */
+                                                if (Integer.parseInt(columnName.substring(4, 5)) > 1) {
+                                                    isAdd = false;
+                                                }
+                                            }
                                         }
 
                                         // Check if a column needs to be added
@@ -695,7 +723,6 @@ public class CcddPatchHandler
 
                                                 // Use the default column flags
                                                 isRowValueUnique = defCol.isRowValueUnique();
-                                                isRequired = defCol.isProtected();
                                                 isStructureAllowed = defCol.isStructureAllowed();
                                                 isPointerAllowed = defCol.isPointerAllowed();
                                             }
@@ -714,7 +741,7 @@ public class CcddPatchHandler
                                             }
 
                                             // Add the command argument structure column definition
-                                            typeData.add(new Object[] {0,
+                                            typeData.add(new Object[] {typeDataIndex,
                                                                        columnName,
                                                                        description,
                                                                        inputType.getInputName(),
@@ -722,6 +749,7 @@ public class CcddPatchHandler
                                                                        isRequired,
                                                                        isStructureAllowed,
                                                                        isPointerAllowed});
+                                            typeDataIndex++;
                                         }
                                     }
                                 }
@@ -752,16 +780,6 @@ public class CcddPatchHandler
                                             // command argument structure table type
                                             for (Object[] colDefn : cmdArgStructType.getData())
                                             {
-                                                // Alter the column index in order for the array
-                                                // comparison to not fail due to an index mismatch.
-                                                // If a new type needs to be created the indices
-                                                // are assigned at that point so changing them here
-                                                // has no effect
-                                                newColDefn[TableTypesColumn.INDEX.ordinal() - 0] = colDefn[TableTypesColumn.INDEX.ordinal() - 0];// TODO
-                                                                                                                                                 // 1
-                                                                                                                                                 // ->
-                                                                                                                                                 // 0
-
                                                 // Check if the column definitions match
                                                 if (CcddUtilities.isArraySetsEqual(colDefn,
                                                                                    newColDefn))
@@ -801,7 +819,7 @@ public class CcddPatchHandler
                                     // command table
                                     newCmdArgStructType = tableTypeHandler.createReplaceTypeDefinition("Structure: Cmd Arg "
                                                                                                        + cmdArgStructSeq,
-                                                                                                       "0Command argument structure table definition",
+                                                                                                       "Command argument structure table definition",
                                                                                                        typeData.toArray(new Object[0][0]));
                                     newCommandArgTypes.add(newCmdArgStructType);
                                     cmdArgStructSeq++;
@@ -834,12 +852,8 @@ public class CcddPatchHandler
                                         missingNameSeq++;
                                     }
 
-                                    // Build the name of the prototype structure table for this
-                                    // command argument
-                                    String cmdArgStructName = "cmdArg_" + commandTableName + "_" + cmdName;
-
                                     // Create a prototype for the command argument structure table
-                                    if (dbTable.createTable(new String[] {cmdArgStructName},
+                                    if (dbTable.createTable(new String[] {cmdName},
                                                             "Command argument structure",
                                                             newCmdArgStructType.getName(),
                                                             ccddMain.getMainFrame()))
@@ -854,7 +868,7 @@ public class CcddPatchHandler
                                     // name, and variableName is the command name
                                     String argStructRef = cmdArgTableInfo.getRootTable()
                                                           + ","
-                                                          + cmdArgStructName
+                                                          + cmdName
                                                           + "."
                                                           + cmdName;
 
@@ -864,7 +878,7 @@ public class CcddPatchHandler
                                     // Add the argument variable and structure to the argument
                                     // structure reference table
                                     cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.VARIABLE)] = cmdName;
-                                    cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)] = cmdArgStructName;
+                                    cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)] = cmdName;
 
                                     // Load the command argument structure table's information
                                     TableInformation argTableInfo = dbTable.loadTableData(argStructRef,
@@ -894,8 +908,14 @@ public class CcddPatchHandler
                                             // the new command argument structure table row. The
                                             // input type determines the column to which the value
                                             // belongs
-                                            cmdArg[newCmdArgStructType.getColumnIndexByInputType(typeDefn.getInputTypes()[argCol])] = cmdTableInfo.getData()[cmdRow][argCol];
-
+                                            try {
+                                                cmdArg[newCmdArgStructType.getColumnIndexByInputType(typeDefn.getInputTypes()[argCol])] = cmdTableInfo.getData()[cmdRow][argCol];
+                                            } catch (Exception e) {
+                                                /* this input type no longer exists and the function returns a -1. This will 
+                                                 * catch the -1 and allow the function to continue
+                                                 */
+                                            }
+                                            
                                             // Check if this is the argument variable name and
                                             // isn't blank
                                             if (!cmdTableInfo.getData()[cmdRow][argCol].toString().isEmpty()
@@ -961,7 +981,7 @@ public class CcddPatchHandler
                                         // Begin building the command to populate the argument
                                         // structure table
                                         argCommand += "INSERT INTO "
-                                                      + cmdArgStructName.toLowerCase()
+                                                      + cmdName.toLowerCase()
                                                       + " ("
                                                       + argColumnNames
                                                       + ") VALUES ("
@@ -1170,6 +1190,8 @@ public class CcddPatchHandler
                                     }
                                 }
                             }
+                            commands.add(command);
+                            command = "";
                         }
 
                         // Replace the original command table type with the new one
@@ -1201,7 +1223,9 @@ public class CcddPatchHandler
 
                         // Update the command table by replacing the original contents with the
                         // updated values
-                        dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+                        for (int index = 0; index < commands.size(); index++) {
+                        	dbCommand.executeDbCommand(commands.get(index), ccddMain.getMainFrame());
+                        }
                     }
                 }
 
@@ -1234,14 +1258,14 @@ public class CcddPatchHandler
             // Inform the user that converting the command tables failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot convert project '"
-                                                           + dbControl.getProjectName()
-                                                           + "' command tables to new format; cause '"
-                                                           + e.getMessage()
-                                                           + "'",
+                                      + dbControl.getProjectName()
+                                      + "' command tables to new format; cause '"
+                                      + e.getMessage()
+                                      + "'",
                                   "<html><b>Cannot convert project '</b>"
-                                                                  + dbControl.getProjectName()
-                                                                  + "<b>' command tables to new format "
-                                                                  + "(project database will be closed)");
+                                      + dbControl.getProjectName()
+                                      + "<b>' command tables to new format "
+                                      + "(project database will be closed)");
 
             try
             {

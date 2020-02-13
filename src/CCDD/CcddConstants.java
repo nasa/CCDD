@@ -3286,7 +3286,7 @@ public class CcddConstants
         protected static Object[][] getDefaultColumnDefinitions(String type, boolean includeRate)
         {
             List<Object[]> typeData = new ArrayList<Object[]>();
-
+            int typeDataIndex = 0;
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
@@ -3295,7 +3295,7 @@ public class CcddConstants
                     && (!defCol.inputType.equals(DefaultInputType.RATE) || includeRate))
                 {
                     // Add the column definition to the list
-                    typeData.add(new Object[] {0,
+                    typeData.add(new Object[] {typeDataIndex,
                                                defCol.columnName,
                                                defCol.description,
                                                defCol.getInputType().inputName,
@@ -3303,6 +3303,7 @@ public class CcddConstants
                                                defCol.isInputRequired,
                                                defCol.isStructureAllowed,
                                                defCol.isPointerAllowed});
+                    typeDataIndex++;
                 }
             }
 

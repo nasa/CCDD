@@ -23,23 +23,40 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddConstants.AssociationsTableColumnInfo;
+import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.GroupDefinitionColumn;
+import CCDD.CcddConstants.InputTypeEditorColumnInfo;
+import CCDD.CcddConstants.JSONTags;
+import CCDD.CcddConstants.MacroEditorColumnInfo;
+import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;
+import CCDD.CcddConstants.InternalTable.AppSchedulerComment;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
+import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
+import CCDD.CcddConstants.InternalTable.TlmSchedulerComments;
+import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 

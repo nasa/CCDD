@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -69,6 +70,7 @@ import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.MsgIDTableColumnInfo;
 import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
+import CCDD.CcddConstants.exportDataTypes;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -79,6 +81,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
+    private final CcddDbControlHandler dbControl;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddFieldHandler fieldHandler;
@@ -89,6 +92,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddScriptHandler scriptHandler;
     private final CcddApplicationParameterHandler appHandler;
     private final CcddRateParameterHandler rateHandler;
+    private final CcddFileIOHandler fileIOHandler;
     private TableInformation tableInfo;
 
     // GUI component over which to center any error dialog
@@ -123,6 +127,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
+        dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
@@ -133,6 +138,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         this.groupHandler = groupHandler;
         rateHandler = ccddMain.getRateParameterHandler();
         appHandler = ccddMain.getApplicationParameterHandler();
+        fileIOHandler = ccddMain.getFileIOHandler();
 
 
         tableDefinitions = null;
