@@ -13,7 +13,7 @@ See the CCDD user's guide for details on set up and use.
 
 ## CCDD version 2 
 
-*** CCDD version 2 has changed the way that the json import/export works. you can now import and export entire databases. Check CCDDv2 users guide for more details ***
+*** CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details ***
 
 Version 2 redefines the behavior of command tables.  Command arguments are no defined as columns within a command table.  Instead, the command table has a column that is a reference to a structure table; this structure defines the command argument(s).  The version 2 user's guide is updated to provide further details.
 
