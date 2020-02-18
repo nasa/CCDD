@@ -96,8 +96,7 @@ import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableColumnModel;
 import CCDD.CcddUndoHandler.UndoableTableModel;
-import sun.print.ServiceDialog;
-import sun.swing.table.DefaultTableCellHeaderRenderer;
+import javax.swing.JDialog;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary custom Swing table handler class
@@ -1626,9 +1625,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Table header renderer class for adjusting the font by column
      *********************************************************************************************/
-    private class HeaderFontRenderer extends DefaultTableCellHeaderRenderer
+    private class HeaderFontRenderer extends DefaultTableCellRenderer
     {
-        private final DefaultTableCellHeaderRenderer renderer;
+        private final DefaultTableCellRenderer renderer;
 
         /******************************************************************************************
          * Table header renderer class constructor
@@ -1637,7 +1636,7 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Get the default table header renderer. This allows manipulation of look & feels that
             // have specialized header renderers
-            renderer = (DefaultTableCellHeaderRenderer) table.getTableHeader().getDefaultRenderer();
+            renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
         }
 
         /******************************************************************************************
@@ -1685,7 +1684,7 @@ public abstract class CcddJTableHandler extends JTable
     private void setHeaderRenderer()
     {
         // Get the reference to the default header renderer to shorten subsequent calls
-        DefaultTableCellHeaderRenderer headerRenderer = new HeaderFontRenderer();
+    	DefaultTableCellRenderer headerRenderer = new HeaderFontRenderer();
 
         // Center the table column header text
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -4523,17 +4522,12 @@ public abstract class CcddJTableHandler extends JTable
             Component comp = table.getTopLevelAncestor();
 
             // Create a dummy dialog in order to obtain the print dialog's dimensions
-            ServiceDialog dialog = new ServiceDialog(comp.getGraphicsConfiguration(),
-                                                     0,
-                                                     0,
-                                                     services,
-                                                     0,
-                                                     flavor,
-                                                     attributes,
-                                                     (Dialog) null);
+            JDialog dialog = new JDialog();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(false);
             Rectangle newDlgSize = dialog.getBounds();
             dialog.dispose();
-
+            
             // Get the array of graphics devices (this accounts for multiple screens)
             GraphicsDevice[] gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 

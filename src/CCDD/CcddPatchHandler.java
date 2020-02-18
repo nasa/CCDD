@@ -717,13 +717,13 @@ public class CcddPatchHandler
                 // Check if the user elects to not apply the patch
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Apply patch to update the database to support user access "
-                                                                                       + "levels?<br><br></b>Changes the database "
-                                                                                       + "to support user access levels. <b>The "
-                                                                                       + "current user is set as the creator/"
-                                                                                       + "administrator of the database!</b> "
-                                                                                       + "Older versions of CCDD will remain "
-                                                                                       + "compatible with this project database "
-                                                                                       + "after applying the patch",
+                                                                                       + "support user access levels?<br><br></b>"
+                                                                                       + "Changes the database to support user "
+                                                                                       + "access levels. <b>The current user is set "
+                                                                                       + "as the creator/administrator of "
+                                                                                       + "the database!</b> Older versions of CCDD "
+                                                                                       + "will remain compatible with this project "
+                                                                                       + "database after applying the patch",
                                                               "Apply Patch #07242018",
                                                               JOptionPane.QUESTION_MESSAGE,
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
