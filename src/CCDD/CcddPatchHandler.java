@@ -819,7 +819,7 @@ public class CcddPatchHandler
                                     // command table
                                     newCmdArgStructType = tableTypeHandler.createReplaceTypeDefinition("Structure: Cmd Arg "
                                                                                                        + cmdArgStructSeq,
-                                                                                                       "Command argument structure table definition",
+                                                                                                       "0Command argument structure table definition",
                                                                                                        typeData.toArray(new Object[0][0]));
                                     newCommandArgTypes.add(newCmdArgStructType);
                                     cmdArgStructSeq++;
