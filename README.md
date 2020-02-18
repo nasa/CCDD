@@ -1,6 +1,8 @@
 # CCDD
 Core Flight System (CFS) Command and Data Dictionary (CCDD) utility
 
+*** CCDD Version 1.5.37 ***
+
 *** CCDD works with JAVA 7-13 ***
 
 CCDD is a software tool for managing the command and telemetry data for CFS and CFS applications.  CCDD is written in Java™ and interacts with a PostgreSQL database, so it can be used on any operating system that supports the Java Runtime Environment (JRE) and PostgreSQL.  CCDD is released as open source software under the NASA Open Source Software Agreement, version 1.3, and is hosted on GitHub.
