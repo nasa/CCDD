@@ -19,6 +19,7 @@ import static CCDD.CcddConstants.COL_MINIMUM;
 import static CCDD.CcddConstants.COL_UNITS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_COMMAND_V2;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.util.ArrayList;
@@ -819,6 +820,19 @@ public class CcddTableTypeHandler
         protected boolean isCommand()
         {
             return isTargetType(TYPE_COMMAND) && !isTargetType(TYPE_STRUCTURE);
+        }
+        
+        /******************************************************************************************
+         * Determine if this table type contains all of the default protected columns of the
+         * CCDDv2 Command table type
+         *
+         * @return true if this table type contains all of the protected columns of the CCDDv2 
+         *         Command table type (but not those of a Structure table type); i.e., this 
+         *         table type represents a CCDDv2 Command table
+         *****************************************************************************************/
+        protected boolean isV2Command()
+        {
+            return isTargetType(TYPE_COMMAND_V2) && !isTargetType(TYPE_STRUCTURE);
         }
 
         /******************************************************************************************

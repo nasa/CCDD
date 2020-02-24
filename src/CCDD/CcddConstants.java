@@ -28,6 +28,8 @@ import CCDD.CcddClassesComponent.ModifiableColor;
 import CCDD.CcddClassesComponent.ModifiableFont;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
+import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 
@@ -104,6 +106,7 @@ public class CcddConstants
     // Default table type names
     protected static final String TYPE_STRUCTURE = "Structure";
     protected static final String TYPE_COMMAND = "Command";
+    protected static final String TYPE_COMMAND_V2 = "V2 Command";
     protected static final String TYPE_OTHER = "Other";
 
     // Column names/prefixes
@@ -2184,6 +2187,7 @@ public class CcddConstants
         MINIMUM(true, true),
         MAXIMUM(true, true),
         VARIABLE_PATH(false, false),
+        VARIABLE_REF(true, false),
         MESSAGE_ID(false, false),
         PAGE_FORMAT(false, false);
 
@@ -2277,6 +2281,18 @@ public class CcddConstants
                 "(?i)true|false",
                 InputTypeFormat.BOOLEAN,
                 "Boolean value; true or false"),
+        
+        COMMAND_ARGUMENT("Command argument",
+                ALPHANUMERIC.getInputMatch()
+                                    + "(?:,"
+                                    + ALPHANUMERIC.getInputMatch()
+                                    + "\\."
+                                    + ALPHANUMERIC.getInputMatch()
+                                    + ")?",
+                InputTypeFormat.VARIABLE_REF,
+                "Command argument variable reference in the format root<,parent.variable> "
+                                              + "where 'root', 'parent', and 'variable' have the same constraint as for "
+                                              + "an alphanumeric (see Alphanumeric)"),
 
         COMMAND_CODE("Command code",
                      "^(?:0x)?[a-fA-F0-9]*",
@@ -2965,7 +2981,52 @@ public class CcddConstants
                   false,
                   false,
                   true,
-                  false);
+                  false),
+        
+        // CCDD v2 Command table type
+        V2_COMMAND_NAME(TYPE_COMMAND_V2,
+                     "Command Name",
+                     "Command name",
+                     DefaultInputType.COMMAND_NAME,
+                     true,
+                     true,
+                     true,
+                     false,
+                     true,
+                     true),
+
+        V2_COMMAND_CODE(TYPE_COMMAND_V2,
+                     "Command Code",
+                     "Command function code",
+                     DefaultInputType.COMMAND_CODE,
+                     true,
+                     true,
+                     true,
+                     false,
+                     true,
+                     true),
+
+        V2_DESCRIPTION_CMD(TYPE_COMMAND_V2,
+                        COL_DESCRIPTION,
+                        "Command description",
+                        DefaultInputType.DESCRIPTION,
+                        false,
+                        false,
+                        false,
+                        false,
+                        true,
+                        false),
+
+        V2_COMMAND_ARGUMENT(TYPE_COMMAND_V2,
+                         "Command Argument",
+                         "Command argument variable reference",
+                         DefaultInputType.COMMAND_ARGUMENT,
+                         true,
+                         false,
+                         true,
+                         false,
+                         false,
+                         true);;
 
         private final String tableType;
         private final String columnName;

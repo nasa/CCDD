@@ -287,6 +287,34 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
+     * Get the database CCDD version. Expects ccddMain.setPreFunctionDbSpecificHandlers() to have
+     * been called already, as this function relies on the CcddTableTypeHandler and
+     * CcddInputTypeHandler being initialized.  
+     *
+     * @return true if database schema matches a CCDD version 2 database.
+     *********************************************************************************************/
+    protected boolean isDatabaseCCDDv2()
+    {
+        boolean isCCDDv2 = false;
+        CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+
+        // Step through each table type definition
+        for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+        {
+            // Check if the table represents a command
+            if (typeDefn.isV2Command())
+            {
+                // Stop searching since the database is already updated
+            	isCCDDv2 = true;
+                break;
+            }
+        }
+        
+        return isCCDDv2;
+    }
+    
+
+    /**********************************************************************************************
      * Convert the specified project name into its equivalent PostgreSQL database name. All upper
      * case letters are set to lower case. Non-alphanumeric characters are replaced with
      * underscores(_), and an underscore is prepended if the name begins with a numeral. The
@@ -521,6 +549,14 @@ public class CcddDbControlHandler
                 }
             }
         }
+    }
+    
+    /**********************************************************************************************
+     * Set the user access level manually, ignoring the user authorization table.
+     *********************************************************************************************/
+    private void setAccessLevel(AccessLevel level)
+    {
+        accessLevel = level;
     }
 
     /**********************************************************************************************
@@ -2593,6 +2629,30 @@ public class CcddDbControlHandler
                     // (default database)
                     if (isDatabaseConnected())
                     {
+
+                        // Create and set the project-specific handlers that must be created prior
+                        // to creating the project-specific PostgreSQL functions
+                        ccddMain.setPreFunctionDbSpecificHandlers();
+                        
+                        boolean isCCDDv2 = isDatabaseCCDDv2();
+                        
+                        // Check if the patch hasn't been applied
+                        if (isCCDDv2)
+                        {
+                            // Check if the user elects to not apply the patch
+                            if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                          "<html><b>WARNING! This is a CCDD v2 database, and cannot be written "
+                                                                                                   + "to without becoming corrupted. "
+                                                                                                   + "It may be opened in read-only mode.<br><br></b>"
+                                                                                                   + "Open database in read-only mode?",
+                                                                          "Incompatible Datbase",
+                                                                          JOptionPane.QUESTION_MESSAGE,
+                                                                          DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                            {
+                                throw new CCDDException();
+                            }
+                        }                       
+
                         // Check if the database functions should be created; if so create the
                         // internal tables and database functions, and check if an error occurs
                         // creating them
@@ -2606,9 +2666,6 @@ public class CcddDbControlHandler
                         CcddPatchHandler patchHandler = new CcddPatchHandler(ccddMain);
                         patchHandler.applyPatches(true);
 
-                        // Create and set the project-specific handlers that must be created prior
-                        // to creating the project-specific PostgreSQL functions
-                        ccddMain.setPreFunctionDbSpecificHandlers();
 
                         // Check if the database functions should be created; if so create the
                         // database functions that collect structure table members and
@@ -2622,14 +2679,21 @@ public class CcddDbControlHandler
                         // Create and set the project-specific handlers that must be created after
                         // creating the project-specific PostgreSQL functions
                         ccddMain.setPostFunctionDbSpecificHandlers();
-
+                        
                         // Perform any patches to update this project database to the latest schema
                         // that must be implemented after initializing the handler classes
                         patchHandler.applyPatches(false);
 
                         // Set the user's access level
-                        setAccessLevel();
-
+                        if(isCCDDv2)
+                        {
+                        	setAccessLevel(AccessLevel.READ_ONLY);
+                        }
+                        else
+                        {
+                        	setAccessLevel();
+                        }
+                        
                         // Check if the GUI is visible
                         if (!ccddMain.isGUIHidden())
                         {

@@ -12,7 +12,7 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="CCDD.CcddMain"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ c_struct_to_csv_convert.jar EDS.jar jetty-http-9.2.18.v20160721.jar jetty-io-9.2.18.v20160721.jar jetty-security-9.2.18.v20160721.jar jetty-server-9.2.18.v20160721.jar jetty-servlet-9.2.18.v20160721.jar jetty-util-9.2.18.v20160721.jar json-simple-1.1.1.jar postgresql-9.4.1207.jre7.jar servlet-api-3.1.jar XTCE.jar CCDD.jar org.apache.commons.io.jar jaxb-api-2.2.3.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ c_struct_to_csv_convert.jar EDS.jar jetty-http-9.2.18.v20160721.jar jetty-io-9.2.18.v20160721.jar jetty-security-9.2.18.v20160721.jar jetty-server-9.2.18.v20160721.jar jetty-servlet-9.2.18.v20160721.jar jetty-util-9.2.18.v20160721.jar json-simple-1.1.1.jar postgresql-9.4.1207.jre7.jar servlet-api-3.1.jar XTCE.jar CCDD.jar org.apache.commons.io.jar"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <fileset dir="${dir.jarfile}/bin"/>
@@ -31,7 +31,6 @@
             <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="XTCE.jar"/>
             <zipfileset dir="${dir.jarfile}" includes="CCDD.jar"/>
             <zipfileset dir="/home/bryan/Downloads" includes="org.apache.commons.io.jar"/>
-            <zipfileset dir="/home/bryan/CCDD/ccdd/CCDD/CCDD_lib" includes="jaxb-api-2.2.3.jar"/>
         </jar>
     </target>
 </project>
