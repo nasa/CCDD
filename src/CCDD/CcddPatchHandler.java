@@ -1054,9 +1054,8 @@ public class CcddPatchHandler
                                         if (commandColumns.contains(cmdColumn))
                                         {
                                             // Store the command value in the command
-                                            command += "'"
-                                                       + cmdTableInfo.getData()[cmdRow][cmdColumn]
-                                                       + "', ";
+                                            command += CcddDbTableCommandHandler.delimitText(cmdTableInfo.getData()[cmdRow][cmdColumn])
+                                                       + ", ";
                                         }
                                     }
 
