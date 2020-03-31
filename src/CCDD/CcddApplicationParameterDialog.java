@@ -32,8 +32,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * CFS Command and Data Dictionary application parameter assignment dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddApplicationParameterDialog extends CcddDialogHandler
-{
+public class CcddApplicationParameterDialog extends CcddDialogHandler {
     // Class references
     private final CcddMain ccddMain;
     private final CcddApplicationParameterHandler appHandler;
@@ -47,11 +46,9 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Application parameter assignment dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddApplicationParameterDialog(CcddMain ccddMain)
-    {
+    CcddApplicationParameterDialog(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
 
         // Get a reference to the application handler to shorten later calls
@@ -64,35 +61,26 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the application parameter assignment dialog
      *********************************************************************************************/
-    private void initialize()
-    {
+    private void initialize() {
         // Get the application parameters
         appHandler.generateApplicationParameters();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.NONE,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a border for the input fields
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Create a panel to contain the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -166,16 +154,11 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         dialogPnl.add(maxMsgsPerCycleFld, gbc);
 
         // Get the user's input
-        if (showOptionsDialog(ccddMain.getMainFrame(),
-                              dialogPnl,
-                              "Application Parameters",
-                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-        {
+        if (showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, "Application Parameters",
+                DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
             appHandler.setApplicationParameters(Integer.valueOf(maxMsgsPerSecFld.getText()),
-                                                Integer.valueOf(maxMsgsPerCycleFld.getText()),
-                                                Integer.valueOf(maxMsgsPerTimeSlotFld.getText()),
-                                                Integer.valueOf(numTimeSlotsFld.getText()),
-                                                CcddApplicationParameterDialog.this);
+                    Integer.valueOf(maxMsgsPerCycleFld.getText()), Integer.valueOf(maxMsgsPerTimeSlotFld.getText()),
+                    Integer.valueOf(numTimeSlotsFld.getText()), CcddApplicationParameterDialog.this);
         }
     }
 
@@ -185,13 +168,11 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
      * @return true if the input values are valid
      *********************************************************************************************/
     @Override
-    protected boolean verifySelection()
-    {
+    protected boolean verifySelection() {
         // Assume the dialog input is valid
         boolean isValid = true;
 
-        try
-        {
+        try {
             // Remove any excess white space
             maxMsgsPerTimeSlotFld.setText(maxMsgsPerTimeSlotFld.getText().trim());
             maxMsgsPerSecFld.setText(maxMsgsPerSecFld.getText().trim());
@@ -199,21 +180,17 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
             numTimeSlotsFld.setText(numTimeSlotsFld.getText().trim());
 
             // Check if any parameter is blank
-            if (maxMsgsPerTimeSlotFld.getText().isEmpty()
-                || maxMsgsPerSecFld.getText().isEmpty()
-                || maxMsgsPerCycleFld.getText().isEmpty()
-                || numTimeSlotsFld.getText().isEmpty())
-            {
+            if (maxMsgsPerTimeSlotFld.getText().isEmpty() || maxMsgsPerSecFld.getText().isEmpty()
+                    || maxMsgsPerCycleFld.getText().isEmpty() || numTimeSlotsFld.getText().isEmpty()) {
                 // Inform the user that a parameter is missing
                 throw new Exception("All application parameters must be entered");
             }
 
             // Check if the any parameter is not a positive integer value
             if (!maxMsgsPerTimeSlotFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
-                || !maxMsgsPerSecFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
-                || !maxMsgsPerCycleFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
-                || !numTimeSlotsFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
-            {
+                    || !maxMsgsPerSecFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
+                    || !maxMsgsPerCycleFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
+                    || !numTimeSlotsFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
                 // Inform the user that a parameter is invalid
                 throw new Exception("Application parameter values must be positive integer values");
             }
@@ -223,15 +200,10 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
             maxMsgsPerSecFld.setText(Integer.valueOf(maxMsgsPerSecFld.getText()).toString());
             maxMsgsPerCycleFld.setText(Integer.valueOf(maxMsgsPerCycleFld.getText()).toString());
             numTimeSlotsFld.setText(Integer.valueOf(numTimeSlotsFld.getText()).toString());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddApplicationParameterDialog.this,
-                                                      "<html><b>" + e.getMessage(),
-                                                      "Missing/Invalid Input",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(CcddApplicationParameterDialog.this, "<html><b>" + e.getMessage(),
+                    "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
 
             // Set the flag to indicate the dialog input is invalid
             isValid = false;

@@ -62,8 +62,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * CFS Command and Data Dictionary program preferences dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddPreferencesDialog extends CcddDialogHandler
-{
+public class CcddPreferencesDialog extends CcddDialogHandler {
     // Class reference
     private final CcddMain ccddMain;
 
@@ -91,11 +90,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Program preferences dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddPreferencesDialog(CcddMain ccddMain)
-    {
+    CcddPreferencesDialog(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
 
         // Create the preferences dialog
@@ -105,8 +102,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the preferences dialog
      *********************************************************************************************/
-    private void initialize()
-    {
+    private void initialize() {
         maxScrollPaneHeight = 0;
 
         // Create an empty border for use with the dialog components
@@ -129,170 +125,146 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel buttonPnl = new JPanel();
 
         // Update button
-        final JButton btnUpdateAll = CcddButtonPanelHandler.createButton("Update",
-                                                                         STORE_ICON,
-                                                                         KeyEvent.VK_U,
-                                                                         "Update the program preference values");
+        final JButton btnUpdateAll = CcddButtonPanelHandler.createButton("Update", STORE_ICON, KeyEvent.VK_U,
+                "Update the program preference values");
 
         // Add a listener for the Update button
-        btnUpdateAll.addActionListener(new ActionListener()
-        {
+        btnUpdateAll.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Update the program preference values
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 int index = 0;
 
                 // Base the action on the name of the tab selected
-                switch (tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()))
-                {
-                    case LAF:
-                    case FONT:
-                    case COLOR:
-                        // These tabs do not display the Update button, but instead either act
-                        // immediately or have a secondary dialog that controls updating the
-                        // preference value
-                        break;
+                switch (tabbedPane.getTitleAt(tabbedPane.getSelectedIndex())) {
+                case LAF:
+                case FONT:
+                case COLOR:
+                    // These tabs do not display the Update button, but instead either act
+                    // immediately or have a secondary dialog that controls updating the
+                    // preference value
+                    break;
 
-                    case SIZE:
-                        // Update the program size preference values. Step through each modifiable
-                        // size
-                        for (ModifiableSizeInfo modSize : ModifiableSizeInfo.values())
-                        {
-                            // Get the current value from the size text field
-                            int currentValue = Integer.valueOf(sizeFld[index].getText());
+                case SIZE:
+                    // Update the program size preference values. Step through each modifiable
+                    // size
+                    for (ModifiableSizeInfo modSize : ModifiableSizeInfo.values()) {
+                        // Get the current value from the size text field
+                        int currentValue = Integer.valueOf(sizeFld[index].getText());
 
-                            // Check if the size has changed
-                            if (modSize.getSize() != currentValue)
-                            {
-                                // Update the size to the new value
-                                modSize.setSize(currentValue, ccddMain.getProgPrefs());
-                            }
-
-                            index++;
+                        // Check if the size has changed
+                        if (modSize.getSize() != currentValue) {
+                            // Update the size to the new value
+                            modSize.setSize(currentValue, ccddMain.getProgPrefs());
                         }
 
-                        break;
+                        index++;
+                    }
 
-                    case SPACING:
-                        // Update the program spacing preference values. Step through each
-                        // modifiable spacing
-                        for (ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values())
-                        {
-                            // Get the current value from the spacing text field
-                            int currentValue = Integer.valueOf(spacingFld[index].getText());
+                    break;
 
-                            // Check if the spacing has changed
-                            if (modSpacing.getSpacing() != currentValue)
-                            {
-                                // Update the spacing to the new value
-                                modSpacing.setSpacing(currentValue, ccddMain.getProgPrefs());
-                            }
+                case SPACING:
+                    // Update the program spacing preference values. Step through each
+                    // modifiable spacing
+                    for (ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values()) {
+                        // Get the current value from the spacing text field
+                        int currentValue = Integer.valueOf(spacingFld[index].getText());
 
-                            index++;
+                        // Check if the spacing has changed
+                        if (modSpacing.getSpacing() != currentValue) {
+                            // Update the spacing to the new value
+                            modSpacing.setSpacing(currentValue, ccddMain.getProgPrefs());
                         }
 
-                        break;
+                        index++;
+                    }
 
-                    case PATH:
-                        // Update the program path preference. Step through each modifiable path
-                        for (ModifiablePathInfo modPath : ModifiablePathInfo.values())
-                        {
-                            // Get the current path from the path text field
-                            String currentPath = pathFld[index].getText().trim();
+                    break;
 
-                            // Check if the path has changed
-                            if (!modPath.getPath().equals(currentPath))
-                            {
-                                // Store the path in the program preferences backing store
-                                CcddFileIOHandler.storePath(ccddMain,
-                                                            currentPath,
-                                                            false,
-                                                            modPath);
-                            }
+                case PATH:
+                    // Update the program path preference. Step through each modifiable path
+                    for (ModifiablePathInfo modPath : ModifiablePathInfo.values()) {
+                        // Get the current path from the path text field
+                        String currentPath = pathFld[index].getText().trim();
 
-                            index++;
+                        // Check if the path has changed
+                        if (!modPath.getPath().equals(currentPath)) {
+                            // Store the path in the program preferences backing store
+                            CcddFileIOHandler.storePath(ccddMain, currentPath, false, modPath);
                         }
 
-                        break;
+                        index++;
+                    }
 
-                    case OTHER:
-                        // Update the other setting preference. Step through each modifiable other
-                        // setting
-                        for (ModifiableOtherSettingInfo modOther : ModifiableOtherSettingInfo.values())
-                        {
-                            // Get the current setting value from the other setting text field
-                            String currentValue = otherFld[index].getText().trim();
+                    break;
 
-                            // Check if the setting value has changed
-                            if (!modOther.getValue().equals(currentValue))
-                            {
-                                // Update the other setting to the new value
-                                modOther.setValue(currentValue, ccddMain.getProgPrefs());
-                            }
+                case OTHER:
+                    // Update the other setting preference. Step through each modifiable other
+                    // setting
+                    for (ModifiableOtherSettingInfo modOther : ModifiableOtherSettingInfo.values()) {
+                        // Get the current setting value from the other setting text field
+                        String currentValue = otherFld[index].getText().trim();
 
-                            index++;
+                        // Check if the setting value has changed
+                        if (!modOther.getValue().equals(currentValue)) {
+                            // Update the other setting to the new value
+                            modOther.setValue(currentValue, ccddMain.getProgPrefs());
                         }
 
-                        break;
+                        index++;
+                    }
+
+                    break;
                 }
             }
         });
 
         // Close button
-        JButton btnCloseDlg = CcddButtonPanelHandler.createButton("Close",
-                                                                  CLOSE_ICON,
-                                                                  KeyEvent.VK_C,
-                                                                  "Close the program preferences dialog");
+        JButton btnCloseDlg = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                "Close the program preferences dialog");
 
         // Add a listener for the Close button
-        btnCloseDlg.addActionListener(new ActionListener()
-        {
+        btnCloseDlg.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Close the program preferences dialog
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Close the dialog
                 closeDialog();
             }
         });
 
         // Listen for tab selection changes
-        tabbedPane.addChangeListener(new ChangeListener()
-        {
+        tabbedPane.addChangeListener(new ChangeListener() {
             /**************************************************************************************
              * Handle a tab selection change
              *************************************************************************************/
             @Override
-            public void stateChanged(ChangeEvent ce)
-            {
+            public void stateChanged(ChangeEvent ce) {
                 // Get the index of the selected tab
                 int tabIndex = tabbedPane.getSelectedIndex();
 
                 // Check if a tab is selected
-                if (tabIndex != -1)
-                {
+                if (tabIndex != -1) {
                     // Base the action of the name of the tab selected
-                    switch (tabbedPane.getTitleAt(tabIndex))
-                    {
-                        case LAF:
-                        case FONT:
-                        case COLOR:
-                            // Hide the update button
-                            btnUpdateAll.setVisible(false);
-                            break;
+                    switch (tabbedPane.getTitleAt(tabIndex)) {
+                    case LAF:
+                    case FONT:
+                    case COLOR:
+                        // Hide the update button
+                        btnUpdateAll.setVisible(false);
+                        break;
 
-                        case SIZE:
-                        case SPACING:
-                        case PATH:
-                        case OTHER:
-                            // Show the update button
-                            btnUpdateAll.setVisible(true);
-                            break;
+                    case SIZE:
+                    case SPACING:
+                    case PATH:
+                    case OTHER:
+                        // Show the update button
+                        btnUpdateAll.setVisible(true);
+                        break;
                     }
                 }
             }
@@ -302,45 +274,33 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         buttonPnl.add(btnUpdateAll);
         buttonPnl.add(btnCloseDlg);
 
-        // Toggle the tab selection so that the first tab is selected and the Update button
+        // Toggle the tab selection so that the first tab is selected and the Update
+        // button
         // visibility is set accordingly
         tabbedPane.setSelectedIndex(-1);
         tabbedPane.setSelectedIndex(0);
 
-        // Set the initial size of the preferences dialog based on the individual panes' contents
-        tabbedPane.setPreferredSize(new Dimension(tabbedPane.getPreferredSize().width
-                                                  + LAF_SCROLL_BAR_WIDTH,
-                                                  maxScrollPaneHeight));
+        // Set the initial size of the preferences dialog based on the individual panes'
+        // contents
+        tabbedPane.setPreferredSize(
+                new Dimension(tabbedPane.getPreferredSize().width + LAF_SCROLL_BAR_WIDTH, maxScrollPaneHeight));
 
         // Display the Preferences dialog
-        showOptionsDialog(ccddMain.getMainFrame(),
-                          tabbedPane,
-                          buttonPnl,
-                          btnCloseDlg,
-                          "Preferences",
-                          true);
+        showOptionsDialog(ccddMain.getMainFrame(), tabbedPane, buttonPnl, btnCloseDlg, "Preferences", true);
     }
 
     /**********************************************************************************************
      * Add the look and feel update tab to the tabbed pane
      *********************************************************************************************/
-    private void addLafTab()
-    {
+    private void addLafTab() {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.NONE,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a panel to contain the look & feel components
         JPanel lafPnl = new JPanel(new GridBagLayout());
@@ -351,13 +311,15 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         innerPnl.setBorder(emptyBorder);
         innerPnl.add(lafPnl, gbc);
 
-        // Add an invisible component in order to force the look & feel selection panel to the left
+        // Add an invisible component in order to force the look & feel selection panel
+        // to the left
         JLabel invisibleLbl = new JLabel("");
         gbc.weightx = 1.0;
         gbc.gridx++;
         innerPnl.add(invisibleLbl, gbc);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel outerPnl = new JPanel(new BorderLayout());
         outerPnl.setBorder(emptyBorder);
         outerPnl.add(innerPnl, BorderLayout.PAGE_START);
@@ -365,12 +327,12 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         // Add the look & feel selection tab to the tabbed pane
         tabbedPane.addTab(LAF, null, outerPnl, "Change program look & feel");
 
-        // Obtain the list of available look & feels to use in creating the radio buttons
+        // Obtain the list of available look & feels to use in creating the radio
+        // buttons
         LookAndFeelInfo[] lafInfo = UIManager.getInstalledLookAndFeels();
 
         // Check if any look & feels exist
-        if (lafInfo.length != 0)
-        {
+        if (lafInfo.length != 0) {
             gbc.weightx = 0.0;
             gbc.gridx = 0;
 
@@ -378,48 +340,38 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             String[][] lafDescriptions = new String[lafInfo.length][2];
 
             // Step through each look & feel
-            for (int index = 0; index < lafInfo.length; index++)
-            {
+            for (int index = 0; index < lafInfo.length; index++) {
                 // Store the look & feel name
                 lafDescriptions[index][0] = lafInfo[index].getName();
             }
 
-            // Create a panel containing a grid of radio buttons representing the look & feels from
+            // Create a panel containing a grid of radio buttons representing the look &
+            // feels from
             // which to choose
-            addRadioButtons(ccddMain.getLookAndFeel(),
-                            true,
-                            lafDescriptions,
-                            null,
-                            "Select the application's 'look & feel'",
-                            false,
-                            lafPnl,
-                            gbc);
+            addRadioButtons(ccddMain.getLookAndFeel(), true, lafDescriptions, null,
+                    "Select the application's 'look & feel'", false, lafPnl, gbc);
 
             // Add a listener for radio button selection change events
-            addPropertyChangeListener(new PropertyChangeListener()
-            {
+            addPropertyChangeListener(new PropertyChangeListener() {
                 /**********************************************************************************
                  * Handle a radio button selection change event
                  *********************************************************************************/
                 @Override
-                public void propertyChange(PropertyChangeEvent pce)
-                {
+                public void propertyChange(PropertyChangeEvent pce) {
                     // Check if the event indicates a radio button selection change
-                    if (pce.getPropertyName().equals(RADIO_BUTTON_CHANGE_EVENT))
-                    {
+                    if (pce.getPropertyName().equals(RADIO_BUTTON_CHANGE_EVENT)) {
                         // Get the radio button selected
                         String buttonName = pce.getNewValue().toString();
 
                         // Check if the selected look & feel differs from the one currently in use
-                        if (!ccddMain.getLookAndFeel().equals(buttonName))
-                        {
+                        if (!ccddMain.getLookAndFeel().equals(buttonName)) {
                             // Save the selected look & feel name for storage in the program
                             // preferences backing store
                             ccddMain.setLookAndFeel(buttonName);
 
                             // Update the visible GUI components to the new look & feel
                             ccddMain.updateGUI(GUIUpdateType.LAF,
-                                               new CcddDialogHandler[] {CcddPreferencesDialog.this});
+                                    new CcddDialogHandler[] { CcddPreferencesDialog.this });
                         }
                     }
                 }
@@ -430,29 +382,22 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add the font update tab to the tabbed pane
      *********************************************************************************************/
-    private void addFontTab()
-    {
+    private void addFontTab() {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a panel to contain the font components
         JPanel innerFontPnl = new JPanel(new GridBagLayout());
         innerFontPnl.setBorder(emptyBorder);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel fontPnl = new JPanel(new BorderLayout());
         fontPnl.setBorder(emptyBorder);
         fontPnl.add(innerFontPnl, BorderLayout.PAGE_START);
@@ -466,17 +411,16 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         tabbedPane.addTab(FONT, null, fontScrollPane, "Change program fonts");
 
         // Create a listener for the font button presses
-        ActionListener fontBtnListener = new ActionListener()
-        {
+        ActionListener fontBtnListener = new ActionListener() {
             /**************************************************************************************
              * Handle a font button press
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Get the reference to the modifiable font information based on the button name
                 // (in which the modifiable font's program preferences key is stored)
-                final ModifiableFontInfo modFont = ModifiableFontInfo.getModifiableFontInfo(((JButton) ae.getSource()).getName());
+                final ModifiableFontInfo modFont = ModifiableFontInfo
+                        .getModifiableFontInfo(((JButton) ae.getSource()).getName());
 
                 // Create a font chooser
                 final JFontChooser chooser = new JFontChooser();
@@ -488,51 +432,39 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                 final CcddDialogHandler dialog = new CcddDialogHandler();
 
                 // Add a listener for the Update button
-                ActionListener okayAction = new ActionListener()
-                {
+                ActionListener okayAction = new ActionListener() {
                     /******************************************************************************
                      * Handle an Update button press event
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if the font changed
                         if (!modFont.getFont().getFamily().equals(chooser.getSelectedFontFamily())
-                            || modFont.getFont().getStyle() != chooser.getSelectedFontStyle()
-                            || modFont.getFont().getSize() != chooser.getSelectedFontSize())
-                        {
+                                || modFont.getFont().getStyle() != chooser.getSelectedFontStyle()
+                                || modFont.getFont().getSize() != chooser.getSelectedFontSize()) {
                             // Update the modifiable font information to the new font
-                            updateFont(modFont,
-                                       chooser.getSelectedFontFamily(),
-                                       chooser.getSelectedFontStyle(),
-                                       chooser.getSelectedFontSize(),
-                                       new CcddDialogHandler[] {CcddPreferencesDialog.this,
-                                                                dialog});
+                            updateFont(modFont, chooser.getSelectedFontFamily(), chooser.getSelectedFontStyle(),
+                                    chooser.getSelectedFontSize(),
+                                    new CcddDialogHandler[] { CcddPreferencesDialog.this, dialog });
                         }
                     }
                 };
 
                 // Add a listener for the Default button
-                ActionListener defaultAction = new ActionListener()
-                {
+                ActionListener defaultAction = new ActionListener() {
                     /******************************************************************************
                      * Handle a Default button press event
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if the font changed
                         if (!modFont.getFont().getFamily().equals(modFont.getDefaultFamily())
-                            || modFont.getFont().getStyle() != modFont.getDefaultStyle()
-                            || modFont.getFont().getSize() != modFont.getDefaultSize())
-                        {
+                                || modFont.getFont().getStyle() != modFont.getDefaultStyle()
+                                || modFont.getFont().getSize() != modFont.getDefaultSize()) {
                             // Update the modifiable font information to its default font
-                            updateFont(modFont,
-                                       modFont.getDefaultFamily(),
-                                       modFont.getDefaultStyle(),
-                                       modFont.getDefaultSize(),
-                                       new CcddDialogHandler[] {CcddPreferencesDialog.this,
-                                                                dialog});
+                            updateFont(modFont, modFont.getDefaultFamily(), modFont.getDefaultStyle(),
+                                    modFont.getDefaultSize(),
+                                    new CcddDialogHandler[] { CcddPreferencesDialog.this, dialog });
                         }
 
                         // Update the font chooser to the default font
@@ -541,40 +473,34 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                 };
 
                 // Display the font selection dialog
-                dialog.showOptionsDialog(CcddPreferencesDialog.this,
-                                         chooser.createChooserPanel(),
-                                         getButtonPanel(okayAction, defaultAction, dialog),
-                                         btnClose,
-                                         "Select Font: " + modFont.getName(),
-                                         false);
+                dialog.showOptionsDialog(CcddPreferencesDialog.this, chooser.createChooserPanel(),
+                        getButtonPanel(okayAction, defaultAction, dialog), btnClose,
+                        "Select Font: " + modFont.getName(), false);
             }
         };
 
-        // Create storage for the buttons and sample text labels representing each modifiable font
+        // Create storage for the buttons and sample text labels representing each
+        // modifiable font
         JButton[] fontBtn = new JButton[ModifiableFontInfo.values().length];
         JLabel[] fontLbl = new JLabel[ModifiableFontInfo.values().length];
 
         int index = 0;
-        String[] fontStyles = new String[] {"Plain", "Bold", "Italic", "BoldItalic"};
+        String[] fontStyles = new String[] { "Plain", "Bold", "Italic", "BoldItalic" };
 
         // Step through each modifiable font
-        for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
-        {
-            // Create a button and sample text label for the modifiable font, and add these to the
+        for (ModifiableFontInfo modFont : ModifiableFontInfo.values()) {
+            // Create a button and sample text label for the modifiable font, and add these
+            // to the
             // font panel
             fontBtn[index] = new JButton(modFont.getName());
             fontBtn[index].setName(modFont.getPreferenceKey());
-            fontBtn[index].setToolTipText(CcddUtilities.wrapText(modFont.getDescription(),
-                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            fontBtn[index].setToolTipText(
+                    CcddUtilities.wrapText(modFont.getDescription(), ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             fontBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
             fontBtn[index].addActionListener(fontBtnListener);
             innerFontPnl.add(fontBtn[index], gbc);
-            fontLbl[index] = new JLabel("sample text: "
-                                        + modFont.getFont().getFamily()
-                                        + ", "
-                                        + fontStyles[modFont.getFont().getStyle()]
-                                        + ", "
-                                        + modFont.getFont().getSize());
+            fontLbl[index] = new JLabel("sample text: " + modFont.getFont().getFamily() + ", "
+                    + fontStyles[modFont.getFont().getStyle()] + ", " + modFont.getFont().getSize());
             fontLbl[index].setFont(modFont.getFont());
             gbc.weightx = 1.0;
             gbc.gridx++;
@@ -586,52 +512,43 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         }
 
         // Set the scroll bar scroll increment
-        fontScrollPane.getVerticalScrollBar().setUnitIncrement(fontBtn[0].getPreferredSize().height / 2
-                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        fontScrollPane.getVerticalScrollBar().setUnitIncrement(
+                fontBtn[0].getPreferredSize().height / 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-        // Calculate the maximum required height of the panel containing the font check boxes (= #
+        // Calculate the maximum required height of the panel containing the font check
+        // boxes (= #
         // of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
-                                       10 * fontScrollPane.getPreferredSize().height / fontBtn.length);
+                10 * fontScrollPane.getPreferredSize().height / fontBtn.length);
     }
 
     /**********************************************************************************************
      * Update a font
      *
-     * @param modFont
-     *            reference to the modifiable font's information
+     * @param modFont reference to the modifiable font's information
      *
-     * @param family
-     *            font family
+     * @param family  font family
      *
-     * @param style
-     *            font style
+     * @param style   font style
      *
-     * @param size
-     *            font size
+     * @param size    font size
      *
-     * @param dialogs
-     *            array of preference dialogs to update
+     * @param dialogs array of preference dialogs to update
      *********************************************************************************************/
-    private void updateFont(ModifiableFontInfo modFont,
-                            String family,
-                            int style,
-                            int size,
-                            CcddDialogHandler[] dialogs)
-    {
+    private void updateFont(ModifiableFontInfo modFont, String family, int style, int size,
+            CcddDialogHandler[] dialogs) {
         // Update the modifiable font information to the new font
         modFont.setFont(family, style, size, ccddMain.getProgPrefs());
 
         // Check if this is a change to the tool tip font
-        if (modFont == ModifiableFontInfo.TOOL_TIP)
-        {
-            // Update the tool tip text font. This is ignored by some look & feels (e.g. Nimbus and
+        if (modFont == ModifiableFontInfo.TOOL_TIP) {
+            // Update the tool tip text font. This is ignored by some look & feels (e.g.
+            // Nimbus and
             // GTK+)
             UIManager.getDefaults().put("ToolTip.font", ModifiableFontInfo.TOOL_TIP.getFont());
         }
         // Not a change to the tool tip font
-        else
-        {
+        else {
             // Update the visible GUI components to the new font
             ccddMain.updateGUI(GUIUpdateType.FONT, dialogs);
         }
@@ -640,22 +557,14 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add the color update tab to the tabbed pane
      *********************************************************************************************/
-    private void addColorTab()
-    {
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+    private void addColorTab() {
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create storage for the check boxes representing each modifiable color
         ColorCheckBox[] colorCbox = new ColorCheckBox[ModifiableColorInfo.values().length];
@@ -664,7 +573,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerColorPnl = new JPanel(new GridBagLayout());
         innerColorPnl.setBorder(emptyBorder);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel colorPnl = new JPanel(new BorderLayout());
         colorPnl.setBorder(emptyBorder);
         colorPnl.add(innerColorPnl, BorderLayout.PAGE_START);
@@ -678,17 +588,17 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         tabbedPane.addTab(COLOR, null, colorScrollPane, "Change program colors");
 
         // Create a listener for the color check box selections
-        ActionListener colorCboxListener = new ActionListener()
-        {
+        ActionListener colorCboxListener = new ActionListener() {
             /**************************************************************************************
              * Handle a color check box selection
              *************************************************************************************/
             @Override
-            public void actionPerformed(final ActionEvent ae)
-            {
-                // Get the reference to the modifiable color information based on the button name
+            public void actionPerformed(final ActionEvent ae) {
+                // Get the reference to the modifiable color information based on the button
+                // name
                 // (in which the modifiable color's program preferences key is stored)
-                final ModifiableColorInfo modColor = ModifiableColorInfo.getModifiableColorInfo(((ColorCheckBox) ae.getSource()).getName());
+                final ModifiableColorInfo modColor = ModifiableColorInfo
+                        .getModifiableColorInfo(((ColorCheckBox) ae.getSource()).getName());
 
                 // Create a color chooser
                 final JColorChooser chooser = new JColorChooser();
@@ -701,56 +611,43 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                 final CcddDialogHandler dialog = new CcddDialogHandler();
 
                 // Add a listener for the Update button
-                ActionListener okayAction = new ActionListener()
-                {
+                ActionListener okayAction = new ActionListener() {
                     /******************************************************************************
                      * Handle an Update button press event
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent aes)
-                    {
+                    public void actionPerformed(ActionEvent aes) {
                         // Get the currently selected color from the color chooser
                         Color newColor = chooser.getColor();
 
                         // Check if the color changed
                         if (modColor.getColor().getRed() != newColor.getRed()
-                            || modColor.getColor().getGreen() != newColor.getGreen()
-                            || modColor.getColor().getBlue() != newColor.getBlue())
-                        {
+                                || modColor.getColor().getGreen() != newColor.getGreen()
+                                || modColor.getColor().getBlue() != newColor.getBlue()) {
                             // Update the modifiable color information to the new color
-                            updateColor(modColor,
-                                        newColor.getRed(),
-                                        newColor.getGreen(),
-                                        newColor.getBlue(),
-                                        new CcddDialogHandler[] {CcddPreferencesDialog.this,
-                                                                 dialog},
-                                        (ColorCheckBox) ae.getSource());
+                            updateColor(modColor, newColor.getRed(), newColor.getGreen(), newColor.getBlue(),
+                                    new CcddDialogHandler[] { CcddPreferencesDialog.this, dialog },
+                                    (ColorCheckBox) ae.getSource());
                         }
                     }
                 };
 
                 // Add a listener for the Default button
-                ActionListener defaultAction = new ActionListener()
-                {
+                ActionListener defaultAction = new ActionListener() {
                     /******************************************************************************
                      * Handle a Default button press event
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent aes)
-                    {
+                    public void actionPerformed(ActionEvent aes) {
                         // Check if the color changed
                         if (modColor.getColor().getRed() != modColor.getDefaultRed()
-                            || modColor.getColor().getGreen() != modColor.getDefaultGreen()
-                            || modColor.getColor().getBlue() != modColor.getDefaultBlue())
-                        {
+                                || modColor.getColor().getGreen() != modColor.getDefaultGreen()
+                                || modColor.getColor().getBlue() != modColor.getDefaultBlue()) {
                             // Update the modifiable color information to its default color
-                            updateColor(modColor,
-                                        modColor.getDefaultRed(),
-                                        modColor.getDefaultGreen(),
-                                        modColor.getDefaultBlue(),
-                                        new CcddDialogHandler[] {CcddPreferencesDialog.this,
-                                                                 dialog},
-                                        (ColorCheckBox) ae.getSource());
+                            updateColor(modColor, modColor.getDefaultRed(), modColor.getDefaultGreen(),
+                                    modColor.getDefaultBlue(),
+                                    new CcddDialogHandler[] { CcddPreferencesDialog.this, dialog },
+                                    (ColorCheckBox) ae.getSource());
 
                             // Update the color chooser to the default color
                             chooser.setColor(modColor.getColor());
@@ -760,24 +657,21 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                 // Display the color selection dialog
                 dialog.showOptionsDialog(CcddPreferencesDialog.this,
-                                         dialog.getColorChoicePanel(chooser, modColor.getColor()),
-                                         getButtonPanel(okayAction, defaultAction, dialog),
-                                         btnClose,
-                                         "Select Color: " + modColor.getName(),
-                                         false);
+                        dialog.getColorChoicePanel(chooser, modColor.getColor()),
+                        getButtonPanel(okayAction, defaultAction, dialog), btnClose,
+                        "Select Color: " + modColor.getName(), false);
             }
         };
 
         int index = 0;
 
         // Step through each modifiable color
-        for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
-        {
+        for (ModifiableColorInfo modColor : ModifiableColorInfo.values()) {
             // Create and add a color selection check box
             colorCbox[index] = new ColorCheckBox(modColor.getName(), modColor.getColor());
             colorCbox[index].setName(modColor.getPreferenceKey());
             colorCbox[index].setToolTipText(CcddUtilities.wrapText(modColor.getDescription(),
-                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             colorCbox[index].addActionListener(colorCboxListener);
             innerColorPnl.add(colorCbox[index], gbc);
             gbc.weightx = 1.0;
@@ -791,63 +685,52 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         }
 
         // Set the scroll bar scroll increment
-        colorScrollPane.getVerticalScrollBar().setUnitIncrement(colorCbox[0].getPreferredSize().height / 2
-                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        colorScrollPane.getVerticalScrollBar().setUnitIncrement(
+                colorCbox[0].getPreferredSize().height / 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-        // Calculate the maximum required height of the panel containing the color check boxes (= #
+        // Calculate the maximum required height of the panel containing the color check
+        // boxes (= #
         // of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
-                                       10 * colorScrollPane.getPreferredSize().height / colorCbox.length);
+                10 * colorScrollPane.getPreferredSize().height / colorCbox.length);
     }
 
     /**********************************************************************************************
      * Update a color
      *
-     * @param modColor
-     *            reference to the modifiable color's information
+     * @param modColor reference to the modifiable color's information
      *
-     * @param red
-     *            red component
+     * @param red      red component
      *
-     * @param green
-     *            green component
+     * @param green    green component
      *
-     * @param blue
-     *            blue component
+     * @param blue     blue component
      *
-     * @param dialogs
-     *            array of preference dialogs to update
+     * @param dialogs  array of preference dialogs to update
      *
-     * @param checkBox
-     *            reference to the color check box
+     * @param checkBox reference to the color check box
      *********************************************************************************************/
-    private void updateColor(ModifiableColorInfo modColor,
-                             int red,
-                             int green,
-                             int blue,
-                             CcddDialogHandler[] dialogs,
-                             ColorCheckBox checkBox)
-    {
+    private void updateColor(ModifiableColorInfo modColor, int red, int green, int blue, CcddDialogHandler[] dialogs,
+            ColorCheckBox checkBox) {
         // Update the modifiable color information to the new color
         modColor.setModifiableColor(red, green, blue, ccddMain.getProgPrefs());
 
         // Check if this is a change to the tool tip text color
-        if (modColor == ModifiableColorInfo.TOOL_TIP_TEXT)
-        {
-            // Update the tool tip text color. This is ignored by some look & feels (e.g. Nimbus
+        if (modColor == ModifiableColorInfo.TOOL_TIP_TEXT) {
+            // Update the tool tip text color. This is ignored by some look & feels (e.g.
+            // Nimbus
             // and GTK+)
             UIManager.getDefaults().put("ToolTip.foreground", modColor.getColor());
         }
         // Check if this is a change to the tool tip background color
-        else if (modColor == ModifiableColorInfo.TOOL_TIP_BACK)
-        {
-            // Update the tool tip background color. This is ignored by some look & feels (e.g.
+        else if (modColor == ModifiableColorInfo.TOOL_TIP_BACK) {
+            // Update the tool tip background color. This is ignored by some look & feels
+            // (e.g.
             // Nimbus and GTK+)
             UIManager.getDefaults().put("ToolTip.background", modColor.getColor());
         }
         // Not a tool tip color change
-        else
-        {
+        else {
             // Update the visible GUI components to the new font
             ccddMain.updateGUI(GUIUpdateType.COLOR, dialogs);
         }
@@ -859,34 +742,26 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add the size update tab to the tabbed pane
      *********************************************************************************************/
-    private void addSizeTab()
-    {
+    private void addSizeTab() {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a border for the input fields
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
-        // Create storage for the description and input field representing each modifiable size
+        // Create storage for the description and input field representing each
+        // modifiable size
         JLabel[] sizeLbl = new JLabel[ModifiableSizeInfo.values().length];
         JButton[] sizeBtn = new JButton[ModifiableSizeInfo.values().length];
         sizeFld = new JTextField[ModifiableSizeInfo.values().length];
@@ -895,7 +770,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerSizePnl = new JPanel(new GridBagLayout());
         innerSizePnl.setBorder(emptyBorder);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel sizePnl = new JPanel(new BorderLayout());
         sizePnl.setBorder(emptyBorder);
         sizePnl.add(innerSizePnl, BorderLayout.PAGE_START);
@@ -909,14 +785,12 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         tabbedPane.addTab(SIZE, null, sizeScrollPane, "Change program maximum width and length values");
 
         // Create a listener for the default size buttons
-        ActionListener defaultListener = new ActionListener()
-        {
+        ActionListener defaultListener = new ActionListener() {
             /**************************************************************************************
              * Update the size to the default value
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Get the index of the size field array, which is stored as the button's name
                 int index = Integer.valueOf(((JButton) ae.getSource()).getName());
 
@@ -928,18 +802,13 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         int index = 0;
 
         // Step through each modifiable size
-        for (final ModifiableSizeInfo modSize : ModifiableSizeInfo.values())
-        {
+        for (final ModifiableSizeInfo modSize : ModifiableSizeInfo.values()) {
             // Create the size label and input field
-            sizeLbl[index] = new JLabel(modSize.getName()
-                                        + " ("
-                                        + modSize.getMinimum()
-                                        + ", "
-                                        + modSize.getMaximum()
-                                        + ")");
+            sizeLbl[index] = new JLabel(
+                    modSize.getName() + " (" + modSize.getMinimum() + ", " + modSize.getMaximum() + ")");
             sizeLbl[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            sizeLbl[index].setToolTipText(CcddUtilities.wrapText(modSize.getDescription(),
-                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            sizeLbl[index].setToolTipText(
+                    CcddUtilities.wrapText(modSize.getDescription(), ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             innerSizePnl.add(sizeLbl[index], gbc);
             sizeFld[index] = new JTextField(String.valueOf(modSize.getSize()), 3);
             sizeFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -947,13 +816,13 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             sizeFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             sizeFld[index].setBorder(border);
             sizeFld[index].setName(modSize.getPreferenceKey());
-            sizeFld[index].setToolTipText(CcddUtilities.wrapText(modSize.getDescription(),
-                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            sizeFld[index].setToolTipText(
+                    CcddUtilities.wrapText(modSize.getDescription(), ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
             // Create an input verifier to keep the size value within its specified limits
-            sizeFld[index].setInputVerifier(new InputVerifier()
-            {
-                // Storage for the last valid value entered; used to restore the size value if an
+            sizeFld[index].setInputVerifier(new InputVerifier() {
+                // Storage for the last valid value entered; used to restore the size value if
+                // an
                 // invalid value is entered
                 String lastValid = String.valueOf(modSize.getSize());
 
@@ -961,14 +830,12 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                  * Verify the contents of a the size field
                  *********************************************************************************/
                 @Override
-                public boolean verify(JComponent input)
-                {
+                public boolean verify(JComponent input) {
                     boolean isValid = true;
 
                     JTextField sizeFld = (JTextField) input;
 
-                    try
-                    {
+                    try {
                         // Get the reference to the modifiable size information using its program
                         // preferences key, which is stored as the field's name
                         ModifiableSizeInfo modSize = ModifiableSizeInfo.getModifiableSizeInfo(input.getName());
@@ -977,27 +844,21 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         String size = sizeFld.getText().trim();
 
                         // Check if the size field is empty
-                        if (size.isEmpty())
-                        {
+                        if (size.isEmpty()) {
                             throw new CCDDException(modSize.getName() + "<b>' cannot be blank");
                         }
 
                         // Check if the size value isn't a positive integer
-                        if (!size.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
-                        {
-                            throw new CCDDException(modSize.getName()
-                                                    + "<b>' must be a positive integer");
+                        if (!size.matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
+                            throw new CCDDException(modSize.getName() + "<b>' must be a positive integer");
                         }
 
                         // Convert the text to an integer
                         int currentValue = Integer.valueOf(size);
 
                         // Check if the size value is outside of its specified limits
-                        if (currentValue < modSize.getMinimum()
-                            || currentValue > modSize.getMaximum())
-                        {
-                            throw new CCDDException(modSize.getName()
-                                                    + "<b>' is outside allowable limits");
+                        if (currentValue < modSize.getMinimum() || currentValue > modSize.getMaximum()) {
+                            throw new CCDDException(modSize.getName() + "<b>' is outside allowable limits");
                         }
 
                         // Update the size field to the new (valid) value
@@ -1005,16 +866,11 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                         // Store the new value as the last valid value
                         lastValid = sizeFld.getText();
-                    }
-                    catch (CCDDException ce)
-                    {
+                    } catch (CCDDException ce) {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
-                                                                  "<html><b>The value for '</b>"
-                                                                                              + ce.getMessage(),
-                                                                  "Missing/Invalid Input",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
+                                "<html><b>The value for '</b>" + ce.getMessage(), "Missing/Invalid Input",
+                                JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
 
                         // Restore the size field to the last valid value
                         sizeFld.setText(lastValid);
@@ -1036,7 +892,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             gbc.gridx++;
             innerSizePnl.add(sizeFld[index], gbc);
 
-            // Create a button for setting the size to its default value and add it to the size
+            // Create a button for setting the size to its default value and add it to the
+            // size
             // panel
             sizeBtn[index] = new JButton("Default (" + modSize.getDefault() + ")");
             sizeBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
@@ -1054,46 +911,39 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         }
 
         // Set the scroll bar scroll increment
-        sizeScrollPane.getVerticalScrollBar().setUnitIncrement(sizeFld[0].getPreferredSize().height / 2
-                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        sizeScrollPane.getVerticalScrollBar().setUnitIncrement(
+                sizeFld[0].getPreferredSize().height / 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-        // Calculate the maximum required height of the panel containing the size labels and fields
+        // Calculate the maximum required height of the panel containing the size labels
+        // and fields
         // (= # of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
-                                       10 * sizeScrollPane.getPreferredSize().height / sizeFld.length);
+                10 * sizeScrollPane.getPreferredSize().height / sizeFld.length);
     }
 
     /**********************************************************************************************
      * Add the spacing update tab to the tabbed pane
      *********************************************************************************************/
-    private void addSpacingTab()
-    {
+    private void addSpacingTab() {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a border for the input fields
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
-        // Create storage for the description and input field representing each modifiable spacing
+        // Create storage for the description and input field representing each
+        // modifiable spacing
         JLabel[] spacingLbl = new JLabel[ModifiableSpacingInfo.values().length];
         JButton[] spacingBtn = new JButton[ModifiableSpacingInfo.values().length];
         spacingFld = new JTextField[ModifiableSpacingInfo.values().length];
@@ -1102,7 +952,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerSpacingPnl = new JPanel(new GridBagLayout());
         innerSpacingPnl.setBorder(emptyBorder);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel spacingPnl = new JPanel(new BorderLayout());
         spacingPnl.setBorder(emptyBorder);
         spacingPnl.add(innerSpacingPnl, BorderLayout.PAGE_START);
@@ -1113,16 +964,17 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         spacingScrollPane.setViewportBorder(emptyBorder);
 
         // Add the note to the panel
-        JLabel noteLbl = new JLabel("<html><i>Note: Open windows must be closed and "
-                                    + "reopened for spacing changes to take effect");
+        JLabel noteLbl = new JLabel(
+                "<html><i>Note: Open windows must be closed and " + "reopened for spacing changes to take effect");
         noteLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         noteLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
         noteLbl.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2,
-                                                          ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                          ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                          ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()));
+                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()));
 
-        // Create a panel to contain the scroll pane and a note with fixed position at the bottom
+        // Create a panel to contain the scroll pane and a note with fixed position at
+        // the bottom
         // of the panel
         JPanel scrollAndNotePnl = new JPanel(new BorderLayout());
         scrollAndNotePnl.add(spacingScrollPane, BorderLayout.CENTER);
@@ -1132,15 +984,14 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         tabbedPane.addTab(SPACING, null, scrollAndNotePnl, "Change program spacing values");
 
         // Create a listener for the default spacing buttons
-        ActionListener defaultListener = new ActionListener()
-        {
+        ActionListener defaultListener = new ActionListener() {
             /**************************************************************************************
              * Update the spacing to the default value
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Get the index of the spacing field array, which is stored as the button's name
+            public void actionPerformed(ActionEvent ae) {
+                // Get the index of the spacing field array, which is stored as the button's
+                // name
                 int index = Integer.valueOf(((JButton) ae.getSource()).getName());
 
                 // Set the spacing to its default value
@@ -1151,18 +1002,13 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         int index = 0;
 
         // Step through each modifiable spacing
-        for (final ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values())
-        {
+        for (final ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values()) {
             // Create the spacing label and input field
-            spacingLbl[index] = new JLabel(modSpacing.getName()
-                                           + " ("
-                                           + modSpacing.getMinimum()
-                                           + ", "
-                                           + modSpacing.getMaximum()
-                                           + ")");
+            spacingLbl[index] = new JLabel(
+                    modSpacing.getName() + " (" + modSpacing.getMinimum() + ", " + modSpacing.getMaximum() + ")");
             spacingLbl[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             spacingLbl[index].setToolTipText(CcddUtilities.wrapText(modSpacing.getDescription(),
-                                                                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             innerSpacingPnl.add(spacingLbl[index], gbc);
             spacingFld[index] = new JTextField(String.valueOf(modSpacing.getSpacing()), 3);
             spacingFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1171,12 +1017,13 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             spacingFld[index].setBorder(border);
             spacingFld[index].setName(modSpacing.getPreferenceKey());
             spacingFld[index].setToolTipText(CcddUtilities.wrapText(modSpacing.getDescription(),
-                                                                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-            // Create an input verifier to keep the spacing value within its specified limits
-            spacingFld[index].setInputVerifier(new InputVerifier()
-            {
-                // Storage for the last valid value entered; used to restore the spacing value if
+            // Create an input verifier to keep the spacing value within its specified
+            // limits
+            spacingFld[index].setInputVerifier(new InputVerifier() {
+                // Storage for the last valid value entered; used to restore the spacing value
+                // if
                 // an invalid value is entered
                 String lastValid = String.valueOf(modSpacing.getSpacing());
 
@@ -1184,43 +1031,36 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                  * Verify the contents of a the spacing field
                  *********************************************************************************/
                 @Override
-                public boolean verify(JComponent input)
-                {
+                public boolean verify(JComponent input) {
                     boolean isValid = true;
 
                     JTextField spacingFld = (JTextField) input;
 
-                    try
-                    {
+                    try {
                         // Get the reference to the modifiable spacing information using its
                         // program preferences key, which is stored as the field's name
-                        ModifiableSpacingInfo modSpacing = ModifiableSpacingInfo.getModifiableSpacingInfo(input.getName());
+                        ModifiableSpacingInfo modSpacing = ModifiableSpacingInfo
+                                .getModifiableSpacingInfo(input.getName());
 
                         // Remove any leading or trailing white space characters
                         String spacing = spacingFld.getText().trim();
 
                         // Check if the spacing field is empty
-                        if (spacing.isEmpty())
-                        {
+                        if (spacing.isEmpty()) {
                             throw new CCDDException(modSpacing.getName() + "<b>' cannot be blank");
                         }
 
                         // Check if the spacing value isn't a positive integer
-                        if (!spacing.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
-                        {
-                            throw new CCDDException(modSpacing.getName()
-                                                    + "<b>' must be a positive integer");
+                        if (!spacing.matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
+                            throw new CCDDException(modSpacing.getName() + "<b>' must be a positive integer");
                         }
 
                         // Convert the text to an integer
                         int currentValue = Integer.valueOf(spacing);
 
                         // Check if the spacing value is outside of its specified limits
-                        if (currentValue < modSpacing.getMinimum()
-                            || currentValue > modSpacing.getMaximum())
-                        {
-                            throw new CCDDException(modSpacing.getName()
-                                                    + "<b>' is outside allowable limits");
+                        if (currentValue < modSpacing.getMinimum() || currentValue > modSpacing.getMaximum()) {
+                            throw new CCDDException(modSpacing.getName() + "<b>' is outside allowable limits");
                         }
 
                         // Update the spacing field to the new (valid) value
@@ -1228,16 +1068,11 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                         // Store the new value as the last valid value
                         lastValid = spacingFld.getText();
-                    }
-                    catch (CCDDException ce)
-                    {
+                    } catch (CCDDException ce) {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddPreferencesDialog.this,
-                                                                  "<html><b>The value for '</b>"
-                                                                                              + ce.getMessage(),
-                                                                  "Missing/Invalid Input",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
+                                "<html><b>The value for '</b>" + ce.getMessage(), "Missing/Invalid Input",
+                                JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
 
                         // Restore the spacing field to the last valid value
                         spacingFld.setText(lastValid);
@@ -1259,7 +1094,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             gbc.gridx++;
             innerSpacingPnl.add(spacingFld[index], gbc);
 
-            // Create a button for setting the spacing to its default value and add it to the
+            // Create a button for setting the spacing to its default value and add it to
+            // the
             // spacing panel
             spacingBtn[index] = new JButton("Default (" + modSpacing.getDefault() + ")");
             spacingBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
@@ -1278,45 +1114,38 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
         // Set the scroll bar scroll increment
         spacingScrollPane.getVerticalScrollBar().setUnitIncrement(spacingFld[0].getPreferredSize().height / 2
-                                                                  + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-        // Calculate the maximum required height of the panel containing the spacing labels and
+        // Calculate the maximum required height of the panel containing the spacing
+        // labels and
         // fields (= # of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
-                                       10 * spacingScrollPane.getPreferredSize().height / spacingFld.length);
+                10 * spacingScrollPane.getPreferredSize().height / spacingFld.length);
     }
 
     /**********************************************************************************************
      * Add the path update tab to the tabbed pane
      *********************************************************************************************/
-    private void addPathTab()
-    {
+    private void addPathTab() {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a border for the input fields
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
-        // Create storage for the description and input field representing each modifiable path
+        // Create storage for the description and input field representing each
+        // modifiable path
         JLabel[] pathLbl = new JLabel[ModifiablePathInfo.values().length];
         JButton[] pathBtn = new JButton[ModifiablePathInfo.values().length];
         pathFld = new JTextField[ModifiablePathInfo.values().length];
@@ -1325,7 +1154,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerPathPnl = new JPanel(new GridBagLayout());
         innerPathPnl.setBorder(emptyBorder);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel pathPnl = new JPanel(new BorderLayout());
         pathPnl.setBorder(emptyBorder);
         pathPnl.add(innerPathPnl, BorderLayout.PAGE_START);
@@ -1339,27 +1169,21 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         tabbedPane.addTab(PATH, null, pathScrollPane, "Change program paths");
 
         // Create a listener for the path selection buttons
-        ActionListener defaultListener = new ActionListener()
-        {
+        ActionListener defaultListener = new ActionListener() {
             /**************************************************************************************
              * Update the path to the selection
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Get the index of the path field array, which is stored as the button's name
                 int index = Integer.valueOf(((JButton) ae.getSource()).getName());
 
                 // Allow the user to select the script file path + name
-                FileEnvVar[] pathFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                               CcddPreferencesDialog.this,
-                                                                               "Select Path",
-                                                                               pathFld[index].getText(),
-                                                                               DialogOption.OK_CANCEL_OPTION);
+                FileEnvVar[] pathFile = new CcddDialogHandler().choosePathFile(ccddMain, CcddPreferencesDialog.this,
+                        "Select Path", pathFld[index].getText(), DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a path is selected
-                if (pathFile != null && pathFile[0] != null)
-                {
+                if (pathFile != null && pathFile[0] != null) {
                     // Display the file name in the path name field
                     pathFld[index].setText(pathFile[0].getAbsolutePathWithEnvVars());
                 }
@@ -1369,13 +1193,12 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         int index = 0;
 
         // Step through each modifiable path
-        for (final ModifiablePathInfo modPath : ModifiablePathInfo.values())
-        {
+        for (final ModifiablePathInfo modPath : ModifiablePathInfo.values()) {
             // Create the path label and input field
             pathLbl[index] = new JLabel(modPath.getName());
             pathLbl[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            pathLbl[index].setToolTipText(CcddUtilities.wrapText(modPath.getDescription(),
-                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            pathLbl[index].setToolTipText(
+                    CcddUtilities.wrapText(modPath.getDescription(), ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             innerPathPnl.add(pathLbl[index], gbc);
             pathFld[index] = new JTextField(String.valueOf(modPath.getPath()), 40);
             pathFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1383,8 +1206,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             pathFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             pathFld[index].setBorder(border);
             pathFld[index].setName(modPath.getPreferenceKey());
-            pathFld[index].setToolTipText(CcddUtilities.wrapText(modPath.getDescription(),
-                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            pathFld[index].setToolTipText(
+                    CcddUtilities.wrapText(modPath.getDescription(), ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
             // Add the path field to the path panel
             gbc.gridx++;
@@ -1409,46 +1232,39 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         }
 
         // Set the scroll bar scroll increment
-        pathScrollPane.getVerticalScrollBar().setUnitIncrement(pathFld[0].getPreferredSize().height / 2
-                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        pathScrollPane.getVerticalScrollBar().setUnitIncrement(
+                pathFld[0].getPreferredSize().height / 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-        // Calculate the maximum required height of the panel containing the path labels and fields
+        // Calculate the maximum required height of the panel containing the path labels
+        // and fields
         // (= # of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
-                                       10 * pathScrollPane.getPreferredSize().height / pathFld.length);
+                10 * pathScrollPane.getPreferredSize().height / pathFld.length);
     }
 
     /**********************************************************************************************
      * Add the other settings update tab to the tabbed pane
      *********************************************************************************************/
-    private void addOtherTab()
-    {
+    private void addOtherTab() {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create a border for the input fields
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
-        // Create storage for the description and input field representing each modifiable other
+        // Create storage for the description and input field representing each
+        // modifiable other
         // setting
         JLabel[] otherLbl = new JLabel[ModifiableOtherSettingInfo.values().length];
         JButton[] otherBtn = new JButton[ModifiableOtherSettingInfo.values().length];
@@ -1458,7 +1274,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerOtherPnl = new JPanel(new GridBagLayout());
         innerOtherPnl.setBorder(emptyBorder);
 
-        // Use an outer panel so that the components can be forced to the top of the tab area
+        // Use an outer panel so that the components can be forced to the top of the tab
+        // area
         JPanel otherPnl = new JPanel(new BorderLayout());
         otherPnl.setBorder(emptyBorder);
         otherPnl.add(innerOtherPnl, BorderLayout.PAGE_START);
@@ -1472,15 +1289,14 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         tabbedPane.addTab(OTHER, null, otherScrollPane, "Change other program settings");
 
         // Create a listener for the default other setting buttons
-        ActionListener defaultListener = new ActionListener()
-        {
+        ActionListener defaultListener = new ActionListener() {
             /**************************************************************************************
              * Update the other setting to the default value
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                // Get the index of the other setting field array, which is stored as the button's
+            public void actionPerformed(ActionEvent ae) {
+                // Get the index of the other setting field array, which is stored as the
+                // button's
                 // name
                 int index = Integer.valueOf(((JButton) ae.getSource()).getName());
 
@@ -1492,13 +1308,12 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         int index = 0;
 
         // Step through each modifiable other setting
-        for (final ModifiableOtherSettingInfo modOther : ModifiableOtherSettingInfo.values())
-        {
+        for (final ModifiableOtherSettingInfo modOther : ModifiableOtherSettingInfo.values()) {
             // Create the other setting label and input field
             otherLbl[index] = new JLabel(modOther.getName());
             otherLbl[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             otherLbl[index].setToolTipText(CcddUtilities.wrapText(modOther.getDescription(),
-                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             innerOtherPnl.add(otherLbl[index], gbc);
             otherFld[index] = new JTextField(modOther.getValue(), 40);
             otherFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1507,13 +1322,14 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             otherFld[index].setBorder(border);
             otherFld[index].setName(modOther.getPreferenceKey());
             otherFld[index].setToolTipText(CcddUtilities.wrapText(modOther.getDescription(),
-                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
             // Add the other setting field to the other panel
             gbc.gridx++;
             innerOtherPnl.add(otherFld[index], gbc);
 
-            // Create a button for setting the other setting to its default value and add it to the
+            // Create a button for setting the other setting to its default value and add it
+            // to the
             // other panel
             otherBtn[index] = new JButton("Default");
             otherBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
@@ -1531,69 +1347,59 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         }
 
         // Set the scroll bar scroll increment
-        otherScrollPane.getVerticalScrollBar().setUnitIncrement(otherFld[0].getPreferredSize().height / 2
-                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        otherScrollPane.getVerticalScrollBar().setUnitIncrement(
+                otherFld[0].getPreferredSize().height / 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-        // Calculate the maximum required height of the panel containing the other setting labels
+        // Calculate the maximum required height of the panel containing the other
+        // setting labels
         // and fields (= # of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
-                                       10 * otherScrollPane.getPreferredSize().height / otherFld.length);
+                10 * otherScrollPane.getPreferredSize().height / otherFld.length);
     }
 
     /**********************************************************************************************
-     * Create the button panel for the font/color chooser dialogs containing the Okay, Default, and
-     * Close buttons
+     * Create the button panel for the font/color chooser dialogs containing the
+     * Okay, Default, and Close buttons
      *
-     * @param okayAction
-     *            reference to the action listener to handle Okay button events
+     * @param okayAction    reference to the action listener to handle Okay button
+     *                      events
      *
-     * @param defaultAction
-     *            reference to the action listener to handle Default button events
+     * @param defaultAction reference to the action listener to handle Default
+     *                      button events
      *
-     * @param dialog
-     *            reference to the dialog calling this method
+     * @param dialog        reference to the dialog calling this method
      *
      * @return Reference to the font/color chooser button panel
      *********************************************************************************************/
-    private JPanel getButtonPanel(ActionListener okayAction,
-                                  ActionListener defaultAction,
-                                  final CcddDialogHandler dialog)
-    {
+    private JPanel getButtonPanel(ActionListener okayAction, ActionListener defaultAction,
+            final CcddDialogHandler dialog) {
         JPanel buttonPnl = new JPanel();
 
         // Update button
-        JButton btnUpdate = CcddButtonPanelHandler.createButton("Update",
-                                                                STORE_ICON,
-                                                                KeyEvent.VK_U,
-                                                                "Update the GUI components using the selected values");
+        JButton btnUpdate = CcddButtonPanelHandler.createButton("Update", STORE_ICON, KeyEvent.VK_U,
+                "Update the GUI components using the selected values");
 
         // Add a listener for the Okay button
         btnUpdate.addActionListener(okayAction);
 
         // Default button
-        JButton btnDefault = CcddButtonPanelHandler.createButton("Default",
-                                                                 UNDO_ICON,
-                                                                 KeyEvent.VK_D,
-                                                                 "Update the GUI components using the default values");
+        JButton btnDefault = CcddButtonPanelHandler.createButton("Default", UNDO_ICON, KeyEvent.VK_D,
+                "Update the GUI components using the default values");
 
         // Add a listener for the Default button
         btnDefault.addActionListener(defaultAction);
 
         // Close button
-        btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                       CLOSE_ICON,
-                                                       KeyEvent.VK_C,
-                                                       "Close the selection dialog");
+        btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                "Close the selection dialog");
 
         // Create a listener for the Close button
-        btnClose.addActionListener(new ActionListener()
-        {
+        btnClose.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Close the selection dialog
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 dialog.closeDialog();
             }
         });

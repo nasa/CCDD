@@ -73,11 +73,11 @@ import CCDD.CcddConstants.VariablePathTableColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command and Data Dictionary search database tables, scripts, and event log dialog class
+ * CFS Command and Data Dictionary search database tables, scripts, and event
+ * log dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddSearchDialog extends CcddFrameHandler
-{
+public class CcddSearchDialog extends CcddFrameHandler {
     // Class references
     private final CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -96,10 +96,14 @@ public class CcddSearchDialog extends CcddFrameHandler
     private JLabel numMatchesLbl;
     private MultilineLabel selectedColumnsLbl;
 
-    // Pattern for matching search text in the table cells. The highlight pattern differs slightly
-    // from the search pattern depending of the type of search. If calling the PostgreSQL
-    // search_table() function the ignore case flag is provided as an option to the function
-    // instead of being part of the matching string (the '?i' flag). If searching a text string
+    // Pattern for matching search text in the table cells. The highlight pattern
+    // differs slightly
+    // from the search pattern depending of the type of search. If calling the
+    // PostgreSQL
+    // search_table() function the ignore case flag is provided as an option to the
+    // function
+    // instead of being part of the matching string (the '?i' flag). If searching a
+    // text string
     // (e.g., a log entry) the '?i' flag is used in the matching string
     private Pattern searchPattern;
     private Pattern highlightPattern;
@@ -114,11 +118,13 @@ public class CcddSearchDialog extends CcddFrameHandler
     private String prevFilter;
     private String prevColumns;
 
-    // String containing the names of columns, separated by commas, to which to constrain a table
+    // String containing the names of columns, separated by commas, to which to
+    // constrain a table
     // search
     private String searchColumns;
 
-    // Row index to match if this is an event log entry search on a table that displays only a
+    // Row index to match if this is an event log entry search on a table that
+    // displays only a
     // single log entry; null otherwise
     private final Long targetRow;
 
@@ -134,28 +140,20 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Search database tables, scripts, and event log dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain      main class
      *
-     * @param searchDlgType
-     *            search dialog type: TABLES, SCRIPTS, or LOG
+     * @param searchDlgType search dialog type: TABLES, SCRIPTS, or LOG
      *
-     * @param targetRow
-     *            row index to match if this is an event log entry search on a table that displays
-     *            only a single log entry; null otherwise
+     * @param targetRow     row index to match if this is an event log entry search
+     *                      on a table that displays only a single log entry; null
+     *                      otherwise
      *
-     * @param eventLog
-     *            event log to search; null if not searching a log
+     * @param eventLog      event log to search; null if not searching a log
      *
-     * @param parent
-     *            GUI component over which to center the dialog
+     * @param parent        GUI component over which to center the dialog
      *********************************************************************************************/
-    CcddSearchDialog(CcddMain ccddMain,
-                     SearchDialogType searchDlgType,
-                     Long targetRow,
-                     CcddEventLogDialog eventLog,
-                     Component parent)
-    {
+    CcddSearchDialog(CcddMain ccddMain, SearchDialogType searchDlgType, Long targetRow, CcddEventLogDialog eventLog,
+            Component parent) {
         this.ccddMain = ccddMain;
         this.searchDlgType = searchDlgType;
         this.targetRow = targetRow;
@@ -174,28 +172,23 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Search database tables and scripts class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain   main class
      *
-     * @param searchType
-     *            search dialog type: TABLES or SCRIPTS
+     * @param searchType search dialog type: TABLES or SCRIPTS
      *
-     * @param parent
-     *            GUI component over which to center the dialog
+     * @param parent     GUI component over which to center the dialog
      *********************************************************************************************/
-    CcddSearchDialog(CcddMain ccddMain, SearchDialogType searchType, Component parent)
-    {
+    CcddSearchDialog(CcddMain ccddMain, SearchDialogType searchType, Component parent) {
         this(ccddMain, searchType, null, null, parent);
     }
 
     /**********************************************************************************************
-     * Set the reference to the event log to search and update the search dialog title
+     * Set the reference to the event log to search and update the search dialog
+     * title
      *
-     * @param eventLog
-     *            reference to the event log to search
+     * @param eventLog reference to the event log to search
      *********************************************************************************************/
-    protected void setEventLog(CcddEventLogDialog eventLog)
-    {
+    protected void setEventLog(CcddEventLogDialog eventLog) {
         this.eventLog = eventLog;
         searchHandler.setEventLog(eventLog);
         setTitle(getLogTitle());
@@ -206,19 +199,16 @@ public class CcddSearchDialog extends CcddFrameHandler
      *
      * @return Reference to the search results table
      *********************************************************************************************/
-    protected CcddJTableHandler getTable()
-    {
+    protected CcddJTableHandler getTable() {
         return resultsTable;
     }
 
     /**********************************************************************************************
      * Create the database table or scripts search dialog
      *
-     * @param parent
-     *            GUI component over which to center the dialog
+     * @param parent GUI component over which to center the dialog
      *********************************************************************************************/
-    private void initialize(Component parent)
-    {
+    private void initialize(Component parent) {
         prevSearchText = null;
         searchFilter = "";
         searchColumns = "";
@@ -227,32 +217,21 @@ public class CcddSearchDialog extends CcddFrameHandler
         searchHandler = new CcddSearchHandler(ccddMain, searchDlgType, targetRow, eventLog);
 
         // Create a borders for the dialog components
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.FIRST_LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(0,
-                                                                   0,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   (searchDlgType == SearchDialogType.LOG
-                                                                                                          ? 0
-                                                                                                          : ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing())),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(0, 0, ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                        (searchDlgType == SearchDialogType.LOG ? 0
+                                : ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing())),
+                0, 0);
 
         // Create panels to hold the components of the dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -271,7 +250,8 @@ public class CcddSearchDialog extends CcddFrameHandler
         dlgLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         inputPnl.add(dlgLbl, gbc);
 
-        // Create the auto-completion search field and add it to the dialog panel. The search list
+        // Create the auto-completion search field and add it to the dialog panel. The
+        // search list
         // is initially empty as it is updated whenever a key is pressed
         searchFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
         searchFld.setCaseSensitive(true);
@@ -284,30 +264,22 @@ public class CcddSearchDialog extends CcddFrameHandler
         searchFld.setBorder(border);
 
         // Add a listener for key press events
-        searchFld.addKeyListener(new KeyAdapter()
-        {
+        searchFld.addKeyListener(new KeyAdapter() {
             /**************************************************************************************
              * Handle a key press event
              *************************************************************************************/
             @Override
-            public void keyPressed(KeyEvent ke)
-            {
+            public void keyPressed(KeyEvent ke) {
                 // Check if this is a visible character
-                if (!ke.isActionKey()
-                    && ke.getKeyCode() != KeyEvent.VK_ENTER
-                    && !ke.isControlDown()
-                    && !ke.isAltDown()
-                    && !ke.isMetaDown()
-                    && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
-                {
+                if (!ke.isActionKey() && ke.getKeyCode() != KeyEvent.VK_ENTER && !ke.isControlDown() && !ke.isAltDown()
+                        && !ke.isMetaDown() && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode())) {
                     // Get the list of remembered searches from the program preferences. This is
                     // done as a key press occurs so that the list is updated to the latest one. If
                     // multiple search dialogs are open this allows them to 'share' the list rather
                     // than overwriting each other
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
-                    searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
-                                                                              "")
-                                                          .split(STRING_LIST_TEXT_SEPARATOR)));
+                    searches.addAll(Arrays
+                            .asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
                 }
             }
@@ -331,17 +303,15 @@ public class CcddSearchDialog extends CcddFrameHandler
         ignoreCaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         ignoreCaseCb.setBorder(emptyBorder);
         ignoreCaseCb.setToolTipText(CcddUtilities.wrapText("Ignore case when matching the search string",
-                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for check box selection changes
-        ignoreCaseCb.addActionListener(new ActionListener()
-        {
+        ignoreCaseCb.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Handle a change in the ignore case check box state
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Change the case sensitivity for the remembered searches to match the case
                 // sensitivity check box
                 searchFld.setCaseSensitive(!ignoreCaseCb.isSelected());
@@ -359,21 +329,17 @@ public class CcddSearchDialog extends CcddFrameHandler
         allowRegexCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         allowRegexCb.setBorder(emptyBorder);
         allowRegexCb.setToolTipText(CcddUtilities.wrapText("Allow the search string to contain a regular expression",
-                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for allow regular expression check box selection changes
-        allowRegexCb.addActionListener(new ActionListener()
-        {
+        allowRegexCb.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Handle a change in the allow regular expression check box state
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Hide the wild card label if the allow regular expression check box is enabled
-                wildCardLbl.setText(allowRegexCb.isSelected()
-                                                              ? " "
-                                                              : WILD_CARD_LABEL);
+                wildCardLbl.setText(allowRegexCb.isSelected() ? " " : WILD_CARD_LABEL);
             }
         });
 
@@ -381,8 +347,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         inputPnl.add(allowRegexCb, gbc);
 
         // Check if this is a table search
-        if (searchDlgType == SearchDialogType.TABLES)
-        {
+        if (searchDlgType == SearchDialogType.TABLES) {
             final ArrayListMultiple columns = new ArrayListMultiple();
 
             // Create a check box for ignoring matches within the internal tables
@@ -390,31 +355,26 @@ public class CcddSearchDialog extends CcddFrameHandler
             dataTablesOnlyCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             dataTablesOnlyCb.setBorder(emptyBorder);
             dataTablesOnlyCb.setToolTipText(CcddUtilities.wrapText("Search only the cells in the data tables",
-                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             gbc.gridy++;
             inputPnl.add(dataTablesOnlyCb, gbc);
 
             // Step through each defined table type
-            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
-            {
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions()) {
                 // Step through each visible column in the table type
-                for (int index = NUM_HIDDEN_COLUMNS; index < typeDefn.getColumnCountDatabase(); ++index)
-                {
+                for (int index = NUM_HIDDEN_COLUMNS; index < typeDefn.getColumnCountDatabase(); ++index) {
                     // Check if the column name isn't already in the list
-                    if (!columns.contains(typeDefn.getColumnNamesUser()[index]))
-                    {
+                    if (!columns.contains((Object)typeDefn.getColumnNamesUser()[index])) {
                         // Add the visible column name, its corresponding database name, and the
                         // column description to the list
-                        columns.add(new String[] {typeDefn.getColumnNamesUser()[index],
-                                                  typeDefn.getColumnNamesDatabase()[index],
-                                                  typeDefn.getColumnToolTips()[index]});
+                        columns.add(new String[] { typeDefn.getColumnNamesUser()[index],
+                                typeDefn.getColumnNamesDatabase()[index], typeDefn.getColumnToolTips()[index] });
                     }
                 }
             }
 
             // Check if any columns are defined
-            if (columns.size() != 0)
-            {
+            if (columns.size() != 0) {
                 final ArrayListMultiple columnNames = new ArrayListMultiple();
 
                 // Sort the column names alphabetically
@@ -424,8 +384,9 @@ public class CcddSearchDialog extends CcddFrameHandler
                 selectedColumnsCb = new JCheckBox("Search selected columns");
                 selectedColumnsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 selectedColumnsCb.setBorder(emptyBorder);
-                selectedColumnsCb.setToolTipText(CcddUtilities.wrapText("Search only selected columns in the data tables",
-                                                                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                selectedColumnsCb
+                        .setToolTipText(CcddUtilities.wrapText("Search only selected columns in the data tables",
+                                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.insets.bottom = 0;
                 gbc.gridy++;
                 inputPnl.add(selectedColumnsCb, gbc);
@@ -444,44 +405,34 @@ public class CcddSearchDialog extends CcddFrameHandler
                 columnPnl.setBorder(emptyBorder);
 
                 // Step through each column
-                for (String[] column : columns)
-                {
+                for (String[] column : columns) {
                     // Add the visible name and description to the list used to create the check
                     // box panel
-                    columnNames.add(new String[] {column[0], column[2]});
+                    columnNames.add(new String[] { column[0], column[2] });
                 }
 
                 // Create the column name pop-up dialog
                 final CcddDialogHandler columnDlg = new CcddDialogHandler();
 
                 // Add the column name check boxes to the dialog
-                columnDlg.addCheckBoxes(null,
-                                        columnNames.toArray(new String[0][0]),
-                                        null,
-                                        "",
-                                        false,
-                                        columnPnl);
+                columnDlg.addCheckBoxes(null, columnNames.toArray(new String[0][0]), null, "", false, columnPnl);
 
                 // Check if more than one column name check box exists
-                if (columnNames.size() > 1)
-                {
+                if (columnNames.size() > 1) {
                     // Create a Select All check box
                     final JCheckBox selectAllCb = new JCheckBox("Select all columns", false);
                     selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     selectAllCb.setBorder(emptyBorder);
 
                     // Create a listener for changes to the Select All check box selection status
-                    selectAllCb.addActionListener(new ActionListener()
-                    {
+                    selectAllCb.addActionListener(new ActionListener() {
                         /**************************************************************************
                          * Handle a change to the Select All check box selection status
                          *************************************************************************/
                         @Override
-                        public void actionPerformed(ActionEvent ae)
-                        {
+                        public void actionPerformed(ActionEvent ae) {
                             // Step through each column name check box
-                            for (JCheckBox columnCb : columnDlg.getCheckBoxes())
-                            {
+                            for (JCheckBox columnCb : columnDlg.getCheckBoxes()) {
                                 // Set the check box selection status to match the Select All check
                                 // box selection status
                                 columnCb.setSelected(selectAllCb.isSelected());
@@ -495,26 +446,21 @@ public class CcddSearchDialog extends CcddFrameHandler
                     columnPnl.add(selectAllCb, gbc);
 
                     // Step through each column name check box
-                    for (JCheckBox columnCb : columnDlg.getCheckBoxes())
-                    {
+                    for (JCheckBox columnCb : columnDlg.getCheckBoxes()) {
                         // Create a listener for changes to the column name check box selection
                         // status
-                        columnCb.addActionListener(new ActionListener()
-                        {
+                        columnCb.addActionListener(new ActionListener() {
                             /**********************************************************************
                              * Handle a change to the column name check box selection status
                              *********************************************************************/
                             @Override
-                            public void actionPerformed(ActionEvent ae)
-                            {
+                            public void actionPerformed(ActionEvent ae) {
                                 int columnCount = 0;
 
                                 // Step through each column name check box
-                                for (int index = 0; index < columnDlg.getCheckBoxes().length; index++)
-                                {
+                                for (int index = 0; index < columnDlg.getCheckBoxes().length; index++) {
                                     // Check if the check box is selected
-                                    if (columnDlg.getCheckBoxes()[index].isSelected())
-                                    {
+                                    if (columnDlg.getCheckBoxes()[index].isSelected()) {
                                         // Increment the counter to track the number of selected
                                         // column name check boxes
                                         columnCount++;
@@ -530,33 +476,24 @@ public class CcddSearchDialog extends CcddFrameHandler
                 }
 
                 // Add a listener for column choice check box selection changes
-                selectedColumnsCb.addActionListener(new ActionListener()
-                {
+                selectedColumnsCb.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Handle a change in the selected columns check box state
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if the column selection check box is selected
-                        if (selectedColumnsCb.isSelected())
-                        {
+                        if (selectedColumnsCb.isSelected()) {
                             // Display a pop-up for choosing which table columns to search
-                            if (columnDlg.showOptionsDialog(CcddSearchDialog.this,
-                                                            columnPnl,
-                                                            "Select Column(s)",
-                                                            DialogOption.OK_CANCEL_OPTION,
-                                                            true) == OK_BUTTON)
-                            {
+                            if (columnDlg.showOptionsDialog(CcddSearchDialog.this, columnPnl, "Select Column(s)",
+                                    DialogOption.OK_CANCEL_OPTION, true) == OK_BUTTON) {
                                 searchColumns = "";
                                 String searchColVisible = "";
 
                                 // Step through each column name check box
-                                for (int index = 0; index < columnDlg.getCheckBoxes().length; index++)
-                                {
+                                for (int index = 0; index < columnDlg.getCheckBoxes().length; index++) {
                                     // Check if the check box is selected
-                                    if (columnDlg.getCheckBoxes()[index].isSelected())
-                                    {
+                                    if (columnDlg.getCheckBoxes()[index].isSelected()) {
                                         // Add the name of the column to the constraint string
                                         searchColumns += columns.get(index)[1] + ",";
                                         searchColVisible += columns.get(index)[0] + ",";
@@ -572,8 +509,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                             }
 
                             // Check if no column is selected
-                            if (searchColumns.isEmpty())
-                            {
+                            if (searchColumns.isEmpty()) {
                                 // Deselect the selected columns check box and blank the selected
                                 // column(s) text
                                 selectedColumnsCb.setSelected(false);
@@ -581,8 +517,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                             }
                         }
                         // The column selection check box is not selected
-                        else
-                        {
+                        else {
                             // Blank the column constraint string and the selected column(s) text
                             searchColumns = "";
                             selectedColumnsLbl.setText("");
@@ -590,28 +525,26 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                         // Set the minimum width of the selected columns label so that the split
                         // pane can resize horizontally correctly
-                        selectedColumnsLbl.setMinimumSize(new Dimension(1,
-                                                                        selectedColumnsLbl.getPreferredSize().height));
+                        selectedColumnsLbl
+                                .setMinimumSize(new Dimension(1, selectedColumnsLbl.getPreferredSize().height));
 
                         // Adjust the dialog size to force the components to adjust to the new size
                         // of the selected columns label (in case it gets larger). Without this the
                         // upper panel can be sized taller than can be displayed
                         CcddSearchDialog.this.setSize(CcddSearchDialog.this.getSize().width,
-                                                      CcddSearchDialog.this.getSize().height - 1);
+                                CcddSearchDialog.this.getSize().height - 1);
 
                         // Create a runnable object to be executed
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
+                        SwingUtilities.invokeLater(new Runnable() {
                             /**********************************************************************
-                             * Allow the first setSize() to complete before setting the dialog back
-                             * to its original size
+                             * Allow the first setSize() to complete before setting the dialog back to its
+                             * original size
                              *********************************************************************/
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 // Set the dialog back to its original size
                                 CcddSearchDialog.this.setSize(CcddSearchDialog.this.getSize().width,
-                                                              CcddSearchDialog.this.getSize().height + 1);
+                                        CcddSearchDialog.this.getSize().height + 1);
                             }
                         });
                     }
@@ -619,14 +552,14 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
         }
 
-        // Add the inputs panel, containing the search field and check boxes, to the upper panel
+        // Add the inputs panel, containing the search field and check boxes, to the
+        // upper panel
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.fill = GridBagConstraints.BOTH;
 
         // Check if this is a table or script search
-        if (searchDlgType == SearchDialogType.TABLES || searchDlgType == SearchDialogType.SCRIPTS)
-        {
+        if (searchDlgType == SearchDialogType.TABLES || searchDlgType == SearchDialogType.SCRIPTS) {
             // Add a dummy label to force positioning of the components
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
@@ -650,32 +583,22 @@ public class CcddSearchDialog extends CcddFrameHandler
             gbc.gridy++;
 
             // Check if this is a table search
-            if (searchDlgType == SearchDialogType.TABLES)
-            {
+            if (searchDlgType == SearchDialogType.TABLES) {
                 // Set the filter table title
                 filterLbl.setText("Filter by Table(s)");
 
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
-                tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     new CcddGroupHandler(ccddMain,
-                                                                          null,
-                                                                          parent),
-                                                     TableTreeType.TABLES,
-                                                     true,
-                                                     false,
-                                                     parent);
+                tableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent),
+                        TableTreeType.TABLES, true, false, parent);
 
                 // Add the table tree to the filter panel
-                filterPnl.add(tableTree.createTreePanel(null,
-                                                        TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                        false,
-                                                        parent),
-                              gbc);
+                filterPnl.add(
+                        tableTree.createTreePanel(null, TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false, parent),
+                        gbc);
             }
             // This is a script search
-            else
-            {
+            else {
                 // Set the filter table title
                 filterLbl.setText("Filter by Script(s)");
 
@@ -684,20 +607,14 @@ public class CcddSearchDialog extends CcddFrameHandler
                 scriptTree = new CcddScriptTreeHandler(ccddMain, parent);
 
                 // Add the script tree to the filter panel
-                filterPnl.add(scriptTree.createTreePanel(null,
-                                                         TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
-                              gbc);
+                filterPnl.add(scriptTree.createTreePanel(null, TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION), gbc);
             }
 
             JSeparator inputSep = new JSeparator(SwingConstants.VERTICAL);
             inputSep.setForeground(dialogPnl.getBackground().darker());
             gbc.insets.left = 0;
             gbc.insets.bottom = 0;
-            upperPnl.add(new CustomSplitPane(inputPnl,
-                                             filterPnl,
-                                             inputSep,
-                                             JSplitPane.HORIZONTAL_SPLIT),
-                         gbc);
+            upperPnl.add(new CustomSplitPane(inputPnl, filterPnl, inputSep, JSplitPane.HORIZONTAL_SPLIT), gbc);
         }
 
         // Create the results and number of results found labels
@@ -713,39 +630,35 @@ public class CcddSearchDialog extends CcddFrameHandler
         resultsPnl.add(numMatchesLbl);
 
         // Create the table to display the search results
-        resultsTable = new CcddJTableHandler()
-        {
+        resultsTable = new CcddJTableHandler() {
             /**************************************************************************************
-             * Allow multiple line display in the specified columns, depending on search type
+             * Allow multiple line display in the specified columns, depending on search
+             * type
              *************************************************************************************/
             @Override
-            protected boolean isColumnMultiLine(int column)
-            {
+            protected boolean isColumnMultiLine(int column) {
                 return searchDlgType == SearchDialogType.TABLES
-                       || (searchDlgType == SearchDialogType.LOG
-                           && column == SearchResultsColumnInfo.CONTEXT.ordinal())
-                       || (searchDlgType == SearchDialogType.SCRIPTS
-                           && (column == SearchResultsColumnInfo.OWNER.ordinal()
-                               || column == SearchResultsColumnInfo.CONTEXT.ordinal()));
+                        || (searchDlgType == SearchDialogType.LOG
+                                && column == SearchResultsColumnInfo.CONTEXT.ordinal())
+                        || (searchDlgType == SearchDialogType.SCRIPTS
+                                && (column == SearchResultsColumnInfo.OWNER.ordinal()
+                                        || column == SearchResultsColumnInfo.CONTEXT.ordinal()));
             }
 
             /**************************************************************************************
              * Allow HTML-formatted text in the specified column(s)
              *************************************************************************************/
             @Override
-            protected boolean isColumnHTML(int column)
-            {
-                return searchDlgType == SearchDialogType.TABLES
-                       && (column == SearchResultsColumnInfo.OWNER.ordinal()
-                           || column == SearchResultsColumnInfo.CONTEXT.ordinal());
+            protected boolean isColumnHTML(int column) {
+                return searchDlgType == SearchDialogType.TABLES && (column == SearchResultsColumnInfo.OWNER.ordinal()
+                        || column == SearchResultsColumnInfo.CONTEXT.ordinal());
             }
 
             /**************************************************************************************
              * Allow the specified column's cells to be displayed with the text highlighted
              *************************************************************************************/
             @Override
-            protected boolean isColumnHighlight(int column)
-            {
+            protected boolean isColumnHighlight(int column) {
                 return column == SearchResultsColumnInfo.CONTEXT.ordinal();
             }
 
@@ -753,31 +666,22 @@ public class CcddSearchDialog extends CcddFrameHandler
              * Load the search results data into the table and format the table cells
              *************************************************************************************/
             @Override
-            protected void loadAndFormatData()
-            {
+            protected void loadAndFormatData() {
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(matchData,
-                                            SearchResultsColumnInfo.getColumnNames(searchDlgType),
-                                            null,
-                                            SearchResultsColumnInfo.getToolTips(searchDlgType),
-                                            true,
-                                            true,
-                                            true);
+                setUpdatableCharacteristics(matchData, SearchResultsColumnInfo.getColumnNames(searchDlgType), null,
+                        SearchResultsColumnInfo.getToolTips(searchDlgType), true, true, true);
             }
 
             /**************************************************************************************
-             * Override the table layout so that extra width is apportioned unequally between the
-             * columns when the table is resized
+             * Override the table layout so that extra width is apportioned unequally
+             * between the columns when the table is resized
              *************************************************************************************/
             @Override
-            public void doLayout()
-            {
+            public void doLayout() {
                 // Get a reference to the column being resized
-                if (getTableHeader() != null
-                    && getTableHeader().getResizingColumn() == null)
-                {
+                if (getTableHeader() != null && getTableHeader().getResizingColumn() == null) {
                     // Get a reference to the event table's column model to shorten subsequent
                     // calls
                     TableColumnModel tcm = getColumnModel();
@@ -792,19 +696,15 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                     // Set the columns' widths to its current width plus a percentage of the the
                     // extra width added to the dialog due to the resize
-                    tgtColumn.setPreferredWidth(tgtColumn.getPreferredWidth()
-                                                + (int) (delta * 0.25));
+                    tgtColumn.setPreferredWidth(tgtColumn.getPreferredWidth() + (int) (delta * 0.25));
                     tgtColumn.setWidth(tgtColumn.getPreferredWidth());
-                    locColumn.setPreferredWidth(locColumn.getPreferredWidth()
-                                                + (int) (delta * 0.25));
+                    locColumn.setPreferredWidth(locColumn.getPreferredWidth() + (int) (delta * 0.25));
                     locColumn.setWidth(locColumn.getPreferredWidth());
-                    cntxtColumn.setPreferredWidth(cntxtColumn.getPreferredWidth()
-                                                  + delta - (int) (delta * 0.25) * 2);
+                    cntxtColumn.setPreferredWidth(cntxtColumn.getPreferredWidth() + delta - (int) (delta * 0.25) * 2);
                     cntxtColumn.setWidth(cntxtColumn.getPreferredWidth());
                 }
                 // Table header or resize column not available
-                else
-                {
+                else {
                     super.doLayout();
                 }
             }
@@ -812,38 +712,27 @@ public class CcddSearchDialog extends CcddFrameHandler
             /**************************************************************************************
              * Highlight the matching search text in the context column cells
              *
-             * @param component
-             *            reference to the table cell renderer component
+             * @param component  reference to the table cell renderer component
              *
-             * @param value
-             *            cell value
+             * @param value      cell value
              *
-             * @param isSelected
-             *            true if the cell is to be rendered with the selection highlighted
+             * @param isSelected true if the cell is to be rendered with the selection
+             *                   highlighted
              *
-             * @param int
-             *            row cell row, view coordinates
+             * @param int        row cell row, view coordinates
              *
-             * @param column
-             *            cell column, view coordinates
+             * @param column     cell column, view coordinates
              *************************************************************************************/
             @Override
-            protected void doSpecialRendering(Component component,
-                                              String text,
-                                              boolean isSelected,
-                                              int row,
-                                              int column)
-            {
+            protected void doSpecialRendering(Component component, String text, boolean isSelected, int row,
+                    int column) {
                 // Check if the column allows highlighting
-                if (isColumnHighlight(column))
-                {
+                if (isColumnHighlight(column)) {
                     // Highlight the matching text in the column
-                    CcddUtilities.highlightSearchText(component,
-                                                      text,
-                                                      (isSelected
-                                                                  ? ModifiableColorInfo.INPUT_TEXT.getColor()
-                                                                  : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor()),
-                                                      highlightPattern);
+                    CcddUtilities.highlightSearchText(component, text,
+                            (isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                    : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor()),
+                            highlightPattern);
                 }
             }
         };
@@ -852,16 +741,9 @@ public class CcddSearchDialog extends CcddFrameHandler
         JScrollPane scrollPane = new JScrollPane(resultsTable);
 
         // Set up the search results table parameters
-        resultsTable.setFixedCharacteristics(scrollPane,
-                                             false,
-                                             ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                             TableSelectionMode.SELECT_BY_CELL,
-                                             true,
-                                             ModifiableColorInfo.TABLE_BACK.getColor(),
-                                             false,
-                                             true,
-                                             ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
-                                             true);
+        resultsTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                TableSelectionMode.SELECT_BY_CELL, true, ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
+                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
 
         // Define the panel to contain the table
         JPanel resultsTblPnl = new JPanel();
@@ -870,10 +752,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         resultsTblPnl.add(scrollPane);
 
         // Add the results table to the lower panel
-        gbc.insets.set(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                       0,
-                       0,
-                       0);
+        gbc.insets.set(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(), 0, 0, 0);
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -888,9 +767,9 @@ public class CcddSearchDialog extends CcddFrameHandler
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
 
         // Check if this is an event log search
-        if (searchDlgType == SearchDialogType.LOG)
-        {
-            // Add the input (search criteria) and lower (search results) panels to the dialog
+        if (searchDlgType == SearchDialogType.LOG) {
+            // Add the input (search criteria) and lower (search results) panels to the
+            // dialog
             gbc.weighty = 0.0;
             dialogPnl.add(inputPnl, gbc);
             gbc.weighty = 1.0;
@@ -898,34 +777,26 @@ public class CcddSearchDialog extends CcddFrameHandler
             dialogPnl.add(lowerPnl, gbc);
         }
         // This is a table or script search
-        else
-        {
-            // Add the upper (search criteria) and lower (search results) panels in a split pane to
+        else {
+            // Add the upper (search criteria) and lower (search results) panels in a split
+            // pane to
             // the dialog
             JSeparator resultsSep = new JSeparator();
             resultsSep.setForeground(dialogPnl.getBackground().darker());
-            dialogPnl.add(new CustomSplitPane(upperPnl,
-                                              lowerPnl,
-                                              resultsSep,
-                                              JSplitPane.VERTICAL_SPLIT),
-                          gbc);
+            dialogPnl.add(new CustomSplitPane(upperPnl, lowerPnl, resultsSep, JSplitPane.VERTICAL_SPLIT), gbc);
         }
 
         // Search database tables button
-        JButton btnSearch = CcddButtonPanelHandler.createButton("Search",
-                                                                SEARCH_ICON,
-                                                                KeyEvent.VK_O,
-                                                                "Search the project database");
+        JButton btnSearch = CcddButtonPanelHandler.createButton("Search", SEARCH_ICON, KeyEvent.VK_O,
+                "Search the project database");
 
         // Add a listener for the Search button
-        btnSearch.addActionListener(new ActionListener()
-        {
+        btnSearch.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Search the database tables and display the results
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 performSearch();
             }
         });
@@ -933,91 +804,71 @@ public class CcddSearchDialog extends CcddFrameHandler
         JButton btnOpen = null;
 
         // Check if this is the table search dialog
-        if (searchDlgType == SearchDialogType.TABLES)
-        {
+        if (searchDlgType == SearchDialogType.TABLES) {
             // Create a table opener for the Open tables command
-            final TableOpener opener = new TableOpener()
-            {
+            final TableOpener opener = new TableOpener() {
                 /**********************************************************************************
                  * Check if the search result is for a table or table data field
                  *
                  * @return true if the search result is for a table or table data field
                  *********************************************************************************/
                 @Override
-                protected boolean isApplicable(String tableName)
-                {
+                protected boolean isApplicable(String tableName) {
                     return tableName.startsWith(SearchTarget.TABLE.getTargetName(true))
-                           || tableName.startsWith(SearchTarget.TABLE_FIELD.getTargetName(true));
+                            || tableName.startsWith(SearchTarget.TABLE_FIELD.getTargetName(true));
                 }
 
                 /**********************************************************************************
                  * Remove any HTML tags and the owner identifier from the table name
                  *********************************************************************************/
                 @Override
-                protected String cleanUpTableName(String tableName, int row)
-                {
+                protected String cleanUpTableName(String tableName, int row) {
                     return CcddUtilities.removeHTMLTags(tableName).replaceFirst(".+:\\s", "");
                 }
             };
 
             // Open table(s) button
-            btnOpen = CcddButtonPanelHandler.createButton("Open",
-                                                          TABLE_ICON,
-                                                          KeyEvent.VK_O,
-                                                          "Open the table(s) associated with the selected search result(s)");
+            btnOpen = CcddButtonPanelHandler.createButton("Open", TABLE_ICON, KeyEvent.VK_O,
+                    "Open the table(s) associated with the selected search result(s)");
 
             // Add a listener for the Open button
-            btnOpen.addActionListener(new ActionListener()
-            {
+            btnOpen.addActionListener(new ActionListener() {
                 /**********************************************************************************
                  * Open the selected table(s)
                  *********************************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    opener.openTables(resultsTable,
-                                      VariablePathTableColumnInfo.APP_FORMAT.ordinal());
+                public void actionPerformed(ActionEvent ae) {
+                    opener.openTables(resultsTable, VariablePathTableColumnInfo.APP_FORMAT.ordinal());
                 }
             });
         }
 
         // Print inconsistencies button
-        JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
-                                                               PRINT_ICON,
-                                                               KeyEvent.VK_P,
-                                                               "Print the search results list");
+        JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
+                "Print the search results list");
 
         // Add a listener for the Print button
-        btnPrint.addActionListener(new ActionListener()
-        {
+        btnPrint.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Print the search results list
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                resultsTable.printTable("Search Results",
-                                        null,
-                                        CcddSearchDialog.this,
-                                        PageFormat.LANDSCAPE);
+            public void actionPerformed(ActionEvent ae) {
+                resultsTable.printTable("Search Results", null, CcddSearchDialog.this, PageFormat.LANDSCAPE);
             }
         });
 
         // Close search dialog button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the search dialog");
+        JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                "Close the search dialog");
 
         // Add a listener for the Close button
-        btnClose.addActionListener(new ActionListener()
-        {
+        btnClose.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Close the search dialog
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 CcddSearchDialog.this.closeFrame();
             }
         });
@@ -1028,8 +879,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         buttonPnl.add(btnSearch);
 
         // Check if this is the table search dialog
-        if (searchDlgType == SearchDialogType.TABLES)
-        {
+        if (searchDlgType == SearchDialogType.TABLES) {
             buttonPnl.add(btnOpen);
         }
 
@@ -1039,19 +889,18 @@ public class CcddSearchDialog extends CcddFrameHandler
         // Get the dialog title based on the search type
         String title = null;
 
-        switch (searchDlgType)
-        {
-            case TABLES:
-                title = "Search Tables";
-                break;
+        switch (searchDlgType) {
+        case TABLES:
+            title = "Search Tables";
+            break;
 
-            case SCRIPTS:
-                title = "Search Scripts";
-                break;
+        case SCRIPTS:
+            title = "Search Scripts";
+            break;
 
-            case LOG:
-                title = getLogTitle();
-                break;
+        case LOG:
+            title = getLogTitle();
+            break;
         }
 
         // Display the search dialog
@@ -1061,15 +910,11 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Search the tables/log/scripts for text matching the search criteria
      *********************************************************************************************/
-    private void performSearch()
-    {
+    private void performSearch() {
         // Check if the search criteria changed
-        if (!searchFld.getText().equals(prevSearchText)
-            || ignoreCaseCb.isSelected() != prevIgnoreCase
-            || allowRegexCb.isSelected() != prevAllowRegex
-            || !searchFilter.equals(prevFilter)
-            || !searchColumns.equals(prevColumns))
-        {
+        if (!searchFld.getText().equals(prevSearchText) || ignoreCaseCb.isSelected() != prevIgnoreCase
+                || allowRegexCb.isSelected() != prevAllowRegex || !searchFilter.equals(prevFilter)
+                || !searchColumns.equals(prevColumns)) {
             // Store the search criteria
             prevSearchText = searchFld.getText();
             prevIgnoreCase = ignoreCaseCb.isSelected();
@@ -1078,68 +923,50 @@ public class CcddSearchDialog extends CcddFrameHandler
             prevColumns = searchColumns;
 
             // Check if the search field is blank
-            if (searchFld.getText().isEmpty())
-            {
+            if (searchFld.getText().isEmpty()) {
                 // Inform the user that the input value is invalid
-                new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this,
-                                                          "<html><b>Search text cannot be blank",
-                                                          "Invalid Input",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this, "<html><b>Search text cannot be blank",
+                        "Invalid Input", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
             }
             // The search field contains text
-            else
-            {
+            else {
                 List<Object[]> resultsDataList = null;
 
                 // Create the match patterns from the search criteria
                 searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
-                                                                      (searchDlgType == SearchDialogType.LOG
-                                                                                                             ? ignoreCaseCb.isSelected()
-                                                                                                             : false),
+                        (searchDlgType == SearchDialogType.LOG ? ignoreCaseCb.isSelected() : false),
 
-                                                                      allowRegexCb.isSelected(),
-                                                                      CcddSearchDialog.this);
-                highlightPattern = searchDlgType == SearchDialogType.LOG
-                                   || !ignoreCaseCb.isSelected()
-                                                                 ? searchPattern
-                                                                 : CcddSearchHandler.createSearchPattern(searchFld.getText(),
-                                                                                                         ignoreCaseCb.isSelected(),
-                                                                                                         allowRegexCb.isSelected(),
-                                                                                                         CcddSearchDialog.this);
+                        allowRegexCb.isSelected(), CcddSearchDialog.this);
+                highlightPattern = searchDlgType == SearchDialogType.LOG || !ignoreCaseCb.isSelected() ? searchPattern
+                        : CcddSearchHandler.createSearchPattern(searchFld.getText(), ignoreCaseCb.isSelected(),
+                                allowRegexCb.isSelected(), CcddSearchDialog.this);
 
                 // Check if the search pattern is valid
-                if (searchPattern != null)
-                {
+                if (searchPattern != null) {
                     // Update the search string list
                     searchFld.updateList(searchFld.getText());
 
                     // Store the search list in the program preferences
                     ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
 
-                    switch (searchDlgType)
-                    {
-                        case TABLES:
-                        case SCRIPTS:
-                            // Search the database tables or scripts and display the results
-                            resultsDataList = searchHandler.searchTablesOrScripts(searchPattern.pattern(),
-                                                                                  ignoreCaseCb.isSelected(),
-                                                                                  (searchDlgType == SearchDialogType.TABLES
-                                                                                                                            ? dataTablesOnlyCb.isSelected()
-                                                                                                                            : false),
-                                                                                  searchColumns);
-                            break;
+                    switch (searchDlgType) {
+                    case TABLES:
+                    case SCRIPTS:
+                        // Search the database tables or scripts and display the results
+                        resultsDataList = searchHandler.searchTablesOrScripts(searchPattern.pattern(),
+                                ignoreCaseCb.isSelected(),
+                                (searchDlgType == SearchDialogType.TABLES ? dataTablesOnlyCb.isSelected() : false),
+                                searchColumns);
+                        break;
 
-                        case LOG:
-                            // Search the event log and display the results
-                            resultsDataList = searchHandler.searchEventLogFile(searchPattern,
-                                                                               targetRow);
-                            break;
+                    case LOG:
+                        // Search the event log and display the results
+                        resultsDataList = searchHandler.searchEventLogFile(searchPattern, targetRow);
+                        break;
                     }
 
                     // Check if this is a table search
-                    if (searchDlgType == SearchDialogType.TABLES)
-                    {
+                    if (searchDlgType == SearchDialogType.TABLES) {
                         List<Object[]> removeResults = new ArrayList<Object[]>();
 
                         // Get the list of selected tables
@@ -1154,20 +981,19 @@ public class CcddSearchDialog extends CcddFrameHandler
                         searchFilter = Arrays.toString(filterTables.toArray(new String[0]));
 
                         // Check if tables were selected to filter the search results
-                        if (!filterTables.isEmpty())
-                        {
+                        if (!filterTables.isEmpty()) {
                             // Step through the search results
-                            for (Object[] result : resultsDataList)
-                            {
+                            for (Object[] result : resultsDataList) {
                                 // Separate the target into the target type and owner
-                                String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
+                                String[] typeAndOwner = CcddUtilities
+                                        .removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString())
+                                        .split(": ");
 
                                 // Check if the target type isn't a table or table data field, and
                                 // if owner isn't one of the selected tables or its prototype
                                 if (!((typeAndOwner[0].equals(SearchTarget.TABLE.getTargetName(false))
-                                       || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
-                                      && filterTables.contains(typeAndOwner[1])))
-                                {
+                                        || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
+                                        && filterTables.contains(typeAndOwner[1]))) {
                                     // Add the search result to the list of those to remove
                                     removeResults.add(result);
                                 }
@@ -1184,14 +1010,12 @@ public class CcddSearchDialog extends CcddFrameHandler
                         }
                     }
                     // Check if this is a script search
-                    else if (searchDlgType == SearchDialogType.SCRIPTS)
-                    {
+                    else if (searchDlgType == SearchDialogType.SCRIPTS) {
                         List<Object[]> removeResults = new ArrayList<Object[]>();
                         List<String> filterScripts = new ArrayList<String>();
 
                         // Step through each script selected in the script tree
-                        for (TreePath path : scriptTree.getSelectedPaths())
-                        {
+                        for (TreePath path : scriptTree.getSelectedPaths()) {
                             // Add the script name to the filter list
                             filterScripts.add(path.getLastPathComponent().toString());
                         }
@@ -1201,14 +1025,12 @@ public class CcddSearchDialog extends CcddFrameHandler
                         searchFilter = Arrays.toString(filterScripts.toArray(new String[0]));
 
                         // Check if scripts were selected to filter the search results
-                        if (!filterScripts.isEmpty())
-                        {
+                        if (!filterScripts.isEmpty()) {
                             // Step through the search results
-                            for (Object[] result : resultsDataList)
-                            {
+                            for (Object[] result : resultsDataList) {
                                 // Check if the script name isn't one of the ones selected
-                                if (!filterScripts.contains(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()))
-                                {
+                                if (!filterScripts
+                                        .contains(result[SearchResultsColumnInfo.OWNER.ordinal()].toString())) {
                                     // Add the search result to the list of those to remove
                                     removeResults.add(result);
                                 }
@@ -1228,13 +1050,8 @@ public class CcddSearchDialog extends CcddFrameHandler
 
             // Update the number of matches found label
             numMatchesLbl.setText(matchData.length != 0
-                                                        ? "  ("
-                                                          + matchData.length
-                                                          + (matchData.length == 1
-                                                                                   ? " match"
-                                                                                   : " matches")
-                                                          + ")"
-                                                        : "");
+                    ? "  (" + matchData.length + (matchData.length == 1 ? " match" : " matches") + ")"
+                    : "");
         }
     }
 
@@ -1243,18 +1060,15 @@ public class CcddSearchDialog extends CcddFrameHandler
      *
      * @return Text to display in the dialog's header for a log search
      *********************************************************************************************/
-    private String getLogTitle()
-    {
+    private String getLogTitle() {
         String title;
 
         // Check if the log to search is the session log
-        if (ccddMain.getSessionEventLog().equals(eventLog))
-        {
+        if (ccddMain.getSessionEventLog().equals(eventLog)) {
             title = "Search Session Event Log";
         }
         // Not searching the session log
-        else
-        {
+        else {
             title = "Search " + eventLog.getTitle();
         }
 

@@ -23,8 +23,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 /**************************************************************************************************
  * CFS Command and Data Dictionary command handler class
  *************************************************************************************************/
-public class CcddCommandHandler
-{
+public class CcddCommandHandler {
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
@@ -36,8 +35,7 @@ public class CcddCommandHandler
     /**********************************************************************************************
      * Command information class
      *********************************************************************************************/
-    public class CommandInformation
-    {
+    public class CommandInformation {
         private final String table;
         private final String commandName;
         private final String commandCode;
@@ -46,23 +44,15 @@ public class CcddCommandHandler
         /******************************************************************************************
          * Command information class constructor
          *
-         * @param table
-         *            command table in which the command is defined
+         * @param table           command table in which the command is defined
          *
-         * @param commandName
-         *            command name
+         * @param commandName     command name
          *
-         * @param commandCode
-         *            command code
+         * @param commandCode     command code
          *
-         * @param commandArgument
-         *            command argument variable
+         * @param commandArgument command argument variable
          *****************************************************************************************/
-        CommandInformation(String table,
-                           String commandName,
-                           String commandCode,
-                           String commandArgument)
-        {
+        CommandInformation(String table, String commandName, String commandCode, String commandArgument) {
             this.table = table;
             this.commandName = commandName;
             this.commandCode = commandCode;
@@ -74,8 +64,7 @@ public class CcddCommandHandler
          *
          * @return Command table in which the command is defined
          *****************************************************************************************/
-        protected String getTable()
-        {
+        protected String getTable() {
             return table;
         }
 
@@ -84,8 +73,7 @@ public class CcddCommandHandler
          *
          * @return Command name
          *****************************************************************************************/
-        protected String getCommandName()
-        {
+        protected String getCommandName() {
             return commandName;
         }
 
@@ -94,8 +82,7 @@ public class CcddCommandHandler
          *
          * @return Command code
          *****************************************************************************************/
-        protected String getCommandCode()
-        {
+        protected String getCommandCode() {
             return commandCode;
         }
 
@@ -104,8 +91,7 @@ public class CcddCommandHandler
          *
          * @return Command argument variable
          *****************************************************************************************/
-        protected String getCommandArgument()
-        {
+        protected String getCommandArgument() {
             return commandArgument;
         }
     }
@@ -113,11 +99,9 @@ public class CcddCommandHandler
     /**********************************************************************************************
      * Command handler class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddCommandHandler(CcddMain ccddMain)
-    {
+    CcddCommandHandler(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
 
         dbTable = ccddMain.getDbTableCommandHandler();
@@ -127,75 +111,59 @@ public class CcddCommandHandler
     /**********************************************************************************************
      * Get the list of command information
      *
-     * @return List of command information; returns an empty list if no commands exist
+     * @return List of command information; returns an empty list if no commands
+     *         exist
      *********************************************************************************************/
-    protected List<CommandInformation> getCommandInformation()
-    {
+    protected List<CommandInformation> getCommandInformation() {
         return commandInformation;
     }
 
     /**********************************************************************************************
      * Build the command reference string
      *
-     * @param commandName
-     *            command name
+     * @param commandName command name
      *
-     * @param commandCode
-     *            command code
+     * @param commandCode command code
      *
-     * @param commandArg
-     *            command argument structure path
+     * @param commandArg  command argument structure path
      *
-     * @param table
-     *            command table to which the command belongs
+     * @param table       command table to which the command belongs
      *
      * @return Command reference string
      *********************************************************************************************/
-    protected String buildCommandReference(String commandName,
-                                           String commandCode,
-                                           String commandArg,
-                                           String table)
-    {
-        return commandName
-               + " (code: "
-               + commandCode
-               + ", owner: "
-               + table
-               + ", arg: "
-               + getCommandArgumentVariables(commandArg, ", ")
-               + ")";
+    protected String buildCommandReference(String commandName, String commandCode, String commandArg, String table) {
+        return commandName + " (code: " + commandCode + ", owner: " + table + ", arg: "
+                + getCommandArgumentVariables(commandArg, ", ") + ")";
     }
 
     /**********************************************************************************************
-     * Get the argument variable names for the specified command argument structure reference
+     * Get the argument variable names for the specified command argument structure
+     * reference
      *
-     * @param argumentStructRef
-     *            command argument structure reference path
+     * @param argumentStructRef command argument structure reference path
      *
-     * @param separator
-     *            character(s) used to separate each command argument variable name
+     * @param separator         character(s) used to separate each command argument
+     *                          variable name
      *
-     * @return The argument variable names for the specified command argument structure reference
-     *         separated by the supplied separator character(s); and empty string if the structure
-     *         has no variables
+     * @return The argument variable names for the specified command argument
+     *         structure reference separated by the supplied separator character(s);
+     *         and empty string if the structure has no variables
      *********************************************************************************************/
-    protected String getCommandArgumentVariables(String argumentStructRef, String separator)
-    {
+    protected String getCommandArgumentVariables(String argumentStructRef, String separator) {
         String commandArgs = "";
 
         // Get the path to the command's argument structure
         String commandArgumentStart = argumentStructRef + ",";
 
         // Step through each variable
-        for (String argVariable : ccddMain.getVariableHandler().getStructureAndVariablePaths())
-        {
+        for (String argVariable : ccddMain.getVariableHandler().getStructureAndVariablePaths()) {
             // Get the index in the variable path to the period preceding the variable name
             int variableStart = argVariable.lastIndexOf(".");
 
-            // Check if this is a variable belonging to the command's argument structure (but not a
+            // Check if this is a variable belonging to the command's argument structure
+            // (but not a
             // child of a child structure)
-            if (argVariable.startsWith(commandArgumentStart))
-            {
+            if (argVariable.startsWith(commandArgumentStart)) {
                 // Ad the argument variable to the string
                 commandArgs += argVariable.substring(variableStart + 1) + separator;
             }
@@ -209,129 +177,106 @@ public class CcddCommandHandler
      *
      * @return List of commands; returns an empty list if no commands exist
      *********************************************************************************************/
-    protected List<String> getAllCommands()
-    {
+    protected List<String> getAllCommands() {
         List<String> allCommandNames = new ArrayList<String>();
 
         // Step through each command's information
-        for (CommandInformation cmdInfo : commandInformation)
-        {
+        for (CommandInformation cmdInfo : commandInformation) {
             // Add the command information to the list
-            allCommandNames.add(buildCommandReference(cmdInfo.getCommandName(),
-                                                      cmdInfo.getCommandCode(),
-                                                      cmdInfo.getCommandArgument(),
-                                                      cmdInfo.getTable()));
+            allCommandNames.add(buildCommandReference(cmdInfo.getCommandName(), cmdInfo.getCommandCode(),
+                    cmdInfo.getCommandArgument(), cmdInfo.getTable()));
         }
 
         return allCommandNames;
     }
 
     /**********************************************************************************************
-     * Build the list of command information for every command defined in the project database. A
-     * single query is constructed to obtain the command information in order to reduce the number
-     * of transactions with the database (as opposed to using loadTableInformation() for each
-     * command table)
+     * Build the list of command information for every command defined in the
+     * project database. A single query is constructed to obtain the command
+     * information in order to reduce the number of transactions with the database
+     * (as opposed to using loadTableInformation() for each command table)
      *********************************************************************************************/
-    protected void buildCommandList()
-    {
+    protected void buildCommandList() {
         boolean hasCmdTable = false;
         commandInformation = new ArrayList<CommandInformation>();
 
-        // Create the query command to obtain the command information from the project database
+        // Create the query command to obtain the command information from the project
+        // database
         String command = "SELECT * FROM (";
 
         // Step through each data table
-        for (String[] namesAndType : dbTable.queryTableAndTypeList(ccddMain.getMainFrame()))
-        {
+        for (String[] namesAndType : dbTable.queryTableAndTypeList(ccddMain.getMainFrame())) {
             // Get the table's type definition
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(namesAndType[2]);
 
             // Check if the table type represents a command
-            if (typeDefn != null && typeDefn.isCommand())
-            {
+            if (typeDefn != null && typeDefn.isCommand()) {
                 // Set the flag to indicate the project has a command table
                 hasCmdTable = true;
 
                 // Begin building the column name string
-                String columnNames = typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
-                                     + ", "
-                                     + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
-                                     + ", "
-                                     + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)];
+                String columnNames = typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
+                        .getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
+                        + ", "
+                        + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
+                                .getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
+                        + ", " + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
+                                .getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)];
 
-                // Append the command to obtain the specified column information from the command
+                // Append the command to obtain the specified column information from the
+                // command
                 // table
-                command += "(SELECT '"
-                           + namesAndType[0]
-                           + "' AS command_table, "
-                           + columnNames
-                           + " FROM "
-                           + namesAndType[1]
-                           + ") UNION ALL ";
+                command += "(SELECT '" + namesAndType[0] + "' AS command_table, " + columnNames + " FROM "
+                        + namesAndType[1] + ") UNION ALL ";
             }
         }
 
         // Check if the project has a command table
-        if (hasCmdTable)
-        {
+        if (hasCmdTable) {
             // Clean up the command
             command = CcddUtilities.removeTrailer(command, " UNION ALL ") + ") AS cmds;";
 
-            try
-            {
-                // Perform the query to obtain the command information for all commands defined in
+            try {
+                // Perform the query to obtain the command information for all commands defined
+                // in
                 // the project
-                ResultSet commands = ccddMain.getDbCommandHandler().executeDbQuery(command,
-                                                                                   ccddMain.getMainFrame());
+                ResultSet commands = ccddMain.getDbCommandHandler().executeDbQuery(command, ccddMain.getMainFrame());
 
                 // Check if a comment exists
-                while (commands.next())
-                {
+                while (commands.next()) {
                     // Add the command's information to the list
-                    commandInformation.add(new CommandInformation(commands.getString(1),
-                                                                  commands.getString(2),
-                                                                  commands.getString(3),
-                                                                  commands.getString(4)));
+                    commandInformation.add(new CommandInformation(commands.getString(1), commands.getString(2),
+                            commands.getString(3), commands.getString(4)));
                 }
-            }
-            catch (SQLException se)
-            {
+            } catch (SQLException se) {
                 // Inform the user an error occurred obtaining the command information
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>Cannot obtain command information",
-                                                          "Query Fail",
-                                                          JOptionPane.ERROR_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                        "<html><b>Cannot obtain command information", "Query Fail", JOptionPane.ERROR_MESSAGE,
+                        DialogOption.OK_OPTION);
             }
 
             // Sort the command information
-            Collections.sort(commandInformation, new Comparator<CommandInformation>()
-            {
+            Collections.sort(commandInformation, new Comparator<CommandInformation>() {
                 /**********************************************************************************
-                 * Sort the command information by command name; if the same then by command code;
-                 * if the same then by table name
+                 * Sort the command information by command name; if the same then by command
+                 * code; if the same then by table name
                  *********************************************************************************/
                 @Override
-                public int compare(CommandInformation cmd1, CommandInformation cmd2)
-                {
+                public int compare(CommandInformation cmd1, CommandInformation cmd2) {
                     // Compare the command names
                     int result = cmd1.getCommandName().compareToIgnoreCase(cmd2.getCommandName());
 
                     // Check if the table names are the same
-                    if (result == 0)
-                    {
+                    if (result == 0) {
                         // Compare the command codes, converting them to integer values first
                         // (unless blank)
-                        result = cmd1.getCommandCode().isEmpty()
-                                 || cmd2.getCommandCode().isEmpty()
-                                                                    ? cmd1.getCommandCode().compareToIgnoreCase(cmd2.getCommandCode())
-                                                                    : (Integer.decode(cmd1.getCommandCode()) > Integer.decode(cmd2.getCommandCode())
-                                                                                                                                                     ? 1
-                                                                                                                                                     : -1);
+                        result = cmd1.getCommandCode().isEmpty() || cmd2.getCommandCode().isEmpty()
+                                ? cmd1.getCommandCode().compareToIgnoreCase(cmd2.getCommandCode())
+                                : (Integer.decode(cmd1.getCommandCode()) > Integer.decode(cmd2.getCommandCode()) ? 1
+                                        : -1);
 
                         // Check if the command codes are the same
-                        if (result == 0)
-                        {
+                        if (result == 0) {
                             // Compare the table names
                             result = cmd1.getTable().compareToIgnoreCase(cmd2.getTable());
                         }
@@ -341,11 +286,11 @@ public class CcddCommandHandler
                 }
             });
 
-            // Add the command information to the command references input type and refresh any
+            // Add the command information to the command references input type and refresh
+            // any
             // open editors
             ccddMain.getInputTypeHandler().updateCommandReferences();
-            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null,
-                                                                       ccddMain.getMainFrame());
+            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
         }
     }
 }

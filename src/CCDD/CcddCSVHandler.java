@@ -22,49 +22,30 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
-import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
-import CCDD.CcddConstants.AssociationsTableColumnInfo;
-import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.GroupDefinitionColumn;
-import CCDD.CcddConstants.InputTypeEditorColumnInfo;
-import CCDD.CcddConstants.JSONTags;
-import CCDD.CcddConstants.MacroEditorColumnInfo;
-import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;
-import CCDD.CcddConstants.InternalTable.AppSchedulerComment;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
-import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
-import CCDD.CcddConstants.InternalTable.TlmSchedulerComments;
-import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary CSV handler class
  *************************************************************************************************/
-public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImportExportInterface
-{
+public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImportExportInterface {
     // Class references
     private final CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -81,7 +62,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     // GUI component over which to center any error dialog
     private final Component parent;
 
-    // List containing the imported table, table type, data type, and macro definitions
+    // List containing the imported table, table type, data type, and macro
+    // definitions
     private List<TableDefinition> tableDefinitions;
 
     // List of original and new script associations
@@ -90,24 +72,17 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * CSV data type tags
      *********************************************************************************************/
-    private enum CSVTags
-    {
-        COLUMN_DATA("_column_data_", null),
-        CELL_DATA("_table_cell_data_", null), // This is an internal tag and not used in the file
-        NAME_TYPE("_name_type_", null),
-        DESCRIPTION("_description_", null),
-        DATA_FIELD("_data_field_", "_data_fields_"),
-        MACRO("_macro_", "_macros_"),
-        TABLE_TYPE("_table_type_", null),
+    private enum CSVTags {
+        COLUMN_DATA("_column_data_", null), CELL_DATA("_table_cell_data_", null), // This is an internal tag and not
+                                                                                  // used in the file
+        NAME_TYPE("_name_type_", null), DESCRIPTION("_description_", null), DATA_FIELD("_data_field_", "_data_fields_"),
+        MACRO("_macro_", "_macros_"), TABLE_TYPE("_table_type_", null),
         TABLE_TYPE_DATA_FIELD("_table_type_data_field_", "_table_type_data_fields_"),
-        DATA_TYPE("_data_type_", "_data_types_"),
-        INPUT_TYPE("_input_type_", "_input_types_"),
+        DATA_TYPE("_data_type_", "_data_types_"), INPUT_TYPE("_input_type_", "_input_types_"),
         RESERVED_MSG_IDS("_reserved_msg_id_", "_reserved_msg_ids_"),
         PROJECT_DATA_FIELD("_project_data_field_", "_project_data_fields_"),
-        VARIABLE_PATHS("_variable_path_", "_variable_paths_"),
-        GROUP("_group_", null),
-        GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"),
-        SCRIPT_ASSOCIATION("_script_association_", null);
+        VARIABLE_PATHS("_variable_path_", "_variable_paths_"), GROUP("_group_", null),
+        GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"), SCRIPT_ASSOCIATION("_script_association_", null);
 
         private final String tag;
         private final String alternateTag;
@@ -115,16 +90,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         /******************************************************************************************
          * CSV data type tags constructor
          *
-         * @param tag
-         *            text describing the data
+         * @param tag          text describing the data
          *
-         * @param alternateTag
-         *            alternate text describing the data; null if there is no alternate name. This
-         *            allows the same tag data type to have two names, which is used for backwards
-         *            compatibility, due to a previous mixture of singular and plural tag names
+         * @param alternateTag alternate text describing the data; null if there is no
+         *                     alternate name. This allows the same tag data type to
+         *                     have two names, which is used for backwards
+         *                     compatibility, due to a previous mixture of singular and
+         *                     plural tag names
          *****************************************************************************************/
-        CSVTags(String tag, String alternateTag)
-        {
+        CSVTags(String tag, String alternateTag) {
             this.tag = tag;
             this.alternateTag = alternateTag;
         }
@@ -134,41 +108,33 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
          *
          * @return Text describing the data
          *****************************************************************************************/
-        protected String getTag()
-        {
+        protected String getTag() {
             return tag;
         }
 
         /******************************************************************************************
          * Check if the supplied text matches the data type tag name or alternate name
          *
-         * @param text
-         *            text describing the data
+         * @param text text describing the data
          *
-         * @return true if the supplied text matches the tag name or alternate tag name, if one
-         *         exists (case insensitive)
+         * @return true if the supplied text matches the tag name or alternate tag name,
+         *         if one exists (case insensitive)
          *****************************************************************************************/
-        protected boolean isTag(String text)
-        {
-            return tag.equalsIgnoreCase(text)
-                   || (alternateTag != null && alternateTag.equalsIgnoreCase(text));
+        protected boolean isTag(String text) {
+            return tag.equalsIgnoreCase(text) || (alternateTag != null && alternateTag.equalsIgnoreCase(text));
         }
     }
 
     /**********************************************************************************************
      * CSV handler class constructor
      *
-     * @param ccddMain
-     *            main class reference
+     * @param ccddMain     main class reference
      *
-     * @param groupHandler
-     *            group handler reference
+     * @param groupHandler group handler reference
      *
-     * @param parent
-     *            GUI component over which to center any error dialog
+     * @param parent       GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddCSVHandler(CcddMain ccddMain, CcddGroupHandler groupHandler, Component parent)
-    {
+    CcddCSVHandler(CcddMain ccddMain, CcddGroupHandler groupHandler, Component parent) {
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -191,182 +157,150 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Get the imported table definitions
      *
-     * @return List of imported table definitions; an empty list if no table definitions exist in
-     *         the import file
+     * @return List of imported table definitions; an empty list if no table
+     *         definitions exist in the import file
      *********************************************************************************************/
     @Override
-    public List<TableDefinition> getTableDefinitions()
-    {
+    public List<TableDefinition> getTableDefinitions() {
         return tableDefinitions;
     }
 
     /**********************************************************************************************
      * Get the list of original and new script associations
      *
-     * @return List of original and new script associations; null if no new associations have been
-     *         added
+     * @return List of original and new script associations; null if no new
+     *         associations have been added
      *********************************************************************************************/
     @Override
-    public List<String[]> getScriptAssociations()
-    {
+    public List<String[]> getScriptAssociations() {
         return associations;
     }
 
     /**********************************************************************************************
      * Get the list of telemetry scheduler messages
      *
-     * @return List of original and new telemetry scheduler messages; null if no new messages 
-     * 		   have been added        
+     * @return List of original and new telemetry scheduler messages; null if no new
+     *         messages have been added
      *********************************************************************************************/
     @Override
-	public List<String[]> getTlmSchedulerData() 
-    {
-		return null;
-	}
+    public List<String[]> getTlmSchedulerData() {
+        return null;
+    }
 
-	/**********************************************************************************************
+    /**********************************************************************************************
      * Get the list of original and new application scheduler data
      *
-     * @return List of original and new application scheduler data; null if no new associations 
-     * have been added
+     * @return List of original and new application scheduler data; null if no new
+     *         associations have been added
      *********************************************************************************************/
-	@Override
-	public List<String[]> getAppSchedulerData() 
-	{
-		return null;
-	}
-	
+    @Override
+    public List<String[]> getAppSchedulerData() {
+        return null;
+    }
+
     /**********************************************************************************************
      * Build the information from the internal table in the current file
      *
-     * @param importFile
-     *            import file reference
+     * @param importFile   import file reference
      *
-     * @param importType
-     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
-     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
-     *            only the data for the first table defined
-     *            
-     * @param ignoreErrors
-     *            true to ignore all errors in the import file
+     * @param importType   ImportType.IMPORT_ALL to import the table type, data
+     *                     type, and macro definitions, and the data from all the
+     *                     table definitions; ImportType.FIRST_DATA_ONLY to load
+     *                     only the data for the first table defined
+     * 
+     * @param ignoreErrors true to ignore all errors in the import file
      *
-     * @throws CCDDException
-     *             If a data is missing, extraneous, or in error in the import file
+     * @throws CCDDException If a data is missing, extraneous, or in error in the
+     *                       import file
      *
-     * @throws IOException
-     *             If an import file I/O error occurs
+     * @throws IOException   If an import file I/O error occurs
      *
-     * @throws Exception
-     *             If an unanticipated error occurs
+     * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInternalTables(FileEnvVar importFile, 
-    								 ImportType importType, 
-    								 boolean ignoreErrors) throws CCDDException, IOException, Exception
-    {
-    	/* TODO */
-    	return;
+    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+            throws CCDDException, IOException, Exception {
+        /* TODO */
+        return;
     }
-    
+
     /**********************************************************************************************
-     * Build the information from the input and data type definition(s) in the current file
+     * Build the information from the input and data type definition(s) in the
+     * current file
      *
-     * @param importFile
-     *            import file reference
-     *            
-     * @param ignoreErrors
-     *            true to ignore all errors in the import file
+     * @param importFile   import file reference
+     * 
+     * @param ignoreErrors true to ignore all errors in the import file
      *
-     * @throws CCDDException
-     *             If a data is missing, extraneous, or in error in the import file
+     * @throws CCDDException If a data is missing, extraneous, or in error in the
+     *                       import file
      *
-     * @throws IOException
-     *             If an import file I/O error occurs
+     * @throws IOException   If an import file I/O error occurs
      *
-     * @throws Exception
-     *             If an unanticipated error occurs
+     * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importTableInfo(FileEnvVar importFile,
-    							 ImportType importType,
-    							 boolean ignoreErrors) throws CCDDException, IOException, Exception
-    {
-    	/* TODO */
-    	return;
+    public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+            throws CCDDException, IOException, Exception {
+        /* TODO */
+        return;
     }
-    
+
     /**********************************************************************************************
-     * Build the information from the input and data type definition(s) in the current file
+     * Build the information from the input and data type definition(s) in the
+     * current file
      *
-     * @param importFile
-     *            import file reference
-     *            
-     * @param ignoreErrors
-     *            true to ignore all errors in the import file
+     * @param importFile   import file reference
+     * 
+     * @param ignoreErrors true to ignore all errors in the import file
      *
-     * @throws CCDDException
-     *             If a data is missing, extraneous, or in error in the import file
+     * @throws CCDDException If a data is missing, extraneous, or in error in the
+     *                       import file
      *
-     * @throws IOException
-     *             If an import file I/O error occurs
+     * @throws IOException   If an import file I/O error occurs
      *
-     * @throws Exception
-     *             If an unanticipated error occurs
+     * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInputTypes(FileEnvVar importFile,
-    							 ImportType importType,
-    							 boolean ignoreErrors) throws CCDDException, IOException, Exception
-    {
-    	/* TODO */
-    	return;
+    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+            throws CCDDException, IOException, Exception {
+        /* TODO */
+        return;
     }
 
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile
-     *            import file reference
+     * @param importFile            import file reference
      *
-     * @param importType
-     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
-     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
-     *            only the data for the first table defined
+     * @param importType            ImportType.IMPORT_ALL to import the table type,
+     *                              data type, and macro definitions, and the data
+     *                              from all the table definitions;
+     *                              ImportType.FIRST_DATA_ONLY to load only the data
+     *                              for the first table defined
      *
-     * @param targetTypeDefn
-     *            table type definition of the table in which to import the data; ignored if
-     *            importing all tables
+     * @param targetTypeDefn        table type definition of the table in which to
+     *                              import the data; ignored if importing all tables
      *
-     * @param ignoreErrors
-     *            true to ignore all errors in the import file
+     * @param ignoreErrors          true to ignore all errors in the import file
      *
-     * @param replaceExistingMacros
-     *            true to replace the values for existing macros
+     * @param replaceExistingMacros true to replace the values for existing macros
      *
-     * @param replaceExistingGroups
-     *            true to replace existing group definitions
+     * @param replaceExistingGroups true to replace existing group definitions
      *
-     * @throws CCDDException
-     *             If a data is missing, extraneous, or in error in the import file
+     * @throws CCDDException If a data is missing, extraneous, or in error in the
+     *                       import file
      *
-     * @throws IOException
-     *             If an import file I/O error occurs
+     * @throws IOException   If an import file I/O error occurs
      *
-     * @throws Exception
-     *             If an unanticipated error occurs
+     * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void importFromFile(FileEnvVar importFile,
-                               ImportType importType,
-                               TypeDefinition targetTypeDefn,
-                               boolean ignoreErrors,
-                               boolean replaceExistingMacros,
-                               boolean replaceExistingGroups) throws CCDDException,
-                                                              IOException,
-                                                              Exception
-    {
+    public void importFromFile(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn,
+            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups)
+            throws CCDDException, IOException, Exception {
         BufferedReader br = null;
 
-        try
-        {
-            // Flags indicating if importing should continue after an input error is detected
+        try {
+            // Flags indicating if importing should continue after an input error is
+            // detected
             boolean continueOnTableTypeError = ignoreErrors;
             boolean continueOnTableTypeFieldError = ignoreErrors;
             boolean continueOnDataTypeError = ignoreErrors;
@@ -388,11 +322,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
             tableDefinitions = new ArrayList<TableDefinition>();
 
-            // Make three passes through the file, first to get the input types (which must be
-            // processed prior to adding a table type), second to get the table types, input types,
-            // data types, and macros, and then a third pass to read the table data and fields
-            for (int loop = 1; loop <= 3; loop++)
-            {
+            // Make three passes through the file, first to get the input types (which must
+            // be
+            // processed prior to adding a table type), second to get the table types, input
+            // types,
+            // data types, and macros, and then a third pass to read the table data and
+            // fields
+            for (int loop = 1; loop <= 3; loop++) {
                 int columnNumber = 0;
                 String groupDefnName = null;
 
@@ -407,8 +343,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Continue to read the file until EOF is reached or an error is detected. This
                 // outer while loop accounts for multiple table definitions within a single file
-                while (line != null)
-                {
+                while (line != null) {
                     TableTypeDefinition tableTypeDefn = null;
 
                     // Initialize the table information
@@ -433,27 +368,23 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Continue to read the file until EOF is reached or an error is detected. This
                     // inner while loop reads the information for a single table in the file
-                    while (line != null)
-                    {
+                    while (line != null) {
                         // Remove any leading/trailing white space characters from the row
                         String trimmedLine = line.trim();
 
                         // Check that the row isn't empty and isn't a comment line (starts with a #
                         // character)
-                        if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("#"))
-                        {
+                        if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("#")) {
                             boolean isTag = false;
                             boolean isNextTable = false;
 
                             // Check if the line contains an odd number of double quotes
-                            if (trimmedLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
-                            {
+                            if (trimmedLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0) {
                                 String nextLine = null;
 
                                 // Step through the subsequent lines in order to find the end of
                                 // multi-line value
-                                while ((nextLine = br.readLine()) != null)
-                                {
+                                while ((nextLine = br.readLine()) != null) {
                                     // Append the line to the preceding one, inserting the line
                                     // feed. The non-trimmed variable is used so that trailing
                                     // spaces within a quoted, multiple-line field aren't lost
@@ -461,8 +392,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                     // Check if this is the line that ends the multi-line value
                                     // (i.e., it ends with one double quote)
-                                    if (nextLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
-                                    {
+                                    if (nextLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0) {
                                         // Stop searching; the multi-line string
                                         // has been
                                         // concatenated to the initial line
@@ -492,32 +422,27 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             String firstColumn = columnValues[0].trim();
 
                             // Step through the import tags
-                            for (CSVTags csvTag : CSVTags.values())
-                            {
+                            for (CSVTags csvTag : CSVTags.values()) {
                                 // Check if the first column value matches the tag name
-                                if (csvTag.isTag(firstColumn))
-                                {
+                                if (csvTag.isTag(firstColumn)) {
                                     isTag = true;
 
                                     // Set the import tag and stop searching
                                     importTag = csvTag;
 
                                     // Check if this is the table name and table type tag
-                                    if (CSVTags.NAME_TYPE.isTag(firstColumn))
-                                    {
+                                    if (CSVTags.NAME_TYPE.isTag(firstColumn)) {
                                         // Check if this is the third pass and if the name and type
                                         // are already set; if so, this is the beginning of another
                                         // table's information
-                                        if (loop == 3 && !tablePath.isEmpty())
-                                        {
+                                        if (loop == 3 && !tablePath.isEmpty()) {
                                             // Set the flag to indicate that this is the beginning
                                             // of the next table definition
                                             isNextTable = true;
                                         }
                                     }
                                     // Check if this is the table type tag
-                                    else if (CSVTags.TABLE_TYPE.isTag(firstColumn))
-                                    {
+                                    else if (CSVTags.TABLE_TYPE.isTag(firstColumn)) {
                                         // Set the flag so that the next row is treated as the
                                         // table
                                         // type name and description
@@ -529,8 +454,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             }
 
                             // Check if this is the beginning of the next table definition
-                            if (isNextTable)
-                            {
+                            if (isNextTable) {
                                 // Stop processing the file in order to create the table
                                 // prior to beginning another one
                                 break;
@@ -538,673 +462,585 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                             // Not a tag (or no table name and type are defined); read in the
                             // information based on the last tag read
-                            if (!isTag)
-                            {
+                            if (!isTag) {
                                 // Check if this is the first pass
-                                if (loop == 1)
-                                {
-                                    switch (importTag)
-                                    {
-                                        case INPUT_TYPE:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (columnValues.length == InputTypesColumn.values().length - 1)
-                                                {
-                                                    // Check if the input type definition is valid
-                                                    String[] inputTypeDefn = checkInputTypeDefinition(new String[] {columnValues[InputTypesColumn.NAME.ordinal()],
-                                                                                                                    columnValues[InputTypesColumn.DESCRIPTION.ordinal()],
-                                                                                                                    columnValues[InputTypesColumn.MATCH.ordinal()],
-                                                                                                                    columnValues[InputTypesColumn.ITEMS.ordinal()],
-                                                                                                                    columnValues[InputTypesColumn.FORMAT.ordinal()],
-                                                                                                                    ""});
+                                if (loop == 1) {
+                                    switch (importTag) {
+                                    case INPUT_TYPE:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if the expected number of inputs is
+                                            // present
+                                            if (columnValues.length == InputTypesColumn.values().length - 1) {
+                                                // Check if the input type definition is valid
+                                                String[] inputTypeDefn = checkInputTypeDefinition(
+                                                        new String[] { columnValues[InputTypesColumn.NAME.ordinal()],
+                                                                columnValues[InputTypesColumn.DESCRIPTION.ordinal()],
+                                                                columnValues[InputTypesColumn.MATCH.ordinal()],
+                                                                columnValues[InputTypesColumn.ITEMS.ordinal()],
+                                                                columnValues[InputTypesColumn.FORMAT.ordinal()], "" });
 
-                                                    // Add the input type definition (add a blank
-                                                    // to represent the OID)
-                                                    inputTypeDefns.add(inputTypeDefn);
-                                                }
-                                                // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnInputTypeError = getErrorResponse(continueOnInputTypeError,
-                                                                                                "<html><b>Missing or extra input type definition "
-                                                                                                                          + "input(s) in import file '</b>"
-                                                                                                                          + importFile.getAbsolutePath()
-                                                                                                                          + "<b>'; continue?",
-                                                                                                "Input Type Error",
-                                                                                                "Ignore this input type",
-                                                                                                "Ignore this and any remaining invalid input types",
-                                                                                                "Stop importing",
-                                                                                                parent);
-                                                }
+                                                // Add the input type definition (add a blank
+                                                // to represent the OID)
+                                                inputTypeDefns.add(inputTypeDefn);
                                             }
+                                            // The number of inputs is incorrect
+                                            else {
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnInputTypeError = getErrorResponse(continueOnInputTypeError,
+                                                        "<html><b>Missing or extra input type definition "
+                                                                + "input(s) in import file '</b>"
+                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                        "Input Type Error", "Ignore this input type",
+                                                        "Ignore this and any remaining invalid input types",
+                                                        "Stop importing", parent);
+                                            }
+                                        }
 
-                                            break;
+                                        break;
 
-                                        case CELL_DATA:
-                                        case COLUMN_DATA:
-                                        case DATA_FIELD:
-                                        case DATA_TYPE:
-                                        case DESCRIPTION:
-                                        case MACRO:
-                                        case NAME_TYPE:
-                                        case PROJECT_DATA_FIELD:
-                                        case RESERVED_MSG_IDS:
-                                        case TABLE_TYPE:
-                                        case TABLE_TYPE_DATA_FIELD:
-                                        case GROUP:
-                                        case GROUP_DATA_FIELD:
-                                        case VARIABLE_PATHS:
-                                        case SCRIPT_ASSOCIATION:
-                                            break;
+                                    case CELL_DATA:
+                                    case COLUMN_DATA:
+                                    case DATA_FIELD:
+                                    case DATA_TYPE:
+                                    case DESCRIPTION:
+                                    case MACRO:
+                                    case NAME_TYPE:
+                                    case PROJECT_DATA_FIELD:
+                                    case RESERVED_MSG_IDS:
+                                    case TABLE_TYPE:
+                                    case TABLE_TYPE_DATA_FIELD:
+                                    case GROUP:
+                                    case GROUP_DATA_FIELD:
+                                    case VARIABLE_PATHS:
+                                    case SCRIPT_ASSOCIATION:
+                                        break;
                                     }
                                 }
                                 // Check if this is the second pass
-                                else if (loop == 2)
-                                {
-                                    switch (importTag)
-                                    {
-                                        case TABLE_TYPE:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Check if this is the table type name and
-                                                // description
-                                                if (isTypeName)
-                                                {
-                                                    // Reset the flag so that subsequent rows are
-                                                    // treated as column definitions
-                                                    isTypeName = false;
-                                                    columnNumber = NUM_HIDDEN_COLUMNS;
+                                else if (loop == 2) {
+                                    switch (importTag) {
+                                    case TABLE_TYPE:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if this is the table type name and
+                                            // description
+                                            if (isTypeName) {
+                                                // Reset the flag so that subsequent rows are
+                                                // treated as column definitions
+                                                isTypeName = false;
+                                                columnNumber = NUM_HIDDEN_COLUMNS;
 
-                                                    // Check if the expected number of inputs is
-                                                    // present
-                                                    if (columnValues.length == 2
-                                                        || columnValues.length == 1)
-                                                    {
-                                                        // Add the table type definition
-                                                        tableTypeDefn = new TableTypeDefinition(columnValues[0],
-                                                                                                (columnValues.length == 2
-                                                                                                                          ? columnValues[1]
-                                                                                                                          : ""));
-                                                        tableTypeDefns.add(tableTypeDefn);
-                                                    }
-                                                    // The number of inputs is incorrect
-                                                    else
-                                                    {
-                                                        // Check if the error should be ignored or
-                                                        // the import canceled
-                                                        continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                                                    "<html><b>Missing table type name in import file '</b>"
-                                                                                                                              + importFile.getAbsolutePath()
-                                                                                                                              + "<b>'; continue?",
-                                                                                                    "Table Type Error",
-                                                                                                    "Ignore this table type",
-                                                                                                    "Ignore this and any remaining invalid table types",
-                                                                                                    "Stop importing",
-                                                                                                    parent);
-                                                    }
-                                                }
-                                                // This is a column definition
-                                                else
-                                                {
-                                                    // Check if the expected number of inputs is
-                                                    // present
-                                                    if (columnValues.length == TableTypeEditorColumnInfo.values().length - 1)
-                                                    {
-                                                        // Add the table type column definition,
-                                                        // checking for (and if possible,
-                                                        // correcting) errors
-                                                        continueOnTableTypeError = addImportedTableTypeColumnDefinition(continueOnTableTypeError,
-                                                                                                                        tableTypeDefn,
-                                                                                                                        new String[] {String.valueOf(columnNumber),
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()
-                                                                                                                                                   - 1],
-                                                                                                                                      columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()
-                                                                                                                                                   - 1]},
-                                                                                                                        importFile.getAbsolutePath(),
-                                                                                                                        inputTypeHandler,
-                                                                                                                        parent);
-
-                                                        // Update the column index number for the
-                                                        // next column definition
-                                                        columnNumber++;
-                                                    }
-                                                    // The number of inputs is incorrect
-                                                    else
-                                                    {
-                                                        // Check if the error should be ignored or
-                                                        // the import canceled
-                                                        continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                                                    "<html><b>Table type '</b>"
-                                                                                                                              + tableTypeDefn.getTypeName()
-                                                                                                                              + "<b>' definition has missing or extra "
-                                                                                                                              + "input(s) in import file '</b>"
-                                                                                                                              + importFile.getAbsolutePath()
-                                                                                                                              + "<b>'; continue?",
-                                                                                                    "Table Type Error",
-                                                                                                    "Ignore this table type",
-                                                                                                    "Ignore this and any remaining invalid table types",
-                                                                                                    "Stop importing",
-                                                                                                    parent);
-                                                    }
-                                                }
-                                            }
-
-                                            break;
-
-                                        case TABLE_TYPE_DATA_FIELD:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Append empty columns as needed to fill out the
-                                                // expected number of inputs
-                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                                                FieldsColumn.values().length
-                                                                                                              - 1
-                                                                                                              - columnValues.length);
-
-                                                // Add the data field definition, checking for (and
-                                                // if possible, correcting) errors
-                                                continueOnTableTypeFieldError = addImportedDataFieldDefinition(continueOnTableTypeFieldError,
-                                                                                                               tableTypeDefn,
-                                                                                                               new String[] {CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
-                                                                                                                             columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
-                                                                                                               importFile.getAbsolutePath(),
-                                                                                                               inputTypeHandler,
-                                                                                                               fieldHandler,
-                                                                                                               parent);
-                                            }
-
-                                            break;
-
-                                        case DATA_TYPE:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
                                                 // Check if the expected number of inputs is
                                                 // present
-                                                if (columnValues.length == DataTypesColumn.values().length - 1)
-                                                {
-                                                    // Build the data type definition
-                                                    String[] dataTypeDefn = new String[] {columnValues[DataTypesColumn.USER_NAME.ordinal()],
-                                                                                          columnValues[DataTypesColumn.C_NAME.ordinal()],
-                                                                                          columnValues[DataTypesColumn.SIZE.ordinal()],
-                                                                                          columnValues[DataTypesColumn.BASE_TYPE.ordinal()],
-                                                                                          ""};
-
-                                                    // Check if the data type definition is valid
-                                                    checkDataTypeDefinition(dataTypeDefn);
-
-                                                    // Add the data type definition (add a blank to
-                                                    // represent the OID)
-                                                    dataTypeDefns.add(dataTypeDefn);
+                                                if (columnValues.length == 2 || columnValues.length == 1) {
+                                                    // Add the table type definition
+                                                    tableTypeDefn = new TableTypeDefinition(columnValues[0],
+                                                            (columnValues.length == 2 ? columnValues[1] : ""));
+                                                    tableTypeDefns.add(tableTypeDefn);
                                                 }
                                                 // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
-                                                                                               "<html><b>Missing or extra data type definition "
-                                                                                                                        + "input(s) in import file '</b>"
-                                                                                                                        + importFile.getAbsolutePath()
-                                                                                                                        + "<b>'; continue?",
-                                                                                               "Data Type Error",
-                                                                                               "Ignore this data type",
-                                                                                               "Ignore this and any remaining invalid data types",
-                                                                                               "Stop importing",
-                                                                                               parent);
+                                                else {
+                                                    // Check if the error should be ignored or
+                                                    // the import canceled
+                                                    continueOnTableTypeError = getErrorResponse(
+                                                            continueOnTableTypeError,
+                                                            "<html><b>Missing table type name in import file '</b>"
+                                                                    + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                            "Table Type Error", "Ignore this table type",
+                                                            "Ignore this and any remaining invalid table types",
+                                                            "Stop importing", parent);
                                                 }
                                             }
-
-                                            break;
-
-                                        case MACRO:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
+                                            // This is a column definition
+                                            else {
                                                 // Check if the expected number of inputs is
                                                 // present
-                                                if (columnValues.length == 2
-                                                    || columnValues.length == 1)
-                                                {
-                                                    // Build the macro definition
-                                                    String[] macroDefn = new String[] {columnValues[0],
-                                                                                       (columnValues.length == 2
-                                                                                                                 ? columnValues[1]
-                                                                                                                 : ""),
-                                                                                       ""};
+                                                if (columnValues.length == TableTypeEditorColumnInfo.values().length
+                                                        - 1) {
+                                                    // Add the table type column definition,
+                                                    // checking for (and if possible,
+                                                    // correcting) errors
+                                                    continueOnTableTypeError = addImportedTableTypeColumnDefinition(
+                                                            continueOnTableTypeError, tableTypeDefn,
+                                                            new String[] { String.valueOf(columnNumber),
+                                                                    columnValues[TableTypeEditorColumnInfo.NAME
+                                                                            .ordinal() - 1],
+                                                                    columnValues[TableTypeEditorColumnInfo.DESCRIPTION
+                                                                            .ordinal() - 1],
+                                                                    columnValues[TableTypeEditorColumnInfo.INPUT_TYPE
+                                                                            .ordinal() - 1],
+                                                                    columnValues[TableTypeEditorColumnInfo.UNIQUE
+                                                                            .ordinal() - 1],
+                                                                    columnValues[TableTypeEditorColumnInfo.REQUIRED
+                                                                            .ordinal() - 1],
+                                                                    columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED
+                                                                            .ordinal() - 1],
+                                                                    columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED
+                                                                            .ordinal() - 1] },
+                                                            importFile.getAbsolutePath(), inputTypeHandler, parent);
 
-                                                    // Check if the macro definition is valid
-                                                    checkMacroDefinition(macroDefn);
-
-                                                    // Add the macro definition (add a blank to
-                                                    // represent the OID)
-                                                    macroDefns.add(macroDefn);
+                                                    // Update the column index number for the
+                                                    // next column definition
+                                                    columnNumber++;
                                                 }
                                                 // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnMacroError = getErrorResponse(continueOnMacroError,
-                                                                                            "<html><b>Missing or extra macro definition "
-                                                                                                                  + "input(s) in import file '</b>"
-                                                                                                                  + importFile.getAbsolutePath()
-                                                                                                                  + "<b>'; continue?",
-                                                                                            "Macro Error",
-                                                                                            "Ignore this macro",
-                                                                                            "Ignore this and any remaining invalid macros",
-                                                                                            "Stop importing",
-                                                                                            parent);
+                                                else {
+                                                    // Check if the error should be ignored or
+                                                    // the import canceled
+                                                    continueOnTableTypeError = getErrorResponse(
+                                                            continueOnTableTypeError,
+                                                            "<html><b>Table type '</b>" + tableTypeDefn.getTypeName()
+                                                                    + "<b>' definition has missing or extra "
+                                                                    + "input(s) in import file '</b>"
+                                                                    + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                            "Table Type Error", "Ignore this table type",
+                                                            "Ignore this and any remaining invalid table types",
+                                                            "Stop importing", parent);
                                                 }
                                             }
+                                        }
 
-                                            break;
+                                        break;
 
-                                        case RESERVED_MSG_IDS:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (columnValues.length == 2
-                                                    || columnValues.length == 1)
-                                                {
-                                                    // Append empty columns as needed to fill out
-                                                    // the expected number of inputs
-                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                                                    2 - columnValues.length);
-
-                                                    // Add the reserved message ID definition (add
-                                                    // a blank to represent the OID)
-                                                    reservedMsgIDDefns.add(new String[] {columnValues[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                                                                                         columnValues[ReservedMsgIDsColumn.DESCRIPTION.ordinal()],
-                                                                                         ""});
-                                                }
-                                                // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
-                                                                                                    "<html><b>Missing or extra reserved message ID "
-                                                                                                                                  + "definition input(s) in import file '</b>"
-                                                                                                                                  + importFile.getAbsolutePath()
-                                                                                                                                  + "<b>'; continue?",
-                                                                                                    "Reserved Message ID Error",
-                                                                                                    "Ignore this data type",
-                                                                                                    "Ignore this and any remaining invalid reserved message IDs",
-                                                                                                    "Stop importing",
-                                                                                                    parent);
-                                                }
-                                            }
-
-                                            break;
-
-                                        case PROJECT_DATA_FIELD:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Append empty columns as needed to fill out the
-                                                // expected number of inputs
-                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                                                FieldsColumn.values().length
-                                                                                                              - 1
-                                                                                                              - columnValues.length);
-
-                                                // Add the data field definition, checking for (and
-                                                // if possible, correcting) errors
-                                                continueOnProjectFieldError = addImportedDataFieldDefinition(continueOnProjectFieldError,
-                                                                                                             projectDefn,
-                                                                                                             new String[] {CcddFieldHandler.getFieldProjectName(),
-                                                                                                                           columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
-                                                                                                             importFile.getAbsolutePath(),
-                                                                                                             inputTypeHandler,
-                                                                                                             fieldHandler,
-                                                                                                             parent);
-                                            }
-
-                                            break;
-
-                                        case GROUP:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (columnValues.length == GroupDefinitionColumn.values().length
-                                                    || columnValues.length == GroupDefinitionColumn.values().length - 1)
-                                                {
-                                                    // Append empty columns as needed to fill out
-                                                    // the expected number of inputs
-                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                                                    GroupDefinitionColumn.values().length
-                                                                                                                  - columnValues.length);
-
-                                                    // Store the group name
-                                                    groupDefnName = columnValues[GroupDefinitionColumn.NAME.ordinal()];
-
-                                                    // Add the group definition, checking for (and
-                                                    // if possible, correcting) errors
-                                                    addImportedGroupDefinition(new String[] {groupDefnName,
-                                                                                             columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
-                                                                                             columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
-                                                                                             columnValues[GroupDefinitionColumn.MEMBERS.ordinal()]},
-                                                                               importFile.getAbsolutePath(),
-                                                                               replaceExistingGroups,
-                                                                               groupHandler);
-                                                }
-                                                // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnGroupError = getErrorResponse(continueOnGroupError,
-                                                                                            "<html><b>Group definition has missing "
-                                                                                                                  + "or extra input(s) in import file '</b>"
-                                                                                                                  + importFile.getAbsolutePath()
-                                                                                                                  + "<b>'; continue?",
-                                                                                            "Group Error",
-                                                                                            "Ignore this invalid group",
-                                                                                            "Ignore this and any remaining invalid group definitions",
-                                                                                            "Stop importing",
-                                                                                            parent);
-                                                }
-                                            }
-
-                                            break;
-
-                                        case GROUP_DATA_FIELD:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Append empty columns as needed to fill out the
-                                                // expected number of inputs
-                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                                                FieldsColumn.values().length
-                                                                                                              - 1
-                                                                                                              - columnValues.length);
-
-                                                // Add the data field definition, checking for (and
-                                                // if possible, correcting) errors
-                                                continueOnGroupFieldError = addImportedDataFieldDefinition(continueOnGroupFieldError,
-                                                                                                           projectDefn,
-                                                                                                           new String[] {CcddFieldHandler.getFieldGroupName(groupDefnName),
-                                                                                                                         columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
-                                                                                                           importFile.getAbsolutePath(),
-                                                                                                           inputTypeHandler,
-                                                                                                           fieldHandler,
-                                                                                                           parent);
-                                            }
-
-                                            break;
-
-                                        case SCRIPT_ASSOCIATION:
-                                            // Check if all definitions are to be loaded
-                                            if (importType == ImportType.IMPORT_ALL)
-                                            {
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (columnValues.length == AssociationsColumn.values().length)
-                                                {
-                                                    // Check if the associations haven't been
-                                                    // loaded
-                                                    if (associations == null)
-                                                    {
-                                                        // Get the script associations from the
-                                                        // database
-                                                        associations = scriptHandler.getScriptAssociations(parent);
-                                                    }
-
-                                                    // Add the script association, checking for
-                                                    // errors
-                                                    continueOnAssociationError = addImportedScriptAssociation(continueOnAssociationError,
-                                                                                                              associations,
-                                                                                                              new String[] {columnValues[AssociationsColumn.NAME.ordinal()],
-                                                                                                                            columnValues[AssociationsColumn.DESCRIPTION.ordinal()],
-                                                                                                                            columnValues[AssociationsColumn.SCRIPT_FILE.ordinal()],
-                                                                                                                            CcddScriptHandler.convertAssociationMembersFormat(columnValues[AssociationsColumn.MEMBERS.ordinal()],
-                                                                                                                                                                              true)},
-                                                                                                              importFile.getAbsolutePath(),
-                                                                                                              scriptHandler,
-                                                                                                              parent);
-                                                }
-                                            }
-
-                                            break;
-
-                                        case INPUT_TYPE:
-                                        case CELL_DATA:
-                                        case COLUMN_DATA:
-                                        case DATA_FIELD:
-                                        case DESCRIPTION:
-                                        case NAME_TYPE:
-                                            break;
-
-                                        default:
-                                            // Inform the user that no tag appears in the file
-                                            // before other data
-                                            throw new CCDDException("Tag information missing");
-                                    }
-                                }
-                                // This is the third pass
-                                else
-                                {
-                                    switch (importTag)
-                                    {
-                                        case NAME_TYPE:
-                                            // Check if the expected number of inputs is present
-                                            // (the third value, the system name, is optional and
-                                            // not used)
-                                            if (columnValues.length == 2 || columnValues.length == 3)
-                                            {
-                                                // Get the table's type definition. If importing
-                                                // into an existing table then use its type
-                                                // definition
-                                                typeDefn = importType == ImportType.IMPORT_ALL
-                                                                                               ? tableTypeHandler.getTypeDefinition(columnValues[1])
-                                                                                               : targetTypeDefn;
-
-                                                // Check if the table type doesn't exist
-                                                if (typeDefn == null)
-                                                {
-                                                    throw new CCDDException("Unknown table type '</b>"
-                                                                            + columnValues[1]
-                                                                            + "<b>'");
-                                                }
-
-                                                // Use the table name (with path, if applicable)
-                                                // and type to build the parent, path, and type for
-                                                // the table information class
-                                                tablePath = columnValues[0];
-                                                tableDefn.setName(tablePath);
-                                                tableDefn.setTypeName(columnValues[1]);
-
-                                                // Get the number of expected columns (the hidden
-                                                // columns, primary key and row index, should not
-                                                // be included in the CSV file)
-                                                numColumns = typeDefn.getColumnCountVisible();
-                                            }
-                                            // Incorrect number of inputs
-                                            else
-                                            {
-                                                throw new CCDDException("Too many/few table name and type inputs");
-                                            }
-
-                                            break;
-
-                                        case DESCRIPTION:
-                                            // Store the table description
-                                            tableDefn.setDescription(columnValues[0]);
-                                            break;
-
-                                        case COLUMN_DATA:
-                                            // Check if any column names exist
-                                            if (columnValues.length != 0)
-                                            {
-                                                // Number of columns in an import file that match
-                                                // the target table
-                                                int numValidColumns = 0;
-
-                                                // Create storage for the column indices
-                                                columnIndex = new int[columnValues.length];
-
-                                                // Step through each column name
-                                                for (int index = 0; index < columnValues.length; index++)
-                                                {
-                                                    // Get the index for this column name
-                                                    columnIndex[index] = typeDefn.getVisibleColumnIndexByUserName(columnValues[index]);
-
-                                                    // Check if the column name in the file matches
-                                                    // that of a column in the table
-                                                    if (columnIndex[index] != -1)
-                                                    {
-                                                        // Increment the counter that tracks the
-                                                        // number of matched columns
-                                                        numValidColumns++;
-                                                    }
-                                                    // The number of inputs is incorrect
-                                                    else
-                                                    {
-                                                        // Check if the error should be ignored or
-                                                        // the import canceled
-                                                        continueOnColumnError = getErrorResponse(continueOnColumnError,
-                                                                                                 "<html><b>Table '</b>"
-                                                                                                                        + tableDefn.getName()
-                                                                                                                        + "<b>' column name '</b>"
-                                                                                                                        + columnValues[index]
-                                                                                                                        + "<b>' unrecognized in import file '</b>"
-                                                                                                                        + importFile.getAbsolutePath()
-                                                                                                                        + "<b>'; continue?",
-                                                                                                 "Column Error",
-                                                                                                 "Ignore this invalid column name",
-                                                                                                 "Ignore this and any remaining invalid column names",
-                                                                                                 "Stop importing",
-                                                                                                 parent);
-                                                    }
-                                                }
-
-                                                // Check if no column names in the file match those
-                                                // in the table
-                                                if (numValidColumns == 0)
-                                                {
-                                                    throw new CCDDException("No columns match those in the target table",
-                                                                            JOptionPane.WARNING_MESSAGE);
-                                                }
-                                            }
-                                            // The file contains no column data
-                                            else
-                                            {
-                                                throw new CCDDException("File format invalid");
-                                            }
-
-                                            // Set the import tag to look for cell data
-                                            importTag = CSVTags.CELL_DATA;
-                                            break;
-
-                                        case CELL_DATA:
-                                            // Create storage for the row of cell data and
-                                            // initialize the values to nulls (a null indicates
-                                            // that the pasted cell value won't overwrite the
-                                            // current table value if overwriting; if inserting the
-                                            // pasted value is changed to a space)
-                                            String[] rowData = new String[numColumns];
-                                            Arrays.fill(rowData, null);
-
-                                            // Step through each column in the row
-                                            for (int index = 0; index < columnValues.length; index++)
-                                            {
-                                                // Check if the column exists
-                                                if (index < columnIndex.length
-                                                    && columnIndex[index] != -1)
-                                                {
-                                                    // Store the cell data in the column matching
-                                                    // the one in the target table
-                                                    rowData[columnIndex[index]] = columnValues[index];
-                                                }
-                                            }
-
-                                            // Add the row of data read in from the file to the
-                                            // cell data list
-                                            tableDefn.addData(rowData);
-                                            break;
-
-                                        case DATA_FIELD:
+                                    case TABLE_TYPE_DATA_FIELD:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
                                             // Append empty columns as needed to fill out the
                                             // expected number of inputs
                                             columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                                            FieldsColumn.values().length
-                                                                                                          - 1
-                                                                                                          - columnValues.length);
+                                                    FieldsColumn.values().length - 1 - columnValues.length);
 
-                                            // Add the data field definition, checking for (and if
-                                            // possible, correcting) errors
-                                            continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
-                                                                                                      tableDefn,
-                                                                                                      new String[] {tableDefn.getName(),
-                                                                                                                    columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
-                                                                                                      importFile.getAbsolutePath(),
-                                                                                                      inputTypeHandler,
-                                                                                                      fieldHandler,
-                                                                                                      parent);
+                                            // Add the data field definition, checking for (and
+                                            // if possible, correcting) errors
+                                            continueOnTableTypeFieldError = addImportedDataFieldDefinition(
+                                                    continueOnTableTypeFieldError, tableTypeDefn,
+                                                    new String[] {
+                                                            CcddFieldHandler
+                                                                    .getFieldTypeName(tableTypeDefn.getTypeName()),
+                                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal()
+                                                                    - 1],
+                                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                                                    importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
+                                                    parent);
+                                        }
 
-                                            break;
+                                        break;
 
-                                        case DATA_TYPE:
-                                        case INPUT_TYPE:
-                                        case MACRO:
-                                        case TABLE_TYPE:
-                                        case TABLE_TYPE_DATA_FIELD:
-                                        case RESERVED_MSG_IDS:
-                                        case PROJECT_DATA_FIELD:
-                                        case GROUP:
-                                        case GROUP_DATA_FIELD:
-                                        case SCRIPT_ASSOCIATION:
-                                            break;
+                                    case DATA_TYPE:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if the expected number of inputs is
+                                            // present
+                                            if (columnValues.length == DataTypesColumn.values().length - 1) {
+                                                // Build the data type definition
+                                                String[] dataTypeDefn = new String[] {
+                                                        columnValues[DataTypesColumn.USER_NAME.ordinal()],
+                                                        columnValues[DataTypesColumn.C_NAME.ordinal()],
+                                                        columnValues[DataTypesColumn.SIZE.ordinal()],
+                                                        columnValues[DataTypesColumn.BASE_TYPE.ordinal()], "" };
 
-                                        default:
-                                            // Inform the user that no tag appears in the file
-                                            // before other data
-                                            throw new CCDDException("Tag information missing");
+                                                // Check if the data type definition is valid
+                                                checkDataTypeDefinition(dataTypeDefn);
+
+                                                // Add the data type definition (add a blank to
+                                                // represent the OID)
+                                                dataTypeDefns.add(dataTypeDefn);
+                                            }
+                                            // The number of inputs is incorrect
+                                            else {
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
+                                                        "<html><b>Missing or extra data type definition "
+                                                                + "input(s) in import file '</b>"
+                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                        "Data Type Error", "Ignore this data type",
+                                                        "Ignore this and any remaining invalid data types",
+                                                        "Stop importing", parent);
+                                            }
+                                        }
+
+                                        break;
+
+                                    case MACRO:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if the expected number of inputs is
+                                            // present
+                                            if (columnValues.length == 2 || columnValues.length == 1) {
+                                                // Build the macro definition
+                                                String[] macroDefn = new String[] { columnValues[0],
+                                                        (columnValues.length == 2 ? columnValues[1] : ""), "" };
+
+                                                // Check if the macro definition is valid
+                                                checkMacroDefinition(macroDefn);
+
+                                                // Add the macro definition (add a blank to
+                                                // represent the OID)
+                                                macroDefns.add(macroDefn);
+                                            }
+                                            // The number of inputs is incorrect
+                                            else {
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnMacroError = getErrorResponse(continueOnMacroError,
+                                                        "<html><b>Missing or extra macro definition "
+                                                                + "input(s) in import file '</b>"
+                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                        "Macro Error", "Ignore this macro",
+                                                        "Ignore this and any remaining invalid macros",
+                                                        "Stop importing", parent);
+                                            }
+                                        }
+
+                                        break;
+
+                                    case RESERVED_MSG_IDS:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if the expected number of inputs is
+                                            // present
+                                            if (columnValues.length == 2 || columnValues.length == 1) {
+                                                // Append empty columns as needed to fill out
+                                                // the expected number of inputs
+                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                        2 - columnValues.length);
+
+                                                // Add the reserved message ID definition (add
+                                                // a blank to represent the OID)
+                                                reservedMsgIDDefns.add(new String[] {
+                                                        columnValues[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                                        columnValues[ReservedMsgIDsColumn.DESCRIPTION.ordinal()], "" });
+                                            }
+                                            // The number of inputs is incorrect
+                                            else {
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnReservedMsgIDError = getErrorResponse(
+                                                        continueOnReservedMsgIDError,
+                                                        "<html><b>Missing or extra reserved message ID "
+                                                                + "definition input(s) in import file '</b>"
+                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                        "Reserved Message ID Error", "Ignore this data type",
+                                                        "Ignore this and any remaining invalid reserved message IDs",
+                                                        "Stop importing", parent);
+                                            }
+                                        }
+
+                                        break;
+
+                                    case PROJECT_DATA_FIELD:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Append empty columns as needed to fill out the
+                                            // expected number of inputs
+                                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                    FieldsColumn.values().length - 1 - columnValues.length);
+
+                                            // Add the data field definition, checking for (and
+                                            // if possible, correcting) errors
+                                            continueOnProjectFieldError = addImportedDataFieldDefinition(
+                                                    continueOnProjectFieldError, projectDefn,
+                                                    new String[] { CcddFieldHandler.getFieldProjectName(),
+                                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal()
+                                                                    - 1],
+                                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                                                    importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
+                                                    parent);
+                                        }
+
+                                        break;
+
+                                    case GROUP:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if the expected number of inputs is
+                                            // present
+                                            if (columnValues.length == GroupDefinitionColumn.values().length
+                                                    || columnValues.length == GroupDefinitionColumn.values().length
+                                                            - 1) {
+                                                // Append empty columns as needed to fill out
+                                                // the expected number of inputs
+                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                        GroupDefinitionColumn.values().length - columnValues.length);
+
+                                                // Store the group name
+                                                groupDefnName = columnValues[GroupDefinitionColumn.NAME.ordinal()];
+
+                                                // Add the group definition, checking for (and
+                                                // if possible, correcting) errors
+                                                addImportedGroupDefinition(new String[] { groupDefnName,
+                                                        columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
+                                                        columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
+                                                        columnValues[GroupDefinitionColumn.MEMBERS.ordinal()] },
+                                                        importFile.getAbsolutePath(), replaceExistingGroups,
+                                                        groupHandler);
+                                            }
+                                            // The number of inputs is incorrect
+                                            else {
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnGroupError = getErrorResponse(continueOnGroupError,
+                                                        "<html><b>Group definition has missing "
+                                                                + "or extra input(s) in import file '</b>"
+                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                        "Group Error", "Ignore this invalid group",
+                                                        "Ignore this and any remaining invalid group definitions",
+                                                        "Stop importing", parent);
+                                            }
+                                        }
+
+                                        break;
+
+                                    case GROUP_DATA_FIELD:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Append empty columns as needed to fill out the
+                                            // expected number of inputs
+                                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                    FieldsColumn.values().length - 1 - columnValues.length);
+
+                                            // Add the data field definition, checking for (and
+                                            // if possible, correcting) errors
+                                            continueOnGroupFieldError = addImportedDataFieldDefinition(
+                                                    continueOnGroupFieldError, projectDefn,
+                                                    new String[] { CcddFieldHandler.getFieldGroupName(groupDefnName),
+                                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal()
+                                                                    - 1],
+                                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                            columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                                                    importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
+                                                    parent);
+                                        }
+
+                                        break;
+
+                                    case SCRIPT_ASSOCIATION:
+                                        // Check if all definitions are to be loaded
+                                        if (importType == ImportType.IMPORT_ALL) {
+                                            // Check if the expected number of inputs is
+                                            // present
+                                            if (columnValues.length == AssociationsColumn.values().length) {
+                                                // Check if the associations haven't been
+                                                // loaded
+                                                if (associations == null) {
+                                                    // Get the script associations from the
+                                                    // database
+                                                    associations = scriptHandler.getScriptAssociations(parent);
+                                                }
+
+                                                // Add the script association, checking for
+                                                // errors
+                                                continueOnAssociationError = addImportedScriptAssociation(
+                                                        continueOnAssociationError, associations,
+                                                        new String[] { columnValues[AssociationsColumn.NAME.ordinal()],
+                                                                columnValues[AssociationsColumn.DESCRIPTION.ordinal()],
+                                                                columnValues[AssociationsColumn.SCRIPT_FILE.ordinal()],
+                                                                CcddScriptHandler.convertAssociationMembersFormat(
+                                                                        columnValues[AssociationsColumn.MEMBERS
+                                                                                .ordinal()],
+                                                                        true) },
+                                                        importFile.getAbsolutePath(), scriptHandler, parent);
+                                            }
+                                        }
+
+                                        break;
+
+                                    case INPUT_TYPE:
+                                    case CELL_DATA:
+                                    case COLUMN_DATA:
+                                    case DATA_FIELD:
+                                    case DESCRIPTION:
+                                    case NAME_TYPE:
+                                        break;
+
+                                    default:
+                                        // Inform the user that no tag appears in the file
+                                        // before other data
+                                        throw new CCDDException("Tag information missing");
+                                    }
+                                }
+                                // This is the third pass
+                                else {
+                                    switch (importTag) {
+                                    case NAME_TYPE:
+                                        // Check if the expected number of inputs is present
+                                        // (the third value, the system name, is optional and
+                                        // not used)
+                                        if (columnValues.length == 2 || columnValues.length == 3) {
+                                            // Get the table's type definition. If importing
+                                            // into an existing table then use its type
+                                            // definition
+                                            typeDefn = importType == ImportType.IMPORT_ALL
+                                                    ? tableTypeHandler.getTypeDefinition(columnValues[1])
+                                                    : targetTypeDefn;
+
+                                            // Check if the table type doesn't exist
+                                            if (typeDefn == null) {
+                                                throw new CCDDException(
+                                                        "Unknown table type '</b>" + columnValues[1] + "<b>'");
+                                            }
+
+                                            // Use the table name (with path, if applicable)
+                                            // and type to build the parent, path, and type for
+                                            // the table information class
+                                            tablePath = columnValues[0];
+                                            tableDefn.setName(tablePath);
+                                            tableDefn.setTypeName(columnValues[1]);
+
+                                            // Get the number of expected columns (the hidden
+                                            // columns, primary key and row index, should not
+                                            // be included in the CSV file)
+                                            numColumns = typeDefn.getColumnCountVisible();
+                                        }
+                                        // Incorrect number of inputs
+                                        else {
+                                            throw new CCDDException("Too many/few table name and type inputs");
+                                        }
+
+                                        break;
+
+                                    case DESCRIPTION:
+                                        // Store the table description
+                                        tableDefn.setDescription(columnValues[0]);
+                                        break;
+
+                                    case COLUMN_DATA:
+                                        // Check if any column names exist
+                                        if (columnValues.length != 0) {
+                                            // Number of columns in an import file that match
+                                            // the target table
+                                            int numValidColumns = 0;
+
+                                            // Create storage for the column indices
+                                            columnIndex = new int[columnValues.length];
+
+                                            // Step through each column name
+                                            for (int index = 0; index < columnValues.length; index++) {
+                                                // Get the index for this column name
+                                                columnIndex[index] = typeDefn
+                                                        .getVisibleColumnIndexByUserName(columnValues[index]);
+
+                                                // Check if the column name in the file matches
+                                                // that of a column in the table
+                                                if (columnIndex[index] != -1) {
+                                                    // Increment the counter that tracks the
+                                                    // number of matched columns
+                                                    numValidColumns++;
+                                                }
+                                                // The number of inputs is incorrect
+                                                else {
+                                                    // Check if the error should be ignored or
+                                                    // the import canceled
+                                                    continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                                            "<html><b>Table '</b>" + tableDefn.getName()
+                                                                    + "<b>' column name '</b>" + columnValues[index]
+                                                                    + "<b>' unrecognized in import file '</b>"
+                                                                    + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                            "Column Error", "Ignore this invalid column name",
+                                                            "Ignore this and any remaining invalid column names",
+                                                            "Stop importing", parent);
+                                                }
+                                            }
+
+                                            // Check if no column names in the file match those
+                                            // in the table
+                                            if (numValidColumns == 0) {
+                                                throw new CCDDException("No columns match those in the target table",
+                                                        JOptionPane.WARNING_MESSAGE);
+                                            }
+                                        }
+                                        // The file contains no column data
+                                        else {
+                                            throw new CCDDException("File format invalid");
+                                        }
+
+                                        // Set the import tag to look for cell data
+                                        importTag = CSVTags.CELL_DATA;
+                                        break;
+
+                                    case CELL_DATA:
+                                        // Create storage for the row of cell data and
+                                        // initialize the values to nulls (a null indicates
+                                        // that the pasted cell value won't overwrite the
+                                        // current table value if overwriting; if inserting the
+                                        // pasted value is changed to a space)
+                                        String[] rowData = new String[numColumns];
+                                        Arrays.fill(rowData, null);
+
+                                        // Step through each column in the row
+                                        for (int index = 0; index < columnValues.length; index++) {
+                                            // Check if the column exists
+                                            if (index < columnIndex.length && columnIndex[index] != -1) {
+                                                // Store the cell data in the column matching
+                                                // the one in the target table
+                                                rowData[columnIndex[index]] = columnValues[index];
+                                            }
+                                        }
+
+                                        // Add the row of data read in from the file to the
+                                        // cell data list
+                                        tableDefn.addData(rowData);
+                                        break;
+
+                                    case DATA_FIELD:
+                                        // Append empty columns as needed to fill out the
+                                        // expected number of inputs
+                                        columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                FieldsColumn.values().length - 1 - columnValues.length);
+
+                                        // Add the data field definition, checking for (and if
+                                        // possible, correcting) errors
+                                        continueOnDataFieldError = addImportedDataFieldDefinition(
+                                                continueOnDataFieldError, tableDefn,
+                                                new String[] { tableDefn.getName(),
+                                                        columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                        columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                                                importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
+
+                                        break;
+
+                                    case DATA_TYPE:
+                                    case INPUT_TYPE:
+                                    case MACRO:
+                                    case TABLE_TYPE:
+                                    case TABLE_TYPE_DATA_FIELD:
+                                    case RESERVED_MSG_IDS:
+                                    case PROJECT_DATA_FIELD:
+                                    case GROUP:
+                                    case GROUP_DATA_FIELD:
+                                    case SCRIPT_ASSOCIATION:
+                                        break;
+
+                                    default:
+                                        // Inform the user that no tag appears in the file
+                                        // before other data
+                                        throw new CCDDException("Tag information missing");
                                     }
                                 }
                             }
@@ -1215,18 +1051,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Check if this is the third pass
-                    if (loop == 3)
-                    {
+                    if (loop == 3) {
                         // Check if a table definition exists in the import file
-                        if (tableDefn.getName() != null)
-                        {
+                        if (tableDefn.getName() != null) {
                             // Add the table's definition to the list
                             tableDefinitions.add(tableDefn);
                         }
 
                         // Check if only the data from the first table is to be read
-                        if (importType == ImportType.FIRST_DATA_ONLY)
-                        {
+                        if (importType == ImportType.FIRST_DATA_ONLY) {
                             // Stop reading table definitions
                             break;
                         }
@@ -1234,31 +1067,26 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
 
                 // Check if this is the first pass
-                if (loop == 1)
-                {
+                if (loop == 1) {
                     // Add the input type if it's new or match it to an existing one with the same
                     // name if the type definitions are the same
                     inputTypeHandler.updateInputTypes(inputTypeDefns);
                 }
                 // Check if this is the second pass
-                else if (loop == 2)
-                {
+                else if (loop == 2) {
                     // Add the table type if it's new or match it to an existing one with the same
                     // name if the type definitions are the same
                     String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                     // Check if a table type isn't new and doesn't match an existing one with the
                     // same name
-                    if (badDefn != null)
-                    {
-                        throw new CCDDException("Imported table type '</b>"
-                                                + badDefn
-                                                + "<b>' doesn't match the existing definition");
+                    if (badDefn != null) {
+                        throw new CCDDException(
+                                "Imported table type '</b>" + badDefn + "<b>' doesn't match the existing definition");
                     }
 
                     // Check if all definitions are to be loaded
-                    if (importType == ImportType.IMPORT_ALL)
-                    {
+                    if (importType == ImportType.IMPORT_ALL) {
                         // Add the data type if it's new or match it to an existing one with the
                         // same name if the type definitions are the same
                         dataTypeHandler.updateDataTypes(dataTypeDefns);
@@ -1266,29 +1094,24 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // Add the macro if it's new or match it to an existing one with the same
                         // name. If the flag to replace existing macro values is false then get the
                         // list of macros names where the existing and import file values differ
-                        List<String> mismatchedMacros = macroHandler.updateMacros(macroDefns,
-                                                                                  replaceExistingMacros);
+                        List<String> mismatchedMacros = macroHandler.updateMacros(macroDefns, replaceExistingMacros);
 
                         // Check if any existing and import file macro values differ ( the flag to
                         // replace existing macro values is false)
-                        if (!mismatchedMacros.isEmpty())
-                        {
+                        if (!mismatchedMacros.isEmpty()) {
                             boolean continueOnError = false;
 
                             // Check if the user elects to ignore the difference(s), keeping the
                             // existing macro values, or cancels the import operation
                             getErrorResponse(continueOnError,
-                                             "<html><b>The value for imported macro(s) '</b>"
-                                                              + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
-                                                              + "<b>' doesn't match the existing definition(s) in import file '</b>"
-                                                              + importFile.getAbsolutePath()
-                                                              + "<b>'; continue?",
-                                             "Macro Value Mismatch",
-                                             null,
-                                             "Ignore macro value difference(s) (keep existing value(s))",
-                                             "Stop importing",
-                                             true,
-                                             parent);
+                                    "<html><b>The value for imported macro(s) '</b>"
+                                            + CcddUtilities.convertArrayToStringTruncate(
+                                                    mismatchedMacros.toArray(new String[0]))
+                                            + "<b>' doesn't match the existing definition(s) in import file '</b>"
+                                            + importFile.getAbsolutePath() + "<b>'; continue?",
+                                    "Macro Value Mismatch", null,
+                                    "Ignore macro value difference(s) (keep existing value(s))", "Stop importing", true,
+                                    parent);
                         }
 
                         // Add the reserved message ID if it's new
@@ -1299,28 +1122,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
                 }
             }
-        }
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 // Check that the buffered reader exists
-                if (br != null)
-                {
+                if (br != null) {
                     // Close the file
                     br.close();
                 }
-            }
-            catch (IOException ioe)
-            {
+            } catch (IOException ioe) {
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot close import file '</b>"
-                                                                  + importFile.getAbsolutePath()
-                                                                  + "<b>'",
-                                                          "File Warning",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                        "<html><b>Cannot close import file '</b>" + importFile.getAbsolutePath() + "<b>'",
+                        "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
             }
         }
     }
@@ -1328,127 +1141,98 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Export the project tables in CSV format to the specified file
      *
-     * @param exportFile
-     *            reference to the user-specified output file
+     * @param exportFile              reference to the user-specified output file
      *
-     * @param tableNames
-     *            array of table names to export
+     * @param tableNames              array of table names to export
      *
-     * @param includeBuildInformation
-     *            true to include the CCDD version, project, host, and user information
+     * @param includeBuildInformation true to include the CCDD version, project,
+     *                                host, and user information
      *
-     * @param replaceMacros
-     *            true to replace any embedded macros with their corresponding values
+     * @param replaceMacros           true to replace any embedded macros with their
+     *                                corresponding values
      *
-     * @param includeReservedMsgIDs
-     *            true to include the contents of the reserved message ID table in the export file
+     * @param includeReservedMsgIDs   true to include the contents of the reserved
+     *                                message ID table in the export file
      *
-     * @param includeProjectFields
-     *            true to include the project-level data field definitions in the export file
+     * @param includeProjectFields    true to include the project-level data field
+     *                                definitions in the export file
      *
-     * @param includeVariablePaths
-     *            true to include the variable path for each variable in a structure table, both in
-     *            application format and using the user-defined separator characters
+     * @param includeVariablePaths    true to include the variable path for each
+     *                                variable in a structure table, both in
+     *                                application format and using the user-defined
+     *                                separator characters
      *
-     * @param variableHandler
-     *            variable handler class reference; null if includeVariablePaths is false
+     * @param variableHandler         variable handler class reference; null if
+     *                                includeVariablePaths is false
      *
-     * @param separators
-     *            string array containing the variable path separator character(s), show/hide data
-     *            types flag ('true' or 'false'), and data type/variable name separator
-     *            character(s); null if includeVariablePaths is false
+     * @param separators              string array containing the variable path
+     *                                separator character(s), show/hide data types
+     *                                flag ('true' or 'false'), and data
+     *                                type/variable name separator character(s);
+     *                                null if includeVariablePaths is false
      *
-     * @param extraInfo
-     *            unused
+     * @param extraInfo               unused
      *
-     * @throws CCDDException
-     *             If a file I/O error occurs
+     * @throws CCDDException If a file I/O error occurs
      *
-     * @throws Exception
-     *             If an unanticipated error occurs
+     * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void exportTables(FileEnvVar exportFile,
-                             String[] tableNames,
-                             boolean includeBuildInformation,
-                             boolean replaceMacros,
-                             boolean includeReservedMsgIDs,
-                             boolean includeProjectFields,
-                             boolean includeVariablePaths,
-                             CcddVariableHandler variableHandler,
-                             String[] separators,
-                             Object... extraInfo) throws CCDDException, Exception
-    {
+    public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
+            boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
+            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, Object... extraInfo)
+            throws CCDDException, Exception {
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
 
-        try
-        {
+        try {
             List<String> referencedTableTypes = new ArrayList<String>();
             List<String> referencedDataTypes = new ArrayList<String>();
             List<String> referencedInputTypes = new ArrayList<String>();
             List<String> referencedMacros = new ArrayList<String>();
             List<String[]> variablePaths = new ArrayList<String[]>();
 
-            // Check if all variable paths are to be exported. This is only possible if no tables
+            // Check if all variable paths are to be exported. This is only possible if no
+            // tables
             // are specified; otherwise only those variables in the table are exported
-            if (includeVariablePaths && tableNames.length == 0)
-            {
+            if (includeVariablePaths && tableNames.length == 0) {
                 // Step through each structure and variable name
-                for (String variablePath : variableHandler.getAllVariableNames())
-                {
+                for (String variablePath : variableHandler.getAllVariableNames()) {
                     // Add the path, in both application and user-defined formats, to the list to
                     // be output
-                    variablePaths.add(new String[] {variablePath,
-                                                    variableHandler.getFullVariableName(variablePath,
-                                                                                        separators[0],
-                                                                                        Boolean.parseBoolean(separators[1]),
-                                                                                        separators[2])});
+                    variablePaths.add(new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
+                            separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
                 }
             }
 
-            // Output the table data to the selected file. Multiple writers are needed in case
+            // Output the table data to the selected file. Multiple writers are needed in
+            // case
             // tables are appended to an existing file
             fw = new FileWriter(exportFile, true);
             bw = new BufferedWriter(fw);
             pw = new PrintWriter(bw);
 
             // Check if the build information is to be output
-            if (includeBuildInformation)
-            {
+            if (includeBuildInformation) {
                 // Output the file creation information
-                pw.printf("# Created "
-                          + new Date().toString()
-                          + " : CCDD version = "
-                          + ccddMain.getCCDDVersionInformation()
-                          + " : project = "
-                          + dbControl.getProjectName()
-                          + " : host = "
-                          + dbControl.getServer()
-                          + " : user = "
-                          + dbControl.getUser()
-                          + "\n");
+                pw.printf("# Created " + new Date().toString() + " : CCDD version = "
+                        + ccddMain.getCCDDVersionInformation() + " : project = " + dbControl.getProjectName()
+                        + " : host = " + dbControl.getServer() + " : user = " + dbControl.getUser() + "\n");
             }
 
             // Step through each table
-            for (String tblName : tableNames)
-            {
+            for (String tblName : tableNames) {
                 // Get the information from the database for the specified table
-                TableInformation tableInfo = dbTable.loadTableData(tblName,
-                                                                   true,
-                                                                   false,
-                                                                   parent);
+                TableInformation tableInfo = dbTable.loadTableData(tblName, true, false, parent);
 
                 // Check if the table's data successfully loaded
-                if (!tableInfo.isErrorFlag())
-                {
+                if (!tableInfo.isErrorFlag()) {
                     // Get the table type definition based on the type name
                     TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                     // Check if this table type is not already output
-                    if (!referencedTableTypes.contains(tableInfo.getType()))
-                    {
+                    if (!referencedTableTypes.contains(tableInfo.getType())) {
                         // Add the table type to the list of those referenced
                         referencedTableTypes.add(tableInfo.getType());
                     }
@@ -1457,8 +1241,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     String[] columnNames = typeDefn.getColumnNamesVisible();
 
                     // Check if the flag is set that indicates macros should be replaced
-                    if (replaceMacros)
-                    {
+                    if (replaceMacros) {
                         // Replace all macro names with their corresponding values
                         tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
                     }
@@ -1466,70 +1249,62 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Output the table path (if applicable) and name, table type, and system path
                     // (if provided)
                     pw.printf("\n" + CSVTags.NAME_TYPE.getTag() + "\n%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(tableInfo.getTablePath(),
-                                                                       tableInfo.getType(),
-                                                                       fieldHandler.getFieldValue(tblName,
-                                                                                                  DefaultInputType.SYSTEM_PATH)));
+                            CcddUtilities.addEmbeddedQuotesAndCommas(tableInfo.getTablePath(), tableInfo.getType(),
+                                    fieldHandler.getFieldValue(tblName, DefaultInputType.SYSTEM_PATH)));
 
                     // Check if the table has a description
-                    if (!tableInfo.getDescription().isEmpty())
-                    {
+                    if (!tableInfo.getDescription().isEmpty()) {
                         // Output the table description tag and description
                         pw.printf(CSVTags.DESCRIPTION.getTag() + "\n%s\n",
-                                  CcddUtilities.addEmbeddedQuotes(tableInfo.getDescription()));
+                                CcddUtilities.addEmbeddedQuotes(tableInfo.getDescription()));
                     }
 
                     // Output the column data tag and column names
                     pw.printf(CSVTags.COLUMN_DATA.getTag() + "\n%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
+                            CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
 
                     // Step through each row in the table
-                    for (int row = 0; row < tableInfo.getData().length; row++)
-                    {
+                    for (int row = 0; row < tableInfo.getData().length; row++) {
                         // Output the table row data, skipping the hidden columns
                         pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableInfo.getData()[row]),
-                                                                                              NUM_HIDDEN_COLUMNS,
-                                                                                              tableInfo.getData()[row].length)));
+                                CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(
+                                        CcddUtilities.convertObjectToString(tableInfo.getData()[row]),
+                                        NUM_HIDDEN_COLUMNS, tableInfo.getData()[row].length)));
 
                         // Step through each column in the row
-                        for (int column = 0; column < columnNames.length; column++)
-                        {
+                        for (int column = 0; column < columnNames.length; column++) {
                             List<Integer> dataTypeColumns = new ArrayList<Integer>();
 
                             // Get the column indices for all columns that can contain a primitive
                             // data type
-                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
+                            dataTypeColumns
+                                    .addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
                             dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
 
                             // Step through each data type column
-                            for (int dataTypeColumn : dataTypeColumns)
-                            {
+                            for (int dataTypeColumn : dataTypeColumns) {
                                 // Get the value in the data type column
                                 String dataTypeName = tableInfo.getData()[row][dataTypeColumn].toString();
 
                                 // Check if the data type is a primitive and isn't already in the
                                 // list
                                 if (dataTypeHandler.isPrimitive(dataTypeName)
-                                    && !referencedDataTypes.contains(dataTypeName))
-                                {
+                                        && !referencedDataTypes.contains(dataTypeName)) {
                                     // Add the data type name to the list of references data types
                                     referencedDataTypes.add(dataTypeName);
                                 }
                             }
 
                             // Step through each macro referenced in the cell
-                            for (String refMacro : macroHandler.getReferencedMacros(tableInfo.getData()[row][column
-                                                                                                             + NUM_HIDDEN_COLUMNS].toString()))
-                            {
+                            for (String refMacro : macroHandler.getReferencedMacros(
+                                    tableInfo.getData()[row][column + NUM_HIDDEN_COLUMNS].toString())) {
                                 // Get the name of the macro as stored in the internal
                                 // macros table
                                 String storedMacroName = macroHandler.getStoredMacroName(refMacro);
 
                                 // Check if the macro name isn't already in the list of referenced
                                 // macros
-                                if (!referencedMacros.contains(storedMacroName))
-                                {
+                                if (!referencedMacros.contains(storedMacroName)) {
                                     // Add the macro name to the list of referenced macros
                                     referencedMacros.add(storedMacroName);
                                 }
@@ -1537,22 +1312,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                             // Check if variable paths are to be output and if this table
                             // represents a structure
-                            if (includeVariablePaths && typeDefn.isStructure())
-                            {
+                            if (includeVariablePaths && typeDefn.isStructure()) {
                                 // Get the variable path
-                                String variablePath = tableInfo.getTablePath()
-                                                      + ","
-                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
-                                                      + "."
-                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+                                String variablePath = tableInfo.getTablePath() + ","
+                                        + tableInfo.getData()[row][typeDefn
+                                                .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
+                                        + "." + tableInfo.getData()[row][typeDefn
+                                                .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                                 // Add the path, in both application and user-defined formats, to
                                 // the list to be output
-                                variablePaths.add(new String[] {variablePath,
-                                                                variableHandler.getFullVariableName(variablePath,
-                                                                                                    separators[0],
-                                                                                                    Boolean.parseBoolean(separators[1]),
-                                                                                                    separators[2])});
+                                variablePaths.add(
+                                        new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
+                                                separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
                             }
                         }
                     }
@@ -1561,58 +1333,46 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     List<FieldInformation> fieldInformation = tableInfo.getFieldInformation();
 
                     // Check if the table contains any data fields
-                    if (!fieldInformation.isEmpty())
-                    {
+                    if (!fieldInformation.isEmpty()) {
                         // Output the data field marker
                         pw.printf(CSVTags.DATA_FIELD.getTag() + "\n");
 
                         // Step through each data field
-                        for (FieldInformation fieldInfo : fieldInformation)
-                        {
+                        for (FieldInformation fieldInfo : fieldInformation) {
                             // Output the field information
-                            pw.printf("%s\n",
-                                      CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
-                                                                               fieldInfo.getDescription(),
-                                                                               Integer.toString(fieldInfo.getSize()),
-                                                                               fieldInfo.getInputType().getInputName(),
-                                                                               Boolean.toString(fieldInfo.isRequired()),
-                                                                               fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                               fieldInfo.getValue()));
+                            pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                    fieldInfo.getDescription(), Integer.toString(fieldInfo.getSize()),
+                                    fieldInfo.getInputType().getInputName(), Boolean.toString(fieldInfo.isRequired()),
+                                    fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue()));
                         }
                     }
                 }
             }
 
             // Check if any table types are referenced (or all are included)
-            if (!referencedTableTypes.isEmpty())
-            {
+            if (!referencedTableTypes.isEmpty()) {
                 // Step through each referenced table type
-                for (String tableType : referencedTableTypes)
-                {
+                for (String tableType : referencedTableTypes) {
                     // Get the table type definition based on the type name
                     TypeDefinition tableTypeDefn = tableTypeHandler.getTypeDefinition(tableType);
 
                     // Step through each table type column input type
-                    for (InputType inputType : tableTypeDefn.getInputTypes())
-                    {
+                    for (InputType inputType : tableTypeDefn.getInputTypes()) {
                         // Check if the input type is user-defined and this input type is not
                         // already output
-                        if (inputType.isCustomInput()
-                            && !referencedInputTypes.contains(inputType.getInputName()))
-                        {
+                        if (inputType.isCustomInput() && !referencedInputTypes.contains(inputType.getInputName())) {
                             // Add the input type to the list of those referenced
                             referencedInputTypes.add(inputType.getInputName());
                         }
                     }
 
                     // Step through each data field belonging to the table type
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getName())))
-                    {
+                    for (FieldInformation fieldInfo : fieldHandler
+                            .getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getName()))) {
                         // Check if if the input type is user-defined and this input type is not
                         // already output
                         if (fieldInfo.getInputType().isCustomInput()
-                            && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
-                        {
+                                && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName())) {
                             // Add the input type to the list of those referenced
                             referencedInputTypes.add(fieldInfo.getInputType().getInputName());
                         }
@@ -1620,225 +1380,183 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Output the table type tag, and the type name and
                     // description
-                    pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(tableTypeDefn.getName(),
-                                                                       tableTypeDefn.getDescription()));
+                    pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n%s\n", CcddUtilities
+                            .addEmbeddedQuotesAndCommas(tableTypeDefn.getName(), tableTypeDefn.getDescription()));
 
                     // Step through each column defined for the table type, skipping the primary
                     // key and row index columns
-                    for (int column = NUM_HIDDEN_COLUMNS; column < tableTypeDefn.getColumnCountDatabase(); column++)
-                    {
+                    for (int column = NUM_HIDDEN_COLUMNS; column < tableTypeDefn.getColumnCountDatabase(); column++) {
                         // Output the column definition
                         pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(tableTypeDefn.getColumnNamesUser()[column],
-                                                                           tableTypeDefn.getColumnToolTips()[column],
-                                                                           tableTypeDefn.getInputTypes()[column].getInputName(),
-                                                                           tableTypeDefn.isRowValueUnique()[column].toString(),
-                                                                           tableTypeDefn.isRequired()[column].toString(),
-                                                                           tableTypeDefn.isStructureAllowed()[column].toString(),
-                                                                           tableTypeDefn.isPointerAllowed()[column].toString()));
+                                CcddUtilities.addEmbeddedQuotesAndCommas(tableTypeDefn.getColumnNamesUser()[column],
+                                        tableTypeDefn.getColumnToolTips()[column],
+                                        tableTypeDefn.getInputTypes()[column].getInputName(),
+                                        tableTypeDefn.isRowValueUnique()[column].toString(),
+                                        tableTypeDefn.isRequired()[column].toString(),
+                                        tableTypeDefn.isStructureAllowed()[column].toString(),
+                                        tableTypeDefn.isPointerAllowed()[column].toString()));
                     }
 
                     // Build the data field information for this table type
-                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType));
+                    List<FieldInformation> fieldInformation = fieldHandler
+                            .getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType));
 
                     // Check if the table type contains any data fields
-                    if (!fieldInformation.isEmpty())
-                    {
+                    if (!fieldInformation.isEmpty()) {
                         // Output the data field marker
                         pw.printf(CSVTags.TABLE_TYPE_DATA_FIELD.getTag() + "\n");
 
                         // Step through each data field
-                        for (FieldInformation fieldInfo : fieldInformation)
-                        {
+                        for (FieldInformation fieldInfo : fieldInformation) {
                             // Output the field information
-                            pw.printf("%s\n",
-                                      CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
-                                                                               fieldInfo.getDescription(),
-                                                                               Integer.toString(fieldInfo.getSize()),
-                                                                               fieldInfo.getInputType().getInputName(),
-                                                                               Boolean.toString(fieldInfo.isRequired()),
-                                                                               fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                               fieldInfo.getValue()));
+                            pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                    fieldInfo.getDescription(), Integer.toString(fieldInfo.getSize()),
+                                    fieldInfo.getInputType().getInputName(), Boolean.toString(fieldInfo.isRequired()),
+                                    fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue()));
                         }
                     }
                 }
             }
 
             // Check if any primitive data types are referenced (or all are included)
-            if (!referencedDataTypes.isEmpty())
-            {
+            if (!referencedDataTypes.isEmpty()) {
                 // Output the data type marker
                 pw.printf("\n" + CSVTags.DATA_TYPE.getTag() + "\n");
 
                 // Step through each data type
-                for (String[] dataType : dataTypeHandler.getDataTypeData())
-                {
+                for (String[] dataType : dataTypeHandler.getDataTypeData()) {
                     // Check if the data type is referenced in the table
-                    if (referencedDataTypes.contains(CcddDataTypeHandler.getDataTypeName(dataType)))
-                    {
+                    if (referencedDataTypes.contains(CcddDataTypeHandler.getDataTypeName(dataType))) {
                         // Output the data type definition
                         pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(dataType[DataTypesColumn.USER_NAME.ordinal()],
-                                                                           dataType[DataTypesColumn.C_NAME.ordinal()],
-                                                                           dataType[DataTypesColumn.SIZE.ordinal()],
-                                                                           dataType[DataTypesColumn.BASE_TYPE.ordinal()]));
+                                CcddUtilities.addEmbeddedQuotesAndCommas(dataType[DataTypesColumn.USER_NAME.ordinal()],
+                                        dataType[DataTypesColumn.C_NAME.ordinal()],
+                                        dataType[DataTypesColumn.SIZE.ordinal()],
+                                        dataType[DataTypesColumn.BASE_TYPE.ordinal()]));
                     }
                 }
             }
 
             // Check if any macros are referenced (or all are included)
-            if (!referencedMacros.isEmpty())
-            {
+            if (!referencedMacros.isEmpty()) {
                 // Output the macro marker
                 pw.printf("\n" + CSVTags.MACRO.getTag() + "\n");
 
                 // Step through each macro
-                for (String[] macro : macroHandler.getMacroData())
-                {
+                for (String[] macro : macroHandler.getMacroData()) {
                     // Check if all macros are to be included or if the macro is referenced in the
                     // table
-                    if (referencedMacros.contains(macro[MacrosColumn.MACRO_NAME.ordinal()]))
-                    {
+                    if (referencedMacros.contains(macro[MacrosColumn.MACRO_NAME.ordinal()])) {
                         // Output the macro definition
-                        pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(macro[MacrosColumn.MACRO_NAME.ordinal()],
-                                                                           macro[MacrosColumn.VALUE.ordinal()]));
+                        pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(
+                                macro[MacrosColumn.MACRO_NAME.ordinal()], macro[MacrosColumn.VALUE.ordinal()]));
                     }
                 }
             }
 
-            // Check if the user elected to store the reserved message IDs and if there are any
+            // Check if the user elected to store the reserved message IDs and if there are
+            // any
             // reserved message IDs defined
-            if (includeReservedMsgIDs && !rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
-            {
+            if (includeReservedMsgIDs && !rsvMsgIDHandler.getReservedMsgIDData().isEmpty()) {
                 // Output the reserved message ID marker
                 pw.printf("\n" + CSVTags.RESERVED_MSG_IDS.getTag() + "\n");
 
                 // Step through each reserved message ID
-                for (String[] reservedMsgID : rsvMsgIDHandler.getReservedMsgIDData())
-                {
+                for (String[] reservedMsgID : rsvMsgIDHandler.getReservedMsgIDData()) {
                     // Output the reserved message ID definition
                     pw.printf("%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                                                                       reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
+                            CcddUtilities.addEmbeddedQuotesAndCommas(
+                                    reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                    reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
                 }
             }
 
             // Check if the user elected to store the project-level data fields
-            if (includeProjectFields)
-            {
+            if (includeProjectFields) {
                 // Build the data field information for the project
-                List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
+                List<FieldInformation> fieldInformation = fieldHandler
+                        .getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
 
                 // Check if the project contains any data fields
-                if (!fieldInformation.isEmpty())
-                {
+                if (!fieldInformation.isEmpty()) {
                     // Output the project data field marker
                     pw.printf("\n" + CSVTags.PROJECT_DATA_FIELD.getTag() + "\n");
 
                     // Step through each data field
-                    for (FieldInformation fieldInfo : fieldInformation)
-                    {
+                    for (FieldInformation fieldInfo : fieldInformation) {
                         // Check if if the input type is user-defined and this input type is not
                         // already output
                         if (fieldInfo.getInputType().isCustomInput()
-                            && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
-                        {
+                                && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName())) {
                             // Add the input type to the list of those referenced
                             referencedInputTypes.add(fieldInfo.getInputType().getInputName());
                         }
 
                         // Output the field information
-                        pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
-                                                                           fieldInfo.getDescription(),
-                                                                           Integer.toString(fieldInfo.getSize()),
-                                                                           fieldInfo.getInputType().getInputName(),
-                                                                           Boolean.toString(fieldInfo.isRequired()),
-                                                                           fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                           fieldInfo.getValue()));
+                        pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                fieldInfo.getDescription(), Integer.toString(fieldInfo.getSize()),
+                                fieldInfo.getInputType().getInputName(), Boolean.toString(fieldInfo.isRequired()),
+                                fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue()));
                     }
                 }
             }
 
             // Check if any custom input types are referenced (or all are included)
-            if (!referencedInputTypes.isEmpty())
-            {
+            if (!referencedInputTypes.isEmpty()) {
                 // Output the input type marker
                 pw.printf("\n" + CSVTags.INPUT_TYPE.getTag() + "\n");
 
                 // Step through each referenced input type
-                for (String inputTypeName : referencedInputTypes)
-                {
+                for (String inputTypeName : referencedInputTypes) {
                     // Get the input type definition
                     InputType inputType = inputTypeHandler.getInputTypeByName(inputTypeName);
 
                     // Output the input type definition
                     pw.printf("%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(inputType.getInputName(),
-                                                                       inputType.getInputDescription(),
-                                                                       inputType.getInputMatch(),
-                                                                       InputType.convertItemListToString(inputType.getInputItems()),
-                                                                       inputType.getInputFormat().getFormatName()));
+                            CcddUtilities.addEmbeddedQuotesAndCommas(inputType.getInputName(),
+                                    inputType.getInputDescription(), inputType.getInputMatch(),
+                                    InputType.convertItemListToString(inputType.getInputItems()),
+                                    inputType.getInputFormat().getFormatName()));
                 }
             }
 
             // Check if variable paths are to be output and that any exist
-            if (includeVariablePaths && !variablePaths.isEmpty())
-            {
+            if (includeVariablePaths && !variablePaths.isEmpty()) {
                 // Output the variable path marker
                 pw.printf("\n" + CSVTags.VARIABLE_PATHS.getTag() + "\n");
 
                 // Step through each variable path
-                for (String[] variablePath : variablePaths)
-                {
+                for (String[] variablePath : variablePaths) {
                     // Output the variable path in application and user-defined formats
-                    pw.printf("%s\n",
-                              CcddUtilities.addEmbeddedQuotesAndCommas(variablePath[0],
-                                                                       variablePath[1]));
+                    pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(variablePath[0], variablePath[1]));
                 }
             }
-        }
-        catch (IOException ioe)
-        {
+        } catch (IOException ioe) {
             throw new CCDDException(ioe.getMessage());
-        }
-        finally
-        {
+        } finally {
             // Check if the PrintWriter was opened
-            if (pw != null)
-            {
+            if (pw != null) {
                 // Close the file
                 pw.close();
             }
 
-            try
-            {
+            try {
                 // Check if the BufferedWriter was opened
-                if (bw != null)
-                {
+                if (bw != null) {
                     // Close the file
                     bw.close();
                 }
 
                 // Check if the FileWriter was opened
-                if (fw != null)
-                {
+                if (fw != null) {
                     // Close the file
                     fw.close();
                 }
-            }
-            catch (IOException ioe)
-            {
+            } catch (IOException ioe) {
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot close export file '</b>"
-                                                                  + exportFile.getAbsolutePath()
-                                                                  + "<b>'",
-                                                          "File Warning",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                        "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
+                        "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
             }
         }
     }

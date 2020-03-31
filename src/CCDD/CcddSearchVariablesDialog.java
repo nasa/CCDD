@@ -54,8 +54,7 @@ import CCDD.CcddConstants.TableTreeType;
  * CFS Command and Data Dictionary search variable tree dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddSearchVariablesDialog extends CcddDialogHandler
-{
+public class CcddSearchVariablesDialog extends CcddDialogHandler {
     // Class references
     private final CcddMain ccddMain;
     private CcddTableTreeHandler variableTree;
@@ -85,11 +84,9 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Search variable tree dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddSearchVariablesDialog(CcddMain ccddMain)
-    {
+    CcddSearchVariablesDialog(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
 
         variablePaths = new ArrayList<String[]>(0);
@@ -101,35 +98,26 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create and display the table variable search dialog
      *********************************************************************************************/
-    private void initialize()
-    {
+    private void initialize() {
         prevSearchText = null;
 
         // Create a borders for the dialog components
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         final Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.FIRST_LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                0, 0);
 
         // Create panels to hold the components of the dialog
         JPanel inputPnl = new JPanel(new GridBagLayout());
@@ -146,7 +134,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         labelPnl.add(numMatchesLbl);
         inputPnl.add(labelPnl, gbc);
 
-        // Create the auto-completion search field and add it to the dialog panel. The search list
+        // Create the auto-completion search field and add it to the dialog panel. The
+        // search list
         // is initially empty as it is updated whenever a key is pressed
         searchFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
         searchFld.setCaseSensitive(true);
@@ -159,30 +148,22 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         searchFld.setBorder(border);
 
         // Add a listener for key press events
-        searchFld.addKeyListener(new KeyAdapter()
-        {
+        searchFld.addKeyListener(new KeyAdapter() {
             /**************************************************************************************
              * Handle a key press event
              *************************************************************************************/
             @Override
-            public void keyPressed(KeyEvent ke)
-            {
+            public void keyPressed(KeyEvent ke) {
                 // Check if this is a visible character
-                if (!ke.isActionKey()
-                    && ke.getKeyCode() != KeyEvent.VK_ENTER
-                    && !ke.isControlDown()
-                    && !ke.isAltDown()
-                    && !ke.isMetaDown()
-                    && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
-                {
+                if (!ke.isActionKey() && ke.getKeyCode() != KeyEvent.VK_ENTER && !ke.isControlDown() && !ke.isAltDown()
+                        && !ke.isMetaDown() && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode())) {
                     // Get the list of remembered searches from the program preferences. This is
                     // done as a key press occurs so that the list is updated to the latest one. If
                     // multiple find/replace dialogs are open this allows them to 'share' the list
                     // rather than overwriting each other
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
-                    searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
-                                                                              "")
-                                                          .split(STRING_LIST_TEXT_SEPARATOR)));
+                    searches.addAll(Arrays
+                            .asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
                 }
             }
@@ -206,17 +187,15 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         ignoreCaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         ignoreCaseCb.setBorder(emptyBorder);
         ignoreCaseCb.setToolTipText(CcddUtilities.wrapText("Ignore case when matching the search string",
-                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for ignore case check box selection changes
-        ignoreCaseCb.addActionListener(new ActionListener()
-        {
+        ignoreCaseCb.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Handle a change in the ignore case check box state
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Change the case sensitivity for the remembered searches to match the case
                 // sensitivity check box
                 searchFld.setCaseSensitive(!ignoreCaseCb.isSelected());
@@ -234,21 +213,17 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         allowRegexCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         allowRegexCb.setBorder(emptyBorder);
         allowRegexCb.setToolTipText(CcddUtilities.wrapText("Allow the search string to contain a regular expression",
-                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for allow regular expression check box selection changes
-        allowRegexCb.addActionListener(new ActionListener()
-        {
+        allowRegexCb.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Handle a change in the allow regular expression check box state
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 // Hide the wild card label if the allow regular expression check box is enabled
-                wildCardLbl.setText(allowRegexCb.isSelected()
-                                                              ? " "
-                                                              : WILD_CARD_LABEL);
+                wildCardLbl.setText(allowRegexCb.isSelected() ? " " : WILD_CARD_LABEL);
             }
         });
 
@@ -256,14 +231,12 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         inputPnl.add(allowRegexCb, gbc);
 
         // Create a table to display the matching variables
-        variableTable = new CcddJTableHandler(5)
-        {
+        variableTable = new CcddJTableHandler(5) {
             /**************************************************************************************
              * Allow multiple line display in the variable path column
              *************************************************************************************/
             @Override
-            protected boolean isColumnMultiLine(int column)
-            {
+            protected boolean isColumnMultiLine(int column) {
                 return true;
             }
 
@@ -271,8 +244,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
              * Allow HTML-formatted text in the variable path column
              *************************************************************************************/
             @Override
-            protected boolean isColumnHTML(int column)
-            {
+            protected boolean isColumnHTML(int column) {
                 return true;
             }
 
@@ -280,8 +252,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
              * Allow the variable path column to be displayed with the text highlighted
              *************************************************************************************/
             @Override
-            protected boolean isColumnHighlight(int column)
-            {
+            protected boolean isColumnHighlight(int column) {
                 return true;
             }
 
@@ -289,18 +260,12 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
              * Load the variable path data into the table and format the table cells
              *************************************************************************************/
             @Override
-            protected void loadAndFormatData()
-            {
+            protected void loadAndFormatData() {
                 // Place the data into the table model along with the column name, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(variablePaths.toArray(new String[0][0]),
-                                            new String[] {"Matching Variables"},
-                                            null,
-                                            null,
-                                            true,
-                                            true,
-                                            true);
+                        new String[] { "Matching Variables" }, null, null, true, true, true);
             }
         };
 
@@ -309,48 +274,28 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         scrollPane.setBorder(border);
 
         // Set common table parameters and characteristics
-        variableTable.setFixedCharacteristics(scrollPane,
-                                              false,
-                                              ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                              TableSelectionMode.SELECT_BY_CELL,
-                                              false,
-                                              ModifiableColorInfo.TABLE_BACK.getColor(),
-                                              false,
-                                              false,
-                                              ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
-                                              true);
+        variableTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                TableSelectionMode.SELECT_BY_CELL, false, ModifiableColorInfo.TABLE_BACK.getColor(), false, false,
+                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
 
         // Create a variable tree to display the matching variables
-        variableTree = new CcddTableTreeHandler(ccddMain,
-                                                new CcddGroupHandler(ccddMain,
-                                                                     null,
-                                                                     ccddMain.getMainFrame()),
-                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES,
-                                                true,
-                                                false,
-                                                ccddMain.getMainFrame())
-        {
+        variableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
+                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES, true, false, ccddMain.getMainFrame()) {
             /**************************************************************************************
-             * Rebuild the variable tree, retaining only those nodes that contain a match with the
-             * search criteria or are ancestors to a matching node
+             * Rebuild the variable tree, retaining only those nodes that contain a match
+             * with the search criteria or are ancestors to a matching node
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded,
-                                          String rateName,
-                                          String rateFilter,
-                                          Component parent)
-            {
+            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, Component parent) {
                 int matchCount = 0;
 
                 super.buildTableTree(isExpanded, null, null, parent);
 
                 // Check if the user provided search criteria
-                if (searchPattern != null)
-                {
+                if (searchPattern != null) {
                     // Expand the nodes in the variable tree containing a match
-                    List<String> variables = variableTree.pruneTreeToSearchCriteria(".*"
-                                                                                    + searchPattern.toString()
-                                                                                    + ".*");
+                    List<String> variables = variableTree
+                            .pruneTreeToSearchCriteria(".*" + searchPattern.toString() + ".*");
 
                     // Create storage for the variable table data array
                     variablePaths = new ArrayList<String[]>(variables.size());
@@ -359,11 +304,10 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                     matchCount = variables.size();
 
                     // Step through each matching variable
-                    for (String variable : variables)
-                    {
+                    for (String variable : variables) {
                         // Highlight the variable's data types and place it in an array (for use in
                         // the variable table)
-                        variablePaths.add(new String[] {CcddUtilities.highlightDataType(variable)});
+                        variablePaths.add(new String[] { CcddUtilities.highlightDataType(variable) });
                     }
 
                     // Load the variable table with the matching variables
@@ -379,8 +323,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                     ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
                 }
                 // No search criteria are provided; reset the search dialog
-                else
-                {
+                else {
                     // Clear the variable tree and variable path table
                     removeAllNodes();
                     variablePaths = new ArrayList<String[]>();
@@ -388,21 +331,16 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                 }
 
                 // Update the number of matches found label
-                numMatchesLbl.setText(matchCount != 0
-                                                      ? "  ("
-                                                        + matchCount
-                                                        + (matchCount == 1
-                                                                           ? " match"
-                                                                           : " matches")
-                                                        + ")"
-                                                      : "");
+                numMatchesLbl.setText(
+                        matchCount != 0 ? "  (" + matchCount + (matchCount == 1 ? " match" : " matches") + ")" : "");
             }
         };
 
         // Clear the variable tree initially
         variableTree.removeAllNodes();
 
-        // Create a split pane containing the variable tree in the top pane and the variable table
+        // Create a split pane containing the variable tree in the top pane and the
+        // variable table
         // in the lower pane, and add it to the panel
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -411,49 +349,39 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weighty = 1.0;
         gbc.gridy++;
-        inputPnl.add(new CustomSplitPane(variableTree.createTreePanel("Matching Variables",
-                                                                      TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                                      true,
-                                                                      ccddMain.getMainFrame()),
-                                         scrollPane,
-                                         null,
-                                         JSplitPane.VERTICAL_SPLIT),
-                     gbc);
+        inputPnl.add(
+                new CustomSplitPane(
+                        variableTree.createTreePanel("Matching Variables",
+                                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, true, ccddMain.getMainFrame()),
+                        scrollPane, null, JSplitPane.VERTICAL_SPLIT),
+                gbc);
 
         // Search button
-        JButton btnSearch = CcddButtonPanelHandler.createButton("Search",
-                                                                SEARCH_ICON,
-                                                                KeyEvent.VK_S,
-                                                                "Search the variable tree for matches");
+        JButton btnSearch = CcddButtonPanelHandler.createButton("Search", SEARCH_ICON, KeyEvent.VK_S,
+                "Search the variable tree for matches");
 
         // Add a listener for the Search button
-        btnSearch.addActionListener(new ActionListener()
-        {
+        btnSearch.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Highlight the search text in the tree
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 searchVariableTree();
             }
         });
 
         // Close variable search dialog button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the variable search dialog");
+        JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                "Close the variable search dialog");
 
         // Add a listener for the Close button
-        btnClose.addActionListener(new ActionListener()
-        {
+        btnClose.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Close the variable search dialog
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
-            {
+            public void actionPerformed(ActionEvent ae) {
                 closeDialog();
             }
         });
@@ -464,54 +392,37 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         buttonPnl.add(btnClose);
 
         // Display the variable search dialog
-        createDialog(ccddMain.getMainFrame(),
-                     inputPnl,
-                     buttonPnl,
-                     btnSearch,
-                     "Variable Search",
-                     null,
-                     null,
-                     true,
-                     true);
+        createDialog(ccddMain.getMainFrame(), inputPnl, buttonPnl, btnSearch, "Variable Search", null, null, true,
+                true);
     }
 
     /**********************************************************************************************
      * Search the variables for text matching the search criteria
      *********************************************************************************************/
-    private void searchVariableTree()
-    {
+    private void searchVariableTree() {
         // Check if the search criteria changed
-        if (!searchFld.getText().equals(prevSearchText)
-            || ignoreCaseCb.isSelected() != prevIgnoreCase
-            || allowRegexCb.isSelected() != prevAllowRegex)
-        {
+        if (!searchFld.getText().equals(prevSearchText) || ignoreCaseCb.isSelected() != prevIgnoreCase
+                || allowRegexCb.isSelected() != prevAllowRegex) {
             // Store the search criteria
             prevSearchText = searchFld.getText();
             prevIgnoreCase = ignoreCaseCb.isSelected();
             prevAllowRegex = allowRegexCb.isSelected();
 
             // Check if the search field is blank
-            if (searchFld.getText().isEmpty())
-            {
+            if (searchFld.getText().isEmpty()) {
                 // Inform the user that the input value is invalid
                 new CcddDialogHandler().showMessageDialog(CcddSearchVariablesDialog.this,
-                                                          "<html><b>Search text cannot be blank",
-                                                          "Invalid Input",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                        "<html><b>Search text cannot be blank", "Invalid Input", JOptionPane.WARNING_MESSAGE,
+                        DialogOption.OK_OPTION);
             }
             // The search field contains text
-            else
-            {
+            else {
                 // Create the match pattern from the search criteria
-                searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
-                                                                      ignoreCaseCb.isSelected(),
-                                                                      allowRegexCb.isSelected(),
-                                                                      CcddSearchVariablesDialog.this);
+                searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(), ignoreCaseCb.isSelected(),
+                        allowRegexCb.isSelected(), CcddSearchVariablesDialog.this);
 
                 // Check if the search pattern is valid
-                if (searchPattern != null)
-                {
+                if (searchPattern != null) {
                     // Set the search pattern in the variable tree so that the matching text in the
                     // nodes is highlighted
                     variableTree.setHighlightPattern(searchPattern);

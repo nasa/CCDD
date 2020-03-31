@@ -16,28 +16,25 @@ import CCDD.CcddClassesDataTable.Variable;
 /**************************************************************************************************
  * CFS Command and Data Dictionary scheduler input interface
  *************************************************************************************************/
-public interface CcddSchedulerInputInterface
-{
+public interface CcddSchedulerInputInterface {
     /**********************************************************************************************
-     * Get the index at which the specified variable should be inserted in the list of variables
-     * provided
+     * Get the index at which the specified variable should be inserted in the list
+     * of variables provided
      *
-     * @param variable
-     *            variable for which to determine the insertion index
+     * @param variable  variable for which to determine the insertion index
      *
-     * @param variables
-     *            list of variables into which the variable is to be inserted
+     * @param variables list of variables into which the variable is to be inserted
      *
-     * @return Index at which to insert the target variable; -1 if the provided list is empty and
-     *         -2 if the variable is already in the list
+     * @return Index at which to insert the target variable; -1 if the provided list
+     *         is empty and -2 if the variable is already in the list
      *********************************************************************************************/
     abstract int getVariableRelativeIndex(Variable variable, List<Variable> variables);
 
     /**********************************************************************************************
      * Get the size of the variable or link that is selected
      *
-     * @param variables
-     *            list of variables; null to use the currently selected variables
+     * @param variables list of variables; null to use the currently selected
+     *                  variables
      *
      * @return Size in bytes of the variable or link
      *********************************************************************************************/
@@ -46,11 +43,10 @@ public interface CcddSchedulerInputInterface
     /**********************************************************************************************
      * Get a list of variable/applications at the specified rate
      *
-     * @param rate
-     *            rate column name
+     * @param rate rate column name
      *
-     * @return List of variable objects representing the variables/applications at the specified
-     *         rate
+     * @return List of variable objects representing the variables/applications at
+     *         the specified rate
      *********************************************************************************************/
     abstract List<Variable> getVariablesAtRate(String rate);
 
@@ -78,24 +74,22 @@ public interface CcddSchedulerInputInterface
     /**********************************************************************************************
      * Add the specified variable(s) to the excluded variable list
      *
-     * @param excludeVariable
-     *            list containing the variable(s) to be excluded
+     * @param excludeVariable list containing the variable(s) to be excluded
      *********************************************************************************************/
     abstract void excludeVariable(List<String> excludeVariable);
 
     /**********************************************************************************************
      * Remove the variable(s) from the excluded variable list
      *
-     * @param includeVariable
-     *            list of variables to be removed from the excluded variable list
+     * @param includeVariable list of variables to be removed from the excluded
+     *                        variable list
      *********************************************************************************************/
     abstract void includeVariable(List<String> includeVariable);
 
     /**********************************************************************************************
      * Update the tree to display variables at the given rate
      *
-     * @param rate
-     *            rate for filtering the variables
+     * @param rate rate for filtering the variables
      *********************************************************************************************/
     abstract void updateVariableTree(String rate);
 

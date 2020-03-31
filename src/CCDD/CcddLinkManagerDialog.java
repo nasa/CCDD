@@ -70,8 +70,7 @@ import CCDD.CcddConstants.TableSelectionMode;
  * CFS Command and Data Dictionary link manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddLinkManagerDialog extends CcddDialogHandler
-{
+public class CcddLinkManagerDialog extends CcddDialogHandler {
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
@@ -99,11 +98,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Link manager dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddLinkManagerDialog(CcddMain ccddMain)
-    {
+    CcddLinkManagerDialog(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
 
         // Create references to shorten subsequent calls
@@ -117,18 +114,14 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of link updates to the database
      *
-     * @param commandError
-     *            false if the database commands successfully completed; true if an error occurred
-     *            and the changes were not made
+     * @param commandError false if the database commands successfully completed;
+     *                     true if an error occurred and the changes were not made
      *********************************************************************************************/
-    protected void doLinkUpdatesComplete(boolean commandError)
-    {
+    protected void doLinkUpdatesComplete(boolean commandError) {
         // Check that no error occurred performing the database commands
-        if (!commandError)
-        {
+        if (!commandError) {
             // Step through each data stream
-            for (CcddLinkManagerHandler linkHandler : linkMgrs)
-            {
+            for (CcddLinkManagerHandler linkHandler : linkMgrs) {
                 // Store the links in the committed links list
                 linkHandler.updateCommittedLinks();
 
@@ -137,27 +130,23 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             }
 
             // Step through each data stream tab
-            for (int index = 0; index < tabbedPane.getTabCount(); index++)
-            {
+            for (int index = 0; index < tabbedPane.getTabCount(); index++) {
                 // Remove the change indicator from the tab title
-                tabbedPane.setTitleAt(index,
-                                      tabbedPane.getTitleAt(index)
-                                                .replaceAll("\\" + CHANGE_INDICATOR, ""));
+                tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, ""));
             }
         }
     }
 
     /**********************************************************************************************
-     * Create the variable link manager dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
-     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
-     * scheduler initialization completes execution
+     * Create the variable link manager dialog. This is executed in a separate
+     * thread since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu
+     * commands, however, are disabled until the telemetry scheduler initialization
+     * completes execution
      *********************************************************************************************/
-    private void initialize()
-    {
+    private void initialize() {
         // Build the variable link manager dialog in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
-        {
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             // Create panels to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
@@ -167,47 +156,34 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
              * Build the variable link manager dialog
              *************************************************************************************/
             @Override
-            protected void execute()
-            {
+            protected void execute() {
                 // Create a border for the dialog components
-                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                            Color.LIGHT_GRAY,
-                                                                                            Color.GRAY),
-                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                border = BorderFactory.createCompoundBorder(
+                        BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
+                        BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0,
-                                                                0,
-                                                                1,
-                                                                1,
-                                                                1.0,
-                                                                1.0,
-                                                                GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH,
-                                                                new Insets(0, 0, 0, 0),
-                                                                0,
-                                                                0);
+                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
+                        GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
                 // Create a tabbed pane to contain the rate parameters that are stream-specific
-                tabbedPane = new DnDTabbedPane(SwingConstants.TOP)
-                {
+                tabbedPane = new DnDTabbedPane(SwingConstants.TOP) {
                     /******************************************************************************
                      * Update the link manager list order following a tab move
                      *****************************************************************************/
                     @Override
-                    protected Object tabMoveCleanup(int oldTabIndex,
-                                                    int newTabIndex,
-                                                    Object tabContents)
-                    {
+                    protected Object tabMoveCleanup(int oldTabIndex, int newTabIndex, Object tabContents) {
                         // Adjust the new tab index if moving the tab to a higher index
                         newTabIndex -= newTabIndex > oldTabIndex ? 1 : 0;
 
                         // Re-order the rate information based on the new tab order
-                        RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
-                        rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex, newTabIndex);
+                        RateInformation[] rateInfoArray = rateHandler.getRateInformation()
+                                .toArray(new RateInformation[0]);
+                        rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex,
+                                newTabIndex);
                         List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
                         rateInfoList.addAll(Arrays.asList(rateInfoArray));
                         rateHandler.setRateInformation(rateInfoList);
@@ -231,14 +207,12 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
-                tabbedPane.addChangeListener(new ChangeListener()
-                {
+                tabbedPane.addChangeListener(new ChangeListener() {
                     /******************************************************************************
                      * Update the handler to the one associated with the selected tab
                      *****************************************************************************/
                     @Override
-                    public void stateChanged(ChangeEvent ce)
-                    {
+                    public void stateChanged(ChangeEvent ce) {
                         // Set the active handler to the one indicated by the currently selected
                         // tab
                         activeHandler = linkMgrs.get(tabbedPane.getSelectedIndex());
@@ -251,8 +225,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                         // Set the modal undo manager reference in the keyboard handler while the
                         // link manager is active
-                        ccddMain.getKeyboardHandler().setModalDialogReference(activeHandler.getUndoManager(),
-                                                                              null);
+                        ccddMain.getKeyboardHandler().setModalDialogReference(activeHandler.getUndoManager(), null);
                     }
                 });
 
@@ -262,96 +235,76 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 dialogPnl.add(tabbedPane, gbc);
 
                 // Define the buttons for the lower panel: New link button
-                JButton btnNewLink = CcddButtonPanelHandler.createButton("New",
-                                                                         INSERT_ICON,
-                                                                         KeyEvent.VK_N,
-                                                                         "Create a new link");
+                JButton btnNewLink = CcddButtonPanelHandler.createButton("New", INSERT_ICON, KeyEvent.VK_N,
+                        "Create a new link");
 
                 // Add a listener for the New button
-                btnNewLink.addActionListener(new ActionListener()
-                {
+                btnNewLink.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Add a new link
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         createLink();
                     }
                 });
 
                 // Delete link button
-                JButton btnDeleteLink = CcddButtonPanelHandler.createButton("Delete",
-                                                                            DELETE_ICON,
-                                                                            KeyEvent.VK_D,
-                                                                            "Delete an existing link");
+                JButton btnDeleteLink = CcddButtonPanelHandler.createButton("Delete", DELETE_ICON, KeyEvent.VK_D,
+                        "Delete an existing link");
 
                 // Add a listener for the Delete button
-                btnDeleteLink.addActionListener(new ActionListener()
-                {
+                btnDeleteLink.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Delete the selected link(s)
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         deleteLink();
                     }
                 });
 
                 // Rename link button
-                btnRenameLink = CcddButtonPanelHandler.createButton("Rename",
-                                                                    RENAME_ICON,
-                                                                    KeyEvent.VK_D,
-                                                                    "Rename an existing link");
+                btnRenameLink = CcddButtonPanelHandler.createButton("Rename", RENAME_ICON, KeyEvent.VK_D,
+                        "Rename an existing link");
 
                 // Add a listener for the Rename button
-                btnRenameLink.addActionListener(new ActionListener()
-                {
+                btnRenameLink.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Rename the selected link
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         renameLink();
                     }
                 });
 
                 // Copy link button
-                btnCopyLink = CcddButtonPanelHandler.createButton("Copy",
-                                                                  COPY_ICON,
-                                                                  KeyEvent.VK_P,
-                                                                  "Copy an existing link");
+                btnCopyLink = CcddButtonPanelHandler.createButton("Copy", COPY_ICON, KeyEvent.VK_P,
+                        "Copy an existing link");
 
                 // Add a listener for the Copy button
-                btnCopyLink.addActionListener(new ActionListener()
-                {
+                btnCopyLink.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Copy the selected link
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         copyLink();
                     }
                 });
 
                 // Undo button
-                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
-                                                                      UNDO_ICON,
-                                                                      KeyEvent.VK_Z,
-                                                                      "Undo the last edit action");
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z,
+                        "Undo the last edit action");
 
                 // Create a listener for the Undo command
-                ActionListener undoAction = new ActionListener()
-                {
+                ActionListener undoAction = new ActionListener() {
                     /******************************************************************************
                      * Undo the last edit
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         activeHandler.setInitializing(true);
                         activeHandler.getUndoManager().undo();
                         activeHandler.setInitializing(false);
@@ -371,20 +324,16 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 btnUndo.addActionListener(undoAction);
 
                 // Redo button
-                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
-                                                                      REDO_ICON,
-                                                                      KeyEvent.VK_Y,
-                                                                      "Redo the last undone edit action");
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+                        "Redo the last undone edit action");
 
                 // Create a listener for the Redo command
-                ActionListener redoAction = new ActionListener()
-                {
+                ActionListener redoAction = new ActionListener() {
                     /******************************************************************************
                      * Redo the last edit that was undone
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         activeHandler.setInitializing(true);
                         activeHandler.getUndoManager().redo();
                         activeHandler.setInitializing(false);
@@ -399,30 +348,22 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 btnRedo.addActionListener(redoAction);
 
                 // Store links button
-                JButton btnStoreLinks = CcddButtonPanelHandler.createButton("Store",
-                                                                            STORE_ICON,
-                                                                            KeyEvent.VK_S,
-                                                                            "Store the link updates in the database");
+                JButton btnStoreLinks = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                        "Store the link updates in the database");
                 btnStoreLinks.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
-                btnStoreLinks.addActionListener(new ActionListener()
-                {
+                btnStoreLinks.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Store the links in the database
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if the links have changed since the last database commit and that
                         // the user confirms storing the links
-                        if (isLinksChanged()
-                            && new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
-                                                                         "<html><b>Store links?",
-                                                                         "Store Links",
-                                                                         JOptionPane.QUESTION_MESSAGE,
-                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                        {
+                        if (isLinksChanged() && new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
+                                "<html><b>Store links?", "Store Links", JOptionPane.QUESTION_MESSAGE,
+                                DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
                             // Store the links in the project database
                             storeLinks();
                         }
@@ -430,29 +371,21 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 });
 
                 // Close button
-                btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the link manager");
+                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                        "Close the link manager");
 
                 // Add a listener for the Close button
-                btnClose.addActionListener(new ActionListener()
-                {
+                btnClose.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Close the link selection dialog
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if there are no changes to the links or if the user elects to
                         // discard the changes
-                        if (!isLinksChanged()
-                            || new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
-                                                                         "<html><b>Discard changes?",
-                                                                         "Discard Changes",
-                                                                         JOptionPane.QUESTION_MESSAGE,
-                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                        {
+                        if (!isLinksChanged() || new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
+                                "<html><b>Discard changes?", "Discard Changes", JOptionPane.QUESTION_MESSAGE,
+                                DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
                             // Close the dialog
                             closeDialog();
 
@@ -462,7 +395,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to
+                // bottom)
                 buttonPnl.add(btnNewLink);
                 buttonPnl.add(btnRenameLink);
                 buttonPnl.add(btnUndo);
@@ -483,32 +417,24 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
              * Variable link manager dialog creation complete
              *************************************************************************************/
             @Override
-            protected void complete()
-            {
+            protected void complete() {
                 // Display the link management dialog
-                showOptionsDialog(ccddMain.getMainFrame(),
-                                  dialogPnl,
-                                  buttonPnl,
-                                  btnClose,
-                                  "Manage Links",
-                                  true);
+                showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnClose, "Manage Links", true);
             }
         });
     }
 
     /**********************************************************************************************
-     * Set the enable status of the buttons that apply only when one or more links is selected
+     * Set the enable status of the buttons that apply only when one or more links
+     * is selected
      *
-     * @param isSingleLinkSelected
-     *            true to enable the those buttons that are valid when only a single link is
-     *            selected
+     * @param isSingleLinkSelected     true to enable the those buttons that are
+     *                                 valid when only a single link is selected
      *
-     * @param isOneOrMoreLinksSelected
-     *            true to enable those buttons that are valid if one or more links is selected
+     * @param isOneOrMoreLinksSelected true to enable those buttons that are valid
+     *                                 if one or more links is selected
      *********************************************************************************************/
-    protected void setLinkButtonsEnabled(boolean isSingleLinkSelected,
-                                         boolean isOneOrMoreLinksSelected)
-    {
+    protected void setLinkButtonsEnabled(boolean isSingleLinkSelected, boolean isOneOrMoreLinksSelected) {
         btnRenameLink.setEnabled(isSingleLinkSelected);
         btnCopyLink.setEnabled(isOneOrMoreLinksSelected);
     }
@@ -516,37 +442,28 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add a link handler for each data stream
      *********************************************************************************************/
-    private void addLinkHandlerPanes()
-    {
+    private void addLinkHandlerPanes() {
         // Create storage for the link manager handlers
         linkMgrs = new ArrayList<CcddLinkManagerHandler>();
 
         // Step through each stream
-        for (RateInformation rateInfo : rateHandler.getRateInformation())
-        {
+        for (RateInformation rateInfo : rateHandler.getRateInformation()) {
             // Create a link manager for this stream
-            CcddLinkManagerHandler linkMgr = new CcddLinkManagerHandler(ccddMain,
-                                                                        this,
-                                                                        rateInfo.getRateName(),
-                                                                        rateHandler.getRatesInUse(rateInfo.getRateName(),
-                                                                                                  CcddLinkManagerDialog.this));
+            CcddLinkManagerHandler linkMgr = new CcddLinkManagerHandler(ccddMain, this, rateInfo.getRateName(),
+                    rateHandler.getRatesInUse(rateInfo.getRateName(), CcddLinkManagerDialog.this));
 
             // Add the link manager to the list of managers
             linkMgrs.add(linkMgr);
 
             // Create a tab for each data stream
-            tabbedPane.addTab(rateInfo.getStreamName(),
-                              null,
-                              linkMgr.getHandlerPanel(),
-                              rateInfo.getRateName());
+            tabbedPane.addTab(rateInfo.getStreamName(), null, linkMgr.getHandlerPanel(), rateInfo.getRateName());
         }
     }
 
     /**********************************************************************************************
      * Add a new link to the link tree
      *********************************************************************************************/
-    private void createLink()
-    {
+    private void createLink() {
         // Create a panel for the link create components
         JPanel createPnl = new JPanel(new GridBagLayout());
 
@@ -585,22 +502,19 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         createPnl.add(descScrollPane, gbc);
 
         // Create a dialog for the new link information
-        CcddDialogHandler linkInfoDialog = new CcddDialogHandler()
-        {
+        CcddDialogHandler linkInfoDialog = new CcddDialogHandler() {
             /**************************************************************************************
              * Verify that the dialog content is valid
              *
              * @return true if the input values are valid
              *************************************************************************************/
             @Override
-            protected boolean verifySelection()
-            {
+            protected boolean verifySelection() {
                 // Verify the link name is valid
                 boolean isValid = verifyLinkName(false);
 
                 // Check if the link name is valid
-                if (isValid)
-                {
+                if (isValid) {
                     // Get the name and remove leading & trailing white space characters
                     newLinkName = linkNameFld.getText();
                     newLinkDescription = linkDescriptionFld.getText().trim();
@@ -611,24 +525,20 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         };
 
         // Display a dialog for the user to provide a link name
-        if (linkInfoDialog.showOptionsDialog(CcddLinkManagerDialog.this,
-                                             createPnl,
-                                             "New Link",
-                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-        {
-            // Disable automatically ending the edit sequence. This allows all of the deleted links
-            // to be grouped into a single sequence so that if undone, all fields are restored
+        if (linkInfoDialog.showOptionsDialog(CcddLinkManagerDialog.this, createPnl, "New Link",
+                DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
+            // Disable automatically ending the edit sequence. This allows all of the
+            // deleted links
+            // to be grouped into a single sequence so that if undone, all fields are
+            // restored
             activeHandler.getUndoHandler().setAutoEndEditSequence(false);
 
             // Add the new link information
-            activeHandler.getLinkTree().addLinkInformation(activeHandler.getRateName(),
-                                                           newLinkName,
-                                                           "0",
-                                                           newLinkDescription);
+            activeHandler.getLinkTree().addLinkInformation(activeHandler.getRateName(), newLinkName, "0",
+                    newLinkDescription);
 
             // Insert the new link into the link tree
-            ToolTipTreeNode newNode = activeHandler.getLinkTree().addInformationNode(newLinkName,
-                                                                                     newLinkDescription);
+            ToolTipTreeNode newNode = activeHandler.getLinkTree().addInformationNode(newLinkName, newLinkDescription);
 
             // Update the link tree node name to show that it's empty
             activeHandler.getLinkTree().adjustNodeText(newNode);
@@ -636,7 +546,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Update the link dialog's change indicator
             updateChangeIndicator();
 
-            // Re-enable automatic edit sequence ending, then end the edit sequence to group the
+            // Re-enable automatic edit sequence ending, then end the edit sequence to group
+            // the
             // deleted links
             activeHandler.getUndoHandler().setAutoEndEditSequence(true);
             activeHandler.getUndoManager().endEditSequence();
@@ -646,26 +557,28 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Remove the selected link(s) from the link tree
      *********************************************************************************************/
-    private void deleteLink()
-    {
+    private void deleteLink() {
         // Check that a node is selected in the link tree
-        if (activeHandler.getLinkTree().getSelectionCount() != 0)
-        {
-            // Disable automatically ending the edit sequence. This allows all of the deleted links
-            // to be grouped into a single sequence so that if undone, all fields are restored
+        if (activeHandler.getLinkTree().getSelectionCount() != 0) {
+            // Disable automatically ending the edit sequence. This allows all of the
+            // deleted links
+            // to be grouped into a single sequence so that if undone, all fields are
+            // restored
             activeHandler.getUndoHandler().setAutoEndEditSequence(false);
 
             // Remove the selected link(s) information
             activeHandler.getLinkTree().removeSelectedLinks();
 
-            // Update the variable tree to enable any variables no longer assigned due to the
+            // Update the variable tree to enable any variables no longer assigned due to
+            // the
             // deleted link
             activeHandler.getVariableTree().setExcludedVariables(activeHandler.getLinkTree().getLinkVariables(null));
 
             // Update the link dialog's change indicator
             updateChangeIndicator();
 
-            // Re-enable automatic edit sequence ending, then end the edit sequence to group the
+            // Re-enable automatic edit sequence ending, then end the edit sequence to group
+            // the
             // deleted links
             activeHandler.getUndoHandler().setAutoEndEditSequence(true);
             activeHandler.getUndoManager().endEditSequence();
@@ -675,14 +588,12 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Rename the selected link
      *********************************************************************************************/
-    private void renameLink()
-    {
+    private void renameLink() {
         // Get the selected link(s)
         String[] selected = activeHandler.getLinkTree().getTopLevelSelectedNodeNames();
 
         // Check that a single node is selected in the link tree
-        if (selected.length == 1)
-        {
+        if (selected.length == 1) {
             // Remove any HTML tags and parenthetical text from the selected link name
             String nameOnly = activeHandler.getLinkTree().removeExtraText(selected[0]);
 
@@ -693,36 +604,30 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             addLinkNameField("Rename '" + nameOnly + "' to:", nameOnly, dialogPnl);
 
             // Create the link renaming dialog
-            CcddDialogHandler linkDlg = new CcddDialogHandler()
-            {
+            CcddDialogHandler linkDlg = new CcddDialogHandler() {
                 /**********************************************************************************
                  * Verify that the dialog content is valid
                  *
                  * @return true if the input values are valid
                  *********************************************************************************/
                 @Override
-                protected boolean verifySelection()
-                {
+                protected boolean verifySelection() {
                     return verifyLinkName(false);
                 }
             };
 
             // Display the link renaming dialog
-            if (linkDlg.showOptionsDialog(CcddLinkManagerDialog.this,
-                                          dialogPnl,
-                                          "Rename Link",
-                                          DialogOption.RENAME_OPTION,
-                                          true) == OK_BUTTON)
-            {
-                // Disable automatically ending the edit sequence. This allows all of the deleted
+            if (linkDlg.showOptionsDialog(CcddLinkManagerDialog.this, dialogPnl, "Rename Link",
+                    DialogOption.RENAME_OPTION, true) == OK_BUTTON) {
+                // Disable automatically ending the edit sequence. This allows all of the
+                // deleted
                 // links to be grouped into a single sequence so that if undone, all fields are
                 // restored
                 activeHandler.getUndoHandler().setAutoEndEditSequence(false);
 
                 // Step through the link's definitions
                 for (String[] linkDefn : activeHandler.getLinkTree().getLinkHandler().getLinkDefinitionsByName(nameOnly,
-                                                                                                               activeHandler.getRateName()))
-                {
+                        activeHandler.getRateName())) {
                     // Update the link definition's link name
                     linkDefn[LinksColumn.LINK_NAME.ordinal()] = linkNameFld.getText();
                 }
@@ -732,7 +637,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                 // Rename the link's node in the link tree
                 ToolTipTreeNode renamedNode = activeHandler.getLinkTree().renameRootChildNode(selected[0],
-                                                                                              linkNameFld.getText());
+                        linkNameFld.getText());
 
                 // Adjust the link node's text to add the size and rate
                 activeHandler.getLinkTree().adjustNodeText(renamedNode);
@@ -749,16 +654,15 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Copy the selected link(s) to one or more data streams. If a target stream already has a link
-     * by the same name, or does not support the rate of the copied link, then the link is not
-     * copied to that stream. Additionally, if a variable's rate isn't the same in the target
-     * stream then the variable is removed from the link
+     * Copy the selected link(s) to one or more data streams. If a target stream
+     * already has a link by the same name, or does not support the rate of the
+     * copied link, then the link is not copied to that stream. Additionally, if a
+     * variable's rate isn't the same in the target stream then the variable is
+     * removed from the link
      *********************************************************************************************/
-    private void copyLink()
-    {
+    private void copyLink() {
         // Check if there is more that one data stream
-        if (rateHandler.getNumRateColumns() != 1)
-        {
+        if (rateHandler.getNumRateColumns() != 1) {
             List<Integer> disabledItems = new ArrayList<Integer>();
             String[][] arrayItemData = new String[rateHandler.getNumRateColumns()][2];
 
@@ -774,8 +678,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             int rateIndex = 0;
 
             // Step through each data stream
-            for (RateInformation rateInfo : rateHandler.getRateInformation())
-            {
+            for (RateInformation rateInfo : rateHandler.getRateInformation()) {
                 // Add the associated data stream name to the array
                 arrayItemData[rateIndex][0] = rateInfo.getStreamName();
                 rateIndex++;
@@ -784,26 +687,20 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Add the index of the current data stream to the list of disabled selections
             disabledItems.add(tabbedPane.getSelectedIndex());
 
-            // Get the name(s) of the link(s) to be copied, minus any HTML tags and rate/size
+            // Get the name(s) of the link(s) to be copied, minus any HTML tags and
+            // rate/size
             // information
             String linkNames = currentTree.removeExtraText(Arrays.toString(selected).replaceAll("^\\[|\\]$", ""));
 
-            // Create a panel containing a grid of check boxes representing the data streams from
+            // Create a panel containing a grid of check boxes representing the data streams
+            // from
             // which to choose
-            if (addCheckBoxes(null,
-                              arrayItemData,
-                              disabledItems,
-                              "Select target data stream(s)",
-                              false,
-                              streamPnl))
-            {
+            if (addCheckBoxes(null, arrayItemData, disabledItems, "Select target data stream(s)", false, streamPnl)) {
                 // Create a panel to contain the dialog components
                 JPanel dialogPnl = new JPanel(new GridBagLayout());
 
                 // Create the link copying dialog label and field
-                GridBagConstraints gbc = addLinkNameField("Link(s) to copy:",
-                                                          linkNames,
-                                                          dialogPnl);
+                GridBagConstraints gbc = addLinkNameField("Link(s) to copy:", linkNames, dialogPnl);
                 linkNameFld.setEditable(false);
 
                 // Add the data stream selection panel to the dialog
@@ -813,16 +710,14 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 dialogPnl.add(streamPnl, gbc);
 
                 // Create the link copying dialog
-                CcddDialogHandler linkDlg = new CcddDialogHandler()
-                {
+                CcddDialogHandler linkDlg = new CcddDialogHandler() {
                     /******************************************************************************
                      * Verify that the dialog content is valid
                      *
                      * @return true if the input values are valid
                      *****************************************************************************/
                     @Override
-                    protected boolean verifySelection()
-                    {
+                    protected boolean verifySelection() {
                         return verifyLinkName(true);
                     }
                 };
@@ -830,12 +725,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 selectedStreams = new ArrayList<String>();
 
                 // Display the link copying dialog
-                if (linkDlg.showOptionsDialog(CcddLinkManagerDialog.this,
-                                              dialogPnl,
-                                              "Copy Link(s)",
-                                              DialogOption.COPY_OPTION,
-                                              true) == OK_BUTTON)
-                {
+                if (linkDlg.showOptionsDialog(CcddLinkManagerDialog.this, dialogPnl, "Copy Link(s)",
+                        DialogOption.COPY_OPTION, true) == OK_BUTTON) {
                     notCopiedList = new ArrayList<Object[]>();
 
                     // Get the node path(s) that represent the links (skipping the link members)
@@ -846,20 +737,18 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                     // Step through each link to be copied for (ToolTipTreeNode copyLink :
                     // selectedLinks)
-                    for (TreePath copyLinkPath : selectedLinks)
-                    {
+                    for (TreePath copyLinkPath : selectedLinks) {
                         // Get the node for this path
                         ToolTipTreeNode copyLink = (ToolTipTreeNode) copyLinkPath.getLastPathComponent();
 
                         // Remove any HTML tags and parenthetical text from the selected link name
-                        String nameOnly = activeHandler.getLinkTree().removeExtraText(copyLink.getUserObject().toString());
+                        String nameOnly = activeHandler.getLinkTree()
+                                .removeExtraText(copyLink.getUserObject().toString());
 
                         // Step through each selected data stream name
-                        for (int index = 0; index < arrayItemData.length; index++)
-                        {
+                        for (int index = 0; index < arrayItemData.length; index++) {
                             // Check if this data stream is selected as a target
-                            if (selectedStreams.contains(arrayItemData[index][0]))
-                            {
+                            if (selectedStreams.contains(arrayItemData[index][0])) {
                                 // Get the reference to this stream's link manager handler to
                                 // shorten subsequent calls
                                 CcddLinkManagerHandler linkMgr = linkMgrs.get(index);
@@ -870,28 +759,28 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                                 // Check if the link with this name doesn't already exist in the
                                 // target data stream
-                                if (targetTree.getLinkInformation(nameOnly) == null)
-                                {
+                                if (targetTree.getLinkInformation(nameOnly) == null) {
                                     // Get the link information for the link being copied
                                     LinkInformation linkInfo = currentTree.getLinkInformation(nameOnly);
 
                                     // Get the rate information for the copied link's data stream
-                                    RateInformation rateInfo = rateHandler.getRateInformationByStreamName(arrayItemData[index][0]);
+                                    RateInformation rateInfo = rateHandler
+                                            .getRateInformationByStreamName(arrayItemData[index][0]);
 
                                     // Check if the target data stream supports the copied link's
                                     // sample rate
-                                    if (linkInfo.getSampleRate().equals("0")
-                                        || Arrays.asList(rateInfo.getSampleRates()).contains(linkInfo.getSampleRate()))
-                                    {
+                                    if (linkInfo.getSampleRate().equals("0") || Arrays.asList(rateInfo.getSampleRates())
+                                            .contains(linkInfo.getSampleRate())) {
                                         List<ToolTipTreeNode> removedNodes = new ArrayList<ToolTipTreeNode>();
 
                                         // Create a node for the new link
                                         ToolTipTreeNode newLinkNode = new ToolTipTreeNode(nameOnly,
-                                                                                          linkInfo.getDescription());
+                                                linkInfo.getDescription());
                                         // Copy the top-level nodes from the copied link to the new
                                         // link
-                                        targetTree.copySubTree((ToolTipTreeNode) selectedLinks[selectionIndex].getLastPathComponent(),
-                                                               newLinkNode);
+                                        targetTree.copySubTree(
+                                                (ToolTipTreeNode) selectedLinks[selectionIndex].getLastPathComponent(),
+                                                newLinkNode);
 
                                         // Update the target stream's variable tree to the copied
                                         // link's rate. The variable tree is used to validate the
@@ -899,8 +788,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                         linkMgr.setRateFilter(linkInfo.getSampleRate());
 
                                         // Step through each member of the new link
-                                        for (Enumeration<?> element = newLinkNode.preorderEnumeration(); element.hasMoreElements();)
-                                        {
+                                        for (Enumeration<?> element = newLinkNode.preorderEnumeration(); element
+                                                .hasMoreElements();) {
                                             // Get the node for this variable and convert it to a
                                             // string, removing the link name
                                             ToolTipTreeNode subNode = (ToolTipTreeNode) element.nextElement();
@@ -914,25 +803,23 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                             // stream or the structure containing the variable
                                             // doesn't have the rate column associated with the
                                             // stream)
-                                            if (!varPath.isEmpty()
-                                                && varPath.contains(".")
-                                                && !linkMgr.getVariableTree().isNodeInTree(varPath))
-                                            {
+                                            if (!varPath.isEmpty() && varPath.contains(".")
+                                                    && !linkMgr.getVariableTree().isNodeInTree(varPath)) {
                                                 // Add this node to the list of those to be removed
                                                 // from the new link
                                                 removedNodes.add(subNode);
 
                                                 // Add the invalid link and data stream to the list
-                                                notCopiedList.add(new Object[] {nameOnly,
-                                                                                CcddUtilities.highlightDataType(subNode.getUserObject().toString()),
-                                                                                arrayItemData[index][0],
-                                                                                "Sample rate differs or variable unavailable in target"});
+                                                notCopiedList.add(new Object[] { nameOnly,
+                                                        CcddUtilities
+                                                                .highlightDataType(subNode.getUserObject().toString()),
+                                                        arrayItemData[index][0],
+                                                        "Sample rate differs or variable unavailable in target" });
                                             }
                                         }
 
                                         // Step through the list of variable nodes to be removed
-                                        for (ToolTipTreeNode removeNode : removedNodes)
-                                        {
+                                        for (ToolTipTreeNode removeNode : removedNodes) {
                                             // Remove the variable node from the tree, and its
                                             // ancestor nodes (up to the link level) if these have
                                             // no siblings
@@ -941,17 +828,15 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                                         // Insert the new link into the link tree
                                         ToolTipTreeNode targetNode = targetTree.addInformationNode(nameOnly,
-                                                                                                   linkInfo.getDescription());
+                                                linkInfo.getDescription());
 
                                         // Copy the link members from the link being copied to the
                                         // copy in the target data stream
                                         targetTree.copySubTree(newLinkNode, targetNode);
 
                                         // Create the new link in the target data stream
-                                        targetTree.addLinkInformation(rateInfo.getRateName(),
-                                                                      linkInfo.getName(),
-                                                                      linkInfo.getSampleRate(),
-                                                                      linkInfo.getDescription());
+                                        targetTree.addLinkInformation(rateInfo.getRateName(), linkInfo.getName(),
+                                                linkInfo.getSampleRate(), linkInfo.getDescription());
 
                                         // Update the link tree node names in the target stream
                                         // (e.g., add the rate/size information)
@@ -959,29 +844,24 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
 
                                         // Update the target stream's variable tree to gray out any
                                         // variables now assigned due to the new link
-                                        linkMgr.getVariableTree().setExcludedVariables(targetTree.getLinkVariables(null));
+                                        linkMgr.getVariableTree()
+                                                .setExcludedVariables(targetTree.getLinkVariables(null));
 
                                         // Update the link dialog's change indicator
                                         updateChangeIndicator(index);
                                     }
                                     // The stream does not support the rate of the copied link
-                                    else
-                                    {
+                                    else {
                                         // Add the invalid link and data stream to the list
-                                        notCopiedList.add(new Object[] {nameOnly,
-                                                                        "",
-                                                                        arrayItemData[index][0],
-                                                                        "Sample rate unsupported in target"});
+                                        notCopiedList.add(new Object[] { nameOnly, "", arrayItemData[index][0],
+                                                "Sample rate unsupported in target" });
                                     }
                                 }
                                 // The data stream already contains a link with this name
-                                else
-                                {
+                                else {
                                     // Add the invalid link and data stream to
-                                    notCopiedList.add(new Object[] {nameOnly,
-                                                                    "",
-                                                                    arrayItemData[index][0],
-                                                                    "Link name already exists in target"});
+                                    notCopiedList.add(new Object[] { nameOnly, "", arrayItemData[index][0],
+                                            "Link name already exists in target" });
                                 }
                             }
                         }
@@ -990,14 +870,12 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     }
 
                     // Check if any link or link member failed to copy
-                    if (!notCopiedList.isEmpty())
-                    {
+                    if (!notCopiedList.isEmpty()) {
                         // Create a panel for the link copy failure dialog
                         JPanel notCopyPnl = new JPanel(new GridBagLayout());
 
                         // Create the list label and add it to the dialog
-                        JLabel notCopyLbl = new JLabel("Following link(s) and/or link "
-                                                       + "member(s) were not copied:");
+                        JLabel notCopyLbl = new JLabel("Following link(s) and/or link " + "member(s) were not copied:");
                         notCopyLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
                         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
@@ -1005,58 +883,47 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                         notCopyPnl.add(notCopyLbl, gbc);
 
                         // Create the table to display the links & members not copied
-                        CcddJTableHandler notCopiedTable = new CcddJTableHandler()
-                        {
+                        CcddJTableHandler notCopiedTable = new CcddJTableHandler() {
                             /**********************************************************************
                              * Allow multiple line display in the specified columns
                              *********************************************************************/
                             @Override
-                            protected boolean isColumnMultiLine(int column)
-                            {
+                            protected boolean isColumnMultiLine(int column) {
                                 return column == LinkCopyErrorColumnInfo.MEMBER.ordinal()
-                                       || column == LinkCopyErrorColumnInfo.CAUSE.ordinal();
+                                        || column == LinkCopyErrorColumnInfo.CAUSE.ordinal();
                             }
 
                             /**************************************************************************************
                              * Allow HTML-formatted text in the specified column(s)
                              *************************************************************************************/
                             @Override
-                            protected boolean isColumnHTML(int column)
-                            {
+                            protected boolean isColumnHTML(int column) {
                                 return column == LinkCopyErrorColumnInfo.MEMBER.ordinal();
                             }
 
                             /**********************************************************************
-                             * Load the link & members not copied data into the table and format
-                             * the table cells
+                             * Load the link & members not copied data into the table and format the table
+                             * cells
                              *********************************************************************/
                             @Override
-                            protected void loadAndFormatData()
-                            {
+                            protected void loadAndFormatData() {
                                 // Place the data into the table model along with the column names,
                                 // set up the editors and renderers for the table cells, set up the
                                 // table grid lines, and calculate the minimum width required to
                                 // display the table information
                                 setUpdatableCharacteristics(notCopiedList.toArray(new Object[0][0]),
-                                                            LinkCopyErrorColumnInfo.getColumnNames(),
-                                                            null,
-                                                            LinkCopyErrorColumnInfo.getToolTips(),
-                                                            true,
-                                                            true,
-                                                            true);
+                                        LinkCopyErrorColumnInfo.getColumnNames(), null,
+                                        LinkCopyErrorColumnInfo.getToolTips(), true, true, true);
                             }
 
                             /**********************************************************************
-                             * Override the table layout so that extra width is apportioned
-                             * unequally between the columns when the table is resized
+                             * Override the table layout so that extra width is apportioned unequally
+                             * between the columns when the table is resized
                              *********************************************************************/
                             @Override
-                            public void doLayout()
-                            {
+                            public void doLayout() {
                                 // Get a reference to the column being resized
-                                if (getTableHeader() != null
-                                    && getTableHeader().getResizingColumn() == null)
-                                {
+                                if (getTableHeader() != null && getTableHeader().getResizingColumn() == null) {
                                     // Get a reference to the event table's column model to shorten
                                     // subsequent calls
                                     TableColumnModel tcm = getColumnModel();
@@ -1073,24 +940,18 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                     // Set the columns' widths to its current width plus a
                                     // percentage of the the extra width added to the dialog due to
                                     // the resize
-                                    linkCol.setPreferredWidth(linkCol.getPreferredWidth()
-                                                              + (int) (delta * 0.125));
+                                    linkCol.setPreferredWidth(linkCol.getPreferredWidth() + (int) (delta * 0.125));
                                     linkCol.setWidth(linkCol.getPreferredWidth());
-                                    memCol.setPreferredWidth(memCol.getPreferredWidth()
-                                                             + (int) (delta * 0.375));
+                                    memCol.setPreferredWidth(memCol.getPreferredWidth() + (int) (delta * 0.375));
                                     memCol.setWidth(memCol.getPreferredWidth());
-                                    strmCol.setPreferredWidth(strmCol.getPreferredWidth()
-                                                              + (int) (delta * 0.125));
+                                    strmCol.setPreferredWidth(strmCol.getPreferredWidth() + (int) (delta * 0.125));
                                     strmCol.setWidth(strmCol.getPreferredWidth());
-                                    errCol.setPreferredWidth(errCol.getPreferredWidth()
-                                                             + delta
-                                                             - (int) (delta * 0.125) * 2
-                                                             - (int) (delta * 0.375));
+                                    errCol.setPreferredWidth(errCol.getPreferredWidth() + delta
+                                            - (int) (delta * 0.125) * 2 - (int) (delta * 0.375));
                                     errCol.setWidth(errCol.getPreferredWidth());
                                 }
                                 // Table header or resize column not available
-                                else
-                                {
+                                else {
                                     super.doLayout();
                                 }
                             }
@@ -1100,16 +961,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                         JScrollPane scrollPane = new JScrollPane(notCopiedTable);
 
                         // Set up the link copy error table parameters
-                        notCopiedTable.setFixedCharacteristics(scrollPane,
-                                                               false,
-                                                               ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                                               TableSelectionMode.SELECT_BY_CELL,
-                                                               true,
-                                                               ModifiableColorInfo.TABLE_BACK.getColor(),
-                                                               false,
-                                                               true,
-                                                               ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
-                                                               true);
+                        notCopiedTable.setFixedCharacteristics(scrollPane, false,
+                                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION, TableSelectionMode.SELECT_BY_CELL, true,
+                                ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
+                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
 
                         // Define the panel to contain the table
                         JPanel resultsTblPnl = new JPanel();
@@ -1126,11 +981,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                         notCopyPnl.add(resultsTblPnl, gbc);
 
                         // Inform the user that the link(s) can't be copied for the reason provided
-                        new CcddDialogHandler().showOptionsDialog(CcddLinkManagerDialog.this,
-                                                                  notCopyPnl,
-                                                                  "Link Copy Failure",
-                                                                  DialogOption.PRINT_OPTION,
-                                                                  true);
+                        new CcddDialogHandler().showOptionsDialog(CcddLinkManagerDialog.this, notCopyPnl,
+                                "Link Copy Failure", DialogOption.PRINT_OPTION, true);
                     }
                 }
             }
@@ -1140,66 +992,47 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Store the link definitions in the project database
      *********************************************************************************************/
-    private void storeLinks()
-    {
+    private void storeLinks() {
         // Store for current link definitions and invalid link member variables
         List<String[]> currentLinks = new ArrayList<String[]>();
         List<String> invalidatedLinkVars = new ArrayList<String>();
 
         // Step through each data stream
-        for (CcddLinkManagerHandler linkHandler : linkMgrs)
-        {
-            // Add the links for this stream to the list containing the links for all data streams
+        for (CcddLinkManagerHandler linkHandler : linkMgrs) {
+            // Add the links for this stream to the list containing the links for all data
+            // streams
             currentLinks.addAll(linkHandler.getCurrentLinks());
 
-            // Update the list of link variables that are invalid due to the addition of one or
+            // Update the list of link variables that are invalid due to the addition of one
+            // or
             // more variables to a link
             invalidatedLinkVars.addAll(linkHandler.getInvalidatedLinkMembers());
         }
 
         // Store the link list into the database
-        dbTable.storeInformationTableInBackground(InternalTable.LINKS,
-                                                  currentLinks,
-                                                  null,
-                                                  null,
-                                                  invalidatedLinkVars,
-                                                  null,
-                                                  CcddLinkManagerDialog.this);
+        dbTable.storeInformationTableInBackground(InternalTable.LINKS, currentLinks, null, null, invalidatedLinkVars,
+                null, CcddLinkManagerDialog.this);
     }
 
     /**********************************************************************************************
      * Add a link name field to the dialog
      *
-     * @param fieldText
-     *            text to display beside the input field
+     * @param fieldText   text to display beside the input field
      *
-     * @param currentName
-     *            name of the selected link
+     * @param currentName name of the selected link
      *
-     * @param dialogPnl
-     *            panel to which to add the input field
+     * @param dialogPnl   panel to which to add the input field
      *
      * @return The GridBagConstraints used to arrange the dialog
      *********************************************************************************************/
-    private GridBagConstraints addLinkNameField(String fieldText,
-                                                String currentName,
-                                                JPanel dialogPnl)
-    {
+    private GridBagConstraints addLinkNameField(String fieldText, String currentName, JPanel dialogPnl) {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   0,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.NONE,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                0, 0);
 
         // Create the link name label and add it to the dialog panel
         JLabel label = new JLabel(fieldText);
@@ -1224,74 +1057,60 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Verify that the contents of the link name field is valid. For a link copy operation also
-     * verify that a data stream is selected
+     * Verify that the contents of the link name field is valid. For a link copy
+     * operation also verify that a data stream is selected
      *
-     * @param isCopy
-     *            true to if this verification is for a link copy operation
+     * @param isCopy true to if this verification is for a link copy operation
      *
-     * @return true if the link name is valid, and, for a copy operation, that a data stream is
-     *         selected; false otherwise
+     * @return true if the link name is valid, and, for a copy operation, that a
+     *         data stream is selected; false otherwise
      *********************************************************************************************/
-    private boolean verifyLinkName(boolean isCopy)
-    {
+    private boolean verifyLinkName(boolean isCopy) {
         boolean isValid = true;
 
-        try
-        {
+        try {
             // Check if this is not a copy operation
-            if (!isCopy)
-            {
-                // Get the link name, remove leading & trailing white space characters, and store
+            if (!isCopy) {
+                // Get the link name, remove leading & trailing white space characters, and
+                // store
                 // the 'cleaned' name back in the field
                 String linkName = linkNameFld.getText().trim();
                 linkNameFld.setText(linkName);
 
                 // Check if the link name is blank
-                if (linkName.isEmpty())
-                {
+                if (linkName.isEmpty()) {
                     // Inform the user that the link name is invalid
                     throw new CCDDException("Link name must be entered");
                 }
 
                 // Check if link name already is in use; skip this when copying a link
-                if (activeHandler.getLinkTree().getRowCount() != 0)
-                {
+                if (activeHandler.getLinkTree().getRowCount() != 0) {
                     // Get the updated link definitions
                     List<String[]> currentLinks = activeHandler.getLinkTree().createDefinitionsFromTree();
 
                     // Step through the currently defined links
-                    for (String[] link : currentLinks)
-                    {
+                    for (String[] link : currentLinks) {
                         // Check if the new name matches an existing one
-                        if (linkName.equals(link[1]))
-                        {
+                        if (linkName.equals(link[1])) {
                             throw new CCDDException("Link name is already in use");
                         }
                     }
                 }
             }
             // This is a copy operation
-            else
-            {
+            else {
                 // Create a list of the selected data streams
                 selectedStreams = Arrays.asList(getCheckBoxSelected());
 
                 // Check if no data stream is selected during a copy operation
-                if (selectedStreams.isEmpty())
-                {
+                if (selectedStreams.isEmpty()) {
                     throw new CCDDException("At least one data stream must be selected");
                 }
             }
-        }
-        catch (CCDDException ce)
-        {
+        } catch (CCDDException ce) {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
-                                                      "<html><b>" + ce.getMessage(),
-                                                      "Missing/Invalid Input",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this, "<html><b>" + ce.getMessage(),
+                    "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
 
             // Set the flag to indicate the dialog input is invalid
             isValid = false;
@@ -1301,21 +1120,20 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Check if the links for any stream differ from those last committed to the database
+     * Check if the links for any stream differ from those last committed to the
+     * database
      *
      * @return true if any of the streams' link definitions have changed
      *********************************************************************************************/
-    private boolean isLinksChanged()
-    {
+    private boolean isLinksChanged() {
         boolean isChanged = false;
 
         // Step through each stream
-        for (CcddLinkManagerHandler linkHandler : linkMgrs)
-        {
+        for (CcddLinkManagerHandler linkHandler : linkMgrs) {
             // Check if the links changed for this stream
-            if (linkHandler.isLinksChanged())
-            {
-                // Set the flag indicating a change exists, but keep searching so that the current
+            if (linkHandler.isLinksChanged()) {
+                // Set the flag indicating a change exists, but keep searching so that the
+                // current
                 // links are updated for all data streams
                 isChanged = true;
             }
@@ -1327,37 +1145,28 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the change indicator for the active link manager
      *********************************************************************************************/
-    protected void updateChangeIndicator()
-    {
+    protected void updateChangeIndicator() {
         updateChangeIndicator(-1);
     }
 
     /**********************************************************************************************
      * Update the change indicator for the specified link manager
      *
-     * @param index
-     *            index for the tab containing the data stream to update; an invalid tab number
-     *            causes the active tab to be selected
+     * @param index index for the tab containing the data stream to update; an
+     *              invalid tab number causes the active tab to be selected
      *********************************************************************************************/
-    private void updateChangeIndicator(int index)
-    {
+    private void updateChangeIndicator(int index) {
         // Check if the specified index is invalid
-        if (index < 0 || index >= tabbedPane.getTabCount())
-        {
+        if (index < 0 || index >= tabbedPane.getTabCount()) {
             // Get the index of the currently displayed tab
             index = tabbedPane.getSelectedIndex();
         }
 
         // Check that the tab index is valid
-        if (index != -1)
-        {
+        if (index != -1) {
             // Replace the tab name, appending the change indicator if changes exist
-            tabbedPane.setTitleAt(index,
-                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR,
-                                                                          "")
-                                         + (linkMgrs.get(index).isLinksChanged()
-                                                                                 ? CHANGE_INDICATOR
-                                                                                 : ""));
+            tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, "")
+                    + (linkMgrs.get(index).isLinksChanged() ? CHANGE_INDICATOR : ""));
         }
     }
 }

@@ -32,19 +32,16 @@ import CCDD.CcddConstants.TableSelectionMode;
  * CFS Command and Data Dictionary show duplicate message IDs dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
-{
+public class CcddDuplicateMsgIDDialog extends CcddDialogHandler {
     // List of message IDs that are used by multiple owners, and their owner
     private ArrayListMultiple duplicates;
 
     /**********************************************************************************************
      * Show duplicate message IDs dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddDuplicateMsgIDDialog(CcddMain ccddMain)
-    {
+    CcddDuplicateMsgIDDialog(CcddMain ccddMain) {
         // Create the message ID dialog
         initialize(ccddMain.getMessageIDHandler(), ccddMain.getMainFrame());
     }
@@ -52,14 +49,11 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Display the duplicate message ID dialog
      *
-     * @param messageHandler
-     *            message ID handler reference
+     * @param messageHandler message ID handler reference
      *
-     * @param parent
-     *            GUI component over which to center any error dialog
+     * @param parent         GUI component over which to center any error dialog
      *********************************************************************************************/
-    private void initialize(CcddMessageIDHandler messageHandler, Component parent)
-    {
+    private void initialize(CcddMessageIDHandler messageHandler, Component parent) {
         // Get the list of message IDs in use - this creates the duplicates list
         messageHandler.getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
 
@@ -71,34 +65,24 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         duplicates.sort(ArrayListMultipleSortType.HEXADECIMAL);
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                   0,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(), 0,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                0, 0);
 
         // Create panels to hold the components of the dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
         dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
         // Create the table to display the duplicate message IDs
-        CcddJTableHandler duplicatesTable = new CcddJTableHandler()
-        {
+        CcddJTableHandler duplicatesTable = new CcddJTableHandler() {
             /**************************************************************************************
              * Allow multiple line display in the specified column(s)
              *************************************************************************************/
             @Override
-            protected boolean isColumnMultiLine(int column)
-            {
+            protected boolean isColumnMultiLine(int column) {
                 return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
             }
 
@@ -106,8 +90,7 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
              * Allow HTML-formatted text in the specified column(s)
              *************************************************************************************/
             @Override
-            protected boolean isColumnHTML(int column)
-            {
+            protected boolean isColumnHTML(int column) {
                 return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
             }
 
@@ -115,18 +98,13 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
              * Load the duplicate message ID data into the table and format the table cells
              *************************************************************************************/
             @Override
-            protected void loadAndFormatData()
-            {
+            protected void loadAndFormatData() {
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(duplicates.toArray(new String[0][0]),
-                                            DuplicateMsgIDColumnInfo.getColumnNames(),
-                                            "1:0",
-                                            DuplicateMsgIDColumnInfo.getToolTips(),
-                                            true,
-                                            true,
-                                            true);
+                        DuplicateMsgIDColumnInfo.getColumnNames(), "1:0", DuplicateMsgIDColumnInfo.getToolTips(), true,
+                        true, true);
             }
         };
 
@@ -134,16 +112,9 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         JScrollPane scrollPane = new JScrollPane(duplicatesTable);
 
         // Set up the field table parameters
-        duplicatesTable.setFixedCharacteristics(scrollPane,
-                                                false,
-                                                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                                TableSelectionMode.SELECT_BY_CELL,
-                                                true,
-                                                ModifiableColorInfo.TABLE_BACK.getColor(),
-                                                false,
-                                                true,
-                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
-                                                true);
+        duplicatesTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                TableSelectionMode.SELECT_BY_CELL, true, ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
+                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
 
         // Define the panel to contain the table
         JPanel resultsTblPnl = new JPanel();
@@ -159,10 +130,6 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(resultsTblPnl, gbc);
 
-        showOptionsDialog(parent,
-                          dialogPnl,
-                          "Duplicate Message IDs",
-                          DialogOption.PRINT_OPTION,
-                          true);
+        showOptionsDialog(parent, dialogPnl, "Duplicate Message IDs", DialogOption.PRINT_OPTION, true);
     }
 }

@@ -45,8 +45,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * CFS Command and Data Dictionary project data field manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddProjectFieldDialog extends CcddDialogHandler
-{
+public class CcddProjectFieldDialog extends CcddDialogHandler {
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbControlHandler dbControl;
@@ -59,11 +58,13 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     private JButton btnManageFields;
     private JButton btnClearValues;
 
-    // Storage for the project description and data fields as they currently exist in the database
+    // Storage for the project description and data fields as they currently exist
+    // in the database
     private String committedDescription;
     private List<FieldInformation> committedFieldInformation;
 
-    // Flag that indicates if the project data field manager dialog is undergoing initialization
+    // Flag that indicates if the project data field manager dialog is undergoing
+    // initialization
     private boolean isInitializing;
 
     // Dialog title
@@ -72,11 +73,9 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Project data field manager dialog class constructor
      *
-     * @param ccddMain
-     *            main class
+     * @param ccddMain main class
      *********************************************************************************************/
-    CcddProjectFieldDialog(CcddMain ccddMain)
-    {
+    CcddProjectFieldDialog(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
         dbControl = ccddMain.getDbControlHandler();
         fieldHandler = ccddMain.getFieldHandler();
@@ -86,34 +85,31 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Perform the steps needed following execution of a project description or data field
-     * modification
+     * Perform the steps needed following execution of a project description or data
+     * field modification
      *
-     * @param commandError
-     *            false if the database commands successfully completed; true if an error occurred
-     *            and the changes were not made
+     * @param commandError false if the database commands successfully completed;
+     *                     true if an error occurred and the changes were not made
      *********************************************************************************************/
-    protected void doProjectFieldModificationComplete(boolean commandError)
-    {
+    protected void doProjectFieldModificationComplete(boolean commandError) {
         // Check if no error occurred
-        if (!commandError)
-        {
+        if (!commandError) {
             // Update the project field information in the field handler
             fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldProjectName(),
-                                                        fieldPnlHndlr.getPanelFieldInformation());
+                    fieldPnlHndlr.getPanelFieldInformation());
 
             // Check if the data field editor table dialog is open
-            if (ccddMain.getFieldTableEditor() != null
-                && ccddMain.getFieldTableEditor().isShowing())
-            {
+            if (ccddMain.getFieldTableEditor() != null && ccddMain.getFieldTableEditor().isShowing()) {
                 // Update the data field editor table
                 ccddMain.getFieldTableEditor().getTable().loadAndFormatData();
             }
 
-            // Store the updated description and fields for comparison with a subsequent store
+            // Store the updated description and fields for comparison with a subsequent
+            // store
             // operation
             committedDescription = fieldPnlHndlr.getDescription();
-            committedFieldInformation = CcddFieldHandler.getFieldInformationCopy(fieldPnlHndlr.getPanelFieldInformation());
+            committedFieldInformation = CcddFieldHandler
+                    .getFieldInformationCopy(fieldPnlHndlr.getPanelFieldInformation());
 
             // Update the project field dialog's change indicator
             updateChangeIndicator();
@@ -124,16 +120,15 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the project data field manager dialog. This is executed in a separate thread since it
-     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
-     * allowed to continue to update. The GUI menu commands, however, are disabled until the
-     * telemetry scheduler initialization completes execution
+     * Create the project data field manager dialog. This is executed in a separate
+     * thread since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu
+     * commands, however, are disabled until the telemetry scheduler initialization
+     * completes execution
      *********************************************************************************************/
-    private void initialize()
-    {
+    private void initialize() {
         // Build the project data field manager dialog in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
-        {
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             // Create panels to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
@@ -143,23 +138,13 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
              * Build the project data field manager dialog
              *************************************************************************************/
             @Override
-            protected void execute()
-            {
+            protected void execute() {
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0,
-                                                                0,
-                                                                1,
-                                                                1,
-                                                                1.0,
-                                                                0.0,
-                                                                GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                           0,
-                                                                           0),
-                                                                0,
-                                                                0);
+                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                        GridBagConstraints.BOTH,
+                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0, 0),
+                        0, 0);
 
                 dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
@@ -168,18 +153,15 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 isInitializing = true;
 
                 // Add an undo edit manager
-                undoManager = new CcddUndoManager()
-                {
+                undoManager = new CcddUndoManager() {
                     /******************************************************************************
                      * Update the change indicator if the editor panel has changed
                      *****************************************************************************/
                     @Override
-                    protected void ownerHasChanged()
-                    {
+                    protected void ownerHasChanged() {
                         // Check if the project data field manager dialog is not being initialized
                         // - changes during initialization are ignored
-                        if (!isInitializing)
-                        {
+                        if (!isInitializing) {
                             updateChangeIndicator();
                         }
                     }
@@ -191,14 +173,12 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 undoHandler.setAllowUndo(false);
 
                 // Create the field panel for the project description and data fields
-                fieldPnlHndlr = new CcddInputFieldPanelHandler()
-                {
+                fieldPnlHndlr = new CcddInputFieldPanelHandler() {
                     /******************************************************************************
                      * Update the project data field manager change indicator
                      *****************************************************************************/
                     @Override
-                    protected void updateOwnerChangeIndicator()
-                    {
+                    protected void updateOwnerChangeIndicator() {
                         updateChangeIndicator();
                     }
                 };
@@ -206,7 +186,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 // Get the project description
                 committedDescription = dbControl.getDatabaseDescription(dbControl.getDatabaseName());
 
-                // Set the undo/redo manager and handler for the description and data field values
+                // Set the undo/redo manager and handler for the description and data field
+                // values
                 fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
 
                 // Set the data field handler reference in the undo handler so that data field
@@ -214,19 +195,15 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 undoHandler.setFieldHandler(fieldHandler);
 
                 // Get the field information for the project data fields
-                committedFieldInformation = fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldProjectName());
+                committedFieldInformation = fieldHandler
+                        .getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldProjectName());
 
                 // Create the input field panel
-                fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain,
-                                                          CcddProjectFieldDialog.this,
-                                                          null,
-                                                          CcddFieldHandler.getFieldProjectName(),
-                                                          committedDescription,
-                                                          committedFieldInformation);
+                fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain, CcddProjectFieldDialog.this, null,
+                        CcddFieldHandler.getFieldProjectName(), committedDescription, committedFieldInformation);
 
                 // Enable the project description only if the user has administrative access
-                fieldPnlHndlr.enableDescriptionField(dbControl.isAccessAdmin(),
-                                                     committedDescription);
+                fieldPnlHndlr.enableDescriptionField(dbControl.isAccessAdmin(), committedDescription);
 
                 // Set the modal undo manager in the keyboard handler while the project data
                 // field manager is active
@@ -250,27 +227,20 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 undoHandler.setAllowUndo(true);
 
                 // Manage fields button
-                btnManageFields = CcddButtonPanelHandler.createButton("Fields",
-                                                                      FIELD_ICON,
-                                                                      KeyEvent.VK_F,
-                                                                      "Manage the data fields");
+                btnManageFields = CcddButtonPanelHandler.createButton("Fields", FIELD_ICON, KeyEvent.VK_F,
+                        "Manage the data fields");
 
                 // Add a listener for the Manage Fields command
-                btnManageFields.addActionListener(new ActionListener()
-                {
+                btnManageFields.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Manage the data fields
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Create the field editor dialog showing the fields for this project
-                        new CcddFieldEditorDialog(ccddMain,
-                                                  fieldPnlHndlr,
-                                                  CcddFieldHandler.getFieldProjectName(),
-                                                  fieldPnlHndlr.getPanelFieldInformation(),
-                                                  false,
-                                                  ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize());
+                        new CcddFieldEditorDialog(ccddMain, fieldPnlHndlr, CcddFieldHandler.getFieldProjectName(),
+                                fieldPnlHndlr.getPanelFieldInformation(), false,
+                                ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize());
 
                         // Set the undo manager in the keyboard handler back to the project data
                         // field manager
@@ -283,43 +253,35 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 });
 
                 // Clear fields button
-                btnClearValues = CcddButtonPanelHandler.createButton("Clear",
-                                                                     CLEAR_ICON,
-                                                                     KeyEvent.VK_C,
-                                                                     "Clear the data fields");
+                btnClearValues = CcddButtonPanelHandler.createButton("Clear", CLEAR_ICON, KeyEvent.VK_C,
+                        "Clear the data fields");
 
                 // Enable/disable the Clear values button depending on if any data fields remain
                 btnClearValues.setEnabled(!fieldPnlHndlr.getPanelFieldInformation().isEmpty());
 
                 // Add a listener for the Clear values command
-                btnClearValues.addActionListener(new ActionListener()
-                {
+                btnClearValues.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Clear the table data field values
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Clear all of the data field values for the project
                         fieldPnlHndlr.clearFieldValues();
                     }
                 });
 
                 // Undo button
-                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
-                                                                      UNDO_ICON,
-                                                                      KeyEvent.VK_Z,
-                                                                      "Undo the last edit action");
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z,
+                        "Undo the last edit action");
 
                 // Create a listener for the Undo command
-                ActionListener undoAction = new ActionListener()
-                {
+                ActionListener undoAction = new ActionListener() {
                     /******************************************************************************
                      * Undo the last edit
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         undoManager.undo();
 
                         // Update the data field background colors
@@ -331,20 +293,16 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 btnUndo.addActionListener(undoAction);
 
                 // Redo button
-                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
-                                                                      REDO_ICON,
-                                                                      KeyEvent.VK_Y,
-                                                                      "Redo the last undone edit action");
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+                        "Redo the last undone edit action");
 
                 // Create a listener for the Redo command
-                ActionListener redoAction = new ActionListener()
-                {
+                ActionListener redoAction = new ActionListener() {
                     /******************************************************************************
                      * Redo the last cell that was undone
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         undoManager.redo();
 
                         // Update the data field background colors
@@ -356,64 +314,47 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 btnRedo.addActionListener(redoAction);
 
                 // Store project data fields button
-                JButton btnStoreFields = CcddButtonPanelHandler.createButton("Store",
-                                                                             STORE_ICON,
-                                                                             KeyEvent.VK_S,
-                                                                             "Store project data field updates in the database");
+                JButton btnStoreFields = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                        "Store project data field updates in the database");
                 btnStoreFields.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
-                btnStoreFields.addActionListener(new ActionListener()
-                {
+                btnStoreFields.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Store the project description and data fields in the database
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if the project description and/or data fields have changed since
                         // the last database commit, that the user confirms storing the project
                         // fields, and, if the data field table editor is open and has changes that
                         // the user confirms discarding them
-                        if (isFieldsChanged()
-                            && new CcddDialogHandler().showMessageDialog(CcddProjectFieldDialog.this,
-                                                                         "<html><b>Store project data fields?",
-                                                                         "Store Project Fields",
-                                                                         JOptionPane.QUESTION_MESSAGE,
-                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                        {
+                        if (isFieldsChanged() && new CcddDialogHandler().showMessageDialog(CcddProjectFieldDialog.this,
+                                "<html><b>Store project data fields?", "Store Project Fields",
+                                JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
                             // Store the project description and data fields in the database
                             ccddMain.getDbTableCommandHandler().modifyProjectFields(fieldPnlHndlr.getDescription(),
-                                                                                    fieldPnlHndlr.getPanelFieldInformation(),
-                                                                                    CcddProjectFieldDialog.this);
+                                    fieldPnlHndlr.getPanelFieldInformation(), CcddProjectFieldDialog.this);
                         }
                     }
                 });
 
                 // Close button
-                btnClose = CcddButtonPanelHandler.createButton("Close",
-                                                               CLOSE_ICON,
-                                                               KeyEvent.VK_C,
-                                                               "Close the group manager");
+                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                        "Close the group manager");
 
                 // Add a listener for the Close button
-                btnClose.addActionListener(new ActionListener()
-                {
+                btnClose.addActionListener(new ActionListener() {
                     /******************************************************************************
                      * Close the group selection dialog
                      *****************************************************************************/
                     @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
+                    public void actionPerformed(ActionEvent ae) {
                         // Check if there are no changes to the project data fields or if the user
                         // elects to discard the changes
-                        if (!isFieldsChanged()
-                            || new CcddDialogHandler().showMessageDialog(CcddProjectFieldDialog.this,
-                                                                         "<html><b>Discard changes?",
-                                                                         "Discard Changes",
-                                                                         JOptionPane.QUESTION_MESSAGE,
-                                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                        {
+                        if (!isFieldsChanged() || new CcddDialogHandler().showMessageDialog(CcddProjectFieldDialog.this,
+                                "<html><b>Discard changes?", "Discard Changes", JOptionPane.QUESTION_MESSAGE,
+                                DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
                             // Close the dialog
                             closeDialog();
 
@@ -423,7 +364,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to
+                // bottom)
                 buttonPnl.add(btnManageFields);
                 buttonPnl.add(btnUndo);
                 buttonPnl.add(btnStoreFields);
@@ -435,30 +377,27 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 setButtonRows(2);
 
                 // Add a listener for changes in the panel's size
-                CcddProjectFieldDialog.this.addComponentListener(new ComponentAdapter()
-                {
+                CcddProjectFieldDialog.this.addComponentListener(new ComponentAdapter() {
                     /******************************************************************************
                      * Handle resizing of the panel
                      *****************************************************************************/
                     @Override
-                    public void componentResized(ComponentEvent ce)
-                    {
+                    public void componentResized(ComponentEvent ce) {
                         // Create a runnable object to be executed
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
+                        SwingUtilities.invokeLater(new Runnable() {
                             /**********************************************************************
                              * Since the size returned by get___Size() can lag the actual size, use
                              * invokeLater to let the sizes "catch up"
                              *********************************************************************/
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 // Update the minimum size of the owner so that all of the fields
                                 // remain visible
                                 CcddProjectFieldDialog.this.setPreferredSize(null);
-                                CcddProjectFieldDialog.this.setMinimumSize(new Dimension(Math.max(CcddProjectFieldDialog.this.getMinimumWidth(),
-                                                                                                  fieldPnlHndlr.getMaxFieldWidth()),
-                                                                                         CcddProjectFieldDialog.this.getPreferredSize().height));
+                                CcddProjectFieldDialog.this.setMinimumSize(new Dimension(
+                                        Math.max(CcddProjectFieldDialog.this.getMinimumWidth(),
+                                                fieldPnlHndlr.getMaxFieldWidth()),
+                                        CcddProjectFieldDialog.this.getPreferredSize().height));
                             }
                         });
                     }
@@ -472,45 +411,33 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
              * Project data field manager dialog creation complete
              *************************************************************************************/
             @Override
-            protected void complete()
-            {
+            protected void complete() {
                 // Display the project data field manager dialog
-                showOptionsDialog(ccddMain.getMainFrame(),
-                                  dialogPnl,
-                                  buttonPnl,
-                                  btnClose,
-                                  DIALOG_TITLE,
-                                  true);
+                showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnClose, DIALOG_TITLE, true);
             }
         });
     }
 
     /**********************************************************************************************
-     * Check if the project description or data fields differ from those last committed to the
-     * database
+     * Check if the project description or data fields differ from those last
+     * committed to the database
      *
-     * @return true if the project description or data field definitions have changed
+     * @return true if the project description or data field definitions have
+     *         changed
      *********************************************************************************************/
-    private boolean isFieldsChanged()
-    {
+    private boolean isFieldsChanged() {
         // Update the field information with the current text field values
         fieldPnlHndlr.updateFieldValueFromComponent(fieldPnlHndlr.getPanelFieldInformation());
 
-        return fieldHandler.isFieldChanged(fieldPnlHndlr.getPanelFieldInformation(),
-                                           committedFieldInformation,
-                                           false)
-               || !committedDescription.equals(fieldPnlHndlr.getDescription());
+        return fieldHandler.isFieldChanged(fieldPnlHndlr.getPanelFieldInformation(), committedFieldInformation, false)
+                || !committedDescription.equals(fieldPnlHndlr.getDescription());
     }
 
     /**********************************************************************************************
      * Update the change indicator for the project data field manager
      *********************************************************************************************/
-    private void updateChangeIndicator()
-    {
+    private void updateChangeIndicator() {
         // Replace the dialog title, appending the change indicator if changes exist
-        setTitle(DIALOG_TITLE
-                 + (isFieldsChanged()
-                                      ? CHANGE_INDICATOR
-                                      : ""));
+        setTitle(DIALOG_TITLE + (isFieldsChanged() ? CHANGE_INDICATOR : ""));
     }
 }

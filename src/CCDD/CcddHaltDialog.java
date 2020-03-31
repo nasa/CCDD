@@ -29,8 +29,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * Process cancellation dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddHaltDialog extends CcddDialogHandler
-{
+public class CcddHaltDialog extends CcddDialogHandler {
     // Components accessed by multiple methods
     private JProgressBar progBar;
     private JLabel textLbl;
@@ -54,65 +53,45 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Process cancellation dialog class constructor
      *
-     * @param title
-     *            dialog title
+     * @param title              dialog title
      *
-     * @param label
-     *            main dialog label, describing the current operation
+     * @param label              main dialog label, describing the current operation
      *
-     * @param operation
-     *            dialog label describing the termination operation
+     * @param operation          dialog label describing the termination operation
      *
-     * @param numDivisionPerStep
-     *            number of divisions per each major step in the operation
+     * @param numDivisionPerStep number of divisions per each major step in the
+     *                           operation
      *
-     * @param numSteps
-     *            total number of steps in the operation
+     * @param numSteps           total number of steps in the operation
      *
-     * @param parent
-     *            component over which to center the dialog
+     * @param parent             component over which to center the dialog
      *********************************************************************************************/
-    CcddHaltDialog(String title,
-                   String label,
-                   String operation,
-                   int numDivisionPerStep,
-                   int numSteps,
-                   Component parent)
-    {
+    CcddHaltDialog(String title, String label, String operation, int numDivisionPerStep, int numSteps,
+            Component parent) {
         isHalted = false;
         minWidth = -1;
 
         // Check if the progress bar should be displayed in the dialog
-        if (numDivisionPerStep != 0 && numSteps != 0)
-        {
+        if (numDivisionPerStep != 0 && numSteps != 0) {
             // Create the progress bar
             progBar = new JProgressBar(0, progMaximum);
         }
 
         // Create the cancellation dialog
-        initialize(title,
-                   label,
-                   operation,
-                   numDivisionPerStep,
-                   numSteps,
-                   false,
-                   parent);
+        initialize(title, label, operation, numDivisionPerStep, numSteps, false, parent);
     }
 
     /**********************************************************************************************
      * Process cancellation dialog class constructor. Sets up a non-modal dialog
      *
-     * @param showProgressBar
-     *            true to display a progress bar in the dialog
+     * @param showProgressBar true to display a progress bar in the dialog
      *********************************************************************************************/
-    CcddHaltDialog(boolean showProgressBar)
-    {
+    CcddHaltDialog(boolean showProgressBar) {
         isHalted = false;
         minWidth = -1;
 
         // Check if the progress bar should be displayed
-        if (showProgressBar)
-        {
+        if (showProgressBar) {
             // Create the progress bar
             progBar = new JProgressBar();
             progBar.setIndeterminate(true);
@@ -122,23 +101,17 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Process cancellation dialog class constructor. No progress bar is displayed
      *
-     * @param title
-     *            dialog title
+     * @param title     dialog title
      *
-     * @param label
-     *            main dialog label, describing the current operation
+     * @param label     main dialog label, describing the current operation
      *
-     * @param operation
-     *            dialog label describing the termination operation
+     * @param operation dialog label describing the termination operation
      *
-     * @param modal
-     *            true to make the dialog modal
+     * @param modal     true to make the dialog modal
      *
-     * @param parent
-     *            parent component over which to center the dialog
+     * @param parent    parent component over which to center the dialog
      *********************************************************************************************/
-    CcddHaltDialog(String title, String label, String operation, boolean modal, Component parent)
-    {
+    CcddHaltDialog(String title, String label, String operation, boolean modal, Component parent) {
         this(title, label, operation, 0, 0, parent);
     }
 
@@ -147,8 +120,7 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @return Reference to the progress bar
      *********************************************************************************************/
-    protected JProgressBar getProgressBar()
-    {
+    protected JProgressBar getProgressBar() {
         return progBar;
     }
 
@@ -157,32 +129,27 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @return The number of divisions per each major step in the operation
      *********************************************************************************************/
-    protected int getNumDivisionPerStep()
-    {
+    protected int getNumDivisionPerStep() {
         return numDivisionPerStep;
     }
 
     /**********************************************************************************************
-     * Set the total number of items for the current step. If the number less than 1 then 1 is used
+     * Set the total number of items for the current step. If the number less than 1
+     * then 1 is used
      *
-     * @param itemsPerStep
-     *            Total number of items for the current step
+     * @param itemsPerStep Total number of items for the current step
      *********************************************************************************************/
-    protected void setItemsPerStep(int itemsPerStep)
-    {
-        this.itemsPerStep = itemsPerStep > 0
-                                             ? itemsPerStep
-                                             : 1;
+    protected void setItemsPerStep(int itemsPerStep) {
+        this.itemsPerStep = itemsPerStep > 0 ? itemsPerStep : 1;
     }
 
     /**********************************************************************************************
-     * Set the main dialog label, describing the current operation, and resize the dialog to fit
+     * Set the main dialog label, describing the current operation, and resize the
+     * dialog to fit
      *
-     * @param label
-     *            main dialog label, describing the current operation
+     * @param label main dialog label, describing the current operation
      *********************************************************************************************/
-    protected void setLabel(String label)
-    {
+    protected void setLabel(String label) {
         textLbl.setText("<html><b>" + label + "...<br><br>");
         setPreferredSize(null);
         setSize(getPreferredSize());
@@ -193,67 +160,47 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @return true if the Cancel button has been pressed
      *********************************************************************************************/
-    protected boolean isHalted()
-    {
+    protected boolean isHalted() {
         return isHalted;
     }
 
     /**********************************************************************************************
      * Create the process cancellation dialog
      *
-     * @param title
-     *            dialog title
+     * @param title              dialog title
      *
-     * @param label
-     *            main dialog label, describing the current operation
+     * @param label              main dialog label, describing the current operation
      *
-     * @param operation
-     *            dialog label describing the termination operation
+     * @param operation          dialog label describing the termination operation
      *
-     * @param numDivisionPerStep
-     *            number of divisions per each major step in the operation
+     * @param numDivisionPerStep number of divisions per each major step in the
+     *                           operation
      *
-     * @param numSteps
-     *            total number of steps in the operation
+     * @param numSteps           total number of steps in the operation
      *
-     * @param modal
-     *            false to allow the other application windows to still be operated while the
-     *            dialog is open
+     * @param modal              false to allow the other application windows to
+     *                           still be operated while the dialog is open
      *
-     * @param parent
-     *            parent component over which to center the dialog
+     * @param parent             parent component over which to center the dialog
      *
      * @return Index of the button pressed to exit the dialog
      *********************************************************************************************/
-    protected int initialize(String title,
-                             String label,
-                             String operation,
-                             int numDivisionPerStep,
-                             int numSteps,
-                             boolean modal,
-                             Component parent)
-    {
-        // Set the number of divisions within each step and use it, along with the number of items,
+    protected int initialize(String title, String label, String operation, int numDivisionPerStep, int numSteps,
+            boolean modal, Component parent) {
+        // Set the number of divisions within each step and use it, along with the
+        // number of items,
         // to calculate the total number of steps
         this.numDivisionPerStep = numDivisionPerStep;
         itemsPerStep = numDivisionPerStep;
         progMaximum = numSteps * numDivisionPerStep;
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                   0,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                        0,
-                                                        0);
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH,
+                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(), 0,
+                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                0, 0);
 
         // Create the cancellation dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -264,21 +211,16 @@ public class CcddHaltDialog extends CcddDialogHandler
         textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
         gbc.gridy++;
         dialogPnl.add(textLbl, gbc);
-        JLabel textLbl2 = new JLabel("<html><b>"
-                                     + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                   + "to terminate "
-                                                                   + operation
-                                                                   + " ***",
-                                                                   Color.RED)
-                                     + "</b><br><br>",
-                                     SwingConstants.CENTER);
+        JLabel textLbl2 = new JLabel(
+                "<html><b>" + CcddUtilities.colorHTMLText(
+                        "*** Press </i>Halt<i> " + "to terminate " + operation + " ***", Color.RED) + "</b><br><br>",
+                SwingConstants.CENTER);
         textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
         gbc.gridy++;
         dialogPnl.add(textLbl2, gbc);
 
         // Check if the progress is displayed
-        if (progBar != null)
-        {
+        if (progBar != null) {
             // Set the progress bar attributes and add it to the dialog
             progBar.setIndeterminate(false);
             progBar.setMinimum(0);
@@ -294,32 +236,23 @@ public class CcddHaltDialog extends CcddDialogHandler
         }
 
         // Display the cancellation dialog
-        return showOptionsDialog(parent,
-                                 dialogPnl,
-                                 title,
-                                 DialogOption.HALT_OPTION,
-                                 false,
-                                 modal);
+        return showOptionsDialog(parent, dialogPnl, title, DialogOption.HALT_OPTION, false, modal);
     }
 
     /**********************************************************************************************
      * Update the progress bar
      *
-     * @param progText
-     *            text to display within the progress bar; null to not change the text
+     * @param progText   text to display within the progress bar; null to not change
+     *                   the text
      *
-     * @param startValue
-     *            initial value at which to begin this sequence in the process; -1 to not change
-     *            the initial value
+     * @param startValue initial value at which to begin this sequence in the
+     *                   process; -1 to not change the initial value
      *********************************************************************************************/
-    protected void updateProgressBar(final String progText, int startValue)
-    {
+    protected void updateProgressBar(final String progText, int startValue) {
         // Check if the progress is displayed
-        if (progBar != null)
-        {
+        if (progBar != null) {
             // Check if the start value is provided
-            if (startValue != -1)
-            {
+            if (startValue != -1) {
                 // Initialize the progress counters
                 progCount = 0;
                 prevProgCount = 0;
@@ -330,18 +263,15 @@ public class CcddHaltDialog extends CcddDialogHandler
             progCount++;
 
             // Create a runnable object to be executed
-            SwingUtilities.invokeLater(new Runnable()
-            {
+            SwingUtilities.invokeLater(new Runnable() {
                 /**********************************************************************************
-                 * Since the progress bar involves a GUI update use invokeLater to execute the call
-                 * on the event dispatch thread
+                 * Since the progress bar involves a GUI update use invokeLater to execute the
+                 * call on the event dispatch thread
                  *********************************************************************************/
                 @Override
-                public void run()
-                {
+                public void run() {
                     // Check if the minimum progress bar width is set
-                    if (minWidth == -1)
-                    {
+                    if (minWidth == -1) {
                         // Set and store the minimum progress bar width
                         progBar.setMinimumSize(progBar.getSize());
                         minWidth = progBar.getSize().width;
@@ -351,18 +281,15 @@ public class CcddHaltDialog extends CcddDialogHandler
                     Graphics gCont = progBar.getGraphics();
 
                     // Check if the context is valid
-                    if (gCont != null)
-                    {
+                    if (gCont != null) {
                         // Check if the progress text is provided
-                        if (progText != null)
-                        {
+                        if (progText != null) {
                             // Update the progress text
                             progBar.setString(" " + progText + " ");
 
                             // Check if the progress bar and dialog sizes need to change to
                             // accommodate the progress bar text
-                            if (progBar.getPreferredSize().width > minWidth)
-                            {
+                            if (progBar.getPreferredSize().width > minWidth) {
                                 // Resize the progress bar and dialog
                                 setPreferredSize(null);
                                 progBar.setSize(progBar.getPreferredSize());
@@ -372,8 +299,7 @@ public class CcddHaltDialog extends CcddDialogHandler
 
                         // Step through the progress count values beginning with the last one
                         // processed
-                        for (int count = prevProgCount + 1; count <= progCount; count++)
-                        {
+                        for (int count = prevProgCount + 1; count <= progCount; count++) {
                             // Update the progress bar
                             progBar.setValue(progStart + (count * numDivisionPerStep / itemsPerStep));
                             progBar.update(gCont);
@@ -394,8 +320,7 @@ public class CcddHaltDialog extends CcddDialogHandler
      * Handle the close dialog button action
      *********************************************************************************************/
     @Override
-    protected void closeDialog(int button)
-    {
+    protected void closeDialog(int button) {
         // Set the flag to cancel verification
         isHalted = true;
 
