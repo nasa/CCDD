@@ -87,6 +87,7 @@ public class CcddCommandLineHandler {
     private String[] tablePaths;
     private boolean overwriteFile;
     private boolean singleFile;
+    private boolean deleteTargetDirectory;
     private boolean includeAllTableTypes;
     private boolean includeAllDataTypes;
     private boolean includeAllInputTypes;
@@ -1157,6 +1158,7 @@ public class CcddCommandLineHandler {
                 }
                 /* Verify correct configuration of commands */
                 if (exportFullDatabase == true) {
+                    deleteTargetDirectory = true;
                     includeAllTableTypes = true;
                     includeAllDataTypes = true;
                     includeAllInputTypes = true;
@@ -1176,11 +1178,11 @@ public class CcddCommandLineHandler {
                     /* Export the specified table(s); check if the export operation fails */
                     if (ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath, tablePaths,
                             overwriteFile, singleFile, includeBuildInformation, replaceMacros, includeAllTableTypes,
-                            includeAllDataTypes, includeAllInputTypes, includeAllMacros, includeReservedMsgIDs,
-                            includeProjectFields, includeGroups, includeAssociations, includeTlmSched, includeAppSched,
-                            includeVariablePaths, ccddMain.getVariableHandler(), separators, fileExtn, endianess,
-                            isHeaderBigEndian, version, validationStatus, classification1, classification2,
-                            classification3, scriptFileName != null, scriptFileName, null)) {
+                            deleteTargetDirectory, includeAllDataTypes, includeAllInputTypes, includeAllMacros,
+                            includeReservedMsgIDs, includeProjectFields, includeGroups, includeAssociations,
+                            includeTlmSched, includeAppSched, includeVariablePaths, ccddMain.getVariableHandler(),
+                            separators, fileExtn, endianess, isHeaderBigEndian, version, validationStatus, classification1,
+                            classification2, classification3, scriptFileName != null, scriptFileName, null)) {
                         throw new Exception();
                     }
                 }
@@ -1189,11 +1191,11 @@ public class CcddCommandLineHandler {
                     /* Export the specified table(s) in a background thread */
                     ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath, tablePaths, overwriteFile,
                             singleFile, includeBuildInformation, replaceMacros, includeAllTableTypes,
-                            includeAllDataTypes, includeAllInputTypes, includeAllMacros, includeReservedMsgIDs,
-                            includeProjectFields, includeGroups, includeAssociations, includeTlmSched, includeAppSched,
-                            includeVariablePaths, ccddMain.getVariableHandler(), separators, fileExtn, endianess,
-                            isHeaderBigEndian, version, validationStatus, classification1, classification2,
-                            classification3, scriptFileName != null, scriptFileName, ccddMain.getMainFrame());
+                            deleteTargetDirectory, includeAllDataTypes, includeAllInputTypes, includeAllMacros,
+                            includeReservedMsgIDs, includeProjectFields, includeGroups, includeAssociations,
+                            includeTlmSched, includeAppSched, includeVariablePaths, ccddMain.getVariableHandler(),
+                            separators, fileExtn, endianess, isHeaderBigEndian, version, validationStatus, classification1,
+                            classification2, classification3, scriptFileName != null, scriptFileName, ccddMain.getMainFrame());
                 }
             }
         });

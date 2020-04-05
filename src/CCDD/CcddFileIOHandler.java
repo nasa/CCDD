@@ -271,6 +271,7 @@ public class CcddFileIOHandler {
                     false, /* singleFile */
                     false, /* includeBuildInformation */
                     replaceExistingMacros, /* replaceMacros */
+                    true, /* deleteTargetDirectory */
                     true, /* includeAllTableTypes */
                     true, /* includeAllDataTypes */
                     true, /* includeAllInputTypes */
@@ -2399,15 +2400,14 @@ public class CcddFileIOHandler {
      *********************************************************************************************/
     protected boolean exportSelectedTablesInBackground(final String filePath, final String[] tablePaths,
             final boolean overwriteFile, final boolean singleFile, final boolean includeBuildInformation,
-            final boolean replaceMacros, final boolean includeAllTableTypes, final boolean includeAllDataTypes,
-            final boolean includeAllInputTypes, final boolean includeAllMacros, final boolean includeReservedMsgIDs,
-            final boolean includeProjectFields, final boolean includeGroups, final boolean includeAssociations,
-            final boolean includeTlmSched, final boolean includeAppSched, final boolean includeVariablePaths,
-            final CcddVariableHandler variableHandler, final String[] separators, final FileExtension fileExtn,
-            final EndianType endianess, final boolean isHeaderBigEndian, final String version,
-            final String validationStatus, final String classification1, final String classification2,
-            final String classification3, final boolean useExternal, final String scriptFileName,
-            final Component parent) {
+            final boolean replaceMacros, final boolean deleteTargetDirectory, final boolean includeAllTableTypes,
+            final boolean includeAllDataTypes, final boolean includeAllInputTypes, final boolean includeAllMacros,
+            final boolean includeReservedMsgIDs, final boolean includeProjectFields, final boolean includeGroups,
+            final boolean includeAssociations, final boolean includeTlmSched, final boolean includeAppSched,
+            final boolean includeVariablePaths, final CcddVariableHandler variableHandler, final String[] separators,
+            final FileExtension fileExtn, final EndianType endianess, final boolean isHeaderBigEndian,
+            final String version, final String validationStatus, final String classification1, final String classification2,
+            final String classification3, final boolean useExternal, final String scriptFileName, final Component parent) {
         // Execute the export operation in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             /**************************************************************************************
@@ -2417,11 +2417,12 @@ public class CcddFileIOHandler {
             protected void execute() {
                 // Export the selected table(s)
                 errorFlag = exportSelectedTables(filePath, tablePaths, overwriteFile, singleFile,
-                        includeBuildInformation, replaceMacros, includeAllTableTypes, includeAllDataTypes,
-                        includeAllInputTypes, includeAllMacros, includeReservedMsgIDs, includeProjectFields,
-                        includeGroups, includeAssociations, includeTlmSched, includeAppSched, includeVariablePaths,
-                        variableHandler, separators, fileExtn, endianess, isHeaderBigEndian, version, validationStatus,
-                        classification1, classification2, classification3, useExternal, scriptFileName, parent);
+                        includeBuildInformation, replaceMacros, deleteTargetDirectory, includeAllTableTypes,
+                        includeAllDataTypes, includeAllInputTypes, includeAllMacros, includeReservedMsgIDs,
+                        includeProjectFields, includeGroups, includeAssociations, includeTlmSched, includeAppSched,
+                        includeVariablePaths, variableHandler, separators, fileExtn, endianess, isHeaderBigEndian,
+                        version, validationStatus, classification1, classification2, classification3, useExternal,
+                        scriptFileName, parent);
             }
 
             /**************************************************************************************
@@ -2539,12 +2540,12 @@ public class CcddFileIOHandler {
      *********************************************************************************************/
     protected boolean exportSelectedTables(final String filePath, final String[] tablePaths,
             final boolean overwriteFile, final boolean singleFile, final boolean includeBuildInformation,
-            final boolean replaceMacros, final boolean includeAllTableTypes, final boolean includeAllDataTypes,
-            final boolean includeAllInputTypes, final boolean includeAllMacros, final boolean includeReservedMsgIDs,
-            final boolean includeProjectFields, final boolean includeGroups, final boolean includeAssociations,
-            final boolean includeTlmSched, final boolean includeAppSched, final boolean includeVariablePaths,
-            final CcddVariableHandler variableHandler, final String[] separators, final FileExtension fileExtn,
-            final EndianType endianess, final boolean isHeaderBigEndian, final String version,
+            final boolean replaceMacros,final boolean deleteTargetDirectory, final boolean includeAllTableTypes,
+            final boolean includeAllDataTypes, final boolean includeAllInputTypes, final boolean includeAllMacros,
+            final boolean includeReservedMsgIDs, final boolean includeProjectFields, final boolean includeGroups,
+            final boolean includeAssociations, final boolean includeTlmSched, final boolean includeAppSched,
+            final boolean includeVariablePaths, final CcddVariableHandler variableHandler, final String[] separators,
+            final FileExtension fileExtn, final EndianType endianess, final boolean isHeaderBigEndian, final String version,
             final String validationStatus, final String classification1, final String classification2,
             final String classification3, final boolean useExternal, final String scriptFileName,
             final Component parent) {
@@ -2649,13 +2650,15 @@ public class CcddFileIOHandler {
             FileEnvVar exportFile = new FileEnvVar(filePath);
 
             /* Delete the contents of the directory */
-            try {
-                File directory = new File(filePath);
-                FileUtils.cleanDirectory(directory);
-            } catch (IOException ioe) {
-                CcddUtilities.displayException(ioe, parent);
-                ioe.printStackTrace();
-                errorFlag = true;
+            if (deleteTargetDirectory) {
+                try {
+                    File directory = new File(filePath);
+                    FileUtils.cleanDirectory(directory);
+                } catch (IOException ioe) {
+                    CcddUtilities.displayException(ioe, parent);
+                    ioe.printStackTrace();
+                    errorFlag = true;
+                }
             }
 
             /* Check if the tables are to be exported to a single file or multiple files */

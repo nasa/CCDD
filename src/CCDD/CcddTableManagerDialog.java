@@ -107,6 +107,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
     private JCheckBox includeTlmSchedCB;
     private JCheckBox includeAppSchedCB;
     private JCheckBox exportEntireDatabaseCb;
+    private JCheckBox deleteTargetDirectoryCb;
     private JCheckBox includeAllTableTypesCb;
     private JCheckBox includeAllDataTypesCb;
     private JCheckBox includeAllInputTypesCb;
@@ -619,6 +620,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                     tablePaths.toArray(new String[0]), overwriteFileCb.isSelected(),
                                     (singleFileRBtn != null ? singleFileRBtn.isSelected() : true), true,
                                     (replaceMacrosCb != null ? replaceMacrosCb.isSelected() : true),
+                                    (deleteTargetDirectoryCb != null ? deleteTargetDirectoryCb.isSelected() : false),
                                     (includeAllTableTypesCb != null ? includeAllTableTypesCb.isSelected() : false),
                                     (includeAllDataTypesCb != null ? includeAllDataTypesCb.isSelected() : false),
                                     (includeAllInputTypesCb != null ? includeAllInputTypesCb.isSelected() : false),
@@ -1227,6 +1229,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                      *************************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae) {
+                        deleteTargetDirectoryCb.setEnabled(exportEntireDatabaseCb.isSelected());
+                        
                         includeAllTableTypesCb.setEnabled(!exportEntireDatabaseCb.isSelected());
                         includeAllTableTypesCb.setSelected(exportEntireDatabaseCb.isSelected());
 
@@ -1260,9 +1264,21 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 includeAllTableTypesCb.setToolTipText(CcddUtilities.wrapText(
                         "If checked, all table types " + "definitions are included in each export file",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-                gbc.gridy++;
+                gbc.gridx++;
                 includePnl.add(includeAllTableTypesCb, gbc);
+                
+                /* Create the delete target directory contents check box */
+                deleteTargetDirectoryCb = new JCheckBox("Clean target directory.");
+                deleteTargetDirectoryCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                deleteTargetDirectoryCb.setBorder(emptyBorder);
+                deleteTargetDirectoryCb.setToolTipText(CcddUtilities.wrapText(
+                        "If checked, all target directory " + "contents will be deleted",
+                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                deleteTargetDirectoryCb.setEnabled(false);
+                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.gridx = 0;
+                gbc.gridy++;
+                includePnl.add(deleteTargetDirectoryCb, gbc);
 
                 /* Create the include all data type definitions check box */
                 includeAllDataTypesCb = new JCheckBox("All data type definitions");
@@ -1271,6 +1287,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 includeAllDataTypesCb.setToolTipText(CcddUtilities.wrapText(
                         "If checked, all data type definitions " + "are included in each export file",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridx++;
                 includePnl.add(includeAllDataTypesCb, gbc);
 
@@ -1394,7 +1411,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 varPathSepLbl.setEnabled(false);
                 gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.gridx = 0;
-                gbc.gridy = 0;
+                gbc.gridy++;
                 separatorPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField("_", 5);
                 varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1414,7 +1431,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 typeNameSepLbl.setEnabled(false);
                 gbc.gridx = 0;
-                gbc.gridy++;
+                gbc.gridy = 0;
                 separatorPnl.add(typeNameSepLbl, gbc);
                 typeNameSepFld = new JTextField("_", 5);
                 typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1423,7 +1440,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 typeNameSepFld.setBorder(border);
                 typeNameSepFld.setEnabled(false);
-                gbc.gridx++;
+                gbc.gridy++;
                 separatorPnl.add(typeNameSepFld, gbc);
 
                 /* Create a check box for hiding data types */
@@ -1431,8 +1448,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
                 hideDataTypeCb.setEnabled(false);
-                gbc.gridx = 0;
-                gbc.gridy++;
+                gbc.gridx++;
                 separatorPnl.add(hideDataTypeCb, gbc);
 
                 /* Add a listener for the hide data type check box */
@@ -1489,13 +1505,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 bigRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 bigRBtn.setBorder(emptyBorder);
                 endianessRBtnGroup.add(bigRBtn);
-                gbc.gridx++;
+                gbc.gridx = 0;
+                gbc.gridy++;
                 endianessPnl.add(bigRBtn, gbc);
                 JRadioButton littleRBtn = new JRadioButton("Little", false);
                 littleRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 littleRBtn.setBorder(emptyBorder);
                 endianessRBtnGroup.add(littleRBtn);
-                gbc.gridx++;
+                gbc.gridy++;
                 endianessPnl.add(littleRBtn, gbc);
 
                 /* Add a listener for big endian radio button selection */
@@ -2176,6 +2193,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 // editor). At least one of these must be selected in order to perform an
                 // export
                 if (callingEditorDlg == null && tableTree.getSelectedTablesWithChildren().size() == 0
+                        && !(deleteTargetDirectoryCb != null ? deleteTargetDirectoryCb.isSelected() : false)
                         && !(includeAllTableTypesCb != null ? includeAllTableTypesCb.isSelected() : false)
                         && !(includeAllDataTypesCb != null ? includeAllDataTypesCb.isSelected() : false)
                         && !(includeAllInputTypesCb != null ? includeAllInputTypesCb.isSelected() : false)
