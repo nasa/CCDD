@@ -69,6 +69,7 @@ import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.MsgIDTableColumnInfo;
 import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
+import CCDD.CcddConstants.exportDataTypes;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -309,7 +310,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Build the information from the internal table in the current file
+     * Build the information from the Application scheduler, Telemetry Scheduler and Script
+     * Association data in the file
      *
      * @param importFile   import file reference
      *
@@ -329,20 +331,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
             throws CCDDException, IOException, Exception {
-        /* TODO: Look into refactoring this code in the future to shorten. */
         BufferedReader br = null;
 
         try {
-            /*
-             * Flags indicating if importing should continue after an input error is
-             * detected
-             */
-            boolean continueOnAssociationError = ignoreErrors;
-
             /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
 
+            /*************** APPLICATION SCHEDULER ***************/
             if (importType == ImportType.IMPORT_ALL) {
                 Object defn = jsonObject.get(JSONTags.APP_SCHEDULER_COMMENT.getTag());
 
@@ -352,14 +348,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Step through each parameter stored in the comment */
                     for (JSONObject appSchJO : parseJSONArray(defn)) {
                         /* Get each parameter value stored in the table comment */
-                        int maxMsgsPerTimeSlot = Integer.parseInt(
-                                getString(appSchJO, AppSchedulerComment.MAXIMUM_MESSAGES_PER_TIME_SLOT.getName()));
-                        int maxMsgsPerSec = Integer.parseInt(
-                                getString(appSchJO, AppSchedulerComment.MAXIMUM_MESSAGES_PER_SECOND.getName()));
-                        int maxMsgsPerCycle = Integer.parseInt(
-                                getString(appSchJO, AppSchedulerComment.MAXIMUM_MESSAGES_PER_CYCLE.getName()));
-                        int numberOfTimeSlots = Integer
-                                .parseInt(getString(appSchJO, AppSchedulerComment.NUMBER_OF_TIME_SLOTS.getName()));
+                        int maxMsgsPerTimeSlot = Integer.parseInt(getString(appSchJO,
+                                AppSchedulerComment.MAXIMUM_MESSAGES_PER_TIME_SLOT.getName()));
+                        int maxMsgsPerSec = Integer.parseInt(getString(appSchJO,
+                                AppSchedulerComment.MAXIMUM_MESSAGES_PER_SECOND.getName()));
+                        int maxMsgsPerCycle = Integer.parseInt(getString(appSchJO,
+                                AppSchedulerComment.MAXIMUM_MESSAGES_PER_CYCLE.getName()));
+                        int numberOfTimeSlots = Integer.parseInt(getString(appSchJO,
+                                AppSchedulerComment.NUMBER_OF_TIME_SLOTS.getName()));
 
                         /* Set and store the parameter values obtained from the JSON file */
                         appHandler.setApplicationParameters(maxMsgsPerSec, maxMsgsPerCycle, maxMsgsPerTimeSlot,
@@ -385,10 +381,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     appSchedulerData = appData;
                 }
 
+                /*************** TELEMETRY SCHEDULER ***************/
+                /* TODO: This functionality is currently broken and does not work as expected. */
                 /* Get the telemetry scheduler table */
                 defn = jsonObject.get(JSONTags.TLM_SCHEDULER.getTag());
 
-                /* Check if the telemtry messages exist */
+                /* Check if the telemetry messages exist */
                 if (defn != null && defn instanceof JSONArray) {
                     List<String[]> tlmData = new ArrayList<String[]>();
 
@@ -476,6 +474,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         }
                     }
                 }
+                
+                /*************** SCRIPT ASSOCIATION ***************/
                 /* Get the script associations */
                 defn = jsonObject.get(JSONTags.SCRIPT_ASSOCIATION.getTag());
 
@@ -490,14 +490,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Step through each script association */
                     for (JSONObject assnJO : parseJSONArray(defn)) {
                         /* Add the script association, checking for errors */
-                        continueOnAssociationError = addImportedScriptAssociation(continueOnAssociationError,
-                                associations,
-                                new String[] { getString(assnJO, AssociationsTableColumnInfo.NAME.getColumnName()),
+                        ignoreErrors = addImportedScriptAssociation(ignoreErrors, associations,
+                                new String[] {getString(assnJO, AssociationsTableColumnInfo.NAME.getColumnName()),
                                         getString(assnJO, AssociationsTableColumnInfo.DESCRIPTION.getColumnName()),
                                         getString(assnJO, AssociationsTableColumnInfo.SCRIPT_FILE.getColumnName()),
-                                        CcddScriptHandler.convertAssociationMembersFormat(
-                                                getString(assnJO, AssociationsTableColumnInfo.MEMBERS.getColumnName()),
-                                                true) },
+                                        CcddScriptHandler.convertAssociationMembersFormat(getString(assnJO,
+                                                AssociationsTableColumnInfo.MEMBERS.getColumnName()), true)},
                                 importFile.getAbsolutePath(), scriptHandler, parent);
                     }
                 }
@@ -522,8 +520,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Build the information from the input and data type definition(s) in the
-     * current file
+     * Build the information from the Table Types, Table Type Data Fields and Macros in the file
      *
      * @param importFile   import file reference
      * 
@@ -536,28 +533,19 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
+            boolean replaceExistingMacros, boolean replaceExistingTables)
             throws CCDDException, IOException, Exception {
-        /* TODO: This is a long function. Look into a way to refactor and shorten. */
         BufferedReader br = null;
 
         try {
-            List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
-
-            /*
-             * Flags indicating if importing should continue after an input error is
-             * detected
-             */
-            boolean continueOnTableTypeError = ignoreErrors;
-            boolean continueOnTableTypeFieldError = ignoreErrors;
-            boolean continueOnMacroError = ignoreErrors;
-
             /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
-
+            List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             Object defn = jsonObject.get(JSONTags.TABLE_TYPE_DEFN.getTag());
 
+            /*************** TABLE TYPES ***************/
             /* Check if the table type definitions exist */
             if (defn != null && defn instanceof JSONArray) {
                 /* Step through each table type definition */
@@ -569,41 +557,34 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                     /* Check if the expected inputs are present */
                     if (!typeName.isEmpty() && typeColumn != null && typeColumn instanceof JSONArray) {
+                        int columnNumber = 0;
                         /* Create a new table type definition */
                         TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName, typeDesc);
-
-                        int columnNumber = 0;
 
                         /* Step through each table type column definition */
                         for (JSONObject typeJO : parseJSONArray(typeColumn)) {
                             /* Check if the expected input is present */
                             if (typeJO.keySet().size() == TableTypeEditorColumnInfo.values().length - 1) {
-                                /*
-                                 * Add the table type column definition, checking for (and if possible,
+                                /* Add the table type column definition, checking for (and if possible,
                                  * correcting) errors
                                  */
-                                continueOnTableTypeError = addImportedTableTypeColumnDefinition(
-                                        continueOnTableTypeError, tableTypeDefn,
-                                        new String[] { String.valueOf(columnNumber),
+                                ignoreErrors = addImportedTableTypeColumnDefinition(ignoreErrors, tableTypeDefn,
+                                        new String[] {String.valueOf(columnNumber),
                                                 getString(typeJO, TableTypeEditorColumnInfo.NAME.getColumnName()),
-                                                getString(typeJO,
-                                                        TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                getString(typeJO, TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                 getString(typeJO, TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                 getString(typeJO, TableTypeEditorColumnInfo.UNIQUE.getColumnName()),
                                                 getString(typeJO, TableTypeEditorColumnInfo.REQUIRED.getColumnName()),
-                                                getString(typeJO, CcddUtilities.removeHTMLTags(
-                                                        TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName())),
-                                                getString(typeJO, CcddUtilities.removeHTMLTags(
-                                                        TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName())) },
+                                                getString(typeJO, CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName())),
+                                                getString(typeJO, CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName())) },
                                         importFile.getAbsolutePath(), inputTypeHandler, parent);
 
                                 /* Update the column index number for the next column definition */
                                 columnNumber++;
-                            }
-                            /* The number of inputs is incorrect */
-                            else {
+                            } else {
+                                /* The number of inputs is incorrect */
                                 /* Check if the error should be ignored or the import canceled */
-                                continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                ignoreErrors = getErrorResponse(ignoreErrors,
                                         "<html><b>Table type '</b>" + typeName + "<b>' definition has missing or extra "
                                                 + "input(s) in import file '</b>" + importFile.getAbsolutePath()
                                                 + "<b>'; continue?",
@@ -612,6 +593,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             }
                         }
 
+                        /*************** TABLE TYPE DATA FIELDS ***************/
                         /* Get the data fields for this table type */
                         Object typeField = getObject(tableTypeJO, JSONTags.TABLE_TYPE_FIELD.getTag());
 
@@ -619,12 +601,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         if (typeField != null) {
                             /* Step through each table type data field definition */
                             for (JSONObject typeJO : parseJSONArray(typeField)) {
-                                /*
-                                 * Add the data field definition, checking for (and if possible, correcting)
+                                /* Add the data field definition, checking for (and if possible, correcting)
                                  * errors
                                  */
-                                continueOnTableTypeFieldError = addImportedDataFieldDefinition(
-                                        continueOnTableTypeFieldError, tableTypeDefn,
+                                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, tableTypeDefn,
                                         new String[] { CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
                                                 getString(typeJO, FieldEditorColumnInfo.NAME.getColumnName()),
                                                 getString(typeJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
@@ -642,23 +622,22 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         tableTypeDefinitions.add(tableTypeDefn);
                     }
                 }
+                
+                /* Add the table type if it's new or match it to an existing one with the same
+                 * name if the type definitions are the same
+                 */
+                String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
+
+                /* Check if a table type isn't new and doesn't match an existing one with the
+                 * same name
+                 */
+                if (badDefn != null) {
+                    throw new CCDDException(
+                            "Imported table type '</b>" + badDefn + "<b>' doesn't match the existing definition");
+                }
             }
 
-            /*
-             * Add the table type if it's new or match it to an existing one with the same
-             * name if the type definitions are the same
-             */
-            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
-
-            /*
-             * Check if a table type isn't new and doesn't match an existing one with the
-             * same name
-             */
-            if (badDefn != null) {
-                throw new CCDDException(
-                        "Imported table type '</b>" + badDefn + "<b>' doesn't match the existing definition");
-            }
-
+            /*************** MACROS ***************/
             /* Check if all definitions are to be loaded */
             if (importType == ImportType.IMPORT_ALL) {
                 List<String[]> macroDefns = new ArrayList<String[]>();
@@ -684,16 +663,38 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                             /* Add the macro definition (add a blank to represent the OID) */
                             macroDefns.add(macroDefn);
-                        }
-                        /* The number of inputs is incorrect */
-                        else {
+                        } else {
+                            /* The number of inputs is incorrect */
                             /* Check if the error should be ignored or the import canceled */
-                            continueOnMacroError = getErrorResponse(continueOnMacroError,
+                            ignoreErrors = getErrorResponse(ignoreErrors,
                                     "<html><b>Missing or extra macro definition " + "input(s) in import file '</b>"
                                             + importFile.getAbsolutePath() + "<b>'; continue?",
                                     "Macro Error", "Ignore this macro", "Ignore this and any remaining invalid macros",
                                     "Stop importing", parent);
                         }
+                    }
+                    
+                    /* Add the macro if it's new or match it to an existing one with the same name. If the flag to
+                     * replace existing macro values is false then get the list of macros names where the existing
+                     * and import file values differ
+                     */
+                    List<String> mismatchedMacros = macroHandler.updateMacros(macroDefns, replaceExistingMacros);
+
+                    /* Check if any existing and import file macro values differ (the flag to replace existing macro
+                     * values is false)
+                     */
+                    if (!mismatchedMacros.isEmpty()) {
+                        boolean continueOnError = false;
+
+                        /* Check if the user elects to ignore the difference(s), keeping the existing macro values,
+                         * or cancels the import operation
+                         */
+                        getErrorResponse(continueOnError, "<html><b>The value for imported macro(s) '</b>"
+                                        + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
+                                        + "<b>' doesn't match the existing definition(s) in import file '</b>"
+                                        + importFile.getAbsolutePath() + "<b>'; continue?",
+                                "Macro Value Mismatch", null, "Ignore macro value difference(s) (keep existing value(s))",
+                                "Stop importing", true, parent);
                     }
                 }
             }
@@ -736,19 +737,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         BufferedReader br = null;
 
         try {
-            List<String[]> inputTypeDefns = new ArrayList<String[]>();
-
-            /*
-             * Flags indicating if importing should continue after an input error is
-             * detected
-             */
-            boolean continueOnInputTypeError = ignoreErrors;
-            boolean continueOnDataTypeError = ignoreErrors;
-
             /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
+            List<String[]> inputTypeDefns = new ArrayList<String[]>();
+            List<String[]> dataTypeDefns = new ArrayList<String[]>();
 
+            /*************** INPUT TYPES ***************/
             /* Get the input type definitions JSON object */
             Object defn = jsonObject.get(JSONTags.INPUT_TYPE_DEFN.getTag());
 
@@ -772,23 +767,26 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                         /* Add the input type definition (add a blank to represent the OID) */
                         inputTypeDefns.add(inputTypeDefn);
-                    }
-                    /* The number of inputs is incorrect */
-                    else {
+                    } else {
+                        /* The number of inputs is incorrect */
                         /* Check if the error should be ignored or the import canceled */
-                        continueOnInputTypeError = getErrorResponse(continueOnInputTypeError,
+                        ignoreErrors = getErrorResponse(ignoreErrors,
                                 "<html><b>Missing or extra input type definition " + "input(s) in import file '</b>"
                                         + importFile.getAbsolutePath() + "<b>'; continue?",
                                 "Input Type Error", "Ignore this data type",
                                 "Ignore this and any remaining invalid input types", "Stop importing", parent);
                     }
                 }
+                
+                /* Add the input type if it's new or match it to an existing one with the same name if the type
+                 * definitions are the same
+                 */
+                inputTypeHandler.updateInputTypes(inputTypeDefns);
             }
 
+            /*************** DATA TYPES ***************/
             /* Check if all definitions are to be loaded */
             if (importType == ImportType.IMPORT_ALL) {
-                List<String[]> dataTypeDefns = new ArrayList<String[]>();
-
                 /* Get the data type definitions JSON object */
                 defn = jsonObject.get(JSONTags.DATA_TYPE_DEFN.getTag());
 
@@ -813,17 +811,21 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                             /* Add the data type definition (add a blank to represent the OID) */
                             dataTypeDefns.add(dataTypeDefn);
-                        }
-                        /* The number of inputs is incorrect */
-                        else {
+                        } else {
+                            /* The number of inputs is incorrect */
                             /* Check if the error should be ignored or the import canceled */
-                            continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
+                            ignoreErrors = getErrorResponse(ignoreErrors,
                                     "<html><b>Missing or extra data type definition " + "input(s) in import file '</b>"
                                             + importFile.getAbsolutePath() + "<b>'; continue?",
                                     "Data Type Error", "Ignore this data type",
                                     "Ignore this and any remaining invalid data types", "Stop importing", parent);
                         }
                     }
+                    
+                    /* Add the data type if it's new or match it to an existing one with the same name if the type
+                     * definitions are the same
+                     */
+                    dataTypeHandler.updateDataTypes(dataTypeDefns);
                 }
             }
         } catch (ParseException pe) {
@@ -864,6 +866,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param replaceExistingMacros true to replace the values for existing macros
      *
      * @param replaceExistingGroups true to replace existing group definitions
+     * 
+     * @param replaceExistingTables true to replace existing tables or table fields
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -874,272 +878,44 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn,
-            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups)
+            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups, boolean replaceExistingTables)
             throws CCDDException, IOException, Exception {
+        /* Init a buffered reader */
         BufferedReader br = null;
 
         try {
-            ProjectDefinition projectDefn = new ProjectDefinition();
-            List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
-            tableDefinitions = new ArrayList<TableDefinition>();
-            List<String[]> inputTypeDefns = new ArrayList<String[]>();
-
-            // Flags indicating if importing should continue after an input error is
-            // detected
-            boolean continueOnTableTypeError = ignoreErrors;
-            boolean continueOnDataTypeError = ignoreErrors;
-            boolean continueOnInputTypeError = ignoreErrors;
-            boolean continueOnMacroError = ignoreErrors;
-            boolean continueOnReservedMsgIDError = ignoreErrors;
-            boolean continueOnProjectFieldError = ignoreErrors;
-            boolean continueOnColumnError = ignoreErrors;
-            boolean continueOnDataFieldError = ignoreErrors;
-            boolean continueOnTableTypeFieldError = ignoreErrors;
-            boolean continueOnGroupError = ignoreErrors;
-            boolean continueOnAssociationError = ignoreErrors;
-
-            // Create a JSON parser and use it to parse the import file contents
+            /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
+            ProjectDefinition projectDefn = new ProjectDefinition();
+            tableDefinitions = new ArrayList<TableDefinition>();
 
-            // Get the input type definitions JSON object
-            Object defn = jsonObject.get(JSONTags.INPUT_TYPE_DEFN.getTag());
-
-            // Check if the input type definitions exist
-            if (defn != null && defn instanceof JSONArray) {
-                // Step through each input type definition
-                for (JSONObject typeJO : parseJSONArray(defn)) {
-                    // Get the input type definition components
-                    String name = getString(typeJO, InputTypeEditorColumnInfo.NAME.getColumnName());
-                    String description = getString(typeJO, InputTypeEditorColumnInfo.DESCRIPTION.getColumnName());
-                    String match = getString(typeJO, InputTypeEditorColumnInfo.MATCH.getColumnName());
-                    String items = getString(typeJO, InputTypeEditorColumnInfo.ITEMS.getColumnName());
-                    String format = getString(typeJO, InputTypeEditorColumnInfo.FORMAT.getColumnName());
-
-                    // Check if the expected inputs are present
-                    if (!name.isEmpty() && !match.isEmpty()
-                            && typeJO.keySet().size() < InputTypeEditorColumnInfo.values().length) {
-                        // Check if the input type definition is valid
-                        String[] inputTypeDefn = checkInputTypeDefinition(
-                                new String[] { name, description, match, items, format, "" });
-
-                        // Add the input type definition (add a blank to represent the OID)
-                        inputTypeDefns.add(inputTypeDefn);
-                    }
-                    // The number of inputs is incorrect
-                    else {
-                        // Check if the error should be ignored or the import canceled
-                        continueOnInputTypeError = getErrorResponse(continueOnInputTypeError,
-                                "<html><b>Missing or extra input type definition " + "input(s) in import file '</b>"
-                                        + importFile.getAbsolutePath() + "<b>'; continue?",
-                                "Input Type Error", "Ignore this data type",
-                                "Ignore this and any remaining invalid input types", "Stop importing", parent);
-                    }
-                }
-            }
-
-            // Add the input type if it's new or match it to an existing one with the same
-            // name if
-            // the type definitions are the same
-            inputTypeHandler.updateInputTypes(inputTypeDefns);
-
-            // Get the table type definitions JSON object
-            defn = jsonObject.get(JSONTags.TABLE_TYPE_DEFN.getTag());
-
-            // Check if the table type definitions exist
-            if (defn != null && defn instanceof JSONArray) {
-                // Step through each table type definition
-                for (JSONObject tableTypeJO : parseJSONArray(defn)) {
-                    // Get the table type definition components
-                    String typeName = getString(tableTypeJO, JSONTags.TABLE_TYPE_NAME.getTag());
-                    String typeDesc = getString(tableTypeJO, JSONTags.TABLE_TYPE_DESCRIPTION.getTag());
-                    Object typeColumn = getObject(tableTypeJO, JSONTags.TABLE_TYPE_COLUMN.getTag());
-
-                    // Check if the expected inputs are present
-                    if (!typeName.isEmpty() && typeColumn != null && typeColumn instanceof JSONArray) {
-                        // Create a new table type definition
-                        TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName, typeDesc);
-
-                        int columnNumber = 0;
-
-                        // Step through each table type column definition
-                        for (JSONObject typeJO : parseJSONArray(typeColumn)) {
-                            // Check if the expected input is present
-                            if (typeJO.keySet().size() == TableTypeEditorColumnInfo.values().length - 1) {
-                                // Add the table type column definition, checking for (and if
-                                // possible, correcting) errors
-                                continueOnTableTypeError = addImportedTableTypeColumnDefinition(
-                                        continueOnTableTypeError, tableTypeDefn,
-                                        new String[] { String.valueOf(columnNumber),
-                                                getString(typeJO, TableTypeEditorColumnInfo.NAME.getColumnName()),
-                                                getString(typeJO,
-                                                        TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()),
-                                                getString(typeJO, TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName()),
-                                                getString(typeJO, TableTypeEditorColumnInfo.UNIQUE.getColumnName()),
-                                                getString(typeJO, TableTypeEditorColumnInfo.REQUIRED.getColumnName()),
-                                                getString(typeJO, CcddUtilities.removeHTMLTags(
-                                                        TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName())),
-                                                getString(typeJO, CcddUtilities.removeHTMLTags(
-                                                        TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName())) },
-                                        importFile.getAbsolutePath(), inputTypeHandler, parent);
-
-                                // Update the column index number for the next column definition
-                                columnNumber++;
-                            }
-                            // The number of inputs is incorrect
-                            else {
-                                // Check if the error should be ignored or the import canceled
-                                continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                        "<html><b>Table type '</b>" + typeName + "<b>' definition has missing or extra "
-                                                + "input(s) in import file '</b>" + importFile.getAbsolutePath()
-                                                + "<b>'; continue?",
-                                        "Table Type Error", "Ignore this table type",
-                                        "Ignore this and any remaining invalid table types", "Stop importing", parent);
-                            }
-                        }
-
-                        // Get the data fields for this table type
-                        Object typeField = getObject(tableTypeJO, JSONTags.TABLE_TYPE_FIELD.getTag());
-
-                        // Check if any data fields exists for this table type
-                        if (typeField != null) {
-                            // Step through each table type data field definition
-                            for (JSONObject typeJO : parseJSONArray(typeField)) {
-                                // Add the data field definition, checking for (and if possible,
-                                // correcting) errors
-                                continueOnTableTypeFieldError = addImportedDataFieldDefinition(
-                                        continueOnTableTypeFieldError, tableTypeDefn,
-                                        new String[] { CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
-                                                getString(typeJO, FieldEditorColumnInfo.NAME.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.REQUIRED.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.VALUE.getColumnName()),
-                                                getString(typeJO, FieldEditorColumnInfo.INHERITED.getColumnName()) },
-                                        importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
-                            }
-                        }
-
-                        // Add the table type definition to the list
-                        tableTypeDefinitions.add(tableTypeDefn);
-                    }
-                }
-            }
-
-            // Add the table type if it's new or match it to an existing one with the same
-            // name if
-            // the type definitions are the same
-            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
-
-            // Check if a table type isn't new and doesn't match an existing one with the
-            // same name
-            if (badDefn != null) {
-                throw new CCDDException(
-                        "Imported table type '</b>" + badDefn + "<b>' doesn't match the existing definition");
-            }
-
-            // Check if all definitions are to be loaded
+            /*************** RESERVED MESSAGE IDS ***************/
+            /* Check if all definitions are to be loaded */
             if (importType == ImportType.IMPORT_ALL) {
-                List<String[]> dataTypeDefns = new ArrayList<String[]>();
-                List<String[]> macroDefns = new ArrayList<String[]>();
                 List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
-                // Get the data type definitions JSON object
-                defn = jsonObject.get(JSONTags.DATA_TYPE_DEFN.getTag());
+                /* Get the reserved message ID definitions JSON object */
+                Object defn = jsonObject.get(JSONTags.RESERVED_MSG_ID_DEFN.getTag());
 
-                // Check if the data type definitions exist
+                /* Check if the reserved message ID definitions exist */
                 if (defn != null && defn instanceof JSONArray) {
-                    // Step through each data type definition
-                    for (JSONObject typeJO : parseJSONArray(defn)) {
-                        // Get the data type definition components
-                        String userName = getString(typeJO, DataTypeEditorColumnInfo.USER_NAME.getColumnName());
-                        String cName = getString(typeJO, DataTypeEditorColumnInfo.C_NAME.getColumnName());
-                        String size = getString(typeJO, DataTypeEditorColumnInfo.SIZE.getColumnName());
-                        String baseType = getString(typeJO, DataTypeEditorColumnInfo.BASE_TYPE.getColumnName());
-
-                        // Check if the expected inputs are present
-                        if ((!userName.isEmpty() || !cName.isEmpty()) && !size.isEmpty() && !baseType.isEmpty()
-                                && typeJO.keySet().size() < DataTypeEditorColumnInfo.values().length) {
-                            // Build the data type definition
-                            String[] dataTypeDefn = new String[] { userName, cName, size, baseType, "" };
-
-                            // Check if the data type definition is valid
-                            checkDataTypeDefinition(dataTypeDefn);
-
-                            // Add the data type definition (add a blank to represent the OID)
-                            dataTypeDefns.add(dataTypeDefn);
-                        }
-                        // The number of inputs is incorrect
-                        else {
-                            // Check if the error should be ignored or the import canceled
-                            continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
-                                    "<html><b>Missing or extra data type definition " + "input(s) in import file '</b>"
-                                            + importFile.getAbsolutePath() + "<b>'; continue?",
-                                    "Data Type Error", "Ignore this data type",
-                                    "Ignore this and any remaining invalid data types", "Stop importing", parent);
-                        }
-                    }
-                }
-
-                // Get the macro definitions JSON object
-                defn = jsonObject.get(JSONTags.MACRO_DEFN.getTag());
-
-                // Check if the macro definitions exist
-                if (defn != null && defn instanceof JSONArray) {
-                    // Step through each macro definition
-                    for (JSONObject macroJO : parseJSONArray(defn)) {
-                        // Get the macro definition components
-                        String name = getString(macroJO, MacroEditorColumnInfo.NAME.getColumnName());
-                        String value = getString(macroJO, MacroEditorColumnInfo.VALUE.getColumnName());
-
-                        // Check if the expected inputs are present
-                        if (!name.isEmpty() && macroJO.keySet().size() < MacroEditorColumnInfo.values().length) {
-                            // Build the macro definition
-                            String[] macroDefn = new String[] { name, value, "" };
-
-                            // Check if the macro definition is valid
-                            checkMacroDefinition(macroDefn);
-
-                            // Add the macro definition (add a blank to represent the OID)
-                            macroDefns.add(macroDefn);
-                        }
-                        // The number of inputs is incorrect
-                        else {
-                            // Check if the error should be ignored or the import canceled
-                            continueOnMacroError = getErrorResponse(continueOnMacroError,
-                                    "<html><b>Missing or extra macro definition " + "input(s) in import file '</b>"
-                                            + importFile.getAbsolutePath() + "<b>'; continue?",
-                                    "Macro Error", "Ignore this macro", "Ignore this and any remaining invalid macros",
-                                    "Stop importing", parent);
-                        }
-                    }
-                }
-
-                // Get the reserved message ID definitions JSON object
-                defn = jsonObject.get(JSONTags.RESERVED_MSG_ID_DEFN.getTag());
-
-                // Check if the reserved message ID definitions exist
-                if (defn != null && defn instanceof JSONArray) {
-                    // Step through each reserved message ID definition
+                    /* Step through each reserved message ID definition */
                     for (JSONObject reservedMsgIDJO : parseJSONArray(defn)) {
-                        // Get the reserved message ID definition components
+                        /* Get the reserved message ID definition components */
                         String name = getString(reservedMsgIDJO, ReservedMsgIDEditorColumnInfo.MSG_ID.getColumnName());
-                        String value = getString(reservedMsgIDJO,
-                                ReservedMsgIDEditorColumnInfo.DESCRIPTION.getColumnName());
+                        String value = getString(reservedMsgIDJO, ReservedMsgIDEditorColumnInfo.DESCRIPTION.getColumnName());
 
-                        // Check if the expected inputs are present
+                        /* Check if the expected inputs are present */
                         if (!name.isEmpty()
                                 && reservedMsgIDJO.keySet().size() < ReservedMsgIDEditorColumnInfo.values().length) {
-                            // Add the reserved message ID definition (add a blank to represent the
-                            // OID)
+                            /* Add the reserved message ID definition (add a blank to represent the OID) */
                             reservedMsgIDDefns.add(new String[] { name, value, "" });
-                        }
-                        // The number of inputs is incorrect
-                        else {
-                            // Check if the error should be ignored or the import canceled
-                            continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
+                        } else {
+                            /* The number of inputs is incorrect. Check if the error should be ignored
+                             * or the import canceled
+                             */
+                            ignoreErrors = getErrorResponse(ignoreErrors,
                                     "<html><b>Missing or extra reserved message ID "
                                             + "definition input(s) in import file '</b>" + importFile.getAbsolutePath()
                                             + "<b>'; continue?",
@@ -1150,18 +926,18 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                // Get the data fields for this project
+                /*************** PROJECT FIELDS ***************/
+                /* Get the data fields for this project */
                 defn = jsonObject.get(JSONTags.PROJECT_FIELD.getTag());
 
-                // Check if any data fields exist for this project
+                /* Check if any data fields exist for this project */
                 if (defn != null && defn instanceof JSONArray) {
-                    // Step through each project-level data field definition
+                    /* Step through each project-level data field definition */
                     for (JSONObject typeJO : parseJSONArray(defn)) {
-                        // Add the data field definition, checking for (and if possible,
-                        // correcting) errors
-                        continueOnProjectFieldError = addImportedDataFieldDefinition(continueOnProjectFieldError,
+                        /* Add the data field definition, checking for (and if possible, correcting) errors */
+                        ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, false,
                                 projectDefn,
-                                new String[] { CcddFieldHandler.getFieldProjectName(),
+                                new String[] {CcddFieldHandler.getFieldProjectName(),
                                         getString(typeJO, FieldEditorColumnInfo.NAME.getColumnName()),
                                         getString(typeJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                         getString(typeJO, FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
@@ -1174,202 +950,150 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                // Get the group definitions
+                /*************** GROUPS ***************/
+                /* Get the group definitions */
                 defn = jsonObject.get(JSONTags.GROUP.getTag());
 
-                // Check if the group definitions exist
+                /* Check if the group definitions exist */
                 if (defn != null && defn instanceof JSONArray) {
-                    // Step through each group definition
+                    /* Step through each group definition */
                     for (JSONObject groupJO : parseJSONArray(defn)) {
-                        // Get the group definition components
+                        /* Get the group definition components */
                         String name = getString(groupJO, JSONTags.GROUP_NAME.getTag());
                         String description = getString(groupJO, JSONTags.GROUP_DESCRIPTION.getTag());
                         String isApplication = getString(groupJO, JSONTags.GROUP_IS_APPLICATION.getTag());
                         String members = "";
 
-                        // Get the table members for this group
+                        /* Get the table members for this group */
                         Object groupMember = getObject(groupJO, JSONTags.GROUP_TABLE.getTag());
 
-                        // Check if any members exists for this group
+                        /* Check if any members exists for this group */
                         if (groupMember != null) {
                             int index = 0;
                             boolean isFirst = true;
 
-                            // Step through each member
+                            /* Step through each member */
                             for (JSONObject memberJO : parseJSONArray(groupMember)) {
-                                // Add the table member
+                                /* Add the table member */
                                 members += (isFirst ? "" : ";") + memberJO.get(index).toString();
                                 index++;
                                 isFirst = false;
                             }
                         }
 
-                        // Check if the expected inputs are present
+                        /* Check if the expected inputs are present */
                         if (!name.isEmpty() && groupJO.keySet().size() <= GroupDefinitionColumn.values().length + 1) {
-                            // Add the group data field definition, checking for (and if possible,
-                            // correcting) errors
+                            /* Add the group data field definition, checking for (and if possible, correcting) errors */
                             addImportedGroupDefinition(new String[] { name, description, isApplication, members },
                                     importFile.getAbsolutePath(), replaceExistingGroups, groupHandler);
-                        }
-                        // The number of inputs is incorrect
-                        else {
-                            // Check if the error should be ignored or the import canceled
-                            continueOnGroupError = getErrorResponse(continueOnGroupError,
+                        } else {
+                            /* The number of inputs is incorrect. Check if the error should be ignored or the 
+                             * import canceled
+                             */
+                            ignoreErrors = getErrorResponse(ignoreErrors,
                                     "<html><b>Missing or extra group definition " + "input(s) in import file '</b>"
                                             + importFile.getAbsolutePath() + "<b>'; continue?",
                                     "Group Error", "Ignore this group", "Ignore this and any remaining invalid groups",
                                     "Stop importing", parent);
                         }
 
-                        // Get the data fields for this group
+                        /*************** GROUP FIELDS ***************/
+                        /* Get the data fields for this group */
                         Object groupField = getObject(groupJO, JSONTags.GROUP_FIELD.getTag());
 
-                        // Check if any data fields exists for this group
+                        /* Check if any data fields exists for this group */
                         if (groupField != null) {
-                            // Step through each group data field definition
+                            /* Step through each group data field definition */
                             for (JSONObject grpFldJO : parseJSONArray(groupField)) {
-                                // Add the data field definition, checking for (and if possible,
-                                // correcting) errors
-                                continueOnTableTypeFieldError = addImportedDataFieldDefinition(
-                                        continueOnTableTypeFieldError, projectDefn,
-                                        new String[] { CcddFieldHandler.getFieldGroupName(name),
+                                /* Add the data field definition, checking for (and if possible, correcting) errors */
+                                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingGroups, projectDefn,
+                                        new String[] {CcddFieldHandler.getFieldGroupName(name),
                                                 getString(grpFldJO, FieldEditorColumnInfo.NAME.getColumnName()),
                                                 getString(grpFldJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                 getString(grpFldJO, FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
                                                 getString(grpFldJO, FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                 getString(grpFldJO, FieldEditorColumnInfo.REQUIRED.getColumnName()),
-                                                getString(grpFldJO,
-                                                        FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
+                                                getString(grpFldJO, FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
                                                 getString(grpFldJO, FieldEditorColumnInfo.VALUE.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.INHERITED.getColumnName()) },
+                                                getString(grpFldJO, FieldEditorColumnInfo.INHERITED.getColumnName())},
                                         importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
                             }
                         }
                     }
                 }
 
-                // Get the script associations
-                defn = jsonObject.get(JSONTags.SCRIPT_ASSOCIATION.getTag());
-
-                // Check if the script associations exist
-                if (defn != null && defn instanceof JSONArray) {
-                    // Check if the associations haven't been loaded
-                    if (associations == null) {
-                        // Get the script associations from the database
-                        associations = scriptHandler.getScriptAssociations(parent);
-                    }
-
-                    // Step through each script association
-                    for (JSONObject assnJO : parseJSONArray(defn)) {
-                        // Add the script association, checking for errors
-                        continueOnAssociationError = addImportedScriptAssociation(continueOnAssociationError,
-                                associations,
-                                new String[] { getString(assnJO, AssociationsTableColumnInfo.NAME.getColumnName()),
-                                        getString(assnJO, AssociationsTableColumnInfo.DESCRIPTION.getColumnName()),
-                                        getString(assnJO, AssociationsTableColumnInfo.SCRIPT_FILE.getColumnName()),
-                                        CcddScriptHandler.convertAssociationMembersFormat(
-                                                getString(assnJO, AssociationsTableColumnInfo.MEMBERS.getColumnName()),
-                                                true) },
-                                importFile.getAbsolutePath(), scriptHandler, parent);
-                    }
-                }
-
-                // Add the data type if it's new or match it to an existing one with the same
-                // name
-                // if the type definitions are the same
-                dataTypeHandler.updateDataTypes(dataTypeDefns);
-
-                // Add the macro if it's new or match it to an existing one with the same
-                // name. If the flag to replace existing macro values is false then get the
-                // list of macros names where the existing and import file values differ
-                List<String> mismatchedMacros = macroHandler.updateMacros(macroDefns, replaceExistingMacros);
-
-                // Check if any existing and import file macro values differ ( the flag to
-                // replace
-                // existing macro values is false)
-                if (!mismatchedMacros.isEmpty()) {
-                    boolean continueOnError = false;
-
-                    // Check if the user elects to ignore the difference(s), keeping the existing
-                    // macro values, or cancels the import operation
-                    getErrorResponse(continueOnError,
-                            "<html><b>The value for imported macro(s) '</b>"
-                                    + CcddUtilities
-                                            .convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
-                                    + "<b>' doesn't match the existing definition(s) in import file '</b>"
-                                    + importFile.getAbsolutePath() + "<b>'; continue?",
-                            "Macro Value Mismatch", null, "Ignore macro value difference(s) (keep existing value(s))",
-                            "Stop importing", true, parent);
-                }
-
-                // Add the reserved message ID definition if it's new
+                /* Add the reserved message ID definition if it's new */
                 rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
-                // Build the imported project-level data fields, if any
+                /* Build the imported project-level data fields, if any */
                 buildProjectAndGroupDataFields(fieldHandler, projectDefn.getDataFields());
             }
 
-            // Get the table definitions JSON object
-            defn = jsonObject.get(JSONTags.TABLE_DEFN.getTag());
+            /*************** TABLE DEFINITIONS ***************/
+            /* Get the table definitions JSON object */
+            Object defn = jsonObject.get(JSONTags.TABLE_DEFN.getTag());
 
-            // Check if the table definitions exist
+            /* Check if the table definitions exist */
             if (defn != null && defn instanceof JSONArray) {
-                // Step through each table definition
+                /* Step through each table definition */
                 for (JSONObject tableJO : parseJSONArray(defn)) {
-                    // Get the table definition components
+                    /* Get the table definition components */
                     String tableName = getString(tableJO, JSONTags.TABLE_NAME.getTag());
                     String tableType = getString(tableJO, JSONTags.TABLE_TYPE.getTag());
                     String tableDesc = getString(tableJO, JSONTags.TABLE_DESCRIPTION.getTag());
                     Object tableDataJA = getObject(tableJO, JSONTags.TABLE_DATA.getTag());
                     Object dataFieldsJA = getObject(tableJO, JSONTags.TABLE_FIELD.getTag());
 
-                    // Check if the expected inputs are present
+                    /* Check if the expected inputs are present */
                     if (!tableName.isEmpty() && tableDataJA != null && tableDataJA instanceof JSONArray
                             && (dataFieldsJA == null || dataFieldsJA instanceof JSONArray)) {
-                        // Create a new table type definition
+                        /* Create a new table type definition */
                         TableDefinition tableDefn = new TableDefinition(tableName, tableDesc);
 
-                        // Get the table's type definition. If importing into an existing table
-                        // then use its type definition
+                        /* Get the table's type definition. If importing into an existing table
+                         * then use its type definition.
+                         */
                         TypeDefinition typeDefn = importType == ImportType.IMPORT_ALL
                                 ? tableTypeHandler.getTypeDefinition(tableType)
                                 : targetTypeDefn;
 
-                        // Check if the table type doesn't exist
+                        /* Check if the table type doesn't exist */
                         if (typeDefn == null) {
                             throw new CCDDException("Unknown table type '</b>" + tableType + "<b>'");
                         }
 
-                        // Store the table's type name
+                        /* Store the table's type name */
                         tableDefn.setTypeName(tableType);
 
-                        // Get the number of expected columns (the hidden columns, primary key and
-                        // row index, should not be included in the JSON file)
+                        /* Get the number of expected columns (the hidden columns, primary key and
+                         * row index, should not be included in the JSON file)
+                         */
                         int numColumns = typeDefn.getColumnCountVisible();
 
-                        // Create storage for the row of cell data
+                        /* Create storage for the row of cell data */
                         String[] rowData = new String[numColumns];
 
-                        // Step through each row of data
+                        /* Step through each row of data */
                         for (JSONObject rowDataJO : parseJSONArray(tableDataJA)) {
-                            // Initialize the column values to blanks
+                            /* Initialize the column values to blanks */
                             Arrays.fill(rowData, null);
 
-                            // Step through each key (column name)
+                            /* Step through each key (column name) */
                             for (Object columnName : rowDataJO.keySet()) {
-                                // Get the column index based on the column name
+                                /* Get the column index based on the column name */
                                 int column = typeDefn.getVisibleColumnIndexByUserName(columnName.toString());
 
-                                // Check if a column by this name exists
+                                /* Check if a column by this name exists */
                                 if (column != -1) {
-                                    // Get the value from the JSON input, if present; use a blank
-                                    // if a value for this column doesn't exist
+                                    /* Get the value from the JSON input, if present; use a blank
+                                     * if a value for this column doesn't exist
+                                     */
                                     rowData[column] = getString(rowDataJO, typeDefn.getColumnNamesVisible()[column]);
-                                }
-                                // The number of inputs is incorrect
-                                else {
-                                    // Check if the error should be ignored or the import canceled
-                                    continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                } else {
+                                    /* The number of inputs is incorrect. Check if the error should be ignored or
+                                     * the import canceled
+                                     */
+                                    ignoreErrors = getErrorResponse(ignoreErrors,
                                             "<html><b>Table '</b>" + tableName + "<b>' column name '</b>" + columnName
                                                     + "<b>' unrecognized in import file '</b>"
                                                     + importFile.getAbsolutePath() + "<b>'; continue?",
@@ -1379,59 +1103,53 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 }
                             }
 
-                            // Add the row of data read in from the file to the cell data list
+                            /* Add the row of data read in from the file to the cell data list */
                             tableDefn.addData(rowData);
                         }
 
-                        // Check if all definitions are to be loaded and if any data fields are
-                        // defined
+                        /*************** TABLE DEFINITION FIELDS ***************/
+                        /* Check if all definitions are to be loaded and if any data fields are defined */
                         if (dataFieldsJA != null) {
-                            // Step through each data field definition
+                            /* Step through each data field definition */
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA)) {
-                                // Add the data field definition, checking for (and if possible,
-                                // correcting) errors
-                                continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
-                                        tableDefn,
-                                        new String[] { tableName,
+                                /* Add the data field definition, checking for (and if possible, correcting) errors */
+                                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables,
+                                        tableDefn, new String[] {tableName,
                                                 getString(dataFieldJO, FieldEditorColumnInfo.NAME.getColumnName()),
-                                                getString(dataFieldJO,
-                                                        FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                getString(dataFieldJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                 getString(dataFieldJO, FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
-                                                getString(dataFieldJO,
-                                                        FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
+                                                getString(dataFieldJO, FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                 getString(dataFieldJO, FieldEditorColumnInfo.REQUIRED.getColumnName()),
-                                                getString(dataFieldJO,
-                                                        FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
+                                                getString(dataFieldJO, FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
                                                 getString(dataFieldJO, FieldEditorColumnInfo.VALUE.getColumnName()),
-                                                getString(dataFieldJO,
-                                                        FieldEditorColumnInfo.INHERITED.getColumnName()) },
+                                                getString(dataFieldJO, FieldEditorColumnInfo.INHERITED.getColumnName()) },
                                         importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
                             }
                         }
 
-                        // Add the table's definition to the list
+                        /* Add the table's definition to the list */
                         tableDefinitions.add(tableDefn);
                     }
 
-                    // Check if only the data from the first table is to be read
+                    /* Check if only the data from the first table is to be read */
                     if (importType == ImportType.FIRST_DATA_ONLY) {
-                        // Stop reading table definitions
+                        /* Stop reading table definitions */
                         break;
                     }
                 }
             }
         } catch (ParseException pe) {
-            // Inform the user that the file cannot be parsed
+            /* Inform the user that the file cannot be parsed */
             throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         } finally {
             try {
-                // Check that the buffered reader exists
+                /* Check that the buffered reader exists */
                 if (br != null) {
-                    // Close the file
+                    /* Close the file */
                     br.close();
                 }
             } catch (IOException ioe) {
-                // Inform the user that the file cannot be closed
+                /* Inform the user that the file cannot be closed */
                 new CcddDialogHandler().showMessageDialog(parent,
                         "<html><b>Cannot close import file '</b>" + importFile.getAbsolutePath() + "<b>'",
                         "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
@@ -1478,16 +1196,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
-    @SuppressWarnings("unchecked")
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, Object... extraInfo)
+            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
+            Object... extraInfo)
             throws CCDDException, Exception {
+        /* Initialize local variables */
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
@@ -1496,40 +1211,37 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             List<String> referencedInputTypes = new ArrayList<String>();
             List<String[]> variablePaths = new ArrayList<String[]>();
 
-            // Check if all variable paths are to be exported. This is only possible if no
-            // tables
-            // are specified; otherwise only those variables in the table are exported
+            /* Check if all variable paths are to be exported. This is only possible if no tables
+             * are specified; otherwise only those variables in the table are exported
+             */
             if (includeVariablePaths && tableNames.length == 0) {
-                // Step through each structure and variable name
+                /* Step through each structure and variable name */
                 for (String variablePath : variableHandler.getAllVariableNames()) {
-                    // Add the path, in both application and user-defined formats, to the list to
-                    // be output
+                    /* Add the path, in both application and user-defined formats, to the list to be output */
                     variablePaths.add(new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
                             separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
                 }
             }
 
-            // Output the table data to the selected file. Multiple writers are needed in
-            // case
-            // tables are appended to an existing file
+            /* Output the table data to the selected file. Multiple writers are needed in case
+             * tables are appended to an existing file
+             */
             fw = new FileWriter(exportFile, true);
             bw = new BufferedWriter(fw);
             pw = new PrintWriter(bw);
 
-            // Use of the JSONObject does not retain the order that the key:value pairs are
-            // stored.
-            // This custom JSON object is used so that the stored order is reflected in the
-            // output
+            /* Use of the JSONObject does not retain the order that the key:value pairs are stored.
+             * This custom JSON object is used so that the stored order is reflected in the output */
             OrderedJSONObject outputJO = new OrderedJSONObject();
 
-            // Check if any tables are provided
+            /* Check if any tables are provided */
             if (tableNames.length != 0) {
                 JSONArray tableJA = new JSONArray();
 
-                // Sort the array of table names alphabetically, accounting for array dimension
-                // values within the table names. This causes the tables to be placed in the
-                // JSON
-                // output in a predictable and reproducible order
+                /* Sort the array of table names alphabetically, accounting for array dimension
+                 * values within the table names. This causes the tables to be placed in the JSON
+                 * output in a predictable and reproducible order
+                 */
                 Arrays.sort(tableNames, new Comparator<String>() {
                     /******************************************************************************
                      * Compare the table names, ignoring case and accounting for array dimension
@@ -1539,51 +1251,51 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     public int compare(String tblName1, String tblName2) {
                         int result = 0;
 
-                        // Check if the table names are members of the same array
+                        /* Check if the table names are members of the same array */
                         if (ArrayVariable.isArrayMember(tblName1) && ArrayVariable.isArrayMember(tblName2)
                                 && ArrayVariable.removeArrayIndex(tblName1)
                                         .equals(ArrayVariable.removeArrayIndex(tblName2))) {
-                            // Compare the two array names, accounting for the array dimension(s)
-                            // as integers and not as strings
+                            /* Compare the two array names, accounting for the array dimension(s)
+                             * as integers and not as strings
+                             */
                             result = ArrayVariable.compareTo(tblName1, tblName2);
                         }
-                        // The table names are not part of the same array
+                        /* The table names are not part of the same array */
                         else {
-                            // Compare the two names as strings, ignoring case
+                            /* Compare the two names as strings, ignoring case */
                             result = tblName1.compareToIgnoreCase(tblName2);
                         }
                         return result;
                     }
                 });
 
-                // Step through each table
+                /* Step through each table */
                 for (String tblName : tableNames) {
-                    // Get the table's information
+                    /* Get the table's information */
                     OrderedJSONObject tableInfoJO = getTableInformation(tblName, replaceMacros, includeVariablePaths,
                             variableHandler, separators);
 
-                    // Check if the table's data successfully loaded
+                    /* Check if the table's data successfully loaded */
                     if (tableInfoJO != null && !tableInfoJO.isEmpty()) {
-                        // Add the wrapper for the table
+                        /* Add the wrapper for the table */
                         tableJA.add(tableInfoJO);
 
-                        // Get the table type definition based on the type name
+                        /* Get the table type definition based on the type name */
                         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                        // Get the visible column names based on the table's type
+                        /* Get the visible column names based on the table's type */
                         String[] columnNames = typeDefn.getColumnNamesUser();
 
-                        // Step through each row in the table
+                        /* Step through each row in the table */
                         for (int row = 0; row < tableInfo.getData().length; row++) {
-                            // Step through each column in the row
+                            /* Step through each column in the row */
                             for (int column = 0; column < columnNames.length; column++) {
-                                // Check if the column isn't the primary key or row index
+                                /* Check if the column isn't the primary key or row index */
                                 if (column != DefaultColumn.PRIMARY_KEY.ordinal()
                                         && column != DefaultColumn.ROW_INDEX.ordinal()) {
                                     List<Integer> dataTypeColumns = new ArrayList<Integer>();
 
-                                    // Get the column indices for all columns that can contain a
-                                    // primitive data type
+                                    /* Get the column indices for all columns that can contain a primitive data type */
                                     dataTypeColumns.addAll(
                                             typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
                                     dataTypeColumns
@@ -1591,18 +1303,18 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 }
                             }
 
-                            // Check if variable paths are to be output and if this table
-                            // represents a structure
+                            /* Check if variable paths are to be output and if this table represents a structure */
                             if (includeVariablePaths && typeDefn.isStructure()) {
-                                // Get the variable path
+                                /* Get the variable path */
                                 String variablePath = tableInfo.getTablePath() + ","
                                         + tableInfo.getData()[row][typeDefn
                                                 .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
                                         + "." + tableInfo.getData()[row][typeDefn
                                                 .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
-                                // Add the path, in both application and user-defined formats, to
-                                // the list to be output
+                                /* Add the path, in both application and user-defined formats, to
+                                 * the list to be output
+                                 */
                                 variablePaths.add(
                                         new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
                                                 separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
@@ -1611,65 +1323,71 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                // Check if any tables were processed successfully
+                /* Check if any tables were processed successfully */
                 if (tableJA != null) {
-                    // Add the table information to the JSON output
+                    /* Add the table information to the JSON output */
                     outputJO.put(JSONTags.TABLE_DEFN.getTag(), tableJA);
                 }
             }
 
-            // Check if the user elected to store the reserved message IDs
+            /* Check if the user elected to store the reserved message IDs */
             if (includeReservedMsgIDs) {
-                // Add the reserved message ID definition(s), if any, to the output
+                /* Add the reserved message ID definition(s), if any, to the output */
                 outputJO = getReservedMsgIDDefinitions(outputJO);
             }
 
-            // Check if the user elected to store the project-level data fields
+            /* Check if the user elected to store the project-level data fields */
             if (includeProjectFields) {
-                // Add the project-level data field(s), if any, to the output
+                /* Add the project-level data field(s), if any, to the output */
                 outputJO = getDataFields(CcddFieldHandler.getFieldProjectName(), JSONTags.PROJECT_FIELD.getTag(),
                         referencedInputTypes, outputJO);
             }
 
-            // Check if variable paths are to be output
+            /* Check if variable paths are to be output */
             if (includeVariablePaths) {
-                // Add the variable paths, if any, to the output
+                /* Add the variable paths, if any, to the output */
                 outputJO = getVariablePaths(variablePaths, outputJO);
             }
 
-            // Create a JavaScript engine for use in formatting the JSON output
+            /* Create a JavaScript engine for use in formatting the JSON output */
             ScriptEngineManager manager = new ScriptEngineManager();
             ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
 
-            // Output the ordered and formatted JSON object to the file
+            /* Output the ordered and formatted JSON object to the file */
             StringWriter orderedOutput = new StringWriter();
             JSONValue.writeJSONString(outputJO, orderedOutput);
+
             scriptEngine.put("jsonString", orderedOutput.toString());
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-            pw.println((String) scriptEngine.get("result"));
+            if (outputType.contentEquals("Single")) {
+                int size = ((String) scriptEngine.get("result")).length()-3;
+                pw.println(((String) scriptEngine.get("result")).substring(0, size)+ "],");
+            } else {
+                pw.println((String) scriptEngine.get("result"));
+            }
         } catch (IOException | ScriptException iose) {
             throw new CCDDException(iose.getMessage());
         } finally {
-            // Check if the PrintWriter was opened
+            /* Check if the PrintWriter was opened */
             if (pw != null) {
-                // Close the file
+                /* Close the file */
                 pw.close();
             }
 
             try {
-                // Check if the BufferedWriter was opened
+                /* Check if the BufferedWriter was opened */
                 if (bw != null) {
-                    // Close the file
+                    /* Close the file */
                     bw.close();
                 }
 
-                // Check if the FileWriter was opened
+                /* Check if the FileWriter was opened */
                 if (fw != null) {
-                    // Close the file
+                    /* Close the file */
                     fw.close();
                 }
             } catch (IOException ioe) {
-                // Inform the user that the data file cannot be closed
+                /* Inform the user that the data file cannot be closed */
                 new CcddDialogHandler().showMessageDialog(parent,
                         "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
                         "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
@@ -1868,13 +1586,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         }
         return outputJO;
     }
-
-    /**********************************************************************************************
-     *********************************************************************************************/
-    protected void exportJSONData() {
-
-    }
-
+    
     /**********************************************************************************************
      * Export script association data, group data, macro data, telemetry scheduler
      * data or application scheduler data to the specified folder
@@ -1890,123 +1602,153 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * 
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    protected void exportJSONData(CcddConstants.exportDataTypes dataType, FileEnvVar exportFile, String outputType)
-            throws CCDDException, Exception {
+    public void exportInternalCCDDData(boolean[] includes, CcddConstants.exportDataTypes[] dataTypes,
+            FileEnvVar exportFile, String outputType) throws CCDDException, Exception {
         /* create a set of writers for the group output file. */
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
+        boolean fwCreated = false;
+        int counter = 0;
         List<String> referencedInputTypes = new ArrayList<String>(); // TODO: Not sure this is needed
         List<String> referencedMacros = new ArrayList<String>();
-
-        try {
-            /* Are we exporting this database to multiple files or a single file */
-            if (outputType == "Multiple") {
-                /* Multiple files */
-                switch (dataType) {
-                case GROUPS:
-                    fw = new FileWriter(exportFile + "/_group_info.json", false);
-                    break;
-
-                case MACROS:
-                    fw = new FileWriter(exportFile + "/_macros.json", false);
-                    break;
-
-                case ASSOCIATIONS:
-                    fw = new FileWriter(exportFile + "/_script_associations.json", false);
-                    break;
-
-                case TELEMSCHEDULER:
-                    fw = new FileWriter(exportFile + "/_tlm_scheduler.json", false);
-                    break;
-
-                case APPSCHEDULER:
-                    fw = new FileWriter(exportFile + "/_app_scheduler.json", false);
-                    break;
+        OrderedJSONObject outputJO = new OrderedJSONObject();
+        
+        for (CcddConstants.exportDataTypes dataType: dataTypes) {
+            if (includes[counter] == true) {
+                try {
+                    /* Are we exporting this database to multiple files or a single file */
+                    if ((outputType == "Single") && (!fwCreated)) {
+                        /* Single file */
+                        fw = new FileWriter(exportFile, true);
+                        bw = new BufferedWriter(fw);
+                        pw = new PrintWriter(bw);
+                        
+                        fwCreated = true;
+                    }
+                    
+                    /* Multiple files */
+                    switch (dataType) {
+                    case GROUPS:
+                        if (outputType == "Multiple") {
+                            fw = new FileWriter(exportFile + "/_group_info.json", false);
+                            bw = new BufferedWriter(fw);
+                            pw = new PrintWriter(bw);
+                            outputJO = new OrderedJSONObject();
+                        }
+                        
+                        /* Get the group information */
+                        String groupInfo = getGroupInformation("", false, referencedInputTypes);
+        
+                        /* Check if any groups exist */
+                        if (groupInfo != null) {
+                            /* Add the group information, if any, to the output */
+                            JSONParser parser = new JSONParser();
+                            outputJO.put(JSONTags.GROUP.getTag(), parser.parse(groupInfo));
+                        }
+                        break;
+    
+                    case MACROS:
+                        if (outputType == "Multiple") {
+                            fw = new FileWriter(exportFile + "/_macros.json", false);
+                            bw = new BufferedWriter(fw);
+                            pw = new PrintWriter(bw);
+                            outputJO = new OrderedJSONObject();
+                        }
+                        
+                        /* Get the macros information */
+                        referencedMacros.addAll(macroHandler.getMacroNames());
+                        outputJO = getMacroDefinitions(referencedMacros, outputJO);
+                        break;
+    
+                    case ASSOCIATIONS:
+                        if (outputType == "Multiple") {
+                            fw = new FileWriter(exportFile + "/_script_associations.json", false);
+                            bw = new BufferedWriter(fw);
+                            pw = new PrintWriter(bw);
+                            outputJO = new OrderedJSONObject();
+                        }
+                        
+                        /* Get the Script association data */
+                        getScriptAssociations(outputJO);
+                        break;
+    
+                    case TELEMSCHEDULER:
+                        if (outputType == "Multiple") {
+                            fw = new FileWriter(exportFile + "/_tlm_scheduler.json", false);
+                            bw = new BufferedWriter(fw);
+                            pw = new PrintWriter(bw);
+                            outputJO = new OrderedJSONObject();
+                        }
+                        
+                        /* Get the telemetry scheduler data */
+                        getTlmSchedulerData(outputJO);
+                        break;
+    
+                    case APPSCHEDULER:
+                        if (outputType == "Multiple") {
+                            fw = new FileWriter(exportFile + "/_app_scheduler.json", false);
+                            bw = new BufferedWriter(fw);
+                            pw = new PrintWriter(bw);
+                            outputJO = new OrderedJSONObject();
+                        }
+                        
+                        /* Get the application scheduler data */
+                        getAppSchedulerData(outputJO);
+                        break;
+                    }
+                
+                    if ((outputType.contentEquals("Multiple")) || (dataType == exportDataTypes.APPSCHEDULER)) {
+                        if (outputJO != null) {
+                            /* Create a JavaScript engine for use in formatting the JSON output */
+                            ScriptEngineManager manager = new ScriptEngineManager();
+                            ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
+            
+                            /* Output the ordered and formatted JSON object to the file */
+                            StringWriter orderedOutput = new StringWriter();
+                            JSONValue.writeJSONString(outputJO, orderedOutput);
+                            scriptEngine.put("jsonString", orderedOutput.toString());
+                            scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
+                            if (outputType.contentEquals("Single")) {
+                                pw.println(((String) scriptEngine.get("result")).substring(1));
+                            } else {
+                                pw.println((String) scriptEngine.get("result"));
+                            }
+                        }
+                    }
+                } catch (IOException | ScriptException iose) {
+                    throw new CCDDException(iose.getMessage());
+                } finally {
+                    if ((outputType.contentEquals("Multiple")) || (dataType == exportDataTypes.APPSCHEDULER)) {
+                        /* Check if the PrintWriter was opened */
+                        if (pw != null) {
+                            /* Close the file */
+                            pw.close();
+                        }
+            
+                        try {
+                            /* Check if the BufferedWriter was opened */
+                            if (bw != null) {
+                                /* Close the file */
+                                bw.close();
+                            }
+            
+                            /* Check if the FileWriter was opened */
+                            if (fw != null) {
+                                /* Close the file */
+                                fw.close();
+                            }
+                        } catch (IOException ioe) {
+                            /* Inform the user that the data file cannot be closed */
+                            new CcddDialogHandler().showMessageDialog(parent,
+                                    "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
+                                    "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                        }
+                    }
                 }
-            } else {
-                /* Single file */
-                fw = new FileWriter(exportFile, true);
             }
-
-            bw = new BufferedWriter(fw);
-            pw = new PrintWriter(bw);
-            OrderedJSONObject outputJO = new OrderedJSONObject();
-
-            switch (dataType) {
-            case GROUPS:
-                /* Get the group information */
-                String groupInfo = getGroupInformation("", false, referencedInputTypes);
-
-                /* Check if any groups exist */
-                if (groupInfo != null) {
-                    /* Add the group information, if any, to the output */
-                    JSONParser parser = new JSONParser();
-                    outputJO.put(JSONTags.GROUP.getTag(), parser.parse(groupInfo));
-                }
-                break;
-
-            case MACROS:
-                /* Get the macros information */
-                referencedMacros.addAll(macroHandler.getMacroNames());
-                outputJO = getMacroDefinitions(referencedMacros, outputJO);
-                break;
-
-            case ASSOCIATIONS:
-                /* Get the Script association data */
-                getScriptAssociations(outputJO);
-                break;
-
-            case TELEMSCHEDULER:
-                /* Get the telemetry scheduler data */
-                getTlmSchedulerData(outputJO);
-                break;
-
-            case APPSCHEDULER:
-                /* Get the application scheduler data */
-                getAppSchedulerData(outputJO);
-                break;
-            }
-
-            if (outputJO != null) {
-                /* Create a JavaScript engine for use in formatting the JSON output */
-                ScriptEngineManager manager = new ScriptEngineManager();
-                ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
-
-                /* Output the ordered and formatted JSON object to the file */
-                StringWriter orderedOutput = new StringWriter();
-                JSONValue.writeJSONString(outputJO, orderedOutput);
-                scriptEngine.put("jsonString", orderedOutput.toString());
-                scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-                pw.println((String) scriptEngine.get("result"));
-            }
-        } catch (IOException | ScriptException iose) {
-            throw new CCDDException(iose.getMessage());
-        } finally {
-            /* Check if the PrintWriter was opened */
-            if (pw != null) {
-                /* Close the file */
-                pw.close();
-            }
-
-            try {
-                /* Check if the BufferedWriter was opened */
-                if (bw != null) {
-                    /* Close the file */
-                    bw.close();
-                }
-
-                /* Check if the FileWriter was opened */
-                if (fw != null) {
-                    /* Close the file */
-                    fw.close();
-                }
-            } catch (IOException ioe) {
-                /* Inform the user that the data file cannot be closed */
-                new CcddDialogHandler().showMessageDialog(parent,
-                        "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
-                        "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
-            }
+            
+            counter++;
         }
     }
 
@@ -2033,7 +1775,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
 
-    protected void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
+    public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
             boolean includeInputTypes, boolean includeDataTypes, String outputType) throws CCDDException, Exception {
         List<String> referencedTableTypes = new ArrayList<String>();
         List<String> referencedInputTypes = new ArrayList<String>();
@@ -2087,7 +1829,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 JSONValue.writeJSONString(outputJO, orderedOutput);
                 scriptEngine.put("jsonString", orderedOutput.toString());
                 scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-                pw.println((String) scriptEngine.get("result"));
+                if (outputType.contentEquals("Single")) {
+                    int size = ((String) scriptEngine.get("result")).length()-3;
+                    pw.println(((String) scriptEngine.get("result")).substring(1, size)+ "],");
+                } else {
+                    pw.println((String) scriptEngine.get("result"));
+                }
             }
         } catch (IOException | ScriptException iose) {
             throw new CCDDException(iose.getMessage());
@@ -2314,8 +2061,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the data type definitions added (if
      *         any)
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
+    /* Suppress warnings is used because when this code is compiled some of it is
      * not legal, but it will be at runtime
      */
     @SuppressWarnings("unchecked")
@@ -3094,11 +2840,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the telemetry scheduler data in it (if
      *         any)
      ***************************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
-    @SuppressWarnings("unchecked")
     protected OrderedJSONObject getTlmSchedulerData(OrderedJSONObject outputJO) {
         /* Retrieve the information stored in the Telemetry Scheduler table. */
         List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.TLM_SCHEDULER, false,

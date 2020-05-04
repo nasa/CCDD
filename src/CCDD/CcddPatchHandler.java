@@ -531,7 +531,7 @@ public class CcddPatchHandler {
                                 // table
                                 if (dbTable.createTable(new String[] { cmdArgRefTableName },
                                         "Command " + commandTableName + " argument structure references",
-                                        STRUCT_CMD_ARG_REF, ccddMain.getMainFrame())) {
+                                        STRUCT_CMD_ARG_REF, true, ccddMain.getMainFrame())) {
                                     throw new CCDDException("Cannot create command argument structure reference table");
                                 }
 
@@ -801,7 +801,7 @@ public class CcddPatchHandler {
 
                                     // Create a prototype for the command argument structure table
                                     if (dbTable.createTable(new String[] { cmdName }, "Command argument structure",
-                                            newCmdArgStructType.getName(), ccddMain.getMainFrame())) {
+                                            newCmdArgStructType.getName(), true, ccddMain.getMainFrame())) {
                                         throw new Exception("Cannot create command argument structure table");
                                     }
 
@@ -883,6 +883,17 @@ public class CcddPatchHandler {
                                         // Check if the row isn't empty
                                         if (hasData) {
                                             argTableData.add(cmdArg);
+                                        }
+                                        
+                                        /* If a command has an array size greater than 1 then add all array indices */
+                                        if (!cmdArg[DefaultColumn.ARRAY_SIZE.ordinal()].toString().isEmpty()) {
+                                            Object[] cmdArgArrayMember;
+                                            for (int i = 0; i < Integer.parseInt(cmdArg[DefaultColumn.ARRAY_SIZE.ordinal()].toString()); i++) {
+                                                cmdArgArrayMember = cmdArg.clone();
+                                                cmdArgArrayMember[DefaultColumn.VARIABLE_NAME.ordinal()] = cmdArgArrayMember[
+                                                                       DefaultColumn.VARIABLE_NAME.ordinal()].toString() + "[" + Integer.toString(i) + "]";
+                                                argTableData.add(cmdArgArrayMember);
+                                            }
                                         }
                                     }
 
@@ -1087,7 +1098,7 @@ public class CcddPatchHandler {
                         for (int index = 0; index < commandTableNames.size(); index++) {
                             // Create the updated command table
                             if (dbTable.createTable(new String[] { commandTableNames.get(index) },
-                                    commandTableDescriptions.get(index), typeDefn.getName(), ccddMain.getMainFrame())) {
+                                    commandTableDescriptions.get(index), typeDefn.getName(), false, ccddMain.getMainFrame())) {
                                 throw new CCDDException();
                             }
                         }
@@ -1096,6 +1107,23 @@ public class CcddPatchHandler {
                         // updated values
                         for (int index = 0; index < commands.size(); index++) {
                             dbCommand.executeDbCommand(commands.get(index), ccddMain.getMainFrame());
+                        }
+                        
+                        /* Update the internal __orders table */
+                        int columnCount = tableTypeHandler.getTypeDefinition("Command").getColumnCountDatabase();
+                        String columnOrder = "'";
+                        for (int index = 0; index < columnCount; index++) {
+                            columnOrder += Integer.toString(index);
+                            if (index != columnCount-1) {
+                                columnOrder += ":";
+                            } else {
+                                columnOrder += "'";
+                            }
+                        }
+                                                
+                        for (int index = 0; index < commandTableNames.size(); index++) {
+                            dbCommand.executeDbCommand("UPDATE __orders SET column_order = " + columnOrder + " WHERE table_path = '" +
+                                commandTableNames.get(index) + "';", ccddMain.getMainFrame());
                         }
                     }
                 }
@@ -1561,7 +1589,7 @@ public class CcddPatchHandler {
                 // Update the database's comment, adding the current user as the project creator
                 dbCommand
                         .executeDbUpdate(
-                                dbControl.buildDatabaseCommentCommand(dbControl.getProjectName(), dbControl.getUser(),
+                                dbControl.buildDatabaseCommentCommandAndUpdateInternalTable(dbControl.getProjectName(), dbControl.getUser(),
                                         false, comment[DatabaseComment.DESCRIPTION.ordinal()]),
                                 ccddMain.getMainFrame());
 

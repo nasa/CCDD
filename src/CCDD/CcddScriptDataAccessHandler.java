@@ -4502,6 +4502,7 @@ public class CcddScriptDataAccessHandler {
                     false, // unused for XTCE export
                     null, // unused for XTCE export
                     null, // unused for XTCE export
+                    null, // unused for XTCE export
                     (isBigEndian ? EndianType.BIG_ENDIAN : EndianType.LITTLE_ENDIAN), isHeaderBigEndian, version,
                     validationStatus, classification1, classification2, classification3);
         } catch (JAXBException | CCDDException jce) {

@@ -799,6 +799,10 @@ public class CcddDialogHandler extends JDialog {
             FileNameExtensionFilter[] fileExtensions, boolean folderOnly, boolean multipleFiles, String dialogTitle,
             String folder, DialogOption optionType, JPanel lowerPanel) {
         FileEnvVar[] file = new FileEnvVar[1];
+        
+        if (fileName != null) {
+            fileName = fileName.split("/")[fileName.split("/").length-1];
+        }
 
         // Get the environment variables within the folder path
         Map<String, String> envVars = FileEnvVar.getEnvVars(folder);

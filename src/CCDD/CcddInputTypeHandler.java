@@ -692,21 +692,22 @@ public class CcddInputTypeHandler {
      *                       the imported type doesn't match
      *********************************************************************************************/
     protected void updateInputTypes(List<String[]> inputTypeDefinitions) throws CCDDException {
-        // Step through each imported input type definition
+        /* List of new input type definitions to add */
+        List<String[]> newInputTypeDefinitions = new ArrayList<String[]>();
+        
+        /* Step through each imported input type definition */
         for (String[] typeDefn : inputTypeDefinitions) {
-            // Locate the input type in the map using its name as the key
+            /* Locate the input type in the map using its name as the key */
             InputType inputType = inputTypeMap.get(typeDefn[InputTypesColumn.NAME.ordinal()].toLowerCase());
 
-            // Check if the input type doesn't already exist
+            /* Check if the input type doesn't already exist */
             if (inputType == null) {
-                // Add the input type
-                customInputTypes = CcddUtilities.concatenateArrays(customInputTypes,
-                        inputTypeDefinitions.toArray(new String[0][0]));
-                setInputTypeData(customInputTypes);
+                /* The input type does not exist yet so add it to the list. */
+                newInputTypeDefinitions.add(typeDefn);
             }
-            // The input type exists; check if the type information provided matches the
-            // existing
-            // type information
+            /* The input type exists; check if the type information provided matches the existing
+             * type information
+             */
             else if (!(inputType.getInputName().equals(typeDefn[InputTypesColumn.NAME.ordinal()])
                     && inputType.getInputDescription().equals(typeDefn[InputTypesColumn.DESCRIPTION.ordinal()])
                     && inputType.getInputMatch().equals(typeDefn[InputTypesColumn.MATCH.ordinal()])
@@ -717,6 +718,13 @@ public class CcddInputTypeHandler {
                 throw new CCDDException("Imported input type '</b>" + typeDefn[InputTypesColumn.NAME.ordinal()]
                         + "<b>' doesn't match the existing definition");
             }
+        }
+        
+        if (newInputTypeDefinitions.size() > 0) {
+            // Add the input type
+            customInputTypes = CcddUtilities.concatenateArrays(customInputTypes,
+                    newInputTypeDefinitions.toArray(new String[0][0]));
+            setInputTypeData(customInputTypes);
         }
     }
 

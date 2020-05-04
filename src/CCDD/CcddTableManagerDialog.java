@@ -460,6 +460,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 // Check that no error occurred creating the dialog
                 if (!errorFlag) {
                     FileEnvVar[] filePath;
+                    FileExtension fileExt = null;
+                    boolean importing = false;
+                    
                     // Display the dialog based on supplied dialog type
                     switch (dialogType) {
                     case NEW:
@@ -538,57 +541,25 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                         break;
 
                     case IMPORT_JSON:
-                        // Allow the user to select the data file path + name(s) from which to
-                        // import, and the import options
-                        filePath = choosePathFile(ccddMain, caller, null, "export",
-                                new FileNameExtensionFilter[] { new FileNameExtensionFilter(
-                                        FileExtension.JSON.getDescription(), FileExtension.JSON.getExtensionName()) },
-                                false, true, "Import Data", ccddMain.getProgPrefs()
-                                        .get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
-                                DialogOption.IMPORT_OPTION, createImportPanel(gbc, dialogType));
-
-                        // Check if a file was chosen
-                        if (filePath != null) {
-                            // Export the contents of the selected table(s) in the specified
-                            // format
-                            fileIOHandler.importFileInBackground(filePath, backupFirstCb.isSelected(),
-                                    replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
-                                    useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
-                                    ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
-                                    replaceExistingGroupsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
-                                    doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
-                                    FileExtension.JSON, CcddTableManagerDialog.this);
-                        }
-
+                        fileExt = FileExtension.JSON;
+                        importing = true;
                         break;
+                        
                     case IMPORT_CSV:
-                        // Allow the user to select the data file path + name(s) from which to
-                        // import, and the import options
-                        filePath = choosePathFile(ccddMain, caller, null, "export",
-                                new FileNameExtensionFilter[] { new FileNameExtensionFilter(
-                                        FileExtension.CSV.getDescription(), FileExtension.CSV.getExtensionName()) },
-                                false, true, "Import Data", ccddMain.getProgPrefs()
-                                        .get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
-                                DialogOption.IMPORT_OPTION, createImportPanel(gbc, dialogType));
-
-                        // Check if a file was chosen
-                        if (filePath != null) {
-                            // Export the contents of the selected table(s) in the specified
-                            // format
-                            fileIOHandler.importFileInBackground(filePath, backupFirstCb.isSelected(),
-                                    replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
-                                    useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
-                                    ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
-                                    replaceExistingGroupsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
-                                    doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
-                                    FileExtension.CSV, CcddTableManagerDialog.this);
-                        }
+                        fileExt = FileExtension.CSV;
+                        importing = true;
                         break;
+                        
                     case IMPORT_EDS:
+                        fileExt = FileExtension.EDS;
+                        importing = true;
                         break;
+                        
                     case IMPORT_XTCE:
+                        fileExt = FileExtension.XTCE;
+                        importing = true;
                         break;
-
+                        
                     case EXPORT_CSV:
                     case EXPORT_XTCE:
                     case EXPORT_EDS:
@@ -654,8 +625,36 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                     (scriptNameFld != null ? scriptNameFld.getText() : null),
                                     CcddTableManagerDialog.this);
                         }
-
                         break;
+                    
+                    default:
+                        /* Should never make it here */
+                        break;
+                    }
+                    
+                    /* Check if data is being imported */
+                    if (importing == true) {
+                        /* Allow the user to select the data file path + name(s) from which to
+                        ** import, and the import options
+                        */
+                        filePath = choosePathFile(ccddMain, caller, null, "export",
+                                new FileNameExtensionFilter[] { new FileNameExtensionFilter(
+                                        fileExt.getDescription(), fileExt.getExtensionName()) },
+                                false, true, "Import Data", ccddMain.getProgPrefs()
+                                        .get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
+                                DialogOption.IMPORT_OPTION, createImportPanel(gbc, dialogType));
+
+                        /* Check if a file was chosen */
+                        if (filePath != null) {
+                            /* Export the contents of the selected table(s) in the specified format */
+                            fileIOHandler.importFileInBackground(filePath, backupFirstCb.isSelected(),
+                                    replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
+                                    useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
+                                    ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
+                                    replaceExistingGroupsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
+                                    doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
+                                    fileExt, dialogType, CcddTableManagerDialog.this);
+                        }
                     }
                 }
             }
@@ -798,8 +797,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         importEntireDatabaseCb
                 .setToolTipText(CcddUtilities.wrapText("Check this box if a complete database is about to be imported.",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        if (dialogType == ManagerDialogType.IMPORT_CSV) {
-            importEntireDatabaseCb.setEnabled(false);
+        importEntireDatabaseCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            importEntireDatabaseCb.setEnabled(true);
         }
         gbc.insets.bottom = 0;
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -880,16 +882,23 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         dialogPnl.add(useExistingFieldsCb, gbc);
 
         /* Create a check box for indicating existing macro values can be replaced */
-        replaceExistingMacrosCb = new JCheckBox("Replace existing macro values");
+        replaceExistingMacrosCb = new JCheckBox("Replace existing macros");
         replaceExistingMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingMacrosCb.setBorder(emptyBorder);
         replaceExistingMacrosCb
-                .setToolTipText(CcddUtilities.wrapText("Replace macro values for macros that already exist",
+                .setToolTipText(CcddUtilities.wrapText("If a macro that is imported shares the same name as"
+                        + " an existing one, the existing one will be replace.",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy = 0;
         gbc.gridx++;
         dialogPnl.add(replaceExistingMacrosCb, gbc);
+        replaceExistingMacrosCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            replaceExistingMacrosCb.setEnabled(true);
+        }
 
         /*
          * Create a check box for indicating existing group definitions can be replaced
@@ -903,6 +912,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(replaceExistingGroupsCb, gbc);
+        replaceExistingGroupsCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            replaceExistingGroupsCb.setEnabled(true);
+        }
 
         /*
          * Create a check box for indicating that the a table editor should be opened
@@ -928,6 +943,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.gridy++;
         dialogPnl.add(ignoreErrorsCb, gbc);
+        ignoreErrorsCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            ignoreErrorsCb.setEnabled(true);
+        }
 
         /*
          * Create a check box for indicating that the project should be backed up prior
@@ -956,8 +977,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 "If a file is not in the import it will be deleted from the database."
                         + "Use this selection when importing entire database from JSON.",
                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        if (dialogType == ManagerDialogType.IMPORT_CSV) {
-            deleteNonExistingFilesCb.setEnabled(false);
+        deleteNonExistingFilesCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            deleteNonExistingFilesCb.setEnabled(true);
         }
 
         gbc.insets.bottom = 0;
@@ -975,8 +999,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         doReservedMessageIDsExistCb.setToolTipText(CcddUtilities.wrapText(
                 "Check this box if the files that are about to be imported contain" + " Reserved message IDs.",
                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        if (dialogType == ManagerDialogType.IMPORT_CSV) {
-            doReservedMessageIDsExistCb.setEnabled(false);
+        doReservedMessageIDsExistCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            doReservedMessageIDsExistCb.setEnabled(true);
         }
 
         gbc.insets.bottom = 0;
@@ -995,8 +1022,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         includesProjectFieldsCb.setToolTipText(
                 CcddUtilities.wrapText("Check this box if the files to be imported include project fields.",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        if (dialogType == ManagerDialogType.IMPORT_CSV) {
-            includesProjectFieldsCb.setEnabled(false);
+        includesProjectFieldsCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            includesProjectFieldsCb.setEnabled(true);
         }
 
         gbc.insets.bottom = 0;
@@ -1014,6 +1044,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae) {
+                replaceExistingMacrosCb.setEnabled(!importEntireDatabaseCb.isSelected());
+                replaceExistingMacrosCb.setSelected(importEntireDatabaseCb.isSelected());
+                
                 replaceExistingTablesCb.setEnabled(!importEntireDatabaseCb.isSelected());
                 replaceExistingTablesCb.setSelected(importEntireDatabaseCb.isSelected());
 
@@ -1212,6 +1245,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 exportEntireDatabaseCb = new JCheckBox("Export full database");
                 exportEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 exportEntireDatabaseCb.setBorder(emptyBorder);
+                
+                /* This checkbox is only usable during a JSON export */
+                if ((fileExtn != FileExtension.JSON) && (fileExtn != FileExtension.CSV)) {
+                    exportEntireDatabaseCb.setEnabled(false);
+                }
+                
                 exportEntireDatabaseCb
                         .setToolTipText(CcddUtilities.wrapText("Check this box if exporting the entire database",
                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
@@ -1359,6 +1398,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 includeTlmSchedCB = new JCheckBox("Tlm Scheduler");
                 includeTlmSchedCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeTlmSchedCB.setBorder(emptyBorder);
+                
+                /* This checkbox is only usable during a JSON export */
+                if ((fileExtn != FileExtension.JSON) && (fileExtn != FileExtension.CSV)) {
+                    includeTlmSchedCB.setEnabled(false);
+                }
+                
                 includeTlmSchedCB.setToolTipText(CcddUtilities.wrapText(
                         "If checked, the telemetry scheduler " + " table will be exported in a file",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
@@ -1370,6 +1415,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 includeAppSchedCB = new JCheckBox("App Scheduler");
                 includeAppSchedCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAppSchedCB.setBorder(emptyBorder);
+                
+                /* This checkbox is only usable during a JSON export */
+                if ((fileExtn != FileExtension.JSON) && (fileExtn != FileExtension.CSV)) {
+                    includeAppSchedCB.setEnabled(false);
+                }
+                
                 includeAppSchedCB.setToolTipText(CcddUtilities.wrapText(
                         "If checked, the application scheduler " + " table will be exported in a file",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
@@ -1952,7 +2003,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         pathFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         pathFld.setBorder(border);
-        setFilePath(false, fileExtn);
+        
+        /* EDS and XTCE can only export to a single file so add the file path by default. 
+        ** JSON and CSV export to multiple files by default. Do not add the file path.
+        */
+        if (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE) {
+            setFilePath(true, fileExtn);
+        } else {
+            setFilePath(false, fileExtn);
+        }
+        
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
@@ -1973,7 +2033,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 // Check if tables should be exported to a single file
                 if (singleFileRBtn == null || singleFileRBtn.isSelected()) {
                     // Allow the user to select the export storage path+file
-                    filePath = new CcddDialogHandler().choosePathFile(ccddMain, CcddTableManagerDialog.this, null, null,
+                    filePath = new CcddDialogHandler().choosePathFile(ccddMain, CcddTableManagerDialog.this, pathFld.getText().trim(), null,
                             new FileNameExtensionFilter[] { new FileNameExtensionFilter(fileExtn.getDescription(),
                                     fileExtn.getExtensionName()) },
                             false, "Select File for Exported Table(s)",
@@ -2077,6 +2137,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         boolean isValid = true;
 
         try {
+            boolean importing = false;
             // Verify the dialog content based on the supplied dialog type
             switch (dialogType) {
             case NEW:
@@ -2147,43 +2208,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 break;
 
             case IMPORT_JSON:
-                // Remove any leading or trailing white space characters from the file
-                // path/name
-                getFileNameField().setText(getFileNameField().getText().trim());
-
-                // Check if the name field is empty or contains no file name in the path
-                if (getFileNameField().getText().isEmpty()
-                        || getFileNameField().getText().matches(".*\\" + File.separator + "\\.*?$")) {
-                    // Inform the user that the import file is missing
-                    new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,
-                            "<html><b>Must select an import file name", "Missing/Invalid Input",
-                            JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
-
-                    // Set the flag to indicate the dialog input is invalid
-                    isValid = false;
-                }
-
+                importing = true;
                 break;
+                
             case IMPORT_CSV:
-                // Remove any leading or trailing white space characters from the file
-                // path/name
-                getFileNameField().setText(getFileNameField().getText().trim());
-
-                // Check if the name field is empty or contains no file name in the path
-                if (getFileNameField().getText().isEmpty()
-                        || getFileNameField().getText().matches(".*\\" + File.separator + "\\.*?$")) {
-                    // Inform the user that the import file is missing
-                    new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,
-                            "<html><b>Must select an import file name", "Missing/Invalid Input",
-                            JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
-
-                    // Set the flag to indicate the dialog input is invalid
-                    isValid = false;
-                }
+                importing = true;
                 break;
+                
             case IMPORT_EDS:
+                importing = true;
                 break;
+                
             case IMPORT_XTCE:
+                importing = true;
                 break;
 
             case EXPORT_CSV:
@@ -2287,8 +2324,26 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                         }
                     }
                 }
-
                 break;
+            }
+            
+            if (importing == true) {
+                /* Remove any leading or trailing white space characters from the file
+                ** path/name
+                */
+                getFileNameField().setText(getFileNameField().getText().trim());
+
+                /* Check if the name field is empty or contains no file name in the path */
+                if (getFileNameField().getText().isEmpty()
+                        || getFileNameField().getText().matches(".*\\" + File.separator + "\\.*?$")) {
+                    /* Inform the user that the import file is missing */
+                    new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,
+                            "<html><b>Must select an import file name", "Missing/Invalid Input",
+                            JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+
+                    /* Set the flag to indicate the dialog input is invalid */
+                    isValid = false;
+                }
             }
         } catch (CCDDException ce) {
             // Inform the user that the input value is invalid

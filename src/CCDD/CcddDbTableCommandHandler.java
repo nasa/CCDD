@@ -938,7 +938,7 @@ public class CcddDbTableCommandHandler {
             @Override
             protected void execute() {
                 // Create the table(s)
-                errorFlag = createTable(tableNames, description, tableType, tableDialog);
+                errorFlag = createTable(tableNames, description, tableType, true, tableDialog);
             }
 
             /**************************************************************************************
@@ -962,12 +962,15 @@ public class CcddDbTableCommandHandler {
      * @param description description for the new table(s)
      *
      * @param tableType   type of table to create (e.g., Structure or Command)
+     * 
+     * @param defaultFields Copy the default fields for the new table's type to the new table?
      *
      * @param parent      GUI component over which to center any error dialog
      *
      * @return true if an error occurred when creating a table
      *********************************************************************************************/
-    protected boolean createTable(String[] tableNames, String description, String tableType, Component parent) {
+    protected boolean createTable(String[] tableNames, String description, String tableType, boolean defaultFields, 
+            Component parent) {
         boolean errorFlag = false;
 
         // Convert the array of names into a single string, separated by commas
@@ -979,7 +982,7 @@ public class CcddDbTableCommandHandler {
             // Step through each new table name
             for (String tableName : tableNames) {
                 // Add the command to create the table
-                command += createTableCommand(tableName, description, tableType, parent);
+                command += createTableCommand(tableName, description, tableType, defaultFields, parent);
             }
 
             // Execute the database update
@@ -1009,12 +1012,15 @@ public class CcddDbTableCommandHandler {
      * @param description description for the new table
      *
      * @param tableType   type of table to create (e.g., Structure or Command)
+     * 
+     * @param defaultFields Copy the default fields for the new table's type to the new table?
      *
      * @param parent      GUI component over which to center any dialogs
      *
      * @return The command to create the specified table
      *********************************************************************************************/
-    private String createTableCommand(String tableName, String description, String tableType, Component parent) {
+    private String createTableCommand(String tableName, String description, String tableType, boolean defaultFields,
+            Component parent) {
         StringBuilder command = new StringBuilder("");
 
         // Convert the table name to lower case and bound it with double quotes if it
@@ -1052,8 +1058,12 @@ public class CcddDbTableCommandHandler {
         // Copy the default fields for the new table's type to the new table and set the
         // table's
         // owner
+        if (defaultFields) {
         command.append(copyDataFieldCommand(CcddFieldHandler.getFieldTypeName(tableType), tableName, parent)
                 + dbControl.buildOwnerCommand(DatabaseObject.TABLE, tableName));
+        } else {
+            command.append(dbControl.buildOwnerCommand(DatabaseObject.TABLE, tableName));
+        }
 
         return command.toString();
     }
@@ -4796,7 +4806,7 @@ public class CcddDbTableCommandHandler {
 
         try {
             // Update the project's description
-            dbCommand.executeDbUpdate(dbControl.buildDatabaseCommentCommand(dbControl.getProjectName(),
+            dbCommand.executeDbUpdate(dbControl.buildDatabaseCommentCommandAndUpdateInternalTable(dbControl.getProjectName(),
                     dbControl.getDatabaseAdmins(dbControl.getDatabaseName()), true, description), editorDialog);
 
             // Replace the project data fields with the ones provided

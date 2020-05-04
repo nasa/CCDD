@@ -683,7 +683,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
                 File logDirectory = logFile.getParentFile();
 
                 // Check if the folder doesn't exist; if not then check if the folder is created
-                if (!logDirectory.isDirectory() && logDirectory.mkdir()) {
+                if (logDirectory != null && !logDirectory.isDirectory() && logDirectory.mkdir()) {
                     // Inform the user that the folder was created for the log file
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                             "<html><b>Folder '</b>" + logDirectory.getAbsolutePath()

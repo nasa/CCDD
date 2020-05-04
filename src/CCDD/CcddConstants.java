@@ -37,7 +37,7 @@ import CCDD.CcddConstants.InternalTable.ValuesColumn;
 public class CcddConstants {
     // CCDD author and contributors
     protected static final String CCDD_AUTHOR = "NASA JSC: ER6/Kevin McCluney";
-    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh";
+    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh, Bryan Willis, Jacob Macneal";
 
     // Create the database driver class name
     protected static final String DATABASE_DRIVER = "org.postgresql.Driver";
@@ -295,6 +295,12 @@ public class CcddConstants {
     protected static final int CANCEL_BUTTON = JOptionPane.CANCEL_OPTION;
     protected static final int UPDATE_BUTTON = 0xfd;
     protected static final int IGNORE_BUTTON = 0xfc;
+    
+    /* DBU info place holders */
+    protected static final String NAME = "_db_name_";
+    protected static final String LOCK = "_db_lock_";
+    protected static final String ADMINS = "_db_admins_";
+    protected static final String DESC = "_db_desc_";
 
     // Endian type
     protected static enum EndianType {
@@ -2703,6 +2709,19 @@ public class CcddConstants {
      * Database internal table definitions
      *********************************************************************************************/
     protected static enum InternalTable {
+        /* Database info - Name, databaseLock, users and description */
+        DBU_INFO("dbu_info",
+                new String[][] {{DbuInfoColumn.DATABASE_LOCK.columnName, DbuInfoColumn.DATABASE_LOCK.dataType},
+                    {DbuInfoColumn.DATABASE_NAME.columnName, DbuInfoColumn.DATABASE_NAME.dataType},
+                    {DbuInfoColumn.DATABASE_USERS.columnName, DbuInfoColumn.DATABASE_USERS.dataType},
+                    {DbuInfoColumn.DATABASE_DESC.columnName, DbuInfoColumn.DATABASE_DESC.dataType}},
+                "WITH OIDS",
+                // Create default table definition for the telemetry and command
+                // table types
+                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "dbu_info VALUES "
+                + "('_db_lock_', '_db_name_', '_db_admins_', '_db_desc_')"),
+                
+        
         // Application scheduler
         APP_SCHEDULER("app_scheduler",
                 new String[][] { { AppSchedulerColumn.TIME_SLOT.columnName, AppSchedulerColumn.TIME_SLOT.dataType },
@@ -2856,6 +2875,38 @@ public class CcddConstants {
                         { ValuesColumn.VALUE.columnName, ValuesColumn.VALUE.dataType } },
                 "", "");
 
+        /******************************************************************************************
+         * Database information table columns
+         *****************************************************************************************/
+        protected static enum DbuInfoColumn {
+            DATABASE_NAME("database_name", "text"), DATABASE_LOCK("database_lock", "text"),
+            DATABASE_USERS("database_users", "text"), DATABASE_DESC("database_description", "text");
+
+            private final String columnName;
+            private final String dataType;
+
+            /**************************************************************************************
+             * Scheduler table columns constructor
+             *
+             * @param columnName scheduler table column name
+             *
+             * @param dataType   scheduler table column data type
+             *************************************************************************************/
+            DbuInfoColumn(String columnName, String dataType) {
+                this.columnName = columnName;
+                this.dataType = dataType;
+            }
+
+            /**************************************************************************************
+             * Get the scheduler table column name
+             *
+             * @return Scheduler table column name
+             *************************************************************************************/
+            protected String getColumnName() {
+                return columnName;
+            }
+        }
+        
         /******************************************************************************************
          * Application scheduler table columns
          *****************************************************************************************/
@@ -5160,18 +5211,18 @@ public class CcddConstants {
      * Database list query commands
      *********************************************************************************************/
     protected static enum DatabaseListCommand {
-        // Get the list of data tables only, extracted from the table comments to retain
-        // their
-        // original capitalization, sorted alphabetically
+        /* Get the list of data tables only, extracted from the table comments to retain their
+         * original capitalization, sorted alphabetically
+         */
         DATA_TABLES(
                 "SELECT name FROM (SELECT split_part(obj_description, ',', " + (TableCommentIndex.NAME.ordinal() + 1)
                         + ") AS name FROM (SELECT obj_description(oid) " + "FROM pg_class WHERE substr(relname, 1, "
                         + INTERNAL_TABLE_PREFIX.length() + ") != '" + INTERNAL_TABLE_PREFIX + "' AND relkind = 'r' "
                         + "AND obj_description(oid) != '') AS alias1) AS alias2 " + "ORDER BY name ASC;"),
 
-        // Get the list containing the user-viewable table name, database table name,
-        // and table
-        // type for all prototype data tables, sorted alphabetically
+        /* Get the list containing the user-viewable table name, database table name, and table
+         * type for all prototype data tables, sorted alphabetically
+         */
         DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type AS visname_dbname_type "
                 + "FROM (SELECT split_part(obj_description, ',', 1) AS name, "
                 + "lower(split_part(obj_description, ',', 2)) AS type,"
@@ -5179,7 +5230,7 @@ public class CcddConstants {
                 + INTERNAL_TABLE_PREFIX.length() + ") != '" + INTERNAL_TABLE_PREFIX
                 + "' AND relkind = 'r' AND obj_description(oid) != '') " + "AS alias1) AS alias2 ORDER BY name ASC;"),
 
-        // Check if a specific table exists in the database (case insensitive)
+        /* Check if a specific table exists in the database (case insensitive) */
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
         // Get the list of CCDD databases (in the form 'database name,lock

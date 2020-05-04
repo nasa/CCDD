@@ -100,6 +100,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -295,12 +296,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Build the information from the input and data type definition(s) in the
-     * current file
+     * Import the input types, table types, table type data fields and data types from the given file
      *
      * @param importFile   import file reference
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     *
+     * @param replaceExistingMacros true to replace existing macros
+     * 
+     * @param replaceExistingTables true to replace existing tables or table fields
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -309,7 +313,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
+            boolean replaceExistingMacros, boolean replaceExistingTables)
             throws CCDDException, IOException, Exception {
         /* TODO */
         return;
@@ -337,9 +342,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Import the the table definitions from an EDS XML formatted file
+     * Build the information from the table definition(s) in the current file
      *
-     * @param importFile            reference to the user-specified XML input file
+     * @param importFile            import file reference
      *
      * @param importType            ImportType.IMPORT_ALL to import the table type,
      *                              data type, and macro definitions, and the data
@@ -352,9 +357,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param ignoreErrors          true to ignore all errors in the import file
      *
-     * @param replaceExistingMacros not used for EDS import
+     * @param replaceExistingMacros true to replace the values for existing macros
      *
-     * @param replaceExistingGroups not used for EDS import
+     * @param replaceExistingGroups true to replace existing group definitions
+     * 
+     * @param replaceExistingTables true to replace existing tables or table fields
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -365,7 +372,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn,
-            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups)
+            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups, boolean replaceExistingTables)
             throws CCDDException, IOException, Exception {
         try {
             // Import the XML from the specified file
@@ -1886,8 +1893,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, Object... extraInfo)
-            throws JAXBException, MarshalException, CCDDException, Exception {
+            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
+            Object... extraInfo) throws JAXBException, MarshalException, CCDDException, Exception {
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1]);
 
@@ -3221,5 +3228,52 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private String getObjectIdentifier(String arraySize) {
         return arraySize == null || arraySize.isEmpty() ? TYPE : ARRAY;
+    }
+    
+    /**********************************************************************************************
+     * Export table type definitions to the specified folder
+     * 
+     * @param exportFile        reference to the user-specified output file
+     * 
+     * @param includeTableTypes Boolean representing if the table types should be
+     *                          included
+     * 
+     * @param includeInputTypes Boolean representing if the input types should be
+     *                          included
+     * 
+     * @param includeDataTypes  Boolean representing if the data types should be
+     *                          included
+     * 
+     * @param outputType        String representing rather the output is going to a
+     *                          single file or multiple files. Should be "Single" or
+     *                          "Multiple"
+     * 
+     * @throws CCDDException If a file I/O or parsing error occurs
+     * 
+     * @throws Exception     If an unanticipated error occurs
+     *********************************************************************************************/
+    public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
+            boolean includeInputTypes, boolean includeDataTypes, String outputType) throws CCDDException, Exception {
+        /* Placeholder */
+    }
+    
+    /**********************************************************************************************
+     * Export script association data, group data, macro data, telemetry scheduler
+     * data or application scheduler data to the specified folder
+     *
+     * @param dataType   the data type that is about to be exported
+     * 
+     * @param exportFile reference to the user-specified output file
+     * 
+     * @param outputType String representing rather the output is going to a single
+     *                   file or multiple files. Should be "Single" or "Multiple"
+     * 
+     * @throws CCDDException If a file I/O or parsing error occurs
+     * 
+     * @throws Exception     If an unanticipated error occurs
+     *********************************************************************************************/
+    public void exportInternalCCDDData(boolean[] includes, CcddConstants.exportDataTypes[] dataTypes, FileEnvVar exportFile,
+            String outputType) throws CCDDException, Exception {
+        /* Placeholder */
     }
 }

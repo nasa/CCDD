@@ -173,10 +173,10 @@ public class CcddFileIOHandler {
     }
 
     /**********************************************************************************************
-     * import files from adirectory containing a JSON file export of the whole
-     * database. The directory should have multiple JSON files in it. This function
-     * imports only the files added or changed relative to what the database looks
-     * like currently.
+     * This function will accept a file or files with JSON/CSV format. It will look thorough the 
+     * files and determine if they contain data that is not currently in the database. If so it
+     * will call an import function on this data. If the files to be imported are in agreement 
+     * with the current state of the database this will be reported and nothing will be imported
      * 
      * @param backupFirst                true to create a backup of the database
      *                                   before importing tables
@@ -218,181 +218,180 @@ public class CcddFileIOHandler {
      * @param parent                     GUI component over which to center any
      *                                   error dialog
      *********************************************************************************************/
-    protected boolean jsonImport(final FileEnvVar[] dataFiles, final boolean backupFirst,
-            final boolean replaceExistingTables, final boolean appendExistingFields, final boolean useExistingFields,
-            final boolean openEditor, final boolean ignoreErrors, final boolean replaceExistingMacros,
-            final boolean replaceExistingGroups, final boolean deleteNonExistingFiles,
-            final boolean doReservedMessageIDsExist, final boolean includesProjectFields, final Component parent) {
-        /*
-         * TODO: This file currently only works for JSON, but it will need to be
-         * modified to work for CSV and etc as well.
-         */
-        /*
-         * Select all current tables in the database and prepare them for export. This
+    protected boolean prepareJSONOrCSVImport(final FileEnvVar[] dataFiles, final boolean backupFirst,
+            final boolean replaceExistingTables, final boolean appendExistingFields,
+            final boolean useExistingFields, final boolean openEditor, final boolean ignoreErrors,
+            final boolean replaceExistingMacros, final boolean replaceExistingGroups,
+            final boolean deleteNonExistingFiles, final boolean doReservedMessageIDsExist,
+            final boolean includesProjectFields, final FileExtension importFileType, 
+            final ManagerDialogType dialogType, final Component parent) {
+        /* Select all current tables in the database and prepare them for export. This
          * will be used later to resolve which import files are new/modified
          */
         CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, null);
         tableTree.setSelectionInterval(0, tableTree.getRowCount());
         List<String> tablePaths = tableTree.getSelectedTablesWithChildren();
         boolean errorFlag = false;
+        
+        /* Create a FileEnvVar array for all files in the user-supplied directory. */
+        List<FileEnvVar> importFiles = new ArrayList<>();
 
         /* Indicates if any changes were made to the database */
         boolean dataWasChanged = false;
 
         try {
-            /* Check if the .snapshot directory exists */
-            if (!Files.isDirectory(Paths.get(snapshotFilePath))) {
-                try {
-                    /* Create the .snapshot directory */
-                    Files.createDirectory(Paths.get(snapshotFilePath));
+            /* If there is only 1 file than that means that we are looking at a super file that
+             * contains the information of an entire database or the user is only importing a single
+             * file. Regardless there is no need for the snapshot directory or checking to see what 
+             * files were deleted and such.
+             */
+            if (dataFiles.length != 1) {
+                /* Check if the .snapshot directory exists */
+                if (!Files.isDirectory(Paths.get(snapshotFilePath))) {
+                    try {
+                        /* Create the .snapshot directory */
+                        Files.createDirectory(Paths.get(snapshotFilePath));
+                    }
+                    /* Catch any possible exception while creating the .snapshot directory */
+                    catch (IOException e) {
+                        CcddUtilities.displayException(e, parent);
+                        e.printStackTrace();
+                    }
                 }
-                /* Catch any possible exception while creating the .snapshot directory */
-                catch (IOException e) {
-                    CcddUtilities.displayException(e, parent);
-                    e.printStackTrace();
+                /* If the .snapshot directory exists, delete its contents */
+                else {
+                    try {
+                        File directory = new File(snapshotFilePath);
+                        FileUtils.cleanDirectory(directory);
+                    } catch (IOException ioe) {
+                        CcddUtilities.displayException(ioe, parent);
+                        ioe.printStackTrace();
+                        errorFlag = true;
+                    }
                 }
-            }
-            /* If the .snapshot directory exists, delete its contents */
-            else {
-                try {
-                    File directory = new File(snapshotFilePath);
-                    FileUtils.cleanDirectory(directory);
-                } catch (IOException ioe) {
-                    CcddUtilities.displayException(ioe, parent);
-                    ioe.printStackTrace();
-                    errorFlag = true;
+    
+                /* Backup current database state to .snapshot directory before import. */
+                exportSelectedTables(snapshotFilePath,     /* filePath */
+                        tablePaths.toArray(new String[0]), /* tablePaths */
+                        true,                              /* overwriteFile */
+                        false,                             /* singleFile */
+                        false,                             /* includeBuildInformation */
+                        false,                             /* replaceMacros */
+                        true,                              /* deleteTargetDirectory */
+                        true,                              /* includeAllTableTypes */
+                        true,                              /* includeAllDataTypes */
+                        true,                              /* includeAllInputTypes */
+                        true,                              /* includeAllMacros */
+                        doReservedMessageIDsExist,         /* includeReservedMsgIDs */
+                        includesProjectFields,             /* includeProjectFields */
+                        true,                              /* includeGroups */
+                        true,                              /* includeAssociations */
+                        true,                              /* includeTlmSched */
+                        true,                              /* includeAppSched */
+                        false,                             /* includeVariablePaths */
+                        ccddMain.getVariableHandler(),     /* variableHandler */
+                        null,                              /* separators */
+                        importFileType,                    /* fileExtn */
+                        null,                              /* endianess */
+                        false,                             /* isHeaderBigEndian */
+                        null,                              /* version */
+                        null,                              /* validationStatus */
+                        null,                              /* classification1 */
+                        null,                              /* classification2 */
+                        null,                              /* classification3 */
+                        false,                             /* useExternal */
+                        null,                              /* scriptFileName */
+                        null);                             /* parent */
+    
+                /* Create a File array for all files in the .snapshot hidden directory. */
+                List<File> snapshotFiles = new ArrayList<>(Arrays.asList(new File(snapshotFilePath).listFiles()));
+    
+                for (FileEnvVar dataFile : dataFiles) {
+                    /* Only import files that end with the correct file extension */
+                    if (dataFile.getName().endsWith(importFileType.getExtension())) {
+                        importFiles.add(new FileEnvVar(dataFile.getPath()));
+                    }
                 }
-            }
-
-            /* Backup current database state to .snapshot directory before import. */
-            exportSelectedTables(snapshotFilePath, /* filePath */
-                    tablePaths.toArray(new String[0]), /* tablePaths */
-                    true, /* overwriteFile */
-                    false, /* singleFile */
-                    false, /* includeBuildInformation */
-                    replaceExistingMacros, /* replaceMacros */
-                    true, /* deleteTargetDirectory */
-                    true, /* includeAllTableTypes */
-                    true, /* includeAllDataTypes */
-                    true, /* includeAllInputTypes */
-                    true, /* includeAllMacros */
-                    doReservedMessageIDsExist, /* includeReservedMsgIDs */
-                    includesProjectFields, /* includeProjectFields */
-                    true, /* includeGroups */
-                    true, /* includeAssociations */
-                    true, /* includeTlmSched */
-                    true, /* includeAppSched */
-                    false, /* includeVariablePaths */
-                    ccddMain.getVariableHandler(), /* variableHandler */
-                    null, /* separators */
-                    FileExtension.JSON, /* fileExtn */
-                    null, /* endianess */
-                    false, /* isHeaderBigEndian */
-                    null, /* version */
-                    null, /* validationStatus */
-                    null, /* classification1 */
-                    null, /* classification2 */
-                    null, /* classification3 */
-                    false, /* useExternal */
-                    null, /* scriptFileName */
-                    null); /* parent */
-
-            /* Create a File array for all files in the .snapshot hidden directory. */
-            List<File> snapshotFiles = new ArrayList<>(Arrays.asList(new File(snapshotFilePath).listFiles()));
-
-            /* Create a FileEnvVar array for all files in the user-supplied directory. */
-            List<FileEnvVar> importFiles = new ArrayList<>();
-
-            for (FileEnvVar dataFile : dataFiles) {
-                /* Only import files that end with .json */
-                if (dataFile.getName().endsWith(".json")) {
-                    importFiles.add(new FileEnvVar(dataFile.getPath()));
-                }
-            }
-
-            List<File> deletedFiles = new ArrayList<>(snapshotFiles);
-
-            /* Step through each file in the deleted files array */
-            for (int index = 0; index < deletedFiles.size(); index++) {
-                /* Step through each file in the import array */
-                if (index > 1500) {
-                    System.out.println("Line: " + Integer.toString(index));
-                }
-                for (int index2 = 0; index2 < importFiles.size(); index2++) {
-                    /*
-                     * Do the filenames equal each other? Or, is the deletedFile element in question
-                     * not a JSON?
-                     */
-                    if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName())) {
-                        /* This file exists. Determine if it has been modified or not before deletion */
-                        try {
-                            boolean areEqual = FileUtils.contentEquals(new File(importFiles.get(index2).getPath()),
-                                    new File(deletedFiles.get(index).getPath()));
-                            if (areEqual) {
-                                /*
-                                 * The files are the same so nothing will be done with this file. Remove it from
-                                 * the importFiles list
-                                 */
-                                importFiles.remove(index2);
+    
+                List<File> deletedFiles = new ArrayList<>(snapshotFiles);
+    
+                /* Step through each file in the deleted files array */
+                for (int index = 0; index < deletedFiles.size(); index++) {
+                    for (int index2 = 0; index2 < importFiles.size(); index2++) {
+                        /* Do the filenames equal each other? Or, is the deletedFile element in question
+                         * not of the correct extension?
+                         */
+                        if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName())) {
+                            /* This file exists. Determine if it has been modified or not before deletion */
+                            try {
+                                if (FileUtils.contentEqualsIgnoreEOL(new File(importFiles.get(index2).getPath()),
+                                        new File(deletedFiles.get(index).getPath()), null)) {
+                                    /* The files are the same so nothing will be done with this file. Remove it from
+                                     * the importFiles list
+                                     */
+                                    importFiles.remove(index2);
+                                }
+                                /* The file exists so remove it from the deletedFiles list */
+                                deletedFiles.remove(index);
+                                index--;
+    
+                            } catch (IOException ioe) {
+                                CcddUtilities.displayException(ioe, parent);
+                                ioe.printStackTrace();
+                                errorFlag = true;
                             }
-                            /* The file exists so remove it from the deletedFiles list */
+                            break;
+                        } else if (!deletedFiles.get(index).getName().endsWith(importFileType.getExtension())) {
+                            /* This file does not have the correct file extension type */
                             deletedFiles.remove(index);
                             index--;
-
-                        } catch (IOException ioe) {
-                            CcddUtilities.displayException(ioe, parent);
-                            ioe.printStackTrace();
-                            errorFlag = true;
+                            break;
                         }
-                        break;
-                    } else if (!deletedFiles.get(index).getName().endsWith(".json")) {
-                        /* This isn't a JSON file */
-                        deletedFiles.remove(index);
-                        index--;
-                        break;
                     }
                 }
-            }
-            /* End of checking for deleted files */
-
-            /* Does the user want non-existing files to be deleted? */
-            if (deleteNonExistingFiles == true) {
-                /* Is there anything to delete? */
-                if (deletedFiles.size() != 0) {
-                    /* Inform the user that there are tables scheduled to be deleted. */
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                            "<html><b>Some tables are going to be deleted.</b>", "Deletion Warning",
-                            JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
-
-                    /*
-                     * Here, deal with the differing formats in how the filenames are stored vs. how
-                     * table paths are stored.
-                     */
-                    List<String> pathList = tableTree.getTableTreePathList(null);
-                    List<String> deletePathList = new ArrayList<String>();
-
-                    /*
-                     * Check if there are paths in the table tree that correspond to the deleted
-                     * filenames. Add them to a list.
-                     */
-                    for (String dir : pathList) {
-                        String pathReplace = dir.replaceAll("\\,", "_").replaceAll("\\.", "_");
-                        for (File fileToDelete : deletedFiles) {
-                            if ((fileToDelete.getName().replace(".json", "")).equals(pathReplace)) {
-                                deletePathList.add(dir);
+                /* End of checking for deleted files */
+    
+                /* Does the user want non-existing files to be deleted? */
+                if (deleteNonExistingFiles == true) {
+                    /* Is there anything to delete? */
+                    if (deletedFiles.size() != 0) {
+                        /* Inform the user that there are tables scheduled to be deleted. */
+                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                "<html><b>Some tables are going to be deleted.</b>", "Deletion Warning",
+                                JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+    
+                        /* Here, deal with the differing formats in how the filenames are stored vs. how
+                         * table paths are stored.
+                         */
+                        List<String> pathList = tableTree.getTableTreePathList(null);
+                        List<String> deletePathList = new ArrayList<String>();
+    
+                        /* Check if there are paths in the table tree that correspond to the deleted
+                         * filenames. Add them to a list.
+                         */
+                        for (String dir : pathList) {
+                            String pathReplace = dir.replaceAll("\\,", "_").replaceAll("\\.", "_");
+                            for (File fileToDelete : deletedFiles) {
+                                if ((fileToDelete.getName().replace(importFileType.getExtension(), "")).equals(pathReplace)) {
+                                    deletePathList.add(dir);
+                                }
                             }
                         }
+    
+                        /* Now that we have a list of the table paths for the deleted tables, turn it
+                         * into an array and delete them.
+                         */
+                        String[] deleteTableNames = deletePathList.toArray(new String[deletePathList.size()]);
+                        dbTable.deleteTable(deleteTableNames, null, null);
+    
+                        /* If tables were deleted then that means the database has been altered */
+                        dataWasChanged = true;
                     }
-
-                    /*
-                     * Now that we have a list of the table paths for the deleted tables, turn it
-                     * into an array and delete them.
-                     */
-                    String[] deleteTableNames = deletePathList.toArray(new String[deletePathList.size()]);
-                    dbTable.deleteTable(deleteTableNames, null, null);
-
-                    /* If tables were deleted then that means the database has been altered */
-                    dataWasChanged = true;
+                }
+            } else {
+                /* Only import files that end with the correct file extension */
+                if (dataFiles[0].getName().endsWith(importFileType.getExtension())) {
+                    importFiles.add(new FileEnvVar(dataFiles[0].getPath()));
                 }
             }
 
@@ -405,15 +404,14 @@ public class CcddFileIOHandler {
                 /* Import file into database */
                 importFile(importFiles, backupFirst, replaceExistingTables, appendExistingFields, useExistingFields,
                         openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
-                        ManagerDialogType.IMPORT_JSON, parent);
+                        dialogType, parent);
 
                 dataWasChanged = true;
             }
 
             /* If we reach here, that means there's nothing to add and nothing to delete. */
             if (dataWasChanged == false) {
-                /*
-                 * Inform the user that there are no perceptible changes to the files relative
+                /* Inform the user that there are no perceptible changes to the files relative
                  * to current db state.
                  */
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
@@ -654,6 +652,8 @@ public class CcddFileIOHandler {
             if (dataFile != null && dataFile[0] != null) {
                 boolean nameDescProvided = projectName != null && projectDescription != null;
                 boolean commentFound = false;
+                boolean backupDBUInfoFound = false;
+                String backupDBUInfo = "";
                 BufferedReader br = null;
                 BufferedWriter bw = null;
 
@@ -665,6 +665,7 @@ public class CcddFileIOHandler {
                     }
 
                     boolean inComment = false;
+                    boolean inBackupDatabaseInfoTable = false;
                     boolean inUsers = false;
                     boolean isOwnerAdmin = false;
                     String oid = "";
@@ -688,7 +689,7 @@ public class CcddFileIOHandler {
                     // Read each line in the backup file
                     while ((line = br.readLine()) != null) {
                         // Check if this line is not a continuance of the database comment
-                        if (!inComment) {
+                        if (!inComment && !inBackupDatabaseInfoTable) {
                             // Check if this line creates the plpgsql language
                             if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;")
                                     || line.equals("CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;")) {
@@ -773,7 +774,16 @@ public class CcddFileIOHandler {
                                     && line.matches("COMMENT ON DATABASE .+ IS '" + CCDD_PROJECT_IDENTIFIER + ".+")) {
                                 commentFound = true;
                                 inComment = true;
+                            } else if (!commentFound && line.matches("COPY public.__dbu_info .+")) {
+                                /* Here is where I look for dbu info */
+                                inBackupDatabaseInfoTable = true;
                             }
+                        }
+                        
+                        if (inBackupDatabaseInfoTable && !line.matches("COPY public.__dbu_info .+")) {
+                            backupDBUInfo = line;
+                            inBackupDatabaseInfoTable = false;
+                            backupDBUInfoFound = true;
                         }
 
                         // Check if this line is the beginning or a continuance of the database
@@ -792,11 +802,18 @@ public class CcddFileIOHandler {
                         }
 
                         // Write the line to the temporary file
-                        bw.write(line + "\n");
+                        if((!line.matches("SET lock_timeout .+"))
+                                && (!line.matches("-- Dumped .+"))
+                                && (!line.matches("SET idle_in_transaction_session_timeout .+"))
+                                && (!line.matches("SET xmloption.+"))
+                                && (!line.matches("SET row_security .+"))
+                                && (!line.matches("    AS integer"))) {
+                            bw.write(line + "\n");
+                        }
                     }
 
                     // Check if the project name and description exist
-                    if (commentFound || nameDescProvided) {
+                    if (commentFound || nameDescProvided || backupDBUInfoFound) {
                         String projectAdministrator = "";
 
                         // Flush the output file buffer so that none of the contents are lost
@@ -815,6 +832,17 @@ public class CcddFileIOHandler {
                             // and description
                             String[] comment = dbControl.parseDatabaseComment(databaseName, commentText);
 
+                            // Extract the project name (with case preserved) and description, and
+                            // set the flag indicating the comment is located
+                            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                            projectAdministrator = comment[DatabaseComment.ADMINS.ordinal()];
+                            projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
+                        } else if (!nameDescProvided && backupDBUInfoFound) {
+                            /* Split the line read from the file in order to get the project information */
+                            String[] comment = new String[4];
+                            String[] temp = backupDBUInfo.replace("\n", "").split("\t");
+                            System.arraycopy(temp, 1, comment, 0, 4);
+                            comment[0] = comment[0].substring(comment[0].length()-1);
                             // Extract the project name (with case preserved) and description, and
                             // set the flag indicating the comment is located
                             projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
@@ -850,9 +878,8 @@ public class CcddFileIOHandler {
                         // Store the data file path in the program preferences backing store
                         storePath(ccddMain, dataFile[0].getAbsolutePathWithEnvVars(), true,
                                 ModifiablePathInfo.DATABASE_BACKUP_PATH);
-                    }
-                    // The project owner, name, and description don't exist
-                    else {
+                    } else {
+                        // The project owner, name, and description don't exist
                         throw new CCDDException(
                                 "File '</b>" + dataFile[0].getAbsolutePath() + "'<b> is not a backup file");
                     }
@@ -951,7 +978,7 @@ public class CcddFileIOHandler {
             final boolean openEditor, final boolean ignoreErrors, final boolean replaceExistingMacros,
             final boolean replaceExistingGroups, final boolean deleteNonExistingFiles,
             final boolean doReservedMessageIDsExist, final boolean includesProjectFields,
-            final FileExtension importFileType, final Component parent) {
+            final FileExtension importFileType, final ManagerDialogType dialogType, final Component parent) {
         /* Execute the import operation in the background */
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             /**************************************************************************************
@@ -959,16 +986,23 @@ public class CcddFileIOHandler {
              *************************************************************************************/
             @Override
             protected void execute() {
-                if (importFileType == FileExtension.JSON) {
-                    errorFlag = jsonImport(dataFile, backupFirst, replaceExisting, appendExistingFields,
+                if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
+                    errorFlag = prepareJSONOrCSVImport(dataFile, backupFirst, replaceExisting, appendExistingFields,
                             useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
-                            deleteNonExistingFiles, doReservedMessageIDsExist, includesProjectFields, parent);
-                } else if (importFileType == FileExtension.CSV) {
+                            deleteNonExistingFiles, doReservedMessageIDsExist, includesProjectFields, importFileType,
+                            dialogType, parent);
+                } else {
                     List<FileEnvVar> dataFiles = Arrays.asList(dataFile);
-                    // Import the selected table(s)
-                    importFile(dataFiles, backupFirst, replaceExisting, appendExistingFields, useExistingFields,
-                            openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
-                            ManagerDialogType.IMPORT_CSV, parent);
+                    ManagerDialogType importType = null;
+                    if (importFileType == FileExtension.EDS) {
+                        importType = ManagerDialogType.IMPORT_EDS;
+                    } else {
+                        importType = ManagerDialogType.IMPORT_XTCE;
+                    }
+                    /* Import the selected table(s) */
+                   importFile(dataFiles, backupFirst, replaceExisting, appendExistingFields, useExistingFields,
+                           openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
+                           importType, parent);
                 }
             }
 
@@ -1051,17 +1085,14 @@ public class CcddFileIOHandler {
         List<String> duplicateDefinitions = new ArrayList<String>();
         List<String> fileNames = new ArrayList<String>();
 
-        /*
-         * Store the current table type, data type, macro, reserved message ID, and data
+        /* Store the current table type, data type, macro, reserved message ID, and data
          * field information in case it needs to be restored
          */
         List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitionsCopy();
         List<String[]> originalDataTypes = CcddUtilities.copyListOfStringArrays(dataTypeHandler.getDataTypeData());
-        String[][] originalInputTypes = CcddUtilities
-                .copyArrayOfStringArrays(inputTypeHandler.getCustomInputTypeData());
+        String[][] originalInputTypes = CcddUtilities.copyArrayOfStringArrays(inputTypeHandler.getCustomInputTypeData());
         List<String[]> originalMacros = CcddUtilities.copyListOfStringArrays(macroHandler.getMacroData());
-        List<String[]> originalReservedMsgIDs = CcddUtilities
-                .copyListOfStringArrays(rsvMsgIDHandler.getReservedMsgIDData());
+        List<String[]> originalReservedMsgIDs = CcddUtilities.copyListOfStringArrays(rsvMsgIDHandler.getReservedMsgIDData());
         List<String[]> originalDataFields = fieldHandler.getFieldDefnsFromInfo();
 
         /* Initialize the macro update lists */
@@ -1093,18 +1124,16 @@ public class CcddFileIOHandler {
         try {
             int numFilesProcessed = 0;
 
-            /*
-             * Create a save point in case an error occurs while creating or modifying a
+            /* Create a save point in case an error occurs while creating or modifying a
              * table
              */
             dbCommand.createSavePoint(parent);
 
-            /*
-             * Based on what type of import the user selected, create an appropriate handler
+            /* Based on what type of import the user selected, create an appropriate handler
              */
             if (fileType == ManagerDialogType.IMPORT_CSV) {
                 ioHandler = new CcddCSVHandler(ccddMain, groupHandler, parent);
-            } else if (fileType == ManagerDialogType.EXPORT_EDS) {
+            } else if (fileType == ManagerDialogType.IMPORT_EDS) {
                 ioHandler = new CcddEDSHandler(ccddMain, parent);
             } else if (fileType == ManagerDialogType.IMPORT_JSON) {
                 ioHandler = new CcddJSONHandler(ccddMain, groupHandler, parent);
@@ -1117,127 +1146,82 @@ public class CcddFileIOHandler {
 
             /* Step through each file checking for any input type definition available */
             for (FileEnvVar file : dataFiles) {
+                /* Check if the file exist */
+                if (!file.exists()) {
+                    throw new CCDDException("Cannot locate file");
+                }
+                
+                /* Get the file path */
                 filePath = file.getAbsolutePath();
-                filePath = filePath.replaceAll("/./", "/");
-
-                /* Check if the file to import is in JSON format based on the extension */
-                if (filePath.endsWith(FileExtension.JSON.getExtension())) {
+                
+                /* Check if the files being imported are JSON/CSV files */
+                if ((filePath.endsWith(FileExtension.JSON.getExtension())) || (filePath.endsWith(FileExtension.CSV.getExtension()))) {
+                    /* Import any macro/table type definition found */
+                    ioHandler.importTableInfo(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingMacros, replaceExistingTables);
+                    
                     /* Import any input type definition found */
                     ioHandler.importInputTypes(file, ImportType.IMPORT_ALL, ignoreErrors);
+                    
+                    /* Import any internal table found */
+                    ioHandler.importInternalTables(file, ImportType.IMPORT_ALL, ignoreErrors);
                 }
-            }
+                
+                /* Import the table definition(s) from the file */
+                ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null, ignoreErrors, replaceExistingMacros,
+                        replaceExistingGroups, replaceExistingTables);
 
-            /* Step through each file checking for any table type and/or macro definition */
-            for (FileEnvVar file : dataFiles) {
-                filePath = file.getAbsolutePath();
-
-                /* Check if the file to import is in JSON format based on the extension */
-                if (filePath.endsWith(FileExtension.JSON.getExtension())) {
-                    /* Import any macro/table type definition found */
-                    ioHandler.importTableInfo(file, ImportType.IMPORT_ALL, ignoreErrors);
-                }
-            }
-
-            /* Step through each selected file */
-            for (FileEnvVar file : dataFiles) {
-                /* Store the file path */
-                filePath = file.getAbsolutePath();
-
-                /*
-                 * Check if the halt dialog is active (import operation is executed in the
-                 ** background)
+                /* Step through each table definition from the import file. This for loop also guards against trying to import
+                 * the same file more than once.
                  */
+                for (TableDefinition tableDefn : ioHandler.getTableDefinitions()) {
+                    /* Indicates if this file has already been imported */
+                    boolean isDuplicate = false;
+                    
+                    /* Check if the user elected to append any new data fields to any existing ones for a table */
+                    if (appendExistingFields) {
+                        /* Add the imported data field(s) to the table */
+                        addImportedDataField(tableDefn, tableDefn.getName(), useExistingFields);
+                    }
+                    
+                    /* Step through each table definition that has already been imported and added to the list 
+                     * and compare it to the table definition that is about to be imported to ensure no duplicates 
+                     * are added */ // TODO: Look for a faster solution if possible. Array.Contains() only works on primitive types
+                    for (TableDefinition existingDefn : allTableDefinitions) {
+                        /* Check if the table is already defined in the list */
+                        if (tableDefn.getName().equals(existingDefn.getName())) {
+                            /* Add the table name and associated file name to the list of duplicates */
+                            duplicateDefinitions.add(tableDefn.getName() + " (file: " + file.getName() + ")");
+
+                            /* Set the flag indicating the table definition is a duplicate and stop searching */
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    
+                    /* Check if the table is not already defined */
+                    if (!isDuplicate) {
+                        /* Add the table definition to the list */
+                        allTableDefinitions.add(tableDefn);
+                    }
+                }
+
+                /* Check if the halt dialog is active (import operation is executed in the background) */
                 if (haltDlg != null) {
                     /* Check if the user canceled verification */
                     if (haltDlg.isHalted()) {
                         throw new CCDDException();
                     }
-
+                    
                     /* Update the progress bar */
                     haltDlg.updateProgressBar("Reading import file " + file.getName(),
                             haltDlg.getNumDivisionPerStep() * numFilesProcessed);
                     numFilesProcessed++;
-                }
-
-                /* Check if the file doesn't exist */
-                if (!file.exists()) {
-                    throw new CCDDException("Cannot locate file");
-                }
-
-                /* Import the table definition(s) from the file */
-                ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null, ignoreErrors, replaceExistingMacros,
-                        replaceExistingGroups);
-
-                /*
-                 * Check if the halt dialog is active (import operation is executed in the
-                 ** background)
-                 */
-                if (haltDlg != null) {
-                    /* Check if the user canceled verification */
-                    if (haltDlg.isHalted()) {
-                        throw new CCDDException();
-                    }
-
-                    /* Update the progress bar */
-                    haltDlg.updateProgressBar("Importing data...", haltDlg.getProgressBar().getValue());
-                }
-
-                /*
-                 * Check if the user elected to append any new data fields to any existing ones
-                 * for a table
-                 */
-                if (appendExistingFields) {
-                    /* Step through each table definition */
-                    for (TableDefinition tableDefn : ioHandler.getTableDefinitions()) {
-                        /* Add the imported data field(s) to the table */
-                        addImportedDataField(tableDefn, tableDefn.getName(), useExistingFields);
-                    }
-                }
-
-                /* Step through each table definition from the import file */
-                for (TableDefinition newDefn : ioHandler.getTableDefinitions()) {
-                    boolean isFound = false;
-
-                    /* Step through each table definition already in the list */
-                    for (TableDefinition existingDefn : allTableDefinitions) {
-                        /* Check if the table is already defined in the list */
-                        if (newDefn.getName().equals(existingDefn.getName())) {
-                            /*
-                             * Add the table name and associated file name to the list of duplicates
-                             */
-                            duplicateDefinitions.add(newDefn.getName() + " (file: " + file.getName() + ")");
-
-                            /*
-                             * Set the flag indicating the table definition is a duplicate and stop
-                             ** searching
-                             */
-                            isFound = true;
-                            break;
-                        }
-                    }
-
-                    /* Check if the table is not already defined */
-                    if (!isFound) {
-                        /* Add the table definition to the list */
-                        allTableDefinitions.add(newDefn);
-                    }
                 }
             }
 
             /* Create the data tables from the imported table definitions from all files */
             createTablesFromDefinitions(allTableDefinitions, replaceExistingTables, replaceExistingMacros, openEditor,
                     groupHandler, parent);
-
-            /* Step through each selected file */
-            for (FileEnvVar file : dataFiles) {
-                filePath = file.getAbsolutePath();
-
-                /* Check if the file to import is in JSON format based on the extension */
-                if (filePath.endsWith(FileExtension.JSON.getExtension())) {
-                    /* Import any internal table found */
-                    ioHandler.importInternalTables(file, ImportType.IMPORT_ALL, ignoreErrors);
-                }
-            }
 
             /* Check if any new application scheduler data has been added */
             if (ioHandler.getAppSchedulerData() != null) {
@@ -1252,9 +1236,9 @@ public class CcddFileIOHandler {
                 dbTable.storeInformationTable(InternalTable.TLM_SCHEDULER, ioHandler.getTlmSchedulerData(), null,
                         parent);
             }
-
-            /* Check if any new script associations have been added in JSON format */
-            if (ioHandler instanceof CcddJSONHandler && ioHandler.getScriptAssociations() != null) {
+            
+            /* Check if any new script associations are being added */
+            if (ioHandler.getScriptAssociations() != null) {
                 /* Step through each association */
                 for (int index = 0; index < ioHandler.getScriptAssociations().size(); index++) {
                     /* Format the table members for storage in the database */
@@ -1265,29 +1249,10 @@ public class CcddFileIOHandler {
                 }
 
                 /* Store the script associations */
-                dbTable.storeInformationTable(InternalTable.ASSOCIATIONS, ioHandler.getScriptAssociations(), null,
-                        parent);
-            }
-            /*
-             * Check if any new script associations have been added in CSV/EXTC/EDS format
-             */
-            else if (ioHandler.getScriptAssociations() != null) {
-                /* Step through each association */
-                for (int index = 0; index < ioHandler.getScriptAssociations().size(); index++) {
-                    /* Format the table members for storage in the database */
-                    String[] assn = ioHandler.getScriptAssociations().get(index);
-                    assn[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler
-                            .convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()], true);
-                    ioHandler.getScriptAssociations().set(index, assn);
-                }
-
-                /* Store the script associations */
-                dbTable.storeInformationTable(InternalTable.ASSOCIATIONS, ioHandler.getScriptAssociations(), null,
-                        parent);
+                dbTable.storeInformationTable(InternalTable.ASSOCIATIONS, ioHandler.getScriptAssociations(), null, parent);
             }
 
-            /*
-             * Release the save point. This must be done within a transaction block, so it
+            /* Release the save point. This must be done within a transaction block, so it
              * must be done prior to the commit below
              */
             dbCommand.releaseSavePoint(parent);
@@ -1299,14 +1264,10 @@ public class CcddFileIOHandler {
             storePath(ccddMain, dataFiles.get(0).getAbsolutePathWithEnvVars(), true,
                     ModifiablePathInfo.TABLE_EXPORT_PATH);
 
-            /*
-             * Update any open editor's data type columns to include the new table(s), if
-             ** applicable
-             */
+            /* Update any open editor's data type columns to include the new table(s), if applicable */
             dbTable.updateDataTypeColumns(parent);
 
-            /*
-             * Restore the root structure table, variable path and offset, and command
+            /* Restore the root structure table, variable path and offset, and command
              * lists, and the variable, command, and message ID references in case any input
              * types were added
              */
@@ -1315,8 +1276,7 @@ public class CcddFileIOHandler {
             /* Update the table type handler with the input type changes */
             tableTypeHandler.updateInputTypes(null);
 
-            /*
-             * If open, update the table type editor's input type column combo box lists to
+            /* If open, update the table type editor's input type column combo box lists to
              * include the new input type(s), if applicable
              */
             dbTable.updateInputTypeColumns(null, parent);
@@ -1345,11 +1305,9 @@ public class CcddFileIOHandler {
                     JOptionPane.ERROR_MESSAGE, DialogOption.OK_OPTION);
             errorFlag = true;
         } catch (CCDDException cse) {
-            // Check if this is an internally generated exception and that an error message
-            // is
-            // provided
+            /* Check if this is an internally generated exception and that an error message is provided */
             if (cse instanceof CCDDException && !cse.getMessage().isEmpty()) {
-                // Inform the user that an error occurred importing the table(s)
+                /* Inform the user that an error occurred importing the table(s) */
                 new CcddDialogHandler().showMessageDialog(parent,
                         "<html><b>Cannot import from file '</b>" + filePath + "<b>': " + cse.getMessage(),
                         "Import Error", ((CCDDException) cse).getMessageType(), DialogOption.OK_OPTION);
@@ -1378,8 +1336,7 @@ public class CcddFileIOHandler {
                 tableEditorDlg.closeFrame();
             }
 
-            /*
-             * Restore the table types, data types, macros, reserved message IDs, and data
+            /* Restore the table types, data types, macros, reserved message IDs, and data
              * fields to the values prior to the import operation.
              */
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
@@ -1392,8 +1349,7 @@ public class CcddFileIOHandler {
 
             /* Check if the table type editor is open */
             if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing()) {
-                /*
-                 * Remove any table types that were created during the import process, since
+                /* Remove any table types that were created during the import process, since
                  * these are now invalid
                  */
                 ccddMain.getTableTypeEditor().removeInvalidTabs();
@@ -1957,7 +1913,7 @@ public class CcddFileIOHandler {
 
                 // Create the table in the database
                 if (dbTable.createTable(new String[] { tableInfo.getPrototypeName() }, tableInfo.getDescription(),
-                        tableInfo.getType(), parent)) {
+                        tableInfo.getType(), true, parent)) {
                     throw new CCDDException();
                 }
 
@@ -2178,7 +2134,7 @@ public class CcddFileIOHandler {
 
                 // Import the data file into a table definition
                 ioHandler.importFromFile(dataFile[0], ImportType.FIRST_DATA_ONLY, tableHandler.getTableTypeDefinition(),
-                        ignoreErrorsCb.isSelected(), false, false);
+                        ignoreErrorsCb.isSelected(), false, false, false);
                 tableDefinitions = ioHandler.getTableDefinitions();
 
                 // Check if a table definition was successfully created
@@ -2264,31 +2220,29 @@ public class CcddFileIOHandler {
      *                          imported ones if the field names match
      *********************************************************************************************/
     private void addImportedDataField(TableDefinition tableDefn, String ownerName, boolean useExistingFields) {
-        // Step through the imported data fields. The order is reversed so that field
-        // definitions
-        // can be removed if needed
+        /* Step through the imported data fields. The order is reversed so that field definitions
+         * can be removed if needed
+         */
         for (int index = tableDefn.getDataFields().size() - 1; index >= 0; index--) {
-            // Get the reference to the data field definitions to shorten subsequent calls
+            /* Get the reference to the data field definitions to shorten subsequent calls */
             String[] fieldDefn = tableDefn.getDataFields().get(index);
 
-            // Set the data field owner to the specified table (if importing entire tables
-            // this
-            // isn't necessary, but is when importing into an existing table since the owner
-            // in the
-            // import file may differ)
+            /* Set the data field owner to the specified table (if importing entire tables this
+             * isn't necessary, but is when importing into an existing table since the owner in the
+             * import file may differ)
+             */
             fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
 
-            // Get the reference to the data field based on the table name and field name
+            /* Get the reference to the data field based on the table name and field name */
             FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
                     fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
-            // Check if the data field already exists (name and input type must match) and
-            // the user
-            // has elected to use existing fields over ones in the import file
+            /* Check if the data field already exists (name and input type must match) and the user
+             * has elected to use existing fields over ones in the import file
+             */
             if (fieldInfo != null && useExistingFields
                     && fieldInfo.getInputType().getInputName().equals(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()])) {
-                // Remove the new data field definition and replace it with the existing
-                // definition
+                /* Remove the new data field definition and replace it with the existing definition */
                 tableDefn.getDataFields().remove(index);
                 tableDefn.getDataFields().add(index, new String[] { ownerName, fieldInfo.getFieldName(),
                         fieldInfo.getDescription(), String.valueOf(fieldInfo.getSize()),
@@ -2408,14 +2362,14 @@ public class CcddFileIOHandler {
             final FileExtension fileExtn, final EndianType endianess, final boolean isHeaderBigEndian,
             final String version, final String validationStatus, final String classification1, final String classification2,
             final String classification3, final boolean useExternal, final String scriptFileName, final Component parent) {
-        // Execute the export operation in the background
+                /* Execute the export operation in the background */
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             /**************************************************************************************
              * Export the selected table(s)
              *************************************************************************************/
             @Override
             protected void execute() {
-                // Export the selected table(s)
+                /* Export the selected table(s) */
                 errorFlag = exportSelectedTables(filePath, tablePaths, overwriteFile, singleFile,
                         includeBuildInformation, replaceMacros, deleteTargetDirectory, includeAllTableTypes,
                         includeAllDataTypes, includeAllInputTypes, includeAllMacros, includeReservedMsgIDs,
@@ -2430,9 +2384,9 @@ public class CcddFileIOHandler {
              *************************************************************************************/
             @Override
             protected void complete() {
-                // Check if the export was executed from the command line
+                /* Check if the export was executed from the command line */
                 if (!(parent instanceof CcddDialogHandler)) {
-                    // Restore the table export path to what it was at program start-up
+                    /* Restore the table export path to what it was at program start-up */
                     ccddMain.restoreTableExportPath();
                 }
             }
@@ -2549,6 +2503,7 @@ public class CcddFileIOHandler {
             final String validationStatus, final String classification1, final String classification2,
             final String classification3, final boolean useExternal, final String scriptFileName,
             final Component parent) {
+        /* Initialize local variables */
         boolean errorFlag = false;
         FileEnvVar file = null;
         CcddImportExportInterface ioHandler = null;
@@ -2556,7 +2511,6 @@ public class CcddFileIOHandler {
         ScriptEngine scriptEngine = null;
 
         /* Are we writing to a single file or multiple files */
-        /* TODO do not like this. Pass in 'single' or 'multiple'. Not true or false */
         String outputType = "";
         if (singleFile) {
             outputType = "Single";
@@ -2564,19 +2518,14 @@ public class CcddFileIOHandler {
             outputType = "Multiple";
         }
 
-        /* Create new JSON Handler to export internal tables to different files */
-        CcddJSONHandler jsonHandler = new CcddJSONHandler(ccddMain,
-                new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()), ccddMain.getMainFrame());
-
         /* Remove the trailing period if present */
         String path = CcddUtilities.removeTrailer(filePath, ".");
 
         /* Check if external (script) methods are to be used */
         if (useExternal) {
             try {
-                /*
-                 * The table information isn't provided to the script data access handler when
-                 ** creating the script engine below. Therefore, not all script data access
+                /* The table information isn't provided to the script data access handler when
+                 * creating the script engine below. Therefore, not all script data access
                  * methods are available (i.e., those that refer to the table names, rows, data,
                  * etc.). Barring an extensive rewrite of the export methods, in order to
                  * provide the information the tables would have to be read twice, once to
@@ -2601,9 +2550,8 @@ public class CcddFileIOHandler {
         }
 
         try {
-            /*
-             * Check if the user elected to store all tables in a single file. The path must
-             ** include a file name
+            /* Check if the user elected to store all tables in a single file. The path must
+             * include a file name
              */
             if (singleFile) {
                 /* Check if the file name doesn't end with the expected extension */
@@ -2615,8 +2563,7 @@ public class CcddFileIOHandler {
                 /* Create the file using the supplied name */
                 file = new FileEnvVar(path);
             }
-            /*
-             * The table(s) are to be stored in individual files, so the path doesn't
+            /* The table(s) are to be stored in individual files, so the path doesn't
              * include a file name. Check if the path doesn't terminate with a name
              * separator character
              */
@@ -2625,59 +2572,55 @@ public class CcddFileIOHandler {
                 path += File.separator;
             }
 
-            /* Check if the output format is CSV */
+            /* Create a handler based on the file extension */
             if (fileExtn == FileExtension.CSV) {
-                /* Create a CSV handler */
                 ioHandler = new CcddCSVHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent), parent);
-            }
-            /* Check if the output format is EDS XML */
-            else if (fileExtn == FileExtension.EDS) {
-                /* Create an EDS handler */
+            } else if (fileExtn == FileExtension.EDS) {
                 ioHandler = new CcddEDSHandler(ccddMain, parent);
-            }
-            /* Check if the output format is JSON */
-            else if (fileExtn == FileExtension.JSON) {
-                /* Create an JSON handler */
+            } else if (fileExtn == FileExtension.JSON) {
                 ioHandler = new CcddJSONHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent), parent);
-            }
-            /* Check if the output format is XTCE XML */
-            else if (fileExtn == FileExtension.XTCE) {
-                /* Create an XTCE handler */
+            } else if (fileExtn == FileExtension.XTCE) {
                 ioHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
             }
-
-            /* Get directory where the file will be exported to */
-            FileEnvVar exportFile = new FileEnvVar(filePath);
 
             /* Delete the contents of the directory */
             if (deleteTargetDirectory) {
                 try {
-                    File directory = new File(filePath);
-                    FileUtils.cleanDirectory(directory);
-                } catch (IOException ioe) {
-                    CcddUtilities.displayException(ioe, parent);
-                    ioe.printStackTrace();
+                    if (!singleFile) {
+                        /* Clear the directory */
+                        File directory = new File(filePath);
+                        FileUtils.cleanDirectory(directory);
+                    } else {
+                        /* Trim the filename off */
+                        String[] temp = filePath.split("/");
+                        String name = temp[temp.length-1];
+                        String tempPath = filePath.replace(name, "");
+                        
+                        /* Clear the directory */
+                        File directory = new File(tempPath);
+                        FileUtils.cleanDirectory(directory);
+                    }
+                } catch (Exception e) {
+                    CcddUtilities.displayException(e, parent);
+                    e.printStackTrace();
                     errorFlag = true;
                 }
             }
 
             /* Check if the tables are to be exported to a single file or multiple files */
             if (singleFile) {
-                /* Exporting all tables to a single file */
-                /*
-                 * Check if the file already exist, if not one will be created. If it does than
-                 * did the user elects to overwrite it?
+                /* Exporting all tables to a single file. Check if the file already exist, 
+                 * if not one will be created. If it does than did the user elects to overwrite it?
                  */
                 if (isOverwriteExportFileIfExists(file, overwriteFile, parent)) {
                     /* Export the formatted table data to the specified file */
                     ioHandler.exportTables(file, tablePaths, includeBuildInformation, replaceMacros,
                             includeReservedMsgIDs, includeProjectFields, includeVariablePaths, variableHandler,
-                            separators, endianess, isHeaderBigEndian, version, validationStatus, classification1,
+                            separators, outputType, endianess, isHeaderBigEndian, version, validationStatus, classification1,
                             classification2, classification3);
 
-                    /*
-                     * Check if the file is empty following the export. This occurs if an error
-                     ** halts output to the file
+                    /* Check if the file is empty following the export. This occurs if an error
+                     * halts output to the file
                      */
                     if (file.length() == 0) {
                         /* Delete the empty file */
@@ -2693,22 +2636,18 @@ public class CcddFileIOHandler {
                     /* Create the file using a name derived from the table name */
                     file = new FileEnvVar(path + tablePath.replaceAll("[,\\.\\[\\]]", "_") + fileExtn.getExtension());
 
-                    /*
-                     * Check if a file exist for this table. If it doesn't one will be created. If
-                     ** it does did the user elect to overwrite it?
+                    /* Check if a file exist for this table. If it doesn't one will be created. If
+                     * it does did the user elect to overwrite it?
                      */
                     if (isOverwriteExportFileIfExists(file, overwriteFile, parent)) {
-                        /*
-                         * Export the formatted table data. The file name is derived from the table name
-                         */
+                        /* Export the formatted table data. The file name is derived from the table name */
                         ioHandler.exportTables(file, new String[] { tablePath }, includeBuildInformation, replaceMacros,
                                 includeReservedMsgIDs, includeProjectFields, includeVariablePaths, variableHandler,
-                                separators, version, validationStatus, classification1, classification2,
+                                separators, outputType, version, validationStatus, classification1, classification2,
                                 classification3);
 
-                        /*
-                         * Check if the file is empty following the export. This occurs if an error
-                         ** halts output to the file
+                        /* Check if the file is empty following the export. This occurs if an error
+                         * halts output to the file
                          */
                         if (file.length() == 0) {
                             /* Delete the empty file */
@@ -2723,33 +2662,22 @@ public class CcddFileIOHandler {
                 }
             }
 
-            /* Export table info if needed */
-            jsonHandler.exportTableInfoDefinitions(exportFile, includeAllTableTypes, includeAllInputTypes,
-                    includeAllDataTypes, outputType);
+            /* All of the exports below apply only to the JSON/CSV export */
+            if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV)) {        
+                /* Get directory where all the individual files will be exported or the 
+                 * individual file that all data will be exported to 
+                 */
+                FileEnvVar exportDirectoryOrFile = new FileEnvVar(filePath);
 
-            /* Are groups going to be exported */
-            if (includeGroups == true) {
-                jsonHandler.exportJSONData(exportDataTypes.GROUPS, exportFile, outputType);
-            }
-
-            /* Are macros going to be exported */
-            if (includeAllMacros == true) {
-                jsonHandler.exportJSONData(exportDataTypes.MACROS, exportFile, outputType);
-            }
-
-            /* Are associations going to be exported */
-            if (includeAssociations == true) {
-                jsonHandler.exportJSONData(exportDataTypes.ASSOCIATIONS, exportFile, outputType);
-            }
-
-            /* Is the telemetry scheduler table going to be exported */
-            if (includeTlmSched == true) {
-                jsonHandler.exportJSONData(exportDataTypes.TELEMSCHEDULER, exportFile, outputType);
-            }
-
-            /* Is the telemetry scheduler table going to be exported */
-            if (includeAppSched == true) {
-                jsonHandler.exportJSONData(exportDataTypes.APPSCHEDULER, exportFile, outputType);
+                /* Export table info if needed */
+                ioHandler.exportTableInfoDefinitions(exportDirectoryOrFile, includeAllTableTypes, includeAllInputTypes,
+                        includeAllDataTypes, outputType);
+                
+                boolean[] includes = {includeGroups, includeAllMacros, includeAssociations, includeTlmSched, includeAppSched};
+                exportDataTypes[] dataTypes = {exportDataTypes.GROUPS, exportDataTypes.MACROS, exportDataTypes.ASSOCIATIONS,
+                        exportDataTypes.TELEMSCHEDULER, exportDataTypes.APPSCHEDULER};
+                
+                ioHandler.exportInternalCCDDData(includes, dataTypes, exportDirectoryOrFile, outputType);
             }
 
             /* Check if any tables were skipped */

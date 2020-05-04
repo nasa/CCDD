@@ -508,12 +508,17 @@ public class CcddUtilities {
             // Separate the enumeration at the value+enumerated value separator characters
             String[] parts = enumeration.split("\\s*\\d+\\s*" + Pattern.quote(enumValueSeparator));
 
-            // Determine the length of the second array member. This consists of the first
-            // enumerated value followed by the enumerated pair separator character. Extract
-            // the
-            // ending character which is the enumerated pair separator
-            int index = parts[1].length();
-            separator = parts[1].substring(index - 1, index);
+            /* If parts.length is less than or equal to 2 than that means there is only a single 
+            ** enum and no enum pair separator.
+            */
+            if (parts.length > 2) {
+                // Determine the length of the second array member. This consists of the first
+                // enumerated value followed by the enumerated pair separator character. Extract
+                // the
+                // ending character which is the enumerated pair separator
+                int index = parts[1].length();
+                separator = parts[1].substring(index - 1, index);
+            }
         }
 
         return separator;

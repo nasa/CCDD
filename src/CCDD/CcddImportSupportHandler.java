@@ -161,6 +161,8 @@ public class CcddImportSupportHandler {
      *
      * @param continueOnError  current state of the flag that indicates if all data
      *                         field errors should be ignored
+     *                         
+     * @param replaceExisting  Replace any existing fields 
      *
      * @param defnContainer    TableDefinition, TableTypeDefinition, or
      *                         projectDefinition object to which this data field
@@ -181,9 +183,9 @@ public class CcddImportSupportHandler {
      * @throws CCDDException If the data field name is missing or the user elects to
      *                       stop the import operation due to an invalid input type
      *********************************************************************************************/
-    protected boolean addImportedDataFieldDefinition(boolean continueOnError, Object defnContainer, String[] fieldDefn,
-            String fileName, CcddInputTypeHandler inputTypeHandler, CcddFieldHandler fieldHandler, Component parent)
-            throws CCDDException {
+    protected boolean addImportedDataFieldDefinition(boolean continueOnError, boolean replaceExisting,
+            Object defnContainer, String[] fieldDefn, String fileName, CcddInputTypeHandler inputTypeHandler,
+            CcddFieldHandler fieldHandler, Component parent) throws CCDDException {
         boolean isError = false;
 
         // Check if the field name is empty
@@ -262,33 +264,26 @@ public class CcddImportSupportHandler {
         if (!isError || continueOnError) {
             boolean addField = true;
 
-            // Check if this isn't a table's data field definition. If the field is for a
-            // table
-            // then the field is only added if the table doesn't already exist (and hence
-            // the field
-            // can't already exist), or the table does exist and the flag to replace
-            // existing
-            // tables is set to true (in which case the field is overwritten so its current
-            // definition doesn't matter)
-            if (!(defnContainer instanceof TableDefinition)) {
-                // Get the reference to the data field from the existing field information
-                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(
-                        fieldDefn[FieldsColumn.OWNER_NAME.ordinal()], fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
+            // Get the reference to the data field from the existing field information
+            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(
+                    fieldDefn[FieldsColumn.OWNER_NAME.ordinal()], fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
-                // Check if this field already exists
-                if (fieldInfo != null) {
-                    // Set the flag to indicate the field shouldn't be added since it already
-                    // exists
-                    addField = false;
+            // Check if this field already exists
+            if (fieldInfo != null) {
+                // Set the flag to indicate the field shouldn't be added since it already
+                // exists
+                addField = false;
 
-                    // Check if the field's input type, required state, applicability, or value
-                    // don't match (the description and size are allowed to differ)
-                    if (!fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
-                            || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()]
-                                    .equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
-                            || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                                    .equals(fieldInfo.getApplicabilityType().getApplicabilityName())
-                            || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue())) {
+                // Check if the field's input type, required state, applicability, or value
+                // don't match (the description and size are allowed to differ)
+                if (!fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
+                        || !fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].equals(Integer.toString(fieldInfo.getSize()))
+                        || !fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
+                        || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
+                        || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                        || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue())) {
+                    
+                    if (!replaceExisting) {
                         // Check if the error should be ignored or the import canceled
                         continueOnError = getErrorResponse(continueOnError,
                                 "<html><b>Data field '</b>" + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
@@ -298,6 +293,8 @@ public class CcddImportSupportHandler {
                                 "Data Field Error", "Ignore this data field (keep existing field)",
                                 "Ignore this and any remaining invalid data fields (use default values or keep existing)",
                                 "Stop importing", parent);
+                    } else {
+                        addField = true;
                     }
                 }
             }

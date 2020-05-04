@@ -21,6 +21,7 @@ import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
+import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 
@@ -77,17 +79,19 @@ public class CcddCommandLineHandler {
     private boolean replaceExistingMacros;
     private boolean replaceExistingGroups;
     private boolean deleteAbsentFiles;
+    private boolean backupFirst;
     private boolean includesReservedMsgIds;
     private boolean includesProjectFields;
     private boolean importFullDatabase;
     private FileExtension importFileType;
+    private ManagerDialogType dialogType;
 
     // Export command parameters
     private String filePath;
     private String[] tablePaths;
     private boolean overwriteFile;
     private boolean singleFile;
-    private boolean deleteTargetDirectory;
+    private boolean clearTargetDirectory;
     private boolean includeAllTableTypes;
     private boolean includeAllDataTypes;
     private boolean includeAllInputTypes;
@@ -884,20 +888,30 @@ public class CcddCommandLineHandler {
                     if (importFullDatabase == true) {
                         replaceExistingTables = true;
                         replaceExistingGroups = true;
+                        replaceExistingMacros = true;
                         deleteAbsentFiles = true;
                     }
 
                     /* Check if the GUI isn't displayed */
-                    if (ccddMain.isGUIHidden()) {
-                        /*
-                         * Import the table(s) from the specified file; check if the import operation
-                         * fails
-                         */
-                        if (ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]),
-                                false, replaceExistingTables, appendExistingFields, useExistingFields, openEditor,
-                                ignoreErrors, replaceExistingMacros, replaceExistingGroups, deleteAbsentFiles,
-                                includesReservedMsgIds, includesProjectFields, importFileType, null)) {
-                            throw new Exception();
+                    if (ccddMain.isGUIHidden()) {                        
+                        if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
+                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), backupFirst, replaceExistingTables,
+                                    appendExistingFields, useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
+                                    deleteAbsentFiles, includesReservedMsgIds, includesProjectFields, importFileType, dialogType, null)) {
+                                throw new Exception();
+                            }
+                        } else if (importFileType != null){
+                            /* Import the table(s) from the specified file; check if the import operation
+                             * fails
+                             */
+                            if (ccddMain.getFileIOHandler().importFile(dataFile, backupFirst, replaceExistingTables, appendExistingFields, useExistingFields,
+                                    openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups, dialogType, null)) {
+                                throw new Exception();
+                            }
+                        } else {
+                            /* Display the error message */
+                            throw new Exception("Import disabled; user did not provide an import file type/extension for '"
+                                    + ccddMain.getDbControlHandler().getProjectName() + "'");
                         }
                     }
                     /* The GUI is displayed */
@@ -906,7 +920,7 @@ public class CcddCommandLineHandler {
                         ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), false,
                                 replaceExistingTables, appendExistingFields, useExistingFields, openEditor,
                                 ignoreErrors, replaceExistingMacros, replaceExistingGroups, deleteAbsentFiles,
-                                includesReservedMsgIds, includesProjectFields, importFileType, ccddMain.getMainFrame());
+                                includesReservedMsgIds, includesProjectFields, importFileType, dialogType, ccddMain.getMainFrame());
                     }
                 }
                 /* The user doesn't have write access */
@@ -960,6 +974,29 @@ public class CcddCommandLineHandler {
                             // Append the path to the file name and add the file to the list
                             dataFile.add(new FileEnvVar(path + File.separator + fileName));
                         }
+                    }
+                }
+            }
+        });
+        
+        /* Import command - folder containing files to import */
+        importArgument.add(new CommandHandler("folder", "Folder containing file(s) to import",
+                "path/folderName", CommandLineType.NAME, 0) {
+            /**************************************************************************************
+             * Set the import file folder. Will import all files with the correct extension.
+             *
+             * Example: -folder pathToFolder/folderName
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal) {
+                File folder = new File((String)parmVal);
+                
+                if (folder.isDirectory()) {
+                    String[] files = folder.list();
+                    String path = (String)parmVal;
+                    
+                    for (String file : files) {
+                        dataFile.add(new FileEnvVar(path + File.separator + file));
                     }
                 }
             }
@@ -1062,8 +1099,7 @@ public class CcddCommandLineHandler {
             }
         });
 
-        /*
-         * Import command - delete files/data from database that does not exist in the
+        /* Import command - delete files/data from database that does not exist in the
          * import files
          */
         importArgument.add(new CommandHandler("deleteAbsentFiles",
@@ -1075,6 +1111,20 @@ public class CcddCommandLineHandler {
             @Override
             protected void doCommand(Object parmVal) {
                 deleteAbsentFiles = (Boolean) parmVal;
+            }
+        });
+        
+        /* Import command - Backup the database before beginning the import
+         */
+        importArgument.add(new CommandHandler("backupFirst",
+                "Backup database before beginning the import?", "true or false (default: false)",
+                CommandLineType.OPTION, 0, new Object[] { true, false }, new String[] { "true", "false" }) {
+            /**************************************************************************************
+             * Set the flag to delete non existing files
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal) {
+                backupFirst = (Boolean) parmVal;
             }
         });
 
@@ -1129,6 +1179,16 @@ public class CcddCommandLineHandler {
             @Override
             protected void doCommand(Object parmVal) {
                 importFileType = (FileExtension) parmVal;
+                
+                if (importFileType == FileExtension.JSON) {
+                    dialogType = ManagerDialogType.IMPORT_JSON;
+                } else if (importFileType == FileExtension.CSV) {
+                    dialogType = ManagerDialogType.IMPORT_CSV;
+                } else if (importFileType == FileExtension.EDS) {
+                    dialogType = ManagerDialogType.IMPORT_EDS;
+                } else {
+                    dialogType = ManagerDialogType.IMPORT_XTCE;
+                }
             }
         });
 
@@ -1158,7 +1218,6 @@ public class CcddCommandLineHandler {
                 }
                 /* Verify correct configuration of commands */
                 if (exportFullDatabase == true) {
-                    deleteTargetDirectory = true;
                     includeAllTableTypes = true;
                     includeAllDataTypes = true;
                     includeAllInputTypes = true;
@@ -1176,9 +1235,9 @@ public class CcddCommandLineHandler {
                 /* Check if the GUI isn't displayed */
                 if (ccddMain.isGUIHidden()) {
                     /* Export the specified table(s); check if the export operation fails */
-                    if (ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath, tablePaths,
-                            overwriteFile, singleFile, includeBuildInformation, replaceMacros, includeAllTableTypes,
-                            deleteTargetDirectory, includeAllDataTypes, includeAllInputTypes, includeAllMacros,
+                    if (ccddMain.getFileIOHandler().exportSelectedTables(filePath, tablePaths,
+                            overwriteFile, singleFile, includeBuildInformation, replaceMacros, clearTargetDirectory,
+                            includeAllTableTypes, includeAllDataTypes, includeAllInputTypes, includeAllMacros,
                             includeReservedMsgIDs, includeProjectFields, includeGroups, includeAssociations,
                             includeTlmSched, includeAppSched, includeVariablePaths, ccddMain.getVariableHandler(),
                             separators, fileExtn, endianess, isHeaderBigEndian, version, validationStatus, classification1,
@@ -1190,12 +1249,12 @@ public class CcddCommandLineHandler {
                 else {
                     /* Export the specified table(s) in a background thread */
                     ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath, tablePaths, overwriteFile,
-                            singleFile, includeBuildInformation, replaceMacros, includeAllTableTypes,
-                            deleteTargetDirectory, includeAllDataTypes, includeAllInputTypes, includeAllMacros,
-                            includeReservedMsgIDs, includeProjectFields, includeGroups, includeAssociations,
-                            includeTlmSched, includeAppSched, includeVariablePaths, ccddMain.getVariableHandler(),
-                            separators, fileExtn, endianess, isHeaderBigEndian, version, validationStatus, classification1,
-                            classification2, classification3, scriptFileName != null, scriptFileName, ccddMain.getMainFrame());
+                            singleFile, includeBuildInformation, replaceMacros, clearTargetDirectory, includeAllTableTypes,
+                            includeAllDataTypes, includeAllInputTypes, includeAllMacros, includeReservedMsgIDs,
+                            includeProjectFields, includeGroups, includeAssociations, includeTlmSched, includeAppSched,
+                            includeVariablePaths, ccddMain.getVariableHandler(), separators, fileExtn, endianess,
+                            isHeaderBigEndian, version, validationStatus, classification1, classification2, classification3,
+                            scriptFileName != null, scriptFileName, ccddMain.getMainFrame());
                 }
             }
         });
@@ -1503,6 +1562,19 @@ public class CcddCommandLineHandler {
             @Override
             protected void doCommand(Object parmVal) {
                 fileExtn = (FileExtension) parmVal;
+            }
+        });
+
+        /* Export command - clear target directory */
+        exportArgument.add(new CommandHandler("clearTargetDirectory", "Clear target directory of all contents\n" +
+                " (true, false)", "true or false (default: false)", CommandLineType.OPTION, 0, new Object[] { true, false },
+                new String[] { "true", "false" }) {
+            /**************************************************************************************
+             * Set the deleteTargetDirectory variable
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal) {
+                clearTargetDirectory = (Boolean) parmVal;
             }
         });
 
@@ -1816,8 +1888,7 @@ public class CcddCommandLineHandler {
 
             // Check if the project-specific commands have been completed
             if (priority.getEndPriority() == -1) {
-                // Perform any clean-up steps required after processing the command line
-                // commands
+                // Perform any clean-up steps required after processing the command line commands
                 postCommandCleanUp(0);
             }
         }
@@ -1845,8 +1916,7 @@ public class CcddCommandLineHandler {
 
             // Step through the valid commands
             for (CommandHandler cmd : commandArgument) {
-                // Check if the priority list doesn't contain the priority value for this
-                // command
+                // Check if the priority list doesn't contain the priority value for this command
                 if (!priorities.contains(cmd.priority)) {
                     // Add the priority value to the list
                     priorities.add(cmd.priority);
