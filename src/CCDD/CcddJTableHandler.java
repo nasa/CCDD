@@ -2952,8 +2952,7 @@ public abstract class CcddJTableHandler extends JTable {
 
         // Check if the pasted data should be combined into a single edit operation
         if (combineAsSingleEdit) {
-            // End any active edit sequence, then disable auto-ending so that the paste
-            // operation
+            // End any active edit sequence, then disable auto-ending so that the paste operation
             // can be handled as a single edit for undo/redo purposes
             undoManager.endEditSequence();
             undoHandler.setAutoEndEditSequence(false);

@@ -483,7 +483,7 @@ public abstract class CcddInputFieldPanelHandler {
         gbc.gridy++;
         gbc.insets.top = 0;
         gbc.insets.bottom = 0;
-        createDataFieldPanel(false, CcddFieldHandler.getFieldInformationCopy(ownerFieldInfo));
+        createDataFieldPanel(false, CcddFieldHandler.getFieldInformationCopy(ownerFieldInfo), false);
         gbc.weighty = 1.0;
 
         // Check if this editor doesn't contain an upper pane
@@ -587,16 +587,17 @@ public abstract class CcddInputFieldPanelHandler {
      * @param ownerFieldInfo list of field information to use to build the data
      *                       fields null if no data field is associated with the
      *                       owner
+     *                       
+     * @param ignoreApplicability Should the applicability of the fields be ignored?
      *********************************************************************************************/
-    protected void createDataFieldPanel(boolean undoable, List<FieldInformation> ownerFieldInfo) {
+    protected void createDataFieldPanel(boolean undoable, List<FieldInformation> ownerFieldInfo, 
+            boolean ignoreApplicability) {
         maxFieldWidth = 0;
 
         // Check if any data fields are provided for this input panel
         if (ownerFieldInfo != null) {
-            // Check if the supplied fields aren't already loaded as the input panel's
-            // fields. If
-            // these are the same there's no need to copy the information (plus the clear
-            // command
+            // Check if the supplied fields aren't already loaded as the input panel's fields. If
+            // these are the same there's no need to copy the information (plus the clear command
             // below would wipe out the supplied information)
             if (!ownerFieldInfo.equals(fieldInformation)) {
                 // Clear the current field information. Clearing (versus recreating) the list is
@@ -612,8 +613,7 @@ public abstract class CcddInputFieldPanelHandler {
         }
         // No data field information is supplied
         else {
-            // Clear the current field information. Clearing (versus recreating) the list is
-            // done
+            // Clear the current field information. Clearing (versus recreating) the list is done
             // so the the variable's reference isn't changed
             fieldInformation.clear();
         }
@@ -629,8 +629,7 @@ public abstract class CcddInputFieldPanelHandler {
 
         // Check if any data fields exist for this table/group/etc.
         if (!fieldInformation.isEmpty()) {
-            // Create a panel to contain the data fields. As the editor is resized the field
-            // panel
+            // Create a panel to contain the data fields. As the editor is resized the field panel
             // is resized to contain the data fields, wrapping them to new lines as needed
             fieldPnl = new JPanel(new WrapLayout(FlowLayout.LEADING));
 
@@ -641,9 +640,10 @@ public abstract class CcddInputFieldPanelHandler {
 
             // Step through each data field
             for (final FieldInformation fieldInfo : fieldInformation) {
-                // Check if this field is applicable
+                // Check if this field is applicable or if applicability should be ignored
                 if (fieldHandler.isFieldApplicable(fieldInfo.getOwnerName(),
-                        fieldInfo.getApplicabilityType().getApplicabilityName(), null)) {
+                        fieldInfo.getApplicabilityType().getApplicabilityName(), null) || 
+                        ignoreApplicability) {
                     FieldInformation fldInfo;
 
                     switch (fieldInfo.getInputType().getInputFormat()) {
@@ -664,8 +664,7 @@ public abstract class CcddInputFieldPanelHandler {
                                 fldInfo.setInputFld(undoableTxtFld);
                             }
 
-                            // Store the reference to the input field in the data field
-                            // information
+                            // Store the reference to the input field in the data field information
                             fieldInfo.setInputFld(undoableTxtFld);
 
                             // Add a vertical separator to the field panel
@@ -686,8 +685,7 @@ public abstract class CcddInputFieldPanelHandler {
                                 fldInfo.setInputFld(undoableTxtFld);
                             }
 
-                            // Store the reference to the input field in the data field
-                            // information
+                            // Store the reference to the input field in the data field information
                             fieldInfo.setInputFld(undoableTxtFld);
 
                             // Add a horizontal separator to the field panel
@@ -714,12 +712,10 @@ public abstract class CcddInputFieldPanelHandler {
                             fldInfo.setInputFld(undoableChkBox);
                         }
 
-                        // Store the reference to the input field in the data field
-                        // information
+                        // Store the reference to the input field in the data field information
                         fieldInfo.setInputFld(undoableChkBox);
 
-                        // Set the data field reference in the undo handler for the
-                        // input field
+                        // Set the data field reference in the undo handler for the input field
                         undoableChkBox.setUndoFieldInformation(fieldInfo.getOwnerName(), fieldInfo.getFieldName());
 
                         // Set the check box label font and color
@@ -791,8 +787,7 @@ public abstract class CcddInputFieldPanelHandler {
                                 fldInfo.setInputFld(undoableTxtArea);
                             }
 
-                            // Store the reference to the input field in the data field
-                            // information
+                            // Store the reference to the input field in the data field information
                             fieldInfo.setInputFld(undoableTxtArea);
 
                             inputFld = undoableTxtArea;
@@ -816,12 +811,10 @@ public abstract class CcddInputFieldPanelHandler {
                                     fldInfo.setInputFld(undoableTxtFld);
                                 }
 
-                                // Store the reference to the input field in the data field
-                                // information
+                                // Store the reference to the input field in the data field information
                                 fieldInfo.setInputFld(undoableTxtFld);
 
-                                // Set the data field reference in the undo handler for the
-                                // input field
+                                // Set the data field reference in the undo handler for the input field
                                 undoableTxtFld.setUndoFieldInformation(fieldInfo.getOwnerName(),
                                         fieldInfo.getFieldName());
 
@@ -844,12 +837,10 @@ public abstract class CcddInputFieldPanelHandler {
                                     fldInfo.setInputFld(undoableCmbBx);
                                 }
 
-                                // Store the reference to the input field in the data field
-                                // information
+                                // Store the reference to the input field in the data field information
                                 fieldInfo.setInputFld(undoableCmbBx);
 
-                                // Set the data field reference in the undo handler for the
-                                // input field
+                                // Set the data field reference in the undo handler for the input field
                                 undoableCmbBx.setUndoFieldInformation(fieldInfo.getOwnerName(),
                                         fieldInfo.getFieldName());
 
@@ -940,8 +931,7 @@ public abstract class CcddInputFieldPanelHandler {
                                     // Check if the field contains an illegal character
                                     if (!fieldInfo.getInputType().getInputMatch().isEmpty() && !inputTxt.isEmpty()
                                             && !inputTxt.matches(fieldInfo.getInputType().getInputMatch())) {
-                                        // Inform the user that the data field contents is
-                                        // invalid
+                                        // Inform the user that the data field contents is invalid
                                         new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
                                                 "<html><b>Invalid characters in field '</b>" + fieldInfo.getFieldName()
                                                         + "<b>'; characters consistent with input type '</b>"
@@ -970,8 +960,7 @@ public abstract class CcddInputFieldPanelHandler {
                                             ((UndoableTextArea) inFld).setText(lastValid);
                                         }
 
-                                        // Set the flag to indicate an invalid value was
-                                        // entered
+                                        // Set the flag to indicate an invalid value was entered
                                         isValid = false;
                                     }
                                     // The input is valid
@@ -1009,14 +998,11 @@ public abstract class CcddInputFieldPanelHandler {
 
         // Check if the data field panel change should be put in the undo/redo stack
         if (undoable) {
-            // Store the field information in the undo handler in case the update needs to
-            // be
-            // undone
+            // Store the field information in the undo handler in case the update needs to be undone
             undoFieldPnl.addDataFieldEdit(this, CcddFieldHandler.getFieldInformationCopy(fieldInformation));
         }
 
-        // Force the owner of the editor panel to redraw so that changes to the fields
-        // are
+        // Force the owner of the editor panel to redraw so that changes to the fields are
         // displayed and the owner's size is adjusted
         fieldPnlHndlrOwner.revalidate();
         fieldPnlHndlrOwner.repaint();
@@ -1026,8 +1012,7 @@ public abstract class CcddInputFieldPanelHandler {
      * Clear the values from all fields
      *********************************************************************************************/
     protected void clearFieldValues() {
-        // Disable automatically ending the edit sequence. This allows all of the
-        // cleared fields to
+        // Disable automatically ending the edit sequence. This allows all of the cleared fields to
         // be grouped into a single sequence so that if undone, all fields are restored
         undoHandler.setAutoEndEditSequence(false);
 

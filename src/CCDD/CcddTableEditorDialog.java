@@ -64,7 +64,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 public class CcddTableEditorDialog extends CcddFrameHandler {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddDbTableCommandHandler dbTable;
+    private final CcddDbTableCommandHandler dbTable; 
     private final CcddFileIOHandler fileIOHandler;
     private final CcddFieldHandler fieldHandler;
     private CcddTableEditorHandler activeEditor;
@@ -77,7 +77,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
     private JMenuItem mntmEditPrototype;
     private JMenuItem mntmStore;
     private JMenuItem mntmStoreAll;
-    private JMenuItem mntmImport;
+    private JMenuItem mntmImportJSON;
+    private JMenuItem mntmImportCSV;
+    private JMenuItem mntmImportXTCE;
+    private JMenuItem mntmImportEDS;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmExportEDS;
     private JMenuItem mntmExportJSON;
@@ -263,7 +266,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
         mntmEditPrototype.setEnabled(enableIfChild);
         mntmStore.setEnabled(enableIfNotMacro && enableIfReadWrite);
         mntmStoreAll.setEnabled(enableIfNotMacro && enableIfReadWrite);
-        mntmImport.setEnabled(enableIfNotMacro);
+        mntmImportJSON.setEnabled(enableIfNotMacro);
+        mntmImportCSV.setEnabled(enableIfNotMacro);
+        mntmImportXTCE.setEnabled(enableIfNotMacro);
+        mntmImportEDS.setEnabled(enableIfNotMacro);
         mntmExportCSV.setEnabled(enableIfNotMacro);
         mntmExportEDS.setEnabled(enableIfNotMacro);
         mntmExportJSON.setEnabled(enableIfNotMacro);
@@ -344,9 +350,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
     protected static void doTableModificationComplete(CcddMain main, TableInformation tableInfo,
             List<TableModification> modifications, List<TableModification> deletions, boolean forceUpdate,
             boolean isRefFieldChange, boolean isMsgNameIDChange) {
-        // Get references to shorten subsequent calls. Can't use global references since
-        // this is a
-        // static method
+        // Get references to shorten subsequent calls. Can't use global references since this is
+        // a static method
         CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
         CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
 
@@ -355,10 +360,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
 
         // Step through each row modification
         for (TableModification mod : modifications) {
-            // Check if the variable's original data type was a structure (meaning it could
-            // have a
-            // table editor open) and if (1) it has been changed to an array or if (2) the
-            // data
+            // Check if the variable's original data type was a structure (meaning it could have a
+            // table editor open) and if (1) it has been changed to an array or if (2) the data
             // type has been changed
             if (mod.getVariableColumn() != -1 && mod.getDataTypeColumn() != -1
                     && !dtHandler.isPrimitive(mod.getOriginalRowData()[mod.getDataTypeColumn()].toString())
@@ -381,10 +384,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
             // Check if the original data type was for a structure
             if (del.getVariableColumn() != -1 && del.getDataTypeColumn() != -1
                     && !dtHandler.isPrimitive(del.getRowData()[del.getDataTypeColumn()].toString())) {
-                // Add the pattern that matches the table editor tab names for the deleted
-                // structure. The pattern is [parent structure].__,[structure data
-                // type].[structure
-                // variable name][,__]
+                // Add the pattern that matches the table editor tab names for the deleted structure.
+                // The pattern is [parent structure].__,[structure data type].[structure variable name][,__]
                 invalidatedEditors.add(new String[] { tableInfo.getPrototypeName(),
                         del.getRowData()[del.getDataTypeColumn()].toString() + "."
                                 + del.getRowData()[del.getVariableColumn()].toString() });
@@ -401,23 +402,21 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs()) {
             // Step through each individual editor
             for (CcddTableEditorHandler editor : editorDialog.getTableEditors()) {
-                // Flag that indicates if the updated table is a prototype and the editor is for
-                // an
+                // Flag that indicates if the updated table is a prototype and the editor is for an
                 // instance of the updated table
                 boolean applyToInstance = tableInfo.isPrototype() && !editor.getTableInformation().isPrototype()
                         && tableInfo.getPrototypeName().equals((editor.getTableInformation().getPrototypeName()));
-
+                
                 // Check if a data field exists that uses the variable (command) reference input
                 // type and if table wasn't already updated above
                 if (isRefFieldChange && !applyToInstance) {
                     // Update the current and committed field definitions and information so that
                     // the update isn't considered a change
                     editor.updateTableFieldInformationFromHandler();
-                    editor.createDataFieldPanel(false, editor.getTableInformation().getFieldInformation());
+                    editor.createDataFieldPanel(false, editor.getTableInformation().getFieldInformation(), false);
                 }
 
-                // Check if this is the table that was updated or an instance of it (if the
-                // updated
+                // Check if this is the table that was updated or an instance of it (if the updated
                 // table is a prototype)
                 if (applyToInstance
                         || editor.getTableInformation().getProtoVariableName().equals(tableInfo.getProtoVariableName())
@@ -558,8 +557,15 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
         mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1,
                 "Store the changes to all tables in this editor");
         mnFile.addSeparator();
-        mntmImport = ccddMain.createMenuItem(mnFile, "Import data", KeyEvent.VK_I, 1,
-                "Import data from a CSV, EDS XML, JSON, or XTCE XML file into the current editor table");
+        JMenu mnImport = ccddMain.createSubMenu(mnFile, "Import data", KeyEvent.VK_I, 1, null);
+        mntmImportJSON = ccddMain.createMenuItem(mnImport, "JSON", KeyEvent.VK_J, 1,
+                "Import a JSON file into the current editor table");
+        mntmImportCSV = ccddMain.createMenuItem(mnImport, "CSV", KeyEvent.VK_C, 1,
+                "Import a CSV file into the current editor table");
+        mntmImportXTCE = ccddMain.createMenuItem(mnImport, "XTCE", KeyEvent.VK_X, 1,
+                "Import a XTCE file into the current editor table");
+        mntmImportEDS = ccddMain.createMenuItem(mnImport, "EDS", KeyEvent.VK_E, 1,
+                "Import a EDS file into the current editor table");
         JMenu mnExport = ccddMain.createSubMenu(mnFile, "Export table", KeyEvent.VK_X, 1, null);
         mntmExportCSV = ccddMain.createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1,
                 "Export the current editor table in CSV format");
@@ -680,15 +686,72 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
                 return activeEditor.getTable();
             }
         });
-
+        
         // Add a listener for the Import command
-        mntmImport.addActionListener(new ValidateCellActionListener() {
+        mntmImportJSON.addActionListener(new ValidateCellActionListener() {
             /**************************************************************************************
-             * Import a file into the table
+             * Import a JSON file into the table
              *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae) {
-                fileIOHandler.importSelectedFileIntoTable(activeEditor);
+                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_JSON, CcddTableEditorDialog.this);
+            }
+
+            /**************************************************************************************
+             * Get the reference to the currently displayed table
+             *************************************************************************************/
+            @Override
+            protected CcddJTableHandler getTable() {
+                return activeEditor.getTable();
+            }
+        });
+        
+        // Add a listener for the Import command
+        mntmImportCSV.addActionListener(new ValidateCellActionListener() {
+            /**************************************************************************************
+             * Import a CSV file into the table
+             *************************************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae) {
+                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_CSV, CcddTableEditorDialog.this);
+            }
+
+            /**************************************************************************************
+             * Get the reference to the currently displayed table
+             *************************************************************************************/
+            @Override
+            protected CcddJTableHandler getTable() {
+                return activeEditor.getTable();
+            }
+        });
+        
+        // Add a listener for the Import command
+        mntmImportXTCE.addActionListener(new ValidateCellActionListener() {
+            /**************************************************************************************
+             * Import a XTCE file into the table
+             *************************************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae) {
+                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_XTCE, CcddTableEditorDialog.this);
+            }
+
+            /**************************************************************************************
+             * Get the reference to the currently displayed table
+             *************************************************************************************/
+            @Override
+            protected CcddJTableHandler getTable() {
+                return activeEditor.getTable();
+            }
+        });
+        
+        // Add a listener for the Import command
+        mntmImportEDS.addActionListener(new ValidateCellActionListener() {
+            /**************************************************************************************
+             * Import a EDS XML file into the table
+             *************************************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae) {
+                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_EDS, CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************

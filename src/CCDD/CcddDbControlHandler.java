@@ -55,8 +55,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.FileEnvVar;
@@ -777,6 +781,27 @@ public class CcddDbControlHandler {
         return dbCommand.getList(DatabaseListCommand.DATABASES_BY_USER, new String[][] { { "_user_", userName } },
                 parent);
     }
+    
+    /**
+     * Query the list of all databases and determine if one exists with
+     * the given name
+     * 
+     * @param queryDatabaseName the Database name to find
+     * @return a database with that name exists or does not
+     */
+    protected boolean isDatabaseNameInUse(String queryDatabaseName){
+        // Get the list of available databases
+        String[] databases = queryDatabaseList(ccddMain.getMainFrame());
+
+        for(String name:databases){
+            // Check if the user-supplied name matches an existing database name
+            if (name.split(DATABASE_COMMENT_SEPARATOR, 2)[0].equals(queryDatabaseName)) {
+                // Inform the user that the name is already in use
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**********************************************************************************************
      * Get the server + database
@@ -834,7 +859,7 @@ public class CcddDbControlHandler {
         } catch (SQLException se) {
             // Inform the user that loading the database comment failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                    "Cannot obtain comment for project database '" + getServerAndDatabase(databaseName) + "'; cause '"
+                    "Cannot obtain comment for project database '" + getServerAndDatabase(databaseName) + "'; Internal table does not contain the correct information; cause '"
                             + se.getMessage() + "'",
                     "<html><b>Cannot obtain comment for project database '</b>" + databaseName + "<b>'");
         }
@@ -1124,10 +1149,32 @@ public class CcddDbControlHandler {
         // Get the database comment
         String[] comment = getDatabaseComment(databaseName);
 
+        // The comment could not be obtained from the pg_shdescription field
+        // of the DB. This means that somehow the field has not been updated
+        // or the DB otherwise failed. So, try to get it with another 
+        // mechanism as a last ditch effort.
+        if(comment == null)
+        {
+            String[] userDatabaseInformation = ccddMain.getDbControlHandler().queryDatabaseByUserList(ccddMain.getMainFrame(),
+                    ccddMain.getDbControlHandler().getUser());
+
+            for (String userDbInfo : userDatabaseInformation) {
+                String[] nameAndComment = userDbInfo.split(
+                        DATABASE_COMMENT_SEPARATOR, 2);
+                if (convertProjectNameToDatabase(databaseName).equals(
+                        nameAndComment[0])) {
+                    comment = ccddMain.getDbControlHandler().parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
+                    break;
+                }
+            }
+        }
         // Check if a comment was successfully retrieved
         if (comment != null) {
-            // Get the database description
-            description = comment[DatabaseComment.DESCRIPTION.ordinal()];
+            // Bounds check
+            if(DatabaseComment.DESCRIPTION.ordinal() < comment.length){
+                // Get the database description
+                description = comment[DatabaseComment.DESCRIPTION.ordinal()];
+            }
         }
 
         return description;
@@ -1967,21 +2014,6 @@ public class CcddDbControlHandler {
                     createTemporaryTable();
                 }
 
-                // Check if an automatic backup was scheduled via the command line argument
-                if (!backupFileName.isEmpty()) {
-                    // Check if the backup file name is missing the correct extension
-                    if (!backupFileName.endsWith(FileExtension.DBU.getExtension())) {
-                        // Append the backup file extension to the file name
-                        backupFileName += FileExtension.DBU.getExtension();
-                    }
-
-                    // Backup the database
-                    backupDatabaseInBackground(activeProject, new FileEnvVar(backupFileName));
-
-                    // Reset the backup file name to prevent another automatic backup
-                    backupFileName = "";
-                }
-
                 // Inform the user that the database connection succeeded
                 eventLog.logEvent(SUCCESS_MSG, (isReconnect ? "Reconnected" : "Connected") + " to project '"
                         + activeProject + "' as user '" + activeUser + "'");
@@ -2199,6 +2231,21 @@ public class CcddDbControlHandler {
                                         + e.getMessage() + "<b>'",
                                 "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
                     }
+                    
+                    // Check if an automatic backup was scheduled via the command line argument
+                    boolean isBackupOperation = !backupFileName.isEmpty();
+                    if (isBackupOperation) {
+                        // Check if the backup file name is missing the correct extension
+                        if (!backupFileName.endsWith(FileExtension.DBU.getExtension())) {
+                            // Append the backup file extension to the file name
+                            backupFileName += FileExtension.DBU.getExtension();
+                        }
+
+                        // Backup the database
+                        backupDatabaseInBackground(activeProject, new FileEnvVar(backupFileName));
+                        // Reset the backup file name to prevent another automatic backup
+                        backupFileName = "";
+                    }
 
                     // Check that successful connection was made to a project database and not just
                     // the server (default database)
@@ -2293,6 +2340,74 @@ public class CcddDbControlHandler {
             }
         });
     }
+    
+    /**********************************************************************************************
+     * Rename a project and/or add/update the database description.
+     *
+     * @param oldProject  current name of the project
+     *
+     * @param newProject  new name of the project
+     *
+     * @param description database description
+     *********************************************************************************************/
+    protected void renameDatabase(final String oldProject, final String newProject,
+            final String description){
+    	
+    	String currentDatabase = activeDatabase;
+
+        // Convert the project names to their database equivalents
+        String oldDatabase = convertProjectNameToDatabase(oldProject);
+        String newDatabase = convertProjectNameToDatabase(newProject);
+
+        try {
+            // Get the database's administrator(s)
+            String administrator = getDatabaseAdmins(oldDatabase);
+
+            // Check if the old and new database names are identical; this implies only the
+            // project name and/or description changed
+            if (oldDatabase.equals(newDatabase)) {
+                // Update the database's description
+                dbCommand.executeDbUpdate(
+                        buildDatabaseCommentCommandAndUpdateInternalTable(newProject, administrator, false, description),
+                        ccddMain.getMainFrame());
+            }
+            // Check if the currently open database is not the one being renamed;
+            // otherwise, check if the target database can be closed and the default opened
+            // (required in order to make changes to the current database)
+            else if (!oldDatabase.equals(currentDatabase) || !openDatabase(DEFAULT_DATABASE)) {
+                // Rename the database to the new name and update the description
+                dbCommand
+                        .executeDbUpdate(
+                                "ALTER DATABASE " + getQuotedName(oldDatabase) + " RENAME TO "
+                                        + getQuotedName(newDatabase) + "; " + buildDatabaseCommentCommandAndUpdateInternalTable(
+                                                newProject, administrator, false, description),
+                                ccddMain.getMainFrame());
+
+                // Check if the currently open database is the one being renamed
+                if (oldDatabase.equals(currentDatabase)) {
+                    // Close the default database and reopen the target
+                    openDatabase(newProject, false);
+                }
+
+                // Log that the renaming the database succeeded
+                eventLog.logEvent(SUCCESS_MSG,
+                        "Project database '" + oldProject + "' renamed to '" + newProject + "'");
+            }
+        } catch (SQLException se) {
+            // Inform the user that the database cannot be renamed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                    "Cannot rename project database '" + getServerAndDatabase(oldDatabase) + "'; cause '"
+                            + se.getMessage() + "'",
+                    "<html><b>Cannot rename project '</b>" + oldProject + "<b>'");
+
+            // Check if the currently open database is the one that was attempted to be
+            // renamed
+            if (oldProject.equals(currentDatabase)) {
+                // Close the default database and reopen the target
+                openDatabase(currentDatabase, false);
+            }
+        }
+    }
 
     /**********************************************************************************************
      * Rename a project and/or add/update the database description. This command is
@@ -2316,60 +2431,7 @@ public class CcddDbControlHandler {
              *************************************************************************************/
             @Override
             protected void execute() {
-                String currentDatabase = activeDatabase;
-
-                // Convert the project names to their database equivalents
-                String oldDatabase = convertProjectNameToDatabase(oldProject);
-                String newDatabase = convertProjectNameToDatabase(newProject);
-
-                try {
-                    // Get the database's administrator(s)
-                    String administrator = getDatabaseAdmins(oldDatabase);
-
-                    // Check if the old and new database names are identical; this implies only the
-                    // project name and/or description changed
-                    if (oldDatabase.equals(newDatabase)) {
-                        // Update the database's description
-                        dbCommand.executeDbUpdate(
-                                buildDatabaseCommentCommandAndUpdateInternalTable(newProject, administrator, false, description),
-                                ccddMain.getMainFrame());
-                    }
-                    // Check if the currently open database is not the one being renamed;
-                    // otherwise, check if the target database can be closed and the default opened
-                    // (required in order to make changes to the current database)
-                    else if (!oldDatabase.equals(currentDatabase) || !openDatabase(DEFAULT_DATABASE)) {
-                        // Rename the database to the new name and update the description
-                        dbCommand
-                                .executeDbUpdate(
-                                        "ALTER DATABASE " + getQuotedName(oldDatabase) + " RENAME TO "
-                                                + getQuotedName(newDatabase) + "; " + buildDatabaseCommentCommandAndUpdateInternalTable(
-                                                        newProject, administrator, false, description),
-                                        ccddMain.getMainFrame());
-
-                        // Check if the currently open database is the one being renamed
-                        if (oldDatabase.equals(currentDatabase)) {
-                            // Close the default database and reopen the target
-                            openDatabase(newProject, false);
-                        }
-
-                        // Log that the renaming the database succeeded
-                        eventLog.logEvent(SUCCESS_MSG,
-                                "Project database '" + oldProject + "' renamed to '" + newProject + "'");
-                    }
-                } catch (SQLException se) {
-                    // Inform the user that the database cannot be renamed
-                    eventLog.logFailEvent(ccddMain.getMainFrame(),
-                            "Cannot rename project database '" + getServerAndDatabase(oldDatabase) + "'; cause '"
-                                    + se.getMessage() + "'",
-                            "<html><b>Cannot rename project '</b>" + oldProject + "<b>'");
-
-                    // Check if the currently open database is the one that was attempted to be
-                    // renamed
-                    if (oldProject.equals(currentDatabase)) {
-                        // Close the default database and reopen the target
-                        openDatabase(currentDatabase, false);
-                    }
-                }
+            	renameDatabase(oldProject,newProject,description);
             }
         });
     }
@@ -2603,6 +2665,22 @@ public class CcddDbControlHandler {
      * @param backupFile  file to which to backup the database
      *********************************************************************************************/
     protected void backupDatabaseInBackground(final String projectName, final FileEnvVar backupFile) {
+
+        // Try Acquire the semaphore here outside of the worker thread.
+        // This is because the program may exit before the thread actually begins to run
+        try {
+            ImmutablePair<Semaphore, Integer> pair = ccddMain.getSemMap().get(CcddMain.BACKUP_KEY);
+            if(!pair.left.tryAcquire(pair.right, TimeUnit.SECONDS))
+            {
+                ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+                        "Backup Operation Failed: Cause - Failed to acquire the backup task semaphore",
+                        "<html><b>Failed to acquire the backup task semaphore</b>");
+                return;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             /**************************************************************************************
@@ -2612,6 +2690,91 @@ public class CcddDbControlHandler {
             protected void execute() {
                 // Perform the backup operation
                 backupDatabase(projectName, backupFile);
+                
+                // Release the semaphore indicating that this thread's work is finished
+                ccddMain.getSemMap().get(CcddMain.BACKUP_KEY).left.release();
+
+            }
+        });
+    }
+    
+    
+    /**********************************************************************************************
+     * Rename a project database, back it up and revert the rename. This can be used during a 
+     * backup operation to change the name of the backed up database to match the backup
+     * file name (for instance).
+     *  
+     * This will perform the following sequence of operations:
+     * 1: Rename an existing database to the new name
+     * 2: Backup the newly renamed database (database name and backup file name will match now)
+     * 3: Rename the database to its original name
+     *
+     * @param projectName current project name
+     * 
+     * @param newProjectName new project name
+     *
+     * @param backupFile  file to which to backup the database
+     *********************************************************************************************/
+    protected void backupAndRenameDatabase(final String projectName, final String newProjectName, final FileEnvVar backupFile) {
+    	// Get the description (and pass in the database name to get the correct value)
+    	String description = getDatabaseDescription(convertProjectNameToDatabase(projectName));
+
+    	// If the description is incorrect, then throw an error in the log and fail
+    	if(description == null){
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                        "Database description is not valid '",
+                        "<html><b>Cannot rename project '</b>" + projectName + "<b>'");            
+                return;
+    	}
+
+    	// Rename the database to get the new name
+    	renameDatabase(projectName, newProjectName, description);
+
+        // Perform the backup operation
+        backupDatabase(newProjectName, backupFile);
+        
+        // Rename the database to its original name
+    	renameDatabase(newProjectName, projectName, description);
+    	
+    }
+    
+    /**********************************************************************************************
+     * Backup a project database. This command is executed in a separate thread
+     * since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu
+     * commands, however, are disabled until the database command completes
+     * execution
+     *
+     * @param projectName current project name
+     * 
+     * @param newProjectName new project name
+     *
+     * @param backupFile  file to which to backup the database
+     *********************************************************************************************/
+    protected void backupAndRenameDatabaseInBackground(final String projectName, final String newProjectName, final FileEnvVar backupFile) {
+        // Execute the command in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
+            /**************************************************************************************
+             * Backup database command
+             *************************************************************************************/
+            @Override
+            protected void execute() {
+            	// This will be coming from the GUI which will require that the only database that can be
+            	// backed up is the open one so close it first
+                if (ccddMain.ignoreUncommittedChanges("Close Project", "Discard changes?", true, null, null)) {
+                    openDatabase(DEFAULT_DATABASE);
+                } else {
+                	// The user has chosen not to close the database so exit
+                	return;
+                }
+            	
+            	// Perform the sequence of operations here
+            	backupAndRenameDatabase(projectName, newProjectName, backupFile);
+            	
+                
+            	// Open the original database again
+            	openDatabase(projectName);
+            	
             }
         });
     }
@@ -2793,6 +2956,27 @@ public class CcddDbControlHandler {
 
             // Execute the restore command
             errorType = executeProcess(command, numArgs);
+            
+            // If the overwriteExisting is true, then the database won't be
+            // created and the internal table won't have been added already.  
+            // This probably means that the database has already been created 
+            // and is probably coming from the command line functionality. So,
+            // do it here
+            if(overwriteExisting){
+                try {
+                    dbCommand.executeDbUpdate(
+                            buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false, description),
+                            ccddMain.getMainFrame());
+                    // Log that the copying the database succeeded
+                    eventLog.logEvent(SUCCESS_MSG, "Updated the comment for Project '" + projectName);
+                } catch (SQLException se) {
+                    // Inform the user that setting the database comment failed
+                    eventLog.logFailEvent(ccddMain.getMainFrame(),
+                            "Cannot set comment for project database '" + getServerAndDatabase(projectName)
+                                    + "'; cause '" + se.getMessage() + "'",
+                            "<html><b>Cannot set comment for project '</b>" + projectName + "<b>'");
+                }
+            }
 
             // Check if no error occurred
             if (errorType.isEmpty()) {

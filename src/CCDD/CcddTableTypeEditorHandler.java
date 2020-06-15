@@ -356,7 +356,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
         fieldHandler.updateFieldInputTypes(inputTypeNames, getPanelFieldInformation());
 
         // Redraw the data field panel
-        createDataFieldPanel(false, getPanelFieldInformation());
+        createDataFieldPanel(false, getPanelFieldInformation(), false);
     }
 
     /**********************************************************************************************

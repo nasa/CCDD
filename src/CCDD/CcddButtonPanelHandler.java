@@ -92,6 +92,14 @@ public class CcddButtonPanelHandler {
      *********************************************************************************************/
     protected void closeWindow(int buttonSelected) {
     }
+    
+    /**********************************************************************************************
+     * Placeholder for method to close the window without any checks
+     *
+     * @param buttonSelected button selected when closing the window
+     *********************************************************************************************/
+    protected void closeWindowDirect(int buttonSelected) {
+    }
 
     /**********************************************************************************************
      * Get the minimum width needed to display the button panel
@@ -258,6 +266,51 @@ public class CcddButtonPanelHandler {
      * @return Reference to the JPanel containing the buttons
      *********************************************************************************************/
     private JPanel createButtonPanel(DialogOption optionType) {
+
+    	// If this contains an array of options, then create the buttons
+    	// according to those options and return the new panel.
+    	if(optionType.getOptionArray() != null && optionType.getOptionArray().length > 0){
+    		
+            // Add each of the extra buttons here
+            for(DialogOption option:optionType.getOptionArray()){
+                JButton extraButtonOption = new JButton(option.getButtonText(),
+                        new ImageIcon(getClass().getResource(option.getButtonIcon())));
+                extraButtonOption.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
+                extraButtonOption.setMnemonic(option.getButtonMnemonic());
+                buttonPnl.add(extraButtonOption);
+                final int BUTTON_VALUE = option.getButtonType();
+                
+                // Add a listener for the Cancel button
+                extraButtonOption.addActionListener(new ActionListener() {
+                    /**********************************************************************************
+                     * Set the selected button to indicate Cancel and exit the window
+                     *********************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                    	boolean isDirectWindowClose = !(BUTTON_VALUE == CANCEL_BUTTON || BUTTON_VALUE == OK_BUTTON);
+                    	
+                    	if(isDirectWindowClose) {
+                    		// This method will directly close the dialog and return the users
+                    		// button selection. This is needed to enable more than two button
+                    		// selection options (read values) to be sent back to the calling
+                    		// method
+                    		closeWindowDirect(BUTTON_VALUE);
+                    	}
+                    	else {
+                    		// This method will only accept the OK or CANCEL buttons with an optional 
+                    		// parameter verification before closing the dialog and returning the
+                    		// users button selection
+                    		closeWindow(BUTTON_VALUE);
+                    	}
+                    }
+                });
+            }
+            // Return the modifed button panel with all of the extra buttons assigned
+            return buttonPnl;  
+    	}
+
+	// Otherwise create the button panel like previously
+
         // Create the Okay button
         JButton btnOkButton = new JButton(optionType.getButtonText(),
                 new ImageIcon(getClass().getResource(optionType.getButtonIcon())));

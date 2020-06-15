@@ -21,7 +21,6 @@ import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -710,6 +709,21 @@ public class CcddCommandLineHandler {
                 // of
                 // the command line commands
                 shutdownWhenComplete = true;
+            }
+        });
+        
+        // Apply patches to the database automatically (if needed)
+        argument.add(new CommandHandler("patch",
+                "Automatically apply patches to the database",
+                "", CommandLineType.NONE, CommandLinePriority.PRE_START.getStartPriority()) {
+            /**************************************************************************************
+             * Set the flag that will automatically patch the DB if necessary.
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal) {
+                // Set the flag that will automatically patch the DB if necessary. This will
+                // prevent the confirmation dialog from being displayed if in GUI mode (headless)
+                ccddMain.setAutoPatch(true);
             }
         });
 
@@ -1806,7 +1820,11 @@ public class CcddCommandLineHandler {
                         String comment[] = dbControl.parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
 
                         // Check if the project names match (i.e., the project exists)
-                        if (comment[DatabaseComment.PROJECT_NAME.ordinal()].equals(deleteName)) {
+                        // Match on the database name and the project name
+                        String projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                        String dbName = dbControl.convertProjectNameToDatabase(projectName);
+                        boolean isNameMatch = dbName.equals(deleteName) || projectName.equals(deleteName);
+                        if (isNameMatch) {
                             // Check if the user has administrative level access for the project
                             if (dbControl.getUserAdminAccess()
                                     .contains(dbControl.convertProjectNameToDatabase(deleteName))) {

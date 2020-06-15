@@ -50,8 +50,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -77,6 +80,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.DbManagerDialogType;
@@ -224,6 +228,23 @@ public class CcddMain {
     // dialog boxes
     private boolean isHideGUI;
 
+    // Flag indicating if the project should be automatically patched with no warning
+    private boolean isAutoPatch;
+
+    /**
+     * @return the isAutoPatch
+     */
+    protected boolean isAutoPatch() {
+        return isAutoPatch;
+    }
+
+    /**
+     * @param isAutoPatch the isAutoPatch to set
+     */
+    protected void setAutoPatch(boolean isAutoPatch) {
+        this.isAutoPatch = isAutoPatch;
+    }
+
     // Lists of recently opened project and table names
     private final List<String> recentProjectNames;
     private final List<String> recentTableNames;
@@ -235,13 +256,26 @@ public class CcddMain {
     // project-specific command line commands
     private String orgTableExportPath;
     private String orgScriptOutPath;
+    
+    public static final String BACKUP_KEY = "BACKUP";
+    // Contains a hashmap of semaphores and timeouts. These are used for various synchronization purposes
+    private HashMap<String, ImmutablePair<Semaphore, Integer>> semMap;
+
+
+    /**
+     * @return the semMap
+     */
+    
+    protected HashMap<String, ImmutablePair<Semaphore, Integer>> getSemMap() {
+        return semMap;
+    }
 
     /**********************************************************************************************
      * Create the application
      *
      * @param args array containing the command line arguments
      *********************************************************************************************/
-    private CcddMain(String[] args) {
+    protected CcddMain(String[] args) {
         // Create the shutdown handler so that the database and event log file are
         // closed
         createShutdownHook();
@@ -251,6 +285,10 @@ public class CcddMain {
         // not enabled
         isHideGUI = false;
         webServer = null;
+        isAutoPatch = false;
+        
+        semMap = new HashMap<>();
+        semMap.put(BACKUP_KEY, new ImmutablePair<>(new Semaphore(1), 10));
 
         // Get the backing store node for storing the program preference keys and
         // values. These are
@@ -451,7 +489,7 @@ public class CcddMain {
     protected boolean isGUIHidden() {
         return isHideGUI;
     }
-
+    
     /**********************************************************************************************
      * Start the web server
      *
@@ -1325,6 +1363,13 @@ public class CcddMain {
                     .decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath())
                             .getAbsolutePath(), "UTF-8");
 
+            // Sometimes the name of the jar is not appended. Attempt to add it if the name does not 
+            // end with '.jar'
+            if (!jarFileName.endsWith(".jar")) {
+                jarFileName = jarFileName.substring(0, jarFileName.length()-1);
+                jarFileName = jarFileName + "CCDD.jar";
+            }
+            
             // Check if the .jar file name exists. This is false if the application is
             // executed
             // from within the IDE
@@ -2716,6 +2761,25 @@ public class CcddMain {
         if (!withConfirm || (new CcddDialogHandler().showMessageDialog(frameCCDD, "<html><b>Exit application?",
                 "Exit CCDD", JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
                 && ignoreUncommittedChanges("Exit application", "Discard changes?", true, null, frameCCDD))) {
+            
+            // Try to acquire all of the semaphores in the map before exiting
+            // This is a generic way to ensure that all sub-tasks (which have acquired a semaphore)
+            // will be complete before exiting.
+            try {
+                for(String s: semMap.keySet()){
+                    ImmutablePair<Semaphore, Integer> pair = semMap.get(s);
+                    if(!pair.left.tryAcquire(pair.right,TimeUnit.SECONDS))
+                    {
+                        // Log an error
+                        this.getSessionEventLog().logFailEvent(this.getMainFrame(),
+                               "Failed to acquire a semaphore upon program termination",
+                               "<html><b>Failed to acquire a semaphore</b>");
+                    }
+                }
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            
             // Exit the program
             System.exit(status);
         }

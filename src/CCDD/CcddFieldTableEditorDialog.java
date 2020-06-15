@@ -240,7 +240,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler {
 
                             // Rebuild the table's editor panel which contains the data fields
                             editor.createDataFieldPanel(false,
-                                    editor.getCommittedTableInformation().getFieldInformation());
+                                    editor.getCommittedTableInformation().getFieldInformation(), false);
                         }
                     }
 
@@ -255,7 +255,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler {
 
                             // Rebuild the table's editor panel which contains the data fields
                             editor.createDataFieldPanel(false,
-                                    editor.getCommittedTableInformation().getFieldInformation());
+                                    editor.getCommittedTableInformation().getFieldInformation(), false);
                         }
                     }
                 }

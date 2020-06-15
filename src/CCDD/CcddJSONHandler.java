@@ -1073,7 +1073,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         /* Create storage for the row of cell data */
                         String[] rowData = new String[numColumns];
 
-                        /* Step through each row of data */
+                        /* Step through each row of data in the table */
                         for (JSONObject rowDataJO : parseJSONArray(tableDataJA)) {
                             /* Initialize the column values to blanks */
                             Arrays.fill(rowData, null);
@@ -1359,7 +1359,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             scriptEngine.put("jsonString", orderedOutput.toString());
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-            if (outputType.contentEquals("Single")) {
+            if ((outputType.contentEquals("Single")) && (tableNames.length > 1)) {
                 int size = ((String) scriptEngine.get("result")).length()-3;
                 pw.println(((String) scriptEngine.get("result")).substring(0, size)+ "],");
             } else {

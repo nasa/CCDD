@@ -871,7 +871,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler {
         // (display an
         // empty field panel if a single group isn't selected)
         fieldPnlHndlr.createDataFieldPanel(undoable,
-                (selectedGroup != null ? selectedGroup.getFieldInformation() : null));
+                (selectedGroup != null ? selectedGroup.getFieldInformation() : null), false);
     }
 
     /**********************************************************************************************

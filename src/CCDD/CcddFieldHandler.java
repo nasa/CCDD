@@ -375,12 +375,21 @@ public class CcddFieldHandler {
     protected void replaceFieldInformationByOwner(String ownerName, List<FieldInformation> newOwnerFldInfo) {
         // Get the list of the owner's current fields
         List<FieldInformation> oldOwnerFldInfo = getFieldInformationByOwner(ownerName);
-
+        
         // Remove the owner's current fields
         fieldInformation.removeAll(oldOwnerFldInfo);
-
-        // Add the owner's new fields
-        fieldInformation.addAll(getFieldInformationCopy(newOwnerFldInfo));
+        
+        // Check if the ownerName of the newOwnerFldInfo is empty. If so add information
+        if (newOwnerFldInfo != null && !newOwnerFldInfo.isEmpty()) {
+            if (newOwnerFldInfo.get(0).getOwnerName().isEmpty()) {
+                for (int index = 0; index < newOwnerFldInfo.size(); index++) {
+                    newOwnerFldInfo.get(index).setOwnerName(ownerName);
+                }
+            }
+            
+            // Add the owner's new fields
+            fieldInformation.addAll(getFieldInformationCopy(newOwnerFldInfo));
+        }
     }
 
     /**********************************************************************************************
@@ -510,11 +519,24 @@ public class CcddFieldHandler {
      *********************************************************************************************/
     protected List<FieldInformation> getFieldInformationFromData(Object[][] fieldData, String ownerName) {
         List<FieldInformation> fieldInfo = new ArrayList<FieldInformation>();
+        boolean ownerNameInArray = false;
+        
+        // If the ownerName is empty then that means it is the first index in the array
+        if (ownerName.isEmpty() && fieldData.length != 0) {
+            ownerNameInArray = true;
+            ownerName = (String)fieldData[0][0];
+        }
 
         // Check if any data fields are defined
         if (fieldData.length != 0) {
             // Step through each row in the editor data array
             for (Object[] data : fieldData) {
+                if (ownerNameInArray) {
+                    // Strip the ownerName from each field
+                    for (int index = 0; index < data.length - 1; index++) {
+                        data[index] = data[index+1];
+                    }
+                }
                 // Add the field information for this data field to the list
                 fieldInfo.add(new FieldInformation(ownerName, data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                         data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),

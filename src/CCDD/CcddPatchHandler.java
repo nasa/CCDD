@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -54,7 +55,13 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
  * CFS Command and Data Dictionary project database patch handler class
  *************************************************************************************************/
 public class CcddPatchHandler {
+    private HashMap<String, PatchUtility> patchSet = new HashMap<String, PatchUtility>();
     private final CcddMain ccddMain;
+    private final String PATCH_06012019 = "#06012019";
+    private final String PATCH_11052018 = "#11052018";
+    private final String PATCH_08292018 = "#08292018";
+    private final String PATCH_07242018 = "#07242018";
+    private final String PATCH_06212018 = "#06212018";
 
     // Patch 11052018 specific variables:
     // Flag that indicates that part 1 completed successfully, and part 2 should be
@@ -77,6 +84,68 @@ public class CcddPatchHandler {
      *********************************************************************************************/
     CcddPatchHandler(CcddMain ccddMain) {
         this.ccddMain = ccddMain;
+        // Add each of the patches here
+        patchSet.clear();
+        String patch_06012019_dialogMsg = "<html><b>Apply patch to update the command " + "tables?<br><br></b>"
+                + "The command table types are altered by "
+                + "removing any argument columns and adding "
+                + "a command argument structure reference " + "column. Every command table is modified "
+                + "as follows: Remove the argument columns " + "and add a command argument structure "
+                + "reference column. For each individual "
+                + "command an argument structure is created; "
+                + "within this structure a variable is added "
+                + "for each of the command's arguments. An "
+                + "argument reference structure table type " + "definition is created from which an "
+                + "argument reference structure is created "
+                + "that has references for each of the newly "
+                + "create argument structures (making these " + "argument structures children of the "
+                + "argument reference structure). The updated " + "command table's argument structure "
+                + "reference column is populated with a " + "reference to the argument reference "
+                + "structure. <br><b><i>Older versions of " + "CCDD will be incompatible with this "
+                + "project database after applying the patch";
+
+        patchSet.put(PATCH_06012019,
+                new PatchUtility(ccddMain, PATCH_06012019, patch_06012019_dialogMsg));
+        
+        String patch_11052018_dialogMsg = 
+                "<html><b>Apply patch to update the data " + "fields table?<br><br></b>"
+                + "Adds a column in the data fields " + "table to store field inheritance "
+                + "status. A field is inherited if " + "defined in the table's type "
+                + "definition. Fields are renamed to " + "prevent an instance of a fields "
+                + "matching an inherited field when the " + "input types differ. Missing an "
+                + "inherited fields are added to " + "tables<br><b><i>Older versions of "
+                + "CCDD will be incompatible with this " + "project database after applying the patch";
+        patchSet.put(this.PATCH_11052018, 
+                new PatchUtility(ccddMain, this.PATCH_11052018, patch_11052018_dialogMsg));
+
+
+        String patch_08292018_dialogMsg = 
+                "<html><b>Apply patch to update the table type, data field, and "
+                        + "application scheduler tables message " + "name and IDs?<br><br></b>Changes "
+                        + "message ID name input type to 'Text' " + "and the message ID input type to "
+                        + "'Message name & ID'. Combines the " + "application scheduler wake-up "
+                        + "message name and ID pairs into a " + "single<br><b><i>Older versions of "
+                        + "CCDD are incompatible with this " + "project database after applying the " + "patch";
+
+        patchSet.put(this.PATCH_08292018,
+                new PatchUtility(ccddMain, this.PATCH_08292018, patch_08292018_dialogMsg));
+
+        String patch_07242018_dialogMsg= 
+                "<html><b>Apply patch to update the database to support user access "
+                        + "levels?<br><br></b>Changes the database " + "to support user access levels. <b>The "
+                        + "current user is set as the creator/" + "administrator of the database!</b> "
+                        + "Older versions of CCDD will remain " + "compatible with this project database "
+                        + "after applying the patch";
+        patchSet.put(this.PATCH_07242018,
+                new PatchUtility(ccddMain, this.PATCH_07242018, patch_07242018_dialogMsg));
+
+        String patch_06212018_dialogMsg = 
+                "<html><b>Apply patch to update padding variable names?<br><br></b>"
+                        + "Changes the padding variable format from "
+                        + "'__pad#' to 'pad#__'.<br><b><i>If patch "
+                        + "not applied the affected variables will " + "not be recognized as padding";
+        patchSet.put(PATCH_06212018,
+                new PatchUtility(ccddMain, PATCH_06212018, patch_06212018_dialogMsg));
     }
 
     /**********************************************************************************************
@@ -254,31 +323,15 @@ public class CcddPatchHandler {
                     break;
                 }
             }
+            
 
+
+            
             // Check if the patch hasn't been applied
             if (!isPatched) {
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                        "<html><b>Apply patch to update the command " + "tables?<br><br></b>"
-                                + "The command table types are altered by "
-                                + "removing any argument columns and adding "
-                                + "a command argument structure reference " + "column. Every command table is modified "
-                                + "as follows: Remove the argument columns " + "and add a command argument structure "
-                                + "reference column. For each individual "
-                                + "command an argument structure is created; "
-                                + "within this structure a variable is added "
-                                + "for each of the command's arguments. An "
-                                + "argument reference structure table type " + "definition is created from which an "
-                                + "argument reference structure is created "
-                                + "that has references for each of the newly "
-                                + "create argument structures (making these " + "argument structures children of the "
-                                + "argument reference structure). The updated " + "command table's argument structure "
-                                + "reference column is populated with a " + "reference to the argument reference "
-                                + "structure. <br><b><i>Older versions of " + "CCDD will be incompatible with this "
-                                + "project database after applying the patch",
-                        "Apply Patch #06012019", JOptionPane.QUESTION_MESSAGE,
-                        DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
-                    throw new CCDDException("User elected to not install patch (#06012019)");
+                
+                if(this.patchSet.get(this.PATCH_06012019).confirmPatchApplication() == false){
+                        throw new CCDDException(this.patchSet.get(this.PATCH_06012019).getUserCancelledMessage());
                 }
 
                 // Back up the project database before applying the patch
@@ -1198,19 +1251,10 @@ public class CcddPatchHandler {
 
             // Check if the patch hasn't already been applied
             if (fieldsData.getMetaData().getColumnCount() == 8) {
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                        "<html><b>Apply patch to update the data " + "fields table?<br><br></b>"
-                                + "Adds a column in the data fields " + "table to store field inheritance "
-                                + "status. A field is inherited if " + "defined in the table's type "
-                                + "definition. Fields are renamed to " + "prevent an instance of a fields "
-                                + "matching an inherited field when the " + "input types differ. Missing an "
-                                + "inherited fields are added to " + "tables<br><b><i>Older versions of "
-                                + "CCDD will be incompatible with this " + "project database after applying the patch",
-                        "Apply Patch #11052018", JOptionPane.QUESTION_MESSAGE,
-                        DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
+
+                if(this.patchSet.get(this.PATCH_11052018).confirmPatchApplication() == false){
                     fieldsData.close();
-                    throw new CCDDException("User elected to not install patch (#11052018)");
+                    throw new CCDDException(this.patchSet.get(this.PATCH_11052018).getUserCancelledMessage());
                 }
 
                 // Step through each of the query results
@@ -1492,17 +1536,8 @@ public class CcddPatchHandler {
             if (msgData.next()) {
                 msgData.close();
 
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                        "<html><b>Apply patch to update the table type, data field, and "
-                                + "application scheduler tables message " + "name and IDs?<br><br></b>Changes "
-                                + "message ID name input type to 'Text' " + "and the message ID input type to "
-                                + "'Message name & ID'. Combines the " + "application scheduler wake-up "
-                                + "message name and ID pairs into a " + "single<br><b><i>Older versions of "
-                                + "CCDD are incompatible with this " + "project database after applying the " + "patch",
-                        "Apply Patch #08292018", JOptionPane.QUESTION_MESSAGE,
-                        DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
-                    throw new CCDDException("User elected to not install patch (#08292018)");
+                if(this.patchSet.get(this.PATCH_08292018).confirmPatchApplication() == false){
+                    throw new CCDDException(this.patchSet.get(this.PATCH_08292018).getUserCancelledMessage());
                 }
 
                 // Back up the project database before applying the patch
@@ -1568,16 +1603,8 @@ public class CcddPatchHandler {
             if (dbControl.getDatabaseAdmins(dbControl.getDatabaseName()) == null) {
                 CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
 
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                        "<html><b>Apply patch to update the database to support user access "
-                                + "levels?<br><br></b>Changes the database " + "to support user access levels. <b>The "
-                                + "current user is set as the creator/" + "administrator of the database!</b> "
-                                + "Older versions of CCDD will remain " + "compatible with this project database "
-                                + "after applying the patch",
-                        "Apply Patch #07242018", JOptionPane.QUESTION_MESSAGE,
-                        DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
-                    throw new CCDDException("User elected to not install patch (#07242018)");
+                if(this.patchSet.get(this.PATCH_07242018).confirmPatchApplication() == false){
+                    throw new CCDDException(this.patchSet.get(this.PATCH_07242018).getUserCancelledMessage());
                 }
 
                 // Back up the project database before applying the patch
@@ -1656,16 +1683,9 @@ public class CcddPatchHandler {
             // table
             if (padData.next()) {
                 padData.close();
-
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                        "<html><b>Apply patch to update padding variable names?<br><br></b>"
-                                + "Changes the padding variable format from "
-                                + "'__pad#' to 'pad#__'.<br><b><i>If patch "
-                                + "not applied the affected variables will " + "not be recognized as padding",
-                        "Apply Patch #06212018", JOptionPane.QUESTION_MESSAGE,
-                        DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
-                    throw new CCDDException("User elected to not install patch (#06212018)");
+                
+                if(this.patchSet.get(PATCH_06212018).confirmPatchApplication() == false){
+                    throw new CCDDException(this.patchSet.get(PATCH_06212018).getUserCancelledMessage()); 
                 }
 
                 // Back up the project database before applying the patch
@@ -2373,4 +2393,54 @@ public class CcddPatchHandler {
     // }
     // }
     // }
+    
+    class PatchUtility{
+        final String patchId;
+        String htmlDialogMessage;
+        CcddMain context;
+        
+        public PatchUtility(CcddMain context, String patchId, String htmlDialogMessage){
+            if(context == null || patchId == null || htmlDialogMessage == null){
+                throw new NullPointerException();
+            }
+            
+            this.patchId = patchId;
+            this.htmlDialogMessage = htmlDialogMessage;
+            this.context = context;
+        }
+        
+        private String getAutoPatchMessage(){
+            return "CCDD: " + CcddUtilities.removeHTMLTags(htmlDialogMessage) + System.lineSeparator() +
+                    "CCDD: Automatically applying patch " + patchId;
+        }
+        
+        public boolean confirmPatchApplication() throws CCDDException{
+            boolean isNotAutoPatch = !context.isAutoPatch();
+            if(isNotAutoPatch){
+
+                if(context.isGUIHidden()){
+                    // The GUI is hidden and we are not automatically patching so ... we can't proceed
+                    throw new CCDDException("Invalid command line combination: Please re-run with the -patch flag or with the GUI enabled (" + patchId + ")");
+                }
+                
+                return !this.generateQuestionDialog();
+            }
+            System.out.println(this.getAutoPatchMessage());
+            return true;
+        }
+        
+        private boolean generateQuestionDialog() throws CCDDException{
+            // Check if the user elects to not apply the patch
+            return new CcddDialogHandler().showMessageDialog(context.getMainFrame(),
+                    htmlDialogMessage,
+                    "Apply Patch " + this.patchId, JOptionPane.QUESTION_MESSAGE,
+                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
+        }
+        
+        public String getUserCancelledMessage() {
+            return "User elected to not install patch (" + this.patchId + ")";
+        }
+    }
 }
+
+

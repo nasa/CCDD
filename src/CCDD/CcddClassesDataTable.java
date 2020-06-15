@@ -15,13 +15,17 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
+
+import org.apache.commons.lang3.StringUtils;
 
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InputTypeFormat;
+import CCDD.CcddConstants.InternalTable.FieldsColumn;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary common classes class
@@ -912,6 +916,94 @@ public class CcddClassesDataTable {
         protected void addDataField(String[] fieldDefn) {
             dataFields.add(fieldDefn);
         }
+        
+        /******************************************************************************************
+         * Add a data field definition to the list of table data fields
+         *
+         * @param fieldDefn data field definition
+         *****************************************************************************************/
+        protected void addDataField(FieldInformation fieldDefn) {
+            String[] fieldData = fieldDefn.toStringArray();
+            
+            addDataField(fieldData);
+        }
+        
+        /******************************************************************************************
+         * Add a data field definition to the list of table data fields in the given index
+         *
+         * @param fieldDefn data field definition
+         * 
+         * @param index location to add the definition
+         *****************************************************************************************/
+        protected void addDataFieldToIndex(String[] fieldDefn, int index) {
+            dataFields.add(index, fieldDefn);
+        }
+        
+        /******************************************************************************************
+         * Remove a data field definition from the list of table data fields located at the given index
+         *
+         * @param index location to remove the field from
+         *****************************************************************************************/
+        protected void removeDataFieldByIndex(int index) {
+            dataFields.remove(index);
+        }
+        
+        /******************************************************************************************
+         * Remove all data field definitions from the list of table data fields
+         *
+         * @param index location to remove the field from
+         *****************************************************************************************/
+        protected void removeDataFields() {
+            dataFields.clear();
+        }
+        
+        /******************************************************************************************
+         * Replace a data field definition located at the given index
+         * 
+         * @param fieldDefn data field definition
+         *
+         * @param index location to replace the field
+         *****************************************************************************************/
+        protected void replaceDataFieldByIndex(String[] fieldDefn, int index) {
+            dataFields.remove(index);
+            dataFields.add(index, fieldDefn);
+        }
+        
+        /******************************************************************************************
+         * Replace a data field definition located at the given index
+         * 
+         * @param fieldDefn data field definition
+         *
+         * @param index location to replace the field
+         *****************************************************************************************/
+        protected void replaceDataFieldByIndex(FieldInformation fieldDefn, int index) {
+            String[] fieldData = fieldDefn.toStringArray();
+            
+            replaceDataFieldByIndex(fieldData, index);
+        }
+        
+        /******************************************************************************************
+         * Does a field with the current name already exist? if so return the index of the field.
+         * If not return -1
+         *
+         * @param fieldDefn data field definition
+         * 
+         * @param index location to add the definition
+         *****************************************************************************************/
+        protected int contains(String fieldName) {
+            int result = -1;
+            
+            for (int index = 0; index < dataFields.size(); index++) {
+                // Check that the name is not null
+                if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()] != null) {
+                    if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()].contentEquals(fieldName)) {
+                        result = index;
+                    }
+                }
+            }
+            
+            return result;
+        }
 
         /******************************************************************************************
          * Check if the table name/path is in the expected format. Macros aren't
@@ -939,7 +1031,7 @@ public class CcddClassesDataTable {
                 if (!dataTypeAndVariable[0].matches(DefaultInputType.VARIABLE.getInputMatch())
                         || (isChild && !(dataTypeAndVariable.length == 2 && dataTypeAndVariable[1]
                                 .replaceAll(MACRO_IDENTIFIER + "(.+?)" + MACRO_IDENTIFIER, "$1")
-                                .matches(DefaultInputType.VARIABLE.getInputMatch() + "(?:\\[[0-9]+\\])?")))) {
+                                .matches(DefaultInputType.VARIABLE.getInputMatch() + "(?:\\[[0-9]+\\])*?")))) {
                     // Set the flag to indicate the path isn't valid and stop searching
                     isValid = false;
                     break;
@@ -1664,6 +1756,19 @@ public class CcddClassesDataTable {
         protected void setID(int id) {
             this.id = id;
         }
+        
+        /******************************************************************************************
+         * Store the field information in an array of strings
+         *
+         * @return an array of Strings representing the field information
+         *****************************************************************************************/
+        protected String[] toStringArray() {
+            String[] fieldData = {ownerName, fieldName, description, Integer.toString(charSize),
+                    inputType.getInputName(), String.valueOf(isRequired), applicability.getApplicabilityName(),
+                    value, String.valueOf(isInherited)};
+            
+            return fieldData;
+        }
     }
 
     /**********************************************************************************************
@@ -2043,14 +2148,98 @@ public class CcddClassesDataTable {
         protected static String getVariableArrayIndex(String variableName) {
             // Get the index of the array index
             int index = variableName.indexOf('[');
-
+            
             // Check if an array index exists
             if (index != -1) {
                 // Get the index portion of the array variable name
                 variableName = variableName.substring(index);
+                
+                // Check if two indexes are included
+                if (StringUtils.countMatches(variableName, "[") == 2) {
+                    // Check if any letter of the alphabet is included
+                    if (Pattern.compile("[a-zA-Z]").matcher(variableName).find()) {
+                        index = variableName.lastIndexOf("[");
+                        // Get the last index portion of the array variable name
+                        variableName = variableName.substring(index);
+                    }
+                }
             }
 
             return variableName;
+        }
+        
+        /******************************************************************************************
+         * Get the array variable index, if present, from the supplied variable name
+         *
+         * @param variableName variable name
+         *
+         * @return The array index, with the variable name removed
+         *****************************************************************************************/
+        protected static int getVariableArrayIndexAsInt(String variableName) {
+            int result = -1;
+            // Get the index of the array index
+            int index = variableName.indexOf('[')+1;
+            int index2 = variableName.indexOf(']');
+
+            // Check if an array index exists
+            if ((index != -1) && (index2 != -1)) {
+                // Get the index portion of the array variable name
+                variableName = variableName.substring(index, index2);
+                result = Integer.parseInt(variableName);
+            }
+
+            return result;
+        }
+        
+        /******************************************************************************************
+         * Get the array size of 1d or 2d arrays
+         *
+         * @param arrayInfo string representing the dimensions of the array. Example = "4" or "2,2"
+         *
+         * @return An array with 3 indexes. The first represents if the array is a 1d or 2d array. The 
+         *         second represents the number of indexes in the array if it is 1d or number of indexes 
+         *         in each internal array if it is 2d. Th third index represents the number of arrays if 
+         *         it is a 2d array. Example. "3,5" would return [2,5,3] because it is a 2d array, each
+         *         internal array contains 5 indexes and there are 3 of these arrays.
+         *****************************************************************************************/
+        protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo) {
+            int[] result = {-1, -1, -1};
+            
+            // Get rid of any whitespace
+            arrayInfo = arrayInfo.replaceAll(" ", "");
+            
+            // Check that the String is not null or empty
+            if (arrayInfo != null && !arrayInfo.isEmpty()) {
+                // First check to see if this is a 1d or 2d array. We do not support 3d or above
+                int count = StringUtils.countMatches(arrayInfo, ",");
+                if (count == 0) {
+                    // This is a 1d array
+                    result[0] = 1;
+                    
+                    // Get the size. If this is a macro it will need to be expanded
+                    result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>()));
+                } else if (count == 1) {
+                    // This is a 2d array
+                    result[0] = 2;
+                    
+                    String info[] = arrayInfo.split(",");
+                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty())) {
+                        // Get the total number of arrays. If this is a macro it will need to be expanded
+                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        
+                        // Get the size of each internal array ,If this is a macro it will need to be expanded
+                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
+                    } else {
+                        result[0] = -1;
+                        result[1] = -1;
+                        result[2] = -1;
+                    }
+                }
+                // If it did not fall into the if or the else statement then the input was invalid 
+                // and [-1,-1,-1] will be returned
+            }
+
+            return result;
         }
 
         /******************************************************************************************

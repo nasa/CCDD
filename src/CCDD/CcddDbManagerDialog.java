@@ -577,18 +577,44 @@ public class CcddDbManagerDialog extends CcddDialogHandler {
                         break;
 
                     case RENAME:
-                        // Display the rename project dialog. Only the description can be
-                        // altered for the currently open project
-                        if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Rename Project",
-                                DialogOption.RENAME_OPTION, true) == OK_BUTTON
-                                && (!getRadioButtonSelected().equals(dbControl.getDatabaseName())
-                                        || ccddMain.ignoreUncommittedChanges("Rename Project", "Discard changes?", true,
-                                                null, CcddDbManagerDialog.this))) {
+                        // Display the rename project dialog. 
+			// Only the description can be altered for the currently 
+			// open project. The description and names can be 
+			// altered for all other projects.
+                    	int chosenButton = showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Rename Project",
+                                DialogOption.RENAME_UPDATE_OPTIONS, true);
+                    	
+                    	String selectedProject = getRadioButtonSelected();
+                    	
+                    	// Ensure that there is a project selected otherwise exit
+                    	if(selectedProject == null)
+                    		break;
+                    	
+                    	boolean isDifferentDataBaseSelected = !selectedProject.equals(dbControl.getDatabaseName());
+                    	boolean isIgnoringUncommittedChanges = ccddMain.ignoreUncommittedChanges("Rename Project", "Discard changes?", true, null, CcddDbManagerDialog.this);
+                    	
+                    	String dbCurrentName = selectedProject;
+                    	String dbNewName = "";
+                    	
+                    	boolean updateDb = false;
+                    	// The OK button was chosen so rename the database and update the description
+                    	if(chosenButton == CcddConstants.OK_BUTTON && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges) ){
                             // Rename the project
-                            dbControl.renameDatabaseInBackground(getRadioButtonSelected(), nameFld.getText(),
-                                    descriptionFld.getText());
-                        }
-
+                            dbNewName = nameFld.getText();
+                            updateDb = true;
+                    	}
+                    	
+                    	// The UPDATE button was chosen so just update the description and keep the name the same
+                    	if(chosenButton == CcddConstants.UPDATE_BUTTON && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges) ){
+                            dbNewName = dbCurrentName;
+                            updateDb = true;
+                    	}
+                    	
+                    	if(updateDb){
+                            // Update the Description
+                            dbControl.renameDatabaseInBackground(dbCurrentName, dbNewName, descriptionFld.getText());
+                    	}
+                    	
                         break;
 
                     case COPY:

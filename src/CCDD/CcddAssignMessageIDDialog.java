@@ -1197,7 +1197,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
 
                             // Rebuild the data field panel in the table editor using the updated
                             // fields
-                            editor.createDataFieldPanel(false, editor.getTableInformation().getFieldInformation());
+                            editor.createDataFieldPanel(false, editor.getTableInformation().getFieldInformation(), false);
 
                             // Set the flag to indicate the table/field combination was located and
                             // stop searching

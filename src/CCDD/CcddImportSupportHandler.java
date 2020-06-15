@@ -262,18 +262,12 @@ public class CcddImportSupportHandler {
 
         // Check if no error was detected or if the user elected to ignore an error
         if (!isError || continueOnError) {
-            boolean addField = true;
-
             // Get the reference to the data field from the existing field information
             FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(
                     fieldDefn[FieldsColumn.OWNER_NAME.ordinal()], fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
             // Check if this field already exists
             if (fieldInfo != null) {
-                // Set the flag to indicate the field shouldn't be added since it already
-                // exists
-                addField = false;
-
                 // Check if the field's input type, required state, applicability, or value
                 // don't match (the description and size are allowed to differ)
                 if (!fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
@@ -293,29 +287,33 @@ public class CcddImportSupportHandler {
                                 "Data Field Error", "Ignore this data field (keep existing field)",
                                 "Ignore this and any remaining invalid data fields (use default values or keep existing)",
                                 "Stop importing", parent);
-                    } else {
-                        addField = true;
+                        
+                        // Keep the existing field info
+                        fieldDefn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
+                        fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()] = Integer.toString(fieldInfo.getSize());
+                        fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
+                        fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()] = Boolean.toString(fieldInfo.isRequired());
+                        fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
+                        fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
+                        fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] =  Boolean.toString(fieldInfo.isInherited());
                     }
                 }
             }
 
-            // Check if the field definition should be added
-            if (addField) {
-                // Check if the field belongs to the project
-                if (defnContainer instanceof ProjectDefinition) {
-                    // Add the data field to the project
-                    ((ProjectDefinition) defnContainer).addDataField(fieldDefn);
-                }
-                // Check if the field belongs to a table
-                else if (defnContainer instanceof TableDefinition) {
-                    // Add the data field to the table
-                    ((TableDefinition) defnContainer).addDataField(fieldDefn);
-                }
-                // Check if the field belongs to a table type
-                else if (defnContainer instanceof TableTypeDefinition) {
-                    // Add the data field to the table type
-                    ((TableTypeDefinition) defnContainer).addDataField(fieldDefn);
-                }
+            // Check if the field belongs to the project
+            if (defnContainer instanceof ProjectDefinition) {
+                // Add the data field to the project
+                ((ProjectDefinition) defnContainer).addDataField(fieldDefn);
+            }
+            // Check if the field belongs to a table
+            else if (defnContainer instanceof TableDefinition) {
+                // Add the data field to the table
+                ((TableDefinition) defnContainer).addDataField(fieldDefn);
+            }
+            // Check if the field belongs to a table type
+            else if (defnContainer instanceof TableTypeDefinition) {
+                // Add the data field to the table type
+                ((TableTypeDefinition) defnContainer).addDataField(fieldDefn);
             }
         }
 

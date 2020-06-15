@@ -1194,15 +1194,32 @@ public class CcddDbVerificationHandler {
                             break;
                         }
 
-                        // Remove the bit length, if present, and store the variable in the new
-                        // list
-                        cleanName.add(variablePath.replaceFirst("\\:\\d+$", ""));
+                        // Remove the bit length, if present, and store the variable in the new list
+                        String path = variablePath.replaceFirst("\\:\\d+$", "");
+                        cleanName.add(path);
+                        
+                        if (CcddClassesDataTable.ArrayVariable.isArrayMember(path)) {
+                            String arraySize = CcddClassesDataTable.ArrayVariable.getVariableArrayIndex(path);
+                            int[] arrayDims = CcddClassesDataTable.ArrayVariable.getArrayIndexFromSize(arraySize);
+                            boolean isFirst = true;
+                            
+                            for (int dim = 0; dim < arrayDims.length; dim++) {
+                                if (arrayDims[dim] != 0) {
+                                    isFirst = false;
 
+                                    break;
+                                }
+                            }
+                            
+                            if (isFirst) {
+                                cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
+                            }
+                        }
+                        
                         // Check if the variable is an array member
-                        if (ArrayVariable.isArrayMember(variablePath)) {
-                            // Strip the array index from the end to create a reference to the
-                            // variable's array definition
-                            String name = variablePath.substring(0, variablePath.lastIndexOf("["));
+                        if (ArrayVariable.isArrayMember(path)) {
+                            // Strip the array index from the end to create a reference to the variable's array definition
+                            String name = path.substring(0, path.lastIndexOf("["));
 
                             // Check if this array definition isn't already in the new list
                             if (!cleanName.contains(name)) {

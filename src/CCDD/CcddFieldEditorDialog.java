@@ -692,7 +692,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler {
 
         // Rebuild the data field panel in the table editor using the current text field
         // contents
-        fieldPnlHndlr.createDataFieldPanel(true, fieldInformation);
+        fieldPnlHndlr.createDataFieldPanel(true, fieldInformation, false);
 
         // Update the dialog title to remove the change indicator
         setTitle(DIALOG_TITLE + ": " + ownerName);

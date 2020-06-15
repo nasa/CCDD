@@ -634,26 +634,36 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                     
                     /* Check if data is being imported */
                     if (importing == true) {
-                        /* Allow the user to select the data file path + name(s) from which to
-                        ** import, and the import options
-                        */
-                        filePath = choosePathFile(ccddMain, caller, null, "export",
-                                new FileNameExtensionFilter[] { new FileNameExtensionFilter(
-                                        fileExt.getDescription(), fileExt.getExtensionName()) },
-                                false, true, "Import Data", ccddMain.getProgPrefs()
-                                        .get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
-                                DialogOption.IMPORT_OPTION, createImportPanel(gbc, dialogType));
-
-                        /* Check if a file was chosen */
-                        if (filePath != null) {
-                            /* Export the contents of the selected table(s) in the specified format */
-                            fileIOHandler.importFileInBackground(filePath, backupFirstCb.isSelected(),
-                                    replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
-                                    useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
-                                    ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
-                                    replaceExistingGroupsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
-                                    doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
-                                    fileExt, dialogType, CcddTableManagerDialog.this);
+                        // Check to see if the callingEditorDlg represents an open table editor or if it is null.
+                        // If it is an open table editor then we are doing a single table import into the open table
+                        // editor. If not the import was called from the main CCDD dialog window and is a normal import
+                        // that could include a single file or multiple files with no open table editor needing updates.
+                        if (callingEditorDlg == null) {
+                            /* Allow the user to select the data file path + name(s) from which to
+                            ** import, and the import options
+                            */
+                            filePath = choosePathFile(ccddMain, caller, null, "export",
+                                    new FileNameExtensionFilter[] { new FileNameExtensionFilter(
+                                            fileExt.getDescription(), fileExt.getExtensionName()) },
+                                    false, true, "Import Data", ccddMain.getProgPrefs()
+                                            .get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
+                                    DialogOption.IMPORT_OPTION, createImportPanel(gbc, dialogType));
+    
+                            /* Check if a file was chosen */
+                            if (filePath != null) {
+                                /* Export the contents of the selected table(s) in the specified format */
+                                fileIOHandler.importFileInBackground(filePath, backupFirstCb.isSelected(),
+                                        replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
+                                        useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
+                                        ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
+                                        replaceExistingGroupsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
+                                        doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
+                                        fileExt, dialogType, CcddTableManagerDialog.this);
+                            }
+                        } else {
+                            // Importing into an open table editor
+                            JPanel dialogPanel = createTableEditorImportPanel(dialogType);
+                            fileIOHandler.importSelectedFileIntoTable(dialogType, dialogPanel, callingEditorDlg.getTableEditor());
                         }
                     }
                 }
@@ -1061,6 +1071,94 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         });
         return dialogPnl;
     }
+    
+    /**********************************************************************************************
+     * Create the import via table editor option dialog panel
+     *
+     * @param gbc reference to the panel's GridBagConstraints
+     *
+     * @return Import option dialog panel
+     *********************************************************************************************/
+    private JPanel createTableEditorImportPanel(ManagerDialogType dialogType) {
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints.BOTH, new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0, 0), 0, 0);
+        
+        // Create a panel to contain the check boxes
+        JPanel dialogPanel = new JPanel(new GridBagLayout());
+        dialogPanel.setBorder(emptyBorder);
+
+        // Create overwrite check box
+        final JCheckBox overwriteChkBx = new JCheckBox("Overwrite existing table data");
+        overwriteChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        overwriteChkBx.setBorder(emptyBorder);
+        overwriteChkBx.setToolTipText(CcddUtilities.wrapText("Overwrite existing table data; if checked then all "
+                + "data will be replaced with the imported data", ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        overwriteChkBx.setSelected(true);
+
+        // Create a check box for indicating existing tables can be replaced
+        final JCheckBox appendToExistingDataCb = new JCheckBox("Append data");
+        appendToExistingDataCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        appendToExistingDataCb.setBorder(emptyBorder);
+        appendToExistingDataCb.setToolTipText(CcddUtilities.wrapText("Imported data will be appended to the current data. If duplicate variable "
+                + "name/field then the existing data will be kept. If this is an XTCE import then this only applies to duplicate variable names.",
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        appendToExistingDataCb.setSelected(false);
+        appendToExistingDataCb.setEnabled(false);
+
+        // Create a check box for indicating that all errors in the import file should be ignored
+        JCheckBox ignoreErrorsCb = new JCheckBox("Ignore all import file errors");
+        ignoreErrorsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        ignoreErrorsCb.setBorder(emptyBorder);
+        ignoreErrorsCb.setToolTipText(CcddUtilities.wrapText("Ignore all import file errors",
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        
+        // Create a check box for indicating if data fields should be kept. This only applies to XTCE
+        JCheckBox keepDataFieldsCb = new JCheckBox("Keep all existing data fields.");
+        keepDataFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        keepDataFieldsCb.setBorder(emptyBorder);
+        keepDataFieldsCb.setToolTipText(CcddUtilities.wrapText("Keep all existing data fields. if checked. XTCE export files do not store information "
+                + "related to data fields and all fields will be wiped if this checkbox is not selected.",
+                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        // If we are importing an XTCE file an additional check-box will be added to the panel
+        if (dialogType == ManagerDialogType.IMPORT_XTCE) {
+            keepDataFieldsCb.setVisible(true);
+        } else {
+            keepDataFieldsCb.setVisible(false);
+        }
+        
+        /* Add a listener for changes to the overwrite check box selection status */
+        overwriteChkBx.addActionListener(new ActionListener() {
+            /**************************************************************************************
+             * Handle a change to the Replace Existing Tables check box selection status
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (overwriteChkBx.isSelected()) {
+                    appendToExistingDataCb.setSelected(false);
+                    appendToExistingDataCb.setEnabled(false);
+                } else {
+                    appendToExistingDataCb.setEnabled(true);
+                }
+            }
+        });
+        
+        // The order in which these buttons are added is important to the values stored in CcddConstants.java. By keeping 
+        // up with the index of each component we are able to access their state with only the JPanel object, dialogPanel,
+        // Which this function returns. The constants in question are overwriteExistingCbIndex, appendToExistingDataCbIndex,
+        // ignoreErrorsCbIndex and keepDataFieldsCbIndex.
+        dialogPanel.add(overwriteChkBx, gbc); // Index 0, overwriteExistingCbIndex
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.gridy++;
+        dialogPanel.add(appendToExistingDataCb, gbc); // Index 1, appendToExistingDataCbIndex
+        gbc.gridy++;
+        dialogPanel.add(ignoreErrorsCb, gbc); // Index 2, ignoreErrorsCbIndex
+        gbc.gridy++;
+        dialogPanel.add(keepDataFieldsCb, gbc); // Index 3, keepDataFieldsCbIndex
+        
+        return dialogPanel;
+    }
 
     /**********************************************************************************************
      * Create the export dialog panel
@@ -1073,6 +1171,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
      *********************************************************************************************/
     private JPanel createExportPanel(final FileExtension fileExtn, GridBagConstraints gbc) {
         JPanel dialogPnl = null;
+        boolean originatedFromTableEditor = false;
 
         /* Check if the export command originated from the main menu */
         if (callingEditorDlg == null) {
@@ -1170,6 +1269,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             gbc.insets.bottom = 0;
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            originatedFromTableEditor = true;
         }
 
         /*
@@ -1181,6 +1281,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
+            
+            /* Normally the single file or multi file buttons are used to set the file path, but in this 
+             * situation they do not exist and the function needs to be manually called.
+             */
+            if (originatedFromTableEditor) {
+                setFilePath(true, fileExtn);
+            }
 
             /* Create a check box for indicating existing files can be replaced */
             overwriteFileCb = new JCheckBox("Overwrite existing file"
@@ -1453,9 +1560,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 gbc.gridx++;
                 includePnl.add(replaceMacrosCb, gbc);
 
-                /*
-                 * Create the variable path separator label and input field, and add them to the
-                 ** dialog panel
+                /* Create the variable path separator label and input field, and add them to the
+                 * dialog panel
                  */
                 final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -1474,8 +1580,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 gbc.gridx++;
                 separatorPnl.add(varPathSepFld, gbc);
 
-                /*
-                 * Create the data type/variable name separator label and input field, and add
+                /* Create the data type/variable name separator label and input field, and add
                  * them to the dialog panel
                  */
                 final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
@@ -1536,6 +1641,24 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                         hideDataTypeCb.setEnabled(((JCheckBox) ae.getSource()).isSelected());
                     }
                 });
+                
+                /* All of these options only apply when exporting multiple tables. If an export originated from a table type
+                 * editor than only one table is being exported and these options are disabled.
+                 */
+                if (originatedFromTableEditor) {
+                    exportEntireDatabaseCb.setEnabled(false);
+                    deleteTargetDirectoryCb.setEnabled(false);
+                    includeAllTableTypesCb.setEnabled(false);
+                    includeAllDataTypesCb.setEnabled(false);
+                    includeAllInputTypesCb.setEnabled(false);
+                    includeAllMacrosCb.setEnabled(false);
+                    includeReservedMsgIDsCb.setEnabled(false);
+                    includeProjectFieldsCb.setEnabled(false);
+                    includeGroupsCb.setEnabled(false);
+                    includeAssociationsCb.setEnabled(false);
+                    includeTlmSchedCB.setEnabled(false);
+                    includeAppSchedCB.setEnabled(false);
+                }
             }
 
             /* Check if exporting in EDS or XTCE XML format */

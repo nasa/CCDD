@@ -100,7 +100,6 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
-import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 

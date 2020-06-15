@@ -209,6 +209,17 @@ public class CcddDialogHandler extends JDialog {
                     closeDialog(button);
                 }
             }
+            
+            /**************************************************************************************
+             * Override the window closing method and exit without checking the value
+             *
+             * @param button button that initiated dialog closing
+             *************************************************************************************/
+            @Override
+            protected void closeWindowDirect(int button) {
+                // Close the dialog, indicating the selected button
+                closeDialog(button);
+            }
         };
     }
 

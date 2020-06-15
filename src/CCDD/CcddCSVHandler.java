@@ -1536,7 +1536,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             /* Add one last new line character to mark the end of this section of export data 
              * if exporting all data to a single file
              */
-            if (outputType.contentEquals("Single")) {
+            if ((outputType.contentEquals("Single")) && (tableNames.length > 1)) {
                 pw.printf("\n");
             }
         } catch (IOException ioe) {

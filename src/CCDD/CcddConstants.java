@@ -301,6 +301,12 @@ public class CcddConstants {
     protected static final String LOCK = "_db_lock_";
     protected static final String ADMINS = "_db_admins_";
     protected static final String DESC = "_db_desc_";
+    
+    /* Order in which checkboxes are added to the createTableImportPanel JPanel */
+    protected static final int overwriteExistingCbIndex = 0;
+    protected static final int appendToExistingDataCbIndex = 1;
+    protected static final int ignoreErrorsCbIndex = 2;
+    protected static final int keepDataFieldsCbIndex = 3;
 
     // Endian type
     protected static enum EndianType {
@@ -1980,6 +1986,11 @@ public class CcddConstants {
                 InputTypeFormat.TEXT,
                 "One or more alphanumeric entries (see Alphanumeric) "
                         + "separated by one or more white space characters"),
+        
+        ALPHANUMERIC_INDEXES("Alphanumeric with indexes", "[a-zA-Z_][a-zA-Z0-9_]*([\\[][0-9][\\]])*",
+                InputTypeFormat.TEXT,
+                "Alphabetic or underscore first character followed by zero "
+                        + "or more alphabetic, numeric, and underscore characters followed by indexes"),
 
         ARRAY_INDEX("Array index", "^\\s*\\+??\\s*0*([1-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([1-9]|[1-9]\\d+))*",
                 InputTypeFormat.ARRAY, "Variable array index in the format #<, #<...>>"),
@@ -2115,7 +2126,7 @@ public class CcddConstants {
 
         UNITS("Units", ".*", InputTypeFormat.TEXT, "Data units; same constraints as for text (see Text)"),
 
-        VARIABLE("Variable name", ALPHANUMERIC.getInputMatch(), InputTypeFormat.TEXT,
+        VARIABLE("Variable name", ALPHANUMERIC_INDEXES.getInputMatch(), InputTypeFormat.TEXT,
                 "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
         VARIABLE_REFERENCE("Variable reference", ".*", InputTypeFormat.TEXT, "Display a menu of all defined variables"),
@@ -5557,21 +5568,28 @@ public class CcddConstants {
         DELETE_OPTION("Delete", 'D', "Cancel", DELETE_ICON, 2, -1),
         IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2, -1),
         EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2, -1),
-        RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2, -1),
+        RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2, -1, OK_BUTTON),
+        UPDATE_OPTION("Update Description", 'U', "", REPLACE_ICON, 1, -1, UPDATE_BUTTON),
+        CANCEL_OPTION("Cancel", 'C', "", CANCEL_ICON, 1, -1, CANCEL_BUTTON),
         OWNER_OPTION("Change Owner", 'C', "Cancel", RENAME_ICON, 2, -1),
         COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2, -1), BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2, -1),
         RESTORE_OPTION("Restore", 'R', "Cancel", UNDO_ICON, 2, -1),
         STORE_OPTION("Store", 'S', "Cancel", COPY_ICON, 2, -1),
         RETRIEVE_OPTION("Retrieve", 'R', "Cancel", UNDO_ICON, 2, -1),
         UNLOCK_OPTION("Unlock", 'U', "Cancel", UNLOCK_ICON, 2, -1),
-        HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1, 0);
+        HALT_OPTION("Halt", 'H', "", HALT_EXECUTION_ICON, 1, 0),
+        /******** Compound button options *********/
+        RENAME_UPDATE_OPTIONS(new DialogOption[]{RENAME_OPTION,UPDATE_OPTION,CANCEL_OPTION})
+        ;
 
         private final String buttonText;
         private final char buttonMnemonic;
         private final String secondaryButtonText;
         private final String buttonIcon;
         private final int numButtons;
-        private final int defaultButton;
+        private final int defaultButton;		// The default selection for this set of button -1 for no default
+        private final DialogOption optionArray[];	// A set of Dialog Options to use
+        private final int buttonType;			// The chosen button return value associated with this dialog option				
 
         /******************************************************************************************
          * Dialog option types constructor
@@ -5599,6 +5617,108 @@ public class CcddConstants {
             this.buttonIcon = buttonIcon;
             this.numButtons = numButtons;
             this.defaultButton = defaultButton;
+            this.optionArray = null;
+            this.buttonType = IGNORE_BUTTON;
+        }
+        
+        /******************************************************************************************
+         * Dialog option types constructor
+         *
+         * @param options[]		An array containing a set of dialog buttons to create in 
+         * 				in order. "this" dialog option will be defaulted and not used	
+         *****************************************************************************************/
+        DialogOption(DialogOption[] options) {
+            this.optionArray = options;
+            // Set these to defaults
+            this.buttonText = "";
+            this.buttonMnemonic = '~';
+            this.buttonIcon = null;
+            this.numButtons = -1;
+            this.defaultButton = -1;
+            this.buttonType = IGNORE_BUTTON;
+            this.secondaryButtonText = "";
+        }
+        
+        /******************************************************************************************
+         * Dialog option types constructor
+         *
+         * @param buttonText          text to display on the primary button
+         *
+         * @param buttonMnemonic      character for actuating the primary button via the
+         *                            keyboard
+         *
+         * @param secondaryButtonText text to display on the secondary button (if
+         *                            present)
+         *
+         * @param buttonIcon          identifier for the icon to display on the primary
+         *                            button
+         *
+         * @param numButtons          number of buttons to display in the dialog
+         *
+         * @param defaultButton       index of the button selected by default
+         * 
+         * @param buttonType          chosen button associated with this option. 
+         * 			      For example[OK, CANCEL, UPDATE, IGNORE]
+         *****************************************************************************************/
+        DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
+                int numButtons, int defaultButton, int buttonType) {
+            this.buttonText = buttonText;
+            this.buttonMnemonic = buttonMnemonic;
+            this.secondaryButtonText = secondaryButtonText;
+            this.buttonIcon = buttonIcon;
+            this.numButtons = numButtons;
+            this.defaultButton = defaultButton;
+            this.optionArray = null;
+            this.buttonType = buttonType;
+        }
+        
+        /******************************************************************************************
+         * Dialog option types constructor
+         *
+         * @param buttonText          text to display on the primary button
+         *
+         * @param buttonMnemonic      character for actuating the primary button via the
+         *                            keyboard
+         *
+         * @param secondaryButtonText text to display on the secondary button (if
+         *                            present)
+         *
+         * @param buttonIcon          identifier for the icon to display on the primary
+         *                            button
+         *
+         * @param numButtons          number of buttons to display in the dialog
+         *
+         * @param defaultButton       index of the button selected by default
+         * 
+         * @param buttonType          chosen button associated with this option. 
+         * 			      For example[OK, CANCEL, UPDATE, IGNORE]
+         * 
+         * @param options[]	      An array containing other dialog buttons to create in order			  
+         * 
+         *****************************************************************************************/
+        DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
+                int numButtons, int defaultButton, int buttonType, DialogOption[] options) {
+            this.buttonText = buttonText;
+            this.buttonMnemonic = buttonMnemonic;
+            this.secondaryButtonText = secondaryButtonText;
+            this.buttonIcon = buttonIcon;
+            this.numButtons = numButtons;
+            this.defaultButton = defaultButton;
+            this.optionArray = options;
+            this.buttonType = buttonType;
+        }
+        
+        /******************************************************************************************
+         * Get the primary button type
+         *
+         * @return an integer representing the button type, for example[OK, CANCEL, UPDATE, IGNORE]
+         *****************************************************************************************/ 
+        protected int getButtonType(){
+        	return buttonType;
+        }
+        
+        protected DialogOption[] getOptionArray(){
+        	return optionArray;
         }
 
         /******************************************************************************************
