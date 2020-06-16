@@ -1618,7 +1618,16 @@ public class CcddFileIOHandler {
                     TableInformation tableInfo;
 
                     // Load the old data, not the imported data, so that it can be used for comparison
-                    tableInfo = dbTable.loadTableData(tableDefn.getName(), true, true, ccddMain.getMainFrame());
+                    if (dbTable.isTableExists(tableDefn.getName(), parent)) {
+                        tableInfo = dbTable.loadTableData(tableDefn.getName(), true, true, ccddMain.getMainFrame());
+                    } else {
+                        // Create the table information for the new table, but with no data
+                        tableInfo = new TableInformation(tableDefn.getTypeName(), tableDefn.getName(),
+                                new String[0][0], tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
+                                tableDefn.getDescription(),
+                                fieldHandler.getFieldInformationFromDefinitions(tableDefn.getDataFields()));
+
+                    }
                     // Add the fields from the table to be created, old fields are dropped
                     tableInfo.setFieldInformation(fieldHandler.getFieldInformationFromDefinitions(
                             tableDefn.getDataFields()));
@@ -1870,6 +1879,13 @@ public class CcddFileIOHandler {
             if (isExists) {
                 // Add the parent and prototype table name to the list of table editors to close
                 tableName.add(new String[] { tableInfo.getParentTable(), tableInfo.getPrototypeName() });
+            } else {
+                // Create the table in the database
+                if (dbTable.createTable(new String[] { tableInfo.getPrototypeName() }, tableInfo.getDescription(),
+                        tableInfo.getType(), true, parent)) {
+                    throw new CCDDException();
+                }
+
             }
         }
 

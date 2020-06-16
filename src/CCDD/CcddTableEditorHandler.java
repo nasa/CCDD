@@ -2648,7 +2648,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 List<Object[]> oldData = getTableDataList(false);
                 
                 // Check to see if the old data was not correctly loaded. If not try another method
-                if (oldData == null || oldData.isEmpty()) {
+                if ((oldData == null || oldData.isEmpty()) && dbTable.isTableExists(committedTableInfo.getTablePath(), parent)) {
                     TableInformation example = dbTable.loadTableData(committedTableInfo.getTablePath(), false, false, ccddMain.getMainFrame());
                     oldData = Arrays.asList(example.getData());
                 }
