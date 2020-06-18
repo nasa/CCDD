@@ -34,3 +34,28 @@ When version 2 attempts to open a version 1.x.x version project database then a 
 * Restored EDS and XTCE import/export functionality to CCDDv2. Works just as it did in v1.
 * CSV import/export functionality has been updated to match the new JSON import/export functionality. You can now export entire databases, including internal tables, to JSON or CSV files. The data can be placed in separate files, every table in the database will get its own file, or one large file. This is useful for tracking changes to the database as these files can be easily checked into git. This also allows the user to make small changes to these files then perform an import which will update the database as needed.
 * When files are compared for differences during an import and EOL characters will not be ignored.
+
+*** Version 2.0.21 has been released ***
+The ccdd.build.xml file is included in the repo. I have added notes to section 4.1 of the users guide that describe how to rebuild the tool if needed.
+
+Below is a brief description of what has changed from version 2.0.20 to 2.0.21.
+* Users were getting numerous errors, including a JDBC error, due to a change to the build.xml file that did not work as expected. This has been corrected.
+* The replace existing tables check box during import did not replace the table, but simply appended to it.
+* When exporting a single table, via the table editor, an empty table_info.json file was created.
+* The use existing fields checkbox would create empty rows for each duplicate row.
+* When exporting a table from the table editor it did not append the file name as it used to which forced the user to type out the name of the file each time.
+* When exporting a table from the table editor window most of the options are now disabled. Example, Export entire database makes no sense when only one table is being exported.
+* When an export failed CCDD sometimes reported that it passed.
+* When importing directly into a table that is open, via the table editor, all data fields were cleared.
+* When exporting a table from the table editor, via JSON, the end of the file was missing a parenthesis and had a comma added.
+* When importing data any booleans would be set to false regardless of their actual value
+* When importing data any duplicate rows would cause empty rows to be added to the end of the table
+* When importing data fields the currently open table would often look correct, but once the user attempted to store the data it would cause an error and fail
+* XTCE and EDS files can not store data field info. When importing one of these two file types all data field info was lost if the user elected to overwrite or append new data. Added a new checkbox that allows the user to chose if they wish to keep all currently existing data fields.
+* Arrays could not be properly imported and had numerous issues
+* When importing into a table of type "Command" the "Command Argument" column was always set to false regardless of its value which caused errors as the column is not of type boolean.
+* Fixed an error that was preventing 2d arrays from being imported
+* Fixed an error that occurred when macros were used to define the size of an array.
+* Fixed an issue where the patch handler was sometimes requesting that a database be patched even if it was already a v2 database. This only occurred when launching from the command line.
+* When backing up a database the name of the database will now be the same as the selected file name.
+* COPY AND PASTE FUNCTIONALITY IS NOT WORKING AS EXPECTED. IT CAN BE USED, BUT DOES NOT WORK AS WELL AS IT DID IN THE PAST. WILL BE ADDRESSED IN A FUTURE RELEASE.
