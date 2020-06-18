@@ -1363,16 +1363,13 @@ public class CcddMain {
                     .decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath())
                             .getAbsolutePath(), "UTF-8");
 
-            // Sometimes the name of the jar is not appended. Attempt to add it if the name does not 
-            // end with '.jar'
+            // Sometimes the name of the jar is not appended. Attempt to add it if the name does not end with '.jar'
             if (!jarFileName.endsWith(".jar")) {
-                jarFileName = jarFileName.substring(0, jarFileName.length()-1);
-                jarFileName = jarFileName + "CCDD.jar";
+                jarFileName = new File(ClassLoader.getSystemClassLoader().getResource(".").getPath()).getAbsolutePath();
+                jarFileName = jarFileName + "/CCDD.jar";
             }
             
-            // Check if the .jar file name exists. This is false if the application is
-            // executed
-            // from within the IDE
+            // Check if the .jar file name exists. This is false if the application is executed from within the IDE
             if (jarFileName != null && jarFileName.endsWith(".jar")) {
                 // Get the manifest in the .jar file
                 JarFile jar = new JarFile(jarFileName);
@@ -1389,17 +1386,14 @@ public class CcddMain {
                 jar.close();
             }
         } catch (Exception e) {
-            // Ignore the exception if an I/O exception occurs accessing the manifest in the
-            // .jar
-            // file
+            // Ignore the exception if an I/O exception occurs accessing the manifest in the .jar file
         }
 
         // Check if no version number or build date was found in the manifest
         if (ccddVersion == null || buildDate == null) {
             try {
                 // Read the version and number from the build property files and set the date to
-                // today's date. This is for when the application is executed from within the
-                // IDE
+                // today's date. This is for when the application is executed from within the IDE
                 Properties properties = new Properties();
                 properties.load(new FileInputStream("." + File.separator + "ccdd.build.version"));
                 ccddVersion = properties.getProperty("build.version");
@@ -1407,16 +1401,13 @@ public class CcddMain {
                 ccddVersion += "." + properties.getProperty("build.number");
                 buildDate = new SimpleDateFormat("M-d-yyyy").format(Calendar.getInstance().getTime());
             } catch (Exception e) {
-                // Ignore the exception if the version number and build date can't be obtained
-                // from
+                // Ignore the exception if the version number and build date can't be obtained from
                 // the build property files
             }
 
-            // Check if no version number was found in the manifest or the build property
-            // files
+            // Check if no version number was found in the manifest or the build property files
             if (ccddVersion == null) {
-                // Set the version number and build date to indicate this information isn't
-                // available
+                // Set the version number and build date to indicate this information isn't available
                 ccddVersion = "*unknown*";
                 buildDate = "*unknown*";
             }
