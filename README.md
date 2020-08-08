@@ -59,3 +59,17 @@ Below is a brief description of what has changed from version 2.0.20 to 2.0.21.
 * Fixed an issue where the patch handler was sometimes requesting that a database be patched even if it was already a v2 database. This only occurred when launching from the command line.
 * When backing up a database the name of the database will now be the same as the selected file name.
 * COPY AND PASTE FUNCTIONALITY IS NOT WORKING AS EXPECTED. IT CAN BE USED, BUT DOES NOT WORK AS WELL AS IT DID IN THE PAST. WILL BE ADDRESSED IN A FUTURE RELEASE.
+
+*** Version 2.0.22 has been released ***
+
+Below is a brief description of what has changed from version 2.0.21 to 2.0.22.
+* CCDD can now detect and better report issues related to unexpected JSON formats during an import
+* Addressed an issue related to the primary key of tables not being given the correct value which resulted in many databases failing the verification process.
+* Addressed an issue that prevented the internal groups table from being updated during an import.
+* Addressed an issue that was preventing users from creating new tables.
+* Addressed an issue where macro changes that removed tables which were included in an active group were not updating the internal groups table.
+* Duplicate macros will now be filtered druing a JSON or CSV import
+* Addressed an issue where a user would end up with duplicated data if they imported a change to a member of a non-primitive array.
+* Multiple performance optimizations that greatly increase the speed at which a database can be opened or verifived and the speed at which CCDD can process a change in very large macros.
+* Addressed an issue where some tables could not be directly opened from the seach dialog.
+* Addressed an issue where some databases could not be converted from v1 to v2.
