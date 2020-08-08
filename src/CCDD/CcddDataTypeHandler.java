@@ -15,6 +15,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,6 +45,9 @@ public class CcddDataTypeHandler {
 
     // List containing the data type names and associated data type definitions
     private List<String[]> dataTypes;
+    
+    // Contains a HashMap of the list variable "dataTypes". Used for faster lookups
+    private HashMap<String, String[]> dataTypesMap;
 
     /**********************************************************************************************
      * Data type handler class constructor used when setting the data types from a
@@ -54,6 +58,8 @@ public class CcddDataTypeHandler {
      *********************************************************************************************/
     CcddDataTypeHandler(List<String[]> dataTypes) {
         this.dataTypes = dataTypes;
+        // There is a new list of datatypes, generate the equivalent map
+        buildDataTypesMap();
     }
 
     /**********************************************************************************************
@@ -70,6 +76,31 @@ public class CcddDataTypeHandler {
         dbCommand = ccddMain.getDbCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        dataTypesMap = null;
+    }
+    
+    /**********************************************************************************************
+     * Generate the data types map from the variable "dataTypes" list
+     *
+     *********************************************************************************************/
+    private void buildDataTypesMap(){
+        dataTypesMap = new HashMap<>(dataTypes.size());
+        for(String[] type:dataTypes){
+            dataTypesMap.put(getDataTypeName(type), type);
+        }
+    }
+    
+    /**********************************************************************************************
+     * Accessor function for the dataTypesMap variable
+     *
+     * @return HashMap<String, String[]> 
+     *********************************************************************************************/
+    private HashMap<String, String[]> getDataTypesAsMap(){
+        // Build the set if necessary
+        if(dataTypesMap == null || dataTypesMap.size() != dataTypes.size()){
+            buildDataTypesMap();
+        }
+        return dataTypesMap;
     }
 
     /**********************************************************************************************
@@ -145,6 +176,8 @@ public class CcddDataTypeHandler {
      *********************************************************************************************/
     protected void setDataTypeData(List<String[]> dataTypes) {
         this.dataTypes = CcddUtilities.copyListOfStringArrays(dataTypes);
+        // There is a new list, build the map again
+        buildDataTypesMap();
     }
 
     /**********************************************************************************************
@@ -197,20 +230,11 @@ public class CcddDataTypeHandler {
      *         returns null if the data type doesn't exist
      *********************************************************************************************/
     protected String[] getDataTypeByName(String dataTypeName) {
-        String[] dataType = null;
-
-        // Step through each defined data type
-        for (String[] type : dataTypes) {
-            // Check if the supplied name matches this data type's name. The names are case
-            // sensitive
-            if (dataTypeName.equals(getDataTypeName(type))) {
-                // Store the data type information and stop searching
-                dataType = type;
-                break;
-            }
-        }
-
-        return dataType;
+        // Pull from the map and return the value
+        // Will return a null if the key is not in the map
+        // This is a much faster implementation than going through the
+        // list and doing a string compare on each item in the list
+        return getDataTypesAsMap().get(dataTypeName);
     }
 
     /**********************************************************************************************

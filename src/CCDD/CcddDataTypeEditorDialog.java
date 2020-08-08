@@ -625,17 +625,24 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                         // Check if the data type user name or C type has been changed
                         if (column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
                                 || column == DataTypeEditorColumnInfo.C_NAME.ordinal()) {
-                            // Compare this data type name to the others in the table in order to
-                            // avoid creating a duplicate
-                            for (int otherRow = 0; otherRow < getRowCount(); otherRow++) {
-                                // Check if this row isn't the one being edited, and if the data
-                                // type name matches the one being added (case sensitive)
-                                if (otherRow != row && newValueS.equals(CcddDataTypeHandler.getDataTypeName(
-                                        tableData.get(otherRow)[DataTypeEditorColumnInfo.USER_NAME.ordinal()]
-                                                .toString(),
-                                        tableData.get(otherRow)[DataTypeEditorColumnInfo.C_NAME.ordinal()]
-                                                .toString()))) {
-                                    throw new CCDDException("Data type name already in use");
+                            
+                            boolean isUserNameChange = column == DataTypeEditorColumnInfo.USER_NAME.ordinal();
+                            
+                            // For the user type only, compare against existing entries
+                            if(isUserNameChange){
+                                // Compare this data type name to the others in the table in order to
+                                // avoid creating a duplicate
+                                for (int otherRow = 0; otherRow < getRowCount(); otherRow++) {
+                                    // Check if this row isn't the one being edited, and if the data
+                                    // type name matches the one being added (case sensitive)
+                                    boolean isRowDiff = otherRow != row;
+                                    String username = tableData.get(otherRow)[DataTypeEditorColumnInfo.USER_NAME.ordinal()].toString();
+                                    String cname = tableData.get(otherRow)[DataTypeEditorColumnInfo.C_NAME.ordinal()].toString();
+                                    boolean isNewNameSame = newValueS.equals(
+                                                CcddDataTypeHandler.getDataTypeName(username, cname));
+                                    if (isRowDiff && isNewNameSame) {
+                                        throw new CCDDException("Type Name \"" + newValueS + "\" already in use. Please use a unique Type Name");
+                                    }
                                 }
                             }
 

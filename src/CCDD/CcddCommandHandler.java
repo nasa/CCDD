@@ -199,15 +199,17 @@ public class CcddCommandHandler {
     protected void buildCommandList() {
         boolean hasCmdTable = false;
         commandInformation = new ArrayList<CommandInformation>();
+        StringBuilder command = new StringBuilder();
+        StringBuilder columnNames = new StringBuilder();
+        TypeDefinition typeDefn;
 
-        // Create the query command to obtain the command information from the project
-        // database
-        String command = "SELECT * FROM (";
+        // Create the query command to obtain the command information from the project database
+        command.append("SELECT * FROM (");
 
         // Step through each data table
         for (String[] namesAndType : dbTable.queryTableAndTypeList(ccddMain.getMainFrame())) {
             // Get the table's type definition
-            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(namesAndType[2]);
+            typeDefn = tableTypeHandler.getTypeDefinition(namesAndType[2]);
 
             // Check if the table type represents a command
             if (typeDefn != null && typeDefn.isCommand()) {
@@ -215,31 +217,27 @@ public class CcddCommandHandler {
                 hasCmdTable = true;
 
                 // Begin building the column name string
-                String columnNames = typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
-                        .getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
-                        + ", "
-                        + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
-                                .getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
-                        + ", " + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
-                                .getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)];
+                columnNames.setLength(0);
+                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]);
+                columnNames.append(", ");
+                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]);
+                columnNames.append(", ");
+                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)]);
 
-                // Append the command to obtain the specified column information from the
-                // command
-                // table
-                command += "(SELECT '" + namesAndType[0] + "' AS command_table, " + columnNames + " FROM "
-                        + namesAndType[1] + ") UNION ALL ";
+                // Append the command to obtain the specified column information from the command table
+                command.append("(SELECT '" + namesAndType[0] + "' AS command_table, " + columnNames + " FROM " + namesAndType[1]);
+                command.append(") UNION ALL ");
             }
         }
 
         // Check if the project has a command table
         if (hasCmdTable) {
             // Clean up the command
-            command = CcddUtilities.removeTrailer(command, " UNION ALL ") + ") AS cmds;";
+            command.setLength(command.length() -11); // removes the last " UNION ALL "
+            command.append(") AS cmds;");
 
             try {
-                // Perform the query to obtain the command information for all commands defined
-                // in
-                // the project
+                // Perform the query to obtain the command information for all commands defined in the project
                 ResultSet commands = ccddMain.getDbCommandHandler().executeDbQuery(command, ccddMain.getMainFrame());
 
                 // Check if a comment exists

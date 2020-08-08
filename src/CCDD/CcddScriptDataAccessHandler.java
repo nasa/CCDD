@@ -3621,7 +3621,7 @@ public class CcddScriptDataAccessHandler {
     public void writeSuccessLogEntry(String logMessage) {
         // Output the message to the event log
         eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                "[script: " + scriptFileName + "] " + (logMessage == null ? "" : logMessage));
+                new StringBuilder("[script: " + scriptFileName + "] " + (logMessage == null ? "" : logMessage)));
     }
 
     /**********************************************************************************************
@@ -3632,7 +3632,7 @@ public class CcddScriptDataAccessHandler {
     public void writeFailLogEntry(String logMessage) {
         // Output the message to the event log
         eventLog.logEvent(EventLogMessageType.FAIL_MSG,
-                "[script: " + scriptFileName + "] " + (logMessage == null ? "" : logMessage));
+                new StringBuilder("[script: " + scriptFileName + "] " + (logMessage == null ? "" : logMessage)));
     }
 
     /**********************************************************************************************
@@ -3643,7 +3643,7 @@ public class CcddScriptDataAccessHandler {
     public void writeStatusLogEntry(String logMessage) {
         // Output the message to the event log
         eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                "[script: " + scriptFileName + "] " + (logMessage == null ? "" : logMessage));
+                new StringBuilder("[script: " + scriptFileName + "] " + (logMessage == null ? "" : logMessage)));
     }
 
     /**********************************************************************************************

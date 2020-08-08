@@ -1144,7 +1144,7 @@ public class CcddScriptHandler {
                 // Script execution was canceled
                 else {
                     ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                            "Script execution terminated by user");
+                            new StringBuilder("Script execution terminated by user"));
                 }
             }
         });
@@ -1598,13 +1598,13 @@ public class CcddScriptHandler {
         // Check if any script executed successfully
         if (isSuccess) {
             // Update the event log
-            eventLog.logEvent(STATUS_MSG, successMessage);
+            eventLog.logEvent(STATUS_MSG, new StringBuilder(successMessage));
         }
 
         // Check if any script failed to be executed
         if (isFail) {
             // Update the event log
-            eventLog.logEvent(FAIL_MSG, failMessage);
+            eventLog.logEvent(FAIL_MSG, new StringBuilder(failMessage));
         }
     }
 

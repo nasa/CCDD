@@ -644,7 +644,7 @@ public class CcddSchedulerHandler {
                 // Auto-fill was canceled
                 else {
                     ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                            "Auto-fill terminated by user");
+                            new StringBuilder("Auto-fill terminated by user"));
                 }
             }
         });

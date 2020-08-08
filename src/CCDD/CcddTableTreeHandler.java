@@ -36,8 +36,12 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -546,7 +550,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         root = new ToolTipTreeNode(dbControl.getDatabaseName(), null);
         setModel(new DefaultTreeModel(root));
         setRootVisible(false);
-
+        
         // Set the flag to indicate if all nodes, only the prototype node, or only the
         // instance
         // node should be built and displayed
@@ -559,6 +563,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
 
         // Check if both groups and table type are to be used to filter the table tree
         if (isByGroup && isByType) {
+            
             // Step through the groups
             for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
                 // Create a node for the group and add it to the tree's root node
@@ -576,6 +581,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         }
         // Check if groups are to be used to filter the table tree
         else if (isByGroup) {
+            
             // Step through the groups
             for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
                 ToolTipTreeNode prototype = null;
@@ -631,11 +637,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         }
         // Check if the table types are to be used to filter the table tree
         else if (isByType) {
+            
             // Add all tables to the prototype and instances nodes by table type
             addByType(null, null, parent);
         }
         // Do not use the groups or types to filter the tree
         else {
+            
             ToolTipTreeNode prototype = null;
             ToolTipTreeNode instance = null;
 
@@ -675,7 +683,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
             // Build the root's top-level nodes
             buildTopLevelNodes(null, instance, prototype, parent);
         }
-
+        
+        
         // Check if the expansion check box exists
         if (expandChkBx != null) {
             // Check is the expansion state is not specified
@@ -694,7 +703,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
             // Set the state to collapse the tree
             isExpanded = false;
         }
-
+        
         // Force the root node to draw with the node additions
         ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
 
@@ -721,6 +730,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
 
         // Clear the flag that indicates the table tree is being built
         isBuilding = false;
+        
     }
 
     /**********************************************************************************************
@@ -980,7 +990,18 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
             // tables with descriptions
             tableDescriptions = dbTable.queryTableDescriptions(parent);
         }
-
+        
+        // if (otherMember.getDataTypes().contains(member.getTableName()) && !member.equals(otherMember))
+        HashMap<TableMembers, HashSet<String>> tableMap = new HashMap<>();
+        
+        boolean isOptEngaged = true;
+        if(isOptEngaged){
+            // Put the datatype of each member into the hashtable
+            for (TableMembers member : tableMembers) {
+                tableMap.put(member, new HashSet<>(member.getDataTypes()));
+            }
+        }
+        
         // Step through each table
         for (TableMembers member : tableMembers) {
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(member.getTableType());
@@ -1022,15 +1043,39 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                 if (treeType != PROTOTYPE_TABLES && treeType != PROTOTYPE_STRUCTURES && treeType != COMMAND_TABLES) {
                     boolean isRoot = true;
 
+                    if(tableMap.get(member)!= null){
+                        
+                    }
                     // Step through each table
-                    for (TableMembers otherMember : tableMembers) {
+                    for (TableMembers otherMember : tableMembers) 
+                    {
                         // Check if the current table has this table as a member, that the table
                         // isn't referencing itself, and, if the tree is filtered by group, that
                         // this table is a member of the group
-                        if (otherMember.getDataTypes().contains(member.getTableName()) && !member.equals(otherMember)) {
-                            // Clear the flag indicating this is a root table and stop searching
-                            isRoot = false;
-                            break;
+                        
+                        if(isOptEngaged)
+                        {
+                            if(!member.equals(otherMember))
+                            {
+                                HashSet<String> memberDatatypes = tableMap.get(otherMember);
+                                if(memberDatatypes != null)
+                                {
+                                    if(memberDatatypes.contains(member.getTableName()))
+                                    {
+                                        // Clear the flag indicating this is a root table and stop searching
+                                        isRoot = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (otherMember.getDataTypes().contains(member.getTableName()) && !member.equals(otherMember)) {
+                                // Clear the flag indicating this is a root table and stop searching
+                                isRoot = false;
+                                break;
+                            }
                         }
                     }
 
@@ -1039,12 +1084,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                     // in the prototype node
                     if (isRoot || treeType == STRUCTURES_WITH_PRIMITIVES) {
                         recursionTable = null;
-
+                        
                         // Build the nodes in the tree for this table and its member tables
                         buildNodes(member, (!isRoot && treeType == STRUCTURES_WITH_PRIMITIVES ? protoNode : instNode),
                                 new ToolTipTreeNode(member.getTableName(),
                                         getDescriptions ? getTableDescription(member.getTableName(), "") : null));
-
+                        
                         // Check if a recursive reference was detected and that warning dialogs
                         // aren't suppressed
                         if (recursionTable != null && !isSilent) {
@@ -1090,7 +1135,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
      *
      * @param childNode  new child node to add to the working node
      *********************************************************************************************/
+    long recursionCounter = 0;
+    long recursionAccumulator = 0;
     private void buildNodes(TableMembers thisMember, ToolTipTreeNode parentNode, ToolTipTreeNode childNode) {
+        // TODO: This is a lot of work to do for every recursive function call .. does it need to be done
+        recursionCounter++;
         // Step through each node in the parent's path
         for (TreeNode node : parentNode.getPath()) {
             // Check if this isn't a header node
@@ -1106,97 +1155,101 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         }
 
         // Check if a recursion error wasn't found (this prevents an infinite loop from
-        // occurring)
-        if (recursionTable == null) {
-            // Add the child node to its parent
-            parentNode.add(childNode);
+        // occurring) (or we call it a base case)
+        if(recursionTable != null){
+            return;
+        }
 
-            // Get the parent table and variable path for this variable
-            String fullTablePath = getFullVariablePath(childNode.getPath());
 
-            // Step through each table/variable referenced by the table member
-            for (int memIndex = 0; memIndex < thisMember.getDataTypes().size(); memIndex++) {
-                // Check if this data type is a primitive
-                if (dataTypeHandler.isPrimitive(thisMember.getDataTypes().get(memIndex))) {
-                    String tablePath = fullTablePath;
+        // Add the child node to its parent
+        parentNode.add(childNode);
 
-                    // Set to true if the variable has a path (i.e., this is not a prototype's
-                    // variable)
-                    boolean isChildVariable = tablePath.contains(",");
+        // Get the parent table and variable path for this variable
+        String fullTablePath = getFullVariablePath(childNode.getPath());
 
-                    // Check if the variable has a path
-                    if (isChildVariable) {
-                        // Add the data type and variable name to the variable path
-                        tablePath += "," + thisMember.getDataTypes().get(memIndex) + "."
-                                + thisMember.getVariableNames().get(memIndex);
-                    }
+        // Step through each table/variable referenced by the table member
+        for (int memIndex = 0; memIndex < thisMember.getDataTypes().size(); memIndex++) {
+            // Check if this data type is a primitive
+            if (dataTypeHandler.isPrimitive(thisMember.getDataTypes().get(memIndex))) {
+                StringBuilder tablePath = new StringBuilder(fullTablePath);
 
-                    String rate = null;
+                // Set to true if the variable has a path (i.e., this is not a prototype's
+                // variable)
+                boolean isChildVariable = tablePath.toString().contains(",");
 
-                    // Check if a rate filter is in effect
-                    if (rateFilter != null) {
-                        // Get the rate value for this variable. Use the prototype's value if the
-                        // variable doesn't have a specific rate assigned
-                        int index = rateValues.indexOf((Object)tablePath);
-                        rate = isChildVariable && index != -1 ? rateValues.get(index)[2]
-                                : thisMember.getRates().get(memIndex)[rateIndex];
-                    }
-
-                    // Check if no rate filter is in effect or, if not, that the rate matches the
-                    // specified rate filter
-                    if (rateFilter == null || rate.equals(rateFilter)) {
-                        // Get the full variable name in the form
-                        // data_type.variable_name[:bit_length]
-                        String variable = thisMember.getFullVariableNameWithBits(memIndex);
-
-                        // Check that no exclusion list is supplied, or if one is in effect that
-                        // the variable, using its full path and name, is not in the exclusion list
-                        if (excludedVariables == null || !excludedVariables.contains(tablePath)) {
-                            // Add the primitive as a node to this child node
-                            childNode.add(new ToolTipTreeNode(variable, null));
-                        }
-                        // The variable is in the exclusion list
-                        else {
-                            // Add the variable with the node text grayed out
-                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR + variable, null));
-                        }
-                    }
+                // Check if the variable has a path
+                if (isChildVariable) {
+                    // Add the data type and variable name to the variable path
+                    tablePath.append("," + thisMember.getDataTypes().get(memIndex) + "."
+                            + thisMember.getVariableNames().get(memIndex));
                 }
-                // Data type is not a primitive, it's a structure
-                else {
-                    // Step through the other tables
-                    for (TableMembers member : tableMembers) {
-                        // Check if the table is a member of the target table
-                        if (thisMember.getDataTypes().get(memIndex).equals(member.getTableName())) {
-                            // Build the node name from the prototype and variable names
-                            String nodeName = thisMember.getDataTypes().get(memIndex) + "."
-                                    + thisMember.getVariableNames().get(memIndex);
 
-                            // Get the variable name path to this node
-                            String tablePath = fullTablePath + "," + nodeName;
+                String rate = null;
 
-                            // Add this table to the current table's node. The node name is in the
-                            // format 'dataType.variableName<[arrayIndex]>'. If a specific
-                            // description exists for the table then use it for the tool tip text;
-                            // otherwise use the prototype's description
-                            buildNodes(member, childNode, new ToolTipTreeNode(nodeName,
-                                    getDescriptions
-                                            ? getTableDescription(tablePath, thisMember.getDataTypes().get(memIndex))
-                                            : null));
-                        }
+                // Check if a rate filter is in effect
+                if (rateFilter != null) {
+                    // Get the rate value for this variable. Use the prototype's value if the
+                    // variable doesn't have a specific rate assigned
+                    int index = rateValues.indexOf(tablePath.toString());
+                    rate = isChildVariable && index != -1 ? rateValues.get(index)[2]
+                            : thisMember.getRates().get(memIndex)[rateIndex];
+                }
+
+                // Check if no rate filter is in effect or, if not, that the rate matches the
+                // specified rate filter
+                if (rateFilter == null || rate.equals(rateFilter)) {
+                    // Get the full variable name in the form
+                    // data_type.variable_name[:bit_length]
+                    String variable = thisMember.getFullVariableNameWithBits(memIndex);
+
+                    // Check that no exclusion list is supplied, or if one is in effect that
+                    // the variable, using its full path and name, is not in the exclusion list
+                    if (excludedVariables == null || !excludedVariables.contains(tablePath.toString())) {
+                        // Add the primitive as a node to this child node
+                        childNode.add(new ToolTipTreeNode(variable, null));
+                    }
+                    // The variable is in the exclusion list
+                    else {
+                        // Add the variable with the node text grayed out
+                        childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR + variable, null));
                     }
                 }
             }
+            // Data type is not a primitive, it's a structure
+            else {
+                // Step through the other tables
+                for (TableMembers member : tableMembers) {
+                    // Check if the table is a member of the target table
+                    if (thisMember.getDataTypes().get(memIndex).equals(member.getTableName())) {
+                        // Build the node name from the prototype and variable names
+                        String nodeName = thisMember.getDataTypes().get(memIndex) + "."
+                                + thisMember.getVariableNames().get(memIndex);
 
-            // Check if primitive variables are included in the tree and this node has no
-            // children
-            // (variables)
-            if ((treeType == STRUCTURES_WITH_PRIMITIVES || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                    || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES) && childNode.getChildCount() == 0) {
-                // Remove the node
-                parentNode.remove(childNode);
+                        // Get the variable name path to this node
+                        String tablePath = fullTablePath + "," + nodeName;
+
+                        // Add this table to the current table's node. The node name is in the
+                        // format 'dataType.variableName<[arrayIndex]>'. If a specific
+                        // description exists for the table then use it for the tool tip text;
+                        // otherwise use the prototype's description
+                        buildNodes(member, childNode, new ToolTipTreeNode(nodeName,
+                                getDescriptions
+                                        ? getTableDescription(tablePath, thisMember.getDataTypes().get(memIndex))
+                                        : null));
+                    }
+                }
             }
         }
+
+        // Check if primitive variables are included in the tree and this node has no
+        // children
+        // (variables)
+        if ((treeType == STRUCTURES_WITH_PRIMITIVES || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES) && childNode.getChildCount() == 0) {
+            // Remove the node
+            parentNode.remove(childNode);
+        }
+        
     }
 
     /**********************************************************************************************
@@ -1279,20 +1332,25 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
 
         List<String> variablePaths = new ArrayList<String>();
 
-        // Step through each path
-        for (Object[] path : tablePathList) {
-            // Convert the path array to a string, stripping off the nodes names prior to
-            // the start
-            // index and the HTML tags
-            String variable = removeExtraText(createNameFromPath(path, getHeaderNodeLevel()));
-
-            // Check if the path is not already in the list and that the path isn't blank
-            if (!variablePaths.contains(variable) && !variable.isEmpty()) {
-                // Add the path to the list
-                variablePaths.add(variable);
+        // Step through each path. If more than 1000 than do not even check if the current path is already in the list.
+        // Kills performance. TODO: Maybe turn this into a hashMap to avoid this issue?
+        if (tablePathList.size() > 1000) {
+            for (Object[] path : tablePathList) {
+                // Convert the path array to a string, stripping off the nodes names prior to the start index and the HTML tags
+                variablePaths.add(removeExtraText(createNameFromPath(path, getHeaderNodeLevel())));
+            }
+        } else {
+            for (Object[] path : tablePathList) {
+                String variable = removeExtraText(createNameFromPath(path, getHeaderNodeLevel()));
+                
+                // Check if the path is not already in the list and that the path isn't blank
+                if (!variablePaths.contains(variable) && !variable.isEmpty()) {
+                    // Add the path to the list
+                    variablePaths.add(variable);
+                }
             }
         }
-
+        
         return variablePaths;
     }
 

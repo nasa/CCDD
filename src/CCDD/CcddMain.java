@@ -360,9 +360,9 @@ public class CcddMain {
         }
 
         // Log the CCDD and Java versions
-        getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                "CCDD: " + ccddVersion + " (" + buildDate + ")  ***  Java: " + System.getProperty("java.version") + " ("
-                        + System.getProperty("sun.arch.data.model") + "-bit) *** command line: " + cmdLn);
+        getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("CCDD: ").append(ccddVersion)
+                .append(" (").append(buildDate).append(")  ***  Java: ").append(System.getProperty("java.version"))
+                .append(" (").append(System.getProperty("sun.arch.data.model")).append("-bit) *** command line: ").append(cmdLn));
 
         // Create a keyboard handler to adjust the response to the Enter key to act like
         // the Space
@@ -499,7 +499,7 @@ public class CcddMain {
      *********************************************************************************************/
     protected void setWebServer(String gui) {
         // Log the Jetty version
-        getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG, "Jetty: " + org.eclipse.jetty.util.Jetty.VERSION);
+        getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Jetty: ").append(org.eclipse.jetty.util.Jetty.VERSION));
 
         // Create the web server
         webServer = new CcddWebServer(this);
@@ -841,30 +841,22 @@ public class CcddMain {
         // Create a message ID handler for the project database
         messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
 
-        // Now that the variable handler exists, store its reference in the table
-        // command and macro
-        // handlers
+        // Now that the variable handler exists, store its reference in the table command and macro handlers
         dbTable.setHandlers();
         macroHandler.setHandlers(variableHandler, dataTypeHandler);
         scriptHandler.setHandlers();
 
-        // Build the variables list and determine the variable offsets (note that the
-        // variables
-        // class must be fully instantiated and the macro handler updated with the
-        // variable handler
-        // reference before calling the path and offset list build method)
+        // Build the variables list and determine the variable offsets (note that the variables class must
+        // be fully instantiated and the macro handler updated with the variable handler reference before
+        // calling the path and offset list build method)
         variableHandler.buildPathAndOffsetLists();
 
         // Build the command information list
         commandHandler.buildCommandList();
 
-        // Create the list for the message ID name and ID selection input type (note
-        // that the
-        // message ID class must be fully instantiated before calling the name and ID
-        // list build
-        // method)
+        // Create the list for the message ID name and ID selection input type (note that the message
+        // ID class must be fully instantiated before calling the name and ID list build method)
         inputTypeHandler.updateMessageReferences(getMainFrame());
-
         // Check if the web server is enabled
         if (isWebServer()) {
             // Start the web server

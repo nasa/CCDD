@@ -21,7 +21,10 @@ import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -304,7 +307,7 @@ public class CcddCommonTreeHandler extends JTree {
         // The check box is deselected
         else {
             // Collapse the entire tree
-            collapseTreePath(getPathFromNode((TreeNode) getModel().getRoot()));
+            collapseTreePathNotRecursive(getPathFromNode((TreeNode) getModel().getRoot()));
         }
     }
 
@@ -331,6 +334,76 @@ public class CcddCommonTreeHandler extends JTree {
 
         // Expand the current path
         expandPath(path);
+    }
+    
+    /**********************************************************************************************
+     * Determine if the TreeNode is a leaf (has no children)
+     *
+     * @param TreeNode the current tree node to check
+     * @return it is a leaf or it is not a leaf
+     *********************************************************************************************/
+    boolean isLeaf(TreeNode node){
+        return node.getChildCount() == 0;
+    }
+    
+    /**********************************************************************************************
+     * Take a node and a map and construct an array of the nodes on the pack back to the root.
+     * Convert this path into a TreePath and collapse it
+     *
+     * @param leafNode current node
+     * @param map map containing node and connected node relationships
+     *********************************************************************************************/
+    void collapseArrayPath(TreeNode leafNode, Map<TreeNode,TreeNode> map){
+        // Generate the path array
+        ArrayList<TreeNode> path = new ArrayList<>();
+        path.add(leafNode);
+        TreeNode n = leafNode;
+        while(map.get(n)!= null){
+            n = map.get(n);
+            path.add(n);
+        }
+        
+        // Create the TreePath from the array
+        TreePath tPath = new TreePath(path);
+        
+        // Check if this path is not the root or if the root is visible. This prevents
+        // collapsing the root's children when the root is invisible
+        if (tPath.getParentPath() != null || isRootVisible()) {
+            // Collapse the current path
+            collapsePath(tPath);
+        }
+    }
+    
+    /**********************************************************************************************
+     * Collapse the specified tree path and all of its child paths. This is a
+     * not a recursive method
+     *
+     * @param path tree path to collapse
+     *********************************************************************************************/
+    private void collapseTreePathNotRecursive(TreePath path) {
+        Stack<TreeNode> traverseStack = new Stack<>();
+        Map<TreeNode, TreeNode> map = new HashMap<>();
+        
+        map.put((TreeNode) path.getLastPathComponent(), null);
+        
+        traverseStack.add((TreeNode) path.getLastPathComponent());
+        
+        while(traverseStack.isEmpty() == false){
+            
+            TreeNode n = traverseStack.pop();
+            // If it is a leaf node, then collapse it
+            if(isLeaf(n)){
+                collapseArrayPath(n, map);               
+            }
+            
+            // Add all children to the map
+            for (Enumeration<?> e = n.children(); e.hasMoreElements();) {
+                // Get the child node's path and add to the stack and map
+                TreeNode childNode = (TreeNode) e.nextElement();
+                traverseStack.add(childNode);
+                map.put(childNode,n);
+            }
+        }
     }
 
     /**********************************************************************************************
@@ -863,26 +936,21 @@ public class CcddCommonTreeHandler extends JTree {
      *         separated by commas, from the specified tree path
      *********************************************************************************************/
     protected String getFullVariablePath(Object[] path, int levelAdjust) {
-        String variablePath = "";
+        StringBuilder variablePath = new StringBuilder();
 
-        // Step through the nodes in the path. Calculate the index into the tree path
-        // array so as
-        // to skip the database and prototype/instance nodes, and the group and/or type
-        // nodes, if
+        // Step through the nodes in the path. Calculate the index into the tree path array so as
+        // to skip the database and prototype/instance nodes, and the group and/or type nodes, if
         // filtering is active, and the parent table name
         for (int index = getHeaderNodeLevel() + levelAdjust; index < path.length; index++) {
-            // Get the node name
-            String variable = path[index].toString();
-
-            // Check if the node represents a variable name
-            if (!variable.contains(";")) {
-                // Store the variable name (including the bit length, if present) in the path
-                // array
-                variablePath += variable + ",";
+            // Get the node name and check if the node represents a variable name
+            if (!path[index].toString().contains(";")) {
+                // Store the variable name (including the bit length, if present) in the path array
+                variablePath.append(path[index].toString()).append(",");
             }
         }
 
-        return CcddUtilities.removeTrailer(variablePath, ",");
+        variablePath.setLength(variablePath.length()-1); // removes the last ","
+        return variablePath.toString();
     }
 
     /**********************************************************************************************

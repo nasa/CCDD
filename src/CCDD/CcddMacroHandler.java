@@ -606,7 +606,15 @@ public class CcddMacroHandler {
      * @return true if the text contains a macro reference
      *********************************************************************************************/
     protected static boolean hasMacro(String text) {
-        return text != null && text.matches(".*" + MACRO_IDENTIFIER + ".+" + MACRO_IDENTIFIER + ".*");
+        boolean result = false;
+        
+        if (text.contains(MACRO_IDENTIFIER)) {
+            if (text != null && text.matches(".*" + MACRO_IDENTIFIER + ".+" + MACRO_IDENTIFIER + ".*")) {
+                result = true;
+            }
+        }
+        
+        return result;
     }
 
     /**********************************************************************************************
@@ -677,12 +685,12 @@ public class CcddMacroHandler {
     protected String getMacroExpansion(String text, List<String> invalidDataTypes) {
         isMacroRecursive = false;
 
-        String expandedText;
+        StringBuilder expandedText = new StringBuilder(text.length());
         int lastEnd = 0;
 
         // Check if the text string contains a macro or sizeof() call
         if (hasMacro(text) || CcddVariableHandler.hasSizeof(text)) {
-            expandedText = "";
+            expandedText.append("");
             this.invalidDataTypes = invalidDataTypes;
 
             // Convert any sizeof() calls to the equivalent data type size
@@ -699,33 +707,33 @@ public class CcddMacroHandler {
                 // Append the text leading to the macro name, then add the macro value in place
                 // of
                 // the name
-                expandedText += text.substring(lastEnd, location.getStart())
-                        + getMacroValue(location.getMacroName().replaceAll(MACRO_IDENTIFIER, ""));
+                expandedText.append(text.substring(lastEnd, location.getStart())
+                        + getMacroValue(location.getMacroName().replaceAll(MACRO_IDENTIFIER, "")));
 
                 // Store the end position of the macro name for the next pass
                 lastEnd = location.getStart() + location.getMacroName().length();
             }
 
             // Append any remaining text
-            expandedText += text.substring(lastEnd);
+            expandedText.append(text.substring(lastEnd));
 
             // Separate the text at any comma. This is to evaluate each substring to see if
             // it's an
             // expression. This allows macros to represent array sizes for multi-dimensional
             // arrays
-            String[] parts = expandedText.split("\\s*,\\s*");
+            String[] parts = expandedText.toString().split("\\s*,\\s*");
 
             // Check if there is no comma to separate the text (so that it's potentially a
             // single
             // expression)
             if (parts.length == 1) {
                 // Evaluate the text as a mathematical expression
-                Double exprResult = CcddMathExpressionHandler.evaluateExpression(expandedText);
+                Double exprResult = CcddMathExpressionHandler.evaluateExpression(expandedText.toString());
 
                 // Check if the text is a valid mathematical expression
                 if (exprResult != null) {
                     // Set the value to expression result
-                    expandedText = String.valueOf((int) ((double) exprResult));
+                    expandedText = new StringBuilder(String.valueOf((int) ((double) exprResult)));
                 }
             }
             // The string contains one or more commas. Each substring is evaluated as an
@@ -757,7 +765,7 @@ public class CcddMacroHandler {
                 if (isExpr) {
                     // Set the expanded text to the comma-separated integers, removing the trailing
                     // comma added above
-                    expandedText = CcddUtilities.removeTrailer(multiText, ",").replaceAll(",", ", ");
+                    expandedText = new StringBuilder(CcddUtilities.removeTrailer(multiText, ",").replaceAll(",", ", "));
                 }
             }
 
@@ -769,10 +777,10 @@ public class CcddMacroHandler {
         // The text doesn't contain a macro or sizeof() call
         else {
             // Return the text string as-is
-            expandedText = text;
+            expandedText = new StringBuilder(text);
         }
 
-        return expandedText;
+        return expandedText.toString();
     }
 
     /**********************************************************************************************

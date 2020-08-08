@@ -907,12 +907,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     haltDlg.closeDialog();
 
                     // Add a log entry indication the message ID assignment completed
-                    eventLog.logEvent(STATUS_MSG, "Table/group message ID assignment completed");
+                    eventLog.logEvent(STATUS_MSG, new StringBuilder("Table/group message ID assignment completed"));
                 }
                 // Message ID assignment was canceled
                 else {
                     eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                            "Table/group message ID assignment terminated by user");
+                            new StringBuilder("Table/group message ID assignment terminated by user"));
                 }
 
                 haltDlg = null;
@@ -979,12 +979,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     haltDlg.closeDialog();
 
                     // Add a log entry indication the message ID/name assignment completed
-                    eventLog.logEvent(STATUS_MSG, "Telemetry message ID/name assignment completed");
+                    eventLog.logEvent(STATUS_MSG, new StringBuilder("Telemetry message ID/name assignment completed"));
                 }
                 // Message ID assignment was canceled
                 else {
                     eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                            "Telemetry message ID/name assignment terminated by user");
+                            new StringBuilder("Telemetry message ID/name assignment terminated by user"));
                 }
 
                 haltDlg = null;

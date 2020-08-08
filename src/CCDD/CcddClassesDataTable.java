@@ -620,15 +620,15 @@ public class CcddClassesDataTable {
          *****************************************************************************************/
         protected String getFullVariableNameWithBits(int index) {
             // Get the full variable name
-            String varName = getFullVariableName(index);
+            StringBuilder varName = new StringBuilder(getFullVariableName(index));
 
             // Check if the variable has a bit length
             if (!bitLengths.get(index).isEmpty()) {
                 // Append the bit length to the variable name
-                varName += ":" + bitLengths.get(index);
+                varName.append(":" + bitLengths.get(index));
             }
 
-            return varName;
+            return varName.toString();
         }
     }
 
@@ -2155,7 +2155,7 @@ public class CcddClassesDataTable {
                 variableName = variableName.substring(index);
                 
                 // Check if two indexes are included
-                if (StringUtils.countMatches(variableName, "[") == 2) {
+                if (StringUtils.countMatches(variableName, "[") >= 2) {
                     // Check if any letter of the alphabet is included
                     if (Pattern.compile("[a-zA-Z]").matcher(variableName).find()) {
                         index = variableName.lastIndexOf("[");
@@ -3714,6 +3714,12 @@ public class CcddClassesDataTable {
                     if (isApplicable(tableName)) {
                         // Clean up the table name, if needed
                         tableName = cleanUpTableName(tableName, row);
+                        
+                        // The table name will sometimes have a variable name appended to the end. This 
+                        // needs to be trimmed off before attempting to open the table.
+                        if (StringUtils.countMatches(tableName, ",") >= 2) {
+                            tableName = tableName.substring(0, tableName.indexOf(",", tableName.indexOf(",") + 1));
+                        }
 
                         // Check if the table isn't already in the list of those to be opened
                         if (!tablePaths.contains(tableName)) {

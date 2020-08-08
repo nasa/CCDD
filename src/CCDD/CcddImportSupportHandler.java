@@ -12,9 +12,14 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -995,5 +1000,52 @@ public class CcddImportSupportHandler {
         }
 
         return path;
+    }
+    
+    /**********************************************************************************************
+     * Convert a list to a unique list and detect if there are any duplicate entries
+     * 
+     * @param NewMacroDefns     A list of string arrays containing informatino
+     * 
+     * @return Pair containing a list of unique values and a Boolean indicating if the set was 
+     *         unique
+     *********************************************************************************************/
+    protected ImmutablePair<Boolean, List<String[]>> convertToUniqueList(List<String[]> NewMacroDefns)
+    {
+        // TODO This could be made generic with an input that is comparable
+        if(NewMacroDefns == null){
+            return null;
+        }
+        if(NewMacroDefns.isEmpty()){
+            return null;
+        }
+
+        boolean isDuplicate = true;
+        Set<String> uniqueSet = new HashSet<String>();
+        List<String[]> uniqueMacroList = new ArrayList<>();
+        
+        // Go through each entry in the list
+        for(String[] macros:NewMacroDefns)
+        {
+            // Bad input in the string array, exit
+            if(macros == null){
+                return null;
+            }
+            String macroName = macros[0];
+            // Check if it is in the unique set already
+            if(uniqueSet.contains(macroName))
+            {
+                // Mark the flag if it is
+                isDuplicate = false;
+            } 
+            else 
+            {
+                // Otherwise add this unique value to the list
+                uniqueMacroList.add(macros);
+                // And the set
+                uniqueSet.add(macroName);
+            } 
+        }
+        return new ImmutablePair<>(isDuplicate, uniqueMacroList);
     }
 }

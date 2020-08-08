@@ -181,8 +181,8 @@ public class CcddWebServer {
             server.start();
 
             // Inform the user that the web server started
-            eventLog.logEvent(EventLogMessageType.SERVER_MSG, "Web server started; listening on port "
-                    + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
+            eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder("Web server started; listening on port ")
+                    .append(((ServerConnector) server.getConnectors()[0]).getLocalPort()));
         } catch (Exception e) {
             // Inform the user that starting the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
@@ -200,7 +200,7 @@ public class CcddWebServer {
             server.stop();
 
             // Inform the user that the web server stopped
-            eventLog.logEvent(EventLogMessageType.SERVER_MSG, "Web server stopped");
+            eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder("Web server stopped"));
         } catch (Exception e) {
             // Inform the user that stopping the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
@@ -252,7 +252,7 @@ public class CcddWebServer {
             // Check if there is a message to output
             if (!message.isEmpty()) {
                 // Output the server message to the event log
-                eventLog.logEvent(EventLogMessageType.SERVER_MSG, type + ": " + message);
+                eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder(type).append(": ").append(message));
             }
         }
 

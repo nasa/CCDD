@@ -759,8 +759,16 @@ public class CcddSearchHandler extends CcddDialogHandler {
                 TypeDefinition typeDefn = tblTypeHndlr.getTypeDefinition(tableAndType[1]);
 
                 // Check if the reference is in an array size column
-                if (typeDefn.getDbColumnNameByInputType(DefaultInputType.ARRAY_INDEX)
-                        .equals(tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()])) {
+                String refL = typeDefn.getDbColumnNameByInputType(DefaultInputType.ARRAY_INDEX);
+                String refR = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
+                
+                // For some reason there is a null for one of these columns
+                // Return
+                if(refL == null || refR == null){
+                    return;
+                }
+                boolean isEqual = refL.equals(refR);
+                if (isEqual) {
                     // Separate the location into the individual columns. Commas between double
                     // quotes are ignored so that an erroneous column separation doesn't occur
                     String[] columns = CcddUtilities

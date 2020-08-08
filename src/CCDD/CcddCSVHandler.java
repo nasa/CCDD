@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -21,10 +22,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.parser.JSONParser;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
@@ -119,6 +120,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
          *****************************************************************************************/
         protected String getTag() {
             return tag;
+        }
+
+        /**
+         * @return the alternateTag
+         */
+        protected String getAlternateTag() {
+            return alternateTag;
         }
 
         /******************************************************************************************
@@ -552,10 +560,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             
             /********************* MACROS *********************/
-            if (content.contains(CSVTags.MACRO.getTag())) {
+            // Check both the normal and alternative tag names for a match
+            boolean isMacroContained = content.contains(CSVTags.MACRO.getTag()) || content.contains(CSVTags.MACRO.getAlternateTag());
+            if (isMacroContained) {
+                // Use the tag that exists (one of them must if it gets to here)
+                String tagToUse = content.contains(CSVTags.MACRO.getTag()) ? CSVTags.MACRO.getTag() : CSVTags.MACRO.getAlternateTag();
+                
                 /* Extract the data related to macro definitions */
-                int beginIndex = content.indexOf(CSVTags.MACRO.getTag());
+                /* Handle two formats that may exist in the input data */
+                int beginIndex = content.indexOf(tagToUse);
+                 /* find the next instance of three return characters */
                 int endIndex = content.indexOf("\n\n\n", beginIndex);
+                /* If that failed, then find two return chars */
+                endIndex = endIndex == -1 ? content.indexOf("\n\n", beginIndex) : endIndex;
                 String Data = "";
                 if (endIndex == -1) {
                     Data = content.substring(beginIndex);
@@ -602,11 +619,28 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
                 }
                 
+                // Convert all of the new macro definitions to a set of unique entries
+                // based on the macro name (the first array element)
+                // A pair with a boolean indicating if the input set was unique and
+                // the list of unique entries that were extracted
+                Pair<Boolean, List<String[]>> uniqueResults = convertToUniqueList(NewMacroDefns);
+                
+                boolean isDupDetected = !uniqueResults.getLeft();
+                if (isDupDetected) {
+                    // Get the user's input
+                    if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                            "<html> <b> Continue import and ignore the duplicate values?", "Duplicate Macros in Input File",
+                            JOptionPane.QUESTION_MESSAGE,
+                            DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
+                        throw new CCDDException("Duplicate macros detected in the input file, user Cancelled");
+                    }
+                }
+                
                 /* Add the macro if it's new or match it to an existing one with the same
                  * name. If the flag to replace existing macro values is false then get the
                  * list of macros names where the existing and import file values differ
                  */
-                List<String> mismatchedMacros = macroHandler.updateMacros(NewMacroDefns, replaceExistingMacros);
+                List<String> mismatchedMacros = macroHandler.updateMacros(uniqueResults.getRight(), replaceExistingMacros);
                 
                 /* Check if any existing and import file macro values differ ( the flag to
                  * replace existing macro values is false)
@@ -1755,10 +1789,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             for (int index = 1; index < Entries.length; index++) {
                                 String[] Columns = Entries[index].split(",");
                                 for (int index2 = 0; index2 < Columns.length; index2++) {
+                                    String[] splitColumns = Columns[index2].split("\":");
+                                    String valueToAdd = "";
+                                    /* Make sure that the values exist */
+                                    if(splitColumns.length > 1)
+                                        valueToAdd = splitColumns[1];
+
                                     if (index2 != Columns.length -1) {
-                                        FinalOutput += Columns[index2].split("\":")[1] + ",";
+                                        FinalOutput += valueToAdd + ",";
                                     } else {
-                                        FinalOutput += Columns[index2].split("\":")[1] + "\n";
+                                        FinalOutput += valueToAdd + "\n";
                                     }
                                 }
                             }
@@ -1773,10 +1813,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             String[] TelemData = CSVData.split(",");
                             FinalOutput += "\n" + CSVTags.TELEM_SCHEDULER.getTag() + "\n";
                             for (int index = 0; index < TelemData.length; index++) {
+                                String[] splitTelem = TelemData[index].split(":");
+                                String valueToAdd = "";
+                                /* Make sure that the values exist */
+                                if(splitTelem.length > 1)
+                                    valueToAdd = splitTelem[1];
+                                
                                 if (index != TelemData.length -1) {
-                                    FinalOutput += TelemData[index].split(":")[1] + ",";
+                                    FinalOutput += valueToAdd + ",";
                                 } else {
-                                    FinalOutput += TelemData[index].split(":")[1] + "\n";
+                                    FinalOutput += valueToAdd + "\n";
                                 }
                             }
                             break;
@@ -1790,10 +1836,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             String[] AppData = CSVData.split(",");
                             FinalOutput += "\n" + CSVTags.APP_SCHEDULER.getTag() + "\n";
                             for (int index = 0; index < AppData.length; index++) {
+                                String[] splitAppData = AppData[index].split(":");
+                                String valueToAdd = "";
+                                /* Make sure that the values exist */
+                                if(splitAppData.length > 1)
+                                    valueToAdd = splitAppData[1];
+                                
                                 if (index != AppData.length -1) {
-                                    FinalOutput += AppData[index].split(":")[1] + ",";
+                                    FinalOutput += valueToAdd + ",";
                                 } else {
-                                    FinalOutput += AppData[index].split(":")[1] + "\n";
+                                    FinalOutput += valueToAdd + "\n";
                                 }
                             }
                             break;
@@ -1994,3 +2046,4 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 }
+

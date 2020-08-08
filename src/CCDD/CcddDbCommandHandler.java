@@ -92,7 +92,7 @@ public class CcddDbCommandHandler {
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    protected ResultSet executeDbQuery(String command, Component component) throws SQLException {
+    protected ResultSet executeDbQuery(StringBuilder command, Component component) throws SQLException {
         return (ResultSet) executeDbStatement(DbCommandType.QUERY, command, component);
     }
 
@@ -108,7 +108,7 @@ public class CcddDbCommandHandler {
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    protected int executeDbUpdate(String command, Component component) throws SQLException {
+    protected int executeDbUpdate(StringBuilder command, Component component) throws SQLException {
         return (Integer) executeDbStatement(DbCommandType.UPDATE, command, component);
     }
 
@@ -124,7 +124,7 @@ public class CcddDbCommandHandler {
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    protected boolean executeDbCommand(String command, Component component) throws SQLException {
+    protected boolean executeDbCommand(StringBuilder command, Component component) throws SQLException {
         return (Boolean) executeDbStatement(DbCommandType.COMMAND, command, component);
     }
 
@@ -142,7 +142,7 @@ public class CcddDbCommandHandler {
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    private Object executeDbStatement(DbCommandType commandType, String command, Component component)
+    private Object executeDbStatement(DbCommandType commandType, StringBuilder command, Component component)
             throws SQLException {
         // System.out.println("\nexecuteDbStatement: " + command.substring(0,
         // Math.min(command.length(), 20)) + " ..."); // TODO
@@ -160,17 +160,17 @@ public class CcddDbCommandHandler {
             switch (commandType) {
             case QUERY:
                 // Execute the query command
-                result = statement.executeQuery(command);
+                result = statement.executeQuery(command.toString());
                 break;
 
             case COMMAND:
                 // Execute the command
-                result = statement.execute(command);
+                result = statement.execute(command.toString());
                 break;
 
             case UPDATE:
                 // Execute the update command
-                result = statement.executeUpdate(command);
+                result = statement.executeUpdate(command.toString());
                 break;
             }
 
@@ -331,7 +331,7 @@ public class CcddDbCommandHandler {
 
         try {
             // Execute the command and obtain the results
-            ResultSet resultSet = executeDbQuery(listType.getListCommand(listOption), parent);
+            ResultSet resultSet = executeDbQuery(new StringBuilder(listType.getListCommand(listOption)), parent);
 
             // Check if the query failed
             if (resultSet == null) {

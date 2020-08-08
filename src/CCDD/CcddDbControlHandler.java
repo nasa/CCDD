@@ -843,25 +843,21 @@ public class CcddDbControlHandler {
 
         try {
             // Get the comment for the database
-            ResultSet resultSet = dbCommand
-                    .executeDbQuery(
-                            "SELECT description FROM pg_shdescription " + "JOIN pg_database ON objoid = "
-                                    + "pg_database.oid WHERE datname = '" + databaseName + "';",
-                            ccddMain.getMainFrame());
+            ResultSet resultSet = dbCommand.executeDbQuery(
+                    new StringBuilder("SELECT description FROM pg_shdescription JOIN pg_database ON objoid = pg_database.oid WHERE datname = '")
+                        .append(databaseName).append("';"), ccddMain.getMainFrame());
             resultSet.next();
 
             // Parse the comment, with the CFS project identifier removed, into its separate
             // fields
-            commentFields = parseDatabaseComment(databaseName,
-                    resultSet.getString(1).substring(CCDD_PROJECT_IDENTIFIER.length()));
+            commentFields = parseDatabaseComment(databaseName, resultSet.getString(1).substring(CCDD_PROJECT_IDENTIFIER.length()));
 
             resultSet.close();
         } catch (SQLException se) {
             // Inform the user that loading the database comment failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                     "Cannot obtain comment for project database '" + getServerAndDatabase(databaseName) + "'; Internal table does not contain the correct information; cause '"
-                            + se.getMessage() + "'",
-                    "<html><b>Cannot obtain comment for project database '</b>" + databaseName + "<b>'");
+                            + se.getMessage() + "'", "<html><b>Cannot obtain comment for project database '</b>" + databaseName + "<b>'");
         }
 
         return commentFields;
@@ -985,14 +981,13 @@ public class CcddDbControlHandler {
             if (comment != null) {
                 try {
                     // Set the database comment with the specified lock status
-                    dbCommand.executeDbUpdate(
-                            buildDatabaseCommentCommandAndUpdateInternalTable(projectName, comment[DatabaseComment.ADMINS.ordinal()],
-                                    lockStatus, comment[DatabaseComment.DESCRIPTION.ordinal()]),
+                    dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(
+                            projectName, comment[DatabaseComment.ADMINS.ordinal()], lockStatus, comment[DatabaseComment.DESCRIPTION.ordinal()])),
                             ccddMain.getMainFrame());
 
                     // Inform the user that the lock status update succeeded
-                    eventLog.logEvent(SUCCESS_MSG,
-                            "Project '" + projectName + "' " + (lockStatus ? "locked" : "unlocked"));
+                    eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' ")
+                            .append((lockStatus ? "locked" : "unlocked")));
                 } catch (SQLException se) {
                     // Inform the user that setting the database comment failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1044,12 +1039,12 @@ public class CcddDbControlHandler {
             connection.setAutoCommit(true);
 
             // Update the database administrator(s) in the database comment
-            dbCommand.executeDbCommand(
-                    buildDatabaseCommentCommandAndUpdateInternalTable(activeProject, admins, true, getDatabaseDescription(activeDatabase)),
+            dbCommand.executeDbCommand(new StringBuilder(
+                    buildDatabaseCommentCommandAndUpdateInternalTable(activeProject, admins, true, getDatabaseDescription(activeDatabase))),
                     parent);
 
             // Log that updating the database administrator(s) succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Project '" + activeProject + "' administrators updated");
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(activeProject).append("' administrators updated"));
         } catch (SQLException se) {
             // Inform the user that the database administrator(s) cannot be updated
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1079,8 +1074,9 @@ public class CcddDbControlHandler {
 
         try {
             // Get the owner for the database
-            ResultSet resultSet = dbCommand.executeDbQuery("SELECT pg_catalog.pg_get_userbyid(d.datdba) "
-                    + "AS \"Owner\" FROM pg_catalog.pg_database d " + "WHERE d.datname = '" + databaseName + "';",
+            ResultSet resultSet = dbCommand.executeDbQuery(new StringBuilder(
+                    "SELECT pg_catalog.pg_get_userbyid(d.datdba) AS \"Owner\" FROM pg_catalog.pg_database d WHERE d.datname = '")
+                    .append(databaseName).append("';"),
                     parent);
             resultSet.next();
 
@@ -1119,11 +1115,12 @@ public class CcddDbControlHandler {
             connection.setAutoCommit(true);
 
             // Change the database owner
-            dbCommand.executeDbCommand("ALTER DATABASE " + databaseName + " OWNER TO " + newOwner
-                    + "; REASSIGN OWNED BY " + currentOwner + " TO " + newOwner + ";", parent);
+            dbCommand.executeDbCommand(new StringBuilder("ALTER DATABASE ").append(databaseName).append(" OWNER TO ")
+                     .append(newOwner).append("; REASSIGN OWNED BY ").append(currentOwner).append(" TO ").append(newOwner)
+                     .append(";"), parent);
 
             // Log that changing the database owner succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' ownership changed");
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' ownership changed"));
         } catch (SQLException se) {
             // Inform the user that the database owner cannot be changed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1202,14 +1199,16 @@ public class CcddDbControlHandler {
         if (activeOwner != "") {
             /* Update the internal table */
             try {
-                String command = "DELETE FROM " + InternalTable.DBU_INFO.getTableName() + ";";
+                StringBuilder command = new StringBuilder("DELETE FROM ").append(InternalTable.DBU_INFO.getTableName())
+                        .append(";");
                 
                 /* Delete the current contents of the __dbu_info_ internal table */
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
                 
-                command = "INSERT INTO " + InternalTable.DBU_INFO.getTableName() + " VALUES ('" + 
-                        (CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0")) + "', '" + getQuotedName(
-                        convertProjectNameToDatabase(projectName)) + "', '" + administrator + "', '" + description + "');";
+                command.append("INSERT INTO ").append(InternalTable.DBU_INFO.getTableName()).append(" VALUES ('") 
+                       .append((CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0"))).append("', '")
+                       .append(getQuotedName(convertProjectNameToDatabase(projectName))).append("', '").append(administrator)
+                       .append("', '").append(description).append("');");
                 
                 /* Update the __dbu_info_ internal table */
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
@@ -1221,7 +1220,7 @@ public class CcddDbControlHandler {
                             convertProjectNameToDatabase(projectName)));
                     command = command.replace(ADMINS, administrator).replace(DESC, description);
                     /* Create the default internal table */
-                    dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+                    dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
                 } catch (SQLException se) {
                     // Inform the user that creating the database functions failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1315,7 +1314,7 @@ public class CcddDbControlHandler {
         /* Init local variables */
         boolean successFlag = true;
         String databaseName = null;
-
+        StringBuilder command = new StringBuilder();
         try {
             /* Convert the project name into its database form */
             databaseName = convertProjectNameToDatabase(projectName);
@@ -1325,13 +1324,13 @@ public class CcddDbControlHandler {
 
             /* Execute the command to create the project database */
             // TODO: Below I will have to change how the comment command is handled */
-            dbCommand.executeDbUpdate("CREATE DATABASE " + getQuotedName(databaseName) + " ENCODING 'UTF8'; "
-                            + buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false, description)
-                            + buildOwnerCommand(ownerName, DatabaseObject.DATABASE, databaseName),
-                    ccddMain.getMainFrame());
+            command.append("CREATE DATABASE ").append(getQuotedName(databaseName)).append(" ENCODING 'UTF8'; ")
+                   .append(buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false, description))
+                   .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, databaseName))
+                   .append(dbCommand.executeDbUpdate(command, ccddMain.getMainFrame()));
 
             /* Inform the user that the update succeeded */
-            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' created");
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' created"));
         } catch (SQLException se) {
             /* Inform the user that the database command failed */
             eventLog.logFailEvent(
@@ -1389,24 +1388,24 @@ public class CcddDbControlHandler {
      *********************************************************************************************/
     private boolean createTablesAndFunctions() {
         boolean errorFlag = false;
+        StringBuilder command = new StringBuilder();
 
         try {
+            command.append("CREATE OR REPLACE FUNCTION make_plpgsql() RETURNS VOID LANGUAGE SQL AS $$ CREATE LANGUAGE plpgsql; $$; ")
+                   .append("SELECT CASE WHEN EXISTS(SELECT 1 FROM pg_catalog.pg_language WHERE lanname = 'plpgsql') ")
+                   .append("THEN NULL ELSE make_plpgsql() END; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()"))
+                   .append("DROP FUNCTION make_plpgsql();");
             /* Send command to create the procedural language in the database if it does not already exists */
-            dbCommand.executeDbCommand("CREATE OR REPLACE FUNCTION make_plpgsql() " + "RETURNS VOID LANGUAGE SQL AS $$ "
-                    + "CREATE LANGUAGE plpgsql; $$; " + "SELECT CASE WHEN EXISTS(SELECT 1 "
-                    + "FROM pg_catalog.pg_language " + "WHERE lanname = 'plpgsql') "
-                    + "THEN NULL ELSE make_plpgsql() END; "
-                    + buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()") + "DROP FUNCTION make_plpgsql();",
-                    ccddMain.getMainFrame());
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            command.setLength(0);
 
+            command.append("CREATE OR REPLACE FUNCTION delete_function(function_name text) RETURNS VOID AS $$ BEGIN EXECUTE ")
+                   .append("(SELECT 'DROP FUNCTION ' || oid::regproc || '(' || pg_get_function_identity_arguments(oid) ")
+                   .append("|| ');' || E'\n' FROM pg_proc WHERE proname = function_name AND pg_function_is_visible(oid)); ")
+                   .append("END $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "delete_function(function_name text)"));
             /* Create function to delete functions whether or not the input parameters match */
-            dbCommand.executeDbCommand(
-                    "CREATE OR REPLACE FUNCTION delete_function(" + "function_name text) RETURNS VOID AS $$ "
-                            + "BEGIN EXECUTE (SELECT 'DROP FUNCTION ' " + "|| oid::regproc || '(' || "
-                            + "pg_get_function_identity_arguments(oid) " + "|| ');' || E'\n' FROM pg_proc WHERE "
-                            + "proname = function_name AND " + "pg_function_is_visible(oid)); END $$ LANGUAGE plpgsql; "
-                            + buildOwnerCommand(DatabaseObject.FUNCTION, "delete_function(function_name text)"),
-                    ccddMain.getMainFrame());
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            command.setLength(0);
 
             /* Create a temporary table for storing the results returned by the database functions */
             createTemporaryTable();
@@ -1422,13 +1421,14 @@ public class CcddDbControlHandler {
                             ccddMain.getMainFrame())) {
                         if (intTable != InternalTable.DBU_INFO) {
                             /* Create the default internal table */
-                            dbCommand.executeDbCommand(buildInformationTableCommand(intTable), ccddMain.getMainFrame());
+                            command.append(buildInformationTableCommand(intTable));
+                            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
                         } else {
-                            String command = buildInformationTableCommand(intTable);
+                            command.setLength(0); 
                             String[] comment = getDatabaseComment(activeDatabase);
-
-                            command = command.replace(LOCK, CCDD_PROJECT_IDENTIFIER + comment[0]).replace(NAME, comment[1]);
-                            command = command.replace(ADMINS, comment[2]).replace(DESC, comment[3]);
+                            
+                            command.append((buildInformationTableCommand(intTable).replace(LOCK, CCDD_PROJECT_IDENTIFIER + comment[0]).replace(NAME, comment[1]))
+                                   .replace(ADMINS, comment[2]).replace(DESC, comment[3]));
                             /* Create the default internal table */
                             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
                         }
@@ -1436,138 +1436,90 @@ public class CcddDbControlHandler {
                 }
             }
 
-            // Create function to search all tables for the input text with case sensitivity
-            // determined by an input flag. A second flag determines if the search string is
-            // treated as a literal string or as a regular expression. If as a literal, then
-            // all
-            // non-alphanumeric and non-space characters are escaped so that these
-            // characters can
-            // be detected correctly. A third flag determines if all tables or only the data
-            // tables
-            // (including entries in the custom values table) are searched. Returns a table
-            // giving
-            // the unique schema, table, column name, table comment, and contents of the
-            // columns in
-            // the table row where the text is found
-            dbCommand.executeDbCommand(
-                    deleteFunction("search_tables") + "CREATE OR REPLACE FUNCTION search_tables("
-                            + "search_text text, no_case boolean, " + "allow_regex boolean, selected_tables text, "
-                            + "columns name[] DEFAULT '{}', all_schema " + "name[] DEFAULT '{public}') RETURNS table("
-                            + "schema_name text, table_name text, column_name "
-                            + "text, table_description text, column_value " + "text) AS $$ DECLARE search_text text := "
-                            + "regexp_replace(search_text, E'([^a-zA-Z0-9 ])', "
-                            + "E'\\\\\\\\\\\\1', 'g'); BEGIN FOR schema_name, "
-                            + "table_name, table_description, column_name IN " + "SELECT c.table_schema, c.table_name, "
-                            + "coalesce(d.description,''), c.column_name " + "FROM information_schema.columns c JOIN "
-                            + "information_schema.tables AS t ON " + "(t.table_name = c.table_name AND "
-                            + "t.table_schema = c.table_schema), " + "pg_description AS d RIGHT JOIN pg_class "
-                            + "ON d.objoid = pg_class.oid RIGHT JOIN " + "pg_namespace ON pg_class.relnamespace = "
-                            + "pg_namespace.oid WHERE (selected_tables ~* '" + SearchType.ALL.toString()
-                            + "' OR (selected_tables ~* '" + SearchType.PROTO.toString() + "' AND c.table_name !~ E'^"
-                            + INTERNAL_TABLE_PREFIX + ".*$') OR (selected_tables ~* '" + SearchType.DATA.toString()
-                            + "' AND c.table_name !~ E'^" + INTERNAL_TABLE_PREFIX + "((?!"
-                            + InternalTable.VALUES.getTableName().replaceFirst("^" + INTERNAL_TABLE_PREFIX, "")
-                            + ").)*$') OR (selected_tables ~* '" + SearchType.INPUT.toString()
-                            + "' AND ((c.table_name ~* E'^" + InternalTable.TABLE_TYPES.getTableName()
-                            + "') OR (c.table_name ~* E'^" + InternalTable.FIELDS.getTableName()
-                            + "'))) OR (selected_tables ~* '" + SearchType.SCRIPT.toString()
-                            + "' AND c.table_name ~ E'^" + InternalTable.SCRIPT.getTableName()
-                            + ".*')) AND (array_length(columns, 1) IS NULL " + "OR c.column_name = ANY(columns)) AND "
-                            + "c.table_schema = ANY(all_schema) AND " + "t.table_type = 'BASE TABLE' AND relname = "
-                            + "t.table_name AND nspname = t.table_schema " + "AND (d.objsubid = '0' OR d.objsubid IS "
-                            + "NULL) LOOP DECLARE the_row RECORD; BEGIN "
-                            + "FOR the_row IN EXECUTE 'SELECT * FROM ' || " + "quote_ident(schema_name) || '.' || "
-                            + "quote_ident(table_name) || ' WHERE (' || "
-                            + "quote_nullable(allow_regex) || ' = ''false'' "
-                            + "AND ((' || quote_nullable(no_case) || ' = " + "''true'' AND cast(' || quote_ident("
-                            + "column_name) || ' AS text) ~* ' || " + "quote_nullable(search_text) || ') OR (' || "
-                            + "quote_nullable(no_case) || ' = ''false'' AND "
-                            + "cast(' || quote_ident(column_name) || ' AS "
-                            + "text) ~ ' || quote_nullable(search_text) || "
-                            + "'))) OR (' || quote_nullable(allow_regex) || "
-                            + "' = ''true'' AND ((' || quote_nullable(" + "no_case) || ' = ''true'' AND cast(' || "
-                            + "quote_ident(column_name) || ' AS text) ~* " + "E''' || search_text || ''') OR (' || "
-                            + "quote_nullable(no_case) || ' = ''false'' AND "
-                            + "cast(' || quote_ident(column_name) || ' AS "
-                            + "text) ~ E''' || search_text || ''')))' LOOP "
-                            + "SELECT * FROM regexp_replace(the_row::text, " + "E'^\\\\(|(\\\\)$)', '', 'g') INTO "
-                            + "column_value; RETURN NEXT; END LOOP; END; " + "END LOOP; END; $$ LANGUAGE plpgsql; "
-                            + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                    "search_tables(search_text " + "text, no_case boolean, " + "allow_regex boolean, "
-                                            + "selected_tables text, " + "columns name[]," + "all_schema name[])"),
-                    ccddMain.getMainFrame());
+            // Create function to search all tables for the input text with case sensitivity determined by an input
+            // flag. A second flag determines if the search string is treated as a literal string or as a regular
+            // expression. If as a literal, then all non-alphanumeric and non-space characters are escaped so that
+            // these characters can be detected correctly. A third flag determines if all tables or only the data
+            // tables (including entries in the custom values table) are searched. Returns a table giving the unique
+            // schema, table, column name, table comment, and contents of the columns in the table row where the text
+            // is found
+            command.setLength(0);
+            command.append(deleteFunction("search_tables")).append("CREATE OR REPLACE FUNCTION search_tables(search_text text, ")
+                   .append("no_case boolean, allow_regex boolean, selected_tables text, columns name[] DEFAULT '{}', all_schema ")
+                   .append("name[] DEFAULT '{public}') RETURNS table(schema_name text, table_name text, column_name text, ")
+                   .append("table_description text, column_value text) AS $$ DECLARE search_text text := regexp_replace(search_text, ")
+                   .append("E'([^a-zA-Z0-9 ])', E'\\\\\\\\\\\\1', 'g'); BEGIN FOR schema_name, table_name, table_description, column_name ")
+                   .append("IN SELECT c.table_schema, c.table_name, coalesce(d.description,''), c.column_name FROM information_schema.columns ")
+                   .append("c JOIN information_schema.tables AS t ON (t.table_name = c.table_name AND t.table_schema = c.table_schema), ")
+                   .append("pg_description AS d RIGHT JOIN pg_class ON d.objoid = pg_class.oid RIGHT JOIN pg_namespace ON pg_class.relnamespace = ")
+                   .append("pg_namespace.oid WHERE (selected_tables ~* '").append(SearchType.ALL.toString()).append("' OR (selected_tables ~* '")
+                   .append(SearchType.PROTO.toString()).append("' AND c.table_name !~ E'^").append(INTERNAL_TABLE_PREFIX).append(".*$') OR ")
+                   .append("(selected_tables ~* '").append(SearchType.DATA.toString()).append("' AND c.table_name !~ E'^").append(INTERNAL_TABLE_PREFIX)
+                   .append("((?!").append(InternalTable.VALUES.getTableName().replaceFirst("^" + INTERNAL_TABLE_PREFIX, "")).append(").)*$') OR ")
+                   .append("(selected_tables ~* '").append(SearchType.INPUT.toString()).append("' AND ((c.table_name ~* E'^")
+                   .append(InternalTable.TABLE_TYPES.getTableName()).append("') OR (c.table_name ~* E'^").append(InternalTable.FIELDS.getTableName())
+                   .append("'))) OR (selected_tables ~* '").append(SearchType.SCRIPT.toString()).append("' AND c.table_name ~ E'^")
+                   .append(InternalTable.SCRIPT.getTableName()).append(".*')) AND (array_length(columns, 1) IS NULL OR c.column_name = ")
+                   .append("ANY(columns)) AND c.table_schema = ANY(all_schema) AND t.table_type = 'BASE TABLE' AND relname = t.table_name AND ")
+                   .append("nspname = t.table_schema AND (d.objsubid = '0' OR d.objsubid IS NULL) LOOP DECLARE the_row RECORD; BEGIN FOR ")
+                   .append("the_row IN EXECUTE 'SELECT * FROM ' || quote_ident(schema_name) || '.' || quote_ident(table_name) || ' WHERE (' || ")
+                   .append("quote_nullable(allow_regex) || ' = ''false'' AND ((' || quote_nullable(no_case) || ' = ''true'' AND cast(' || ")
+                   .append("quote_ident(column_name) || ' AS text) ~* ' || quote_nullable(search_text) || ') OR (' || quote_nullable(no_case) ")
+                   .append("|| ' = ''false'' AND cast(' || quote_ident(column_name) || ' AS text) ~ ' || quote_nullable(search_text) || ")
+                   .append("'))) OR (' || quote_nullable(allow_regex) || ' = ''true'' AND ((' || quote_nullable(no_case) || ' = ''true'' ")
+                   .append("AND cast(' || quote_ident(column_name) || ' AS text) ~* E''' || search_text || ''') OR (' || quote_nullable(no_case) ")
+                   .append("|| ' = ''false'' AND cast(' || quote_ident(column_name) || ' AS text) ~ E''' || search_text || ''')))' LOOP ")
+                   .append("SELECT * FROM regexp_replace(the_row::text, E'^\\\\(|(\\\\)$)', '', 'g') INTO column_value; RETURN NEXT; END LOOP; END; ")
+                   .append("END LOOP; END; $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "search_tables(search_text " + 
+                   "text, no_case boolean, " + "allow_regex boolean, " + "selected_tables text, " + "columns name[]," + "all_schema name[])"));
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            command.setLength(0);
 
-            // Create function to retrieve all table names and column values for the tables
-            // with
-            // the specified column name currently in use (i.e., blank column values are
-            // ignored)
+            // Create function to retrieve all table names and column values for the tables with
+            // the specified column name currently in use (i.e., blank column values are ignored)
             // in the tables of the specified table type(s)
-            dbCommand.executeDbCommand(
-                    deleteFunction("find_prototype_columns_by_name")
-                            + "CREATE OR REPLACE FUNCTION find_prototype_columns_by_name("
-                            + "column_name_db text, table_types text[]) RETURNS "
-                            + "table(owner_name text, column_value text) AS $$ "
-                            + "BEGIN DECLARE row record; BEGIN TRUNCATE " + TEMP_TABLE_NAME + "; INSERT INTO "
-                            + TEMP_TABLE_NAME + " SELECT tbl_name FROM (SELECT split_part("
-                            + "obj_description, ',', 1) AS tbl_name, split_part("
-                            + "obj_description, ',', 2) AS tbl_type FROM (SELECT "
-                            + "obj_description(oid) FROM pg_class WHERE relkind = "
-                            + "'r' AND obj_description(oid) != '') AS tbl_desc) AS "
-                            + "temp_result WHERE table_types @> ARRAY[tbl_type] ORDER "
-                            + "BY temp_result ASC; FOR row IN SELECT temp_result FROM " + TEMP_TABLE_NAME
-                            + " LOOP IF EXISTS (SELECT 1 FROM " + "information_schema.columns WHERE table_name = "
-                            + "lower(row.temp_result) AND column_name = E'' || "
-                            + "column_name_db || E'') THEN RETURN QUERY EXECUTE "
-                            + "E'SELECT ''' || row.temp_result || '''::text, ' || "
-                            + "column_name_db || E' FROM ' || row.temp_result || "
-                            + "E' WHERE ' || column_name_db || E' != '''''; "
-                            + "END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; "
-                            + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                    "find_prototype_columns_by_name(column_name_db " + "text, table_types text[])"),
-                    ccddMain.getMainFrame());
+            command.append(deleteFunction("find_prototype_columns_by_name")).append("CREATE OR REPLACE FUNCTION find_prototype_columns_by_name(")
+                   .append("column_name_db text, table_types text[]) RETURNS table(owner_name text, column_value text) AS $$ BEGIN DECLARE row ")
+                   .append("record; BEGIN TRUNCATE ").append(TEMP_TABLE_NAME).append("; INSERT INTO ").append(TEMP_TABLE_NAME).append(" SELECT tbl_name ")
+                   .append("FROM (SELECT split_part(obj_description, ',', 1) AS tbl_name, split_part(obj_description, ',', 2) AS tbl_type FROM (SELECT ")
+                   .append("obj_description(oid) FROM pg_class WHERE relkind = 'r' AND obj_description(oid) != '') AS tbl_desc) AS temp_result WHERE ")
+                   .append("table_types @> ARRAY[tbl_type] ORDER BY temp_result ASC; FOR row IN SELECT temp_result FROM ").append(TEMP_TABLE_NAME)
+                   .append(" LOOP IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = lower(row.temp_result) AND column_name = E''")
+                   .append(" || column_name_db || E'') THEN RETURN QUERY EXECUTE E'SELECT ''' || row.temp_result || '''::text, ' || column_name_db || ")
+                   .append("E' FROM ' || row.temp_result || E' WHERE ' || column_name_db || E' != '''''; END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; ")
+                   .append(buildOwnerCommand(DatabaseObject.FUNCTION, "find_prototype_columns_by_name(column_name_db text, table_types text[])"));
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            command.setLength(0);
 
-            // Create function to retrieve all table names and column values for the tables
-            // with
-            // the specified column name currently in use (i.e., blank column values are
-            // ignored)
-            // in the tables of the specified table type(s). Include columns from both the
-            // prototype and custom values tables. Use SELECT DISTINCT on the results to
-            // eliminate
-            // duplicate table names and/or column values
-            dbCommand.executeDbCommand(deleteFunction("find_columns_by_name")
-                    + "CREATE OR REPLACE FUNCTION find_columns_by_name("
-                    + "column_name_user text, column_name_db text, " + "table_types text[]) RETURNS table(owner_name "
-                    + "text, column_value text) AS $$ BEGIN RETURN "
-                    + "QUERY EXECUTE E'SELECT owner_name, column_value " + "FROM (SELECT owner_name, column_value FROM "
-                    + "find_prototype_columns_by_name(''' || " + "column_name_db || E''', ''' || "
-                    + "table_types::text || E''') UNION ALL (SELECT " + ValuesColumn.TABLE_PATH.getColumnName() + ", "
-                    + ValuesColumn.VALUE.getColumnName() + " FROM " + InternalTable.VALUES.getTableName()
-                    + " WHERE column_name = ''' || column_name_user || "
-                    + "E''')) AS name_and_value ORDER BY owner_name;'; END; $$ " + "LANGUAGE plpgsql; "
-                    + buildOwnerCommand(DatabaseObject.FUNCTION, "find_columns_by_name(column_name_user "
-                            + "text, column_name_db text, " + "table_types text[])"),
-                    ccddMain.getMainFrame());
+            // Create function to retrieve all table names and column values for the tables with the specified column name currently
+            // in use (i.e., blank column values are ignored) in the tables of the specified table type(s). Include columns from both the
+            // prototype and custom values tables. Use SELECT DISTINCT on the results to eliminate duplicate table names and/or column values
+            command.append(deleteFunction("find_columns_by_name")).append("CREATE OR REPLACE FUNCTION find_columns_by_name(column_name_user text, ")
+                   .append("column_name_db text, table_types text[]) RETURNS table(owner_name text, column_value text) AS $$ BEGIN RETURN QUERY EXECUTE ")
+                   .append("E'SELECT owner_name, column_value FROM (SELECT owner_name, column_value FROM find_prototype_columns_by_name(''' || column_name_db ")
+                   .append("|| E''', ''' || table_types::text || E''') UNION ALL (SELECT ").append(ValuesColumn.TABLE_PATH.getColumnName()).append(", ")
+                   .append(ValuesColumn.VALUE.getColumnName()).append(" FROM ").append(InternalTable.VALUES.getTableName()).append(" WHERE column_name = ''' ")
+                   .append("|| column_name_user || E''')) AS name_and_value ORDER BY owner_name;'; END; $$ LANGUAGE plpgsql; ")
+                   .append(buildOwnerCommand(DatabaseObject.FUNCTION, "find_columns_by_name(column_name_user " + "text, column_name_db text, " + "table_types text[])"));
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            command.setLength(0);
 
-            // Create function to reset the rate for a link that no longer has any member
-            // variables
-            dbCommand.executeDbCommand(deleteFunction("reset_link_rate")
-                    + "CREATE FUNCTION reset_link_rate() RETURNS VOID AS "
-                    + "$$ BEGIN DECLARE row record; BEGIN TRUNCATE " + TEMP_TABLE_NAME + "; INSERT INTO "
-                    + TEMP_TABLE_NAME + " SELECT " + LinksColumn.LINK_NAME.getColumnName()
-                    + " AS temp_result FROM (SELECT " + LinksColumn.LINK_NAME.getColumnName() + ", regexp_replace("
-                    + LinksColumn.MEMBER.getColumnName() + ", E'^([0-9])*.*', E'\\\\1') AS rate FROM "
-                    + InternalTable.LINKS.getTableName() + ") AS result WHERE rate != '' AND "
-                    + "rate != '0'; FOR row IN SELECT * FROM " + TEMP_TABLE_NAME
-                    + " LOOP IF EXISTS (SELECT * FROM (SELECT COUNT(*) FROM " + InternalTable.LINKS.getTableName()
-                    + " WHERE " + LinksColumn.LINK_NAME.getColumnName() + " = row.temp_result) AS alias1 WHERE "
-                    + "count = '1') THEN EXECUTE E'UPDATE " + InternalTable.LINKS.getTableName() + " SET "
-                    + LinksColumn.MEMBER.getColumnName() + " = regexp_replace(" + LinksColumn.MEMBER.getColumnName()
-                    + ", E''^\\\\\\\\d+'', ''0'') WHERE " + LinksColumn.LINK_NAME.getColumnName()
-                    + " = ''' || row.temp_result || ''''; END IF; " + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
-                    + buildOwnerCommand(DatabaseObject.FUNCTION, "reset_link_rate()"), ccddMain.getMainFrame());
+            // Create function to reset the rate for a link that no longer has any member variables
+            command.append(deleteFunction("reset_link_rate")).append("CREATE FUNCTION reset_link_rate() RETURNS VOID AS $$ BEGIN DECLARE row record;")
+                   .append(" BEGIN TRUNCATE ").append(TEMP_TABLE_NAME).append("; INSERT INTO ").append(TEMP_TABLE_NAME).append(" SELECT ")
+                   .append(LinksColumn.LINK_NAME.getColumnName()).append(" AS temp_result FROM (SELECT ").append(LinksColumn.LINK_NAME.getColumnName())
+                   .append(", regexp_replace(").append(LinksColumn.MEMBER.getColumnName()).append(", E'^([0-9])*.*', E'\\\\1') AS rate FROM ")
+                   .append(InternalTable.LINKS.getTableName()).append(") AS result WHERE rate != '' AND rate != '0'; FOR row IN SELECT * FROM ")
+                   .append(TEMP_TABLE_NAME).append(" LOOP IF EXISTS (SELECT * FROM (SELECT COUNT(*) FROM ").append(InternalTable.LINKS.getTableName())
+                   .append(" WHERE ").append(LinksColumn.LINK_NAME.getColumnName()).append(" = row.temp_result) AS alias1 WHERE count = '1') THEN ")
+                   .append("EXECUTE E'UPDATE ").append(InternalTable.LINKS.getTableName()).append(" SET ").append(LinksColumn.MEMBER.getColumnName())
+                   .append(" = regexp_replace(").append(LinksColumn.MEMBER.getColumnName()).append(", E''^\\\\\\\\d+'', ''0'') WHERE ")
+                   .append(LinksColumn.LINK_NAME.getColumnName()).append(" = ''' || row.temp_result || ''''; END IF; END LOOP; END; END; $$ ")
+                   .append("LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "reset_link_rate()"));
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
 
             // Inform the user that the database table function creation succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Database tables and functions created");
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Database tables and functions created"));
         } catch (SQLException se) {
             // Inform the user that creating the database functions failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1587,10 +1539,9 @@ public class CcddDbControlHandler {
      * @throws SQLException If an error occurs when creating the temporary table
      *********************************************************************************************/
     private void createTemporaryTable() throws SQLException {
-        dbCommand.executeDbCommand(
-                "DROP TABLE IF EXISTS " + TEMP_TABLE_NAME + "; CREATE TEMPORARY TABLE " + TEMP_TABLE_NAME
-                        + " (temp_result text); " + buildOwnerCommand(DatabaseObject.TABLE, TEMP_TABLE_NAME),
-                ccddMain.getMainFrame());
+        dbCommand.executeDbCommand(new StringBuilder("DROP TABLE IF EXISTS ").append(TEMP_TABLE_NAME)
+                 .append("; CREATE TEMPORARY TABLE ").append(TEMP_TABLE_NAME).append(" (temp_result text); ")
+                 .append(buildOwnerCommand(DatabaseObject.TABLE, TEMP_TABLE_NAME)), ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -1624,27 +1575,26 @@ public class CcddDbControlHandler {
                     // sample rate, and enumeration for all structure tables that contain at least
                     // one row, sorted by table name or index, and then by variable name. For
                     // arrays, only the members are retrieved; the array definitions are ignored
-                    dbCommand.executeDbCommand(
-                            deleteFunction("get_table_members_by_" + functionParm[0])
-                                    + "CREATE FUNCTION get_table_members_by_" + functionParm[0]
-                                    + "() RETURNS TABLE(tbl_name text, data_type "
-                                    + "text, variable_name text, bit_length text, "
-                                    + "rate text, enumeration text) AS $$ BEGIN "
-                                    + "DECLARE row record; BEGIN TRUNCATE " + TEMP_TABLE_NAME + "; INSERT INTO "
-                                    + TEMP_TABLE_NAME + " SELECT t.tablename AS temp_result FROM "
-                                    + "pg_tables AS t WHERE t.schemaname = 'public' "
-                                    + "AND substr(t.tablename, 1, 2) != '" + INTERNAL_TABLE_PREFIX
-                                    + "' ORDER BY temp_result ASC; FOR row IN SELECT * FROM " + TEMP_TABLE_NAME
-                                    + " LOOP IF EXISTS (SELECT * FROM "
-                                    + "(SELECT COUNT(*) FROM information_schema.columns "
-                                    + "WHERE table_name = row.temp_result AND (" + defStructCols
-                                    + ")) AS alias1 WHERE count = '"
-                                    + DefaultColumn.getTypeRequiredColumnCount(TYPE_STRUCTURE)
-                                    + "') THEN RETURN QUERY EXECUTE E'SELECT ''' || "
-                                    + "row.temp_result || '''::text, * FROM get_def_columns_by_" + functionParm[0]
-                                    + "(''' || row.temp_result || ''')'; END IF; "
-                                    + "END LOOP; END; END; $$ LANGUAGE plpgsql; " + buildOwnerCommand(
-                                            DatabaseObject.FUNCTION, "get_table_members_by_" + functionParm[0] + "()"),
+                    dbCommand.executeDbCommand(new StringBuilder(deleteFunction("get_table_members_by_" + functionParm[0]))
+                             .append("CREATE FUNCTION get_table_members_by_").append(functionParm[0])
+                             .append("() RETURNS TABLE(tbl_name text, data_type ")
+                             .append("text, variable_name text, bit_length text, ")
+                             .append("rate text, enumeration text) AS $$ BEGIN ")
+                             .append("DECLARE row record; BEGIN TRUNCATE ").append(TEMP_TABLE_NAME).append("; INSERT INTO ")
+                             .append(TEMP_TABLE_NAME).append(" SELECT t.tablename AS temp_result FROM ")
+                             .append("pg_tables AS t WHERE t.schemaname = 'public' ")
+                             .append("AND substr(t.tablename, 1, 2) != '").append(INTERNAL_TABLE_PREFIX)
+                             .append("' ORDER BY temp_result ASC; FOR row IN SELECT * FROM ").append(TEMP_TABLE_NAME)
+                             .append(" LOOP IF EXISTS (SELECT * FROM ")
+                             .append("(SELECT COUNT(*) FROM information_schema.columns ")
+                             .append("WHERE table_name = row.temp_result AND (").append(defStructCols)
+                             .append(")) AS alias1 WHERE count = '")
+                             .append(DefaultColumn.getTypeRequiredColumnCount(TYPE_STRUCTURE))
+                             .append("') THEN RETURN QUERY EXECUTE E'SELECT ''' || ")
+                             .append("row.temp_result || '''::text, * FROM get_def_columns_by_").append(functionParm[0])
+                             .append("(''' || row.temp_result || ''')'; END IF; ")
+                             .append("END LOOP; END; END; $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(
+                                 DatabaseObject.FUNCTION, "get_table_members_by_" + functionParm[0] + "()")),
                             ccddMain.getMainFrame());
                 }
 
@@ -1724,49 +1674,46 @@ public class CcddDbControlHandler {
                     // Create function to get the data type and variable name column data for the
                     // specified table, sorted by variable name. For arrays, only the members are
                     // retrieved; the array definitions are ignored
-                    dbCommand.executeDbCommand(
-                            deleteFunction("get_def_columns_by_" + functionParm[0])
-                                    + "CREATE FUNCTION get_def_columns_by_" + functionParm[0]
-                                    + "(name text) RETURNS TABLE(data_type "
-                                    + "text, variable_name text, bit_length text, "
-                                    + "rate text, enumeration text) AS $$ " + "BEGIN RETURN QUERY EXECUTE 'SELECT "
-                                    + dbDataType + ", " + dbVariableName + ", " + dbBitLength + ", " + rateCol + ", "
-                                    + enumCol + " FROM \"' || name || '\"" + rateJoin + enumJoin + " WHERE "
-                                    + dbArraySize + " = E'''' OR (array_size ~ E''^" + MACRO_IDENTIFIER
-                                    + "'' AND (SELECT EXISTS (SELECT " + MacrosColumn.VALUE.getColumnName() + " FROM "
-                                    + InternalTable.MACROS.getTableName() + " WHERE "
-                                    + MacrosColumn.MACRO_NAME.getColumnName()
-                                    + " = replace('''' || array_size || '''', ''" + MACRO_IDENTIFIER + "'', '''') AND "
-                                    + MacrosColumn.VALUE.getColumnName() + " = ''''))) OR " + dbVariableName
-                                    + " ~ E''^.+]'' ORDER BY " + functionParm[1] + " ASC'; END $$ LANGUAGE plpgsql; "
-                                    + buildOwnerCommand(DatabaseObject.FUNCTION,
-                                            "get_def_columns_by_" + functionParm[0] + "(name text)"),
-                            ccddMain.getMainFrame());
+                    dbCommand.executeDbCommand(new StringBuilder(deleteFunction("get_def_columns_by_" + functionParm[0]))
+                             .append("CREATE FUNCTION get_def_columns_by_").append(functionParm[0])
+                             .append("(name text) RETURNS TABLE(data_type ").append("text, variable_name text, bit_length text, ")
+                             .append("rate text, enumeration text) AS $$ BEGIN RETURN QUERY EXECUTE 'SELECT ")
+                             .append(dbDataType).append(", ").append(dbVariableName).append(", ").append(dbBitLength)
+                             .append(", ").append(rateCol).append(", ").append(enumCol).append(" FROM \"' || name || '\"")
+                             .append(rateJoin).append(enumJoin).append(" WHERE ").append(dbArraySize)
+                             .append(" = E'''' OR (array_size ~ E''^").append(MACRO_IDENTIFIER)
+                             .append("'' AND (SELECT EXISTS (SELECT ").append(MacrosColumn.VALUE.getColumnName()).append(" FROM ")
+                             .append(InternalTable.MACROS.getTableName()).append(" WHERE ")
+                             .append(MacrosColumn.MACRO_NAME.getColumnName()).append(" = replace('''' || array_size || '''', ''")
+                             .append(MACRO_IDENTIFIER).append("'', '''') AND ").append(MacrosColumn.VALUE.getColumnName())
+                             .append(" = ''''))) OR ").append(dbVariableName).append(" ~ E''^.+]'' ORDER BY ").append(functionParm[1])
+                             .append(" ASC'; END $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION,
+                                            "get_def_columns_by_" + functionParm[0] + "(name text)")), ccddMain.getMainFrame());
                 }
 
                 // Create the function to get the data type and variable name from tables of the
                 // supplied table type(s) in the format tableName,dataType.variableName
-                dbCommand.executeDbCommand(deleteFunction("find_command_arguments")
-                        + "CREATE OR REPLACE FUNCTION find_command_arguments("
-                        + "table_types text[]) RETURNS table(var_path text) "
-                        + "AS $$ BEGIN DECLARE row record; BEGIN TRUNCATE " + TEMP_TABLE_NAME + "; INSERT INTO "
-                        + TEMP_TABLE_NAME + " SELECT tbl_name FROM (SELECT split_part("
-                        + "obj_description, ',', 1) AS tbl_name, split_part("
-                        + "obj_description, ',', 2) AS tbl_type FROM (SELECT "
-                        + "obj_description(oid) FROM pg_class WHERE relkind = "
-                        + "'r' AND obj_description(oid) != '') AS tbl_desc) AS "
-                        + "temp_result WHERE table_types @> ARRAY[tbl_type] ORDER "
-                        + "BY temp_result ASC; FOR row IN SELECT temp_result FROM " + TEMP_TABLE_NAME
-                        + " LOOP IF EXISTS (SELECT 1 FROM " + "information_schema.columns WHERE table_name = lower("
-                        + "row.temp_result)) THEN RETURN QUERY EXECUTE E'SELECT "
-                        + "''' || row.temp_result || '''::text UNION SELECT ''' "
-                        + "|| row.temp_result || '''::text || '','' || " + dbDataType + " || ''.'' || " + dbVariableName
-                        + " FROM ' || row.temp_result || E''; END IF; END LOOP; " + "END; END; $$ LANGUAGE plpgsql; "
-                        + buildOwnerCommand(DatabaseObject.FUNCTION, "find_command_arguments(table_types text[])"),
+                dbCommand.executeDbCommand(new StringBuilder(deleteFunction("find_command_arguments"))
+                         .append("CREATE OR REPLACE FUNCTION find_command_arguments(")
+                         .append("table_types text[]) RETURNS table(var_path text) ")
+                         .append("AS $$ BEGIN DECLARE row record; BEGIN TRUNCATE ").append(TEMP_TABLE_NAME).append("; INSERT INTO ")
+                         .append(TEMP_TABLE_NAME).append(" SELECT tbl_name FROM (SELECT split_part(")
+                         .append("obj_description, ',', 1) AS tbl_name, split_part(")
+                         .append("obj_description, ',', 2) AS tbl_type FROM (SELECT ")
+                         .append("obj_description(oid) FROM pg_class WHERE relkind = ")
+                         .append("'r' AND obj_description(oid) != '') AS tbl_desc) AS ")
+                         .append("temp_result WHERE table_types @> ARRAY[tbl_type] ORDER ")
+                         .append("BY temp_result ASC; FOR row IN SELECT temp_result FROM ").append(TEMP_TABLE_NAME)
+                         .append(" LOOP IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = lower(")
+                         .append("row.temp_result)) THEN RETURN QUERY EXECUTE E'SELECT ")
+                         .append("''' || row.temp_result || '''::text UNION SELECT ''' ")
+                         .append("|| row.temp_result || '''::text || '','' || ").append(dbDataType).append(" || ''.'' || ").append(dbVariableName)
+                         .append(" FROM ' || row.temp_result || E''; END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; ")
+                         .append(buildOwnerCommand(DatabaseObject.FUNCTION, "find_command_arguments(table_types text[])")),
                         ccddMain.getMainFrame());
 
                 // Inform the user that the database function creation succeeded
-                eventLog.logEvent(SUCCESS_MSG, "Database structure functions created");
+                eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Database structure functions created"));
             } catch (SQLException se) {
                 // Inform the user that creating the database functions failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1961,14 +1908,12 @@ public class CcddDbControlHandler {
                 }
 
                 // Inform the user that the server connection succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                        (isReconnect ? "Reconnected" : "Connected") + " to server as user '" + activeUser + "'");
+                eventLog.logEvent(SUCCESS_MSG, new StringBuilder((isReconnect ? "Reconnected" : "Connected"))
+                        .append(" to server as user '").append(activeUser).append("'"));
             }
             // A database other than the default is selected
             else {
-                // Get the database lock status (note that the database isn't locked if the GUI
-                // is
-                // hidden)
+                // Get the database lock status (note that the database isn't locked if the GUI is hidden)
                 Boolean isLocked = getDatabaseLockStatus(databaseName);
 
                 // Check if an error occurred obtaining the lock status
@@ -2015,8 +1960,8 @@ public class CcddDbControlHandler {
                 }
 
                 // Inform the user that the database connection succeeded
-                eventLog.logEvent(SUCCESS_MSG, (isReconnect ? "Reconnected" : "Connected") + " to project '"
-                        + activeProject + "' as user '" + activeUser + "'");
+                eventLog.logEvent(SUCCESS_MSG, new StringBuilder((isReconnect ? "Reconnected" : "Connected"))
+                        .append(" to project '").append(activeProject).append("' as user '").append(activeUser).append("'"));
             }
         } catch (SQLException se) {
             // System.out.println(" conn failed"); // TODO
@@ -2051,8 +1996,8 @@ public class CcddDbControlHandler {
         // reconnecting
         if (!errorFlag && !isReconnect) {
             // Log the PostgreSQL and JDBC versions
-            eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                    "PostgreSQL: " + getDatabaseVersion() + "  *** JDBC: " + getJDBCVersion());
+            eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("PostgreSQL: ")
+                    .append(getDatabaseVersion()).append("  *** JDBC: ").append(getJDBCVersion()));
         }
 
         // System.out.println(" return " + errorFlag); // TODO
@@ -2368,7 +2313,7 @@ public class CcddDbControlHandler {
             if (oldDatabase.equals(newDatabase)) {
                 // Update the database's description
                 dbCommand.executeDbUpdate(
-                        buildDatabaseCommentCommandAndUpdateInternalTable(newProject, administrator, false, description),
+                        new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(newProject, administrator, false, description)),
                         ccddMain.getMainFrame());
             }
             // Check if the currently open database is not the one being renamed;
@@ -2376,11 +2321,9 @@ public class CcddDbControlHandler {
             // (required in order to make changes to the current database)
             else if (!oldDatabase.equals(currentDatabase) || !openDatabase(DEFAULT_DATABASE)) {
                 // Rename the database to the new name and update the description
-                dbCommand
-                        .executeDbUpdate(
-                                "ALTER DATABASE " + getQuotedName(oldDatabase) + " RENAME TO "
-                                        + getQuotedName(newDatabase) + "; " + buildDatabaseCommentCommandAndUpdateInternalTable(
-                                                newProject, administrator, false, description),
+                dbCommand.executeDbUpdate(new StringBuilder("ALTER DATABASE ").append(getQuotedName(oldDatabase))
+                         .append(" RENAME TO ").append(getQuotedName(newDatabase)).append("; ").append(
+                                 buildDatabaseCommentCommandAndUpdateInternalTable(newProject, administrator, false, description)),
                                 ccddMain.getMainFrame());
 
                 // Check if the currently open database is the one being renamed
@@ -2390,8 +2333,8 @@ public class CcddDbControlHandler {
                 }
 
                 // Log that the renaming the database succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                        "Project database '" + oldProject + "' renamed to '" + newProject + "'");
+                eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project database '").append(oldProject)
+                        .append("' renamed to '").append(newProject).append("'"));
             }
         } catch (SQLException se) {
             // Inform the user that the database cannot be renamed
@@ -2478,14 +2421,10 @@ public class CcddDbControlHandler {
                         connection.setAutoCommit(true);
 
                         // Copy the database and transfer the comment
-                        dbCommand
-                                .executeDbCommand(
-                                        "CREATE DATABASE " + getQuotedName(copyDatabase) + " WITH TEMPLATE "
-                                                + getQuotedName(targetDatabase) + "; "
-                                                + buildDatabaseCommentCommandAndUpdateInternalTable(copyProject, administrator, false,
-                                                        description)
-                                                + buildOwnerCommand(ownerName, DatabaseObject.DATABASE, copyDatabase),
-                                        ccddMain.getMainFrame());
+                        dbCommand.executeDbCommand(new StringBuilder("CREATE DATABASE ").append(getQuotedName(copyDatabase))
+                                 .append(" WITH TEMPLATE ").append(getQuotedName(targetDatabase)).append("; ")
+                                 .append(buildDatabaseCommentCommandAndUpdateInternalTable(copyProject, administrator, false, description))
+                                 .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, copyDatabase)), ccddMain.getMainFrame());
 
                         // Check if the currently open database is the one being copied
                         if (targetDatabase.equals(currentDatabase)) {
@@ -2495,7 +2434,7 @@ public class CcddDbControlHandler {
                         }
 
                         // Log that the copying the database succeeded
-                        eventLog.logEvent(SUCCESS_MSG, "Project '" + targetProject + "' copied");
+                        eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(targetProject).append("' copied"));
                     }
                 } catch (SQLException se) {
                     // Inform the user that the database cannot be copied
@@ -2536,16 +2475,15 @@ public class CcddDbControlHandler {
             connection.setAutoCommit(true);
 
             // Delete the database
-            dbCommand.executeDbUpdate("DROP DATABASE " + getQuotedName(databaseName) + ";", ccddMain.getMainFrame());
+            dbCommand.executeDbUpdate(new StringBuilder("DROP DATABASE ").append(getQuotedName(databaseName)).append(";"),
+                    ccddMain.getMainFrame());
 
             // Log that the database deletion succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' deleted");
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' deleted"));
         } catch (SQLException se) {
             // Inform the user that the database deletion failed
-            eventLog.logFailEvent(
-                    ccddMain.getMainFrame(), "Cannot delete project database '" + getServerAndDatabase(databaseName)
-                            + "'; cause '" + se.getMessage() + "'",
-                    "<html><b>Cannot delete project '</b>" + projectName + "<b>'");
+            eventLog.logFailEvent(ccddMain.getMainFrame(), "Cannot delete project database '" + getServerAndDatabase(databaseName)
+                            + "'; cause '" + se.getMessage() + "'", "<html><b>Cannot delete project '</b>" + projectName + "<b>'");
             errorFlag = true;
         } finally {
             // Disable auto-commit for database changes
@@ -2609,18 +2547,15 @@ public class CcddDbControlHandler {
 
                 // Inform the user that closing the database succeeded and update the connection
                 // status
-                eventLog.logEvent(SUCCESS_MSG, (activeDatabase.equals(DEFAULT_DATABASE) ? "Server connection"
-                        : "Project database '" + activeDatabase + "'") + " closed");
+                eventLog.logEvent(SUCCESS_MSG, new StringBuilder((activeDatabase.equals(DEFAULT_DATABASE) ? "Server connection"
+                        : "Project database '" + activeDatabase + "'")).append(" closed"));
                 connectionStatus = NO_CONNECTION;
             } catch (SQLException se) {
                 // Inform the user that the database failed to close
-                eventLog.logFailEvent(ccddMain.getMainFrame(),
-                        "Cannot close "
-                                + (activeDatabase.equals(DEFAULT_DATABASE) ? "server connection"
-                                        : "project database '" + getServerAndDatabase(activeDatabase) + "'")
-                                + "; cause '" + se.getMessage() + "'",
-                        "<html><b>Cannot close " + (activeDatabase.equals(DEFAULT_DATABASE) ? "server connection"
-                                : "project '</b>" + activeProject + "<b>'"));
+                eventLog.logFailEvent(ccddMain.getMainFrame(), "Cannot close " + (activeDatabase.equals(DEFAULT_DATABASE) ? "server connection"
+                        : "project database '" + getServerAndDatabase(activeDatabase) + "'") + "; cause '" + se.getMessage() + "'",
+                        "<html><b>Cannot close " + (activeDatabase.equals(DEFAULT_DATABASE) ? "server connection" : "project '</b>" +
+                        activeProject + "<b>'"));
             }
         }
 
@@ -2812,7 +2747,7 @@ public class CcddDbControlHandler {
         command += "\"" + backupFile.getAbsolutePath() + "\" " + databaseName;
 
         // Log the database backup command
-        eventLog.logEvent(COMMAND_MSG, command);
+        eventLog.logEvent(COMMAND_MSG, new StringBuilder(command));
 
         // Execute the backup command
         errorType = executeProcess(command, numArgs);
@@ -2824,7 +2759,7 @@ public class CcddDbControlHandler {
                     ModifiablePathInfo.DATABASE_BACKUP_PATH);
 
             // Log that backing up the database succeeded
-            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' backed up");
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' backed up"));
         }
 
         // An error occurred backing up the database
@@ -2952,7 +2887,7 @@ public class CcddDbControlHandler {
             command += "\"" + restoreFile.getAbsolutePath() + "\"";
 
             // Log the database restore command
-            eventLog.logEvent(COMMAND_MSG, command);
+            eventLog.logEvent(COMMAND_MSG, new StringBuilder(command));
 
             // Execute the restore command
             errorType = executeProcess(command, numArgs);
@@ -2964,11 +2899,10 @@ public class CcddDbControlHandler {
             // do it here
             if(overwriteExisting){
                 try {
-                    dbCommand.executeDbUpdate(
-                            buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false, description),
-                            ccddMain.getMainFrame());
+                    dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(
+                            projectName, administrator, false, description)), ccddMain.getMainFrame());
                     // Log that the copying the database succeeded
-                    eventLog.logEvent(SUCCESS_MSG, "Updated the comment for Project '" + projectName);
+                    eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Updated the comment for Project '").append(projectName));
                 } catch (SQLException se) {
                     // Inform the user that setting the database comment failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2981,8 +2915,8 @@ public class CcddDbControlHandler {
             // Check if no error occurred
             if (errorType.isEmpty()) {
                 // Log that the database restoration succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                        "Project '" + projectName + "' restored as '" + restoreProjectName + "'");
+                eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' restored as '")
+                        .append(restoreProjectName).append("'"));
             }
         }
         // Database restoration failed

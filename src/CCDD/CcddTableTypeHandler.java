@@ -938,6 +938,76 @@ public class CcddTableTypeHandler {
 
         return typeDefn;
     }
+    
+    /**********************************************************************************************
+     * Remove an existing table type (if it is found)
+     * Add a new table type
+     *
+     * @param eTypeName    The name of the existing table type. If it is found it will be removed
+     *
+     * @param nTypeName    The name of the new table type. If this is null the table will not be
+     *                     created
+     * 
+     * @param description  The description for the new table type
+     *
+     * @param typeData     array of table type data
+     *
+     * @return Reference to the type definition created
+     *********************************************************************************************/
+    protected TypeDefinition addRemoveTypeDefinition(String eTypeName, String nTypeName, String description, Object[][] typeData) {
+        
+        // Remove the Type Definition
+        removeTypeDefinition(eTypeName);
+
+        return addTypeDefinition(nTypeName, description, typeData);
+    }
+    
+    /**********************************************************************************************
+     * Add a new table type
+     *
+     * @param nTypeName    The name of the new table type. If this is null the table will not be
+     *                     created
+     * 
+     * @param description  The description for the new table type
+     *
+     * @param typeData     array of table type data
+     *
+     * @return Reference to the type definition created
+     *********************************************************************************************/
+    protected TypeDefinition addTypeDefinition(String nTypeName, String description, Object[][] typeData) {
+        TypeDefinition typeDefn = null;
+
+        if(nTypeName != null){
+            // Create the type definition
+            typeDefn = createTypeDefinition(nTypeName, description, typeData);
+    
+            // Add it to the list of type definitions
+            typeDefinitions.add(typeDefn);
+        }
+
+        return typeDefn;
+    }
+    
+    /**********************************************************************************************
+     * Remove an existing table type (if it is found)
+     * Add a new table type
+     *
+     * @param eTypeName    The name of the existing table type. If it is found it will be removed
+     *                     from the list
+     *
+     * @return None
+     *********************************************************************************************/
+    protected void removeTypeDefinition(String eTypeName) {
+        // Get the reference to the type definition
+        TypeDefinition typeDefn = getTypeDefinition(eTypeName);
+
+        // Check if this type already exists
+        if (typeDefn != null) {
+            // Delete the type definition
+            typeDefinitions.remove(typeDefn);
+        }
+        return;
+    }
 
     /**********************************************************************************************
      * Create a new table type definition

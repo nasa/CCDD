@@ -2616,10 +2616,8 @@ public abstract class CcddJTableHandler extends JTable {
         // Adjust the row index to the next row
         targetRow++;
 
-        // Insert the new row at the indicated index. If data is provided for the new
-        // row then put
-        // the data in the new row's columns it; otherwise fill the new row's columns
-        // with the
+        // Insert the new row at the indicated index. If data is provided for the new row then put
+        // the data in the new row's columns it; otherwise fill the new row's columns with the
         // default row contents
         tableModel.insertRow(targetRow, (data == null ? getEmptyRow() : data));
 

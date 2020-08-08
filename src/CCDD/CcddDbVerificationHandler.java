@@ -592,7 +592,7 @@ public class CcddDbVerificationHandler {
                 }
                 // Verification was canceled
                 else {
-                    eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Verification terminated by user");
+                    eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Verification terminated by user"));
                 }
             }
         });
@@ -620,12 +620,12 @@ public class CcddDbVerificationHandler {
             // Check if the owner differs for the project database and its tables,
             // sequences, or
             // indices
-            ResultSet mismatch = dbCommand.executeDbQuery("SELECT name, type, "
-                    + "pg_catalog.pg_get_userbyid(tbl.relowner) AS " + "owner, pg_catalog.pg_get_userbyid(db.datdba) "
-                    + "AS db_ownwer FROM (SELECT datdba FROM " + "pg_catalog.pg_database d WHERE d.datname = "
-                    + "(SELECT current_database())) AS db, (SELECT " + "relname AS name, relkind AS type, relowner "
-                    + "FROM pg_class cls JOIN pg_namespace nsp ON " + "cls.relnamespace = nsp.oid WHERE nsp.nspname = "
-                    + "'public') AS tbl WHERE db.datdba != tbl.relowner", ccddMain.getMainFrame());
+            ResultSet mismatch = dbCommand.executeDbQuery(new StringBuilder("SELECT name, type, ")
+                    .append("pg_catalog.pg_get_userbyid(tbl.relowner) AS owner, pg_catalog.pg_get_userbyid(db.datdba) ")
+                    .append("AS db_ownwer FROM (SELECT datdba FROM pg_catalog.pg_database d WHERE d.datname = ")
+                    .append("(SELECT current_database())) AS db, (SELECT relname AS name, relkind AS type, relowner ")
+                    .append("FROM pg_class cls JOIN pg_namespace nsp ON cls.relnamespace = nsp.oid WHERE nsp.nspname = ")
+                    .append("'public') AS tbl WHERE db.datdba != tbl.relowner"), ccddMain.getMainFrame());
 
             // Step through each component with a mismatched owner
             while (mismatch.next()) {
@@ -675,12 +675,12 @@ public class CcddDbVerificationHandler {
             mismatch.close();
 
             // Check if the owner differs for the project database and its functions
-            mismatch = dbCommand.executeDbQuery("SELECT name, " + "pg_catalog.pg_get_userbyid(func.proowner) AS "
-                    + "owner, pg_catalog.pg_get_userbyid(db.datdba) " + "AS db_ownwer FROM (SELECT datdba FROM "
-                    + "pg_catalog.pg_database d WHERE d.datname = " + "(SELECT current_database())) AS db, (SELECT "
-                    + "prc.proname || '(' || " + "pg_get_function_identity_arguments(prc.oid) "
-                    + "|| ')' AS name, proowner FROM pg_proc prc " + "JOIN pg_namespace nsp ON prc.pronamespace = "
-                    + "nsp.oid WHERE nsp.nspname = 'public') AS func " + "WHERE db.datdba != func.proowner;",
+            mismatch = dbCommand.executeDbQuery(new StringBuilder("SELECT name, pg_catalog.pg_get_userbyid(func.proowner) AS ")
+                    .append("owner, pg_catalog.pg_get_userbyid(db.datdba) AS db_ownwer FROM (SELECT datdba FROM ")
+                    .append("pg_catalog.pg_database d WHERE d.datname = (SELECT current_database())) AS db, (SELECT ")
+                    .append("prc.proname || '(' || pg_get_function_identity_arguments(prc.oid) ")
+                    .append("|| ')' AS name, proowner FROM pg_proc prc JOIN pg_namespace nsp ON prc.pronamespace = ")
+                    .append("nsp.oid WHERE nsp.nspname = 'public') AS func WHERE db.datdba != func.proowner;"),
                     ccddMain.getMainFrame());
 
             // Step through each function with a mismatched owner
@@ -949,21 +949,16 @@ public class CcddDbVerificationHandler {
             List<String> groupNames = Arrays
                     .asList(new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()).getGroupNames(false, true));
 
-            // Get the list of table and variable paths and names, retaining any macros and
-            // bit
-            // lengths
+            // Get the list of table and variable paths and names, retaining any macros and bit lengths
             CcddTableTreeHandler allTableAndVariableTree = new CcddTableTreeHandler(ccddMain,
                     TableTreeType.TABLES_WITH_PRIMITIVES, ccddMain.getMainFrame());
             List<String> allTableAndVariableList = allTableAndVariableTree.getTableTreePathList(null);
-
+            
             // List to contain invalid table or variable references. This is used to prevent
-            // logging multiple issues for the same table/variable in the same internal
-            // table
+            // logging multiple issues for the same table/variable in the same internal table
             List<String> badRefs = new ArrayList<String>();
 
-            // Initialize the progress bar within-step total to the total number of rows in
-            // the
-            // result set
+            // Initialize the progress bar within-step total to the total number of rows in the result set
             tableResult.last();
             haltDlg.setItemsPerStep(tableResult.getRow());
 
@@ -1102,8 +1097,7 @@ public class CcddDbVerificationHandler {
                                             + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
-                            // references to it (for other columns) aren't logged as duplicate
-                            // issues
+                            // references to it (for other columns) aren't logged as duplicate issues
                             badRefs.add(member[0]);
                         }
                     }
@@ -1134,8 +1128,7 @@ public class CcddDbVerificationHandler {
                                             + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
-                            // references to it (for other columns) aren't logged as duplicate
-                            // issues
+                            // references to it (for other columns) aren't logged as duplicate issues
                             badRefs.add(member[0]);
                         }
                     }
@@ -1172,8 +1165,7 @@ public class CcddDbVerificationHandler {
                                                     + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
-                            // references to it (for other columns) aren't logged as duplicate
-                            // issues
+                            // references to it (for other columns) aren't logged as duplicate issues
                             badRefs.add(member[0]);
                         }
                     }
@@ -1188,45 +1180,51 @@ public class CcddDbVerificationHandler {
                     List<String> cleanName = new ArrayList<String>();
 
                     // Step through each variable in the list
-                    for (String variablePath : allTableAndVariableList) {
-                        // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
-                            break;
-                        }
-
-                        // Remove the bit length, if present, and store the variable in the new list
-                        String path = variablePath.replaceFirst("\\:\\d+$", "");
-                        cleanName.add(path);
-                        
-                        if (CcddClassesDataTable.ArrayVariable.isArrayMember(path)) {
-                            String arraySize = CcddClassesDataTable.ArrayVariable.getVariableArrayIndex(path);
-                            int[] arrayDims = CcddClassesDataTable.ArrayVariable.getArrayIndexFromSize(arraySize);
-                            boolean isFirst = true;
+                    // TODO: Currently we add all variables without trimming anything if there are more than 750k due
+                    // to massive performance hits. This code needs to be visited again at a later time so that this 
+                    // band-aid can be removed and a proper fix added.
+                    if (allTableAndVariableList.size() < 750000) { 
+                        for (String variablePath : allTableAndVariableList) {
+                            // Remove the bit length, if present, and store the variable in the new list
+                            String path = "";
+                            if (variablePath.contains(":")) {
+                                path = variablePath.replaceFirst("\\:\\d+$", "");
+                            } else {
+                                path = variablePath;
+                            }
+                            cleanName.add(path);
                             
-                            for (int dim = 0; dim < arrayDims.length; dim++) {
-                                if (arrayDims[dim] != 0) {
-                                    isFirst = false;
-
-                                    break;
+                            /* Check if the path represents an array member */
+                            if (path.endsWith("]")) {
+                                /* Pull the array dimensions out of the path */
+                                String arraySize = CcddClassesDataTable.ArrayVariable.getVariableArrayIndex(path);
+                                int[] arrayDims = CcddClassesDataTable.ArrayVariable.getArrayIndexFromSize(arraySize);
+                                boolean isFirst = true;
+                                
+                                /* If this is a 2 dimensional array ensure that this path represents the first index */
+                                for (int dim = 0; dim < arrayDims.length; dim++) {
+                                    if (arrayDims[dim] != 0) {
+                                        isFirst = false;
+    
+                                        break;
+                                    }
+                                }
+    
+                                if (isFirst) {
+                                    /* Add the path with no indexes */
+                                    cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
+                                }
+                                
+                                /* Add the path with one index. The path with both indexes was already added above at the start
+                                 * of this for loop. Ensure that it is only added once
+                                 */
+                                if (!cleanName.contains(path.substring(0, path.lastIndexOf("[")))) {
+                                    cleanName.add(path.substring(0, path.lastIndexOf("[")));
                                 }
                             }
-                            
-                            if (isFirst) {
-                                cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
-                            }
                         }
-                        
-                        // Check if the variable is an array member
-                        if (ArrayVariable.isArrayMember(path)) {
-                            // Strip the array index from the end to create a reference to the variable's array definition
-                            String name = path.substring(0, path.lastIndexOf("["));
-
-                            // Check if this array definition isn't already in the new list
-                            if (!cleanName.contains(name)) {
-                                // Add the array definition to the list
-                                cleanName.add(name);
-                            }
-                        }
+                    } else {
+                        cleanName.addAll(allTableAndVariableList);
                     }
 
                     // Check if the user hasn't canceled verification
@@ -2442,7 +2440,7 @@ public class CcddDbVerificationHandler {
                         isAllIgnored = false;
 
                         // Make the changes to the table(s) in the database
-                        dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+                        dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
                     }
 
                     boolean isErrors = false;
@@ -2588,6 +2586,6 @@ public class CcddDbVerificationHandler {
         }
 
         // Log the consistency check completion message
-        eventLog.logEvent(STATUS_MSG, message);
+        eventLog.logEvent(STATUS_MSG, new StringBuilder(message));
     }
 }

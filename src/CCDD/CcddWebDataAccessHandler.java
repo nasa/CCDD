@@ -253,8 +253,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         // Log the web server request. Mask the password for authentication requests
         // (match an
         // expanded range in case the user mistypes the command)
-        eventLog.logEvent(EventLogMessageType.SERVER_MSG, "Request component '" + component + "' item '"
-                + (component.contains("authentic") ? item.replaceFirst("=.*(?:;|$)", "=*****") : item) + "'");
+        eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder("Request component '").append(component)
+                .append("' item '").append((component.contains("authentic") ? item.replaceFirst("=.*(?:;|$)", "=*****") : item))
+                .append("'"));
 
         try {
             String[] separators = null;

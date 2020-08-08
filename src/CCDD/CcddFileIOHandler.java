@@ -70,6 +70,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddConstants.InternalTable.GroupsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
@@ -289,11 +290,6 @@ public class CcddFileIOHandler {
                                 ioe.printStackTrace();
                                 errorFlag = true;
                             }
-                            break;
-                        } else if (!deletedFiles.get(index).getName().endsWith(importFileType.getExtension())) {
-                            /* This file does not have the correct file extension type */
-                            deletedFiles.remove(index);
-                            index--;
                             break;
                         }
                     }
@@ -1028,7 +1024,7 @@ public class CcddFileIOHandler {
                     }
                     /* Import was canceled */
                     else {
-                        eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Import terminated by user");
+                        eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Import terminated by user"));
                     }
 
                     haltDlg = null;
@@ -1114,8 +1110,8 @@ public class CcddFileIOHandler {
         }
 
         /* Add event to log indicating that importing has begun */
-        eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Importing table(s) from '"
-                + CcddUtilities.convertArrayToString(fileNames.toArray(new String[0])) + "'");
+        eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Importing table(s) from '")
+                .append(CcddUtilities.convertArrayToString(fileNames.toArray(new String[0]))).append("'"));
 
         /* Load the group information from the database */
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
@@ -1291,7 +1287,7 @@ public class CcddFileIOHandler {
             dbTable.updateInputTypeColumns(null, parent);
 
             /* Add event to log indicating that the import completed successfully */
-            eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, "Table import completed successfully");
+            eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Table import completed successfully"));
 
             /* Check if any duplicate table definitions were detected */
             if (!duplicateDefinitions.isEmpty()) {
@@ -1364,7 +1360,7 @@ public class CcddFileIOHandler {
                 ccddMain.getTableTypeEditor().removeInvalidTabs();
             }
             /* Add event to log indicating that the import did not complete successfully */
-            eventLog.logEvent(EventLogMessageType.FAIL_MSG, "Table import failed to complete");
+            eventLog.logEvent(EventLogMessageType.FAIL_MSG, new StringBuilder("Table import failed to complete"));
         }
         return errorFlag;
     }
@@ -1562,6 +1558,10 @@ public class CcddFileIOHandler {
         boolean prototypesOnly = true;
         List<String> skippedTables = new ArrayList<String>();
 
+        // Store the current group information
+        ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS,
+                groupHandler.getGroupDefnsFromInfo(), null, parent);
+
         // Check if the user elected to enable replacement of existing macro values
         if (replaceExistingMacros) {
             // Verify that the new macro values are valid for the current instances of the macros
@@ -1620,6 +1620,22 @@ public class CcddFileIOHandler {
                     // Load the old data, not the imported data, so that it can be used for comparison
                     if (dbTable.isTableExists(tableDefn.getName(), parent)) {
                         tableInfo = dbTable.loadTableData(tableDefn.getName(), true, true, ccddMain.getMainFrame());
+                    } else if (tableDefn.getName().contains(".")) {
+                        /* If the table that has been modified is an instance of a prototype then there is no table in the postgres
+                         * database that shares its name and stores its data. Instead the information that varies from the prototype
+                         * table is stored in the internal _values table. In this situation we can actually just pull the information
+                         * of the prototype table and use it to create the commands required to update the database.
+                         */
+                        /* Load the information of the prototype */
+                        int index = tableDefn.getName().lastIndexOf(",")+1;
+                        String ancestor = tableDefn.getName().substring(index).split("\\.")[0];
+                        tableInfo = dbTable.loadTableData(ancestor, true, true, ccddMain.getMainFrame());
+                        /* Keep the name of the instance even though we are going to use the info of the prototype.
+                         * The prototype info is only needed for comparison purposes and we do not want to make
+                         * any unwanted changes to it as it would update all instances of this prototype within 
+                         * the database.
+                         */
+                        tableInfo.setTablePath(tableDefn.getName());
                     } else {
                         // Create the table information for the new table, but with no data
                         tableInfo = new TableInformation(tableDefn.getTypeName(), tableDefn.getName(),
@@ -1805,19 +1821,55 @@ public class CcddFileIOHandler {
         dbTable.storeInformationTable(InternalTable.DATA_TYPES,
                 CcddUtilities.removeArrayListColumn(dataTypeHandler.getDataTypeData(), DataTypesColumn.OID.ordinal()),
                 null, parent);
-
+        
         // Store the input types
         dbTable.storeInformationTable(InternalTable.INPUT_TYPES,
                 CcddUtilities.removeArrayListColumn(Arrays.asList(inputTypeHandler.getCustomInputTypeData()),
                         InputTypesColumn.OID.ordinal()),
                 null, parent);
-
+        
         // Store the data fields
         dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null, parent);
-
-        // Store the groups
+        
+        // Check to see if something caused the group data to change. Example: If a table contains an array whose
+        // data type is defined by another table in CCDD and the size is based on a macro there is an edge case
+        // that occurs if the macro size is changed during an import. If the macro value is reduced and this table
+        // is included in a group than the array members that were removed from the table need to be removed from
+        // the internal groups table as well.
+        
+        // Get the list of table and variable paths and names, retaining any macros and bit lengths
+        try {
+            List<String> allTableAndVariableList = (new CcddTableTreeHandler(ccddMain,
+                    TableTreeType.TABLES_WITH_PRIMITIVES, ccddMain.getMainFrame())).getTableTreePathList(null);
+            
+            // Get all members of the internal groups table
+            List<String[]> members = dbTable.queryDatabase("SELECT " + GroupsColumn.MEMBERS.getColumnName()
+                    + " FROM " + InternalTable.GROUPS.getTableName(), ccddMain.getMainFrame());
+            
+            // Initialize the command that will be used to update the internal groups table
+            StringBuilder command = new StringBuilder();
+            
+            for (String[] member : members) {
+                // Check if the table isn't in the list of valid names, but do not delete any members of the groups table that start with a '0' or a '1' as these
+                // are rows within the internal groups table that contain the description of the group and rather or not the group represents a CFS application.
+                // Groups that represent a CFS application will have this row start with a 0, and those that do not will have this row start with a 1.
+                if (!allTableAndVariableList.contains(member[0]) && !member[0].substring(0, 2).contentEquals("0,") && !member[0].substring(0, 2).contentEquals("1,")) {
+                    // Group table member reference is invalid
+                    command.append("DELETE FROM ").append(InternalTable.GROUPS.getTableName()).append(" WHERE ").append(GroupsColumn.MEMBERS.getColumnName()).append(
+                            " = ").append(CcddDbTableCommandHandler.delimitText(member[0])).append("; ");
+                }
+            }
+            
+            // Execute the command
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+        } catch (Exception e) {
+            System.out.println("Internal _groups table could not be updated.");
+        }
+        
+        // Retrieve the updated group information
+        List <String[]> updatedGroupData = dbTable.retrieveInformationTable(InternalTable.GROUPS, false, parent);
         ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS,
-                groupHandler.getGroupDefnsFromInfo(), null, parent);
+                updatedGroupData, null, parent);
 
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty()) {
@@ -1965,7 +2017,7 @@ public class CcddFileIOHandler {
             // following a cell validation error
             if (tableEditor.getTable().pasteData(cellData.toArray(new String[0]), numColumns, false, true, true, true,
                     false)) {
-                eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Import canceled by user");
+                eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Import canceled by user"));
                 throw new CCDDException();
             }
 
@@ -2677,7 +2729,7 @@ public class CcddFileIOHandler {
 
             /* Check if no errors occurred exporting the table(s) */
             if (!errorFlag) {
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, "Data export completed successfully");
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Data export completed successfully"));
             }
             /* An error occurred while exporting the table(s) */
             else {

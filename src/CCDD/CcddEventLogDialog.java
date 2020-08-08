@@ -855,7 +855,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
      *
      * @param logMessage new event's log message
      *********************************************************************************************/
-    protected void logEvent(final EventLogMessageType type, String logMessage) {
+    protected void logEvent(final EventLogMessageType type, final StringBuilder logMessage) {
         // Get the server, database, and user responsible for the event.
         final String server = dbControl.getServer();
         final String database = dbControl.isDatabaseConnected() ? dbControl.getProjectName()
@@ -865,15 +865,10 @@ public class CcddEventLogDialog extends CcddFrameHandler {
         // Get the current date and time stamp
         final String timestamp = getDateTimeStamp("MM/dd/yyyy HH:mm:ss.SSS");
 
-        // Remove any embedded line feed characters since these interfere with parsing
-        // when reading
-        // the log files
-        final String message = logMessage.replaceAll("\n", "");
-
         // Check if the log event call is made on the event dispatch thread
         if (SwingUtilities.isEventDispatchThread()) {
             // Add the message to the event log
-            addMessageToLog(server, database, user, type, timestamp, message);
+            addMessageToLog(server, database, user, type, timestamp, logMessage);
         }
         // The log event call is made from a background thread
         else {
@@ -886,7 +881,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
                 @Override
                 public void run() {
                     // Add the message to the event log
-                    addMessageToLog(server, database, user, type, timestamp, message);
+                    addMessageToLog(server, database, user, type, timestamp, logMessage);
                 }
             });
         }
@@ -922,7 +917,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
      *********************************************************************************************/
     protected void logFailEvent(Component parent, String dialogTitle, String logMessage, String dialogMessage) {
         // Append the failure message to the event log
-        logEvent(FAIL_MSG, logMessage);
+        logEvent(FAIL_MSG, new StringBuilder(logMessage));
 
         // Display an error dialog
         new CcddDialogHandler().showMessageDialog(parent,
@@ -946,15 +941,14 @@ public class CcddEventLogDialog extends CcddFrameHandler {
      * @param logMessage new event's log message
      *********************************************************************************************/
     private void addMessageToLog(String server, String database, String user, EventLogMessageType type,
-            String timestamp, String logMessage) {
-        // Set the table row sorter. This is required so that command line options to
-        // filter the
+            String timestamp, StringBuilder logMessage) {
+        // Set the table row sorter. This is required so that command line options to filter the
         // events are handled properly
         eventTable.setTableSortable();
 
         // Insert the event at the end of the event log table
         eventTable.insertRow(false, TableInsertionPoint.END, new Object[] { indexNum, getServerLog(server), database,
-                user, getDateTimeStampLog(timestamp), type.getTypeMsg(), truncateLogMessage(logMessage) });
+                user, getDateTimeStampLog(timestamp), type.getTypeMsg(), truncateLogMessage(logMessage.toString()) });
 
         // Update the log entry counter
         indexNum++;
@@ -964,9 +958,12 @@ public class CcddEventLogDialog extends CcddFrameHandler {
             try {
                 // Use a StringBuilder to concatenate the log message in case the message is
                 // lengthy (StringBuilder is much faster than string concatenation using '+')
-                StringBuilder logEntry = new StringBuilder(
-                        server + "|" + database + "|" + user + "|" + timestamp + "|" + type.getTypeName() + "|");
-                logEntry.append(logMessage);
+                StringBuilder logEntry = new StringBuilder(server).append("|").append(database).append("|").append(user)
+                        .append("|").append(timestamp).append("|").append(type.getTypeName()).append("|");
+                
+                // Remove any embedded line feed characters since these interfere with parsing when reading
+                // the log files
+                logEntry.append(logMessage.toString().replaceAll("\n", ""));
 
                 // Write the message to the event log file
                 logWriter.println(logEntry.toString());
@@ -1073,6 +1070,6 @@ public class CcddEventLogDialog extends CcddFrameHandler {
                     + numTruncated + ")";
         }
 
-        return logMessage;
+        return logMessage.replaceAll("\n", "");
     }
 }

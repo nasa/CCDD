@@ -665,17 +665,16 @@ public class CcddPaddingVariableHandler {
                     // Check if the user didn't cancel padding adjustment
                     if (!haltDlg.isHalted()) {
                         // Add a log entry indication the padding adjustment completed
-                        eventLog.logEvent(STATUS_MSG,
-                                (padOperation == PadOperationType.ADD_UPDATE ? "Adding/updating" : "Removing")
-                                        + " padding variables completed");
+                        eventLog.logEvent(STATUS_MSG, new StringBuilder((padOperation == PadOperationType.ADD_UPDATE ?
+                                "Adding/updating" : "Removing"))
+                                .append(" padding variables completed"));
                         // Close the cancellation dialog
                         haltDlg.closeDialog();
                     }
                     // Padding adjustment was canceled
                     else {
-                        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                                (padOperation == PadOperationType.ADD_UPDATE ? "Adding/updating" : "Removing")
-                                        + " padding terminated by user");
+                        eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder((padOperation == PadOperationType.ADD_UPDATE ?
+                                "Adding/updating" : "Removing")).append(" padding terminated by user"));
                     }
 
                     haltDlg = null;

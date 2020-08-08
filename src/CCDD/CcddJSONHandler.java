@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -29,6 +30,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -334,6 +336,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         BufferedReader br = null;
 
         try {
+            /* Detect the type of the parsed JSON file and only accept JSONObjects */
+            /* This will throw an exception if it is incorrect */
+            verifyJSONObjectType(importFile);
             /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
@@ -518,6 +523,31 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             }
         }
     }
+    
+    /**********************************************************************************************
+     * Verify that the input file will be of a JSONObject type
+     *
+     * @param importFile   import file reference
+     *
+     * @throws CCDDException If the parsed json object is not of type JSONObject
+     *
+     * @throws IOException   If an import file I/O error occurs
+     *
+     * @throws Exception     If an unanticipated error occurs
+     *********************************************************************************************/
+    protected void verifyJSONObjectType(FileEnvVar importFile) throws IOException, ParseException, CCDDException{
+        /* Create a JSON parser and use it to parse the import file contents */
+        JSONParser jsonParser = new JSONParser();
+        FileReader jsonReader = new FileReader(importFile);
+        /* Detect the type of the parsed JSON file and only accept JSONObjects */
+        if(jsonParser.parse(jsonReader).getClass() != JSONObject.class){
+            throw new CCDDException(
+                    " The file contains an unexpected json format. Please ensure that the json"
+                   +" file contains data exported from CCDD. \nNote: json files generated through the CCDD"
+                   +" scripting functionality are not expected to be imported into CCDD.");
+        }
+        return;
+    }
 
     /**********************************************************************************************
      * Build the information from the Table Types, Table Type Data Fields and Macros in the file
@@ -539,9 +569,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         BufferedReader br = null;
 
         try {
+            /* Detect the type of the parsed JSON file and only accept JSONObjects */
+            /* This will throw an exception if it is incorrect */
+            verifyJSONObjectType(importFile);
             /* Create a JSON parser and use it to parse the import file contents */
-            JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(importFile));
             List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             Object defn = jsonObject.get(JSONTags.TABLE_TYPE_DEFN.getTag());
 
@@ -674,11 +706,28 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         }
                     }
                     
+                    // Convert all of the new macro definitions to a set of unique entries
+                    // based on the macro name (the first array element)
+                    // A pair with a boolean indicating if the input set was unique and
+                    // the list of unique entries that were extracted
+                    Pair<Boolean, List<String[]>> uniqueResults = convertToUniqueList(macroDefns);
+                    
+                    boolean isDupDetected = !uniqueResults.getLeft();
+                    if (isDupDetected) {
+                        // Get the user's input
+                        if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                "<html> <b> Continue import and ignore the duplicate values?", "Duplicate Macros in Input File",
+                                JOptionPane.QUESTION_MESSAGE,
+                                DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
+                            throw new CCDDException("Duplicate macros detected in the input file, user Cancelled");
+                        }
+                    }
+                    
                     /* Add the macro if it's new or match it to an existing one with the same name. If the flag to
                      * replace existing macro values is false then get the list of macros names where the existing
                      * and import file values differ
                      */
-                    List<String> mismatchedMacros = macroHandler.updateMacros(macroDefns, replaceExistingMacros);
+                    List<String> mismatchedMacros = macroHandler.updateMacros(uniqueResults.getRight(), replaceExistingMacros);
 
                     /* Check if any existing and import file macro values differ (the flag to replace existing macro
                      * values is false)
@@ -737,6 +786,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         BufferedReader br = null;
 
         try {
+            /* Detect the type of the parsed JSON file and only accept JSONObjects */
+            /* This will throw an exception if it is incorrect */
+            verifyJSONObjectType(importFile);
             /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
@@ -884,6 +936,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         BufferedReader br = null;
 
         try {
+            /* Detect the type of the parsed JSON file and only accept JSONObjects */
+            /* This will throw an exception if it is incorrect */
+            verifyJSONObjectType(importFile);
             /* Create a JSON parser and use it to parse the import file contents */
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
@@ -1282,29 +1337,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                         /* Get the table type definition based on the type name */
                         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
-
-                        /* Get the visible column names based on the table's type */
-                        String[] columnNames = typeDefn.getColumnNamesUser();
-
-                        /* Step through each row in the table */
-                        for (int row = 0; row < tableInfo.getData().length; row++) {
-                            /* Step through each column in the row */
-                            for (int column = 0; column < columnNames.length; column++) {
-                                /* Check if the column isn't the primary key or row index */
-                                if (column != DefaultColumn.PRIMARY_KEY.ordinal()
-                                        && column != DefaultColumn.ROW_INDEX.ordinal()) {
-                                    List<Integer> dataTypeColumns = new ArrayList<Integer>();
-
-                                    /* Get the column indices for all columns that can contain a primitive data type */
-                                    dataTypeColumns.addAll(
-                                            typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
-                                    dataTypeColumns
-                                            .addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
-                                }
-                            }
-
-                            /* Check if variable paths are to be output and if this table represents a structure */
-                            if (includeVariablePaths && typeDefn.isStructure()) {
+                        
+                        /* Check if variable paths are to be output and if this table represents a structure */
+                        if (includeVariablePaths && typeDefn.isStructure()) {
+                            /* Step through each row in the table */
+                            for (int row = 0; row < tableInfo.getData().length; row++) {
                                 /* Get the variable path */
                                 String variablePath = tableInfo.getTablePath() + ","
                                         + tableInfo.getData()[row][typeDefn

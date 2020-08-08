@@ -2502,7 +2502,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             @Override
             protected int insertRowData(int targetRow, Object[] data) {
                 // Check if table has rows, and has variable name and array size columns
-                if (targetRow != -1 && isCanHaveArrays()) {
+                if (targetRow > -1 && isCanHaveArrays()) {
                     // Get the array size value
                     String arraySize = getExpandedValueAt(targetRow, arraySizeIndex);
 

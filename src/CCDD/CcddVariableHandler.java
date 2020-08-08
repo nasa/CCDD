@@ -17,8 +17,11 @@ import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.tree.TreeNode;
@@ -60,6 +63,9 @@ public class CcddVariableHandler {
     // the structures
     // and variables relative to their root structures
     private List<String> structureAndVariablePaths;
+    
+    // List containing all variable names.
+    private List<String> allVariableNames;
 
     // List containing the offset to the structures and variables relative to their
     // root
@@ -179,7 +185,8 @@ public class CcddVariableHandler {
         this.ccddMain = ccddMain;
         this.dataTypeHandler = dataTypeHandler == null ? ccddMain.getDataTypeHandler() : dataTypeHandler;
         this.macroHandler = macroHandler == null ? ccddMain.getMacroHandler() : macroHandler;
-
+        
+        allVariableNames = new ArrayList<String>();
         dbCommand = ccddMain.getDbCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
     }
@@ -211,26 +218,30 @@ public class CcddVariableHandler {
      *         variables; returns an empty list if no variables exist
      *********************************************************************************************/
     protected List<String> getAllVariableNames() {
-        List<String> allVariableNames = new ArrayList<String>();
-
+        return allVariableNames;
+    }
+    
+    /**********************************************************************************************
+     * Update the list of structure and variable paths for valid variables as a map
+     *
+     * @return None
+     *********************************************************************************************/
+    protected void updateAllVariableNames() {
+        allVariableNames = new ArrayList<String>();
+        
         // Step through each variable path
         for (int index = 0; index < structureAndVariablePaths.size(); index++) {
-            // Get the path+variable
-            String path = structureAndVariablePaths.get(index);
-
             // Check if the variable path is a valid variable. The structureAndVariablePaths
-            // list
-            // includes non-root structures and their children; these are not valid
-            // variables (they
-            // are in the list for size and offset purposes), so are not included in the
-            // list
+            // list includes non-root structures and their children; these are not valid
+            // variables (they are in the list for size and offset purposes), so are not 
+            // included in the list
             if (isVariable.get(index)) {
                 // Add the variable path to the list
-                allVariableNames.add(path);
+                allVariableNames.add(structureAndVariablePaths.get(index));
             }
         }
-
-        return allVariableNames;
+        
+        return;
     }
 
     /**********************************************************************************************
@@ -274,7 +285,14 @@ public class CcddVariableHandler {
      * @return true if the supplied text contains a sizeof() call
      *********************************************************************************************/
     protected static boolean hasSizeof(String text) {
-        return text.matches(".*?" + SIZEOF_DATATYPE + ".*");
+        boolean result = false;
+        if (text.contains("sizeof")) {
+            if (text.matches(".*?" + SIZEOF_DATATYPE + ".*")) {
+                result = true;
+            }
+        }
+        
+        return result;
     }
 
     /**********************************************************************************************
@@ -428,47 +446,37 @@ public class CcddVariableHandler {
      * generation of the conversion lists
      *********************************************************************************************/
     protected void buildPathAndOffsetLists() {
+        // Initialize local variables
         structureAndVariablePaths = new ArrayList<String>();
         structureAndVariableOffsets = new ArrayList<Integer>();
         isVariable = new ArrayList<Boolean>();
         conversionLists = null;
         convertedVariableName = null;
-
-        int lastIndex = 0;
-        int structIndex = -1;
-
-        // Initialize the offset, bit count, and the previous variable's size, type, and
-        // bit length
         int offset = 0;
         bitCount = 0;
         lastByteSize = 0;
         lastDataType = "";
         lastBitLength = 0;
+        int lastIndex = 0;
+        int structIndex = -1;
 
-        // Create a tree containing all of the structures, both prototypes and
-        // instances, including
-        // primitive variables. This is used for determining bit-packing, variable
-        // relative
-        // position, variable offsets, and structure sizes. The prototypes (non-roots)
-        // are required
-        // in order to calculate the offsets, etc. for instances of the prototype
-        allVariableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.STRUCTURES_WITH_PRIMITIVES,
-                ccddMain.getMainFrame());
+        // Create a tree containing all of the structures, both prototypes and instances, including primitive variables.
+        // This is used for determining bit-packing, variable relative position, variable offsets, and structure sizes.
+        // The prototypes (non-roots) are required in order to calculate the offsets, etc. for instances of the prototype
+        allVariableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.STRUCTURES_WITH_PRIMITIVES, ccddMain.getMainFrame());
 
         // Step through all of the nodes in the variable tree
         for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();) {
             // Get the path to this node
             TreeNode[] nodePath = ((ToolTipTreeNode) element.nextElement()).getPath();
 
-            // Check if the path references a structure or variable (instead of the tree's
-            // root or
-            // header nodes)
+            // Check if the path references a structure or variable (instead of the tree's root or header nodes)
             if (nodePath.length > allVariableTree.getHeaderNodeLevel()) {
                 // Get the variable path for this tree node
                 String varPath = allVariableTree.getFullVariablePath(nodePath);
 
                 // Check if the path contains a data type
-                if (varPath.matches(".+,.+\\..+")) {
+                if (varPath.contains(",") && varPath.contains(".")) {
                     // Extract the data type from the variable path
                     String dataType = varPath.substring(varPath.lastIndexOf(",") + 1, varPath.lastIndexOf("."));
 
@@ -502,9 +510,23 @@ public class CcddVariableHandler {
                         lastDataType = "";
                         lastBitLength = 0;
                     }
+                    
+                    
+                    // Check if this is the first member of an array
+                    if (varPath.contains("[0]")) {
+                        if (varPath.matches(".+(?:\\[0\\])+")) {
+                            // Add the array definition path (same as that for the first array member,
+                            // minus the array index) and offset
+                            structureAndVariablePaths.add(varPath.replaceFirst("(.+)(?:\\[0\\])+", "$1"));
+                            structureAndVariableOffsets.add(offset);
+                            isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
+    
+                            // Update the index pointing to the last member of the structure processed
+                            lastIndex++;
+                        }
+                    }
                 }
-                // The path doesn't contain a data type; i.e., it's a prototype structure
-                // reference
+                // The path doesn't contain a data type; i.e., it's a prototype structure reference
                 else {
                     // Check that this isn't the first prototype structure detected. The size is
                     // stored once the end of the structure is reached
@@ -529,18 +551,6 @@ public class CcddVariableHandler {
                     lastBitLength = 0;
                 }
 
-                // Check if this is the first member of an array
-                if (varPath.matches(".+(?:\\[0\\])+")) {
-                    // Add the array definition path (same as that for the first array member,
-                    // minus the array index) and offset
-                    structureAndVariablePaths.add(varPath.replaceFirst("(.+)(?:\\[0\\])+", "$1"));
-                    structureAndVariableOffsets.add(offset);
-                    isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
-
-                    // Update the index pointing to the last member of the structure processed
-                    lastIndex++;
-                }
-
                 // Add the variable path and its offset to the lists
                 structureAndVariablePaths.add(varPath);
                 structureAndVariableOffsets.add(offset);
@@ -560,11 +570,8 @@ public class CcddVariableHandler {
             structureAndVariableOffsets.set(structIndex, offset);
         }
 
-        // Clear the stored macro values since they may be incorrect due to embedded
-        // sizeof()
-        // calls. Now that the structure sizes are known subsequent macro expansions
-        // will be
-        // correct
+        // Clear the stored macro values since they may be incorrect due to embedded sizeof() calls.
+        // Now that the structure sizes are known subsequent macro expansions will be correct
         macroHandler.clearStoredValues();
 
         // Step through each table and variable path
@@ -579,11 +586,12 @@ public class CcddVariableHandler {
             }
         }
 
-        // Add the structure paths and variables to the variable references input type
-        // and refresh
-        // any open editors
+        // Add the structure paths and variables to the variable references input type and refresh any open editors
         ccddMain.getInputTypeHandler().updateVariableReferences();
         ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
+        
+        // Update the hash map containing all variable names
+        updateAllVariableNames();
     }
 
     /**********************************************************************************************
@@ -1012,7 +1020,34 @@ public class CcddVariableHandler {
      * @return The supplied variable path + name with the data type(s) removed
      *********************************************************************************************/
     protected String removeDataTypeFromVariablePath(String fullName) {
-        return fullName.replaceAll(",[^\\.]*\\.", ",");
+        StringBuilder result = new StringBuilder();
+        
+        // Check if the path contains a '.' indicating it has at least one datatype included
+        if (fullName.contains(".")) {
+            // Split the string at each ','
+            String[] values = fullName.split(",");
+            for (int index = 0; index < values.length; index++) {
+                // Check each string for a '.'
+                if (values[index].contains(".")) {
+                    // If the string contains a '.' then remove all chars up to and including the 
+                    // '.' before appending it to the result
+                    int location = values[index].indexOf(".")+1;
+                    result.append(values[index].substring(location));
+                } else {
+                    // If the string does not include a '.' just append it to the result
+                    result.append(values[index]);
+                }
+                // add a ',' when needed
+                if(index != values.length-1) {
+                    result.append(",");
+                }
+            }
+        } else {
+            // The path does not contain a '.' for just append the whole path to the result and return
+            result.append(fullName);
+        }
+        
+        return result.toString();
     }
 
     /**********************************************************************************************
