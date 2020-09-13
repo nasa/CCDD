@@ -73,3 +73,17 @@ Below is a brief description of what has changed from version 2.0.21 to 2.0.22.
 * Multiple performance optimizations that greatly increase the speed at which a database can be opened or verifived and the speed at which CCDD can process a change in very large macros.
 * Addressed an issue where some tables could not be directly opened from the seach dialog.
 * Addressed an issue where some databases could not be converted from v1 to v2.
+
+
+*** Version 2.0.23 has been released ***
+
+Below is a brief description of what has changed from version 2.0.22 to 2.0.23.
+* CCDD can now import and verify 3d arrays
+* CCDD can now 'replace existing associations' during an import.
+* Fixed a few issues related to changing the size of a macro during an import. Could previously cause errors if the macro was used to define the size of an array.
+* Fixed a few issues related to data fields being duplicated for many tables after an import.
+* Added a new option to the export command that is used within scripts. For the 'tablepaths' sub-command you can now specify 'all' to export ALL tables within a database.
+* Fixed a few issues that prevented importing xtce files.
+* Fixed a few issues that were causing array members not to update during an import if they were a member of a non-root prototype table.
+* Added new functionality to CCDD so that a user can now import new table type or changes to an existing table type if they wish. All associated files will be updated during the import. 
+* Updated the users guide to include information related to the new 'tablepaths' option and the new 'replaceExistingAssociations' flags.
