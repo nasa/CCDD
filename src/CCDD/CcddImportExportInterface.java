@@ -74,6 +74,9 @@ public interface CcddImportExportInterface {
      *                     only the data for the first table defined
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -82,7 +85,7 @@ public interface CcddImportExportInterface {
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    abstract void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    abstract void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingAssociations)
             throws CCDDException, IOException, Exception;
 
     /**********************************************************************************************

@@ -1399,11 +1399,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                             || ((column == variableNameIndex || column == dataTypeIndex || column == arraySizeIndex)
                                     && ArrayVariable.isArrayMember(rowCopy[variableNameIndex]))
 
-                    // This data type is not a primitive (i.e., it's a structure) and the column
-                    // isn't valid for structures
-                            || (dataTypeIndex != -1 && !dataTypeHandler.isPrimitive(rowCopy[dataTypeIndex].toString())
-                                    && !typeDefn.isStructureAllowed()[column])
-
                     // This data type is a pointer and the column isn't valid for pointers
                             || (dataTypeIndex != -1 && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
                                     && !typeDefn.isPointerAllowed()[column])
@@ -1615,7 +1610,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                         .equalsIgnoreCase(getExpandedValueAt(tableData, otherRow, column))) {
                                     throw new CCDDException("Invalid input value in table '</b>"
                                             + currentTableInfo.getTablePath() + "<b>' for column '</b>"
-                                            + typeDefn.getColumnNamesUser()[column] + "<b>'; value must be unique");
+                                            + typeDefn.getColumnNamesUser()[column] + "<b>'; value must be unique: '" + newValueS + "'");
                                 }
                             }
                         }
@@ -1931,12 +1926,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     (modelColumn != variableNameIndex && modelColumn != dataTypeIndex && modelColumn != arraySizeIndex
                             && modelColumn != bitLengthIndex && modelColumn != variablePathIndex
                             && !rateIndex.contains(modelColumn) && !isDataAlterable(rowData, row, modelColumn))
-
-                            // Check if the data type column exists, the data type is not a primitive
-                            // (i.e., it's a structure), and structures are not allowed for this column
-                            || (dataTypeIndex != -1
-                                    && !newDataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())
-                                    && !typeDefn.isStructureAllowed()[modelColumn])
 
                     // Check if the data type column exists, the data type is a pointer, and
                     // pointers are not allowed for this column
@@ -2739,11 +2728,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                             // Determine if this is the definition of an array. If not it is a member
                             boolean isDefinition = !ArrayVariable.isArrayMember(varName);
                             
-                            // Check if this is a 1d or 2d array and get its size. The function below return an int[] with
-                            // 3 indexes. The first index represents if the array is a 1d or 2d array. The second represents
-                            // the size of the array if it is 1d or the size of the internal arrays if it is 2d. The third 
-                            // index is only useful if it is a 2d array. It represents the number of internal arrays if it
-                            // is 2d. Example. "3" will return [1,3,-1] and "3,5" will return [2,5,3].
+                            // Check if this is a 1d, 2d or 3d array and get its size. The function below return an int[] with
+                            // 4 indexes. The first represents if the array is a 1d, 2d or 3d array. The second represents the
+                            // number of indexes in the internal 1d arrays. The third represents the total number of 1d arrays.
+                            // The fourth represents the number of 2d arrays.
                             int[] arrayInfo = ArrayVariable.getArraySizeAndDimensions(newMacroHandler, cellData[index + arraySizeColumn].toString());
                             
                             // Get the total number of indexes
@@ -2751,14 +2739,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                             if (arrayInfo[0] == 1) {
                                 // This is a 1d array
                                 totalNumIndexes = arrayInfo[1];
-                            } else {
+                            } else if (arrayInfo[0] == 2) {
                                 // This is a 2d array
                                 totalNumIndexes = arrayInfo[1] * arrayInfo[2];
+                            } else if (arrayInfo[0] == 3) {
+                                // This is a 3d array
+                                totalNumIndexes = arrayInfo[1] * arrayInfo[2] * arrayInfo[3];
                             }
                             
                             // This variable is only used if this is a 2d array to keep up with what index of 
                             // the 2d array we are on
                             int twoDimArrayIndex = 0;
+                            // This variable is only used if this is a 3d array to keep up with what index of 
+                            // the 3d array we are on
+                            int threeDimArrayIndex = 0;
                             
                             // If this is a definition then we need to get the size.
                             if (isDefinition) {
@@ -2766,10 +2760,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                 int offset = (index + variableNameColumn);
                                 
                                 // Check to see if the expected number of array members exist
-                                for (int i = 0, x = 0; x < totalNumIndexes; i++, x++) {
-                                    if ((i != 0) && (i % arrayInfo[1] == 0)) {
-                                        i = 0;
+                                for (int oneDimArrayIndex = 0, x = 0; x < totalNumIndexes; oneDimArrayIndex++, x++) {
+                                    // Increment the twoDimArrayIndex each time oneDimArrayIndex equals the size of the 1d arrays
+                                    if ((oneDimArrayIndex != 0) && (oneDimArrayIndex % arrayInfo[1] == 0)) {
+                                        oneDimArrayIndex = 0;
                                         twoDimArrayIndex++;
+                                        
+                                        // Increment the threeDimArrayIndex each time twoDimArrayIndex equals the size of the 2d arrays
+                                        if ((twoDimArrayIndex != 0) && (twoDimArrayIndex % arrayInfo[2] == 0)) {
+                                            twoDimArrayIndex = 0;
+                                            threeDimArrayIndex++;
+                                        }
                                     }
                                     
                                     offset = offset + numColumns;
@@ -2788,25 +2789,22 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                         // The next row is a member, but is it the correct member? For example, are we expecting 
                                         // the first index of the array, but found the 2nd index meaning it is out of order? This is
                                         // to prevent users adding out of bound indexes or duplicate indexes
-                                        if (arrayInfo[0] == 1) {
-                                            if (ArrayVariable.getVariableArrayIndexAsInt(memberName) == i) {
-                                                numOfArrayMembersVerified++;
-                                            } else {
-                                                numOfArrayMembersVerified = 0;
-                                                skipRow = true;
-                                                break;
-                                            }
-                                        } else {
-                                            String expectedIndexes = "["+Integer.toString(twoDimArrayIndex)+"]["+Integer.toString(i)+"]";
-                                            if (expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName))) {
-                                                numOfArrayMembersVerified++;
-                                            } else {
-                                                numOfArrayMembersVerified = 0;
-                                                skipRow = true;
-                                                break; 
-                                            }
+                                        String expectedIndexes = "";
+                                        String[] indexes = {Integer.toString(oneDimArrayIndex), Integer.toString(twoDimArrayIndex),
+                                                            Integer.toString(threeDimArrayIndex)};
+                                        
+                                        for (int arrayInfoIndex = 0; arrayInfoIndex < arrayInfo[0]; arrayInfoIndex++) {
+                                            expectedIndexes = "["+indexes[arrayInfoIndex]+"]" + expectedIndexes;
                                         }
-                                    } else if (i == 0) {
+                                        
+                                        if (expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName))) {
+                                            numOfArrayMembersVerified++;
+                                        } else {
+                                            numOfArrayMembersVerified = 0;
+                                            skipRow = true;
+                                        }
+                                        
+                                    } else if (oneDimArrayIndex == 0) {
                                         // The next row was not a member of the array meaning no members were provided.
                                         // Set the noMembers flag to true so that they will be created
                                         noMembers = true;
@@ -2823,8 +2821,22 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                 }
                                 
                                 if (noMembers) {
+                                    threeDimArrayIndex = 0;
+                                    twoDimArrayIndex = 0;
+                                    
                                     // Create the array members
-                                    for (int i = 0; i < totalNumIndexes; i++) {
+                                    for (int oneDimArrayIndex = 0, i = 0; i < totalNumIndexes; i++, oneDimArrayIndex++) {
+                                        // Increment the twoDimArrayIndex each time oneDimArrayIndex equals the size of the 1d arrays
+                                        if ((oneDimArrayIndex != 0) && (oneDimArrayIndex % arrayInfo[1] == 0)) {
+                                            oneDimArrayIndex = 0;
+                                            twoDimArrayIndex++;
+                                            
+                                            // Increment the threeDimArrayIndex each time twoDimArrayIndex equals the size of the 2d arrays
+                                            if ((twoDimArrayIndex != 0) && (twoDimArrayIndex % arrayInfo[2] == 0)) {
+                                                twoDimArrayIndex = 0;
+                                                threeDimArrayIndex++;
+                                            }
+                                        }
                                         numOfArrayMembersVerified++;
                                         
                                         // Copy the definition row and append an index to the name.
@@ -2833,10 +2845,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                         // Check to see if we are working with a 1d or 2d array
                                         if (arrayInfo[0] == 1) {
                                             // We are working with a 1d array
-                                            arrayDefn[variableNameColumn] = varName + "[" + Integer.toString(i) + "]";
-                                        } else {
+                                            arrayDefn[variableNameColumn] = varName + "[" + Integer.toString(oneDimArrayIndex) + "]";
+                                        } else if (arrayInfo[0] == 2) {
                                             // We are working with a 2d array
-                                            arrayDefn[variableNameColumn] = varName + "["+Integer.toString(twoDimArrayIndex)+"]["+Integer.toString(i)+"]";
+                                            arrayDefn[variableNameColumn] = varName + "["+Integer.toString(twoDimArrayIndex)+"]["+Integer.toString(oneDimArrayIndex)+"]";
+                                        } else if (arrayInfo[0] == 3) {
+                                            // We are working with a 3d array
+                                            arrayDefn[variableNameColumn] = varName + "["+Integer.toString(threeDimArrayIndex)+"]["+Integer.toString(twoDimArrayIndex)+
+                                                                            "]["+Integer.toString(oneDimArrayIndex)+"]";
                                         }
                                         
                                         // Make sure that none of the columns contain a null by replacing each null with 
@@ -2856,28 +2872,57 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                     }
                                 }
                             } else {
+                                threeDimArrayIndex = 0;
                                 twoDimArrayIndex = 0;
                                 
                                 // This is an array member and no definition exists. Check to see if all members are 
                                 // present and only the definition is missing. If so add the definition. If any members 
                                 // are missing the row will be skipped and the issue should be reported to the user.
-                                for (int i = 0, x = 0; x < totalNumIndexes; x++, i++) {
-                                    if ((i != 0) && (i % arrayInfo[1] == 0)) {
-                                        i = 0;
+                                for (int oneDimArrayIndex = 0, x = 0; x < totalNumIndexes; x++, oneDimArrayIndex++) {
+                                    // Increment the twoDimArrayIndex each time oneDimArrayIndex equals the size of the 1d arrays
+                                    if ((oneDimArrayIndex != 0) && (oneDimArrayIndex % arrayInfo[1] == 0)) {
+                                        oneDimArrayIndex = 0;
                                         twoDimArrayIndex++;
+                                        
+                                        // Increment the threeDimArrayIndex each time twoDimArrayIndex equals the size of the 2d arrays
+                                        if ((twoDimArrayIndex != 0) && (twoDimArrayIndex % arrayInfo[2] == 0)) {
+                                            twoDimArrayIndex = 0;
+                                            threeDimArrayIndex++;
+                                        }
                                     }
-                                    String memberName = cellData[(index + variableNameColumn)+(numColumns*x)].toString();
+                                    
+                                    String memberName = "";
+                                    int offset = (index + variableNameColumn)+(numColumns*x);
+                                    
+                                    // If this is the end of the file and only part of the array members were provided it is possible
+                                    // that we could reach beyond the bounds of the cellData array so check first.
+                                    if (offset < cellData.length) {
+                                        memberName = cellData[offset].toString();
+                                    } else {
+                                        skipRow = true;
+                                        break;
+                                    }
                                     
                                     // The next row is a member, but is it the correct member? For example, are we expecting 
                                     // the first index of the array, but found the 2nd index meaning it is out of order? This is
                                     // to prevent users adding out of bound indexes or duplicate indexes
                                     if (arrayInfo[0] == 1) {
+                                        // This is a 1d array
                                         if (ArrayVariable.getVariableArrayIndexAsInt(memberName) != x) {
                                             skipRow = true;
                                             break; 
                                         }
-                                    } else {
-                                        String expectedIndexes = "["+Integer.toString(twoDimArrayIndex)+"]["+Integer.toString(i)+"]";
+                                    } else if (arrayInfo[0] == 2) {
+                                        // This is a 2d array
+                                        String expectedIndexes = "["+Integer.toString(twoDimArrayIndex)+"]["+Integer.toString(oneDimArrayIndex)+"]";
+                                        if (!expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName))) {
+                                            skipRow = true;
+                                            break; 
+                                        }
+                                    } else if (arrayInfo[0] == 3) {
+                                        // This is a 3d array
+                                        String expectedIndexes = "["+Integer.toString(threeDimArrayIndex)+"]["+Integer.toString(twoDimArrayIndex)+
+                                                                 "]["+Integer.toString(oneDimArrayIndex)+"]";
                                         if (!expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName))) {
                                             skipRow = true;
                                             break; 
@@ -2912,6 +2957,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                         }
                     } else if (numOfArrayMembersVerified > 0) {
                         numOfArrayMembersVerified--;
+                    }
+                    
+                    // Check if the value of endRow changed after verifying the arrays above.
+                    for (int currRow = tableData.size(); currRow < endRow; currRow++) {
+                        tableData.add(getEmptyRow());
                     }
 
                     // Check that this row is not to be ignored
@@ -2969,8 +3019,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                     // cells; for the second pass process only non-blank cells.
                                     if (newValue != null && ((pass == 1 && newValue.toString().isEmpty()) ||
                                             (pass == 2 && !newValue.toString().isEmpty()))) {
-                                        // Check to see if the column is alterable
-                                        if (isDataAlterable(tableData.get(row), row, columnModel)) {
+                                        // Check to see if the column is alterable or if this is an array member
+                                        if (isDataAlterable(tableData.get(row), row, columnModel) ||
+                                                ArrayVariable.isArrayMember(tableData.get(row)[variableNameColumn+2])) {
                                             // Get the original cell value
                                             Object oldValue = tableData.get(row)[columnModel];
                                                                                     
@@ -2984,38 +3035,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                             if (!oldValue.equals(newValue) && !(isInsert && newValue.toString().isEmpty())) {
                                                 // Insert the value into the cell
                                                 tableData.get(row)[columnModel] = newValue;
-    
-                                                // Validate the new cell contents
-                                                showMessage = validateCellContent(tableData, row, columnModel,
-                                                        oldValue, newValue, showMessage, cellData.length > 1);
-                                                // validateCellContent may append new rows to tableData when working with
-                                                // arrays. If this is the case we will need to pop a few rows off the end
-                                                // to bring the list back down to the appropriate size.
-                                                if (tableData.size() > endRow) {
-                                                    tableData = tableData.subList(0, endRow);
-                                                }
-    
-                                                // Check if the user selected the Cancel button following an invalid input
-                                                if (showMessage == null) {
-                                                    // Stop pasting data
-                                                    continue;
-                                                }
                                             }
                                         } 
                                         // TODO: The code below needs to be refactored to account for when the data is not alterable. Currently it will set it equal 
                                         // to the oldData if possible, but if not it will just set it equal to the new data. This is just kind of a band aid and will
                                         // be addressed in my next MR
                                         else {
-                                            // If we are dealing with an array member then skip over this code
-                                            if (!ArrayVariable.isArrayMember(tableData.get(row)[variableNameColumn+2])) {
-                                                // The column is not alterable so set it equal to the old value
-                                                if ((oldData != null) && (!oldData.isEmpty()) && (oldData.size()-1 > row)) {
-                                                    tableData.get(row)[columnModel] = oldData.get(row)[columnModel];
-                                                } else {
-                                                    // If oldData is empty then that means that this table does not exist. In that case set 
-                                                    // the index equal to the new value as there is no old value
-                                                    tableData.get(row)[columnModel] = newValue;
-                                                }
+                                            // The column is not alterable so set it equal to the old value
+                                            if ((oldData != null) && (!oldData.isEmpty()) && (oldData.size()-1 > row)) {
+                                                tableData.get(row)[columnModel] = oldData.get(row)[columnModel];
+                                            } else {
+                                                // If oldData is empty then that means that this table does not exist. In that case set 
+                                                // the index equal to the new value as there is no old value
+                                                tableData.get(row)[columnModel] = newValue;
                                             }
                                         }
                                     }
@@ -4081,11 +4113,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      * @param definitionRow array size definition row index
      *
      * @param columnChanged table model index of the column being changed
+     * 
      *********************************************************************************************/
     protected void adjustArrayMember(List<Object[]> tableData, int[] arraySizeOld, int[] arraySizeNew,
             int definitionRow, int columnChanged) {
-        // Initialize the total original and updated array size values to 1 so that the
-        // size
+        // Initialize the total original and updated array size values to 1 so that the size
         // calculations below can be made
         int totalSizeOld = 1;
         int totalSizeNew = 1;
@@ -4126,8 +4158,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         int deltaRows = totalSizeNew - totalSizeOld;
         int lastRow = definitionRow + totalSizeOld;
 
-        // Create storage for a copy of the original array values. This copy is used to
-        // restore
+        // Create storage for a copy of the original array values. This copy is used to restore
         // array member column values
         List<Object[]> arrayData = new ArrayList<Object[]>();
 
@@ -4164,8 +4195,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         // Initialize an array index counter to all zeroes
         int[] counter = new int[arraySizeNew.length];
 
-        // Copy the array definition row and blank the primary key and row indices to
-        // prevent
+        // Copy the array definition row and blank the primary key and row indices to prevent
         // duplicate values for these columns
         Object[] definitionData = Arrays.copyOf(tableData.get(definitionRow), tableData.get(definitionRow).length);
         definitionData[primaryKeyIndex] = "";
@@ -4176,15 +4206,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             // Copy the array definition to the array member row
             tableData.set(tableRow, Arrays.copyOf(definitionData, definitionData.length));
 
-            // Append the array index value(s) to the variable name for display as the
-            // variable
+            // Append the array index value(s) to the variable name for display as the variable
             // name in the array member row
             tableData.get(tableRow)[variableNameIndex] += ArrayVariable.formatArrayIndex(counter);
 
-            // Check if the number of array dimensions is unchanged. For this case the
-            // existing
-            // values for the array members are restored for those array members that still
-            // exist
+            // Check if the number of array dimensions is unchanged. For this case the existing
+            // values for the array members are restored for those array members that still exist
             if (arraySizeOld.length == arraySizeNew.length) {
                 // Step through each row in the original array
                 for (int arrayRow = 0; arrayRow < arrayData.size(); arrayRow++) {

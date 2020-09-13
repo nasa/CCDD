@@ -209,6 +209,9 @@ public class CcddFileIOHandler {
      *
      * @param replaceExistingMacros      true to replace the values for existing
      *                                   macros
+     *                                   
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
      * 
      * @param replaceExistingGroups      true to replace the values for existing
      *                                   groups
@@ -228,7 +231,8 @@ public class CcddFileIOHandler {
     protected boolean prepareJSONOrCSVImport(final FileEnvVar[] dataFiles, final boolean backupFirst,
             final boolean replaceExistingTables, final boolean appendExistingFields,
             final boolean useExistingFields, final boolean openEditor, final boolean ignoreErrors,
-            final boolean replaceExistingMacros, final boolean replaceExistingGroups,
+            final boolean replaceExistingMacros, final boolean replaceExistingAssociations,
+            final boolean replaceExistingGroups,
             final boolean deleteNonExistingFiles, final boolean doReservedMessageIDsExist,
             final boolean includesProjectFields, final FileExtension importFileType, 
             final ManagerDialogType dialogType, final Component parent) {
@@ -348,7 +352,7 @@ public class CcddFileIOHandler {
 
                 /* Import file into database */
                 importFile(importFiles, backupFirst, replaceExistingTables, appendExistingFields, useExistingFields,
-                        openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
+                        openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
                         dialogType, parent);
 
                 dataWasChanged = true;
@@ -966,6 +970,9 @@ public class CcddFileIOHandler {
      *
      * @param replaceExistingGroups      true to replace existing group definitions
      * 
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
+     * 
      * @param deleteNonExistingFiles     true to delete any tables from the database
      *                                   that were not part of the import
      * 
@@ -981,7 +988,8 @@ public class CcddFileIOHandler {
     protected boolean importFileInBackground(final FileEnvVar[] dataFile, final boolean backupFirst,
             final boolean replaceExisting, final boolean appendExistingFields, final boolean useExistingFields,
             final boolean openEditor, final boolean ignoreErrors, final boolean replaceExistingMacros,
-            final boolean replaceExistingGroups, final boolean deleteNonExistingFiles,
+            final boolean replaceExistingGroups, final boolean replaceExistingAssociations,
+            final boolean deleteNonExistingFiles,
             final boolean doReservedMessageIDsExist, final boolean includesProjectFields,
             final FileExtension importFileType, final ManagerDialogType dialogType, final Component parent) {
         /* Execute the import operation in the background */
@@ -993,8 +1001,8 @@ public class CcddFileIOHandler {
             protected void execute() {
                 if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
                     errorFlag = prepareJSONOrCSVImport(dataFile, backupFirst, replaceExisting, appendExistingFields,
-                            useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
-                            deleteNonExistingFiles, doReservedMessageIDsExist, includesProjectFields, importFileType,
+                            useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations,
+                            replaceExistingGroups, deleteNonExistingFiles, doReservedMessageIDsExist, includesProjectFields, importFileType,
                             dialogType, parent);
                 } else {
                     List<FileEnvVar> dataFiles = Arrays.asList(dataFile);
@@ -1006,7 +1014,7 @@ public class CcddFileIOHandler {
                     }
                     /* Import the selected table(s) */
                    importFile(dataFiles, backupFirst, replaceExisting, appendExistingFields, useExistingFields,
-                           openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
+                           openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
                            importType, parent);
                 }
             }
@@ -1070,6 +1078,9 @@ public class CcddFileIOHandler {
      * @param ignoreErrors          true to ignore all errors in the import file
      *
      * @param replaceExistingMacros true to replace the values for existing macros
+     * 
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
      *
      * @param replaceExistingGroups true to replace existing group definitions
      *
@@ -1080,7 +1091,7 @@ public class CcddFileIOHandler {
      *********************************************************************************************/
     protected boolean importFile(List<FileEnvVar> dataFiles, boolean backupFirst, boolean replaceExistingTables,
             boolean appendExistingFields, boolean useExistingFields, boolean openEditor, boolean ignoreErrors,
-            boolean replaceExistingMacros, boolean replaceExistingGroups, CcddConstants.ManagerDialogType fileType,
+            boolean replaceExistingMacros, boolean replaceExistingAssociations, boolean replaceExistingGroups, CcddConstants.ManagerDialogType fileType,
             Component parent) {
         /* Initialize any needed variables */
         boolean errorFlag = false;
@@ -1168,7 +1179,7 @@ public class CcddFileIOHandler {
                     ioHandler.importInputTypes(file, ImportType.IMPORT_ALL, ignoreErrors);
                     
                     /* Import any internal table found */
-                    ioHandler.importInternalTables(file, ImportType.IMPORT_ALL, ignoreErrors);
+                    ioHandler.importInternalTables(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingAssociations);
                 }
                 
                 /* Import the table definition(s) from the file */
@@ -1927,6 +1938,10 @@ public class CcddFileIOHandler {
             // Set the flag to indicate the table wasn't imported
             isImported = false;
         } else {
+            if (!tableInfo.isPrototype()) {
+                isExists = allTables.contains(tableInfo.getPrototypeName());
+            }
+            
             // Check if the child structure table exists
             if (isExists) {
                 // Add the parent and prototype table name to the list of table editors to close
@@ -2524,7 +2539,7 @@ public class CcddFileIOHandler {
      *
      * @return true if the export completes successfully
      *********************************************************************************************/
-    protected boolean exportSelectedTables(final String filePath, final String[] tablePaths,
+    protected boolean exportSelectedTables(final String OriginalFilePath, final String[] tablePaths,
             final boolean overwriteFile, final boolean singleFile, final boolean includeBuildInformation,
             final boolean replaceMacros,final boolean deleteTargetDirectory, final boolean includeAllTableTypes,
             final boolean includeAllDataTypes, final boolean includeAllInputTypes, final boolean includeAllMacros,
@@ -2549,6 +2564,10 @@ public class CcddFileIOHandler {
         } else {
             outputType = "Multiple";
         }
+        
+        /* Converting the file path to a FileEnvVar object will expand any environment variables within the path */
+        FileEnvVar modifiedFilePath = new FileEnvVar(OriginalFilePath);
+        String filePath = modifiedFilePath.getAbsolutePath();
 
         /* Remove the trailing period if present */
         String path = CcddUtilities.removeTrailer(filePath, ".");

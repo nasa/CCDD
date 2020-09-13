@@ -511,6 +511,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *                     only the data for the first table defined
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -519,7 +522,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingAssociations)
             throws CCDDException, IOException, Exception {
         /* TODO */
         return;

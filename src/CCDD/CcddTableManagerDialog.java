@@ -91,6 +91,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
     private JCheckBox useExistingFieldsCb;
     private JCheckBox replaceExistingMacrosCb;
     private JCheckBox replaceExistingGroupsCb;
+    private JCheckBox replaceExistingAssociationsCb;
     private JRadioButton singleFileRBtn;
     private JCheckBox openEditorCb;
     private JCheckBox ignoreErrorsCb;
@@ -656,7 +657,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                         replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
                                         useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
                                         ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
-                                        replaceExistingGroupsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
+                                        replaceExistingGroupsCb.isSelected(), replaceExistingAssociationsCb.isSelected(),
+                                        deleteNonExistingFilesCb.isSelected(),
                                         doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
                                         fileExt, dialogType, CcddTableManagerDialog.this);
                             }
@@ -924,9 +926,28 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         dialogPnl.add(replaceExistingGroupsCb, gbc);
         replaceExistingGroupsCb.setEnabled(false);
         
-        /* If the IMPORT type is not JSON than set this checkbox to disabled */
+        /* If the IMPORT type is not JSON or CSV than set this checkbox to disabled */
         if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
             replaceExistingGroupsCb.setEnabled(true);
+        }
+        
+        /*
+         * Create a check box for indicating existing group definitions can be replaced
+         */
+        replaceExistingAssociationsCb = new JCheckBox("Replace existing associations");
+        replaceExistingAssociationsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        replaceExistingAssociationsCb.setBorder(emptyBorder);
+        replaceExistingAssociationsCb
+                .setToolTipText(CcddUtilities.wrapText("Replace associations for groups that already exist",
+                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridy++;
+        dialogPnl.add(replaceExistingAssociationsCb, gbc);
+        replaceExistingAssociationsCb.setEnabled(false);
+        
+        /* If the IMPORT type is not JSON or CSV than set this checkbox to disabled */
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            replaceExistingAssociationsCb.setEnabled(true);
         }
 
         /*

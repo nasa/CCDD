@@ -949,7 +949,9 @@ public class CcddCommonTreeHandler extends JTree {
             }
         }
 
-        variablePath.setLength(variablePath.length()-1); // removes the last ","
+        if (variablePath.length() > 0) {
+            variablePath.setLength(variablePath.length()-1); // removes the last ","
+        }
         return variablePath.toString();
     }
 

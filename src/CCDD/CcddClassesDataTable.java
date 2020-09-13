@@ -2192,18 +2192,24 @@ public class CcddClassesDataTable {
         }
         
         /******************************************************************************************
-         * Get the array size of 1d or 2d arrays
+         * Get the array size of 1d, 2d or 3d arrays
          *
          * @param arrayInfo string representing the dimensions of the array. Example = "4" or "2,2"
          *
-         * @return An array with 3 indexes. The first represents if the array is a 1d or 2d array. The 
-         *         second represents the number of indexes in the array if it is 1d or number of indexes 
-         *         in each internal array if it is 2d. Th third index represents the number of arrays if 
-         *         it is a 2d array. Example. "3,5" would return [2,5,3] because it is a 2d array, each
-         *         internal array contains 5 indexes and there are 3 of these arrays.
+         * @return An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d array. The 
+         *         second represents the number of indexes in the internal 1d arrays. The third represents
+         *         the total number of 1d arrays. The fourth represents the number of 2d arrays.
+         *         
+         *         Examples:
+         *         If we have a single array with size 6 this function will return [1, 6, -1, -1]
+         *         
+         *         If we have a 2d array of size 3 with each 1d array having a size of 6 the function will return [2, 6, 3, -1]
+         *         
+         *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with each 1d array having
+         *         a size of 6 then the function will return [3, 6, 3, 2]
          *****************************************************************************************/
         protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo) {
-            int[] result = {-1, -1, -1};
+            int[] result = {-1, -1, -1, -1};
             
             // Get rid of any whitespace
             arrayInfo = arrayInfo.replaceAll(" ", "");
@@ -2220,19 +2226,34 @@ public class CcddClassesDataTable {
                     result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>()));
                 } else if (count == 1) {
                     // This is a 2d array
-                    result[0] = 2;
-                    
                     String info[] = arrayInfo.split(",");
+                    
                     if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty())) {
-                        // Get the total number of arrays. If this is a macro it will need to be expanded
-                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        result[0] = 2;
                         
                         // Get the size of each internal array ,If this is a macro it will need to be expanded
+                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        
+                        // Get the total number of 2d arrays. If this is a macro it will need to be expanded
                         result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
-                    } else {
-                        result[0] = -1;
-                        result[1] = -1;
-                        result[2] = -1;
+                    }
+                } else if (count == 2) {
+                    // This is a 3d array
+                    String info[] = arrayInfo.split(",");
+                    
+                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty()) &&
+                            (info[2] != null && !info[2].isEmpty())) {
+                        result[0] = 3;
+                        
+                        // Get the size of each internal array. If this is a macro it will need to be expanded
+                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[2], new ArrayList<String>()));
+                        
+                        // Get the total number of 2d arrays. If this is a macro it will need to be expanded
+                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        
+                        // Get the total number of 3d arrays. If this is a macro it will need to be expanded
+                        result[3] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
+                        
                     }
                 }
                 // If it did not fall into the if or the else statement then the input was invalid 

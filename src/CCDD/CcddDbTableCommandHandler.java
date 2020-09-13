@@ -26,14 +26,11 @@ import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 import java.awt.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
@@ -2305,6 +2302,8 @@ public class CcddDbTableCommandHandler {
             isMsgIDChange = false;
             ReferenceCheckResults varRefChk = null;
             ReferenceCheckResults cmdRefChk = null;
+            
+            updateListsAndReferences(parent);
 
             // Get the name of the table to modify and convert the table name to lower case. PostgreSQL automatically
             // does this, so it's done here just to differentiate the table name from the database commands in the event log
@@ -2370,7 +2369,7 @@ public class CcddDbTableCommandHandler {
             StringBuilder command = new StringBuilder((updateFieldInfo ? modifyFieldsCommand(tableInfo.getTablePath(),
                     tableInfo.getFieldInformation()) : "") + (updateDescription ? buildTableDescription(tableInfo.getTablePath(),
                     description) : "") + (updateColumnOrder ? buildColumnOrder(tableInfo.getTablePath(), tableInfo.getColumnOrder())
-                    : ""));
+                    : "") + modifyInternalFieldsTable(additions));
             
             if (command.length() != 0) {
                 dbCommand.executeDbUpdate(command, parent);
@@ -2489,6 +2488,197 @@ public class CcddDbTableCommandHandler {
 
         return errorFlag;
     }
+    
+    /**********************************************************************************************
+     * Update the data fields of any sub-tables that were altered due to the modified tables
+     *
+     * @param datatype           dataType of the tableMod
+     *
+     * @param tableMod           Data for the table modification
+     *
+     * @param variablePath       The path of the variable that was modified
+     *
+     * @return String representing the command that was built to modify the data fields
+     *********************************************************************************************/
+    private String UpdateSubTableDataFields(String dataType, String variablePath, TableModification tableMod) {
+        StringBuilder command = new StringBuilder();
+
+        try {           
+            if (dataType != null && !dataType.isEmpty()) {
+                TableInformation subTableInfo = loadTableData(dataType, false, false, null);
+                if(subTableInfo.getType() == null || subTableInfo.getData() == null){
+                    throw new CCDDException("Type \"" + dataType + "\" is not defined in this database.");
+                }
+                Object[][] subTableData = subTableInfo.getData();
+                
+                // Step through all of the subTableData
+                for (int index = 0; index < subTableData.length; index++) {
+                    // Check that this variable is either a non-array member or if it is an array member
+                    // that it is not the definition
+                    if ((subTableData[index][tableMod.getArraySizeColumn()].toString().isEmpty()) || 
+                            (!subTableData[index][tableMod.getArraySizeColumn()].toString().isEmpty() &&
+                             subTableData[index][tableMod.getVariableColumn()].toString().endsWith("]"))) {
+                        // Get the data type
+                        String subDataType = subTableData[index][tableMod.getDataTypeColumn()].toString();
+                        
+                        // Check if the data type represents a structure
+                        if (!dataTypeHandler.isPrimitive(subDataType)) {
+                            // Get the variable name
+                            String subVariableName = subTableData[index][tableMod.getVariableColumn()].toString();
+    
+                            // Get the variable path
+                            String subVariablePath = variablePath + "," + subDataType + "." + subVariableName;
+                            
+                            // Check to see if this is an array definition. If so do not add its data to the internal
+                            // fields table.
+                            if ((tableMod.getRowData()[tableMod.getArraySizeColumn()].equals("")) || (variablePath.endsWith("]"))) {
+                                // Now build the command to update this tables data fields
+                                command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
+                                    .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType).append("$', E'")
+                                    .append(subVariablePath).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName()).append(", ")
+                                    .append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
+                                    .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ")
+                                    .append(FieldsColumn.FIELD_REQUIRED.getColumnName()).append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
+                                    .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName()).append(", ")
+                                    .append(FieldsColumn.FIELD_INHERITED.getColumnName()).append(" FROM ")
+                                    .append(InternalTable.FIELDS.getTableName()).append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName())
+                                    .append(" = '").append(dataType).append("' AND ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
+                                    .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // TODO add more info and code here
+        }
+        
+        return command.toString();
+    }
+    
+    /**********************************************************************************************
+     * Update the data fields of any sub-tables that were altered due to the modified tables
+     *
+     * @param tableInfo          Table information for the table that is being altered
+     *
+     * @param newVariablePath    The path of the variable that is being modified
+     *
+     * @param dataType           The data type of the variable that is being altered
+     * 
+     * @param variableName       The name of the variable that is being altered
+     * 
+     * @param mod                The table modification data for the variable that is being altered
+     *
+     * @return String representing the command that was built to modify the data fields
+     *********************************************************************************************/
+    private String BuildReferencedVariablesDataFieldsCmd(TableInformation tableInfo, TableModification mod) {
+        StringBuilder command = new StringBuilder();
+        if ((mod.getArraySizeColumn() != -1) && (mod.getDataTypeColumn() != -1) && (mod.getVariableColumn() != -1)) {
+            // If this mod represents a new variable that is being added to the table then we need to assign
+            // the appropriate data fields.
+            boolean found = false;
+            for (int index = 0; index < tableInfo.getData().length; index++) {
+                if (tableInfo.getData()[index][mod.getVariableColumn()].equals(mod.getRowData()[mod.getVariableColumn()])) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Check if a match was found meaning this variable already existed in the table.
+            if (found == false) {
+                // Get the variable path, including its name and data type
+                String dataType = mod.getRowData()[mod.getDataTypeColumn()].toString();
+                String variableName = mod.getRowData()[mod.getVariableColumn()].toString();
+                String variablePath = tableInfo.getTablePath() + "," + dataType + "." + variableName;
+                
+                // Check to see if this is an array definition. If so do not add its data to the internal
+                // fields table. If not update any tables that reference this prototype
+                if (((mod.getRowData()[mod.getArraySizeColumn()].equals("")) || (variablePath.endsWith("]")))) {
+                    // Get all variable names currently stored in the database
+                    List<String> variableNames = variableHandler.getAllVariableNames();
+                    List<String> newVariablePaths = new ArrayList<String>();
+                    
+                    // Check if this is an addition to a prototype table
+                    if (tableInfo.isPrototype()) {
+                        // Since this was a change to a prototype table we will need to check all variable
+                        // names within the database to find all locations where this table is referenced
+                        
+                        // Check if any variable names reference this prototype table
+                        for (int index = 0; index < variableNames.size(); index++) {
+                            String path = variableNames.get(index);
+                            String searchString = ","+tableInfo.getTablePath()+".";
+                            if (path.contains(searchString)) {
+                                // This variable name references the prototype table. Pull out the
+                                // path of the variable that has a data type equal to the prototype
+                                // table.
+                                int position = path.indexOf(searchString);
+                                position = path.indexOf(",", position+1);
+                                
+                                if (position != -1) {
+                                    path = path.substring(0, position);
+                                }
+                                
+                                // Add the variable path to the list. Do not add duplicates
+                                if (!newVariablePaths.contains(path)) {
+                                    newVariablePaths.add(path);
+                                }
+                            }
+                        }
+                        
+                        // Remove any array definitions
+                        for (int index = 0; index < newVariablePaths.size()-1; index++) {
+                            String currRow = newVariablePaths.get(index);
+                            String nextRow = newVariablePaths.get(index+1).replaceAll("\\[[0-9]+]", "");
+                            if (currRow.equals(nextRow)) {
+                                newVariablePaths.remove(index);
+                            }
+                        }
+                        
+                        // Append the data type and name of the row that was added to the prototype table 
+                        for (int index = 0; index < newVariablePaths.size(); index++) {
+                            newVariablePaths.set(index, newVariablePaths.get(index)+","+dataType+"."+variableName);
+                        }
+                    }
+                    
+                    // Check if the new variable is an array definition. If so do not add any data fields.
+                    // Check if the new parent is a root structure. This prevents updating
+                    // the path such that it creates a reference to a child of a non-root
+                    // table, which is invalid
+                    if (rootStructures.contains(tableInfo.getRootTable())) {
+                        if ((mod.getRowData()[mod.getArraySizeColumn()].equals("")) ||
+                                (!mod.getRowData()[mod.getArraySizeColumn()].equals("") &&
+                                        mod.getRowData()[mod.getVariableColumn()].toString().endsWith("]"))) {
+                            newVariablePaths.add(variablePath);
+                        }
+                    }
+                    
+                    // Check if the new variable's data type is a structure table
+                    if (!dataTypeHandler.isPrimitive(dataType)) {
+                        // Update the data fields of any sub-tables that were altered due to the modified tables
+                        command.append(UpdateSubTableDataFields(dataType, variablePath, mod));
+                    }
+                    
+                    for (int index = 0; index < newVariablePaths.size(); index++) {
+                        // Copy all data fields with 'all' or 'child only' applicability from the
+                        // new child table's prototype to the child table
+                        command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
+                                    .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType).append("$', E'")
+                                    .append(newVariablePaths.get(index)).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName()).append(", ")
+                                    .append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
+                                    .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ").append(FieldsColumn.FIELD_REQUIRED.getColumnName())
+                                    .append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(", ")
+                                    .append(FieldsColumn.FIELD_VALUE.getColumnName()).append(", ").append(FieldsColumn.FIELD_INHERITED.getColumnName())
+                                    .append(" FROM ").append(InternalTable.FIELDS.getTableName()).append(" WHERE ")
+                                    .append(FieldsColumn.OWNER_NAME.getColumnName()).append(" = '").append(dataType).append("' AND ")
+                                    .append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
+                                    .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
+                    }
+                }
+            }
+        }
+          
+        return command.toString();
+    }
 
     /**********************************************************************************************
      * Build the command to add table rows. Only prototype tables can have a row
@@ -2524,11 +2714,11 @@ public class CcddDbTableCommandHandler {
         StringBuilder assnsAddCmd = new StringBuilder("");
         StringBuilder linksDelCmd = new StringBuilder("");
         StringBuilder tlmDelCmd = new StringBuilder("");
-
+        
+        /* Retrieve the largest key value in the database for this particular table and then 
+         * add 1 to it. This will be the value used for the next insertion to keep them unique.
+         */
         try {
-            /* Retrieve the largest key value in the database and then add 1 to it. This
-             * will be the value used for the next insert to keep them unique.
-             */
             StringBuilder queryCmd = new StringBuilder();
             queryCmd.append("SELECT _key_ FROM ").append(dbTableName).append(" WHERE _key_ = (SELECT MAX(_key_) FROM ")
                     .append(dbTableName).append(");");
@@ -2578,74 +2768,57 @@ public class CcddDbTableCommandHandler {
 
                 // Check if the new variable's data type is a structure table
                 if (!dataTypeHandler.isPrimitive(dataType)) {
-                    // Copy all data fields with 'all' or 'child only' applicability from the
-                    // new child table's prototype to the child table
-                    fieldsAddCmd.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
-                                .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType).append("$', E'")
-                                .append(newVariablePath).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName()).append(", ")
-                                .append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
-                                .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ").append(FieldsColumn.FIELD_REQUIRED.getColumnName())
-                                .append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(", ")
-                                .append(FieldsColumn.FIELD_VALUE.getColumnName()).append(", ").append(FieldsColumn.FIELD_INHERITED.getColumnName())
-                                .append(" FROM ").append(InternalTable.FIELDS.getTableName()).append(" WHERE ")
-                                .append(FieldsColumn.OWNER_NAME.getColumnName()).append(" = '").append(dataType).append("' AND ")
-                                .append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
-                                .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
-
+                    // Check to see if this is an array definition. If so do not add its data to the internal
+                    // fields table. If not update any tables that reference this prototype
+                    if (((add.getRowData()[add.getArraySizeColumn()].equals("")) || (newVariablePath.endsWith("]")))) {  
+                        fieldsAddCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, add));
+                    }
+                    
                     // Check if this structure data type is currently a root table (i.e., it's
                     // changing from a root to a child)
                     if (rootStructures.contains(dataType)) {
-                        // Check if the new parent is a root structure. This prevents updating
-                        // the path such that it creates a reference to a child of a non-root
-                        // table, which is invalid
+                        // Do not update if this row represents an array definition
                         if (rootStructures.contains(tableInfo.getRootTable())) {
-                            // If the structure chosen as the variable's data type is a root
-                            // structure, then any custom values for this the root structure
-                            // (which becomes a child structure) are transferred to its new
-                            // parent structure. References in the other internal tables are
-                            // also changed to the structure's new path as a child
-                            valuesAddCmd.append("UPDATE ").append(InternalTable.VALUES.getTableName()).append(" SET ")
-                                        .append(ValuesColumn.TABLE_PATH.getColumnName()).append(" = regexp_replace(")
-                                        .append(ValuesColumn.TABLE_PATH.getColumnName()).append(", E'^").append(dataType)
-                                        .append(",', E'").append(newVariablePath).append(",'); ");
-                            
-                            groupsAddCmd.append("UPDATE ").append(InternalTable.GROUPS.getTableName()).append(" SET ")
-                                        .append(GroupsColumn.MEMBERS.getColumnName()).append(" = regexp_replace(")
-                                        .append(GroupsColumn.MEMBERS.getColumnName()).append(", E'^").append(dataType)
-                                        .append("(,|$)', E'").append(newVariablePath).append("\\\\1'); ");
-                            
-                            fieldsAddCmd.append("UPDATE ").append(InternalTable.FIELDS.getTableName()).append(" SET ")
-                                        .append(FieldsColumn.OWNER_NAME.getColumnName()).append(" = regexp_replace(")
-                                        .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType)
-                                        .append(",', E'").append(newVariablePath).append(",'); INSERT INTO ")
-                                        .append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
-                                        .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType)
-                                        .append("', E'").append(newVariablePath).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName())
-                                        .append(", ").append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ")
-                                        .append(FieldsColumn.FIELD_SIZE.getColumnName()).append(", ")
-                                        .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ").append(FieldsColumn.FIELD_REQUIRED.getColumnName())
-                                        .append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(", ")
-                                        .append(FieldsColumn.FIELD_VALUE.getColumnName()).append(" FROM ").append(InternalTable.FIELDS.getTableName())
-                                        .append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName()).append(" = '").append(dataType)
-                                        .append("' AND ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
-                                        .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
-                            
-                            ordersAddCmd.append("UPDATE ").append(InternalTable.ORDERS.getTableName()).append(" SET ")
-                                        .append(OrdersColumn.TABLE_PATH.getColumnName()).append(" = regexp_replace(")
-                                        .append(OrdersColumn.TABLE_PATH.getColumnName()).append(", E'^").append(dataType)
-                                        .append(",', E'").append(newVariablePath).append(",'); INSERT INTO ").append(InternalTable.ORDERS.getTableName())
-                                        .append(" SELECT ").append(OrdersColumn.USER_NAME.getColumnName()).append(", regexp_replace(")
-                                        .append(OrdersColumn.TABLE_PATH.getColumnName()).append(", E'^").append(dataType).append("', E'")
-                                        .append(newVariablePath).append("'), ").append(OrdersColumn.COLUMN_ORDER.getColumnName()).append(" FROM ")
-                                        .append(InternalTable.ORDERS.getTableName()).append(" WHERE ").append(OrdersColumn.TABLE_PATH.getColumnName())
-                                        .append(" = '").append(dataType).append("'; ");
-                            
-                            String orgPathWithChildren = dataType + "(," + PATH_IDENT + ")?";
-                            assnsAddCmd.append("UPDATE ").append(InternalTable.ASSOCIATIONS.getTableName()).append(" SET ")
-                                       .append(AssociationsColumn.MEMBERS.getColumnName()).append(" = regexp_replace(")
-                                       .append(AssociationsColumn.MEMBERS.getColumnName()).append(", E'(?:^").append(orgPathWithChildren)
-                                       .append("|(").append(assnsSeparator).append(")").append(orgPathWithChildren).append(")', E'\\\\2")
-                                       .append(newVariablePath).append("\\\\1\\\\3', 'g'); ");
+                            if ((add.getRowData()[add.getArraySizeColumn()].equals("")) ||
+                                    (!add.getRowData()[add.getArraySizeColumn()].equals("") &&
+                                            add.getRowData()[add.getVariableColumn()].toString().endsWith("]"))) {
+                                // If the structure chosen as the variable's data type is a root
+                                // structure, then any custom values for this the root structure
+                                // (which becomes a child structure) are transferred to its new
+                                // parent structure. References in the other internal tables are
+                                // also changed to the structure's new path as a child
+                                valuesAddCmd.append("UPDATE ").append(InternalTable.VALUES.getTableName()).append(" SET ")
+                                            .append(ValuesColumn.TABLE_PATH.getColumnName()).append(" = regexp_replace(")
+                                            .append(ValuesColumn.TABLE_PATH.getColumnName()).append(", E'^").append(dataType)
+                                            .append(",', E'").append(newVariablePath).append(",'); ");
+                                
+                                groupsAddCmd.append("UPDATE ").append(InternalTable.GROUPS.getTableName()).append(" SET ")
+                                            .append(GroupsColumn.MEMBERS.getColumnName()).append(" = regexp_replace(")
+                                            .append(GroupsColumn.MEMBERS.getColumnName()).append(", E'^").append(dataType)
+                                            .append("(,|$)', E'").append(newVariablePath).append("\\\\1'); ");
+                                
+                                fieldsAddCmd.append("UPDATE ").append(InternalTable.FIELDS.getTableName()).append(" SET ")
+                                            .append(FieldsColumn.OWNER_NAME.getColumnName()).append(" = regexp_replace(")
+                                            .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType)
+                                            .append(",', E'").append(newVariablePath).append(",'); ");
+                                                                
+                                ordersAddCmd.append("UPDATE ").append(InternalTable.ORDERS.getTableName()).append(" SET ")
+                                            .append(OrdersColumn.TABLE_PATH.getColumnName()).append(" = regexp_replace(")
+                                            .append(OrdersColumn.TABLE_PATH.getColumnName()).append(", E'^").append(dataType)
+                                            .append(",', E'").append(newVariablePath).append(",'); INSERT INTO ").append(InternalTable.ORDERS.getTableName())
+                                            .append(" SELECT ").append(OrdersColumn.USER_NAME.getColumnName()).append(", regexp_replace(")
+                                            .append(OrdersColumn.TABLE_PATH.getColumnName()).append(", E'^").append(dataType).append("', E'")
+                                            .append(newVariablePath).append("'), ").append(OrdersColumn.COLUMN_ORDER.getColumnName()).append(" FROM ")
+                                            .append(InternalTable.ORDERS.getTableName()).append(" WHERE ").append(OrdersColumn.TABLE_PATH.getColumnName())
+                                            .append(" = '").append(dataType).append("'; ");
+                                
+                                String orgPathWithChildren = dataType + "(," + PATH_IDENT + ")?";
+                                assnsAddCmd.append("UPDATE ").append(InternalTable.ASSOCIATIONS.getTableName()).append(" SET ")
+                                           .append(AssociationsColumn.MEMBERS.getColumnName()).append(" = regexp_replace(")
+                                           .append(AssociationsColumn.MEMBERS.getColumnName()).append(", E'(?:^").append(orgPathWithChildren)
+                                           .append("|(").append(assnsSeparator).append(")").append(orgPathWithChildren).append(")', E'\\\\2")
+                                           .append(newVariablePath).append("\\\\1\\\\3', 'g'); ");
+                            }
                         }
 
                         // References in the links and telemetry scheduler to the root
@@ -2653,42 +2826,6 @@ public class CcddDbTableCommandHandler {
                         // the new parent structure path, but are instead removed
                         deleteLinkPathRef("^" + dataType + "(?:,|\\\\.|$)", linksDelCmd);
                         deleteTlmPathRef(dataType + "(?:,|\\\\.|$)", tlmDelCmd);
-                    }
-                    
-                    // If the data type is a structure then we will need to check the contents of the table to check 
-                    // if it contains any variables that are also structures. If so the data fields of these sub-table
-                    // will need to be updated as well.
-                    if (dataType != null && !dataType.isEmpty()) {
-                        TableInformation subTableInfo = loadTableData(dataType, false, false, null);
-                        if(subTableInfo.getType() == null || subTableInfo.getData() == null){
-                            throw new CCDDException("Type \"" + dataType + "\" is not defined in this database.");
-                        }
-                        Object[][] subTableData = subTableInfo.getData();
-                        
-                        // Get the data type
-                        String subDataType = subTableData[0][add.getDataTypeColumn()].toString();
-                        
-                        // Check if the data type represents a structure
-                        if (!dataTypeHandler.isPrimitive(subDataType)) {
-                            // Get the variable name
-                            String subVariableName = subTableData[0][add.getVariableColumn()].toString();
-
-                            // Get the variable path
-                            String subVariablePath = newVariablePath + "," + subDataType + "." + subVariableName;
-                            
-                            // Now build the command to update this table
-                            fieldsAddCmd.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
-                                        .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType).append("$', E'")
-                                        .append(subVariablePath).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName()).append(", ")
-                                        .append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
-                                        .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ")
-                                        .append(FieldsColumn.FIELD_REQUIRED.getColumnName()).append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
-                                        .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName()).append(", ")
-                                        .append(FieldsColumn.FIELD_INHERITED.getColumnName()).append(" FROM ")
-                                        .append(InternalTable.FIELDS.getTableName()).append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName())
-                                        .append(" = '").append(dataType).append("' AND ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
-                                        .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
-                        }
                     }
                 }
 
@@ -2789,6 +2926,7 @@ public class CcddDbTableCommandHandler {
                 
         // Retrieve the internal associations table data
         List <String[]> assnsData = retrieveInformationTable(InternalTable.ASSOCIATIONS, false, parent);
+        
         // Create an array of all of the member tables
         String[] assnsMemberTables = new String[assnsData.size()];
         for (int index = 0; index < assnsMemberTables.length; index++) {
@@ -2804,6 +2942,7 @@ public class CcddDbTableCommandHandler {
 
         // Step through each modification
         for (TableModification mod : modifications) {
+            
             // Check if this is a prototype table (modifications are made to the table)
             if (tableInfo.isPrototype()) {
                 // Build the update command
@@ -2871,14 +3010,14 @@ public class CcddDbTableCommandHandler {
                             isVariablePathChange = true;
                         }
 
+                        // Get the variable path
+                        String newVariablePath = tableInfo.getTablePath() + "," + newDataType + "."
+                                + newVariableName;
+                        
                         // Check if the data type has been changed, the new data type is a
                         // structure, and this structure is a root table
                         if (dataTypeChanged && !newDataTypeHandler.isPrimitive(newDataType)
                                 && rootStructures.contains(newDataType)) {
-                            // Get the variable path
-                            String newVariablePath = tableInfo.getTablePath() + "," + newDataType + "."
-                                    + newVariableName;
-
                             // If the structure chosen as the variable's data type is a root
                             // structure, then any references in the internal tables are
                             // changed to the structure's new path as a child
@@ -2957,10 +3096,12 @@ public class CcddDbTableCommandHandler {
                                 // Before making all the changes below make sure that we are not dealing with a shift 
                                 // due to a new row of data being added
                                 boolean wasShifted = false;
+                                boolean variableStillExists = false;
                                 for (int i = 0; i < modifications.size(); i++) {
                                     Object[] rowData = modifications.get(i).getRowData();
                                     String variableName = (String)rowData[(int)modifications.get(i).getVariableColumn()];
                                     if (variableName.contentEquals(oldVariableName)) {
+                                        variableStillExists = true;
                                         // We now know that the variable name is the same so check to see if the data
                                         // type and array size is the same
                                         String dataType = (String)rowData[(int)modifications.get(i).getDataTypeColumn()];
@@ -2984,7 +3125,7 @@ public class CcddDbTableCommandHandler {
                                     // regular expression
                                     String orgVariablePath = tablePath + "," + oldDataType + "." + oldVariableName;
                                     String orgVarPathEsc = CcddUtilities.escapePostgreSQLReservedChars(orgVariablePath);
-                                    String newVariablePath = tablePath + "," + newDataType + "." + newVariableName;
+                                    newVariablePath = tablePath + "," + newDataType + "." + newVariableName;
     
                                     // Check if the variable name changed, or if the data type changed
                                     // from one primitive to another primitive. In either case, check
@@ -3077,7 +3218,8 @@ public class CcddDbTableCommandHandler {
     
                                     // Check if the data type changed from a structure to either a
                                     // primitive or another structure
-                                    if (dataTypeChanged && !dataTypeHandler.isPrimitive(oldDataType)) {
+                                    if (dataTypeChanged && !variableStillExists && 
+                                            !dataTypeHandler.isPrimitive(oldDataType)) {
                                         // Create the command to delete references to any children of
                                         // the original structure path and change the data type for
                                         // references to the structure itself
@@ -3127,7 +3269,8 @@ public class CcddDbTableCommandHandler {
                                     // Check if the variable changed to or from being an array (changes
                                     // only to the array dimension value(s) are handled by the table
                                     // row addition and deletion methods)
-                                    if (arraySizeChanged && (oldArraySize.isEmpty() || newArraySize.isEmpty())) {
+                                    if (arraySizeChanged && !variableStillExists && 
+                                            (oldArraySize.isEmpty() || newArraySize.isEmpty())) {
                                         // Remove all references to the structure's children, but not
                                         // the structure itself
                                         valuesModCmd.append("DELETE FROM ").append(InternalTable.VALUES.getTableName()).append(" WHERE ")
@@ -3180,6 +3323,13 @@ public class CcddDbTableCommandHandler {
                                         // telemetry scheduler tables
                                         deleteLinkAndTlmPathRef(oldArraySize, oldVariableName, orgVariablePath,
                                                 orgVarPathEsc, linksDelCmd, tlmDelCmd);
+                                    }
+                                    
+                                    // If the variable was completely removed from the table then we need to clean up the
+                                    // internal fields table
+                                    if (variableStillExists == false) {
+                                        fieldsModCmd.append("DELETE FROM ").append(InternalTable.FIELDS.getTableName()).append(" WHERE ")
+                                            .append(FieldsColumn.OWNER_NAME.getColumnName()).append(" LIKE '%").append(orgVariablePath).append("%'; ");
                                     }
                                 }
                             }
@@ -3298,6 +3448,10 @@ public class CcddDbTableCommandHandler {
                     }
                 }
             }
+            
+            // If this mod represents a new variable that is being added to the table then we need to assign the appropriate
+            // data fields.
+            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod));
         }
         
         modCmd.append(valuesModCmd).append(groupsModCmd).append(fieldsModCmd).append(ordersModCmd)
@@ -4961,6 +5115,38 @@ public class CcddDbTableCommandHandler {
             command = CcddUtilities.removeTrailer(command, ", ").append("; ");
         }
 
+        return command.toString();
+    }
+    
+    /**********************************************************************************************
+     * Build the command for updating the internal fields table when a root table is modified to be
+     * the child of a new table
+     *
+     * @param additions        All of the tables that are being added to the database
+     *
+     * @return Command for updating the internal fields table
+     *********************************************************************************************/
+    private String modifyInternalFieldsTable(List<TableModification> additions) {
+        StringBuilder command = new StringBuilder();
+        ArrayList<String> processedDataTypes = new ArrayList<String>();
+        
+        for (TableModification add : additions) {
+            // get the data type for this addition
+            String dataType = (String) add.getRowData()[add.getDataTypeColumn()];
+            
+            // Check if this addition represents a root table
+            if (rootStructures.contains(dataType)) {
+                // Ensure that this root table has not already been processed
+                if (!processedDataTypes.contains(dataType)) {
+                    command.append("DELETE from ").append(InternalTable.FIELDS.getTableName())
+                    .append(" WHERE owner_name LIKE '").append(dataType).append(",%'; ");
+                    
+                    // add this data type to the list of processed data types
+                    processedDataTypes.add(dataType);
+                }
+            }
+        }
+        
         return command.toString();
     }
 

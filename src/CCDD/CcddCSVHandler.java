@@ -256,6 +256,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *                     only the data for the first table defined
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -264,7 +267,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingAssociations)
             throws CCDDException, IOException, Exception {
         try {
             /* Init local variables */
@@ -362,10 +365,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 for (int i = 0; i < scriptAssocDefns.length; i++) {
                     /* Split the data into the individual columns */
                     String[] Columns = scriptAssocDefns[i].split(Chars.COMMA.getValue());
+                    
+                    // The code appears to expect 4 columns from the above operation.
+                    // If there are blank entries, there may be only 3 columns
+                    // Handle this by creating the fourth column
+                    String fourthCol = "";
+                    if(Columns.length == 4){
+                        fourthCol = Columns[3];
+                    }
+
                     /* Add the script association, checking for errors */
-                    ignoreErrors = addImportedScriptAssociation(ignoreErrors, associations,
+                    ignoreErrors = addImportedScriptAssociation(ignoreErrors, replaceExistingAssociations, associations,
                             new String[] {Columns[0], Columns[1], Columns[2],
-                                    CcddScriptHandler.convertAssociationMembersFormat(Columns[3], true)},
+                                    CcddScriptHandler.convertAssociationMembersFormat(fourthCol, true)},
                             importFile.getAbsolutePath(), scriptHandler, parent);
                 }
             }

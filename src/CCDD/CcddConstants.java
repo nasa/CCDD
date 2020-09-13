@@ -1987,7 +1987,7 @@ public class CcddConstants {
                 "One or more alphanumeric entries (see Alphanumeric) "
                         + "separated by one or more white space characters"),
         
-        ALPHANUMERIC_INDEXES("Alphanumeric with indexes", "[a-zA-Z_][a-zA-Z0-9_]*([\\[][0-9][\\]])*",
+        ALPHANUMERIC_INDEXES("Alphanumeric with indexes", "[a-zA-Z_][a-zA-Z0-9_]*([\\[][0-9]*[\\]])*",
                 InputTypeFormat.TEXT,
                 "Alphabetic or underscore first character followed by zero "
                         + "or more alphabetic, numeric, and underscore characters followed by indexes"),

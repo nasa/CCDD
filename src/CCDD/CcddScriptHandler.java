@@ -1031,12 +1031,14 @@ public class CcddScriptHandler {
                     .removeHTMLTags(associations.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
 
             // Check if this isn't the current association being added (if applicable), and
-            // the
-            // script and tables match between the two script associations
-            if (row != ignoreRow
-                    && scriptName.equals(associations.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
-                    && CcddUtilities.isArraySetsEqual(tables,
-                            members.isEmpty() ? new String[] {} : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR)))) {
+            // the script and tables match between the two script associations
+            boolean isRowValid = row != ignoreRow;
+            boolean isNameSame = scriptName.equals(associations.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString());
+            // Pull out the string array to compare against. If it is empty, then create an array with an empty entry
+            String[] compareAgainst = members.isEmpty() ? new String[] {""} : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR));
+            boolean isArraySame = CcddUtilities.isArraySetsEqual(tables,compareAgainst);
+            
+            if (isRowValid && isNameSame && isArraySame) {
                 // Store the matching row number and stop searching
                 matchingIndex = row;
                 break;

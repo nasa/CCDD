@@ -517,7 +517,8 @@ public class CcddVariableHandler {
                         if (varPath.matches(".+(?:\\[0\\])+")) {
                             // Add the array definition path (same as that for the first array member,
                             // minus the array index) and offset
-                            structureAndVariablePaths.add(varPath.replaceFirst("(.+)(?:\\[0\\])+", "$1"));
+                            int position = varPath.indexOf("[");
+                            structureAndVariablePaths.add(varPath.substring(0, position));
                             structureAndVariableOffsets.add(offset);
                             isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
     

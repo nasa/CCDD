@@ -1215,11 +1215,22 @@ public class CcddDbVerificationHandler {
                                     cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
                                 }
                                 
-                                /* Add the path with one index. The path with both indexes was already added above at the start
-                                 * of this for loop. Ensure that it is only added once
-                                 */
-                                if (!cleanName.contains(path.substring(0, path.lastIndexOf("[")))) {
-                                    cleanName.add(path.substring(0, path.lastIndexOf("[")));
+                                if (arrayDims.length >= 2) {
+                                    /* Add the path with one/two indexes. The path with both indexes was already added above at the start
+                                     * of this for loop. Ensure that it is only added once
+                                     */
+                                    String modifiedPath = path.substring(0, path.lastIndexOf("["));
+                                    if (!cleanName.contains(modifiedPath)) {
+                                        cleanName.add(modifiedPath);
+                                    }
+                                    
+                                    if (arrayDims.length == 3) {
+                                        /* Add the path with one index. Ensure that it is only added once
+                                         */
+                                        if (!cleanName.contains(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")))) {
+                                            cleanName.add(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")));
+                                        }
+                                    }
                                 }
                             }
                         }

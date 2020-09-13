@@ -3668,7 +3668,9 @@ public abstract class CcddJTableHandler extends JTable {
                 // calculation takes a proportionally longer time to complete. The slider size
                 // ceases to change once it reaches a minimum so calculating past this point is
                 // unnecessary; for this case the recalculation is skipped
-                inLayout = table.getRowCount() < 300;
+                if (table != null) {
+                    inLayout = table.getRowCount() < 300;
+                }
 
                 // Update the table row heights
                 tableChanged(null);

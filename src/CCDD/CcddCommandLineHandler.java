@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
+import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
 import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
@@ -38,6 +39,7 @@ import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary command line argument handler class
@@ -77,6 +79,7 @@ public class CcddCommandLineHandler {
     private boolean ignoreErrors;
     private boolean replaceExistingMacros;
     private boolean replaceExistingGroups;
+    private boolean replaceExistingAssociations;
     private boolean deleteAbsentFiles;
     private boolean backupFirst;
     private boolean includesReservedMsgIds;
@@ -910,7 +913,7 @@ public class CcddCommandLineHandler {
                     if (ccddMain.isGUIHidden()) {                        
                         if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
                             if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), backupFirst, replaceExistingTables,
-                                    appendExistingFields, useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups,
+                                    appendExistingFields, useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
                                     deleteAbsentFiles, includesReservedMsgIds, includesProjectFields, importFileType, dialogType, null)) {
                                 throw new Exception();
                             }
@@ -919,7 +922,7 @@ public class CcddCommandLineHandler {
                              * fails
                              */
                             if (ccddMain.getFileIOHandler().importFile(dataFile, backupFirst, replaceExistingTables, appendExistingFields, useExistingFields,
-                                    openEditor, ignoreErrors, replaceExistingMacros, replaceExistingGroups, dialogType, null)) {
+                                    openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups, dialogType, null)) {
                                 throw new Exception();
                             }
                         } else {
@@ -933,7 +936,7 @@ public class CcddCommandLineHandler {
                         /* Import the table(s) from the specified file in a background thread */
                         ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), false,
                                 replaceExistingTables, appendExistingFields, useExistingFields, openEditor,
-                                ignoreErrors, replaceExistingMacros, replaceExistingGroups, deleteAbsentFiles,
+                                ignoreErrors, replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
                                 includesReservedMsgIds, includesProjectFields, importFileType, dialogType, ccddMain.getMainFrame());
                     }
                 }
@@ -1112,6 +1115,19 @@ public class CcddCommandLineHandler {
                 replaceExistingGroups = (Boolean) parmVal;
             }
         });
+        
+        // Import command - replace existing association values
+        importArgument.add(new CommandHandler("replaceExistingAssociations", "Replace existing script associations",
+                "true or false (default: false)", CommandLineType.OPTION, 0, new Object[] { true, false },
+                new String[] { "true", "false" }) {
+            /**************************************************************************************
+             * Set the flag to replace existing script association values
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal) {
+                replaceExistingAssociations = (Boolean) parmVal;
+            }
+        });
 
         /* Import command - delete files/data from database that does not exist in the
          * import files
@@ -1240,6 +1256,15 @@ public class CcddCommandLineHandler {
                     includeAssociations = true;
                     includeTlmSched = true;
                     includeAppSched = true;
+                }
+                
+                if ((exportFullDatabase == true) || (tablePaths.equals("all"))) {
+                    /* Select all current tables in the database and prepare them for export. */
+                    CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, null);
+                    tableTree.setSelectionInterval(0, tableTree.getRowCount());
+                    List<String> tablePathsList = tableTree.getSelectedTablesWithChildren();
+                                        
+                    tablePaths = tablePathsList.toArray(new String[0]);
                 }
 
                 /* Create the variable path separator array */

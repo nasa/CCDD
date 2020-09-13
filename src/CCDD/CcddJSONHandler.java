@@ -323,6 +323,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *                     only the data for the first table defined
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -331,7 +334,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingAssociations)
             throws CCDDException, IOException, Exception {
         BufferedReader br = null;
 
@@ -495,7 +498,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Step through each script association */
                     for (JSONObject assnJO : parseJSONArray(defn)) {
                         /* Add the script association, checking for errors */
-                        ignoreErrors = addImportedScriptAssociation(ignoreErrors, associations,
+                        ignoreErrors = addImportedScriptAssociation(ignoreErrors, replaceExistingAssociations, associations,
                                 new String[] {getString(assnJO, AssociationsTableColumnInfo.NAME.getColumnName()),
                                         getString(assnJO, AssociationsTableColumnInfo.DESCRIPTION.getColumnName()),
                                         getString(assnJO, AssociationsTableColumnInfo.SCRIPT_FILE.getColumnName()),

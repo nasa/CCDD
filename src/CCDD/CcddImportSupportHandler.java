@@ -451,6 +451,9 @@ public class CcddImportSupportHandler {
      * @param continueOnError current state of the flag that indicates if all script
      *                        association errors should be ignored
      *
+     * @param replaceExistingAssociations true to overwrite internal associations with
+     *                                    those from the import file
+     *
      * @param associations    list of the current script associations
      *
      * @param assnDefn        array containing the script association
@@ -467,7 +470,7 @@ public class CcddImportSupportHandler {
      *                       with the same name but different script file or members
      *                       exists and the user elects to stop the import operation
      *********************************************************************************************/
-    protected boolean addImportedScriptAssociation(boolean continueOnError, List<String[]> associations,
+    protected boolean addImportedScriptAssociation(boolean continueOnError, boolean replaceExistingAssociations, List<String[]> associations,
             String[] assnDefn, String fileName, CcddScriptHandler scriptHandler, Component parent)
             throws CCDDException {
         boolean addAssn = true;
@@ -514,23 +517,37 @@ public class CcddImportSupportHandler {
             addAssn = false;
         }
         // Check if the association name is in use or an association with the same
-        // script file and
-        // members exists
+        // script file and members exists
         else if (nameIndex >= 0 || matchingIndex != -1) {
-            // Set the flag to not store this association since it exists
-            addAssn = false;
+            
+            if(replaceExistingAssociations) {
+                // Find and then overwrite the association
+                for (int i=0; i<associations.size();i++) {
+                    if(associations.get(i)[0].equals(assnDefn[0])) {
+                        associations.set(i, assnDefn);
+                        // Don't add it
+                        addAssn = false;
+                        // Stop searching
+                        break;
+                    }
+                }
+            } else { // Don't accept the new association
 
-            // Check if the associations with the same name and script/members don't have
-            // the same
-            // index
-            if (nameIndex != matchingIndex) {
-                // Check if the error should be ignored or the import canceled
-                continueOnError = getErrorResponse(continueOnError,
-                        "<html><b>Script association '</b>" + assnDefn[AssociationsColumn.NAME.ordinal()]
-                                + "<b>' doesn't match the existing assocation in import file '</b>" + fileName
-                                + "<b>'; continue?",
-                        "Script Association Error", "Ignore this association (keep existing association)",
-                        "Ignore this and any remaining invalid associations (keep existing)", "Stop importing", parent);
+                // Set the flag to not store this association since it exists
+                addAssn = false;
+    
+                // Check if the associations with the same name and script/members don't have
+                // the same
+                // index
+                if (nameIndex != matchingIndex) {
+                    // Check if the error should be ignored or the import canceled
+                    continueOnError = getErrorResponse(continueOnError,
+                            "<html><b>Script association '</b>" + assnDefn[AssociationsColumn.NAME.ordinal()]
+                                    + "<b>' doesn't match the existing assocation in import file '</b>" + fileName
+                                    + "<b>'; continue?",
+                            "Script Association Error", "Ignore this association (keep existing association)",
+                            "Ignore this and any remaining invalid associations (keep existing)", "Stop importing", parent);
+                }
             }
         }
 
