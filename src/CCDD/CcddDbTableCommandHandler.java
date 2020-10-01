@@ -547,6 +547,28 @@ public class CcddDbTableCommandHandler {
     protected String[] queryTableTypesList(Component parent) {
         return dbCommand.getList(DatabaseListCommand.TABLE_TYPES, null, parent);
     }
+    
+    /**********************************************************************************************
+     * Retrieve a list of table type data from the database.
+     *
+     * @param parent GUI component over which to center any error dialog
+     *
+     * @return String array containing the table types in alphabetical order
+     *********************************************************************************************/
+    protected String[][] queryTableTypeDataList(String typeName, Component parent) {
+        return dbCommand.get2DList(DatabaseListCommand.TABLE_TYPE_DATA, typeName, parent);
+    }
+    
+    /**********************************************************************************************
+     * Retrieve a list of all table types names and their descriptions
+     *
+     * @param parent GUI component over which to center any error dialog
+     *
+     * @return 2D String array containing the table type names and their descriptions
+     *********************************************************************************************/
+    protected String[][] queryTableTypeNamesAndDescriptions(Component parent) {
+        return dbCommand.get2DList(DatabaseListCommand.TABLE_TYPE_DESCRIPTIONS, null, parent);
+    }
 
     /**********************************************************************************************
      * Retrieve a list of all tables of a specific type in the database. Any
@@ -4725,6 +4747,11 @@ public class CcddDbTableCommandHandler {
     protected void storeInformationTable(InternalTable intTable, List<String[]> tableData, String tableComment,
             Component parent) {
         storeInformationTable(intTable, tableData, null, null, null, tableComment, parent);
+        
+        // After storing the new information in the internal table make sure that the field handler
+        // is in sync with the current data in the internal table.
+        fieldHandler.buildFieldInformation(parent);
+
     }
 
     /**********************************************************************************************
@@ -5131,18 +5158,20 @@ public class CcddDbTableCommandHandler {
         ArrayList<String> processedDataTypes = new ArrayList<String>();
         
         for (TableModification add : additions) {
-            // get the data type for this addition
-            String dataType = (String) add.getRowData()[add.getDataTypeColumn()];
-            
-            // Check if this addition represents a root table
-            if (rootStructures.contains(dataType)) {
-                // Ensure that this root table has not already been processed
-                if (!processedDataTypes.contains(dataType)) {
-                    command.append("DELETE from ").append(InternalTable.FIELDS.getTableName())
-                    .append(" WHERE owner_name LIKE '").append(dataType).append(",%'; ");
-                    
-                    // add this data type to the list of processed data types
-                    processedDataTypes.add(dataType);
+            if (add.getDataTypeColumn() != -1) {
+                // get the data type for this addition
+                String dataType = (String) add.getRowData()[add.getDataTypeColumn()];
+
+                // Check if this addition represents a root table
+                if (rootStructures.contains(dataType)) {
+                    // Ensure that this root table has not already been processed
+                    if (!processedDataTypes.contains(dataType)) {
+                        command.append("DELETE from ").append(InternalTable.FIELDS.getTableName())
+                        .append(" WHERE owner_name LIKE '").append(dataType).append(",%'; ");
+
+                        // add this data type to the list of processed data types
+                        processedDataTypes.add(dataType);
+                    }
                 }
             }
         }
@@ -5899,14 +5928,10 @@ public class CcddDbTableCommandHandler {
                             fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
                                     add.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                     add.getRowData()[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                    inputTypeHandler.getInputTypeByName(
-                                            add.getRowData()[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
-                                    Integer.parseInt(
-                                            add.getRowData()[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
-                                    Boolean.parseBoolean(
-                                            add.getRowData()[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
-                                    ApplicabilityType.getApplicabilityByName(
-                                            add.getRowData()[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                    inputTypeHandler.getInputTypeByName(add.getRowData()[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                    Integer.parseInt(add.getRowData()[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                    Boolean.parseBoolean(add.getRowData()[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                    ApplicabilityType.getApplicabilityByName(add.getRowData()[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
                                     add.getRowData()[FieldEditorColumnInfo.VALUE.ordinal()].toString(), true, null,
                                     -1));
                         }
@@ -6102,7 +6127,9 @@ public class CcddDbTableCommandHandler {
             }
 
             // Perform the type modification clean-up steps
-            editorDialog.doTypeModificationComplete(errorFlag, editor, tableNames);
+            if (editor != null) {
+                editorDialog.doTypeModificationComplete(errorFlag, editor, tableNames);
+            }
         } catch (Exception e) {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, editorDialog);
@@ -6395,17 +6422,16 @@ public class CcddDbTableCommandHandler {
         final CcddMacroHandler newMacroHandler;
         String changeName;
 
-        // Set to true if the change is to a data type, and false if the change is to a
-        // macro
+        // Set to true if the change is to a data type, and false if the change is to a macro
         boolean isDataType = dialog instanceof CcddDataTypeEditorDialog;
 
         // Check if this is a data type change
         if (isDataType) {
-            // Create new data type, macro, and variable size handlers using the updates
-            // from the
+            // Create new data type, macro, and variable size handlers using the updates from the
             // data type editor
             newDataTypeHandler = new CcddDataTypeHandler(updates);
             newMacroHandler = new CcddMacroHandler(ccddMain, ccddMain.getMacroHandler().getMacroData());
+            newDataTypeHandler.setMacroHandler(newMacroHandler);
             changeName = "Data types";
         }
         // This is a macro change
@@ -6417,8 +6443,7 @@ public class CcddDbTableCommandHandler {
             changeName = "Macros";
         }
 
-        // Create a variable size handler accounting for the updates, then build the
-        // variable paths
+        // Create a variable size handler accounting for the updates, then build the variable paths
         // and offsets lists
         final CcddVariableHandler newVariableHandler = new CcddVariableHandler(ccddMain, newDataTypeHandler,
                 newMacroHandler);
@@ -6470,20 +6495,14 @@ public class CcddDbTableCommandHandler {
 
         List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
 
-        // Flag that indicates that only a data type (macro) name has been altered, or a
-        // data type
-        // size where the new size is not larger than the old size. If this remains true
-        // for all
-        // data type (macro) updates then the project database internal table update
-        // process is
-        // streamlined, making it much faster in cases where the internal tables
-        // reference a large
+        // Flag that indicates that only a data type (macro) name has been altered, or a data type
+        // size where the new size is not larger than the old size. If this remains true for all
+        // data type (macro) updates then the project database internal table update process is
+        // streamlined, making it much faster in cases where the internal tables reference a large
         // number of variables and tables
         boolean nameChangeOnly = true;
 
-        // Storage for the table's data. This is the table data as it exists in the
-        // project
-        // database
+        // Storage for the table's data. This is the table data as it exists in the project database
         List<Object[]> tableData;
 
         // Step through each modification
@@ -6510,11 +6529,21 @@ public class CcddDbTableCommandHandler {
                 // Check if only a data type name has been changed thus far (or if this is the
                 // initial pass)
                 if (nameChangeOnly) {
+                    String originalSize = mod.getOriginalRowData()[DataTypesColumn.SIZE.ordinal()].toString();
+                    String newSize = mod.getRowData()[DataTypesColumn.SIZE.ordinal()].toString();
+                    
+                    // Check to see if a macro was used to define the size of this data type
+                    if (originalSize.contains("##"))
+                    {
+                        originalSize = newMacroHandler.getMacroExpansion(originalSize);
+                    }
+                    if (newSize.contains("##")) {
+                        newSize = newMacroHandler.getMacroExpansion(newSize);
+                    }
                     // Set to false if the size increased or the base type changed; keep equal to
                     // true if only the data type name has changed and the size is no larger
-                    nameChangeOnly = Integer.valueOf(mod.getOriginalRowData()[DataTypesColumn.SIZE.ordinal()]
-                            .toString()) >= Integer.valueOf(mod.getRowData()[DataTypesColumn.SIZE.ordinal()].toString())
-                            && mod.getOriginalRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString()
+                    nameChangeOnly = Integer.valueOf(originalSize) >= Integer.valueOf(newSize) && 
+                            mod.getOriginalRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString()
                                     .equals(mod.getRowData()[DataTypesColumn.BASE_TYPE.ordinal()].toString());
                 }
 
@@ -6539,9 +6568,7 @@ public class CcddDbTableCommandHandler {
                 // Get the references to the updated macro
                 references = macroHandler.getMacroReferences(oldName, dialog).getReferences();
 
-                // Check if only a macro name has been changed thus far (or if this is the
-                // initial
-                // pass)
+                // Check if only a macro name has been changed thus far (or if this is the initial pass)
                 if (nameChangeOnly) {
                     // Set to false if the macro value changes; keep equal to true if only the
                     // macro name has changed
@@ -6624,8 +6651,7 @@ public class CcddDbTableCommandHandler {
                 // Get the reference to the table to shorten subsequent calls
                 CcddJTableHandler table = modifiedTable.getEditor().getTable();
 
-                // Use the table's type to get the index for the table column containing the
-                // data
+                // Use the table's type to get the index for the table column containing the data
                 // type (macro) reference
                 typeDefn = modifiedTable.getEditor().getTableTypeDefinition();
                 int changeColumnIndex = isPrototype ? typeDefn.getColumnIndexByDbName(changeColumn)
@@ -6648,8 +6674,7 @@ public class CcddDbTableCommandHandler {
                 // Check if the data type or macro name changed, or the data type size or base
                 // type, or macro value changed
                 if (isNameChange || isValueChange) {
-                    // Get the table's data (again if a name change occurred since changes were
-                    // made)
+                    // Get the table's data (again if a name change occurred since changes were made)
                     tableData = table.getTableDataList(false);
 
                     // Step through each row
@@ -6677,8 +6702,7 @@ public class CcddDbTableCommandHandler {
                                         if (isNameChange) {
                                             // Check if this is a data type change
                                             if (isDataType) {
-                                                // Check if the cell doesn't contain only the data
-                                                // type name
+                                                // Check if the cell doesn't contain only the data type name
                                                 if (!oldValue.equals(oldName)) {
                                                     // Check if the cell doesn't contain a sizeof()
                                                     // call for the data type
@@ -6693,8 +6717,7 @@ public class CcddDbTableCommandHandler {
                                                     // replacing each sizeof() instance
                                                     while (CcddVariableHandler.hasSizeof(newValue, oldName,
                                                             newMacroHandler)) {
-                                                        // Replace the data type in the sizeof()
-                                                        // call with the new name
+                                                        // Replace the data type in the sizeof() call with the new name
                                                         newValue = newValue.replaceFirst(CcddVariableHandler.getSizeofDataTypeMatch(
                                                                        oldName, macroHandler), "sizeof(" + newName + ")");
                                                     }
@@ -6713,8 +6736,7 @@ public class CcddDbTableCommandHandler {
                                             }
                                         }
 
-                                        // Check if this a change was made to the data type size or
-                                        // base type
+                                        // Check if this a change was made to the data type size or base type
                                         if (isDataType && isValueChange) {
                                             // Check if the data type reference isn't an exact
                                             // match (stand-alone or within a sizeof() call)
@@ -6757,10 +6779,8 @@ public class CcddDbTableCommandHandler {
             // Create a save point in case an error occurs while modifying a table
             dbCommand.createSavePoint(dialog);
 
-            // Check if only a change in data type name, data size (same size or smaller),
-            // or macro
-            // name occurred; if so then the internal table update process is simplified in
-            // order
+            // Check if only a change in data type name, data size (same size or smaller), or macro
+            // name occurred; if so then the internal table update process is simplified in order
             // to speed it up
             if (nameChangeOnly) {
                 // Step through each modification in order to update the variable or macro
@@ -6803,8 +6823,7 @@ public class CcddDbTableCommandHandler {
                     }
                     // This is a macro change
                     else {
-                        // Get the original and updated user-defined macro names (with the
-                        // delimiters)
+                        // Get the original and updated user-defined macro names (with the delimiters)
                         String oldName = CcddMacroHandler.getFullMacroName(mod.getOriginalRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString())
                                 .replaceAll("([\\(\\)])", "\\\\\\\\$1");
                         String newName = CcddMacroHandler.getFullMacroName(mod.getRowData()[MacrosColumn.MACRO_NAME.ordinal()].toString());
@@ -6853,10 +6872,8 @@ public class CcddDbTableCommandHandler {
 
             // Check if this is a macro change and table modifications resulted
             if (!isDataType && !modifiedTables.isEmpty()) {
-                // Rebuild the data field information from the database in the event field
-                // changes
-                // resulted from the macro change (e.g., an array size increased causing fields
-                // to
+                // Rebuild the data field information from the database in the event field changes
+                // resulted from the macro change (e.g., an array size increased causing fields to
                 // be inherited)
                 fieldHandler.buildFieldInformation(dialog);
             }
@@ -6879,8 +6896,7 @@ public class CcddDbTableCommandHandler {
                         dialog);
             }
 
-            // Release the save point. This must be done within a transaction block, so it
-            // must be
+            // Release the save point. This must be done within a transaction block, so itmust be
             // done prior to the commit below
             dbCommand.releaseSavePoint(dialog);
             
