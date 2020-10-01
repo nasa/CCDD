@@ -5132,19 +5132,23 @@ public class CcddDbTableCommandHandler {
         
         for (TableModification add : additions) {
             // get the data type for this addition
-            String dataType = (String) add.getRowData()[add.getDataTypeColumn()];
-            
-            // Check if this addition represents a root table
-            if (rootStructures.contains(dataType)) {
-                // Ensure that this root table has not already been processed
-                if (!processedDataTypes.contains(dataType)) {
-                    command.append("DELETE from ").append(InternalTable.FIELDS.getTableName())
-                    .append(" WHERE owner_name LIKE '").append(dataType).append(",%'; ");
-                    
-                    // add this data type to the list of processed data types
-                    processedDataTypes.add(dataType);
-                }
-            }
+        	int dataTypeColumn = add.getDataTypeColumn();
+        	if (dataTypeColumn != -1)
+        	{
+	            String dataType = (String) add.getRowData()[dataTypeColumn];
+	            
+	            // Check if this addition represents a root table
+	            if (rootStructures.contains(dataType)) {
+	                // Ensure that this root table has not already been processed
+	                if (!processedDataTypes.contains(dataType)) {
+	                    command.append("DELETE from ").append(InternalTable.FIELDS.getTableName())
+	                    .append(" WHERE owner_name LIKE '").append(dataType).append(",%'; ");
+	                    
+	                    // add this data type to the list of processed data types
+	                    processedDataTypes.add(dataType);
+	                }
+	            }
+        	}
         }
         
         return command.toString();
