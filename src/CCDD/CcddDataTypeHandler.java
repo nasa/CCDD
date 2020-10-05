@@ -111,6 +111,15 @@ public class CcddDataTypeHandler {
     protected List<String[]> getDataTypeData() {
         return dataTypes;
     }
+    
+    /**********************************************************************************************
+     * Set/Replace the MacroHandler
+     *
+     * @return None
+     *********************************************************************************************/
+    protected void setMacroHandler(CcddMacroHandler macroHandler) {
+        this.macroHandler = macroHandler;
+    }
 
     /**********************************************************************************************
      * Get a list of the data type names
@@ -159,9 +168,19 @@ public class CcddDataTypeHandler {
         for (int row = 0; row < dataTypes.size(); row++) {
             // Step through each column in the data type definition
             for (int column = 0; column < DataTypeEditorColumnInfo.values().length; column++) {
-                // Store the column value as a string or integer
-                dataTypesArray[row][column] = isInteger(column) ? Integer.valueOf(dataTypes.get(row)[column].toString())
-                        : dataTypes.get(row)[column].toString();
+                // Check to see if we are working with the SIZE column
+                if (isInteger(column)) {
+                    // Check if the value being stored is a macro and if so store it as a string. If not
+                    // then store it as an integer
+                    if (dataTypes.get(row)[column].contains("##")) {
+                        dataTypesArray[row][column] = dataTypes.get(row)[column].toString();
+                    } else {
+                        dataTypesArray[row][column] = Integer.valueOf(dataTypes.get(row)[column].toString());
+                    }
+                } else {
+                    // Store the column value as a string or integer
+                    dataTypesArray[row][column] = dataTypes.get(row)[column].toString();
+                }
             }
         }
 
@@ -276,8 +295,15 @@ public class CcddDataTypeHandler {
 
         // Check if the data type exists
         if (dataType != null) {
-            // Get the associated data type size
-            dataTypeSize = Integer.valueOf(dataType[DataTypesColumn.SIZE.ordinal()]);
+            // Check if the size is defined by a macro
+            if (dataType[DataTypesColumn.SIZE.ordinal()].contains("##")) {
+                dataTypeSize = Integer.valueOf(macroHandler.getMacroExpansion(
+                        dataType[DataTypesColumn.SIZE.ordinal()], new ArrayList<String>()));
+                
+            } else {
+                // Get the associated data type size
+                dataTypeSize = Integer.valueOf(dataType[DataTypesColumn.SIZE.ordinal()]);
+            }
         }
 
         return dataTypeSize;

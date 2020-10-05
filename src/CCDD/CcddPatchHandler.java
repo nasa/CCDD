@@ -11,6 +11,7 @@ import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
@@ -25,14 +26,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
@@ -48,6 +47,7 @@ import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddInputTypeHandler.InputTypeReference;
@@ -67,12 +67,10 @@ public class CcddPatchHandler {
     private final String PATCH_06212018 = "#06212018";
 
     // Patch 11052018 specific variables:
-    // Flag that indicates that part 1 completed successfully, and part 2 should be
-    // performed
+    // Flag that indicates that part 1 completed successfully, and part 2 should be performed
     private boolean patch11052018Continue;
 
-    // Number of data fields that were renamed to prevent a duplicate with an
-    // inherited field
+    // Number of data fields that were renamed to prevent a duplicate with an inherited field
     private int patch11052018RenamedFields;
 
     /**********************************************************************************************
@@ -164,51 +162,36 @@ public class CcddPatchHandler {
      *********************************************************************************************/
     protected void applyPatches(boolean isBeforeHandlerInit) throws CCDDException {
         ///////////////////////////////////////////////////////////////////////////////////////////
-        // *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE ***
-        /////////////////////////////////////////////////////////////////////////////////////////// NOTE
-        /////////////////////////////////////////////////////////////////////////////////////////// ***
-        // Patches are removed after an appropriate amount of time has been given for
-        /////////////////////////////////////////////////////////////////////////////////////////// the
-        /////////////////////////////////////////////////////////////////////////////////////////// patch
-        /////////////////////////////////////////////////////////////////////////////////////////// to
-        // be applied. For now the code is left in place, though commented out, in the
-        /////////////////////////////////////////////////////////////////////////////////////////// event
-        /////////////////////////////////////////////////////////////////////////////////////////// the
+        // *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE ***
+        // Patches are removed after an appropriate amount of time has been given for the patch to
+        // be applied. For now the code is left in place, though commented out, in the event the
         // patch is required for an older database
         ///////////////////////////////////////////////////////////////////////////////////////////
 
         // Check if only patches that must be performed prior to handler initialization
-        // should be
-        // implemented
+        // should be implemented
         if (isBeforeHandlerInit) {
-            // Patch #11052018: PartA - Add a column, field_inherited, to the fields table
-            // that
-            // indicates if the field is owned by a table and is inherited from the table's
-            // type
+            // Patch #11052018: PartA - Add a column, field_inherited, to the fields table that
+            // indicates if the field is owned by a table and is inherited from the table's type
             updateFieldsPart1();
 
             // Patch #07112017: Update the database comment to include the project name with
             // capitalization intact
-            // NOTE: This patch is no longer valid due to changes in the database opening
-            // sequence
+            // NOTE: This patch is no longer valid due to changes in the database opening sequence
             // where the lock status is set
             // updateDataBaseComment();
 
-            // Patch #01262017: Rename the table types table and alter its content to
-            // include the
+            // Patch #01262017: Rename the table types table and alter its content to include the
             // database name with capitalization intact
             // updateTableTypesTable();
         }
-        // Only patches that must be performed after handler initialization should be
-        // implemented
-        else {
-            // Patch #06012019 - Convert command tables to the new command table / command
-            // argument
+        // Only patches that must be performed after handler initialization should be implemented
+        else {            
+            // Patch #06012019 - Convert command tables to the new command table / command argument
             // structure table format
             updateCommandTables();
 
-            // Patch #11052018: Part B - Add inherited fields to tables that don't already
-            // have the
+            // Patch #11052018: Part B - Add inherited fields to tables that don't already have the
             // field
             updateFieldsPart2();
 
@@ -218,8 +201,7 @@ public class CcddPatchHandler {
             // Patch #07242018: Update the database to support user access levels
             updateUserAccess();
 
-            // Patch #08292018: Change the message ID name input type to 'Text' and the
-            // message ID
+            // Patch #08292018: Change the message ID name input type to 'Text' and the  message ID
             // input type to 'Message name & ID' in the table type and data field tables
             updateMessageNamesAndIDs();
 
@@ -227,13 +209,17 @@ public class CcddPatchHandler {
             // "Parents only" to "Roots only"
             // updateFieldApplicability();
 
-            // Patch #07212017: Update the associations table to include a description
-            // column and
+            // Patch #07212017: Update the associations table to include a description column and
             // to change the table separator characters in the member_table column
             // updateAssociationsTable();
 
             // Patch #11132017: Update the associations table to include a name column
             // updateAssociationsTable2();
+            
+            // Patch #10022020: Add the ENUM table type to the internal table types table
+            // and update the size column of the data types internal table to have a type
+            // of text rather than int
+            UpdateTableTypeAndDataTypeTables();
         }
     }
 
@@ -250,25 +236,21 @@ public class CcddPatchHandler {
      *********************************************************************************************/
     private void backupDatabase(CcddDbControlHandler dbControl) throws CCDDException {
         // Set the flag if the current user's password is non-blank. Depending on the
-        // authentication set-up and operating system, the password may still be
-        // required by the
-        // pg_dump command even if the authentication method is 'trust'
+        // authentication set-up and operating system, the password may still be required
+        // by the pg_dump command even if the authentication method is 'trust'
         boolean isPasswordSet = dbControl.isPasswordNonBlank();
 
         // Check if no password is set
         if (!isPasswordSet) {
             // Display the password dialog and obtain the password. Note that the user can
-            // enter a
-            // blank password (which may be valid)
+            // enter a blank password (which may be valid)
             CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain, ServerPropertyDialogType.PASSWORD);
 
             // Set the flag if the user selected the Okay button in the password dialog
             isPasswordSet = dialog.isPasswordSet();
         }
 
-        // Check if the user's database password is set (either non-blank or explicitly
-        // set to
-        // blank)
+        // Check if the user's database password is set (either non-blank or explicitly set to blank)
         if (isPasswordSet) {
             // Check if backing up the project database failed
             if (dbControl.backupDatabase(dbControl.getProjectName(),
@@ -285,6 +267,55 @@ public class CcddPatchHandler {
                     throw new CCDDException("Unable to back up project database");
                 }
             }
+        }
+    }
+    
+    /**********************************************************************************************
+     * The internal data types table is modified so that the 'size' column has a type of 'text'
+     * rather than a size of 'int'. The internal table types table it updated with a new table
+     * type called 'ENUM'
+     *
+     * @throws CCDDException If the user elects to not install the patch or an error
+     *                       occurs while applying the patch
+     *********************************************************************************************/
+    private void UpdateTableTypeAndDataTypeTables() {
+        CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+        CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+        CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+
+        // Get all exisiting type definitions
+        List<TypeDefinition> typeDefinitions = tableTypeHandler.getTypeDefinitions();
+        boolean enumFound = false;
+
+        // Step through each table type definition
+        for (TypeDefinition typeDefn : typeDefinitions) {
+            if (typeDefn.getName().equals(TYPE_ENUM)) {
+                enumFound = true;
+            }
+        }
+        
+        // If an enum table type was not found then add it
+        if (!enumFound) {
+            // Add the table type definition, 0 added as it is not a command argument
+            tableTypeHandler.createReplaceTypeDefinition(TYPE_ENUM, "0ENUM table",
+                    DefaultColumn.getDefaultColumnDefinitions(TYPE_ENUM, false));
+            
+            // Add the new table type to the project database
+            dbTable.modifyTableType(TYPE_ENUM, null, OverwriteFieldValueType.NONE,
+                    new ArrayList<String[]>(0), new ArrayList<String[]>(0), new ArrayList<String[]>(0), false, null,
+                    new ArrayList<TableModification>(0), new ArrayList<TableModification>(0),
+                    new ArrayList<TableModification>(0), null, null);
+        }
+        
+        // Build the command to modify the internal data type table
+        StringBuilder command = new StringBuilder("ALTER TABLE " + InternalTable.DATA_TYPES.getTableName() +
+                " ALTER COLUMN size TYPE text USING size::text;");
+        
+        // Make the changes to the table(s) in the database
+        try {
+            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+        } catch (Exception e) {
+            System.out.println("Failed to update the __data_types table during patch.");
         }
     }
 
@@ -327,9 +358,6 @@ public class CcddPatchHandler {
                 }
             }
             
-
-
-            
             // Check if the patch hasn't been applied
             if (!isPatched) {
                 
@@ -343,13 +371,13 @@ public class CcddPatchHandler {
                 // Create a save point in case an error occurs while applying the patch
                 dbCommand.createSavePoint(ccddMain.getMainFrame());
 		
-                // Simple table to store temporary information about the database
-                // table type. 
+                // Simple table to store temporary information about the database table type. 
                 class DbTableType{
                     DbTableType(String name, String basedUpon, boolean isRate){
                         this.name = name;
                         this.basedUpon = basedUpon;
                         this.isRateEnabled = isRate;
+                        // The 1 is appended to reflect that the table is a command argument
                         this.description = "1Command argument structure reference table definition";
                     }
                     DbTableType(String name, boolean isRate){
@@ -362,7 +390,7 @@ public class CcddPatchHandler {
                     public String description; // The description
                 };
 		
-		                // These pairs contain either a conversion from one type to another or the creation of a new type
+		// These pairs contain either a conversion from one type to another or the creation of a new type
                 List<DbTableType> structures = new ArrayList<>();
                 // Add Structure: Cmd Arg Ref and base it off of the Structure table. Don't include the rate variable
                 structures.add(new DbTableType(CcddConstants.STRUCT_CMD_ARG_REF, CcddConstants.TYPE_STRUCTURE, false));
@@ -398,10 +426,8 @@ public class CcddPatchHandler {
                     List<TypeDefinition> newCommandArgTypes = new ArrayList<TypeDefinition>();
                     int cmdArgStructSeq = 1;
 
-                    // Get the references in the table type and data field internal tables that use
-                    // the
-                    // command reference input type. If a command name, code, or argument is changed
-                    // or
+                    // Get the references in the table type and data field internal tables that use the
+                    // command reference input type. If a command name, code, or argument is changed or
                     // deleted then the tables and fields may require updating
                     ReferenceCheckResults cmdRefChkResults = inputTypeHandler
                             .getInputTypeReferences(DefaultInputType.COMMAND_REFERENCE, ccddMain.getMainFrame());
@@ -414,8 +440,7 @@ public class CcddPatchHandler {
                         // Get the reference to the existing table type definition
                         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinitions().get(typeIndex);
 
-                        // Check if this isn't the command argument structure reference table type just
-                        // added
+                        // Check if this isn't the command argument structure reference table type just added
                         if (!typeDefn.getName().equals(STRUCT_CMD_ARG_REF)) {
                             // Update the type's definition to include the flag that indicates if the
                             // type represents a command argument structure
@@ -482,19 +507,17 @@ public class CcddPatchHandler {
                                         typeDefn.getInputTypesList().set(colIndex, inputTypeHandler
                                                 .getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
 
-                                        // Add the argument name column index to the list of argument
-                                        // columns
+                                        // Add the argument name column index to the list of argument columns
                                         argColGroup.add(colIndex);
 
                                         // Get the column input types
                                         InputType[] inputTypes = typeDefn.getInputTypes();
 
-                                        // Step through the remaining columns defined for this table's
-                                        // type
+                                        // Step through the remaining columns defined for this table's type
                                         for (colIndex++; colIndex < typeDefn.getColumnCountDatabase(); colIndex++) {
                                             typesData.next();
 
-                                        // Check if the column expects a command argument name
+                                            // Check if the column expects a command argument name
                                             if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1)
                                                     .equals("Argument name")) {
                                                 // Change the input type for the argument name to that
@@ -536,12 +559,10 @@ public class CcddPatchHandler {
                                                     .getInputTypeByDefaultType(DefaultInputType.COMMAND_NAME))
                                                     && !inputTypes[colIndex].equals(inputTypeHandler
                                                             .getInputTypeByDefaultType(DefaultInputType.COMMAND_CODE))) {
-                                                // Add the command argument column index to the
-                                                // argument list
+                                                // Add the command argument column index to the argument list
                                                 argColGroup.add(colIndex);
                                             }
-                                            // This column belongs to the command itself and not an
-                                            // argument
+                                            // This column belongs to the command itself and not an argument
                                             else {
                                                 cmdColDefnData.add(typeDefn.getData()[cmdIndex]);
                                                 commandColumns.add(colIndex);
@@ -611,10 +632,9 @@ public class CcddPatchHandler {
                                     DefaultColumn.COMMAND_ARGUMENT.isStructureAllowed(),
                                     DefaultColumn.COMMAND_ARGUMENT.isPointerAllowed() });
 
-                            // Create the command table type with the new command argument column and
-                            // without the individual argument columns. Adjust the name so there is no
-                            // conflict; the name is restored when the original table type is replaced
-                            // by this one
+                            // Create the command table type with the new command argument column and without
+                            // the individual argument columns. Adjust the name so there is no conflict; the
+                            // name is restored when the original table type is replaced by this one
                             TypeDefinition newCmdTypeDefn = tableTypeHandler.createTypeDefinition(typeDefn.getName() + "@",
                                     typeDefn.getColumnToolTips()[0], cmdColDefnData.toArray(new Object[0][0]));
 
@@ -622,8 +642,7 @@ public class CcddPatchHandler {
 
                             // Step through the default columns
                             for (DefaultColumn defCol : DefaultColumn.values()) {
-                                // Check if the current column's type is for a structure (excluding the
-                                // rate column)
+                                // Check if the current column's type is for a structure (excluding the rate column)
                                 if (defCol.getTableType().equals(TYPE_STRUCTURE)
                                         && !defCol.getInputType().equals(DefaultInputType.RATE)) {
                                     // Add the column input type to the list
@@ -636,10 +655,8 @@ public class CcddPatchHandler {
                             for (String commandTableName : dbTable.getAllTablesOfType(typeDefn.getName(), null,
                                     ccddMain.getMainFrame())) {
                                 // Load the command table's information
-                                TableInformation cmdTableInfo = dbTable.loadTableData(commandTableName, true, /*
-                                                                                                               * Load
-                                                                                                               * description?
-                                                                                                               */
+                                TableInformation cmdTableInfo = dbTable.loadTableData(commandTableName,
+                                        true, /* Load description? */
                                         false, /* Load columnOrder? */
                                         ccddMain.getMainFrame());
 
@@ -667,9 +684,8 @@ public class CcddPatchHandler {
                                     List<Object[]> argRefTableData = new ArrayList<Object[]>();
                                     String cmdArgRefTableName = "CmdArgRef_" + commandTableName;
 
-                                    // Create a command argument structure table based on the newly
-                                    // create type. All of the command arguments are stored in this
-                                    // table
+                                    // Create a command argument structure table based on the newly create
+                                    // type. All of the command arguments are stored in this table
                                     if (dbTable.createTable(new String[] { cmdArgRefTableName },
                                             "Command " + commandTableName + " argument structure references",
                                             STRUCT_CMD_ARG_REF, true, ccddMain.getMainFrame())) {
@@ -680,8 +696,7 @@ public class CcddPatchHandler {
                                     TableInformation cmdArgTableInfo = dbTable.loadTableData(cmdArgRefTableName, false,
                                             false, ccddMain.getMainFrame());
 
-                                    // Check if an error occurred loading the command argument
-                                    // structure table
+                                    // Check if an error occurred loading the command argument structure table
                                     if (cmdArgTableInfo.isErrorFlag()) {
                                         throw new CCDDException("Cannot load command argument structure table");
                                     }
@@ -691,10 +706,8 @@ public class CcddPatchHandler {
                                     // commands in this command table
                                     ///////////////////////////////////////////////////////////////////
 
-                                    // Add the default structure column definitions to the list (minus
-                                    // the rate column)
-                                    typeData.addAll(Arrays
-                                            .asList(DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE, false)));
+                                    // Add the default structure column definitions to the list (minus the rate column)
+                                    typeData.addAll(Arrays.asList(DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE, false)));
                                     int typeDataIndex = typeData.size();
 
                                     // Step through each command argument column grouping
@@ -718,8 +731,7 @@ public class CcddPatchHandler {
                                             InputType inputType = typeDefn.getInputTypes()[argCol];
 
                                             // Check if this is the enumeration input type
-                                            if (inputType.getInputName()
-                                                    .equals(DefaultInputType.ENUMERATION.getInputName())) {
+                                            if (inputType.getInputName().equals(DefaultInputType.ENUMERATION.getInputName())) {
                                                 numEnum++;
 
                                                 // Check if this isn't the first enumeration column
@@ -732,12 +744,10 @@ public class CcddPatchHandler {
                                                 }
                                             }
                                             // Check if this is the minimum input type
-                                            else if (inputType.getInputName()
-                                                    .equals(DefaultInputType.MINIMUM.getInputName())) {
+                                            else if (inputType.getInputName().equals(DefaultInputType.MINIMUM.getInputName())) {
                                                 numMin++;
 
-                                                // Check if this isn't the first minimum column (the
-                                                // first is a default)
+                                                // Check if this isn't the first minimum column (the first is a default)
                                                 if (numMin > 1) {
                                                     isAdd = true;
                                                     defCol = DefaultColumn.MINIMUM;
@@ -746,8 +756,7 @@ public class CcddPatchHandler {
                                                 }
                                             }
                                             // Check if this is the maximum input type
-                                            else if (inputType.getInputName()
-                                                    .equals(DefaultInputType.MAXIMUM.getInputName())) {
+                                            else if (inputType.getInputName().equals(DefaultInputType.MAXIMUM.getInputName())) {
                                                 numMax++;
 
                                                 // Check if this isn't the first maximum column (the
@@ -760,16 +769,11 @@ public class CcddPatchHandler {
                                                 }
                                             }
                                             // Check if the column type is not a default column
-                                            else if (!inputType.getInputName()
-                                                    .equals(DefaultInputType.VARIABLE.getInputName())
-                                                    && !inputType.getInputName()
-                                                            .equals(DefaultInputType.PRIM_AND_STRUCT.getInputName())
-                                                    && !inputType.getInputName()
-                                                            .equals(DefaultInputType.PRIMITIVE.getInputName())
-                                                    && !inputType.getInputName()
-                                                            .equals(DefaultInputType.ARRAY_INDEX.getInputName())
-                                                    && !inputType.getInputName()
-                                                            .equals(DefaultInputType.BIT_LENGTH.getInputName())
+                                            else if (!inputType.getInputName().equals(DefaultInputType.VARIABLE.getInputName())
+                                                    && !inputType.getInputName().equals(DefaultInputType.PRIM_AND_STRUCT.getInputName())
+                                                    && !inputType.getInputName().equals(DefaultInputType.PRIMITIVE.getInputName())
+                                                    && !inputType.getInputName().equals(DefaultInputType.ARRAY_INDEX.getInputName())
+                                                    && !inputType.getInputName().equals(DefaultInputType.BIT_LENGTH.getInputName())
                                                     && !typeDefn.getColumnNamesDatabase()[argCol].contains("description")
                                                     && !typeDefn.getColumnNamesDatabase()[argCol].contains("units")) {
                                                 isAdd = true;
@@ -780,8 +784,7 @@ public class CcddPatchHandler {
                                                 isStructureAllowed = typeDefn.isStructureAllowed()[argCol];
                                                 isPointerAllowed = typeDefn.isPointerAllowed()[argCol];
 
-                                                /*
-                                                 * If the name is "Arg 1 Access", "Arg 1 Default Value" or
+                                                /* If the name is "Arg 1 Access", "Arg 1 Default Value" or
                                                  * "Arg 1 Verification Test Num" it will be changed to "Access",
                                                  * "Default Value" and "Verification Test Num". If it is Arg 2 or above it
                                                  * will not be added to the new structure at all. Each argument is now
@@ -801,10 +804,7 @@ public class CcddPatchHandler {
                                                     /* remove the argument number from the description */
                                                     description = description.substring(0, 17) + description.substring(18);
                                                 } else if (columnName.substring(0, 3).equals("Arg")) {
-                                                    /*
-                                                     * If it is Arg 2 or above it will not be added to the new structure at
-                                                     * all
-                                                     */
+                                                    /* If it is Arg 2 or above it will not be added to the new structure at all */
                                                     if (Integer.parseInt(columnName.substring(4, 5)) > 1) {
                                                         isAdd = false;
                                                     }
@@ -813,8 +813,7 @@ public class CcddPatchHandler {
 
                                             // Check if a column needs to be added
                                             if (isAdd) {
-                                                // Check if the column has the same definition as a
-                                                // default column
+                                                // Check if the column has the same definition as a default column
                                                 if (defCol != null) {
                                                     // Check if no column name is set
                                                     if (columnName == null) {
@@ -833,11 +832,9 @@ public class CcddPatchHandler {
                                                     isStructureAllowed = defCol.isStructureAllowed();
                                                     isPointerAllowed = defCol.isPointerAllowed();
                                                 }
-                                                // The column doesn't have the same definition as a
-                                                // default column
+                                                // The column doesn't have the same definition as a default column
                                                 else {
-                                                    // Use the column definition from the command table
-                                                    // type
+                                                    // Use the column definition from the command table type
                                                     columnName = typeDefn.getColumnNamesUser()[argCol];
                                                     description = typeDefn.getColumnToolTips()[argCol];
                                                     isRowValueUnique = typeDefn.isRowValueUnique()[argCol];
@@ -864,8 +861,7 @@ public class CcddPatchHandler {
                                     newCmdArgStructType = null;
 
                                     for (TypeDefinition cmdArgStructType : newCommandArgTypes) {
-                                        // Check if the type definitions have the same number of
-                                        // columns
+                                        // Check if the type definitions have the same number of columns
                                         if (cmdArgStructType.getColumnCountVisible() == typeData.size()) {
                                             boolean isFound = false;
 
@@ -888,8 +884,7 @@ public class CcddPatchHandler {
 
                                                 // Check if no matching column exists
                                                 if (!isFound) {
-                                                    // This type definition isn't a match; stop
-                                                    // searching
+                                                    // This type definition isn't a match; stop searching
                                                     break;
                                                 }
                                             }
@@ -907,11 +902,10 @@ public class CcddPatchHandler {
 
                                     // Check if no matching type definition exists
                                     if (newCmdArgStructType == null) {
-                                        // Create a new command argument structure table type for this
-                                        // command table
+                                        // Create a new command argument structure table type for this command table
                                         newCmdArgStructType = tableTypeHandler.createReplaceTypeDefinition(
                                                 "Structure: Cmd Arg " + cmdArgStructSeq,
-                                                "0Command argument structure table definition",
+                                                "1Command argument structure table definition",
                                                 typeData.toArray(new Object[0][0]));
                                         newCommandArgTypes.add(newCmdArgStructType);
                                         cmdArgStructSeq++;
@@ -992,14 +986,12 @@ public class CcddPatchHandler {
                                                             typeDefn.getInputTypes()[argCol])] = cmdTableInfo
                                                                     .getData()[cmdRow][argCol];
                                                 } catch (Exception e) {
-                                                    /*
-                                                     * this input type no longer exists and the function returns a -1. This
+                                                    /* this input type no longer exists and the function returns a -1. This
                                                      * will catch the -1 and allow the function to continue
                                                      */
                                                 }
 
-                                                // Check if this is the argument variable name and
-                                                // isn't blank
+                                                // Check if this is the argument variable name and isn't blank
                                                 if (!cmdTableInfo.getData()[cmdRow][argCol].toString().isEmpty()
                                                         && typeDefn.getInputTypes()[argCol].equals(inputTypeHandler
                                                                 .getInputTypeByDefaultType(DefaultInputType.VARIABLE))) {
@@ -1050,12 +1042,10 @@ public class CcddPatchHandler {
                                         // Set the argument structure's table data
                                         argTableInfo.setData(argTableData.toArray(new Object[0][0]));
 
-                                        // Build the string of the argument structure table's column
-                                        // names
+                                        // Build the string of the argument structure table's column names
                                         String argColumnNames = "";
 
-                                        // Step through each column name in the argument structure
-                                        // table
+                                        // Step through each column name in the argument structure table
                                         for (String argColumnName : newCmdArgStructType.getColumnNamesDatabaseQuoted()) {
                                             // Add the column name
                                             argColumnNames += argColumnName + ", ";
@@ -1066,13 +1056,11 @@ public class CcddPatchHandler {
 
                                         // Step through each row in the argument structure table's data
                                         for (int argRow = 0; argRow < argTableInfo.getData().length; argRow++) {
-                                            // Begin building the command to populate the argument
-                                            // structure table
+                                            // Begin building the command to populate the argument structure table
                                             argCommand += "INSERT INTO " + cmdName.toLowerCase() + " (" + argColumnNames
                                                     + ") VALUES (" + (argRow + 1) + ", " + (argRow + 1) + ", ";
 
-                                            // Step through each column in the argument structure
-                                            // table's data
+                                            // Step through each column in the argument structure table's data
                                             for (int argColumn = NUM_HIDDEN_COLUMNS; argColumn < argTableInfo
                                                     .getData()[argRow].length; argColumn++) {
                                                 // Store the argument structure value in the command
@@ -1115,12 +1103,10 @@ public class CcddPatchHandler {
                                                 + cmdTableInfo.getData()[cmdRow][DefaultColumn.PRIMARY_KEY.ordinal()] + ", "
                                                 + cmdTableInfo.getData()[cmdRow][DefaultColumn.ROW_INDEX.ordinal()] + ", ";
 
-                                        // Step through each column in the original command table's
-                                        // data
+                                        // Step through each column in the original command table's data
                                         for (int cmdColumn = NUM_HIDDEN_COLUMNS; cmdColumn < cmdTableInfo
                                                 .getData()[cmdRow].length; cmdColumn++) {
-                                            // Check if this column belongs to the command versus to an
-                                            // argument
+                                            // Check if this column belongs to the command versus to an argument
                                             if (commandColumns.contains(cmdColumn)) {
                                                 // Store the command value in the command
                                                 command += CcddDbTableCommandHandler

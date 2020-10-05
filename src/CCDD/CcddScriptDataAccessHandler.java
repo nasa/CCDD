@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.TYPE_ENUM;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -53,6 +54,7 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddCommandHandler.CommandInformation;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
+import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
@@ -4394,7 +4396,54 @@ public class CcddScriptDataAccessHandler {
 
         return schTable.getMessageDefinitionTable();
     }
+    
+    /**********************************************************************************************
+     * Get the names of all tables of type ENUM
+     *
+     * @return Array containing the name of each table of type ENUM
+     *********************************************************************************************/
+    public String[] getEnumTableNames() {
+        return dbTable.getPrototypeTablesOfType(TYPE_ENUM);
+    }
+    
+    /**********************************************************************************************
+     * Get the data associated with the provided table name which is of type ENUM
+     *
+     * @return Array containing the data associated with the named table
+     *********************************************************************************************/
+    public String[] getEnumTableData(String tableName) {
+        int index = 0;
+        int columnNameIndex = 0;
+        
+        /* Store the value of the enum name column in a string and replace any spaces with underlines
+        ** as that is how it would be stored in the database.
+        */ 
+        String enumNameColumn = DefaultColumn.ENUM_NAME.getName().toLowerCase().replace(" ", "_");
 
+        /* Find the index that represents the enum name column */
+        TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(TYPE_ENUM);
+        String[] columnNames = typeDef.getColumnNamesDatabase();
+        
+        for (index = 0; index < columnNames.length; index++) {
+            if (columnNames[index].equals(enumNameColumn)) {
+                columnNameIndex = index;
+            }
+        }
+
+        /* Get the table data */
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        String[] data = new String[tableInfo.getData().length];
+        
+        /* Step though all of the data and pull out all of the enum names */
+        if (columnNameIndex != 0) {
+            for (int i = 0; i < data.length; i++) {
+                data[i] = tableInfo.getData()[i][columnNameIndex].toString();
+            }
+        }
+        
+        return data;
+    }
+    
     /**********************************************************************************************
      * Get the number of time slots in the schedule definition table
      *

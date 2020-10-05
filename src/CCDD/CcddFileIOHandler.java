@@ -1175,7 +1175,7 @@ public class CcddFileIOHandler {
                     /* Import any macro/table type definition found */
                     ioHandler.importTableInfo(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingMacros, replaceExistingTables);
                     
-                    /* Import any input type definition found */
+                    /* Import any input/data type definitions found */
                     ioHandler.importInputTypes(file, ImportType.IMPORT_ALL, ignoreErrors);
                     
                     /* Import any internal table found */
@@ -2031,7 +2031,7 @@ public class CcddFileIOHandler {
             // Paste the data into the table; check if the user canceled importing the table
             // following a cell validation error
             if (tableEditor.getTable().pasteData(cellData.toArray(new String[0]), numColumns, false, true, true, true,
-                    false)) {
+                    false, false)) {
                 eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Import canceled by user"));
                 throw new CCDDException();
             }
@@ -2207,7 +2207,7 @@ public class CcddFileIOHandler {
                         // importing the table following a cell validation error
                         if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]), columnCount,
                                 !overwriteChkBxSelected, !overwriteChkBxSelected, overwriteChkBxSelected,
-                                false, true)) {
+                                false, true, false)) {
                             // Let the user know how many rows were added
                             new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                     "<html><b>" + (tableHandler.getTableModel().getRowCount() - numRows)

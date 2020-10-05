@@ -557,14 +557,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 tableTypeDefns.add(tableTypeDefn);
 
                 // Continue to check while a table type with this name exists. This also adds
-                // the
-                // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null) {
+                // the tab for the new definition to the table type manager, if open
+                List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
+                
+                while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName())) {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Structure " + sequence;
                     tableTypeDefns.get(0).setTypeName(typeName);
                     sequence++;
                 }
+                
+                tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                 // Store the reference to the structure table type definition
                 structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -623,16 +626,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Add the command table type definition
                 tableTypeDefns.add(tableTypeDefn);
-
+                
                 // Continue to check while a table type with this name exists. This also adds
-                // the
-                // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null) {
+                // the tab for the new definition to the table type manager, if open
+                List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
+                
+                while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName())) {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Command " + sequence;
                     tableTypeDefns.get(0).setTypeName(typeName);
                     sequence++;
                 }
+                
+                tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                 // Store the reference to the command table type definition
                 commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);

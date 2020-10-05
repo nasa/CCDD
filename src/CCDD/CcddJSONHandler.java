@@ -132,6 +132,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         this.groupHandler = groupHandler;
         rateHandler = ccddMain.getRateParameterHandler();
         appHandler = ccddMain.getApplicationParameterHandler();
+        setMacroHandler(macroHandler);
 
         tableDefinitions = null;
         associations = null;
@@ -588,6 +589,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Get the table type definition components */
                     String typeName = getString(tableTypeJO, JSONTags.TABLE_TYPE_NAME.getTag());
                     String typeDesc = getString(tableTypeJO, JSONTags.TABLE_TYPE_DESCRIPTION.getTag());
+                    
+                    // If the table type represents a command argument then prepend a '1' to the front of the 
+                    // description. If not then prepend a '0'.
+                    String representsCommandArg = getString(tableTypeJO, JSONTags.TABLE_REPRESENTS_COMMAND_ARG.getTag());
+                    if (representsCommandArg.contentEquals("TRUE")) {
+                        typeDesc = "1"+typeDesc;
+                    } else {
+                        typeDesc = "0"+typeDesc;
+                    }
+                    
                     Object typeColumn = getObject(tableTypeJO, JSONTags.TABLE_TYPE_COLUMN.getTag());
 
                     /* Check if the expected inputs are present */
@@ -658,18 +669,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
                 
-                /* Add the table type if it's new or match it to an existing one with the same
-                 * name if the type definitions are the same
-                 */
-                String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
-
-                /* Check if a table type isn't new and doesn't match an existing one with the
-                 * same name
-                 */
-                if (badDefn != null) {
-                    throw new CCDDException(
-                            "Imported table type '</b>" + badDefn + "<b>' doesn't match the existing definition");
-                }
+                // Add the table type if it's new or update an existing one
+                tableTypeHandler.updateTableTypes(tableTypeDefinitions);
             }
 
             /*************** MACROS ***************/
@@ -1989,8 +1990,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     protected OrderedJSONObject getTableTypeDefinitions(List<String> tableTypeNames, List<String> referencedInputTypes,
             OrderedJSONObject outputJO) {
         // Check if the table type name list is null, in which case all defined table
-        // types are
-        // included
+        // types are included
         if (tableTypeNames == null) {
             tableTypeNames = new ArrayList<String>();
 
@@ -2071,6 +2071,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     tableTypeJO = new OrderedJSONObject();
                     tableTypeJO.put(JSONTags.TABLE_TYPE_NAME.getTag(), refTableType);
                     tableTypeJO.put(JSONTags.TABLE_TYPE_DESCRIPTION.getTag(), tableTypeDefn.getDescription());
+                    tableTypeJO.put(JSONTags.TABLE_REPRESENTS_COMMAND_ARG.getTag(), tableTypeDefn.representsCommandArg());
                     tableTypeJO.put(JSONTags.TABLE_TYPE_COLUMN.getTag(), typeDefnJA);
                     tableTypeJO = getDataFields(CcddFieldHandler.getFieldTypeName(refTableType),
                             JSONTags.TABLE_TYPE_FIELD.getTag(), referencedInputTypes, tableTypeJO);

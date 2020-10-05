@@ -11,25 +11,27 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.TYPE_ENUM;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
-import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
@@ -322,6 +324,15 @@ public class CcddTableTypeHandler {
          *****************************************************************************************/
         protected String getDescription() {
             return columnToolTip.get(0).length() < 2 ? "" : columnToolTip.get(0).substring(1);
+        }
+        
+        /******************************************************************************************
+         * Does the table represent a command?
+         *
+         * @return TRUE or FALSE as a string
+         *****************************************************************************************/
+        protected String representsCommandArg() {
+            return isCommandArgumentStructure() ? "TRUE" : "FALSE";
         }
 
         /******************************************************************************************
@@ -1350,24 +1361,17 @@ public class CcddTableTypeHandler {
      *                       table's field to be renamed and the user elects to
      *                       cancel the update
      *********************************************************************************************/
-    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException {
+    protected void updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException {
         boolean isNewStruct = false;
-        String badType = null;
         isNewField = false;
 
         // Step through each table type definition
         for (TableTypeDefinition tableTypeDefn : tableTypeDefinitions) {
-            // Determine if the table type is new or matches an existing one with the same
-            // name
+            // Determine if the table type is new or matches an existing one with the same name
             TableTypeUpdate typeUpdate = updateTableTypes(tableTypeDefn);
 
-            // Check if the type name matches an existing one but the type definition
-            // differs
             if (typeUpdate == TableTypeUpdate.MISMATCH) {
-                // Store the type name that mismatched and stop processing the table type
-                // definitions and stop checking table types
-                badType = tableTypeDefn.getTypeName();
-                break;
+                buildAndExecuteUpdates(tableTypeDefn);
             }
 
             // Check if the table type is new and represents a structure
@@ -1379,37 +1383,29 @@ public class CcddTableTypeHandler {
 
         // Clear the table type definitions since they have been incorporated
         tableTypeDefinitions.clear();
-
-        // Check if no mismatches occurred
-        if (badType == null) {
-            // Check if the deleted type represents a structure
-            if (isNewStruct) {
-                // Update the database functions that collect structure table members and
-                // structure-defining column data
-                dbControl.createStructureColumnFunctions();
-            }
-
-            // Check if the number of rate columns changed due to the type update
-            if (ccddMain.getRateParameterHandler().setRateInformation()) {
-                // Store the rate parameters in the project database
-                dbTable.storeRateParameters(ccddMain.getMainFrame());
-            }
-
-            // Check if a data field was created for a table type
-            if (isNewField) {
-                // Store the data field table with the additional fields
-                dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null,
-                        ccddMain.getMainFrame());
-            }
+        
+        // Check if a new struct was added
+        if (isNewStruct) {
+            // Update the database functions that collect structure table members and
+            // structure-defining column data
+            dbControl.createStructureColumnFunctions();
         }
 
-        return badType;
+        // Check if the number of rate columns changed due to the type update
+        if (ccddMain.getRateParameterHandler().setRateInformation()) {
+            // Store the rate parameters in the project database
+            dbTable.storeRateParameters(ccddMain.getMainFrame());
+        }
+
+        // Store the data field table with the additional fields
+        dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null,
+                ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
      * Check if specified table type is new or matches an existing one. If new then
      * add the table type. If the table type name matches then compare the type
-     * definitions to ensure the two are the same (ignoring the column descriptions)
+     * definitions to see if they differ
      *
      * @param tableTypeDefn table type definition
      *
@@ -1423,18 +1419,13 @@ public class CcddTableTypeHandler {
      *                       cancel the update
      *********************************************************************************************/
     private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn) throws CCDDException {
-        boolean isAddField = false;
-        boolean isExistingTypeFieldChanged = false;
         TableTypeUpdate typeUpdate = TableTypeUpdate.MATCH;
 
         // Get the type definition based on the type name
         TypeDefinition typeDefn = getTypeDefinition(tableTypeDefn.getTypeName());
 
-        // Check if the table type doesn't already exist, or if no tables exist in the
-        // database for
-        // this type (the existing type will be replaced)
-        if (typeDefn == null
-                || dbTable.queryTablesOfTypeList(typeDefn.getName(), ccddMain.getMainFrame()).length == 0) {
+        // Check if the table type doesn't already exist
+        if (typeDefn == null) {
             // Set the flag indicating the table type is new
             typeUpdate = TableTypeUpdate.NEW;
 
@@ -1442,154 +1433,323 @@ public class CcddTableTypeHandler {
             createReplaceTypeDefinition(tableTypeDefn.getTypeName(), tableTypeDefn.getDescription(),
                     tableTypeDefn.getColumns().toArray(new Object[0][0]));
 
-            // Check if a data field is associated with the new table type
-            if (tableTypeDefn.getDataFields().size() != 0) {
-                // Set the flag to indicate a new data field is added
-                isAddField = true;
-            }
-
             // Check if the table type editor is open
             if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing()) {
                 // Add the new table type tab to the editor
                 ccddMain.getTableTypeEditor().addTypePanes(new String[] { tableTypeDefn.getTypeName() });
             }
-        }
-        // A table type with this name already exists
-        else {
-            // Add the table type with a different name and get a reference to it
-            TypeDefinition altTypeDefn = createReplaceTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
-                    tableTypeDefn.getDescription(), tableTypeDefn.getColumns().toArray(new Object[0][0]));
-
-            // Step through each column name
-            for (String columnName : typeDefn.getColumnNamesUser()) {
-                // Get the index for the column name in the alternate type definition
-                int altIndex = altTypeDefn.getColumnIndexByUserName(columnName);
-
-                // Check if the alternate definition doesn't have a column with this name
-                if (altIndex == -1) {
-                    // Set the flag indicating a mismatch exists and stop searching
-                    typeUpdate = TableTypeUpdate.MISMATCH;
-                    break;
-                }
-
-                // Get the index for the column name in the existing type definition
-                int index = typeDefn.getColumnIndexByUserName(columnName);
-
-                // Check if the column definitions differ
-                if (!typeDefn.getInputTypes()[index].getInputName()
-                        .equals(altTypeDefn.getInputTypes()[altIndex].getInputName())
-                        || !typeDefn.isRowValueUnique()[index].equals(altTypeDefn.isRowValueUnique()[altIndex])
-                        || !typeDefn.isRequired()[index].equals(altTypeDefn.isRequired()[altIndex])
-                        || !typeDefn.isStructureAllowed()[index].equals(altTypeDefn.isStructureAllowed()[altIndex])
-                        || !typeDefn.isPointerAllowed()[index].equals(altTypeDefn.isPointerAllowed()[altIndex])) {
-                    // Set the flag indicating a mismatch exists and stop searching
-                    typeUpdate = TableTypeUpdate.MISMATCH;
-                    break;
-                }
-            }
-
-            // Delete the added type definition
-            getTypeDefinitions().remove(altTypeDefn);
-
-            // Check if no mismatch was detected
-            if (typeUpdate != TableTypeUpdate.MISMATCH) {
-                // Step through each table type data field
-                for (String[] dataField : tableTypeDefn.getDataFields()) {
-                    // Get the reference to the data field from the existing field information
-                    FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(
-                            dataField[FieldsColumn.OWNER_NAME.ordinal()], dataField[FieldsColumn.FIELD_NAME.ordinal()]);
-
-                    // Check if this is a new field
-                    if (fieldInfo == null) {
-                        // Set the flag to indicate a new data field is added, and to an existing
-                        // table type
-                        isAddField = true;
-                        isExistingTypeFieldChanged = true;
-                    }
-                    // Check if the existing field's input type, required state, applicability, or
-                    // value don't match (the description and size are allowed to differ)
-                    else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()]
-                            .equals(fieldInfo.getInputType().getInputName())
-                            || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()]
-                                    .equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
-                            || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                                    .equals(fieldInfo.getApplicabilityType().getApplicabilityName())
-                            || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue())) {
+        } else {
+            // A table type with this name already exists
+            // Get a list of all of the table type names and descriptions
+            String[][] tableTypeNamesAndDescriptions = dbTable.queryTableTypeNamesAndDescriptions(ccddMain.getMainFrame());
+            
+            // Check if the description differs
+            for (String[] entry : tableTypeNamesAndDescriptions) {
+                if (entry[0].equals(tableTypeDefn.getTypeName())) {
+                    if (!entry[1].equals(tableTypeDefn.getDescription())) {
                         // Set the flag indicating a mismatch exists and stop searching
                         typeUpdate = TableTypeUpdate.MISMATCH;
                         break;
                     }
-                    // Check if the field's description or size is changed
-                    else if (!dataField[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
-                            || Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]) != fieldInfo.getSize()) {
-                        // Update the field's description and size. This updates the field
-                        // information in the field handler (pass by reference)
-                        fieldInfo.setDescription(dataField[FieldsColumn.FIELD_DESC.ordinal()]);
-                        fieldInfo.setSize(Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]));
-
-                        // Set the flag to indicate a data field is changed for an existing table
-                        // type
-                        isExistingTypeFieldChanged = true;
-                    }
                 }
             }
-        }
-
-        // Check if no mismatch was detected
-        if (typeUpdate != TableTypeUpdate.MISMATCH) {
-            // Check if a data field was created
-            if (isAddField) {
-                // Add the table type's data field definitions, if any, to the existing field
-                // definitions
-                List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
-                fieldDefns.addAll(tableTypeDefn.getDataFields());
-                fieldHandler.setFieldInformationFromDefinitions(fieldDefns);
-
-                // Set the flag to indicate a new data field is added
-                isNewField = true;
+            
+            // Check each row of the table to see if any of the columns differ
+            if (typeUpdate != TableTypeUpdate.MISMATCH) {
+                // Add the table type with a different name and get a reference to it
+                TypeDefinition altTypeDefn = createReplaceTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
+                        tableTypeDefn.getDescription(), tableTypeDefn.getColumns().toArray(new Object[0][0]));
+                
+                // See if the same number of columns exists, but subtract 2 from typeDefn due to the key and index
+                // being included
+                if (tableTypeDefn.getColumns().size() == (typeDefn.getColumnNamesUser().length-2)) {
+                    // Step through each column name
+                    for (String columnName : typeDefn.getColumnNamesUser()) {
+                        // Get the index for the column name in the alternate type definition
+                        int altIndex = altTypeDefn.getColumnIndexByUserName(columnName);
+        
+                        // Check if the alternate definition doesn't have a column with this name
+                        if (altIndex == -1) {
+                            // Set the flag indicating a mismatch exists and stop searching
+                            typeUpdate = TableTypeUpdate.MISMATCH;
+                            break;
+                        }
+        
+                        // Get the index for the column name in the existing type definition
+                        int index = typeDefn.getColumnIndexByUserName(columnName);
+        
+                        // Check if the column definitions differ
+                        if (!typeDefn.getInputTypes()[index].getInputName()
+                                .equals(altTypeDefn.getInputTypes()[altIndex].getInputName())
+                                || !typeDefn.isRowValueUnique()[index].equals(altTypeDefn.isRowValueUnique()[altIndex])
+                                || !typeDefn.isRequired()[index].equals(altTypeDefn.isRequired()[altIndex])
+                                || !typeDefn.isStructureAllowed()[index].equals(altTypeDefn.isStructureAllowed()[altIndex])
+                                || !typeDefn.isPointerAllowed()[index].equals(altTypeDefn.isPointerAllowed()[altIndex])) {
+                            // Set the flag indicating a mismatch exists and stop searching
+                            typeUpdate = TableTypeUpdate.MISMATCH;
+                            break;
+                        }
+                    }
+                } else {
+                    // Set the flag indicating a mismatch exists and stop searching
+                    typeUpdate = TableTypeUpdate.MISMATCH;
+                }
+                
+                // Delete the added type definition
+                getTypeDefinitions().remove(altTypeDefn);
             }
 
-            // Check if a field was added to or changed for an existing table type
-            if (isExistingTypeFieldChanged) {
-                boolean continueOnDuplicate = false;
-
-                // Get the list of table of this table type
-                List<String> tablesOfType = dbTable.getAllTablesOfType(tableTypeDefn.getTypeName(), null,
-                        ccddMain.getMainFrame());
-
-                // Step through each of the table type's data fields
-                for (FieldInformation typeFldInfo : fieldHandler
-                        .getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()))) {
-                    // Check if the modified default field's name causes a table's existing field
-                    // to be renamed, unless the user has elected to allow renaming
-                    if (!continueOnDuplicate && fieldHandler.checkForDuplicateField(tablesOfType,
-                            typeFldInfo.getFieldName(), typeFldInfo.getInputType().getInputName())) {
-                        // Inform the user that using the field name results in renaming a table's
-                        // field
-                        if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                "<html><b>Imported table type '</b>" + tableTypeDefn.getTypeName()
-                                        + "<b>' data field name '</b>" + typeFldInfo.getFieldName()
-                                        + "<b>' will cause an existing table's field to be renamed; continue?",
-                                "Duplicate Field Name", JOptionPane.WARNING_MESSAGE,
-                                DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON) {
-                            throw new CCDDException();
+            // Check that all of the fields match
+            if (typeUpdate == TableTypeUpdate.MATCH) {
+                // Get the existing data fields
+                List<FieldInformation> currentDataFields = fieldHandler.getFieldInformationByOwner("Type:"+tableTypeDefn.getTypeName());
+                
+                // Check to see if the same number of data fields exist for both the new and existing table type definition
+                if ((currentDataFields == null ) || (currentDataFields.size() != tableTypeDefn.getDataFields().size())) {
+                    // Set the flag indicating a mismatch exists and stop searching
+                    typeUpdate = TableTypeUpdate.MISMATCH;
+                } else {
+                    // Step through each table type data field
+                    for (int i = 0; i < tableTypeDefn.getDataFields().size(); i++) {
+                        String[] dataField = tableTypeDefn.getDataFields().get(i);
+                        
+                        // Check if the existing field's input type, required state, applicability, or
+                        // value don't match (the description and size are allowed to differ)
+                        if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(currentDataFields.get(i).getInputType().getInputName())
+                                || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(
+                                        Boolean.toString(currentDataFields.get(i).isRequired()))
+                                || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
+                                        .equals(currentDataFields.get(i).getApplicabilityType().getApplicabilityName())
+                                || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(currentDataFields.get(i).getValue())
+                                || !dataField[FieldsColumn.FIELD_DESC.ordinal()].equals(currentDataFields.get(i).getDescription())
+                                || Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]) != currentDataFields.get(i).getSize()) {
+                            // Set the flag indicating a mismatch exists and stop searching
+                            typeUpdate = TableTypeUpdate.MISMATCH;
+                            break;
                         }
-
-                        // Set the flag to ignore further duplicates
-                        continueOnDuplicate = true;
-                    }
-
-                    // Step through each table of this type
-                    for (String tablePath : tablesOfType) {
-                        // Add or update the table type field to the table, depending on whether or
-                        // not the table already has the field
-                        fieldHandler.addUpdateInheritedField(fieldHandler.getFieldInformation(), tablePath,
-                                typeFldInfo);
                     }
                 }
             }
         }
 
         return typeUpdate;
+    }
+    
+    /**********************************************************************************************
+     * Compare the current table type data to the committed table type data and
+     * create lists of the changed values necessary to update the table definitions
+     * table in the database to match the current values
+     *
+     * @param newTableTypeDefn table type definition
+     *
+     *********************************************************************************************/
+    private void buildAndExecuteUpdates(TableTypeDefinition newTableTypeDefn) {
+        // Local variables for tracking changes
+        List<String[]> typeAdditions = new ArrayList<String[]>();
+        List<String[]> typeModifications = new ArrayList<String[]>();
+        List<String[]> typeDeletions = new ArrayList<String[]>();
+        
+        // Get the type definition based on the type name
+        TypeDefinition typeDefn = getTypeDefinition(newTableTypeDefn.getTypeName());
+        
+        // Create a 2d Object array for the new type data
+        List<Object[]> typeDataList = newTableTypeDefn.getColumns();
+        Object[][] newTypeData = new Object[typeDataList.size()][];
+        newTypeData = typeDataList.toArray(newTypeData);
+        
+        // Create/replace the type definition. The description is prepended with a '0'
+        // is the table
+        // type doesn't represent a command argument structure, and a '1' if it does
+        createReplaceTypeDefinition(newTableTypeDefn.getTypeName(), newTableTypeDefn.getDescription(),
+                newTypeData);
+        
+        // Create a 2d Object array for the old type data
+        String[][] tempArray = dbTable.queryTableTypeDataList(newTableTypeDefn.getTypeName(), ccddMain.getMainFrame());
+        Object[][] oldTypeData = new Object[tempArray.length][tempArray[0].length];
+        for (int i = 0; i < tempArray.length; i++) {
+            Object[] row = new Object[tempArray[0].length];
+            for (int x = 0; x < tempArray[0].length; x++) {                
+                if (newTypeData[0][x] instanceof Integer) {
+                    row[x] = Integer.parseInt(tempArray[i][x]);
+                } else if (newTypeData[0][x] instanceof Boolean) {
+                    if (tempArray[i][x].equals("t")) {
+                        row[x] = true;
+                    } else {
+                        row[x] = false;
+                    }
+                } else {
+                    row[x] = tempArray[i][x];
+                }
+            }
+            oldTypeData[i] = row;
+        }
+        
+        // Initialize the column order change status
+        boolean columnOrderChange = false;
+        
+        // Create an empty row of data for comparison purposes
+        Object[] emptyRow = FieldEditorColumnInfo.getEmptyRow();
+        
+        // Create storage for flags that indicate if a row has been modified
+        boolean[] rowModified = new boolean[oldTypeData.length];
+        
+        // Step through each row of the current data
+        for (int tblRow = 0; tblRow < newTypeData.length; tblRow++) {
+            boolean matchFound = false;
+
+            // Get the current column name
+            String currColumnName = newTypeData[tblRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString();
+            
+            // Step through each row of the committed data
+            for (int comRow = 0; comRow < oldTypeData.length; comRow++) {
+                // Get the previous column name
+                String prevColumnName = oldTypeData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString();
+                
+                // Check if the committed row hasn't already been matched and if the current and
+                // committed column indices are the same
+                if (!rowModified[comRow] && newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()]
+                        .equals(oldTypeData[comRow][TableTypeEditorColumnInfo.INDEX.ordinal()])) {
+                    // Set the flag indicating this row has a match
+                    matchFound = true;
+                    
+                    // Copy the current row's index into the empty comparison row so that the otherwise
+                    // blank index doesn't register as a difference when comparing the rows below
+                    emptyRow[TableTypeEditorColumnInfo.INDEX.ordinal()] = 
+                            newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
+                    
+                    // Check if the row is not now empty (if empty then the change is processed as
+                    // a row deletion instead of a modification)
+                    if (!Arrays.equals(newTypeData[tblRow], emptyRow)) {
+                        // Set the flag indicating this row has a modification
+                        rowModified[comRow] = true;
+
+                        // Check if the previous and current column definition row is different
+                        if (tblRow != comRow) {
+                            // Set the flag indicating the column order changed
+                            columnOrderChange = true;
+                        }
+
+                        // Get the original and current input type
+                        String oldInputType = oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+                        String newInputType = newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+
+                        // Check if the column name changed or if the input type changed to/from a rate
+                        if (!prevColumnName.equals(currColumnName) || ((newInputType.equals(DefaultInputType.RATE.getInputName())
+                                || oldInputType.equals(DefaultInputType.RATE.getInputName()))
+                                && !newInputType.equals(oldInputType))) {
+                            // The column name is changed. Add the old and new column names and
+                            // input types to the list
+                            typeModifications.add(new String[] { prevColumnName, currColumnName, oldInputType, newInputType });
+                        }
+
+                        // Stop searching since a match exists
+                        break;
+                    }
+                }
+            }
+            
+            // Check if no match was made with the committed data for the current table row
+            if (!matchFound) {
+                // The column definition is being added; add the column name and input type to the list
+                typeAdditions.add(new String[] {currColumnName,
+                        newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
+            }
+        }
+        
+        // Step through each row of the committed data
+        for (int comRow = 0; comRow < oldTypeData.length; comRow++) {
+            // Check if no matching row was found with the current data
+            if (!rowModified[comRow]) {
+                // The column definition has been deleted; add the column name and input type to the list
+                typeDeletions.add(new String[] {oldTypeData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
+                                oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
+            }
+        }
+        
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Build the changes to the table type's data field definitions. To keep things simple we
+        // delete all existing fields and replace them with the new ones.
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        
+        // Lists of table modifications that will be used to update the database
+        List<TableModification> fieldAdditions = new ArrayList<TableModification>();
+        List<TableModification> fieldDeletions = new ArrayList<TableModification>();
+        List<TableModification> fieldModifications = new ArrayList<TableModification>();
+        
+        // Get the existing data fields information and convert it to a list of string arrays for easier use
+        List<FieldInformation> oldDataFieldInformation = fieldHandler.getFieldInformationByOwner("Type:"+newTableTypeDefn.getTypeName());
+        
+        
+        // Get the new data fields
+        List<String[]> newDataFields = newTableTypeDefn.getDataFields();
+        // Convert the new data fields information into a list of FieldInformation objects that 
+        // can be passed to the modifyTable() function.
+        List<FieldInformation> newDataFieldInformation = new ArrayList<FieldInformation>();
+        for (int i = 0; i < newDataFields.size(); i++) {
+            // input_type offset by 1 to account for owner name
+            InputType inputType = new InputType(newDataFields.get(i)[FieldEditorColumnInfo.INPUT_TYPE.ordinal()+1], "", "", "", null, false);
+            ApplicabilityType appType = ApplicabilityType.ALL;
+            if (newDataFields.get(i)[6].equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName())) {
+                appType = ApplicabilityType.ROOT_ONLY;
+            } else if (newDataFields.get(i)[6].equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName())) {
+                appType = ApplicabilityType.CHILD_ONLY;
+            }
+            
+            // All FieldColumns offset by 1 to account for owner name which is the first index of each row of newDataFields
+            FieldInformation currentFieldInformation = new FieldInformation(newDataFields.get(i)[0],
+                    newDataFields.get(i)[FieldEditorColumnInfo.NAME.ordinal()+1],
+                    newDataFields.get(i)[FieldEditorColumnInfo.DESCRIPTION.ordinal()+1], inputType,
+                    Integer.parseInt(newDataFields.get(i)[FieldEditorColumnInfo.CHAR_SIZE.ordinal()+1]),
+                    Boolean.parseBoolean(newDataFields.get(i)[FieldEditorColumnInfo.REQUIRED.ordinal()+1]),
+                    appType, newDataFields.get(i)[FieldEditorColumnInfo.VALUE.ordinal()+1],
+                    Boolean.parseBoolean(newDataFields.get(i)[FieldEditorColumnInfo.INHERITED.ordinal()+1]), null, -1);
+            
+            newDataFieldInformation.add(currentFieldInformation);
+        }
+        
+        Object[][] oldFieldData = CcddFieldHandler.getFieldEditorDefinition(oldDataFieldInformation);
+        Object[][] newFieldData = CcddFieldHandler.getFieldEditorDefinition(newDataFieldInformation);
+        boolean[] oldDataProcessed = new boolean[oldFieldData.length];
+        boolean fieldProcessed = false;
+        
+        // Step through all of the new data fields
+        for (int i = 0; i < newFieldData.length; i++) {
+            // Step though all of the old data fields
+            for (int x = 0; x < oldFieldData.length; x++) {
+                // See if the new data field name matches any of the old data field names 
+                if (newFieldData[i][0].toString().equals(oldFieldData[x][0].toString())) {
+                    if (!Arrays.equals(newFieldData[i], oldFieldData[x])) {
+                        fieldModifications.add(new TableModification(newFieldData[i], oldFieldData[x]));
+                    }
+                    oldDataProcessed[x] = true;
+                    fieldProcessed = true;
+                    break;
+                }
+            }
+            
+            if (fieldProcessed == false) {
+                // if we reach this point no match was found and this is an addition
+                fieldAdditions.add(new TableModification(newFieldData[i], null));
+            }
+            fieldProcessed = false;
+        }
+        
+        // All of the old field data that was matched to a row in the new field data array has an index
+        // within oldDataMatched set to true. If the given index is not true then the old field data no 
+        // longer exists and should be deleted.
+        for (int i = 0; i < oldFieldData.length; i++) {
+            if (oldDataProcessed[i] != true) {
+                // The field definition has been deleted; add the field definition to the list
+                fieldDeletions.add(new TableModification(null, oldFieldData[i]));
+            }
+        }
+
+        // Update the table types within the database
+        dbTable.modifyTableType(newTableTypeDefn.getTypeName(), newDataFieldInformation,
+                OverwriteFieldValueType.NONE, typeAdditions, typeModifications, typeDeletions, columnOrderChange,
+                typeDefn, fieldAdditions, fieldModifications, fieldDeletions, null, null);
+        
+        // Update the fieldHandler
+        fieldHandler.replaceFieldInformationByOwner("Type:"+newTableTypeDefn.getTypeName(), newDataFieldInformation);
     }
 }

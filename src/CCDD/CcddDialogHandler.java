@@ -48,6 +48,12 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FilenameFilter;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -996,9 +1002,26 @@ public class CcddDialogHandler extends JDialog {
             // then
             // split the string at the commas, which now delineate the separate file names
             String[] fileNames = names.replaceAll(",,+", ",").replaceAll("\"+", "").split(",");
+            
+            // Wildcard only available when looking for files (not folders)
+            // Wildcard only possible if there is something entered in the file names
+            // Wildcard only possible if multiple files are being allowed
+            boolean isSearchForWildCard = !folderOnly && fileNames.length > 0 && multipleFiles == true;
+            
+            if(isSearchForWildCard){
+                // Check for a wildcard of type mean *.[type]
+                final String ext = "." + fileExtensions[0].getExtensions()[0].toString();
+                
+                file = searchForWildCard(envVars, chooser, fileNames, ext);
+                // If matches were found, return them, otherwise continue
+                if(file != null){
+                    return file;
+                }
+            }
 
             // Check if the file name text field isn't empty
             if (!fileNames[0].isEmpty()) {
+
                 // Create a file array
                 file = new FileEnvVar[fileNames.length];
 
@@ -1028,6 +1051,66 @@ public class CcddDialogHandler extends JDialog {
             file = null;
         }
 
+        return file;
+    }
+
+    public static FileEnvVar[] searchForWildCard(Map<String, String> envVars,
+            final JFileChooser chooser, String[] fileNames, final String ext) {
+        if(envVars == null || chooser == null || fileNames == null || ext == null){
+            throw new NullPointerException();
+        }
+
+        String wildcard = "*" + ext;
+        boolean isWildCard = fileNames.length == 1
+                && fileNames[0].contains(wildcard);
+        
+        if (isWildCard) {
+            String relativePathToFirst = chooser.getCurrentDirectory()
+                    .getAbsolutePath() + File.separator + fileNames[0];
+            // Find the absolute path (and make sure to fill in any environment
+            // variables too)
+            String absolutePath = FileEnvVar.restoreEnvVars(
+                    relativePathToFirst, envVars);
+            return getAllFilesContaining(absolutePath, ext);
+        }
+        
+        return null;
+    }
+
+    public static FileEnvVar[] getAllFilesContaining(String location, final String containing) {
+        if(location == null || containing == null)
+            throw new NullPointerException();
+        FileEnvVar[] file;
+        // Convert the string to a path (of either a file or folder)
+        Path p = Paths.get(location);
+        Path baseFolder = p;
+        boolean isFile = !p.toFile().isDirectory();
+        if(isFile){
+            // Get the folder
+            baseFolder = p.getParent();
+        }
+
+        // Setup a filter based on the desired match
+        FilenameFilter filt = new FilenameFilter() {
+            @Override
+            public boolean accept(File arg0, String arg1) {
+                return arg1.contains(containing);
+            }
+        };
+
+        // Find all of the files that match the filter
+        File[] foundFiles = baseFolder.toFile().listFiles(filt);
+        
+        // The directory either does not exist or is invalid for some reason
+        if(foundFiles == null)
+            return null;
+
+        // Create a file array
+        file = new FileEnvVar[foundFiles.length];
+        // Find all of the file names
+        for(int i=0;i<foundFiles.length;i++){
+            file[i] = new FileEnvVar(foundFiles[i].getAbsolutePath());
+        }
         return file;
     }
 

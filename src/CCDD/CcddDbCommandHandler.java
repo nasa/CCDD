@@ -25,6 +25,7 @@ import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DbCommandType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary database command handler class
@@ -144,8 +145,6 @@ public class CcddDbCommandHandler {
      *********************************************************************************************/
     private Object executeDbStatement(DbCommandType commandType, StringBuilder command, Component component)
             throws SQLException {
-        // System.out.println("\nexecuteDbStatement: " + command.substring(0,
-        // Math.min(command.length(), 20)) + " ..."); // TODO
         Object result = null;
 
         // Log the command
@@ -240,13 +239,11 @@ public class CcddDbCommandHandler {
                 }
                 // The server is connected. Shouldn't be able to get to this
                 else {
-                    System.out.println("   how did it get here? throw"); // TODO
+                    System.out.println("Command that failed: " + command.toString());
                     throw new SQLException(se3.getMessage());
                 }
             }
         }
-        // System.out.println(" exit"); // TODO
-
         return result;
     }
 
@@ -368,5 +365,63 @@ public class CcddDbCommandHandler {
         }
 
         return list.toArray(new String[0]);
+    }
+    
+    /**********************************************************************************************
+     * Retrieve a 2D list from the server or database. The command strings are set up
+     * to explicitly sort the list alphabetically, without regard to capitalization
+     *
+     * @param listType   type of list to be retrieved
+     *
+     * @param listOption array containing replacement text within a command; null if
+     *                   none is needed
+     *
+     * @param parent     GUI component over which to center any error dialog
+     *
+     * @return String array containing the requested list items in alphabetical
+     *         order; an empty array if no items exist
+     *********************************************************************************************/
+    protected String[][] get2DList(DatabaseListCommand listType, String typeName, Component parent) {
+        // Create a list to contain the query results
+        List<String[]> list = new ArrayList<String[]>();
+        int counter = 0;
+
+        try {
+            StringBuilder command = new StringBuilder(listType.getListCommand(null));
+            
+            // Execute the command and obtain the results
+            if (listType == DatabaseListCommand.TABLE_TYPE_DATA) {
+                command.append(typeName).append("';");
+            }
+            ResultSet resultSet = executeDbQuery(command, parent);
+
+            // Check if the query failed
+            if (resultSet == null) {
+                throw new SQLException("list query returned null ResultSet");
+            }
+
+            // Step through each of the results
+            while (resultSet.next()) {
+                if (listType == DatabaseListCommand.TABLE_TYPE_DESCRIPTIONS) {
+                    String[] results = {resultSet.getString(1), resultSet.getString(2)};
+                    // Add the results
+                    list.add(results);
+                } else {
+                    // Get the result
+                    String[] results = {Integer.toString(counter), resultSet.getString(1), resultSet.getString(2), resultSet.getString(3),
+                            resultSet.getString(4), resultSet.getString(5), resultSet.getString(6), resultSet.getString(7)};
+                    list.add(results);
+                    counter++;
+                }
+            }
+
+            resultSet.close();
+        } catch (SQLException se) {
+            // Inform the user that the list retrieval failed
+            eventLog.logFailEvent(parent, "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
+                    "<html><b>Cannot retrieve " + listType + " list");
+        }
+
+        return list.toArray(new String[0][0]);
     }
 }

@@ -777,16 +777,19 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Add the structure table type definition
                 tableTypeDefns.add(tableTypeDefn);
-
+                
                 // Continue to check while a table type with this name exists. This also adds
-                // the
-                // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null) {
+                // the tab for the new definition to the table type manager, if open
+                List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
+                
+                while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName())) {
                     // Alter the name so that there isn't a duplicate
                     typeName = "XTCE Structure " + sequence;
                     tableTypeDefns.get(0).setTypeName(typeName);
                     sequence++;
                 }
+                
+                tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                 // Store the reference to the structure table type definition
                 structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -845,16 +848,19 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Add the command table type definition
                 tableTypeDefns.add(tableTypeDefn);
-
+                
                 // Continue to check while a table type with this name exists. This also adds
-                // the
-                // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null) {
+                // the tab for the new definition to the table type manager, if open
+                List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
+                
+                while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName())) {
                     // Alter the name so that there isn't a duplicate
                     typeName = "XTCE Command " + sequence;
                     tableTypeDefns.get(0).setTypeName(typeName);
                     sequence++;
                 }
+                
+                tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                 // Store the reference to the command table type definition
                 commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);

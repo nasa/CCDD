@@ -21,6 +21,7 @@ import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.awt.Component;
@@ -7243,9 +7244,8 @@ public class CcddDbTableCommandHandler {
         for (String type : tableTypeHandler.getTableTypeNames()) {
             boolean isOfType;
 
-            // Check if the table type matches the one specified. Note that all structure
-            // types are
-            // handled as one, as are all command types and all 'other' types
+            // Check if the table type matches the one specified. Note that all structure types
+            // are handled as one, as are all command types and all 'other' types
             switch (tableType) {
             case TYPE_STRUCTURE:
                 isOfType = tableTypeHandler.getTypeDefinition(type).isStructure();
@@ -7253,6 +7253,10 @@ public class CcddDbTableCommandHandler {
 
             case TYPE_COMMAND:
                 isOfType = tableTypeHandler.getTypeDefinition(type).isCommand();
+                break;
+
+            case TYPE_ENUM:
+                isOfType = type.equals(tableType);
                 break;
 
             case TYPE_OTHER:

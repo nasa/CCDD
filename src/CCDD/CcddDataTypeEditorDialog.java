@@ -644,6 +644,12 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                                         throw new CCDDException("Type Name \"" + newValueS + "\" already in use. Please use a unique Type Name");
                                     }
                                 }
+                                
+                                // Must also check that there are no tables with this name in the database
+                                if (dbTable.isTableExists(newValueS, ccddMain.getMainFrame())) {
+                                    throw new CCDDException("Type Name \"" + newValueS + "\" already in use. Please use a unique Type Name");
+                                }
+                                
                             }
 
                             // Check if the data type user name has been changed
@@ -690,14 +696,22 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                         }
                         // Check if this is the data type size column
                         else if (column == DataTypeEditorColumnInfo.SIZE.ordinal()) {
+                            // Get the size. If this is a macro it will need to be expanded
+                            String result = macroHandler.getMacroExpansion(newValueS, new ArrayList<String>());
+                            
                             // Check if the data type size is not a positive integer
-                            if (!newValueS.matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
+                            if (!result.matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
                                 throw new CCDDException("Data type size must be a positive integer");
                             }
 
                             // Remove any unneeded characters and store the cleaned number
-                            tableData.get(row)[column] = Integer
-                                    .valueOf(newValueS.replaceAll(DefaultInputType.INT_POSITIVE.getInputMatch(), "$1"));
+                            if (result.equals(newValueS)) {
+                                tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(
+                                        DefaultInputType.INT_POSITIVE.getInputMatch(), "$1"));
+                            } else {
+                                tableData.get(row)[column] = newValueS;
+                                newValueS = result;
+                            }
                         }
                         // Check if this is the data type base type column
                         else if (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal()) {
@@ -722,6 +736,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                             }
                         }
 
+                        // Expand the old value if it is a macro
+                        oldValueS = macroHandler.getMacroExpansion(oldValueS, new ArrayList<String>());
+                        
                         // Check if the size was reduced for an integer (signed or unsigned) type
                         // or if the base data type changed from an integer (signed or unsigned) to
                         // a non-integer
@@ -971,10 +988,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
      *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction() {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // there are changes that haven't been stored. If changes exist then confirm
-        // discarding the
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been stored. If changes exist then confirm discarding the
         // changes
         if (dataTypeTable.isLastCellValid() && (!dataTypeTable.isTableChanged(committedData)
                 || new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this, "<html><b>Discard changes?",

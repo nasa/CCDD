@@ -85,6 +85,7 @@ import javax.swing.text.JTextComponent;
 import CCDD.CcddClassesComponent.CellSelectionHandler;
 import CCDD.CcddClassesComponent.ModifiableColor;
 import CCDD.CcddClassesComponent.SelectedCell;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -2894,7 +2895,7 @@ public abstract class CcddJTableHandler extends JTable {
                     }
 
                     // Paste the data from the clipboard into the table
-                    pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true);
+                    pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true, true);
                 } catch (Exception e) {
                     CcddUtilities.displayException(e, table);
                 }
@@ -2944,7 +2945,7 @@ public abstract class CcddJTableHandler extends JTable {
      *         validation error
      *********************************************************************************************/
     protected boolean pasteData(Object[] cellData, int numColumns, boolean isInsert, boolean isAddIfNeeded,
-            boolean startFirstColumn, boolean combineAsSingleEdit, boolean highlightPastedData) {
+            boolean startFirstColumn, boolean combineAsSingleEdit, boolean highlightPastedData, boolean dataComingFromClipboard) {
         Boolean showMessage = true;
         int modelRow = 0;
 

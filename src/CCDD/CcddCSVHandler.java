@@ -559,16 +559,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     NewTableTypeDefinitions.add(TableTypeDefn);
                 }
                 
-                /* Add the table type if it's new or match it to an existing one with the same
-                 * name if the type definitions are the same
-                 */
-                String badDefn = tableTypeHandler.updateTableTypes(NewTableTypeDefinitions);
-
-                /* Check if a table type isn't new and doesn't match an existing one with the same name */
-                if (badDefn != null) {
-                    throw new CCDDException(
-                            "Imported table type '</b>" + badDefn + "<b>' doesn't match the existing definition");
-                }
+                // Add the table type if it's new or update an existing one
+                tableTypeHandler.updateTableTypes(NewTableTypeDefinitions);
             }
             
             /********************* MACROS *********************/

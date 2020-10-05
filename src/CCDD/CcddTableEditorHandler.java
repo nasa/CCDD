@@ -19,6 +19,7 @@ import static CCDD.CcddConstants.PAD_VARIABLE_MATCH;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
@@ -2624,12 +2625,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
              *************************************************************************************/
             @Override
             protected boolean pasteData(Object[] cellData, int numColumns, boolean isInsert, boolean isAddIfNeeded,
-                    boolean overWriteExisting, boolean combineAsSingleEdit, boolean highlightPastedData) {
+                    boolean overWriteExisting, boolean combineAsSingleEdit, boolean highlightPastedData, boolean dataComingFromClipboard) {
                 // Init local variables
                 Boolean showMessage = true;
                 int skippedRows = 0;
                 int endColumn = numColumns - 1;
                 int startRow = 0;
+                int startColumn = 0;
                 List<Object[]> tableData;
                 int variableNameColumn = -1;
                 int arraySizeColumn = -1;
@@ -2655,9 +2657,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 // Calculate the number of rows to be pasted in the open table 
                 int endRow = cellData.length / numColumns;
                 
-                // Clear the cell selection
-                clearSelection();
-                
                 // Here is where the new ArrayList of objects, tableData, that represents what the new table will look like is
                 // created. Each index in the list represents a single row of data that will be inserted into the table
                 if (!overWriteExisting) {
@@ -2665,13 +2664,35 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     // that already exists.
                     tableData = oldData;
                     
-                    // Adjust the endRow variable to account for the rows that already exist + the ones that will be appended.
-                    // So endRow = (current number of rows) + (number of rows to be appended)
-                    endRow = endRow + tableData.size();
-                    
-                    // The starting row should be right after the last row of currently existing data in the table. This means 
-                    // we will start processing at the first row of imported data and leave the rest as is.
-                    startRow = tableData.size();
+                    // This data is not coming from the clipboard
+                    if (!dataComingFromClipboard) {
+                        // Adjust the endRow variable to account for the rows that already exist + the ones that will be appended.
+                        // So endRow = (current number of rows) + (number of rows to be appended)
+                        endRow = endRow + tableData.size();
+                        
+                        // The starting row should be right after the last row of currently existing data in the table. This means 
+                        // we will start processing at the first row of imported data and leave the rest as is.
+                        startRow = tableData.size();
+                    } 
+                    // This data is coming from the clipboard. Meaning it was copied and pasted
+                    else {
+                        // Check if no row is selected
+                        if (getSelectedRow() != -1)
+                        {
+                            // Determine the starting row for pasting the data based on the selected row
+                            startRow = convertRowIndexToModel(getSelectedRow())
+                                       + getSelectedRowCount() - 1;
+                        }
+                        
+                        // Determine the ending row for pasting the data
+                        endRow = startRow + endRow;
+                        
+                        // Determine the starting column and ending column for pasting the data. If no
+                        // column is selected then default to the first column. Data pasted outside of the
+                        // column range is ignored
+                        startColumn = Math.max(Math.max(getSelectedColumn(), 0), getSelectedColumn() + getSelectedColumnCount() - 1);
+                        endColumn = endColumn + startColumn;
+                    }
                 } else {
                     // We are overwriting the data in the table so we start with an empty ArrayList as we do not care what data
                     // currently exists within the table
@@ -2988,7 +3009,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                             }
 
                             // Step through the columns, beginning at the one with the focus
-                            for (int column = 0; column <= endColumn && showMessage != null; column++) {
+                            for (int column = startColumn; column <= endColumn && showMessage != null; column++) {
                                 // Check that the column falls within the bounds of the table. If
                                 // outside the bounds or protected then discard the value
                                 if (column < getColumnCount()) {
@@ -3035,6 +3056,28 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                             if (!oldValue.equals(newValue) && !(isInsert && newValue.toString().isEmpty())) {
                                                 // Insert the value into the cell
                                                 tableData.get(row)[columnModel] = newValue;
+                                                
+                                                // Check if the values in this column must not be duplicated
+                                                if (typeDefn.isRowValueUnique()[columnModel]) {
+                                                    try {
+                                                        // Step through each row in the table
+                                                        for (int otherRow = 0; otherRow < tableData.size(); otherRow++) {
+                                                            // Check if this isn't the row being/ edited, and if the cell value
+                                                            // matches the one being added (case insensitive)
+                                                            String test = getExpandedValueAt(tableData, otherRow, columnModel);
+                                                            if (otherRow != row && newValue.toString().equalsIgnoreCase(test)) {
+                                                                throw new CCDDException("Invalid input value in table '</b>"
+                                                                        + currentTableInfo.getTablePath() + "<b>' for column '</b>"
+                                                                        + typeDefn.getColumnNamesUser()[columnModel] + "<b>'; value must be unique: '" + newValue + "'");
+                                                            }
+                                                        }
+                                                    } catch (Exception e) {
+                                                        // Insert the value into the cell
+                                                        tableData.get(row)[columnModel] = "";
+                                                        // Display a dialog providing details on the unanticipated error
+                                                        CcddUtilities.displayException(e, parent);
+                                                    }
+                                                }
                                             }
                                         } 
                                         // TODO: The code below needs to be refactored to account for when the data is not alterable. Currently it will set it equal 
@@ -3784,22 +3827,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
     private void addStructuresToComboBox(PaddedComboBox comboBox) {
         // Check if any structure tables exist
         if (allPrototypeStructureTables != null && allPrototypeStructureTables.length != 0) {
-            // Sort the array of structure table names alphabetically, ignoring case. This
-            // ordering
-            // should match the ordering in the table tree (which is determined by a
-            // PostgreSQL
+            // Sort the array of structure table names alphabetically, ignoring case. This ordering
+            // should match the ordering in the table tree (which is determined by a PostgreSQL
             // sort), and is the order displayed in the combo box
             Arrays.sort(allPrototypeStructureTables, String.CASE_INSENSITIVE_ORDER);
 
-            // Create the list of invalid prototype structure table names by extracting
-            // every
+            // Create the list of invalid prototype structure table names by extracting every
             // prototype name from the table's path
             invalidDataTypes = new ArrayList<String>();
 
-            // Check if this is a prototype structure table. The array size and bit length
-            // can only
-            // be altered in a prototype, so there's no need to exclude any data types from
-            // the
+            // Check if this is a prototype structure table. The array size and bit length can only
+            // be altered in a prototype, so there's no need to exclude any data types from the
             // list of valid types for an instance table
             if (currentTableInfo.isPrototype() && typeDefn.isStructure()) {
                 // Add the table to the invalid list - a table can't reference itself
@@ -3841,6 +3879,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     validStructureDataTypes.add(prototypeStructure);
                     validDataTypes.add(prototypeStructure);
                     comboBox.addItem(prototypeStructure);
+                }
+            }
+
+            // Get all tables of type enum
+            String[] enumTables = dbTable.getPrototypeTablesOfType(TYPE_ENUM);
+            // Step through each prototype ENUM table name
+            for (String prototypeEnum : enumTables) {
+                // Check if the prototype structure is valid
+                if (!invalidDataTypes.contains(prototypeEnum)) {
+                    // Add the prototype structure table name to the valid types (primitive &
+                    // structure and structure only) and combo box lists
+                    validStructureDataTypes.add(prototypeEnum);
+                    validDataTypes.add(prototypeEnum);
+                    comboBox.addItem(prototypeEnum);
                 }
             }
         }

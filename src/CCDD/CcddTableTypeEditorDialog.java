@@ -1197,9 +1197,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
             // Build the table updates based on the type definition changes
             editor.buildUpdates();
 
-            // Recreate the table type definitions table in the database and update the
-            // affected
-            // table(s)
+            // Recreate the table type definitions table in the database and update the affected table(s)
             dbTable.modifyTableTypeInBackground(editor.getTypeName(), activeEditor.getPanelFieldInformation(),
                     getOverwriteFieldType(), editor.getTypeAdditions(), editor.getTypeModifications(),
                     editor.getTypeDeletions(), editor.isColumnOrderChange(), editor.getTypeDefinition(),

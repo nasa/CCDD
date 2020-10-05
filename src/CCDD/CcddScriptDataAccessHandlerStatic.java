@@ -36,9 +36,7 @@ public class CcddScriptDataAccessHandlerStatic {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Following are the static calls to the non-static versions of the public
-    /////////////////////////////////////////////////////////////////////////////////////////////// access
-    /////////////////////////////////////////////////////////////////////////////////////////////// methods
+    // Following are the static calls to the non-static versions of the public access methods
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     public static String getScriptName() {
@@ -691,6 +689,14 @@ public class CcddScriptDataAccessHandlerStatic {
 
     public static String[] getApplicationMessageDefinitionTable() {
         return accessHandler.getApplicationMessageDefinitionTable();
+    }
+    
+    public static String[] getEnumTableNames() {
+        return accessHandler.getEnumTableNames();
+    }
+    
+    public static String[] getEnumTableData(String tableName) {
+        return accessHandler.getEnumTableData(tableName);
     }
 
     public static int getNumberOfTimeSlots() {

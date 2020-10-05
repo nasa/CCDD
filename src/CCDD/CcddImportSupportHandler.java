@@ -32,6 +32,7 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeFormat;
+import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -54,6 +55,8 @@ public class CcddImportSupportHandler {
     // variable name for the command function code
     protected String applicationIDName;
     protected String cmdFuncCodeName;
+    
+    protected static CcddMacroHandler macroHandler;
 
     // Basic primitive data types
     protected static enum BasePrimitiveDataType {
@@ -86,6 +89,15 @@ public class CcddImportSupportHandler {
         protected String getDefaultVariableName() {
             return defaultVariableName;
         }
+    }
+    
+    /**********************************************************************************************
+     * Set the macro handler
+     *
+     * @param None
+     *********************************************************************************************/
+    void setMacroHandler(CcddMacroHandler macroHandler) {
+        this.macroHandler = macroHandler;
     }
 
     /**********************************************************************************************
@@ -892,6 +904,8 @@ public class CcddImportSupportHandler {
      * @throws CCDDException If an invalid data type parameter is detected
      *********************************************************************************************/
     protected static void checkDataTypeDefinition(String[] dataTypeDefn) throws CCDDException {
+        String size = dataTypeDefn[DataTypesColumn.SIZE.ordinal()];
+        
         // Check if the data type names are both empty
         if (dataTypeDefn[DataTypesColumn.C_NAME.ordinal()].isEmpty()
                 && dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty()) {
@@ -899,8 +913,11 @@ public class CcddImportSupportHandler {
             throw new CCDDException("Data type user and C names missing");
         }
 
-        // Check if the data type size isn't valid
-        if (!dataTypeDefn[DataTypesColumn.SIZE.ordinal()].matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
+        // Check if the data type size is a macro and if it is valid
+        if (size.contains("##")) {
+            size = macroHandler.getMacroExpansion(dataTypeDefn[DataTypesColumn.SIZE.ordinal()]);
+        }
+        if (!size.matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
             // Inform the user that the data type size is invalid
             throw new CCDDException(
                     "Data type '" + CcddDataTypeHandler.getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],

@@ -105,6 +105,7 @@ public class CcddConstants {
     // Default table type names
     protected static final String TYPE_STRUCTURE = "Structure";
     protected static final String TYPE_COMMAND = "Command";
+    protected static final String TYPE_ENUM = "ENUM";
     protected static final String TYPE_OTHER = "Other";
 
     // Default telemetry and command argument structure reference table type names
@@ -1771,7 +1772,7 @@ public class CcddConstants {
      *********************************************************************************************/
     protected static enum BaseDataTypeInfo {
         SIGNED_INT("signed integer"), UNSIGNED_INT("unsigned integer"), FLOATING_POINT("floating point"),
-        CHARACTER("character"), POINTER("pointer");
+        CHARACTER("character"), POINTER("pointer"), STRUCTURE("structure"), ENUM("enum");
 
         private final String name;
 
@@ -2351,7 +2352,13 @@ public class CcddConstants {
                 false, false, false, true, false),
 
         COMMAND_ARGUMENT(TYPE_COMMAND, "Command Argument", "Command argument variable reference",
-                DefaultInputType.COMMAND_ARGUMENT, true, false, true, false, false, true);
+                DefaultInputType.COMMAND_ARGUMENT, true, false, true, false, false, true),
+        
+        ENUM_NAME(TYPE_ENUM, "ENUM Name", "ENUM name", DefaultInputType.VARIABLE, true, true, true,
+                false, true, true),
+        
+        DESCRIPTION_ENUM(TYPE_ENUM, COL_DESCRIPTION, "ENUM description", DefaultInputType.DESCRIPTION,
+                false, false, false, true, true, true);
 
         private final String tableType;
         private final String columnName;
@@ -2985,7 +2992,7 @@ public class CcddConstants {
          * Data types table columns
          *****************************************************************************************/
         protected static enum DataTypesColumn {
-            USER_NAME("user_name", "text"), C_NAME("c_name", "text"), SIZE("size", "integer"),
+            USER_NAME("user_name", "text"), C_NAME("c_name", "text"), SIZE("size", "text"),
             BASE_TYPE("base_type", "text"), OID("index", "text");
 
             private final String columnName;
@@ -5176,7 +5183,8 @@ public class CcddConstants {
     protected static enum JSONTags {
         FILE_DESCRIPTION("File Description"), DATA_TYPE_DEFN("Data Type Definition"),
         TABLE_TYPE_DEFN("Table Type Definition"), TABLE_TYPE_NAME("Table Type Name"),
-        TABLE_TYPE_DESCRIPTION("Table Type Description"), TABLE_TYPE_COLUMN("Table Type Column"),
+        TABLE_TYPE_DESCRIPTION("Table Type Description"), TABLE_REPRESENTS_COMMAND_ARG("Table Represents Command Argument"),
+        TABLE_TYPE_COLUMN("Table Type Column"),
         TABLE_TYPE_FIELD("Table Type Data Field"), MACRO_DEFN("Macro Definition"),
         RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"), VARIABLE_PATH("Variable Path"),
         MESSAGE_ID("Message ID Owner, Name, and Value"), TABLE_DEFN("Table Definition"), TABLE_NAMES("Table Names"),
@@ -5286,8 +5294,7 @@ public class CcddConstants {
         // Get the list of PostgreSQL keywords
         KEYWORDS("SELECT * FROM pg_get_keywords()"),
 
-        // Get the list of tables of type '_type_', sorted alphabetically. '_type_' must
-        // be
+        // Get the list of tables of type '_type_', sorted alphabetically. '_type_' must be
         // replaced by the type of table for which to search. _type_ is case insensitive
         TABLES_OF_TYPE("SELECT name FROM (SELECT split_part(obj_description, ',', "
                 + (TableCommentIndex.NAME.ordinal() + 1) + ") AS name, lower(split_part(obj_description, ',', "
@@ -5299,9 +5306,22 @@ public class CcddConstants {
         TABLE_TYPES("SELECT DISTINCT " + TableTypesColumn.TYPE_NAME.getColumnName() + " FROM "
                 + InternalTable.TABLE_TYPES.getTableName() + " ORDER BY " + TableTypesColumn.TYPE_NAME.getColumnName()
                 + ";"),
+        
+        // Get all table type names and their descriptions
+        TABLE_TYPE_DESCRIPTIONS("SELECT " + TableTypesColumn.TYPE_NAME.getColumnName() + ", " + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
+                + " FROM " + InternalTable.TABLE_TYPES.getTableName() + " WHERE " + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName()
+                + " LIKE '" + DefaultColumn.PRIMARY_KEY.getName() +"';"),
+        
+        // Get table type data
+        TABLE_TYPE_DATA("SELECT " + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName() + ", " + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
+                + ", " + TableTypesColumn.INPUT_TYPE.getColumnName() + ", " + TableTypesColumn.ROW_VALUE_UNIQUE.getColumnName() + ", "
+                + TableTypesColumn.COLUMN_REQUIRED.getColumnName() + ", " + TableTypesColumn.STRUCTURE_ALLOWED.getColumnName() + ", "
+                + TableTypesColumn.POINTER_ALLOWED.getColumnName() + " FROM " + InternalTable.TABLE_TYPES.getTableName() + " WHERE "
+                + TableTypesColumn.COLUMN_NAME_DB.getColumnName() + " NOT LIKE '%" + DefaultColumn.PRIMARY_KEY.getName().toLowerCase() +"%' AND "
+                + TableTypesColumn.COLUMN_NAME_DB.getColumnName() + " NOT LIKE '%" + DefaultColumn.ROW_INDEX.getName().toLowerCase() +"%' AND "
+                + TableTypesColumn.TYPE_NAME.getColumnName() + " LIKE '"),
 
-        // Get the list of table names, variable paths, and descriptions (only for those
-        // tables
+        // Get the list of table names, variable paths, and descriptions (only for those tables
         // with descriptions), sorted alphabetically
         TABLE_DESCRIPTIONS("SELECT " + ValuesColumn.TABLE_PATH.getColumnName() + " || E'"
                 + Matcher.quoteReplacement(TABLE_DESCRIPTION_SEPARATOR) + "' || " + ValuesColumn.VALUE.getColumnName()
