@@ -87,3 +87,11 @@ Below is a brief description of what has changed from version 2.0.22 to 2.0.23.
 * Fixed a few issues that were causing array members not to update during an import if they were a member of a non-root prototype table.
 * Added new functionality to CCDD so that a user can now import new table type or changes to an existing table type if they wish. All associated files will be updated during the import. 
 * Updated the users guide to include information related to the new 'tablepaths' option and the new 'replaceExistingAssociations' flags.
+
+
+*** Version 2.0.24 has been released ***
+
+* CCDD has 2 new data types which can be assigned in the data type manager which are 'Structure' and 'Enum'. The Structure data type was added so that users do not have to define a table for every 'Structure' based data type they wish to use. So if you have a Structure that is not defined within your database, like CFE structures that are often shared, but you wish to assign the type to a variable you can now add that type to the data type manager without creating a table and defining all the elements that the structure consists of. The same goes for the 'Enum' type but this can be used for 'typedef enum' structures. 
+* A new table type was added to CCDD called 'Enum'. This new table allows users to store the names of all of the enums that make up a 'typedef enum' structure. Once this table is defined users can assign the data type to any variable they wish.
+* Two new data access methods were added for the new 'Enum' table type so that a user can retrieve all defined Enum tables and their members via scripts. More details available in the users guide.
+* The copy and paste functionality has been fixed. 
