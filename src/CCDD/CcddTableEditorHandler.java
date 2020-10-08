@@ -2638,6 +2638,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 int numOfArrayMembersVerified = 0;
                 List<Object[]> oldData = getTableDataList(false);
                 
+                // Step though cell data and ensure that there are no blanks. If so set them to null
+                for (int index = 0; index < cellData.length; index++) {
+                    if ((cellData[index] != null) && (cellData[index].toString().equals(""))) {
+                        cellData[index] = null;
+                    }
+                }
+                
                 // Check to see if the old data was not correctly loaded. If not try another method
                 if ((oldData == null || oldData.isEmpty()) && dbTable.isTableExists(committedTableInfo.getTablePath(), parent)) {
                     TableInformation example = dbTable.loadTableData(committedTableInfo.getTablePath(), false, false, ccddMain.getMainFrame());

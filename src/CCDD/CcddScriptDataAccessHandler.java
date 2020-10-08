@@ -944,8 +944,11 @@ public class CcddScriptDataAccessHandler {
                     tableName = TableInformation.getPrototypeName(tableName);
                 }
 
+                tableTypeHandler.getTypeDefinition(tableName);
+                List<String> enumTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_ENUM));
+                
                 // Check if the table name hasn't been added to the list
-                if (!names.contains(tableName)) {
+                if (!names.contains(tableName) && !enumTables.contains(tableName)) {
                     // Store the table name
                     names.add(tableName);
                 }
@@ -1899,8 +1902,7 @@ public class CcddScriptDataAccessHandler {
                 // Add the last structure as the first one in the ordered list
                 orderedNames.add(allStructs.get(allStructs.size() - 1));
 
-                // Step backwards through the list of all structures beginning with the next to
-                // the
+                // Step backwards through the list of all structures beginning with the next to the
                 // last structure in the list
                 for (int index = allStructs.size() - 2; index >= 0; index--) {
                     // Add the structure name to the list

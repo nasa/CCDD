@@ -462,8 +462,20 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     String TableTypeDescription = Chars.EMPTY_STRING.getValue() + Rows[0].split(Chars.COMMA.getValue())[1]
                             .replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
                     
-                    /* Check that both the name and description are defined. */
-                    if (Rows[0].split(Chars.COMMA.getValue()).length == 2) {
+                    boolean representsCmdArgument = Boolean.parseBoolean(Rows[0].split(Chars.COMMA.getValue())[2]
+                            .replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue()));
+                    
+                    /* If this table type represents a command argument then append a 1 to the description.
+                     * If not append a 0 
+                     */
+                    if (representsCmdArgument) {
+                        TableTypeDescription = "1"+TableTypeDescription;
+                    } else {
+                        TableTypeDescription = "0"+TableTypeDescription;
+                    }
+                    
+                    /* Check that both the name, description and rather or not the table represents a command is all defined. */
+                    if (Rows[0].split(Chars.COMMA.getValue()).length == 3) {
                         /* Create a new table type definition */
                         TableTypeDefn = new TableTypeDefinition(TableTypeName, TableTypeDescription);
                     } else {
@@ -1958,7 +1970,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                 /* Output the table type tag, and the type name and description */
                 pw.printf("\n" + CSVTags.TABLE_TYPE.getTag() + "\n%s\n", CcddUtilities
-                        .addEmbeddedQuotesAndCommas(tableTypeDefn.getName(), tableTypeDefn.getDescription()));
+                        .addEmbeddedQuotesAndCommas(tableTypeDefn.getName(), tableTypeDefn.getDescription(), tableTypeDefn.representsCommandArg()));
 
                 /* Step through each column defined for the table type, skipping the primary
                  * key and row index columns
