@@ -92,7 +92,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         PROJECT_DATA_FIELD("_project_data_field_", "_project_data_fields_"),
         VARIABLE_PATHS("_variable_path_", "_variable_paths_"), GROUP("_group_", null),
         GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"), SCRIPT_ASSOCIATION("_script_association_", null),
-        APP_SCHEDULER("_app_sched_", null), TELEM_SCHEDULER("_telem_sched_", null);
+        APP_SCHEDULER("_app_sched_", null), TELEM_SCHEDULER("_telem_sched_", null), RATE_INFO("_rate_info_", null);
 
         private final String tag;
         private final String alternateTag;
@@ -305,7 +305,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             
             /********************* TELEMETRY SCHEDULER *********************/
-            /* TODO: This is not fully working yet */
             if (content.contains(CSVTags.TELEM_SCHEDULER.getTag())) {
                 /* Extract the telemetry scheduler data */
                 int beginIndex = content.indexOf(CSVTags.TELEM_SCHEDULER.getTag());
@@ -317,23 +316,34 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     telemData = content.substring(beginIndex, endIndex);
                 }
                 
-                telemData = telemData.replace(CSVTags.TELEM_SCHEDULER.getTag()+Chars.NEW_LINE_CHAR.getValue(),
-                        Chars.EMPTY_STRING.getValue());
+                /* Remove the telem sched tag */
+                telemData = telemData.replace(CSVTags.TELEM_SCHEDULER.getTag(), Chars.EMPTY_STRING.getValue());
+                /* Remove the rate info tag */
+                telemData = telemData.replace(CSVTags.RATE_INFO.getTag(), Chars.COMMA.getValue());
+                /* Remove any new line characters */
+                telemData = telemData.replace(Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Remove all double quotes */
                 telemData = telemData.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
-                /* Strip any remaining new line characters */
-                telemData = telemData.replace(Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Split the data into the individual columns */
                 String[] Columns = telemData.split(Chars.COMMA.getValue());
                 /* Extract the information from each column */
-                int maxMsgsPerSec = Integer.parseInt(Columns[0]);
-                int maxSecPerMsg = Integer.parseInt(Columns[1]);
-                boolean includeUneven = Boolean.valueOf(Columns[2]);
+                int maxSecPerMsg = Integer.parseInt(Columns[0]);
+                int maxMsgsPerSec = Integer.parseInt(Columns[1]);
+                boolean includeUneven = Boolean.valueOf(Columns[2]);                
+                
+                String[] rateDataStreamNames = new String[1];
+                rateDataStreamNames[0] = Columns[4];
+                
+                int[] maximumMessagesPerCycle = new int[1];
+                maximumMessagesPerCycle[0] = Integer.parseInt(Columns[5]);
+                
+                int[] maximumBytesPerSecond = new int[1];
+                maximumBytesPerSecond[0] = Integer.parseInt(Columns[6]);
                 
                 /* Set and store the rate parameters obtained from the JSON file */
                 /* TODO: three of these are blank strings. Not sure how to handle them yet */
-                rateHandler.setRateParameters(maxSecPerMsg, maxMsgsPerSec, null,
-                        null, null, includeUneven, parent);
+                rateHandler.setRateParameters(maxSecPerMsg, maxMsgsPerSec, rateDataStreamNames,
+                        maximumMessagesPerCycle, maximumBytesPerSecond, includeUneven, parent);
             }
             
             /********************* SCRIPT ASSOCIATIONS *********************/
@@ -384,7 +394,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
             /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("1Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
 
         return;
@@ -681,7 +691,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
             /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("2Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         return;
     }
@@ -843,7 +853,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
             /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("3Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         return;
     }
@@ -1722,7 +1732,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 String[] Temp = Groups[index].split(":\\[");
                                 
                                 /* Parse the table names in this group and the group name */
-                                String[] Names = Temp[1].split("],");
+                                String[] Names = Temp[1].split("],\"Group Name");
                                 /* Add the Group Name */
                                 FinalOutput += Names[1].split(",")[0].split(":")[1] + ",";
                                 /* Add the Description */
@@ -1826,21 +1836,47 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             CSVData = outputJO.toString();
                             CSVData = CSVData.replace("{\"Telemetry Scheduler Comments\":[{", "");
                             CSVData = CSVData.replace("}]}", "");
-                            String[] TelemData = CSVData.split(",");
+                            
+                            /* Separate the data into non-rate and rate information */
+                            String[] data = CSVData.split("Rate Information");
+                            String nonRateData = data[0].substring(0, data[0].length()-2);
+                            String rateData = data[1];
+                            
+                            String[] telemData = nonRateData.split(",");
                             FinalOutput += "\n" + CSVTags.TELEM_SCHEDULER.getTag() + "\n";
-                            for (int index = 0; index < TelemData.length; index++) {
-                                String[] splitTelem = TelemData[index].split(":");
+                            for (int index = 0; index < telemData.length; index++) {
+                                String[] splitTelem = telemData[index].split(":");
                                 String valueToAdd = "";
                                 /* Make sure that the values exist */
                                 if(splitTelem.length > 1)
                                     valueToAdd = splitTelem[1];
                                 
-                                if (index != TelemData.length -1) {
+                                if (index != telemData.length -1) {
                                     FinalOutput += valueToAdd + ",";
                                 } else {
+                                    FinalOutput += valueToAdd;
+                                }
+                            }
+                            
+                            rateData = rateData.replace(":[{", "").replace("]}", "");
+                            String[] rateInfoData = rateData.split(",");
+                            
+                            FinalOutput += "\n" + CSVTags.RATE_INFO.getTag() + "\n";
+                            for (int index = 0; index < rateInfoData.length; index++) {
+                                String[] splitTelem = rateInfoData[index].split(":");
+                                String valueToAdd = "";
+                                /* Make sure that the values exist */
+                                if(splitTelem.length > 1)
+                                    valueToAdd = splitTelem[1];
+                                
+                                if (index != rateInfoData.length -1) {
+                                    FinalOutput += valueToAdd + ",";
+                                } 
+                                else {
                                     FinalOutput += valueToAdd + "\n";
                                 }
                             }
+                            
                             break;
             
                         case APPSCHEDULER:

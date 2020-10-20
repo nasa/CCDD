@@ -1104,7 +1104,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     Object dataFieldsJA = getObject(tableJO, JSONTags.TABLE_FIELD.getTag());
 
                     /* Check if the expected inputs are present */
-                    if (!tableName.isEmpty() && tableDataJA != null && tableDataJA instanceof JSONArray
+                    if (!tableName.isEmpty() && (tableDataJA == null || tableDataJA instanceof JSONArray)
                             && (dataFieldsJA == null || dataFieldsJA instanceof JSONArray)) {
                         /* Create a new table type definition */
                         TableDefinition tableDefn = new TableDefinition(tableName, tableDesc);
@@ -1129,41 +1129,43 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                          */
                         int numColumns = typeDefn.getColumnCountVisible();
 
-                        /* Create storage for the row of cell data */
-                        String[] rowData = new String[numColumns];
-
-                        /* Step through each row of data in the table */
-                        for (JSONObject rowDataJO : parseJSONArray(tableDataJA)) {
-                            /* Initialize the column values to blanks */
-                            Arrays.fill(rowData, null);
-
-                            /* Step through each key (column name) */
-                            for (Object columnName : rowDataJO.keySet()) {
-                                /* Get the column index based on the column name */
-                                int column = typeDefn.getVisibleColumnIndexByUserName(columnName.toString());
-
-                                /* Check if a column by this name exists */
-                                if (column != -1) {
-                                    /* Get the value from the JSON input, if present; use a blank
-                                     * if a value for this column doesn't exist
-                                     */
-                                    rowData[column] = getString(rowDataJO, typeDefn.getColumnNamesVisible()[column]);
-                                } else {
-                                    /* The number of inputs is incorrect. Check if the error should be ignored or
-                                     * the import canceled
-                                     */
-                                    ignoreErrors = getErrorResponse(ignoreErrors,
-                                            "<html><b>Table '</b>" + tableName + "<b>' column name '</b>" + columnName
-                                                    + "<b>' unrecognized in import file '</b>"
-                                                    + importFile.getAbsolutePath() + "<b>'; continue?",
-                                            "Column Error", "Ignore this invalid column name",
-                                            "Ignore this and any remaining invalid column names", "Stop importing",
-                                            parent);
+                        if (tableDataJA != null) {
+                            /* Create storage for the row of cell data */
+                            String[] rowData = new String[numColumns];
+    
+                            /* Step through each row of data in the table */
+                            for (JSONObject rowDataJO : parseJSONArray(tableDataJA)) {
+                                /* Initialize the column values to blanks */
+                                Arrays.fill(rowData, null);
+    
+                                /* Step through each key (column name) */
+                                for (Object columnName : rowDataJO.keySet()) {
+                                    /* Get the column index based on the column name */
+                                    int column = typeDefn.getVisibleColumnIndexByUserName(columnName.toString());
+    
+                                    /* Check if a column by this name exists */
+                                    if (column != -1) {
+                                        /* Get the value from the JSON input, if present; use a blank
+                                         * if a value for this column doesn't exist
+                                         */
+                                        rowData[column] = getString(rowDataJO, typeDefn.getColumnNamesVisible()[column]);
+                                    } else {
+                                        /* The number of inputs is incorrect. Check if the error should be ignored or
+                                         * the import canceled
+                                         */
+                                        ignoreErrors = getErrorResponse(ignoreErrors,
+                                                "<html><b>Table '</b>" + tableName + "<b>' column name '</b>" + columnName
+                                                        + "<b>' unrecognized in import file '</b>"
+                                                        + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                "Column Error", "Ignore this invalid column name",
+                                                "Ignore this and any remaining invalid column names", "Stop importing",
+                                                parent);
+                                    }
                                 }
+    
+                                /* Add the row of data read in from the file to the cell data list */
+                                tableDefn.addData(rowData);
                             }
-
-                            /* Add the row of data read in from the file to the cell data list */
-                            tableDefn.addData(rowData);
                         }
 
                         /*************** TABLE DEFINITION FIELDS ***************/
@@ -1307,24 +1309,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                      * values as integers and not as strings
                      *****************************************************************************/
                     @Override
-                    public int compare(String tblName1, String tblName2) {
-                        int result = 0;
-
-                        /* Check if the table names are members of the same array */
-                        if (ArrayVariable.isArrayMember(tblName1) && ArrayVariable.isArrayMember(tblName2)
-                                && ArrayVariable.removeArrayIndex(tblName1)
-                                        .equals(ArrayVariable.removeArrayIndex(tblName2))) {
-                            /* Compare the two array names, accounting for the array dimension(s)
-                             * as integers and not as strings
-                             */
-                            result = ArrayVariable.compareTo(tblName1, tblName2);
-                        }
-                        /* The table names are not part of the same array */
-                        else {
-                            /* Compare the two names as strings, ignoring case */
-                            result = tblName1.compareToIgnoreCase(tblName2);
-                        }
-                        return result;
+                    public int compare(String tblName1, String tblName2) {                        
+                        /* Compare the two names as strings, ignoring case */
+                        return tblName1.compareToIgnoreCase(tblName2);
                     }
                 });
 

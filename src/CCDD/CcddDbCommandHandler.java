@@ -180,7 +180,6 @@ public class CcddDbCommandHandler {
             }
         } catch (SQLException se) {
             try {
-                System.out.println(" exception"); // TODO
                 // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
                 // is enabled. Auto-commit is usually disabled, but there are instances where
                 // it's enabled so this check is required to prevent an exception
@@ -210,7 +209,6 @@ public class CcddDbCommandHandler {
                 // Re-throw the exception so that the caller can handle it
                 throw new SQLException("Invalid SQL command; " + se.getMessage());
             } catch (SQLException se3) {
-                System.out.println("  exception 3"); // TODO
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize())) {
                     System.out.println("   no connection"); // TODO
@@ -239,7 +237,9 @@ public class CcddDbCommandHandler {
                 }
                 // The server is connected. Shouldn't be able to get to this
                 else {
-                    System.out.println("Command that failed: " + command.toString());
+                    if (!command.substring(0, 20).contentEquals("DROP TABLE IF EXISTS")) {
+                        System.out.println("Command that failed: " + command.toString());
+                    }
                     throw new SQLException(se3.getMessage());
                 }
             }

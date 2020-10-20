@@ -1412,13 +1412,15 @@ public class CcddDbControlHandler {
 
             /* Step through each internal table type */
             for (InternalTable intTable : InternalTable.values()) {
+                // Reset the command
+                command.setLength(0);
+                
                 /* Check that this isn't the script table type. The script table is a special type
                  * for storing specific scripts
                  */
                 if (intTable != InternalTable.SCRIPT) {
                     /* Check if the internal table doesn't exist */
-                    if (!ccddMain.getDbTableCommandHandler().isTableExists(intTable.getTableName(),
-                            ccddMain.getMainFrame())) {
+                    if (!ccddMain.getDbTableCommandHandler().isTableExists(intTable.getTableName(), ccddMain.getMainFrame())) {
                         if (intTable != InternalTable.DBU_INFO) {
                             /* Create the default internal table */
                             command.append(buildInformationTableCommand(intTable));

@@ -2210,6 +2210,11 @@ public class CcddClassesDataTable {
          *****************************************************************************************/
         protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo) {
             int[] result = {-1, -1, -1, -1};
+
+            // If a macro is being used then retrieve the value
+            if (arrayInfo.contains("##")) {
+                arrayInfo = newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>());
+            }
             
             // Get rid of any whitespace
             arrayInfo = arrayInfo.replaceAll(" ", "");

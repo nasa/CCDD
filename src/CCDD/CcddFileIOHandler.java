@@ -1608,10 +1608,9 @@ public class CcddFileIOHandler {
                     throw new CCDDException();
                 }
 
-                // Check if cell data is provided in the import file. Creation of empty tables is
-                // not allowed. Also check if this is a prototype table and this is the first pass,
+                // Check if this is a prototype table and this is the first pass,
                 // or if this is a child table and this is the second pass
-                if (!tableDefn.getData().isEmpty() && (tableDefn.getName().contains(".") != prototypesOnly)) {
+                if (tableDefn.getName().contains(".") != prototypesOnly) {
                     // Check if the cancel import dialog is present
                     if (haltDlg != null) {
                         // Update the progress bar

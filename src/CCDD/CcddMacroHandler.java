@@ -75,9 +75,14 @@ public class CcddMacroHandler {
 
     // List containing the macro definitions following an import operation
     private List<String[]> updatedMacros;
+    
+    // Should we search for all macro references?
+    private boolean skipSearchingReferences;
+    
+    // All macro references found during search
+    List<String> allMacroReferences;
 
-    // List of macro references already loaded from the database. This is used to
-    // avoid repeated
+    // List of macro references already loaded from the database. This is used to avoid repeated
     // searches for a the same macro
     private List<MacroReference> loadedReferences;
 
@@ -100,15 +105,14 @@ public class CcddMacroHandler {
             List<String> dependentMacros = new ArrayList<String>();
             String searchMacros = "";
 
-            // Get the list of macros that have a value that depends on the supplied macro.
-            // The
+            // Get the list of macros that have a value that depends on the supplied macro. The
             // list also contains the supplied macro name
             getDependentMacros(macroName, dependentMacros);
 
             // Step through each dependent macro name
             for (String refMacro : dependentMacros) {
                 // Add the macro name, with delimiters, to the search criteria
-                searchMacros += CcddMacroHandler.getFullMacroName(refMacro) + "|";
+                searchMacros += refMacro + "|";
             }
 
             // Clean up the macro search name string
@@ -943,17 +947,23 @@ public class CcddMacroHandler {
      *         that reference the specified macro name
      *********************************************************************************************/
     protected String[] searchMacroReferences(String macroName, Component parent) {
-        // Get the references in the prototype tables that match the specified macro
-        // name
-        List<String> matches = new ArrayList<String>(Arrays.asList(ccddMain.getDbCommandHandler().getList(
-                DatabaseListCommand.SEARCH,
-                new String[][] { { "_search_text_", "(" + macroName.replaceAll("([\\(\\)])", "\\\\\\\\$1") + ")" },
+        List<String> matches = new ArrayList<String>();
+        
+        if (skipSearchingReferences == false) {
+            // Get the references in the prototype tables that match the specified macro name
+            allMacroReferences = new ArrayList<String>(Arrays.asList(ccddMain.getDbCommandHandler().getList(
+                    DatabaseListCommand.SEARCH, new String[][] { { "_search_text_", "(##)" },
                         { "_case_insensitive_", "true" }, { "_allow_regex_", "true" },
-                        { "_selected_tables_", SearchType.DATA.toString() }, { "_columns_", "" } },
-                parent)));
+                        { "_selected_tables_", SearchType.DATA.toString() }, { "_columns_", "" } }, parent)));
+        }
+        
+        for (String row : allMacroReferences) {
+            if (row.contains(macroName)) {
+                matches.add(row);
+            }
+        }
 
-        // Remove any references to the macro that appear in an array size column for an
-        // array
+        // Remove any references to the macro that appear in an array size column for an array
         // member (the reference in the array's definition is all that's needed)
         CcddSearchHandler.removeArrayMemberReferences(matches, tableTypeHandler);
 
@@ -1128,9 +1138,9 @@ public class CcddMacroHandler {
     protected void validateMacroUsage(Component parent) throws CCDDException {
         // Initialize the list of macro references already loaded
         initializeReferences();
+        skipSearchingReferences = false;
 
-        // Create a macro handler using the values currently displayed in the macro
-        // editor
+        // Create a macro handler using the values currently displayed in the macro editor
         CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain, updatedMacros);
         newMacroHandler.setHandlers(variableHandler, dataTypeHandler);
 
@@ -1139,7 +1149,15 @@ public class CcddMacroHandler {
             // Verify the macro's usage
             validateMacroUsage(CcddMacroHandler.getFullMacroName(macro[MacrosColumn.MACRO_NAME.ordinal()]),
                     newMacroHandler, parent);
+            
+            // Set skipSearchingReferences to true after the first call so that it does not keep
+            // searching the database for macro references repeatedly.
+            skipSearchingReferences = true;
         }
+        
+        // Set skipSearchingReferences to false after the last call so that it does
+        // search the database for macro references on the next call.
+        skipSearchingReferences = false;
     }
 
     /**********************************************************************************************

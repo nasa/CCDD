@@ -4770,8 +4770,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             }
         }
 
-        // Check if table editing is disabled. If the editor dialog command to show
-        // macros is
+        // Check if table editing is disabled. If the editor dialog command to show macros is
         // selected then the table edit flag is false and the macros are displayed
         if (!isEditEnabled) {
             // Redisplay the macro values in place of the macros
@@ -4787,22 +4786,18 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      * the current values
      *********************************************************************************************/
     protected void buildUpdates() {
-        // Note: The committed table information class is updated during the commit
-        // procedure,
+        // Note: The committed table information class is updated during the commit procedure,
         // which can produce a race condition if it's used for change comparisons
 
-        // Check that the table is open in a table editor (versus open for a macro name
-        // and/or
+        // Check that the table is open in a table editor (versus open for a macro name  and/or
         // value change, for example)
         if (editorDialog != null) {
-            // Store the description into the table information class so that it can be used
-            // to
+            // Store the description into the table information class so that it can be used to
             // compare if a change occurred
             currentTableInfo.setDescription(getDescription());
         }
 
-        // Store the most recently committed table data and column order into the table
-        // information
+        // Store the most recently committed table data and column order into the table information
         // class so that it can be used to compare if a change occurred
         currentTableInfo.setData(committedTableInfo.getData());
         currentTableInfo.setColumnOrder(table.getColumnOrder());
@@ -4818,8 +4813,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         // Re-index the rows in case any have been added, moved, or deleted
         updateRowIndices();
 
-        // Get the number of rows that have been committed to the database for this
-        // table
+        // Get the number of rows that have been committed to the database for this table
         int numCommitted = committedTableInfo != null ? committedTableInfo.getData().length : 0;
 
         // Check to see if the primary keys need to be updated or reordered.
@@ -4835,17 +4829,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         for (int tblRow = 0; tblRow < tableData.length; tblRow++) {
             boolean matchFound = false;
 
-            // Check if the table is open in a table editor, the variable path, variable
-            // name, and
+            // Check if the table is open in a table editor, the variable path, variable name, and
             // data type columns are present, and the path isn't manually set
             if (editorDialog != null && variablePathIndex != -1 && variableNameIndex != -1 && dataTypeIndex != -1
                     && tableData[tblRow][variablePathIndex].toString()
                             .equals(getVariablePath(tableData[tblRow][variableNameIndex].toString(),
                                     tableData[tblRow][dataTypeIndex].toString(), true))) {
-                // Blank the data for this column so that it isn't stored in the database (paths
-                // not manually entered by the user are constructed on-the-fly for display in
-                // the
-                // table)
+                // Blank the data for this column so that it isn't stored in the database (paths not manually
+                // entered by the user are constructed on-the-fly for display in the table)
                 tableData[tblRow][variablePathIndex] = "";
             }
 
@@ -4856,8 +4847,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     // Set the flag indicating this row has a match
                     matchFound = true;
 
-                    // Copy the current row's primary key and row index into the empty comparison
-                    // row
+                    // Copy the current row's primary key and row index into the empty comparison row
                     emptyRow[primaryKeyIndex] = tableData[tblRow][primaryKeyIndex];
                     emptyRow[rowIndex] = tableData[tblRow][rowIndex];
 
