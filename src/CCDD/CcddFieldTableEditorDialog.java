@@ -409,7 +409,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler {
                     // i.e., parent tables with their child tables (i.e., parents with children)
                     tableTree = new CcddTableTreeHandler(ccddMain,
                             new CcddGroupHandler(ccddMain, null, CcddFieldTableEditorDialog.this), TableTreeType.TABLES,
-                            true, false, CcddFieldTableEditorDialog.this);
+                            true, false, false, CcddFieldTableEditorDialog.this);
 
                     // Add the tree to the selection panel
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();

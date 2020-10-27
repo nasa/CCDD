@@ -413,7 +413,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler {
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
                 tableTree = new CcddTableTreeHandler(ccddMain, null, TableTreeType.TABLES, false, true,
-                        ccddMain.getMainFrame()) {
+                        false, ccddMain.getMainFrame()) {
                     /******************************************************************************
                      * Respond to changes in selection of a node in the table tree
                      *****************************************************************************/
@@ -426,8 +426,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler {
                     }
                 };
 
-                // Create a table tree panel and add it to another panel (in order to control
-                // spacing)
+                // Create a table tree panel and add it to another panel (in order to control spacing)
                 gbc.insets.top = 0;
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.weighty = 1.0;
@@ -437,8 +436,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler {
                 gbc.insets.bottom = 0;
 
                 // Create a split pane containing the table tree in the left pane and the group
-                // tree in the right pane and add it to the panel. The arrow button panel is
-                // used
+                // tree in the right pane and add it to the panel. The arrow button panel is used
                 // as the split pane divider
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();

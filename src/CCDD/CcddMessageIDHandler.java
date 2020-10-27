@@ -230,8 +230,7 @@ public class CcddMessageIDHandler {
             CcddTelemetrySchedulerDialog tlmSchedulerDlg, boolean isGetDuplicates, Component parent) {
         ArrayListMultiple tblAndFldMsgs = new ArrayListMultiple();
 
-        // Empty the duplicates list in case this isn't the first execution of this
-        // method
+        // Empty the duplicates list in case this isn't the first execution of this method
         duplicates.clear();
         potentialDuplicates.clear();
 
@@ -242,8 +241,7 @@ public class CcddMessageIDHandler {
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions()) {
             // Step through each column that contains a message name & ID
             for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_NAME_AND_ID)) {
-                // Query the database for those values in the specified message ID column that
-                // are
+                // Query the database for those values in the specified message ID column that are
                 // in use in any table, including any references in the custom values table
                 tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT" + (isGetDuplicates ? " " : " DISTINCT ON (2) ")
                         + "* FROM find_columns_by_name('" + typeDefn.getColumnNamesUser()[idColumn] + "', '"
@@ -252,8 +250,7 @@ public class CcddMessageIDHandler {
             }
         }
 
-        // Get the list of all message name & ID data field values for project, group,
-        // or table
+        // Get the list of all message name & ID data field values for project, group, or table
         // data fields (ignore fields assigned to table types)
         tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT" + (isGetDuplicates ? " " : " DISTINCT ON (2) ")
                 + FieldsColumn.OWNER_NAME.getColumnName() + ", " + FieldsColumn.FIELD_VALUE.getColumnName() + " FROM "
@@ -268,8 +265,7 @@ public class CcddMessageIDHandler {
         // Get the list of tables representing commands
         commandTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_COMMAND));
 
-        // Get the list of tables representing table types other than structures and
-        // commands
+        // Get the list of tables representing table types other than structures and commands
         otherTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_OTHER));
 
         // Step through each data field message ID
@@ -280,33 +276,24 @@ public class CcddMessageIDHandler {
             // Get the message ID from the message name and ID
             String msgID = getMessageID(tblAndFldMsg[1]);
 
-            // Replace any macro in the message ID with the corresponding text and format
-            // the ID as
-            // hexadecimal
+            // Replace any macro in the message ID with the corresponding text and format the ID as hexadecimal
             msgID = CcddInputTypeHandler.formatInput(macroHandler.getMacroExpansion(msgID), InputTypeFormat.HEXADECIMAL,
                     true);
 
-            // Check if the message ID is flagged as protected, or the message ID data field
-            // is
-            // assigned to a structure (command, other) table and the structure (command,
-            // other)
+            // Check if the message ID is flagged as protected, or the message ID data field is
+            // assigned to a structure (command, other) table and the structure (command, other)
             // IDs are to be included
             if (msgID.endsWith(PROTECTED_MSG_ID_IDENT)
                     || (includeStructures && structureTables.contains(TableInformation.getPrototypeName(owner)))
                     || (includeCommands && commandTables.contains(owner))
                     || (includeOthers && otherTables.contains(owner))) {
-                // Get the IDs in use in the table cells and data fields, and update the
-                // duplicates
+                // Get the IDs in use in the table cells and data fields, and update the duplicates
                 // list (if the flag is set)
                 updateUsageAndDuplicates("Table", new String[] { owner, msgID }, isGetDuplicates);
             }
-            // Check if the message ID data field is assigned to a group and the group IDs
-            // are to
-            // be included
+            // Check if the message ID data field is assigned to a group and the group IDs are to be included
             else if (includeGroups && owner.startsWith(GROUP_DATA_FIELD_IDENT)) {
-                // Get the IDs in use in the group data fields, and update the duplicates list
-                // (if
-                // the flag is set)
+                // Get the IDs in use in the group data fields, and update the duplicates list (if the flag is set)
                 updateUsageAndDuplicates("Group", new String[] { owner, msgID }, isGetDuplicates);
             }
         }
@@ -327,23 +314,18 @@ public class CcddMessageIDHandler {
             for (String[] tlmMsgNameAndID : tlmIDs) {
                 // Check if the list of duplicate message IDs is to be created
                 if (isGetDuplicates) {
-                    // Replace the rate name with its corresponding stream name when displaying
-                    // duplicate IDs
+                    // Replace the rate name with its corresponding stream name when displaying duplicate IDs
                     String rateName = tlmMsgNameAndID[0].replaceFirst(",.*", "");
                     String streamName = rateHandler.getRateInformationByRateName(rateName).getStreamName();
                     tlmMsgNameAndID[0] = tlmMsgNameAndID[0].replaceFirst(rateName, streamName);
                 }
 
-                // Update the IDs in use in the telemetry messages, and update the duplicates
-                // list
-                // (if the flag is set)
+                // Update the IDs in use in the telemetry messages, and update the duplicates list (if the flag is set)
                 updateUsageAndDuplicates("Message", tlmMsgNameAndID, isGetDuplicates);
             }
         }
-        // Get the telemetry message IDs from the telemetry scheduler if it's open. This
-        // is used in
-        // place of the IDs stored in the database since the user may have modified the
-        // IDs in the
+        // Get the telemetry message IDs from the telemetry scheduler if it's open. This is used in
+        // place of the IDs stored in the database since the user may have modified the IDs in the
         // telemetry scheduler but not yet stored them to the database
         else if (tlmSchedulerDlg != null) {
             // Step through each data stream

@@ -152,8 +152,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler {
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
                         GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-                // Create a copy of the reserved message ID data so it can be used to determine
-                // if
+                // Create a copy of the reserved message ID data so it can be used to determine if
                 // changes are made
                 storeCurrentData();
 

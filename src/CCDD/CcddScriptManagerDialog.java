@@ -718,7 +718,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
 
         // Build the table tree showing all tables
         tableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                TableTreeType.TABLES, true, false, ccddMain.getMainFrame()) {
+                TableTreeType.TABLES, true, false, false, ccddMain.getMainFrame()) {
             /**************************************************************************************
              * Respond to changes in selection of a node in the table tree
              *************************************************************************************/

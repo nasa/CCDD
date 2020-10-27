@@ -1878,11 +1878,9 @@ public class CcddDialogHandler extends JDialog {
     @SuppressWarnings("resource") // Can't close the scanner since it would also close System.in
     protected int createDialog(Component parent, Object upperObject, JPanel buttonPnl, JButton defaultBtn, String title,
             DialogOption optionType, Icon icon, boolean resizable, boolean modal) {
-        // Check if the parent component doesn't exist. This is the case when the GUI is
-        // hidden
+        // Check if the parent component doesn't exist. This is the case when the GUI is hidden
         if (parent == null) {
-            // Check if the component is a string; i.e., this is a plain, information,
-            // question,
+            // Check if the component is a string; i.e., this is a plain, information, question,
             // warning, or error message dialog. Non-message dialogs are ignored
             if (upperObject instanceof String) {
                 // Build the message to display
@@ -1927,8 +1925,7 @@ public class CcddDialogHandler extends JDialog {
                                     buttonSelected = 0;
                                 }
                             } catch (Exception e) {
-                                // A non-integer value was entered; set the input value to indicate
-                                // an invalid input
+                                // A non-integer value was entered; set the input value to indicate an invalid input
                                 buttonSelected = 0;
                             }
 
@@ -1959,9 +1956,7 @@ public class CcddDialogHandler extends JDialog {
                 JPanel textPnl = new JPanel();
                 textPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                // Create a panel to hold the icon. Add some padding between the icon and the
-                // text
-                // message
+                // Create a panel to hold the icon. Add some padding between the icon and the text message
                 JPanel iconPanel = new JPanel();
                 iconPanel.setBorder(
                         BorderFactory.createEmptyBorder(0, 0, 0, ModifiableSpacingInfo.DIALOG_ICON_PAD.getSpacing()));
@@ -1997,9 +1992,8 @@ public class CcddDialogHandler extends JDialog {
                  *********************************************************************************/
                 @Override
                 public void windowGainedFocus(WindowEvent we) {
-                    // Set the default button to the last button pressed when the dialog (re)gains
-                    // the focus. This enables the special highlighting associated with the default
-                    // button
+                    // Set the default button to the last button pressed when the dialog (re)gains the
+                    // focus. This enables the special highlighting associated with the default button
                     getRootPane().setDefaultButton(buttonHandler.getLastButtonPressed());
                 }
 
@@ -2008,9 +2002,8 @@ public class CcddDialogHandler extends JDialog {
                  *********************************************************************************/
                 @Override
                 public void windowLostFocus(WindowEvent we) {
-                    // Set so that there is no default button while the dialog doesn't have the
-                    // focus. This removes the special highlighting associated with the default
-                    // button
+                    // Set so that there is no default button while the dialog doesn't have the focus.
+                    // This removes the special highlighting associated with the default button
                     getRootPane().setDefaultButton(null);
                 }
             });
@@ -2024,10 +2017,8 @@ public class CcddDialogHandler extends JDialog {
             // Set if operation of the main window is allowed while this dialog is open
             setModalityType(modal ? JDialog.ModalityType.APPLICATION_MODAL : JDialog.ModalityType.MODELESS);
 
-            // Set the default close operation so that the dialog frame's close button
-            // doesn't
-            // automatically exit the dialog. Instead, if this close button is pressed a
-            // button
+            // Set the default close operation so that the dialog frame's close button doesn't
+            // automatically exit the dialog. Instead, if this close button is pressed a button
             // press event is sent to the last button on the dialog's button panel
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -2058,22 +2049,18 @@ public class CcddDialogHandler extends JDialog {
             // Size the dialog to fit its components
             pack();
 
-            // Set the preferred size so that setRelativeTo call positions other dialogs
-            // relative
+            // Set the preferred size so that setRelativeTo call positions other dialogs relative
             // to this one's position when it's no longer visible
             setPreferredSize(getPreferredSize());
 
             // Check if the dialog is resizable
             if (resizable) {
-                // Set the minimum width to the larger of (1) the default dialog width and (2)
-                // the
-                // packed dialog width (the pixel width of a vertical scroll bar is added if the
-                // dialog contains a table so that the horizontal scroll bar isn't automatically
-                // displayed if the table contents exceeds the initial height, and a pixel is
-                // added
-                // to this width to prevent the dialog from being resized smaller than its
-                // original
-                // width). Set the minimum height to the packed height of the dialog components
+                // Set the minimum width to the larger of (1) the default dialog width and (2) the packed
+                // dialog width (the pixel width of a vertical scroll bar is added if the dialog contains
+                // a table so that the horizontal scroll bar isn't automatically displayed if the table
+                // contents exceeds the initial height, and a pixel is added to this width to prevent the
+                // dialog from being resized smaller than its original width). Set the minimum height to
+                // the packed height of the dialog components
                 setMinimumSize(new Dimension(
                         Math.max(getMinimumWidth(),
                                 getWidth() + (isContainsComponent(this, JTable.class) ? LAF_SCROLL_BAR_WIDTH : 0) + 1),
@@ -2083,8 +2070,7 @@ public class CcddDialogHandler extends JDialog {
             // Position the dialog frame centered on the parent
             setLocationRelativeTo(parent);
 
-            // Check if a component is selected to initially have the focus (otherwise
-            // default to
+            // Check if a component is selected to initially have the focus (otherwise default to
             // the first component)
             if (initialFocusComponent != null) {
                 // Set the focus to the specified component

@@ -21,10 +21,7 @@ import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -65,16 +62,14 @@ public class CcddCommonTreeHandler extends JTree {
     private final Icon linkedBitVariableIcon;
     private final Icon linkedPackedVariableIcon;
 
-    // Index of the row containing the last variable in a group of bit-packed
-    // variables
+    // Index of the row containing the last variable in a group of bit-packed variables
     private int lastPackRow;
 
     // Flag indicating if the data type portion of a node name (in the format
     // dataType.variableName) should be hidden or displayed
     private boolean isHideDataType;
 
-    // Search pattern used for highlighting text in the node names; can be a regular
-    // expression
+    // Search pattern used for highlighting text in the node names; can be a regular expression
     private Pattern searchPattern;
 
     /**********************************************************************************************
@@ -100,8 +95,7 @@ public class CcddCommonTreeHandler extends JTree {
             // Check if text highlighting is enabled
             if (isAllowHighlight) {
                 // Create the components to display highlighting in the node name. The text pane
-                // is
-                // required for the actual highlight capability
+                // is required for the actual highlight capability
                 nodeFld = new JTextPane();
                 nodeFld.setFont(ModifiableFontInfo.TREE_NODE.getFont());
                 nodeFld.setBorder(BorderFactory.createEmptyBorder());
@@ -167,8 +161,7 @@ public class CcddCommonTreeHandler extends JTree {
             }
 
             // Check if highlighting is enabled, a search pattern is active, and the node
-            // isn't a
-            // header (i.e., it represents a table or variable)
+            // isn't a header (i.e., it represents a table or variable)
             if (isAllowHighlight && searchPattern != null && node.getLevel() >= getHeaderNodeLevel()) {
                 // Set the node's text and icon
                 nodeFld.setText(adjustedName);
@@ -225,8 +218,7 @@ public class CcddCommonTreeHandler extends JTree {
     }
 
     /**********************************************************************************************
-     * Placeholder for method to respond to changes in selection of a table in the
-     * table tree
+     * Placeholder for method to respond to changes in selection of a table in the table tree
      *********************************************************************************************/
     protected void updateTableSelection() {
     }
@@ -266,8 +258,7 @@ public class CcddCommonTreeHandler extends JTree {
      * Remove all nodes from the tree
      *********************************************************************************************/
     protected void removeAllNodes() {
-        // Remove all of the root node's children and force the tree model to reflect
-        // the change
+        // Remove all of the root node's children and force the tree model to reflect the change
         ((DefaultMutableTreeNode) getModel().getRoot()).removeAllChildren();
         ((DefaultTreeModel) getModel()).reload();
     }
@@ -296,18 +287,18 @@ public class CcddCommonTreeHandler extends JTree {
     /**********************************************************************************************
      * Expand or collapse all of the nodes in the tree
      *
-     * @param isExpanded true if all tree nodes should be expanded
+     * @param expandTree true if all tree nodes should be expanded
      *********************************************************************************************/
-    protected void setTreeExpansion(boolean isExpanded) {
+    protected void setTreeExpansion(boolean expandTree) {
         // Check if the tree should be fully expanded
-        if (isExpanded) {
+        if (expandTree) {
             // Expand the entire tree
             expandTreePath(getPathFromNode((TreeNode) getModel().getRoot()));
         }
-        // The check box is deselected
+        // The tree should be collapsed
         else {
             // Collapse the entire tree
-            collapseTreePathNotRecursive(getPathFromNode((TreeNode) getModel().getRoot()));
+            collapseTreePath(getPathFromNode((TreeNode) getModel().getRoot()));
         }
     }
 
@@ -345,70 +336,9 @@ public class CcddCommonTreeHandler extends JTree {
     boolean isLeaf(TreeNode node){
         return node.getChildCount() == 0;
     }
-    
-    /**********************************************************************************************
-     * Take a node and a map and construct an array of the nodes on the pack back to the root.
-     * Convert this path into a TreePath and collapse it
-     *
-     * @param leafNode current node
-     * @param map map containing node and connected node relationships
-     *********************************************************************************************/
-    void collapseArrayPath(TreeNode leafNode, Map<TreeNode,TreeNode> map){
-        // Generate the path array
-        ArrayList<TreeNode> path = new ArrayList<>();
-        path.add(leafNode);
-        TreeNode n = leafNode;
-        while(map.get(n)!= null){
-            n = map.get(n);
-            path.add(n);
-        }
-        
-        // Create the TreePath from the array
-        TreePath tPath = new TreePath(path);
-        
-        // Check if this path is not the root or if the root is visible. This prevents
-        // collapsing the root's children when the root is invisible
-        if (tPath.getParentPath() != null || isRootVisible()) {
-            // Collapse the current path
-            collapsePath(tPath);
-        }
-    }
-    
-    /**********************************************************************************************
-     * Collapse the specified tree path and all of its child paths. This is a
-     * not a recursive method
-     *
-     * @param path tree path to collapse
-     *********************************************************************************************/
-    private void collapseTreePathNotRecursive(TreePath path) {
-        Stack<TreeNode> traverseStack = new Stack<>();
-        Map<TreeNode, TreeNode> map = new HashMap<>();
-        
-        map.put((TreeNode) path.getLastPathComponent(), null);
-        
-        traverseStack.add((TreeNode) path.getLastPathComponent());
-        
-        while(traverseStack.isEmpty() == false){
-            
-            TreeNode n = traverseStack.pop();
-            // If it is a leaf node, then collapse it
-            if(isLeaf(n)){
-                collapseArrayPath(n, map);               
-            }
-            
-            // Add all children to the map
-            for (Enumeration<?> e = n.children(); e.hasMoreElements();) {
-                // Get the child node's path and add to the stack and map
-                TreeNode childNode = (TreeNode) e.nextElement();
-                traverseStack.add(childNode);
-                map.put(childNode,n);
-            }
-        }
-    }
 
     /**********************************************************************************************
-     * Collapse the specified tree path and all of its child paths. This is a
-     * recursive method
+     * Collapse the specified tree path and all of its child paths. This is a recursive method
      *
      * @param path tree path to collapse
      *********************************************************************************************/
@@ -428,8 +358,7 @@ public class CcddCommonTreeHandler extends JTree {
         }
 
         // Check if this path is not the root or if the root is visible. This prevents
-        // collapsing
-        // the root's children when the root is invisible
+        // collapsing the root's children when the root is invisible
         if (path.getParentPath() != null || isRootVisible()) {
             // Collapse the current path
             collapsePath(path);
@@ -460,8 +389,7 @@ public class CcddCommonTreeHandler extends JTree {
     }
 
     /**********************************************************************************************
-     * Expand the selected node(s) if collapsed, or collapse the selected node(s) if
-     * expanded
+     * Expand the selected node(s) if collapsed, or collapse the selected node(s) if expanded
      *********************************************************************************************/
     protected void expandCollapseSelectedNodes() {
         // Check if a tree node is selected
@@ -582,14 +510,12 @@ public class CcddCommonTreeHandler extends JTree {
         String termPattern = "(\\],|,.*)";
 
         // Initialize the group name regular expression pattern assuming there is no
-        // filtering by
-        // groups
+        // filtering by groups
         String groupPattern = "(())";
 
         // Check if the tree has changed to or is already being filtered by groups
         if ((isByGroup && !isByGroupChanged) || (!isByGroup && isByGroupChanged)) {
-            // Initialize the group name regular expression pattern with group filtering
-            // enabled
+            // Initialize the group name regular expression pattern with group filtering enabled
             groupPattern = "(, (";
 
             // Step through each group
@@ -603,14 +529,12 @@ public class CcddCommonTreeHandler extends JTree {
         }
 
         // Initialize the type name regular expression pattern assuming there is no
-        // filtering by
-        // types
+        // filtering by types
         String typePattern = "(())";
 
         // Check if the tree has changed to or is already being filtered by types
         if ((isByType && !isByTypeChanged) || (!isByType && isByTypeChanged)) {
-            // Initialize the type name regular expression pattern with type filtering
-            // enabled
+            // Initialize the type name regular expression pattern with type filtering enabled
             typePattern = "(, (";
 
             // Step through each table type
@@ -634,20 +558,16 @@ public class CcddCommonTreeHandler extends JTree {
                 boolean matchesEither = path.matches(Pattern.quote(prefix) + groupPattern + typePattern + termPattern);
 
                 // Set the flag to true if the path contains a group node but no type node
-                boolean matchesGroup = groupPattern.equals("(())") ? false
-                        : typePattern.equals("(())")
+                boolean matchesGroup = groupPattern.equals("(())") ? false : typePattern.equals("(())")
                                 ? path.matches(Pattern.quote(prefix) + groupPattern + termPattern)
                                         || path.matches(Pattern.quote(prefix) + termPattern)
-                                : path.matches(
-                                        Pattern.quote(prefix) + groupPattern + "[^" + typePattern + "]" + termPattern)
+                                : path.matches( Pattern.quote(prefix) + groupPattern + "[^" + typePattern + "]" + termPattern)
                                         || path.matches(Pattern.quote(prefix) + typePattern + termPattern);
 
                 // Set the flag to true if the path contains a type node but no group node
                 boolean matchesType = typePattern.equals("(())") ? false
-                        : groupPattern.equals("(())")
-                                ? path.matches(Pattern.quote(prefix) + typePattern + termPattern)
-                                        || path.matches(Pattern.quote(prefix) + termPattern)
-                                : path.matches(
+                        : groupPattern.equals("(())") ? path.matches(Pattern.quote(prefix) + typePattern + termPattern)
+                                        || path.matches(Pattern.quote(prefix) + termPattern) : path.matches(
                                         Pattern.quote(prefix) + "[^" + groupPattern + "]" + typePattern + termPattern)
                                         || path.matches(Pattern.quote(prefix) + groupPattern + termPattern);
                 // Check if the path contains a group or type node
@@ -667,14 +587,12 @@ public class CcddCommonTreeHandler extends JTree {
                             for (GroupInformation grpInfo : groupHandler.getGroupInformation()) {
                                 // Check if the tree is filtered by type
                                 if (isByType) {
-                                    // Update the node path with the group name and append it to
-                                    // new path
+                                    // Update the node path with the group name and append it to new path
                                     newPath += path.replaceAll(Pattern.quote(prefix) + typePattern + termPattern,
                                             prefix + ", " + grpInfo.getName() + "$3");
                                 }
 
-                                // Update the node path with the group name and append it to new
-                                // path
+                                // Update the node path with the group name and append it to new path
                                 newPath += path.replaceAll(Pattern.quote(prefix) + typePattern + termPattern,
                                         prefix + ", " + grpInfo.getName() + "$1$3");
                             }

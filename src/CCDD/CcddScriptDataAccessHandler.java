@@ -943,14 +943,16 @@ public class CcddScriptDataAccessHandler {
                     // Get the prototype name form the table name
                     tableName = TableInformation.getPrototypeName(tableName);
                 }
-
-                tableTypeHandler.getTypeDefinition(tableName);
-                List<String> enumTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_ENUM));
                 
                 // Check if the table name hasn't been added to the list
-                if (!names.contains(tableName) && !enumTables.contains(tableName)) {
+                if (!names.contains(tableName)) {
                     // Store the table name
-                    names.add(tableName);
+                    TableInformation tableData = dbTable.loadTableData(tableName, false, false, parent);
+                    String type = tableData.getType();
+                    
+                    if (type.equals(tableType)) {
+                        names.add(tableName);
+                    }
                 }
             }
         }
@@ -4405,7 +4407,7 @@ public class CcddScriptDataAccessHandler {
      * @return Array containing the name of each table of type ENUM
      *********************************************************************************************/
     public String[] getEnumTableNames() {
-        return dbTable.getPrototypeTablesOfType(TYPE_ENUM);
+        return getTableNames(TYPE_ENUM);
     }
     
     /**********************************************************************************************

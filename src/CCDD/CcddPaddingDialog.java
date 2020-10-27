@@ -72,7 +72,7 @@ public class CcddPaddingDialog extends CcddDialogHandler {
         // tables with their child tables (i.e., parents with children)
         final CcddTableTreeHandler prototypeTree = new CcddTableTreeHandler(ccddMain,
                 new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()), TableTreeType.PROTOTYPE_STRUCTURES, true,
-                false, ccddMain.getMainFrame());
+                false, false, ccddMain.getMainFrame());
 
         // Add the tree to the dialog
         dialogPnl.add(prototypeTree.createTreePanel("Structure Tables", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
@@ -194,7 +194,7 @@ public class CcddPaddingDialog extends CcddDialogHandler {
         // Get an instance table tree
         CcddTableTreeHandler instanceTree = new CcddTableTreeHandler(ccddMain,
                 new CcddGroupHandler(ccddMain, null, CcddPaddingDialog.this), TableTreeType.INSTANCE_TABLES, true,
-                false, CcddPaddingDialog.this);
+                false, false, CcddPaddingDialog.this);
 
         // Step through each prototype table selected by the user
         for (String prototypeTable : selectedPrototypeTables) {

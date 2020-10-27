@@ -696,7 +696,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
 
         // Build the table tree
         tableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                treeType, true, false, ccddMain.getMainFrame()) {
+                treeType, true, false, false, ccddMain.getMainFrame()) {
             /**************************************************************************************
              * Respond to changes in selection of a table in the table tree
              *************************************************************************************/
@@ -2074,25 +2074,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         // Get the contents of the file/path field
         String path = pathFld.getText().trim();
 
-        // Set the flag if the field contains a file name. A name is detected if a
-        // period (the file
-        // extension separator character) follows the last file separator character.
-        // Note that a
+        // Set the flag if the field contains a file name. A name is detected if a period (the file
+        // extension separator character) follows the last file separator character. Note that a
         // folder with a period in the name can fool this
         boolean hasFileName = path.lastIndexOf(File.separator) <= path.lastIndexOf(".");
 
         // Check if the file name should be added and it's not already present
         if (isAddFileName && !hasFileName) {
-            // Add the file name to the path already present in the field. The file name
-            // defaults
-            // to the database name when the export command is issued from the main window.
-            // If
-            // issued from a table editor then the editor's table name is used to create the
-            // file
-            // name
+            // Add the file name to the path already present in the field. The file name defaults to
+            // the database name when the export command is issued from the main window. If issued
+            // from a table editor then the editor's table name is used to create the file name
             path += File.separator + (callingEditorDlg == null ? dbControl.getDatabaseName()
-                    : callingEditorDlg.getTableEditor().getTableInformation().getTablePath().replaceAll("[^a-zA-Z0-9_]",
-                            "_"))
+                    : callingEditorDlg.getTableEditor().getTableInformation().getTablePath().replaceAll("[^a-zA-Z0-9_]", "_"))
                     + fileExtn.getExtension();
         }
         // Check if the file name should be removed and it's present
@@ -2138,8 +2131,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         exportLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(exportLbl, gbc);
 
-        // Create a text field for entering & displaying the path/file. The initial file
-        // name is
+        // Create a text field for entering & displaying the path/file. The initial file name is
         // based on the database name
         pathFld = new JTextField(ModifiablePathInfo.TABLE_EXPORT_PATH.getPath(), 20);
         pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -2245,8 +2237,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
 
         // Check if the table starts with the characters designating an internal table
         if (tableName.startsWith(INTERNAL_TABLE_PREFIX)) {
-            // Inform the user that the table name can't begin with the internal table
-            // prefix
+            // Inform the user that the table name can't begin with the internal table prefix
             throw new CCDDException(
                     "Table name '</b>" + tableName + "<b>' cannot begin with '</b>" + INTERNAL_TABLE_PREFIX + "<b>'");
         }
@@ -2256,10 +2247,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
 
         // Step through each of the table names
         for (String nameInUse : namesInUse) {
-            // Check if the user-supplied name matches an existing table name. If renaming,
-            // the new
-            // name may differ by capitalization or characters; otherwise (if creating or
-            // copying)
+            // Check if the user-supplied name matches an existing table name. If renaming, the new
+            // name may differ by capitalization or characters; otherwise (if creating or copying)
             // the names must differ with the text forced to lower case
             if ((dialogType == ManagerDialogType.RENAME && !selectedTableName.equals(nameInUse)
                     && nameInUse.equals(tableName))

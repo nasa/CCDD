@@ -203,6 +203,8 @@ public class CcddConstants {
     // Default table tree header node names
     protected static final String DEFAULT_PROTOTYPE_NODE_NAME = "Prototypes";
     protected static final String DEFAULT_INSTANCE_NODE_NAME = "Parents & Children";
+    protected static final String SECONDARY_INSTANCE_NODE_NAME = "Parents";
+    
 
     // Node name for the linked and unlinked variables in trees displaying
     // (un)linked variables

@@ -590,7 +590,7 @@ public class CcddSearchDialog extends CcddFrameHandler {
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
                 tableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent),
-                        TableTreeType.TABLES, true, false, parent);
+                        TableTreeType.TABLES, true, false, false, parent);
 
                 // Add the table tree to the filter panel
                 filterPnl.add(

@@ -280,7 +280,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler {
 
         // Create a variable tree to display the matching variables
         variableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES, true, false, ccddMain.getMainFrame()) {
+                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES, true, false, false, ccddMain.getMainFrame()) {
             /**************************************************************************************
              * Rebuild the variable tree, retaining only those nodes that contain a match
              * with the search criteria or are ancestors to a matching node
