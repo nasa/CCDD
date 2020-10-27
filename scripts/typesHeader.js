@@ -40,6 +40,8 @@ var numStructRows = ccdd.getStructureTableNumRows();
 // Get an array containing the data stream names
 var dataStreams = ccdd.getDataStreamNames();
 
+var enumNames = ccdd.getEnumTableNames();
+
 /** Functions *************************************************************** */
 
 /*******************************************************************************
@@ -66,6 +68,45 @@ function outputFileCreationInfo(file)
     }
 
     ccdd.writeToFileLn(file, "*/\n");
+}
+
+/*******************************************************************************
+ * Output a enum's type definition to the specified file
+ *
+ * @param file
+ *            reference to the types header output file
+ *
+ * @param structIndex
+ *            index of the enum in the enum name array
+ ******************************************************************************/
+function outputEnum(file, index)
+{
+    var lastEnumEntry = 0;
+
+    if (index < 0) {
+        return;
+    }
+
+    ccdd.writeToFileLn(file, "typedef enum");
+    ccdd.writeToFileLn(file, "{");
+
+    var data = ccdd.getEnumTableData(enumNames[index]);
+    var length = data.length;
+    var lastEnumEntry = length - 1;
+
+    for (var i = 0; i < data.length; i++)
+    {
+        if (lastEnumEntry == i)
+        {
+            ccdd.writeToFileLn(file, "   " + data[i]);
+        }
+        else
+        {
+            ccdd.writeToFileLn(file, "   " + data[i] + ",");
+        }
+    }
+
+    ccdd.writeToFileLn(file, "} " + enumNames[index] + ";");
 }
 
 /*******************************************************************************
@@ -466,6 +507,13 @@ function makeHeaders(baseFileName)
         }
 
         ccdd.writeToFileLn(typesFile, "");
+
+        // Step through the enums
+        for (var enumIndex = 0; enumIndex < enumNames.length; enumIndex++)
+        {
+            outputEnum(typesFile, enumIndex);
+            ccdd.writeToFileLn(typesFile, "");
+        }
 
         // Step through each structure. This list is in reference order so that
         // base structures are created before being referenced in another
