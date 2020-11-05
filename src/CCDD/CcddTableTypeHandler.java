@@ -1199,36 +1199,30 @@ public class CcddTableTypeHandler
         // Step through each type entry
         for (String[] typeData : committedTypes)
         {
-            // Create a new type definition
-            TypeDefinition typeDefn = getTypeDefinition(typeData[TableTypesColumn.TYPE_NAME.ordinal()].toString());
-
-            // Check if the type is not defined
-            if (typeDefn == null)
-            {
-                // Create the type and add it to the list
-                typeDefn = new TypeDefinition(typeData[TableTypesColumn.TYPE_NAME.ordinal()].toString());
-                typeDefinitions.add(typeDefn);
+            if (!typeData[0].equals(TYPE_COMMAND_V2)) {
+                // Create a new type definition
+                TypeDefinition typeDefn = getTypeDefinition(typeData[TableTypesColumn.TYPE_NAME.ordinal()].toString());
+    
+                // Check if the type is not defined
+                if (typeDefn == null)
+                {
+                    // Create the type and add it to the list
+                    typeDefn = new TypeDefinition(typeData[TableTypesColumn.TYPE_NAME.ordinal()].toString());
+                    typeDefinitions.add(typeDefn);
+                }
+    
+                // Add the column names, tool tip, column unique, column required, and column input
+                // type information to the type definition
+                typeDefn.addColumn(Integer.parseInt(typeData[TableTypesColumn.INDEX.ordinal()].toString()),
+                                   typeData[TableTypesColumn.COLUMN_NAME_DB.ordinal()].toString(),
+                                   typeData[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()].toString(),
+                                   typeData[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()].toString(),
+                                   inputTypeHandler.getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
+                                   typeData[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()].equals("t") ? true : false,
+                                   typeData[TableTypesColumn.COLUMN_REQUIRED.ordinal()].equals("t") ? true : false,
+                                   typeData[TableTypesColumn.STRUCTURE_ALLOWED.ordinal()].equals("t") ? true : false,
+                                   typeData[TableTypesColumn.POINTER_ALLOWED.ordinal()].equals("t") ? true : false);
             }
-
-            // Add the column names, tool tip, column unique, column required, and column input
-            // type information to the type definition
-            typeDefn.addColumn(Integer.parseInt(typeData[TableTypesColumn.INDEX.ordinal()].toString()),
-                               typeData[TableTypesColumn.COLUMN_NAME_DB.ordinal()].toString(),
-                               typeData[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()].toString(),
-                               typeData[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()].toString(),
-                               inputTypeHandler.getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
-                               typeData[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()].equals("t")
-                                                                                                 ? true
-                                                                                                 : false,
-                               typeData[TableTypesColumn.COLUMN_REQUIRED.ordinal()].equals("t")
-                                                                                                ? true
-                                                                                                : false,
-                               typeData[TableTypesColumn.STRUCTURE_ALLOWED.ordinal()].equals("t")
-                                                                                                  ? true
-                                                                                                  : false,
-                               typeData[TableTypesColumn.POINTER_ALLOWED.ordinal()].equals("t")
-                                                                                                ? true
-                                                                                                : false);
         }
     }
 

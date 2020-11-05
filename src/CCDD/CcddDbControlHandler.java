@@ -2629,6 +2629,18 @@ public class CcddDbControlHandler
                     // (default database)
                     if (isDatabaseConnected())
                     {
+                        // Check if the database functions should be created; if so create the
+                        // internal tables and database functions, and check if an error occurs
+                        // creating them
+                        if (createFunctions && createTablesAndFunctions())
+                        {
+                            throw new CCDDException();
+                        }
+
+                        // Perform any patches to update this project database to the latest schema
+                        // that must be implemented prior to initializing the handler classes
+                        CcddPatchHandler patchHandler = new CcddPatchHandler(ccddMain);
+                        patchHandler.applyPatches(true);
 
                         // Create and set the project-specific handlers that must be created prior
                         // to creating the project-specific PostgreSQL functions
@@ -2652,20 +2664,6 @@ public class CcddDbControlHandler
                                 throw new CCDDException();
                             }
                         }                       
-
-                        // Check if the database functions should be created; if so create the
-                        // internal tables and database functions, and check if an error occurs
-                        // creating them
-                        if (createFunctions && createTablesAndFunctions())
-                        {
-                            throw new CCDDException();
-                        }
-
-                        // Perform any patches to update this project database to the latest schema
-                        // that must be implemented prior to initializing the handler classes
-                        CcddPatchHandler patchHandler = new CcddPatchHandler(ccddMain);
-                        patchHandler.applyPatches(true);
-
 
                         // Check if the database functions should be created; if so create the
                         // database functions that collect structure table members and
