@@ -187,31 +187,26 @@ if (tableNames.length != 0)
                 ccdd.writeToFileLn(outputFile, "");
                 ccdd.writeToFileLn(outputFile, "Command: " + ccdd.getCommandName(row) + "\n  Code : " + ccdd.getCommandCode(row));
 
-                // Step through each of the command's arguments
-                for (var arg = 0; arg < ccdd.getNumCommandArguments(row); arg++)
-                {
-                    var argColNames = ccdd.getCommandArgColumnNames(arg, row);
+		// Get the command argument table for this command
+                var cmdArgName = ccdd.getCommandArgument(row);
 
-                    // Adjust the minimum column width based on the column names
-                    var columnWidth = ccdd.getLongestString(argColNames, null);
+		if (cmdArgName != "") {
+		    // Get the command argument data and the columns that represent the table
+		    var cmdArgData = ccdd.getCommandArgumentData(cmdArgName);
+                    var cmdArgColumnNames = ccdd.getCommandArgumentColumnNames(cmdArgName);
 
-                    // Output the argument number
-                    ccdd.writeToFileLn(outputFile, "  Arg " + (arg + 1) + ": ");
-
-                    // Step through each column name belonging to the command argument
-                    for (var index = 0; index < argColNames.length; index++)
-                    {
-                        // Get the value for the command argument column
-                        var argValue = ccdd.getCommandArgByColumnName(arg, row, argColNames[index]);
-
-                        // Check if the value isn't blank
-                        if (!argValue.isEmpty())
-                        {
-                            // Output the argument column name and value
-                            ccdd.writeToFileFormat(outputFile, "    %-" + columnWidth + "s  Value: %s\n", argColNames[index], argValue);
-                        }
-                    }
-                }
+		    // Print the data in the desired format
+		    for (var dataRow = 0; dataRow < cmdArgData.length; dataRow++) {
+			ccdd.writeToFileLn(outputFile, "  " + "Arg " + (dataRow+1) + ":");
+			for (var columnRow = 0; columnRow < cmdArgColumnNames.length; columnRow++) {
+			    if (cmdArgData[dataRow][columnRow] != "") {
+				var whiteSpaceLength = 20 - cmdArgColumnNames[columnRow].length;
+                                var str = new Array(whiteSpaceLength+1).join(' ') + "Value: " +  cmdArgData[dataRow][columnRow];
+				ccdd.writeToFileLn(outputFile, "    " + cmdArgColumnNames[columnRow] + str);
+                            }
+			}
+		    }
+		}
             }
         }
 
