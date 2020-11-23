@@ -39,7 +39,6 @@ import org.json.simple.parser.ParseException;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesComponent.OrderedJSONObject;
-import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -50,7 +49,6 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
-import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
@@ -96,8 +94,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     // GUI component over which to center any error dialog
     private final Component parent;
 
-    // List containing the imported table, table type, data type, and macro
-    // definitions
+    // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
 
     // List of original and new script associations
@@ -252,11 +249,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 results.add(parseJSONObject((JSONObject) objectJA.get(index)));
             }
             // Not a JSON object; i.e., it's a string representing an array of items (column
-            // names,
-            // for example)
+            // names, for example)
             else {
-                // Create a JSON object in which to store the string, then add it to the results
-                // list
+                // Create a JSON object in which to store the string, then add it to the results list
                 JSONObject jo = new JSONObject();
                 jo.put(index, objectJA.get(index));
                 results.add(jo);
@@ -647,9 +642,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         if (typeField != null) {
                             /* Step through each table type data field definition */
                             for (JSONObject typeJO : parseJSONArray(typeField)) {
-                                /* Add the data field definition, checking for (and if possible, correcting)
-                                 * errors
-                                 */
+                                /* Add the data field definition, checking for (and if possible, correcting) errors */
                                 ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, tableTypeDefn,
                                         new String[] { CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName()),
                                                 getString(typeJO, FieldEditorColumnInfo.NAME.getColumnName()),
@@ -1927,6 +1920,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         // Store the table's data
         OrderedJSONObject tableData = getTableData(tableName, false, replaceMacros, includeVariablePaths,
                 variableHandler, separators, new OrderedJSONObject());
+        JSONArray data;
 
         // Check that the table loaded successfully
         if (tableData != null) {
@@ -1936,7 +1930,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             tableInformation.put(JSONTags.TABLE_NAME.getTag(), tableName);
             tableInformation.put(JSONTags.TABLE_TYPE.getTag(), tableInfo.getType());
             tableInformation.put(JSONTags.TABLE_DESCRIPTION.getTag(), tableInfo.getDescription());
-            tableInformation.put(JSONTags.TABLE_DATA.getTag(), tableData.get(JSONTags.TABLE_DATA.getTag()));
+            if ((JSONArray) tableData.get(JSONTags.TABLE_DATA.getTag()) == null) {
+                data = new JSONArray();
+            } else {
+                data = (JSONArray) tableData.get(JSONTags.TABLE_DATA.getTag());
+            }
+            tableInformation.put(JSONTags.TABLE_DATA.getTag(), data);
             tableInformation = getDataFields(tableName, JSONTags.TABLE_FIELD.getTag(), null, tableInformation);
 
             // Get the system name
@@ -2094,9 +2093,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      */
     @SuppressWarnings("unchecked")
     protected OrderedJSONObject getDataTypeDefinitions(List<String> dataTypeNames, OrderedJSONObject outputJO) {
-        // Check if the data type name list is null, in which case all defined data
-        // types are
-        // included
+        // Check if the data type name list is null, in which case all defined data types are included
         if (dataTypeNames == null) {
             dataTypeNames = new ArrayList<String>();
 
@@ -2163,9 +2160,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      */
     @SuppressWarnings("unchecked")
     protected OrderedJSONObject getInputTypeDefinitions(List<String> inputTypeNames, OrderedJSONObject outputJO) {
-        // Check if the input type name list is null, in which case all defined input
-        // types are
-        // included
+        // Check if the input type name list is null, in which case all defined input types are included
         if (inputTypeNames == null) {
             inputTypeNames = new ArrayList<String>();
 
@@ -3055,5 +3050,62 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             }
         }
         return outputJO;
+    }
+    
+    /**********************************************************************************************
+     * Retrieve various pieces of data from JSON files
+     *
+     * @param searchKey What to search for
+     * 
+     * @param data The string to be searched
+     *********************************************************************************************/
+    public StringBuilder retrieveJSONData(String searchKey, StringBuilder data) {
+        StringBuilder outData = new StringBuilder();
+        int beginIndex = 0;
+        int endIndex = 0;
+        
+        if (searchKey == JSONTags.INPUT_TYPE_DEFN.getAlternateTag()) {
+            /* Extract the data related to input type definitions */
+            beginIndex = data.toString().indexOf(JSONTags.INPUT_TYPE_DEFN.getAlternateTag());
+            endIndex = data.toString().indexOf(JSONTags.TABLE_TYPE_DEFN.getAlternateTag());
+        } else if (searchKey == JSONTags.TABLE_TYPE_DEFN.getAlternateTag()) {
+            /* Extract the data related to table type definitions */
+            beginIndex = data.toString().indexOf(JSONTags.TABLE_TYPE_DEFN.getAlternateTag());
+            endIndex = data.toString().indexOf(JSONTags.DATA_TYPE_DEFN.getAlternateTag());
+        } else if (searchKey == JSONTags.DATA_TYPE_DEFN.getAlternateTag()) {
+            /* Extract the data type definitions */
+            beginIndex = data.toString().indexOf(JSONTags.DATA_TYPE_DEFN.getAlternateTag());
+            endIndex = data.toString().indexOf("]", beginIndex);
+        } else if (searchKey == JSONTags.MACRO_DEFN.getAlternateTag()) {
+            /* Extract the data related to macro definitions */
+            beginIndex = data.toString().indexOf(JSONTags.MACRO_DEFN.getAlternateTag());
+            endIndex = data.toString().indexOf("]", beginIndex);
+        } else if (searchKey == JSONTags.GROUP.getAlternateTag()) {
+            /* Extract the data related to group definitions */
+            beginIndex = data.toString().indexOf(JSONTags.GROUP.getAlternateTag());
+            endIndex = data.toString().indexOf("\n  ],\n", beginIndex);
+        } else if (searchKey == JSONTags.SCRIPT_ASSOCIATION.getAlternateTag()) {
+            /* Extract the data related to script associations */
+            beginIndex = data.toString().indexOf(JSONTags.SCRIPT_ASSOCIATION.getAlternateTag());
+            endIndex = data.toString().indexOf("]", beginIndex);
+        } else if (searchKey == JSONTags.TLM_SCHEDULER_COMMENT.getAlternateTag()) {
+            /* Extract the data related to the telemetry scheduler */
+            beginIndex = data.toString().indexOf(JSONTags.TLM_SCHEDULER_COMMENT.getAlternateTag());
+            endIndex = data.toString().indexOf("],", beginIndex);
+        } else if (searchKey == JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag()) {
+            /* Extract the data related to the application scheduler */
+            beginIndex = data.toString().indexOf(JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag());
+            endIndex = data.toString().indexOf("]\n}", beginIndex);
+        } else if (searchKey == JSONTags.TABLE_DEFN.getAlternateTag()) {
+            /* Extract the table definitions */
+            beginIndex = data.toString().indexOf(JSONTags.TABLE_DEFN.getAlternateTag());
+            endIndex = data.toString().indexOf("  ],\n\n", beginIndex);
+        }
+        
+        if (endIndex != -1 && beginIndex != -1) {
+            outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+        }
+        
+        return outData;
     }
 }

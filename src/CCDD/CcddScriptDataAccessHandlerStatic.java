@@ -266,7 +266,15 @@ public class CcddScriptDataAccessHandlerStatic {
     public String getCommandArgumentStructureWithMacros(int row) {
         return accessHandler.getCommandArgumentWithMacros(row);
     }
+    
+    public String[][] getCommandArgumentData(String tableName) {
+        return accessHandler.getCommandArgumentData(tableName);
+    }
 
+    public String[] getCommandArgumentColumnNames(String tableName) {
+        return accessHandler.getCommandArgumentColumnNames(tableName);
+    }
+    
     public static String getStructureTypeNameByRow(int row) {
         return accessHandler.getStructureTypeNameByRow(row);
     }

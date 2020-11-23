@@ -1995,34 +1995,39 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
              *************************************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
-
-                // Check if the cell doesn't have the focus or is selected. The focus and
-                // selection
-                // highlight colors override the invalid highlight color
-                if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
-                        && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()) {
-                    // Check if the cell value is invalid. This does not validate the contents, but
-                    // only ensures that required cells are populated and that combo box cells
-                    // contain an item in the list
-                    if (!isCellValueFound(row, column)) {
-                        // Change the cell's background color
-                        comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                JComponent comp = null;
+                try {
+                    comp = (JComponent) super.prepareRenderer(renderer, row, column);
+                    
+                    // Check if the cell doesn't have the focus or is selected. The focus and
+                    // selection
+                    // highlight colors override the invalid highlight color
+                    if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
+                            && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()) {
+                        // Check if the cell value is invalid. This does not validate the contents, but
+                        // only ensures that required cells are populated and that combo box cells
+                        // contain an item in the list
+                        if (!isCellValueFound(row, column)) {
+                            // Change the cell's background color
+                            comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                        }
+                        // Check if this cell is protected from changes
+                        else if (!isCellEditable(row, column)) {
+                            // Change the cell's text and background colors
+                            comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
+                            comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
+                        }
+                        // Check if the row's variable name is present and matches that for a padding
+                        // variable
+                        else if (variableNameIndex != -1
+                                && getExpandedValueAt(table.convertRowIndexToModel(row), variableNameIndex)
+                                        .matches(PAD_VARIABLE_MATCH)) {
+                            // Change the cell's background color
+                            comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
+                        }
                     }
-                    // Check if this cell is protected from changes
-                    else if (!isCellEditable(row, column)) {
-                        // Change the cell's text and background colors
-                        comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
-                        comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
-                    }
-                    // Check if the row's variable name is present and matches that for a padding
-                    // variable
-                    else if (variableNameIndex != -1
-                            && getExpandedValueAt(table.convertRowIndexToModel(row), variableNameIndex)
-                                    .matches(PAD_VARIABLE_MATCH)) {
-                        // Change the cell's background color
-                        comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
-                    }
+                } catch (Exception e) {
+                    
                 }
 
                 return comp;

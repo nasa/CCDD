@@ -653,7 +653,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                             /* Check if a file was chosen */
                             if (filePath != null) {
                                 /* Export the contents of the selected table(s) in the specified format */
-                                fileIOHandler.importFileInBackground(filePath, backupFirstCb.isSelected(),
+                                fileIOHandler.importFileInBackground(filePath, importEntireDatabaseCb.isSelected(), backupFirstCb.isSelected(),
                                         replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
                                         useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
                                         ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),

@@ -81,7 +81,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * CSV data type tags
      *********************************************************************************************/
-    private enum CSVTags {
+    public enum CSVTags {
         COLUMN_DATA("_column_data_", null), CELL_DATA("_table_cell_data_", null), // This is an internal tag and not
                                                                                   // used in the file
         NAME_TYPE("_name_type_", null), DESCRIPTION("_description_", null), DATA_FIELD("_data_field_", "_data_fields_"),
@@ -139,6 +139,50 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
          *****************************************************************************************/
         protected boolean isTag(String text) {
             return tag.equalsIgnoreCase(text) || (alternateTag != null && alternateTag.equalsIgnoreCase(text));
+        }
+    }
+    
+    /**********************************************************************************************
+     * CSV file names
+     *********************************************************************************************/
+    public enum CSVFileNames {
+        TABLE_INFO("_table_Info.csv", "_table_Info"), GROUPS("_group_info.csv", "_group_info"),
+        MACROS("_macros.csv", "_macros"), SCRIPT_ASSOCIATION("_script_associations.csv", "_script_associations"),
+        TELEM_SCHEDULER("_tlm_scheduler.csv", "_tlm_scheduler"), APP_SCHEDULER("_app_scheduler.csv", "_app_scheduler"),
+        RESERVED_MSG_ID("_reserved_msg_ids.csv", "_reserved_msg_ids"), PROJECT_DATA_FIELD("_proj_data_fields.csv", "_proj_data_fields");
+
+        private final String name;
+        private final String alternateName;
+
+        /******************************************************************************************
+         * CSV file name constructor
+         *
+         * @param name          text describing the data
+         *
+         * @param alternateName text describing the data
+         *
+         *****************************************************************************************/
+        CSVFileNames(String name, String alternateName) {
+            this.name = name;
+            this.alternateName = alternateName;
+        }
+
+        /******************************************************************************************
+         * Get the file name
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
+        protected String getName() {
+            return name;
+        }
+        
+        /******************************************************************************************
+         * Get the alternate file name
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
+        protected String getAlternateName() {
+            return alternateName;
         }
     }
     
@@ -271,28 +315,21 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             throws CCDDException, IOException, Exception {
         try {
             /* Init local variables */
-            String content = new String (Files.readAllBytes(Paths.get(importFile.getPath())));
+            StringBuilder content = new StringBuilder(new String (Files.readAllBytes(Paths.get(importFile.getPath()))));
             
             /********************* APPLICATION SCHEDULER *********************/
-            if (content.contains(CSVTags.APP_SCHEDULER.getTag())) {
-                /* Extract the application scheduler data */
-                int beginIndex = content.indexOf(CSVTags.APP_SCHEDULER.getTag());
-                int endIndex = content.indexOf("\n\n\n", beginIndex);
-                String appData = "";
-                if (endIndex == -1) {
-                    appData = content.substring(beginIndex);
-                } else {
-                    appData = content.substring(beginIndex, endIndex);
-                }
+            StringBuilder incomingData = retrieveCSVData(CSVTags.APP_SCHEDULER.getTag(), content);
+            if (incomingData.length() != 0) {
+                String data = incomingData.toString();
                 
-                appData = appData.replace(CSVTags.APP_SCHEDULER.getTag()+
+                data = data.replace(CSVTags.APP_SCHEDULER.getTag()+
                         Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Remove all double quotes */
-                appData = appData.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
+                data = data.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Strip any remaining new line characters */
-                appData = appData.replace(Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
+                data = data.replace(Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Split the data into the individual columns */
-                String[] Columns = appData.split(Chars.COMMA.getValue());
+                String[] Columns = data.split(Chars.COMMA.getValue());
                 /* Extract the information from each column */
                 int maxMsgsPerTimeSlot = Integer.parseInt(Columns[0]);
                 int maxMsgsPerSec = Integer.parseInt(Columns[1]);
@@ -305,27 +342,20 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             
             /********************* TELEMETRY SCHEDULER *********************/
-            if (content.contains(CSVTags.TELEM_SCHEDULER.getTag())) {
-                /* Extract the telemetry scheduler data */
-                int beginIndex = content.indexOf(CSVTags.TELEM_SCHEDULER.getTag());
-                int endIndex = content.indexOf("\n\n\n", beginIndex);
-                String telemData = "";
-                if (endIndex == -1) {
-                    telemData = content.substring(beginIndex);
-                } else {
-                    telemData = content.substring(beginIndex, endIndex);
-                }
+            incomingData = retrieveCSVData(CSVTags.TELEM_SCHEDULER.getTag(), content);
+            if (incomingData.length() != 0) {
+                String data = incomingData.toString();
                 
                 /* Remove the telem sched tag */
-                telemData = telemData.replace(CSVTags.TELEM_SCHEDULER.getTag(), Chars.EMPTY_STRING.getValue());
+                data = data.replace(CSVTags.TELEM_SCHEDULER.getTag(), Chars.EMPTY_STRING.getValue());
                 /* Remove the rate info tag */
-                telemData = telemData.replace(CSVTags.RATE_INFO.getTag(), Chars.COMMA.getValue());
+                data = data.replace(CSVTags.RATE_INFO.getTag(), Chars.COMMA.getValue());
                 /* Remove any new line characters */
-                telemData = telemData.replace(Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
+                data = data.replace(Chars.NEW_LINE_CHAR.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Remove all double quotes */
-                telemData = telemData.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
+                data = data.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Split the data into the individual columns */
-                String[] Columns = telemData.split(Chars.COMMA.getValue());
+                String[] Columns = data.split(Chars.COMMA.getValue());
                 /* Extract the information from each column */
                 int maxSecPerMsg = Integer.parseInt(Columns[0]);
                 int maxMsgsPerSec = Integer.parseInt(Columns[1]);
@@ -347,7 +377,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             
             /********************* SCRIPT ASSOCIATIONS *********************/
-            if (content.contains(CSVTags.SCRIPT_ASSOCIATION.getTag())) {
+            incomingData = retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(), content);
+            if (incomingData.length() != 0) {
+                String data = incomingData.toString();
+                
                 /* Check if the associations haven't been loaded */
                 if (associations == null) {
                     /* Get the script associations from the database */
@@ -355,22 +388,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
                 
                 /* Extract the script association data */
-                int beginIndex = content.indexOf(CSVTags.SCRIPT_ASSOCIATION.getTag());
-                int endIndex = content.indexOf("\n\n\n", beginIndex);
-                String scriptData = "";
-                if (endIndex == -1) {
-                    scriptData = content.substring(beginIndex);
-                } else {
-                    scriptData = content.substring(beginIndex, endIndex);
-                }
-                
-                /* Extract the script association data */
-                scriptData = scriptData.replace(CSVTags.SCRIPT_ASSOCIATION.getTag()+Chars.NEW_LINE_CHAR.getValue(),
+                data = data.replace(CSVTags.SCRIPT_ASSOCIATION.getTag()+Chars.NEW_LINE_CHAR.getValue(),
                         Chars.EMPTY_STRING.getValue());
                 /* Remove all double quotes */
-                scriptData = scriptData.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
+                data = data.replace(Chars.DOUBLE_QUOTE.getValue(), Chars.EMPTY_STRING.getValue());
                 /* Split the data into the individual definitions */
-                String[] scriptAssocDefns = scriptData.split(Chars.NEW_LINE_CHAR.getValue());
+                String[] scriptAssocDefns = data.split(Chars.NEW_LINE_CHAR.getValue());
                 /* Step through each definition */
                 for (int i = 0; i < scriptAssocDefns.length; i++) {
                     /* Split the data into the individual columns */
@@ -425,31 +448,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             /* Init local variables */
             List<TableTypeDefinition> NewTableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             List<String[]> NewMacroDefns = new ArrayList<String[]>();
-            String content = new String (Files.readAllBytes(Paths.get(importFile.getPath())));
+            StringBuilder content = new StringBuilder(new String (Files.readAllBytes(Paths.get(importFile.getPath()))));
             TableTypeDefinition TableTypeDefn = null;
             int ColumnNumber = 0;
             String DataFields = "";
             
             /********************* TABLE TYPES *********************/
-            if (content.contains(CSVTags.TABLE_TYPE.getTag())) {
-                /* Extract the data related to table types and table type data fields from 
-                 * the file data.
-                 */
-                int beginIndex = content.indexOf(CSVTags.TABLE_TYPE.getTag());
-                int endIndex = content.indexOf(CSVTags.DATA_TYPE.getTag());
-                if (endIndex == -1) {
-                    /* If data types were not included in the export than we look
-                     * for the first occurrence of a triple newline character after
-                     * the beginIndex
-                     */
-                    endIndex = content.indexOf("\n\n\n", beginIndex);
-                }
-                String Data = content.substring(beginIndex, endIndex);
-                
+            StringBuilder incomingData = retrieveCSVData(CSVTags.TABLE_TYPE.getTag(), content);
+            if (incomingData.length() != 0) {
                 /* Divide the data into each individual table type definition, which may
                  * or may not have table type data fields included.
                  */
-                String[] TableTypeDefns = Data.split(CSVTags.TABLE_TYPE.getTag()+
+                String[] TableTypeDefns = incomingData.toString().split(CSVTags.TABLE_TYPE.getTag()+
                         Chars.NEW_LINE_CHAR.getValue());
 
                 /* Step through each definition */
@@ -586,27 +596,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             
             /********************* MACROS *********************/
-            // Check both the normal and alternative tag names for a match
-            boolean isMacroContained = content.contains(CSVTags.MACRO.getTag()) || content.contains(CSVTags.MACRO.getAlternateTag());
-            if (isMacroContained) {
-                // Use the tag that exists (one of them must if it gets to here)
-                String tagToUse = content.contains(CSVTags.MACRO.getTag()) ? CSVTags.MACRO.getTag() : CSVTags.MACRO.getAlternateTag();
-                
-                /* Extract the data related to macro definitions */
-                /* Handle two formats that may exist in the input data */
-                int beginIndex = content.indexOf(tagToUse);
-                 /* find the next instance of three return characters */
-                int endIndex = content.indexOf("\n\n\n", beginIndex);
-                /* If that failed, then find two return chars */
-                endIndex = endIndex == -1 ? content.indexOf("\n\n", beginIndex) : endIndex;
-                String Data = "";
-                if (endIndex == -1) {
-                    Data = content.substring(beginIndex);
-                } else {
-                    Data = content.substring(beginIndex, endIndex);
-                }
-
-                String[] MacroDefns = Data.split(Chars.NEW_LINE_CHAR.getValue());
+            incomingData = retrieveCSVData(CSVTags.MACRO.getTag(), content);
+            if (incomingData.length() != 0) {
+                String[] MacroDefns = incomingData.toString().split(Chars.NEW_LINE_CHAR.getValue());
                 for (int i = 1; i < MacroDefns.length; i++) {
                     /* Split on commas between quotes. It is done this way because it is
                      * valid to have commas inside of the macro definitions and this prevents
@@ -716,37 +708,23 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         /* Init local variables */
         List<String[]> newInputTypeDefns = new ArrayList<String[]>();
         List<String[]> newDataTypeDefns = new ArrayList<String[]>();
-        String content = new String (Files.readAllBytes(Paths.get(importFile.getPath())));
+        StringBuilder content = new StringBuilder(new String (Files.readAllBytes(Paths.get(importFile.getPath()))));
         
         try {
             /********************* INPUT TYPES *********************/
-            if (content.contains(CSVTags.INPUT_TYPE.getTag())) {
-                /* Extract the input type definitions */
-                int beginIndex = content.indexOf(CSVTags.INPUT_TYPE.getTag());
-                int endIndex = content.indexOf(CSVTags.TABLE_TYPE.getTag());
-                /* If there are no table type definitions in the file the data type tag
-                 * will be used to mark the end of the input type definitions. If there
-                 * is no data type input tag than the triple newline character sequence 
-                 * will mark the end of the input type definitions.
-                 */
-                if (endIndex == -1) {
-                    endIndex = content.indexOf(CSVTags.DATA_TYPE.getTag());
-                    if (endIndex == -1) {
-                        endIndex = content.indexOf("\n\n\n", beginIndex);
-                    }
-                }
-                
-                String InputData = content.substring(beginIndex, endIndex);
-                InputData = InputData.replace(CSVTags.INPUT_TYPE.getTag()+Chars.NEW_LINE_CHAR.getValue(),
+            StringBuilder incomingData = retrieveCSVData(CSVTags.INPUT_TYPE.getTag(), content);
+            if (incomingData.length() != 0) {
+                String data = incomingData.toString();
+                data = data.replace(CSVTags.INPUT_TYPE.getTag()+Chars.NEW_LINE_CHAR.getValue(),
                         Chars.EMPTY_STRING.getValue());
                 
                 /* Replace any double end line characters */
-                InputData = InputData.replace(Chars.DOUBLE_NEW_LINE.getValue(), Chars.NEW_LINE_CHAR.getValue());
+                data = data.replace(Chars.DOUBLE_NEW_LINE.getValue(), Chars.NEW_LINE_CHAR.getValue());
                 /* There are often new line characters within the text fields of the input types.
                  * In order to guard against these we split only on new line characters that are 
                  * directly after a double quote
                  */
-                String[] inputTypeDefns = InputData.split(Chars.QUOTE_NEW_LINE.getValue());
+                String[] inputTypeDefns = data.split(Chars.QUOTE_NEW_LINE.getValue());
                 
                 /* Step through each definition */
                 for (int i = 0; i < inputTypeDefns.length; i++) {
@@ -792,22 +770,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             
             /********************* DATA TYPES *********************/
-            if (content.contains(CSVTags.DATA_TYPE.getTag())) {
-                /* Extract the data type definitions */
-                int beginIndex = content.indexOf(CSVTags.DATA_TYPE.getTag());
-                int endIndex = content.indexOf("\n\n\n", beginIndex);
-                String dataTypeData = "";
-                if (endIndex == -1) {
-                    dataTypeData = content.substring(beginIndex);
-                } else {
-                    dataTypeData = content.substring(beginIndex, endIndex);
-                }
+            incomingData = retrieveCSVData(CSVTags.DATA_TYPE.getTag(), content);
+            if (incomingData.length() != 0) {
+                String data = incomingData.toString();
                 
-                dataTypeData = dataTypeData.replace(CSVTags.DATA_TYPE.getTag()+Chars.NEW_LINE_CHAR.getValue(),
+                data = data.replace(CSVTags.DATA_TYPE.getTag()+Chars.NEW_LINE_CHAR.getValue(),
                         Chars.EMPTY_STRING.getValue());
                 
                 /* Split the data into the individual data type definitions */
-                String[] dataTypeDefns = dataTypeData.split(Chars.NEW_LINE_CHAR.getValue());
+                String[] dataTypeDefns = data.split(Chars.NEW_LINE_CHAR.getValue());
                 
                 /* Step through each definition */
                 for (int i = 0; i < dataTypeDefns.length; i++) {
@@ -857,6 +828,436 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         }
         return;
     }
+    
+    /**********************************************************************************************
+     * Import group information from a provided csv file
+     * 
+     * @param br A buffered reader variable
+     * 
+     * @param importFile Import file reference
+     * 
+     * @param ignoreErrors Should errors be ignored during import
+     * 
+     * @param projectDefn The project definition
+     * 
+     * @param replaceExistingGroups Should existing groups be replaced
+     *********************************************************************************************/
+    public void importGroupData(BufferedReader br, FileEnvVar importFile, boolean ignoreErrors,
+            ProjectDefinition projectDefn, boolean replaceExistingGroups) {
+        /* Initialize the number of matching columns and the cell data storage */
+        Boolean readingGroupData = false;
+        Boolean readingGroupDataField = false;
+        String[] columnValues = null;
+        String groupDefnName = null;
+        
+        try {
+            /* Read first line in file */
+            String line = br.readLine();
+            
+            /* Remove any leading/trailing white space characters from the row */
+            line = line.trim();
+        
+            /* Continue to read the file until EOF is reached or an error is detected. */
+            while (line != null) {
+                /* Check if we are about to read group data */
+                if (line.equals(CSVTags.GROUP.getTag())) {
+                    readingGroupDataField = false;
+                    readingGroupData = true;
+                    line = br.readLine();
+                /* Check if we are about to read group data fields */
+                } else if (line.equals(CSVTags.GROUP_DATA_FIELD.getTag())) {
+                    readingGroupDataField = true;
+                    readingGroupData = false;
+                    line = br.readLine();
+                }
+                
+                /* Divide the string into an array of strings */
+                columnValues = trimLine(line, br);
+                
+                /* Check if all definitions are to be loaded */
+                if (readingGroupData == true && !line.isEmpty()) {
+                    /* Check if the expected number of inputs is present */
+                    if (columnValues.length == GroupDefinitionColumn.values().length
+                            || columnValues.length == GroupDefinitionColumn.values().length
+                                    - 1) {
+                        /* Append empty columns as needed to fill out the expected number of inputs */
+                        columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                GroupDefinitionColumn.values().length - columnValues.length);
+    
+                        /* Store the group name */
+                        groupDefnName = columnValues[GroupDefinitionColumn.NAME.ordinal()];
+                        /* Add the group definition, checking for (and if possible, correcting) errors */
+                        addImportedGroupDefinition(new String[] { groupDefnName,
+                                columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
+                                columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
+                                columnValues[GroupDefinitionColumn.MEMBERS.ordinal()]},
+                                importFile.getAbsolutePath(), replaceExistingGroups,
+                                groupHandler);
+                    }
+                    /* The number of inputs is incorrect */
+                    else {
+                        /* Check if the error should be ignored or the import canceled */
+                        ignoreErrors = getErrorResponse(ignoreErrors,
+                                "<html><b>Group definition has missing "
+                                        + "or extra input(s) in import file '</b>"
+                                        + importFile.getAbsolutePath() + "<b>'; continue?",
+                                "Group Error", "Ignore this invalid group",
+                                "Ignore this and any remaining invalid group definitions",
+                                "Stop importing", parent);
+                    }
+                } else if (readingGroupDataField == true && !line.isEmpty()) {
+                    /* Append empty columns as needed to fill out the expected number of inputs */
+                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                            FieldsColumn.values().length - 1 - columnValues.length);
+    
+                    /* Add the data field definition, checking for (and if possible, correcting) errors */
+                    ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingGroups, projectDefn,
+                            new String[] { CcddFieldHandler.getFieldGroupName(groupDefnName),
+                                    columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                    "false"},
+                            importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
+                            parent);
+                }
+                
+                line = br.readLine();
+                if (line != null) {
+                    /* Remove any leading/trailing white space characters from the row */
+                    line = line.trim();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**********************************************************************************************
+     * Import reserved message id information from a provided csv file
+     * 
+     * @param br A buffered reader variable
+     * 
+     * @param importFile Import file reference
+     * 
+     * @param ignoreErrors Should errors be ignored during import
+     *********************************************************************************************/
+    public void importReservedMsgIDData(BufferedReader br, FileEnvVar importFile, boolean ignoreErrors) {
+        String[] columnValues = null;
+        List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
+        
+        try {
+            /* Read first line in file */
+            String line = br.readLine();
+            
+            while (line != null) {
+                /* Check that this is not a blank line */
+                if (!line.isEmpty() && !line.equals(CSVTags.RESERVED_MSG_IDS.getTag())) {
+                    columnValues = trimLine(line, br);
+                    
+                    /* Check if the expected number of inputs is present */
+                    if (columnValues.length == 2 || columnValues.length == 1) {
+                        /* Append empty columns as needed to fill out the expected number of inputs */
+                        columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                2 - columnValues.length);
+    
+                        /* Add the reserved message ID definition (add a blank to represent the ID) */
+                        reservedMsgIDDefns.add(new String[] {
+                                columnValues[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                columnValues[ReservedMsgIDsColumn.DESCRIPTION.ordinal()], "" });
+                    } else {
+                        /* The number of inputs is incorrect Check if the error should be ignored or the
+                         * import canceled
+                         */
+                        ignoreErrors = getErrorResponse(ignoreErrors,
+                                "<html><b>Missing or extra reserved message ID "
+                                        + "definition input(s) in import file '</b>"
+                                        + importFile.getAbsolutePath() + "<b>'; continue?",
+                                "Reserved Message ID Error", "Ignore this data type",
+                                "Ignore this and any remaining invalid reserved message IDs",
+                                "Stop importing", parent);
+                    }
+                }
+                
+                line = br.readLine();
+                if (line != null) {
+                    /* Remove any leading/trailing white space characters from the row */
+                    line = line.trim();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**********************************************************************************************
+     * Import project data field information from a provided csv file
+     * 
+     * @param br A buffered reader variable
+     * 
+     * @param importFile Import file reference
+     * 
+     * @param ignoreErrors Should errors be ignored during import
+     * 
+     * @param projectDefn The project definition
+     * 
+     * @param replaceExistingTables Should existing tables be replaced
+     *********************************************************************************************/
+    public void importProjectDataFields(BufferedReader br, FileEnvVar importFile, boolean ignoreErrors,
+            boolean replaceExistingTables, ProjectDefinition projectDefn) {
+        String[] columnValues = null;
+        
+        try {
+            /* Read first line in file */
+            String line = br.readLine();
+            
+            columnValues = trimLine(line, br);
+            
+            while (line != null) {
+                /* Append empty columns as needed to fill out the expected number of inputs */
+                columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                        FieldsColumn.values().length - 1 - columnValues.length);
+    
+                /* Add the data field definition, checking for (and if possible, correcting) errors */
+                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, projectDefn,
+                        new String[] { CcddFieldHandler.getFieldProjectName(),
+                                columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                        importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
+                        parent);
+            }
+            
+            line = br.readLine();
+            columnValues = trimLine(line, br);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**********************************************************************************************
+     * Import table definitions from a provided csv file
+     * 
+     * @param br A buffered reader variable
+     * 
+     * @param importFile Import file reference
+     * 
+     * @param ignoreErrors Should errors be ignored during import
+     * 
+     * @param replaceExistingTables Should existing tables be replaced
+     * 
+     * @param importType            ImportType.IMPORT_ALL to import the table type,
+     *                              data type, and macro definitions, and the data
+     *                              from all the table definitions;
+     *                              ImportType.FIRST_DATA_ONLY to load only the data
+     *                              for the first table defined
+     *                              
+     * @param targetTypeDefn        table type definition of the table in which to
+     *                              import the data; ignored if importing all tables
+     *********************************************************************************************/
+    public void importTableDefinitions(BufferedReader br, FileEnvVar importFile, boolean ignoreErrors,
+            boolean replaceExistingTables, ImportType importType, TypeDefinition targetTypeDefn) {
+        String[] columnValues = null;
+        
+        /* Initialize the number of matching columns and the cell data storage */
+        Boolean readingNameType = false;
+        Boolean readingColumnData = false;
+        Boolean readingDataField = false;
+        
+        /* Initialize the table information */
+        int numColumns = 0;
+        
+        /* Create empty table information and table type definition references */
+        TypeDefinition typeDefn = null;
+        
+        /* Initialize the table information */
+        String tablePath = "";
+        
+        boolean columnsCounted = false;
+        
+        /* Storage for column indices */
+        int[] columnIndex = null;
+
+        /* Create a table definition to contain the table's information */
+        TableDefinition tableDefn = new TableDefinition();
+        
+        try {
+            /* Read first line in file */
+            String line = br.readLine();
+            
+            /* Remove any leading/trailing white space characters from the row */
+            line = line.trim();
+        
+            /* Continue to read the file until EOF is reached or an error is detected. */
+            while (line != null) {                
+                if (!line.isEmpty()) {
+                    if (line.replace(",", "").equals(CSVTags.NAME_TYPE.getTag())) {
+                        readingNameType = true;
+                        readingColumnData = false;
+                        readingDataField = false;
+                        line = br.readLine();
+                    } else if (line.replace(",", "").equals(CSVTags.COLUMN_DATA.getTag())) {
+                        readingNameType = false;
+                        readingColumnData = true;
+                        readingDataField = false;
+                        line = br.readLine();
+                    } else if (line.replace(",", "").equals(CSVTags.DATA_FIELD.getTag())) {
+                        readingNameType = false;
+                        readingColumnData = false;
+                        readingDataField = true;
+                        line = br.readLine();
+                    }
+                    if (line.replace(",", "").equals(CSVTags.DESCRIPTION.getTag())) {
+                        line = br.readLine();
+                        if (line != null && !line.isEmpty()) {
+                            columnValues = trimLine(line, br);
+                            /* Store the table description */
+                            tableDefn.setDescription(columnValues[0]);
+                        }
+                    } else {
+                        columnValues = trimLine(line, br);
+                        
+                        if (readingNameType == true) {
+                            /* Check if the expected number of inputs is present (the
+                             * third value, the system name, is optional and not used)
+                             */
+                            if (columnValues.length == 2 || columnValues.length == 3) {
+                                /* Get the table's type definition. If importing into
+                                 * an existing table then use its type definition
+                                 */
+                                typeDefn = importType == ImportType.IMPORT_ALL
+                                        ? tableTypeHandler.getTypeDefinition(columnValues[1])
+                                        : targetTypeDefn;
+            
+                                /* Check if the table type doesn't exist */
+                                if (typeDefn == null) {
+                                    throw new CCDDException(
+                                            "Unknown table type '</b>" + columnValues[1] + "<b>'");
+                                }
+            
+                                /* Use the table name (with path, if applicable) and type to build
+                                 * the parent, path, and type for the table information class
+                                 */
+                                tablePath = columnValues[0];
+                                tableDefn.setName(tablePath);
+                                tableDefn.setTypeName(columnValues[1]);
+                                
+                                /* Get the number of expected columns (the hidden columns, primary
+                                 * key and row index, should not be included in the CSV file)
+                                 */
+                                numColumns = typeDefn.getColumnCountVisible();
+                            }
+                            /* Incorrect number of inputs */
+                            else {
+                                throw new CCDDException("Too many/few table name and type inputs");
+                            }
+                        } else if (readingColumnData == true) {
+                            /* Check if any column names exist */
+                            if (columnValues.length != 0) {
+                                /* Number of columns in an import file that match the target table */
+                                int numValidColumns = 0;
+                                
+                                if (columnsCounted == false) {
+                                    /* Create storage for the column indices */
+                                    columnIndex = new int[columnValues.length];
+                                    
+                                    /* Step through each column name */
+                                    for (int index = 0; index < columnValues.length; index++) {
+                                        /* Get the index for this column name */
+                                        columnIndex[index] = typeDefn.getVisibleColumnIndexByUserName(columnValues[index]);
+            
+                                        /* Check if the column name in the file matches that of a column in the table */
+                                        if (columnIndex[index] != -1) {
+                                            /* Increment the counter that tracks the number of matched columns */
+                                            numValidColumns++;
+                                        }
+                                        /* The number of inputs is incorrect */
+                                        else {
+                                            /* Check if the error should be ignored or the import canceled */
+                                            ignoreErrors = getErrorResponse(ignoreErrors,
+                                                    "<html><b>Table '</b>" + tableDefn.getName()
+                                                            + "<b>' column name '</b>" + columnValues[index]
+                                                            + "<b>' unrecognized in import file '</b>"
+                                                            + importFile.getAbsolutePath() + "<b>'; continue?",
+                                                    "Column Error", "Ignore this invalid column name",
+                                                    "Ignore this and any remaining invalid column names",
+                                                    "Stop importing", parent);
+                                        }
+                                    }
+                                    
+                                    /* Check if no column names in the file match those in the table */
+                                    if (numValidColumns == 0) {
+                                        throw new CCDDException("No columns match those in the target table",
+                                                JOptionPane.WARNING_MESSAGE);
+                                    }
+                                    
+                                    columnsCounted = true;
+                                } else {
+                                    /* Create storage for the row of cell data and initialize the values to nulls
+                                     * (a null indicates that the pasted cell value won't overwrite the current
+                                     * table value if overwriting; if inserting the pasted value is changed to a space)
+                                     */
+                                    String[] rowData = new String[numColumns];
+                                    Arrays.fill(rowData, "");
+    
+                                    /* Step through each column in the row */
+                                    for (int rowIndex = 0; rowIndex < columnValues.length; rowIndex++) {
+                                        /* Check if the column exists */
+                                        if (rowIndex < columnIndex.length && columnIndex[rowIndex] != -1) {
+                                            /* Store the cell data in the column matching the one in the target table */
+                                            rowData[columnIndex[rowIndex]] = columnValues[rowIndex];
+                                        }
+                                    }
+                                    /* Add the row of data read in from the file to the cell data list */
+                                    tableDefn.addData(rowData);
+                                }
+                            }
+                            /* The file contains no column data */
+                            else {
+                                throw new CCDDException("File format invalid");
+                            }
+                        } else if (readingDataField == true) {
+                            /* Append empty columns as needed to fill out the expected number of inputs */
+                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                    FieldsColumn.values().length - 1 - columnValues.length);
+        
+                            /* Add the data field definition, checking for (and if possible, correcting) errors */
+                            ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, tableDefn,
+                                    new String[] { tableDefn.getName(),
+                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                            columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                                    importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
+                        }
+                    }
+                }
+                
+            
+                line = br.readLine();
+            }
+            
+            /* Check if a table definition exists in the import file */
+            if (tableDefn.getName() != null) {
+                /* Add the table's definition to the list */
+                tableDefinitions.add(tableDefn);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
@@ -895,477 +1296,29 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
         try {
             ProjectDefinition projectDefn = new ProjectDefinition();
-            List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
             tableDefinitions = new ArrayList<TableDefinition>();
 
-            /* Make two passes through the file, first to get the groups, project fields 
-             * and reserved msgids and then a Second pass to read the table data and fields
-             */
-            for (int loop = 1; loop <= 2; loop++) {
-                String groupDefnName = null;
-
-                /* Create a buffered reader to read the file */
-                br = new BufferedReader(new FileReader(importFile));
-
-                /* Initialize the import tag */
-                CSVTags importTag = null;
-
-                /* Read first line in file */
-                String line = br.readLine();
-
-                /* Continue to read the file until EOF is reached or an error is detected. This
-                 * outer while loop accounts for multiple table definitions within a single file
-                 */
-                while (line != null) {
-                    /* Initialize the table information */
-                    int numColumns = 0;
-                    String tablePath = "";
-
-                    /* Create empty table information and table type definition references */
-                    TypeDefinition typeDefn = null;
-
-                    /* Storage for column indices */
-                    int[] columnIndex = null;
-
-                    /* Initialize the number of matching columns and the cell data storage */
-                    String[] columnValues = null;
-
-                    /* Create a table definition to contain the table's information */
-                    TableDefinition tableDefn = new TableDefinition();
-                    
-                    /* Continue to read the file until EOF is reached or an error is detected. This
-                     * inner while loop reads the information for a single table in the file
-                     */
-                    while (line != null) {
-                        /* Remove any leading/trailing white space characters from the row */
-                        String trimmedLine = line.trim();
-
-                        /* Check that the row isn't empty and isn't a comment line (starts with a #character) */
-                        if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("#")) {
-                            boolean isTag = false;
-                            boolean isNextTable = false;
-
-                            /* Check if the line contains an odd number of double quotes */
-                            if (trimmedLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0) {
-                                String nextLine = null;
-
-                                /* Step through the subsequent lines in order to find the end of
-                                 * multi-line value
-                                 */
-                                while ((nextLine = br.readLine()) != null) {
-                                    /* Append the line to the preceding one, inserting the line
-                                     * feed. The non-trimmed variable is used so that trailing
-                                     * spaces within a quoted, multiple-line field aren't lost
-                                     */
-                                    line += "\n" + nextLine;
-
-                                    /* Check if this is the line that ends the multi-line value
-                                     * (i.e., it ends with one double quote)
-                                     */
-                                    if (nextLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0) {
-                                        /* Stop searching; the multi-line string has been concatenated 
-                                         * to the initial line
-                                         */
-                                        break;
-                                    }
-                                }
-
-                                /* Remove any leading/trailing white space characters from the
-                                 * combined multiple line row. This only removed white space
-                                 * outside the quotes that bound the text
-                                 */
-                                trimmedLine = line.trim();
-                            }
-
-                            /* Remove any trailing commas and empty quotes from the row. If the CSV
-                             * file is generated from a spreadsheet application then extra commas
-                             * are appended to a row if needed for the number of columns to be
-                             * equal with the other rows. These empty trailing columns are ignored
-                             */
-                            line = trimmedLine.replaceAll("(?:[,\\s*]|\"\\s*\",|,\"\\s*\")*$", "");
-
-                            /* Parse the import data. The values are comma- separated; however,
-                             * commas within quotes are ignored - this allows commas to be included
-                             * in the data values
-                             */
-                            columnValues = CcddUtilities.splitAndRemoveQuotes(line);
-
-                            /* Remove any leading/trailing white space characters from the first
-                             * column value
-                             */
-                            String firstColumn = columnValues[0].trim();
-
-                            /* Step through the import tags */
-                            for (CSVTags csvTag : CSVTags.values()) {
-                                /* Check if the first column value matches the tag name */
-                                if (csvTag.isTag(firstColumn)) {
-                                    isTag = true;
-
-                                    /* Set the import tag and stop searching */
-                                    importTag = csvTag;
-
-                                    /* Check if this is the table name and table type tag */
-                                    if (CSVTags.NAME_TYPE.isTag(firstColumn)) {
-                                        /* Check if this is the second pass and if the name and type
-                                         * are already set; if so, this is the beginning of another
-                                         * table's information
-                                         */
-                                        if (loop == 2 && !tablePath.isEmpty()) {
-                                            /* Set the flag to indicate that this is the beginning
-                                             * of the next table definition
-                                             */
-                                            isNextTable = true;
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-
-                            /* Check if this is the beginning of the next table definition */
-                            if (isNextTable) {
-                                /* Stop processing the file in order to create the table
-                                 * prior to beginning another one
-                                 */
-                                break;
-                            }
-
-                            /* Not a tag (or no table name and type are defined); read in the
-                             * information based on the last tag read
-                             */
-                            if (!isTag) {
-                                /* Check if this is the first pass */
-                                if (loop == 1) {
-                                    switch (importTag) {
-                                    case RESERVED_MSG_IDS:
-                                        /* Check if all definitions are to be loaded */
-                                        if (importType == ImportType.IMPORT_ALL) {
-                                            /* Check if the expected number of inputs is present */
-                                            if (columnValues.length == 2 || columnValues.length == 1) {
-                                                /* Append empty columns as needed to fill out
-                                                 * the expected number of inputs
-                                                 */
-                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                        2 - columnValues.length);
-
-                                                /* Add the reserved message ID definition (add
-                                                 * a blank to represent the OID)
-                                                 */
-                                                reservedMsgIDDefns.add(new String[] {
-                                                        columnValues[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                                                        columnValues[ReservedMsgIDsColumn.DESCRIPTION.ordinal()], "" });
-                                            } else {
-                                                /* The number of inputs is incorrect
-                                                 * Check if the error should be ignored or the
-                                                 * import canceled
-                                                 */
-                                                ignoreErrors = getErrorResponse(ignoreErrors,
-                                                        "<html><b>Missing or extra reserved message ID "
-                                                                + "definition input(s) in import file '</b>"
-                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
-                                                        "Reserved Message ID Error", "Ignore this data type",
-                                                        "Ignore this and any remaining invalid reserved message IDs",
-                                                        "Stop importing", parent);
-                                            }
-                                        }
-                                        break;
-
-                                    case PROJECT_DATA_FIELD:
-                                        /* Check if all definitions are to be loaded */
-                                        if (importType == ImportType.IMPORT_ALL) {
-                                            /* Append empty columns as needed to fill out the
-                                             * expected number of inputs
-                                             */
-                                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                    FieldsColumn.values().length - 1 - columnValues.length);
-
-                                            /* Add the data field definition, checking for (and
-                                             * if possible, correcting) errors
-                                             */
-                                            ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, projectDefn,
-                                                    new String[] { CcddFieldHandler.getFieldProjectName(),
-                                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
-                                                    importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
-                                                    parent);
-                                        }
-
-                                        break;
-
-                                    case GROUP:
-                                        /* Check if all definitions are to be loaded */
-                                        if (importType == ImportType.IMPORT_ALL) {
-                                            /* Check if the expected number of inputs is present */
-                                            if (columnValues.length == GroupDefinitionColumn.values().length
-                                                    || columnValues.length == GroupDefinitionColumn.values().length
-                                                            - 1) {
-                                                /* Append empty columns as needed to fill out
-                                                 * the expected number of inputs
-                                                 */
-                                                columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                        GroupDefinitionColumn.values().length - columnValues.length);
-
-                                                /* Store the group name */
-                                                groupDefnName = columnValues[GroupDefinitionColumn.NAME.ordinal()];
-
-                                                /* Add the group definition, checking for (and
-                                                 * if possible, correcting) errors
-                                                 */
-                                                addImportedGroupDefinition(new String[] { groupDefnName,
-                                                        columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
-                                                        columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
-                                                        columnValues[GroupDefinitionColumn.MEMBERS.ordinal()] },
-                                                        importFile.getAbsolutePath(), replaceExistingGroups,
-                                                        groupHandler);
-                                            }
-                                            /* The number of inputs is incorrect */
-                                            else {
-                                                /* Check if the error should be ignored or the import canceled */
-                                                ignoreErrors = getErrorResponse(ignoreErrors,
-                                                        "<html><b>Group definition has missing "
-                                                                + "or extra input(s) in import file '</b>"
-                                                                + importFile.getAbsolutePath() + "<b>'; continue?",
-                                                        "Group Error", "Ignore this invalid group",
-                                                        "Ignore this and any remaining invalid group definitions",
-                                                        "Stop importing", parent);
-                                            }
-                                        }
-                                        break;
-
-                                    case GROUP_DATA_FIELD:
-                                        /* Check if all definitions are to be loaded */
-                                        if (importType == ImportType.IMPORT_ALL) {
-                                            /* Append empty columns as needed to fill out the
-                                             * expected number of inputs
-                                             */
-                                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                    FieldsColumn.values().length - 1 - columnValues.length);
-
-                                            /* Add the data field definition, checking for (and
-                                             * if possible, correcting) errors
-                                             */
-                                            ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingGroups, projectDefn,
-                                                    new String[] { CcddFieldHandler.getFieldGroupName(groupDefnName),
-                                                            columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                            columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
-                                                    importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
-                                                    parent);
-                                        }
-
-                                        break;
-
-                                    case SCRIPT_ASSOCIATION:
-                                    case INPUT_TYPE:
-                                    case CELL_DATA:
-                                    case COLUMN_DATA:
-                                    case DATA_FIELD:
-                                    case DESCRIPTION:
-                                    case NAME_TYPE:
-                                        break;
-
-                                    default:
-                                        /* This table contained no usable information that could be imported */
-                                    }
-                                }
-                                /* This is the second pass */
-                                else {
-                                    switch (importTag) {
-                                    case NAME_TYPE:
-                                        /* Check if the expected number of inputs is present (the
-                                         * third value, the system name, is optional and not used)
-                                         */
-                                        if (columnValues.length == 2 || columnValues.length == 3) {
-                                            /* Get the table's type definition. If importing into
-                                             * an existing table then use its type definition
-                                             */
-                                            typeDefn = importType == ImportType.IMPORT_ALL
-                                                    ? tableTypeHandler.getTypeDefinition(columnValues[1])
-                                                    : targetTypeDefn;
-
-                                            /* Check if the table type doesn't exist */
-                                            if (typeDefn == null) {
-                                                throw new CCDDException(
-                                                        "Unknown table type '</b>" + columnValues[1] + "<b>'");
-                                            }
-
-                                            /* Use the table name (with path, if applicable) and type to build
-                                             * the parent, path, and type for the table information class
-                                             */
-                                            tablePath = columnValues[0];
-                                            tableDefn.setName(tablePath);
-                                            tableDefn.setTypeName(columnValues[1]);
-
-                                            /* Get the number of expected columns (the hidden columns, primary
-                                             * key and row index, should not be included in the CSV file)
-                                             */
-                                            numColumns = typeDefn.getColumnCountVisible();
-                                        }
-                                        /* Incorrect number of inputs */
-                                        else {
-                                            throw new CCDDException("Too many/few table name and type inputs");
-                                        }
-
-                                        break;
-
-                                    case DESCRIPTION:
-                                        /* Store the table description */
-                                        tableDefn.setDescription(columnValues[0]);
-                                        break;
-
-                                    case COLUMN_DATA:
-                                        /* Check if any column names exist */
-                                        if (columnValues.length != 0) {
-                                            /* Number of columns in an import file that match the target table */
-                                            int numValidColumns = 0;
-
-                                            /* Create storage for the column indices */
-                                            columnIndex = new int[columnValues.length];
-
-                                            /* Step through each column name */
-                                            for (int index = 0; index < columnValues.length; index++) {
-                                                /* Get the index for this column name */
-                                                columnIndex[index] = typeDefn
-                                                        .getVisibleColumnIndexByUserName(columnValues[index]);
-
-                                                /* Check if the column name in the file matches that of a column in the table */
-                                                if (columnIndex[index] != -1) {
-                                                    /* Increment the counter that tracks the number of matched columns */
-                                                    numValidColumns++;
-                                                }
-                                                /* The number of inputs is incorrect */
-                                                else {
-                                                    /* Check if the error should be ignored or the import canceled */
-                                                    ignoreErrors = getErrorResponse(ignoreErrors,
-                                                            "<html><b>Table '</b>" + tableDefn.getName()
-                                                                    + "<b>' column name '</b>" + columnValues[index]
-                                                                    + "<b>' unrecognized in import file '</b>"
-                                                                    + importFile.getAbsolutePath() + "<b>'; continue?",
-                                                            "Column Error", "Ignore this invalid column name",
-                                                            "Ignore this and any remaining invalid column names",
-                                                            "Stop importing", parent);
-                                                }
-                                            }
-
-                                            /* Check if no column names in the file match those in the table */
-                                            if (numValidColumns == 0) {
-                                                throw new CCDDException("No columns match those in the target table",
-                                                        JOptionPane.WARNING_MESSAGE);
-                                            }
-                                        }
-                                        /* The file contains no column data */
-                                        else {
-                                            throw new CCDDException("File format invalid");
-                                        }
-
-                                        /* Set the import tag to look for cell data */
-                                        importTag = CSVTags.CELL_DATA;
-                                        break;
-
-                                    case CELL_DATA:
-                                        /* Create storage for the row of cell data and initialize the values to nulls
-                                         * (a null indicates that the pasted cell value won't overwrite the current
-                                         * table value if overwriting; if inserting the pasted value is changed to a space)
-                                         */
-                                        String[] rowData = new String[numColumns];
-                                        Arrays.fill(rowData, null);
-
-                                        /* Step through each column in the row */
-                                        for (int index = 0; index < columnValues.length; index++) {
-                                            /* Check if the column exists */
-                                            if (index < columnIndex.length && columnIndex[index] != -1) {
-                                                /* Store the cell data in the column matching
-                                                 * the one in the target table
-                                                 */
-                                                rowData[columnIndex[index]] = columnValues[index];
-                                            }
-                                        }
-
-                                        /* Add the row of data read in from the file to the cell data list */
-                                        tableDefn.addData(rowData);
-                                        break;
-
-                                    case DATA_FIELD:
-                                        /* Append empty columns as needed to fill out the expected number of inputs */
-                                        columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                FieldsColumn.values().length - 1 - columnValues.length);
-
-                                        /* Add the data field definition, checking for (and if possible, correcting) errors */
-                                        ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, tableDefn,
-                                                new String[] { tableDefn.getName(),
-                                                        columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                        columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
-                                                importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
-
-                                        break;
-
-                                    case DATA_TYPE:
-                                    case INPUT_TYPE:
-                                    case MACRO:
-                                    case TABLE_TYPE:
-                                    case TABLE_TYPE_DATA_FIELD:
-                                    case RESERVED_MSG_IDS:
-                                    case PROJECT_DATA_FIELD:
-                                    case GROUP:
-                                    case GROUP_DATA_FIELD:
-                                    case SCRIPT_ASSOCIATION:
-                                        break;
-
-                                    default:
-                                        /* No data to import from this file */
-                                    }
-                                }
-                            }
-                        }
-
-                        /* Read next line in file */
-                        line = br.readLine();
-                    }
-
-                    /* Check if this is the second pass */
-                    if (loop == 2) {
-                        /* Check if a table definition exists in the import file */
-                        if (tableDefn.getName() != null) {
-                            /* Add the table's definition to the list */
-                            tableDefinitions.add(tableDefn);
-                        }
-
-                        /* Check if only the data from the first table is to be read */
-                        if (importType == ImportType.FIRST_DATA_ONLY) {
-                            /* Stop reading table definitions */
-                            break;
-                        }
-                    }
-                }
-
-                /* Check if this is the first pass */
-                if (loop == 1) {
-                    /* Check if all definitions are to be loaded */
-                    if (importType == ImportType.IMPORT_ALL) {
-                        /* Add the reserved message ID if it's new */
-                        rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
-
-                        /* Build the imported project-level and group data fields, if any */
-                        buildProjectAndGroupDataFields(fieldHandler, projectDefn.getDataFields());
-                    }
-                }
+            /* Create a buffered reader to read the file */
+            br = new BufferedReader(new FileReader(importFile));
+                      
+            /*************** GROUPS ***************/
+            if (importFile.getName().equals(CSVFileNames.GROUPS.getName()) && importType == ImportType.IMPORT_ALL) {
+                importGroupData(br, importFile, ignoreErrors, projectDefn, replaceExistingGroups);
+                
+            /*************** RESERVED MSG IDS ***************/
+            } else if (importFile.getName().equals(CSVFileNames.RESERVED_MSG_ID.getName()) && importType == ImportType.IMPORT_ALL) {
+                importReservedMsgIDData(br, importFile, ignoreErrors);
+                
+            /*************** PROJECT DATA FIELDS ***************/
+            } else if (importFile.getName().equals(CSVFileNames.PROJECT_DATA_FIELD.getName()) && importType == ImportType.IMPORT_ALL) {
+                importProjectDataFields(br, importFile, ignoreErrors, replaceExistingTables, projectDefn);
+                
+            /*************** TABLE DEFINITIONS ***************/
+            } else {
+                importTableDefinitions(br, importFile, ignoreErrors, replaceExistingTables, importType, targetTypeDefn);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             try {
                 /* Check that the buffered reader exists */
@@ -1379,7 +1332,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         "<html><b>Cannot close import file '</b>" + importFile.getAbsolutePath() + "<b>'",
                         "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
             }
-        }
+        } 
     }
 
     /**********************************************************************************************
@@ -1911,7 +1864,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         if (outputType.contentEquals("Single")) {
                             FinalOutput += "\n";
                         }
-                        FileUtils.writeStringToFile(FinalExportFile, FinalOutput, (String) null, true);
+                        FileUtils.writeStringToFile(FinalExportFile, FinalOutput, (String) null, false);
                     }
                 } catch (Exception e) {
                     throw new CCDDException(e.getMessage());
@@ -2096,6 +2049,224 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
             }
         }
+    }
+    
+    /**********************************************************************************************
+     * Retrieve various pieces of data from CSV files
+     *
+     * @param searchKey What to search for
+     * 
+     * @param data The string to be searched
+     *********************************************************************************************/
+    public StringBuilder retrieveCSVData(String searchKey, StringBuilder data) {
+        StringBuilder outData = new StringBuilder();
+        int beginIndex;
+        int endIndex;
+        
+        if (searchKey == CSVTags.INPUT_TYPE.getTag()) {
+            /* Extract the data related to input type definitions */
+            beginIndex = data.toString().indexOf(CSVTags.INPUT_TYPE.getTag());
+            endIndex = data.toString().indexOf(CSVTags.TABLE_TYPE.getTag());
+            
+            /* If there are no table type definitions in the file the data type tag
+             * will be used to mark the end of the input type definitions. If there
+             * is no data type input tag than the triple newline character sequence 
+             * will mark the end of the input type definitions.
+             */
+            if (endIndex == -1) {
+                endIndex = data.toString().indexOf(CSVTags.DATA_TYPE.getTag());
+                if (endIndex == -1) {
+                    endIndex = data.toString().indexOf("\n\n\n", beginIndex);
+                }
+            }
+            
+            if (endIndex != -1 && beginIndex != -1) {
+                outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            }
+        } else if (searchKey == CSVTags.TABLE_TYPE.getTag()) {
+            /* Extract the data related to table type definitions */
+            beginIndex = data.toString().indexOf(CSVTags.TABLE_TYPE.getTag());
+            endIndex = data.toString().indexOf(CSVTags.DATA_TYPE.getTag());
+            
+            /* If data types were not included in the export than we look
+             * for the first occurrence of a triple newline character after
+             * the beginIndex
+             */
+            if (endIndex == -1) {
+                endIndex = data.toString().indexOf("\n\n\n", beginIndex);
+            }
+            
+            if (endIndex != -1 && beginIndex != -1) {
+                outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            }
+        } else if (searchKey == CSVTags.DATA_TYPE.getTag()) {
+            /* Extract the data type definitions */
+            beginIndex = data.toString().indexOf(CSVTags.DATA_TYPE.getTag());
+            endIndex = data.toString().indexOf("\n\n\n", beginIndex);
+            
+            if (beginIndex != -1) {
+                if (endIndex == -1) {
+                    outData = new StringBuilder(data.toString().substring(beginIndex));
+                } else {
+                    outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+                }
+            }
+        } else if (searchKey == CSVTags.MACRO.getTag()) {
+            /* Extract the data related to macro definitions */
+            beginIndex = data.toString().indexOf(CSVTags.MACRO.getTag());
+            /* Handle two formats that may exist in the input data */
+            if (beginIndex == -1) {
+                beginIndex = data.toString().indexOf(CSVTags.MACRO.getAlternateTag());
+            }
+            /* Find the next instance of three return characters */
+            endIndex = data.toString().indexOf("\n\n\n", beginIndex);
+            /* If that failed, then find two return chars */
+            if (endIndex == -1) {
+                endIndex = data.toString().indexOf("\n\n", beginIndex);
+            }
+            
+            if (beginIndex != -1) {
+                if (endIndex != -1) {
+                    outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+                } else {
+                    outData = new StringBuilder(data.toString().substring(beginIndex));
+                }
+            }
+        } else if (searchKey == CSVTags.GROUP.getTag()) {
+            /* Extract the data related to group definitions */
+            beginIndex = data.toString().indexOf(CSVTags.GROUP.getTag());
+            /* find the next instance of three return characters */
+            endIndex = data.toString().indexOf("\n\n\n", beginIndex);
+            /* If that failed, then find two return chars */
+            if (endIndex == -1) {
+                endIndex = data.toString().indexOf("\n\n", beginIndex);
+            }
+            
+            if (endIndex != -1 && beginIndex != -1) {
+                outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            }
+        } else if (searchKey == CSVTags.SCRIPT_ASSOCIATION.getTag()) {
+            /* Extract the data related to script associations */
+            beginIndex = data.toString().indexOf(CSVTags.SCRIPT_ASSOCIATION.getTag());
+            endIndex = data.toString().indexOf("\n\n", beginIndex);
+            
+            if (endIndex != -1 && beginIndex != -1) {
+                outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            }
+        } else if (searchKey == CSVTags.TELEM_SCHEDULER.getTag()) {
+            /* Extract the data related to the telemetry scheduler */
+            beginIndex = data.toString().indexOf(CSVTags.TELEM_SCHEDULER.getTag());
+            endIndex = data.toString().indexOf("\n\n", beginIndex);
+            
+            if (beginIndex != -1) {
+                if (endIndex != -1) {
+                    outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+                } else {
+                    outData = new StringBuilder(data.toString().substring(beginIndex));
+                }
+            }
+        } else if (searchKey == CSVTags.APP_SCHEDULER.getTag()) {
+            /* Extract the data related to the application scheduler */
+            beginIndex = data.toString().indexOf(CSVTags.APP_SCHEDULER.getTag());
+            endIndex = data.toString().indexOf("\n\n", beginIndex);
+            
+            if (beginIndex != -1) {
+                if (endIndex != -1) {
+                    outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+                } else {
+                    outData = new StringBuilder(data.toString().substring(beginIndex));
+                }
+            }
+        } else if (searchKey == CSVTags.NAME_TYPE.getTag()) {
+            /* Extract the table definitions */
+            beginIndex = data.toString().indexOf(CSVTags.NAME_TYPE.getTag());
+            endIndex = data.toString().indexOf("\n\n" + CSVTags.INPUT_TYPE.getTag(), beginIndex);
+            
+            if (endIndex != -1 && beginIndex != -1) {
+                outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            }
+        }
+        
+        return outData;
+    }
+    
+    /**********************************************************************************************
+     * Trim the provided line, remove special characters and divide it into an array
+     * 
+     * @param line The line of text to work with
+     * 
+     * @param br Buffered reader variable
+     * 
+     * @return An array of strings representing the data provided in the line of text 
+     *********************************************************************************************/
+    public String[] trimLine(String line, BufferedReader br) {
+        /* Initialize the number of matching columns and the cell data storage */
+        String[] columnValues = null;
+        
+        try {
+            /* Check that the line is not null */
+            if (line != null) {
+                while (line.startsWith("#")) {
+                    line = br.readLine();
+                    
+                    if (line == null) {
+                        line = "";
+                    }
+                }
+                /* Remove any leading/trailing white space characters from the row */
+                String trimmedLine = line.trim();
+                
+                /* Check that the row isn't empty and isn't a comment line (starts with a #character) */
+                if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("#")) {
+                    /* Check if the line contains an odd number of double quotes */
+                    if (trimmedLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0) {
+                        String nextLine = null;
+    
+                        /* Step through the subsequent lines in order to find the end of multi-line value */
+                        while ((nextLine = br.readLine()) != null) {
+                            /* Append the line to the preceding one, inserting the line
+                             * feed. The non-trimmed variable is used so that trailing
+                             * spaces within a quoted, multiple-line field aren't lost
+                             */
+                            line += "\n" + nextLine;
+    
+                            /* Check if this is the line that ends the multi-line value
+                             * (i.e., it ends with one double quote)
+                             */
+                            if (nextLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0) {
+                                /* Stop searching; the multi-line string has been concatenated 
+                                 * to the initial line
+                                 */
+                                break;
+                            }
+                        }
+    
+                        /* Remove any leading/trailing white space characters from the
+                         * combined multiple line row. This only removed white space
+                         * outside the quotes that bound the text
+                         */
+                        trimmedLine = line.trim();
+                    }
+    
+                    /* Remove any trailing commas and empty quotes from the row. If the CSV
+                     * file is generated from a spreadsheet application then extra commas
+                     * are appended to a row if needed for the number of columns to be
+                     * equal with the other rows. These empty trailing columns are ignored
+                     */
+                    line = trimmedLine.replaceAll("(?:[,\\s*]|\"\\s*\",|,\"\\s*\")*$", "");
+                    
+                    /* Parse the import data. The values are comma- separated; however,
+                     * commas within quotes are ignored - this allows commas to be included
+                     * in the data values
+                     */
+                    columnValues = CcddUtilities.splitAndRemoveQuotes(line);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return columnValues;
     }
 }
 

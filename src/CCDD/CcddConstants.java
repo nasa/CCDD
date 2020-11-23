@@ -109,7 +109,7 @@ public class CcddConstants {
     protected static final String TYPE_OTHER = "Other";
 
     // Default telemetry and command argument structure reference table type names
-    protected static final String STRUCT_TELEMETRY = "Structure: Tlm";
+    protected static final String STRUCT_TELEMETRY = "Structure";
     protected static final String STRUCT_CMD_ARG_REF = "Structure: Cmd Arg Ref";
 
     // Column names/prefixes
@@ -5183,39 +5183,41 @@ public class CcddConstants {
      * JSON data type tags
      *********************************************************************************************/
     protected static enum JSONTags {
-        FILE_DESCRIPTION("File Description"), DATA_TYPE_DEFN("Data Type Definition"),
-        TABLE_TYPE_DEFN("Table Type Definition"), TABLE_TYPE_NAME("Table Type Name"),
-        TABLE_TYPE_DESCRIPTION("Table Type Description"), TABLE_REPRESENTS_COMMAND_ARG("Table Represents Command Argument"),
-        TABLE_TYPE_COLUMN("Table Type Column"),
-        TABLE_TYPE_FIELD("Table Type Data Field"), MACRO_DEFN("Macro Definition"),
-        RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"), VARIABLE_PATH("Variable Path"),
-        MESSAGE_ID("Message ID Owner, Name, and Value"), TABLE_DEFN("Table Definition"), TABLE_NAMES("Table Names"),
-        TABLE_NAME("Table Name"), TABLE_TYPE("Table Type"), TABLE_DESCRIPTION("Table Description"),
-        TABLE_DATA("Table Data"), TABLE_SYSTEM("System Name"), TABLE_FIELD("Data Field"), TABLE_BYTE_SIZE("Byte Size"),
-        GROUP_NAMES("Group Names"), GROUP_NAME("Group Name"), GROUP_DESCRIPTION("Group Description"),
-        GROUP_FIELD("Group Data Field"), GROUP_TABLE("Group Table"), GROUP_IS_APPLICATION("Group Is Application"),
-        APPLICATION_NAMES("Application Names"), APPLICATION_NAME("Application Name"),
-        APPLICATION_DESCRIPTION("Application Description"), APPLICATION_FIELD("Application Data Field"),
-        APPLICATION_TABLE("Application Table"), APP_SCHED_SCHEDULE_TABLE("Schedule Definition Table"),
-        APP_SCHED_MESSAGE_TABLE("Message Definition Table"), COPY_TABLE_STREAM("Stream Name"),
-        COPY_TABLE_HDR_SIZE("Header Size"), COPY_TABLE_OPTIMIZE("Optimized"), COPY_TABLE_DATA("Copy Table"),
-        PROJECT_FIELD("Project Data Field"), INPUT_TYPE_DEFN("Input Type Definition"), GROUP("Group"),
-        SCRIPT_ASSOCIATION("Script Association"), TLM_SCHEDULER("Telemetry Scheduler"),
-        TLM_SCHEDULER_COMMENT("Telemetry Scheduler Comments"),
-        MAXIMUM_SECONDS_PER_MESSAGE("Maximum Seconds Per Message"),
-        MAXIMUM_MESSAGES_PER_SECOND("Maximum Messages Per Second"), INCLUDE_UNEVEN_RATES("Include Uneven Rates"),
-        RATE_INFORMATION("Rate Information"), APP_SCHEDULER("Application Scheduler"),
-        APP_SCHEDULER_COMMENT("Application Scheduler Comment");
+        FILE_DESCRIPTION("File Description", ""), DATA_TYPE_DEFN("Data Type Definition", "  \"Data Type Definition\""),
+        TABLE_TYPE_DEFN("Table Type Definition", "  \"Table Type Definition\""), TABLE_TYPE_NAME("Table Type Name", ""),
+        TABLE_TYPE_DESCRIPTION("Table Type Description", ""), TABLE_REPRESENTS_COMMAND_ARG("Table Represents Command Argument", ""),
+        TABLE_TYPE_COLUMN("Table Type Column", ""),
+        TABLE_TYPE_FIELD("Table Type Data Field", ""), MACRO_DEFN("Macro Definition", "  \"Macro Definition\""),
+        RESERVED_MSG_ID_DEFN("Reserved Message ID Definition", ""), VARIABLE_PATH("Variable Path", ""),
+        MESSAGE_ID("Message ID Owner, Name, and Value", ""), TABLE_DEFN("Table Definition", "  \"Table Definition\""), TABLE_NAMES("Table Names", ""),
+        TABLE_NAME("Table Name", ""), TABLE_TYPE("Table Type", ""), TABLE_DESCRIPTION("Table Description", ""),
+        TABLE_DATA("Table Data", ""), TABLE_SYSTEM("System Name", ""), TABLE_FIELD("Data Field", ""), TABLE_BYTE_SIZE("Byte Size", ""),
+        GROUP_NAMES("Group Names", ""), GROUP_NAME("Group Name", ""), GROUP_DESCRIPTION("Group Description", ""),
+        GROUP_FIELD("Group Data Field", ""), GROUP_TABLE("Group Table", ""), GROUP_IS_APPLICATION("Group Is Application", ""),
+        APPLICATION_NAMES("Application Names", ""), APPLICATION_NAME("Application Name", ""),
+        APPLICATION_DESCRIPTION("Application Description", ""), APPLICATION_FIELD("Application Data Field", ""),
+        APPLICATION_TABLE("Application Table", ""), APP_SCHED_SCHEDULE_TABLE("Schedule Definition Table", ""),
+        APP_SCHED_MESSAGE_TABLE("Message Definition Table", ""), COPY_TABLE_STREAM("Stream Name", ""),
+        COPY_TABLE_HDR_SIZE("Header Size", ""), COPY_TABLE_OPTIMIZE("Optimized", ""), COPY_TABLE_DATA("Copy Table", ""),
+        PROJECT_FIELD("Project Data Field", ""), INPUT_TYPE_DEFN("Input Type Definition", "  \"Input Type Definition\""), GROUP("Group", "  \"Group\":"),
+        SCRIPT_ASSOCIATION("Script Association", "  \"Script Association\""), TLM_SCHEDULER("Telemetry Scheduler", ""),
+        TLM_SCHEDULER_COMMENT("Telemetry Scheduler Comments", "  \"Telemetry Scheduler Comments\""),
+        MAXIMUM_SECONDS_PER_MESSAGE("Maximum Seconds Per Message", ""),
+        MAXIMUM_MESSAGES_PER_SECOND("Maximum Messages Per Second", ""), INCLUDE_UNEVEN_RATES("Include Uneven Rates", ""),
+        RATE_INFORMATION("Rate Information", ""), APP_SCHEDULER("Application Scheduler", ""),
+        APP_SCHEDULER_COMMENT("Application Scheduler Comment", "  \"Application Scheduler Comment\"");
 
         private final String tag;
+        private final String alternateTag;
 
         /******************************************************************************************
          * JSON data type tags constructor
          *
          * @param tag text describing the data
          *****************************************************************************************/
-        JSONTags(String tag) {
+        JSONTags(String tag, String alternateTag) {
             this.tag = tag;
+            this.alternateTag = alternateTag;
         }
 
         /******************************************************************************************
@@ -5224,6 +5226,15 @@ public class CcddConstants {
          * @return Text describing the data
          *****************************************************************************************/
         protected String getTag() {
+            return tag;
+        }
+        
+        /******************************************************************************************
+         * Get the data type alternateTag
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
+        protected String getAlternateTag() {
             return tag;
         }
     }

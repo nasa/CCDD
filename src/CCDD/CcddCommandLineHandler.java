@@ -912,7 +912,7 @@ public class CcddCommandLineHandler {
                     /* Check if the GUI isn't displayed */
                     if (ccddMain.isGUIHidden()) {                        
                         if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
-                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), backupFirst, replaceExistingTables,
+                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), importFullDatabase, backupFirst, replaceExistingTables,
                                     appendExistingFields, useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
                                     deleteAbsentFiles, includesReservedMsgIds, includesProjectFields, importFileType, dialogType, null)) {
                                 throw new Exception();
@@ -934,9 +934,9 @@ public class CcddCommandLineHandler {
                     /* The GUI is displayed */
                     else {
                         /* Import the table(s) from the specified file in a background thread */
-                        ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), false,
-                                replaceExistingTables, appendExistingFields, useExistingFields, openEditor,
-                                ignoreErrors, replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
+                        ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
+                                false, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
+                                replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
                                 includesReservedMsgIds, includesProjectFields, importFileType, dialogType, ccddMain.getMainFrame());
                     }
                 }

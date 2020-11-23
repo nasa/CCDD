@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_ENUM;
 
 import java.awt.Color;
@@ -950,7 +951,7 @@ public class CcddScriptDataAccessHandler {
                     TableInformation tableData = dbTable.loadTableData(tableName, false, false, parent);
                     String type = tableData.getType();
                     
-                    if (type.equals(tableType)) {
+                    if (type.contains(tableType)) {
                         names.add(tableName);
                     }
                 }
@@ -1597,7 +1598,6 @@ public class CcddScriptDataAccessHandler {
         return commandCode;
     }
 
-    // TODO ADD TO GUIDE
     /**********************************************************************************************
      * Get the command argument variable path+name at the specified row in the
      * command data, with any macro name replaced by its corresponding value
@@ -1612,7 +1612,6 @@ public class CcddScriptDataAccessHandler {
         return getCommandArgument(row, true);
     }
 
-    // TODO ADD TO GUIDE
     /**********************************************************************************************
      * Get the command argument variable path+name at the specified row in the
      * command data, with any embedded macro(s) left in place
@@ -1625,6 +1624,50 @@ public class CcddScriptDataAccessHandler {
      *********************************************************************************************/
     public String getCommandArgumentWithMacros(int row) {
         return getCommandArgument(row, false);
+    }
+    
+    /**********************************************************************************************
+     * Get the command argument data related to the table name that was provided
+     *
+     * @param tableName Name of the table who's data is being requested
+     *
+     * @return 2d array representing all data related to the table name provided
+     *********************************************************************************************/
+    public String[][] getCommandArgumentData(String tableName) {
+        /* Get the type definition so that the column names can be determined */
+        TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(STRUCT_CMD_ARG_REF);
+        /* Get the column names */
+        String[] columnNames = typeDef.getColumnNamesDatabase();
+        /* Get the table data */
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        String[][] data = new String[tableInfo.getData().length][columnNames.length-2];
+        
+        /* Trim off the key and index */
+        for (int dataIndex = 0; dataIndex < data.length; dataIndex++) {
+            for (int columnIndex = 2; columnIndex < columnNames.length; columnIndex++) {
+                data[dataIndex][columnIndex-2] = (String) tableInfo.getData()[dataIndex][columnIndex];
+            }
+        }
+        
+        return data;
+    }
+    
+    /**********************************************************************************************
+     * Get all columns that make up the command argument table
+     *
+     * @param tableName Name of the table who's data is being requested
+     *
+     * @return array representing all of the column names belonging to the table
+     *********************************************************************************************/
+    public String[] getCommandArgumentColumnNames(String tableName) {
+        /* Get the type definition so that the column names can be determined */
+        TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(STRUCT_CMD_ARG_REF);
+        /* Get the column names, but remove the key and index */
+        int numColumnNames = typeDef.getColumnNamesDatabase().length;
+        
+        String[] columnNames = Arrays.copyOfRange(typeDef.getColumnNamesDatabase(), 2, numColumnNames);
+        
+        return columnNames;
     }
 
     /**********************************************************************************************
@@ -1665,26 +1708,6 @@ public class CcddScriptDataAccessHandler {
 
         return commandArgument;
     }
-
-    // TODO REMOVE FROM GUIDE
-    // getNumCommandArguments(int row)
-    // getNumCommandArguments(String tableType)
-    // getCommandArgName(int argumentNumber, int row)
-    // getCommandArgNameWithMacros(int argumentNumber, int row)
-    // getCommandArgDataType(int argumentNumber, int row)
-    // getCommandArgArraySize(int argumentNumber, int row)
-    // getCommandArgBitLength(int argumentNumber, int row)
-    // getCommandArgBitLengthWithMacros(int argumentNumber, int row)
-    // getCommandArgEnumeration(int argumentNumber, int row)
-    // getCommandArgEnumerationWithMacros(int argumentNumber, int row)
-    // getCommandArgMinimum(int argumentNumber, int row)
-    // getCommandArgMinimumWithMacros(int argumentNumber, int row)
-    // getCommandArgMaximum(int argumentNumber, int row)
-    // getCommandArgMaximumWithMacros(int argumentNumber, int row)
-    // getCommandArgByColumnName(int argumentNumber, int row, String columnName)
-    // getCommandArgByColumnNameWithMacros(int argumentNumber, int row, String
-    // columnName)
-    // getCommandArgColumnNames(int argumentNumber, int row)
 
     /**********************************************************************************************
      * Get the table type name referenced in the specified row of the structure
