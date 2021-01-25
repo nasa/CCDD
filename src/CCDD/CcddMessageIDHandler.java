@@ -243,21 +243,21 @@ public class CcddMessageIDHandler {
             for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_NAME_AND_ID)) {
                 // Query the database for those values in the specified message ID column that are
                 // in use in any table, including any references in the custom values table
-                tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT" + (isGetDuplicates ? " " : " DISTINCT ON (2) ")
-                        + "* FROM find_columns_by_name('" + typeDefn.getColumnNamesUser()[idColumn] + "', '"
-                        + typeDefn.getColumnNamesDatabaseQuoted()[idColumn] + "', '{" + typeDefn.getName() + "}');",
-                        parent));
+                tblAndFldMsgs.addAll(dbTable.queryDatabase(new StringBuilder("SELECT").append((isGetDuplicates ? " " :
+                    " DISTINCT ON (2) ")).append("* FROM find_columns_by_name('").append(typeDefn.getColumnNamesUser()[idColumn])
+                        .append("', '").append(typeDefn.getColumnNamesDatabaseQuoted()[idColumn]).append("', '{").append(typeDefn.getName())
+                        .append("}');"), parent));
             }
         }
 
         // Get the list of all message name & ID data field values for project, group, or table
         // data fields (ignore fields assigned to table types)
-        tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT" + (isGetDuplicates ? " " : " DISTINCT ON (2) ")
-                + FieldsColumn.OWNER_NAME.getColumnName() + ", " + FieldsColumn.FIELD_VALUE.getColumnName() + " FROM "
-                + InternalTable.FIELDS.getTableName() + " WHERE " + FieldsColumn.FIELD_TYPE.getColumnName() + " = '"
-                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "' AND "
-                + FieldsColumn.FIELD_VALUE.getColumnName() + " != '' AND " + FieldsColumn.OWNER_NAME.getColumnName()
-                + " !~ '" + TYPE_DATA_FIELD_IDENT + "';", parent));
+        tblAndFldMsgs.addAll(dbTable.queryDatabase(new StringBuilder("SELECT").append((isGetDuplicates ? " " : " DISTINCT ON (2) "))
+                .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName())
+                .append(" FROM ").append(InternalTable.FIELDS.getTableName()).append(" WHERE ").append(FieldsColumn.FIELD_TYPE.getColumnName())
+                .append(" = '").append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()).append("' AND ").append(
+                FieldsColumn.FIELD_VALUE.getColumnName()).append(" != '' AND ").append(FieldsColumn.OWNER_NAME.getColumnName())
+                .append(" !~ '").append(TYPE_DATA_FIELD_IDENT).append("';"), parent));
 
         // Get the list of tables representing structures
         structureTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE));
@@ -301,14 +301,14 @@ public class CcddMessageIDHandler {
         // Check if telemetry message IDs should be obtained from the database
         if (useTlmMsgIDsFromDb) {
             // Get the telemetry message IDs assigned in the telemetry scheduler table
-            List<String[]> tlmIDs = dbTable.queryDatabase("SELECT DISTINCT ON (2) "
-                    + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal()) + " || ', ' || "
-                    + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal()) + ", "
-                    + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal()) + " FROM "
-                    + InternalTable.TLM_SCHEDULER.getTableName() + " WHERE "
-                    + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal()) + " != '' AND "
-                    + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
-                    + " !~ E'^.+\\\\..*$';", parent);
+            List<String[]> tlmIDs = dbTable.queryDatabase(new StringBuilder("SELECT DISTINCT ON (2) ").append(
+                    InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal())).append(
+                    " || ', ' || ").append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal()))
+                    .append(", ").append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal()))
+                    .append(" FROM ").append(InternalTable.TLM_SCHEDULER.getTableName()).append(" WHERE ").append(
+                    InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal())).append(" != '' AND ")
+                    .append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())).append(
+                    " !~ E'^.+\\\\..*$';"), parent);
 
             // Step through each telemetry message ID
             for (String[] tlmMsgNameAndID : tlmIDs) {
@@ -397,25 +397,23 @@ public class CcddMessageIDHandler {
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions()) {
             // Step through each column that contains a message name & ID
             for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_NAME_AND_ID)) {
-                // Query the database for those values in the specified message ID name column
-                // that
+                // Query the database for those values in the specified message ID name column that
                 // are in use in any table, including any references in the custom values table
-                tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT " + "* FROM find_columns_by_name('"
-                        + typeDefn.getColumnNamesUser()[idColumn] + "', '"
-                        + typeDefn.getColumnNamesDatabaseQuoted()[idColumn] + "', '{" + typeDefn.getName() + "}');",
-                        parent));
+                tblAndFldMsgs.addAll(dbTable.queryDatabase(new StringBuilder("SELECT ").append("* FROM find_columns_by_name('")
+                        .append(typeDefn.getColumnNamesUser()[idColumn]).append("', '").append(
+                        typeDefn.getColumnNamesDatabaseQuoted()[idColumn]).append("', '{").append(
+                        typeDefn.getName()).append("}');"), parent));
             }
         }
 
         // Get the list of all message name & ID data field values for project, group,
-        // or table
-        // data fields (ignore fields assigned to table types)
-        tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT " + FieldsColumn.OWNER_NAME.getColumnName() + ", "
-                + FieldsColumn.FIELD_VALUE.getColumnName() + " FROM " + InternalTable.FIELDS.getTableName() + " WHERE "
-                + FieldsColumn.FIELD_TYPE.getColumnName() + " = '" + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
-                + "' AND " + FieldsColumn.FIELD_VALUE.getColumnName() + " != '' AND "
-                + FieldsColumn.OWNER_NAME.getColumnName() + " !~ '" + TYPE_DATA_FIELD_IDENT + "' ORDER BY OID;",
-                parent));
+        // or table data fields (ignore fields assigned to table types)
+        tblAndFldMsgs.addAll(dbTable.queryDatabase(new StringBuilder("SELECT ").append(FieldsColumn.OWNER_NAME.getColumnName())
+                .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName()).append(" FROM ").append(InternalTable.FIELDS.getTableName())
+                .append(" WHERE ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = '").append(
+                DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()).append("' AND ").append(FieldsColumn.FIELD_VALUE.getColumnName())
+                .append(" != '' AND ").append(FieldsColumn.OWNER_NAME.getColumnName()).append(" !~ '").append(TYPE_DATA_FIELD_IDENT)
+                .append("' ORDER BY OID;"), parent));
 
         // Step through each message name/ID belonging to a table cell or data field
         for (String[] tblAndFldMsg : tblAndFldMsgs) {
@@ -426,8 +424,7 @@ public class CcddMessageIDHandler {
             String[] nameAndID = getMessageNameAndID(tblAndFldMsg[1]);
 
             // Replace any macro in the message ID with the corresponding text and format
-            // the ID as
-            // hexadecimal
+            // the ID as hexadecimal
             nameAndID[1] = CcddInputTypeHandler.formatInput(macroHandler.getMacroExpansion(nameAndID[1]),
                     InputTypeFormat.HEXADECIMAL, true);
 
@@ -435,23 +432,17 @@ public class CcddMessageIDHandler {
             ownersNamesAndIDs.add(new String[] { owner, nameAndID[0], nameAndID[1] });
         }
 
-        // Get the telemetry rates, message ID names, and IDs assigned in the telemetry
-        // scheduler
-        // table. This query returns only those the message names with the sub-message
-        // index
-        // appended, so for parent messages without any sub-messages this retrieves the
-        // 'default'
-        // sub-message name
+        // Get the telemetry rates, message ID names, and IDs assigned in the telemetry scheduler table.
+        // This query returns only those the message names with the sub-message index appended, so for
+        // parent messages without any sub-messages this retrieves the 'default' sub-message name
         ArrayListMultiple tlmMsgs = new ArrayListMultiple(1);
-        tlmMsgs.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (3,2) 'Tlm:' || "
-                + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal())
-                + ", regexp_replace("
-                + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())
-                + ", E'\\\\.', '_'), "
-                + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal()) + " FROM "
-                + InternalTable.TLM_SCHEDULER.getTableName() + " WHERE "
-                + InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal()) + " ~ E'\\\\.';",
-                parent));
+        tlmMsgs.addAll(dbTable.queryDatabase(new StringBuilder("SELECT DISTINCT ON (3,2) 'Tlm:' || ").append(
+                InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal())).append(", regexp_replace(")
+                .append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal())).append(
+                ", E'\\\\.', '_'), ").append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_ID.ordinal()))
+                .append(" FROM ").append(InternalTable.TLM_SCHEDULER.getTableName()).append(" WHERE ")
+                .append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.MESSAGE_NAME.ordinal()))
+                .append(" ~ E'\\\\.';"), parent));
 
         // Step through each of the telemetry messages retrieved
         for (String[] tlmMsg : tlmMsgs) {

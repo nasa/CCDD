@@ -696,9 +696,7 @@ public class CcddRateParameterHandler {
     protected String[] getRatesInUse(String rateName, Component parent) {
         String[] availableRates = new String[0];
 
-        // Create the string array list using the second column (rate values) for
-        // comparison
-        // purposes
+        // Create the string array list using the second column (rate values) for comparison purposes
         ArrayListMultiple ratesInUse = new ArrayListMultiple(1);
 
         // Get the rate information for the specified rate
@@ -706,25 +704,19 @@ public class CcddRateParameterHandler {
 
         // Check if the rate name is recognized
         if (rateInfo != null) {
-            // Get a copy of the array of sample rates for this rate. If a copy isn't used
-            // then the
+            // Get a copy of the array of sample rates for this rate. If a copy isn't used then the
             // stored sample rates can be altered to show as disabled below; subsequent
-            // calls to
-            // get the sample rates will have the disable tags
+            // calls to get the sample rates will have the disable tags
             availableRates = Arrays.copyOf(rateInfo.getSampleRates(), rateInfo.getSampleRates().length);
 
-            // Query the database for those values of the specified rate that are in use in
-            // all
-            // tables with a table type representing a structure, including any references
-            // in the
+            // Query the database for those values of the specified rate that are in use in all
+            // tables with a table type representing a structure, including any references in the
             // custom values table. Only unique rate values are returned
-            ratesInUse.addAll(
-                    dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('" + rateName + "', '"
-                            + tableTypeHandler.convertVisibleToDatabase(rateName, DefaultInputType.RATE.getInputName(),
-                                    true)
-                            + "', '{"
-                            + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]", "")
-                            + "}');", parent));
+            ratesInUse.addAll(dbTable.queryDatabase(new StringBuilder("SELECT DISTINCT ON (2) * FROM find_columns_by_name('")
+                    .append(rateName).append("', '").append(tableTypeHandler.convertVisibleToDatabase(rateName,
+                            DefaultInputType.RATE.getInputName(), true)).append("', '{").append(
+                    Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]", "")).append(
+                    "}');"), parent));
 
             // Step through the available sample rates
             for (int index = 0; index < availableRates.length; index++) {

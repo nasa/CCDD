@@ -98,6 +98,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
+import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary main class
@@ -108,6 +109,7 @@ public class CcddMain {
     private final CcddDbCommandHandler dbCommand;
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
+    private CcddTableTreeHandler tableTreeHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
@@ -175,6 +177,7 @@ public class CcddMain {
     private JMenuItem mntmImportCSV;
     private JMenuItem mntmImportEDS;
     private JMenuItem mntmImportXTCE;
+    private JMenuItem mntmImportCHeader;
     private JMenuItem mntmExportCSV;
     private JMenuItem mntmExportEDS;
     private JMenuItem mntmExportJSON;
@@ -276,13 +279,11 @@ public class CcddMain {
      * @param args array containing the command line arguments
      *********************************************************************************************/
     protected CcddMain(String[] args) {
-        // Create the shutdown handler so that the database and event log file are
-        // closed
+        // Create the shutdown handler so that the database and event log file are closed
         createShutdownHook();
 
         // Clear the flags so that dialog messages appear in dialog boxes and the web
-        // service is
-        // not enabled
+        // service is not enabled
         isHideGUI = false;
         webServer = null;
         isAutoPatch = false;
@@ -290,19 +291,15 @@ public class CcddMain {
         semMap = new HashMap<>();
         semMap.put(BACKUP_KEY, new ImmutablePair<>(new Semaphore(1), 10));
 
-        // Get the backing store node for storing the program preference keys and
-        // values. These are
-        // stored by user so that different users can have their own preferences
+        // Get the backing store node for storing the program preference keys and values.
+        // These are stored by user so that different users can have their own preferences
         progPrefs = Preferences.userNodeForPackage(this.getClass());
 
         // Determine the application version and build date
         findVersionAndBuildDate();
 
-        // Set the selected look & feel. This is done prior to creating any of the GUI
-        // (including
-        // the session event log) so that the GUI components initialize with the
-        // preferred look &
-        // feel
+        // Set the selected look & feel. This is done prior to creating any of the GUI (including the
+        // session event log) so that the GUI components initialize with the preferred look & feel
         boolean isLaFError = setLookAndFeel(null);
 
         // Create lists to store references to open event logs and table editor dialogs
@@ -313,8 +310,7 @@ public class CcddMain {
         cmdLnHandler = new CcddCommandLineHandler(CcddMain.this, args);
 
         // Check if the command that sets the session event log file path is present,
-        // and if so set
-        // the path
+        // and if so set the path
         cmdLnHandler.parseCommand(CommandLinePriority.PRE_START);
 
         // Create the database command and control handler classes
@@ -330,23 +326,19 @@ public class CcddMain {
         dbControl.setEventLog();
 
         // Create the handler classes for database table commands, file I/O, scripts,
-        // and
-        // application parameters
+        // and application parameters
         dbTable = new CcddDbTableCommandHandler(CcddMain.this);
         fileIOHandler = new CcddFileIOHandler(CcddMain.this);
         scriptHandler = new CcddScriptHandler(CcddMain.this);
 
-        // Initialize the lists for storing the names of the recently opened projects
-        // and tables
+        // Initialize the lists for storing the names of the recently opened projects and tables
         recentProjectNames = new ArrayList<String>(0);
         recentTableNames = new ArrayList<String>(0);
 
         // Build the main window
         initialize();
 
-        // Build the command line argument as a single string for display in the initial
-        // status
-        // event
+        // Build the command line argument as a single string for display in the initial status event
         String cmdLn = "";
 
         for (String arg : args) {
@@ -364,15 +356,12 @@ public class CcddMain {
                 .append(" (").append(buildDate).append(")  ***  Java: ").append(System.getProperty("java.version"))
                 .append(" (").append(System.getProperty("sun.arch.data.model")).append("-bit) *** command line: ").append(cmdLn));
 
-        // Create a keyboard handler to adjust the response to the Enter key to act like
-        // the Space
-        // key to activate certain control types and to adjust the response to the arrow
-        // keys based
+        // Create a keyboard handler to adjust the response to the Enter key to act like the Space
+        // key to activate certain control types and to adjust the response to the arrow keys based
         // on the component with the keyboard focus. Also handle table undo/redo actions
         keyboardHandler = new CcddKeyboardHandler(CcddMain.this);
 
-        // Check if the look & feel failed to load. The error can't be annunciated via a
-        // dialog
+        // Check if the look & feel failed to load. The error can't be annunciated via a dialog
         // when the look & feel is loaded since the main frame doesn't yet exist
         if (isLaFError) {
             // Inform the user that there was an error setting the look & feel
@@ -381,30 +370,25 @@ public class CcddMain {
                     JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
         }
 
-        // Execute the command line arguments that are not database-dependent and make
-        // adjustments
+        // Execute the command line arguments that are not database-dependent and make adjustments
         // as needed
         cmdLnHandler.parseCommand(CommandLinePriority.SET_UP);
 
         // Make the main application window visible if the GUI set to be active
         frameCCDD.setVisible(!isGUIHidden());
 
-        // Force tool tip pop-ups to effectively remain visible until the mouse pointer
-        // moves away
+        // Force tool tip pop-ups to effectively remain visible until the mouse pointer moves away
         // from the object
         ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 
-        // Check if a database, user, and host are specified either via the command line
-        // options
+        // Check if a database, user, and host are specified either via the command line options
         // and/or the program preferences
         if (!dbControl.getDatabaseName().isEmpty() && !dbControl.getUser().isEmpty()
                 && !dbControl.getHost().isEmpty()) {
             // Check if the GUI is visible
             if (!isGUIHidden()) {
-                // Attempt to connect to the project database. If a password is required, but
-                // not
-                // provided, then request the password and attempt to connect. If this
-                // connection
+                // Attempt to connect to the project database. If a password is required, but not
+                // provided, then request the password and attempt to connect. If this connection
                 // attempt fails then attempt to connect to the default database
                 dbControl.openDatabaseInBackground(dbControl.getProjectName());
             }
@@ -412,14 +396,11 @@ public class CcddMain {
             else {
                 // Store the project name prior to opening the database (the project name is
                 // changed if the default is opened following an unsuccessful attempt to open
-                // the
-                // target database)
+                // the target database)
                 String projectName = dbControl.getProjectName();
 
-                // Open the specified database and execute post-opening command line commands.
-                // Set
-                // the error flag if no database can be opened (including the default), or if
-                // the
+                // Open the specified database and execute post-opening command line commands. Set
+                // the error flag if no database can be opened (including the default), or if the
                 // default database was successfully opened but was not the database specified
                 // (failure to open a database results in the default being opened)
                 boolean errorFlag = dbControl.openDatabase(projectName) || !projectName.equals(DEFAULT_DATABASE);
@@ -428,6 +409,8 @@ public class CcddMain {
                 cmdLnHandler.postCommandCleanUp(errorFlag ? 1 : 0);
             }
         }
+        
+        tableTreeHandler = null;
     }
 
     /**********************************************************************************************
@@ -449,6 +432,15 @@ public class CcddMain {
                 }
             }
         });
+    }
+    
+    /**********************************************************************************************
+     * Build a table tree handler once a database has been opened successfully
+     *********************************************************************************************/
+    protected void buildTableTreeHandler() {
+        tableTreeHandler = new CcddTableTreeHandler(this, new CcddGroupHandler(this, null, getMainFrame()),
+                TableTreeType.TABLES, true, false, false, getMainFrame());
+        tableTreeHandler.updatePreLoadedGroupRoot();
     }
 
     /**********************************************************************************************
@@ -606,6 +598,15 @@ public class CcddMain {
      *********************************************************************************************/
     protected CcddDbTableCommandHandler getDbTableCommandHandler() {
         return dbTable;
+    }
+    
+    /**********************************************************************************************
+     * Get the table tree handler
+     *
+     * @return Database table tree handler
+     *********************************************************************************************/
+    protected CcddTableTreeHandler getTableTreeHandler() {
+        return tableTreeHandler;
     }
 
     /**********************************************************************************************
@@ -1066,6 +1067,7 @@ public class CcddMain {
         mntmImportCSV.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmImportEDS.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmImportXTCE.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmImportCHeader.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmExportCSV.setEnabled(activateIfDatabase);
         mntmExportEDS.setEnabled(activateIfDatabase);
         mntmExportJSON.setEnabled(activateIfDatabase);
@@ -1739,6 +1741,7 @@ public class CcddMain {
         mntmImportCSV = createMenuItem(mnImport, "CSV", KeyEvent.VK_J, 1, "Import selected CSV data");
         mntmImportEDS = createMenuItem(mnImport, "EDS", KeyEvent.VK_J, 1, "Import selected EDS data");
         mntmImportXTCE = createMenuItem(mnImport, "XTCE", KeyEvent.VK_J, 1, "Import selected XTCE data");
+        mntmImportCHeader = createMenuItem(mnImport, "C_Header", KeyEvent.VK_J, 1, "Import selected C header files");
         JMenu mnExport = createSubMenu(mnData, "Export data", KeyEvent.VK_X, 1, null);
         mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data in CSV format");
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data in EDS XML format");
@@ -2178,6 +2181,17 @@ public class CcddMain {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_XTCE);
+            }
+        });
+        
+        // Add a listener for the Import Data menu item
+        mntmImportCHeader.addActionListener(new ActionListener() {
+            /**************************************************************************************
+             * Select one or more files to import
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_C_HEADER);
             }
         });
 

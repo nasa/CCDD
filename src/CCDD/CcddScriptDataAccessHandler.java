@@ -1634,22 +1634,7 @@ public class CcddScriptDataAccessHandler {
      * @return 2d array representing all data related to the table name provided
      *********************************************************************************************/
     public String[][] getCommandArgumentData(String tableName) {
-        /* Get the type definition so that the column names can be determined */
-        TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(STRUCT_CMD_ARG_REF);
-        /* Get the column names */
-        String[] columnNames = typeDef.getColumnNamesDatabase();
-        /* Get the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
-        String[][] data = new String[tableInfo.getData().length][columnNames.length-2];
-        
-        /* Trim off the key and index */
-        for (int dataIndex = 0; dataIndex < data.length; dataIndex++) {
-            for (int columnIndex = 2; columnIndex < columnNames.length; columnIndex++) {
-                data[dataIndex][columnIndex-2] = (String) tableInfo.getData()[dataIndex][columnIndex];
-            }
-        }
-        
-        return data;
+        return getTableDataByName(tableName);
     }
     
     /**********************************************************************************************
@@ -3390,6 +3375,125 @@ public class CcddScriptDataAccessHandler {
         // Get the description for the table
         return dbTable.queryTableDescription(tableName, ccddMain.getMainFrame());
     }
+    
+    /**********************************************************************************************
+     * Get the table data related to the table name that was provided
+     *
+     * @param tableName Name of the table who's data is being requested
+     *
+     * @return 2d array representing all data related to the table name provided
+     *********************************************************************************************/
+    public String[][] getTableDataByName(String tableName) {
+        /* Load the table data */
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        
+        /* Get the type definition so that the column names can be determined */
+        TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+        
+        /* Get the column names */
+        String[] columnNames = typeDef.getColumnNamesDatabase();
+
+        String[][] data = new String[tableInfo.getData().length-2][columnNames.length-2];
+        
+        /* Add the data to the 2d array */
+        for (int dataIndex = 0; dataIndex < data.length; dataIndex++) {
+            for (int columnIndex = 2; columnIndex < columnNames.length; columnIndex++) {
+                String value = tableInfo.getData()[dataIndex][columnIndex].toString();
+                if (value.isEmpty()) {
+                    data[dataIndex][columnIndex-2] = null;
+                } else {
+                    data[dataIndex][columnIndex-2] = tableInfo.getData()[dataIndex][columnIndex].toString();
+                }
+            }
+        }
+        
+        return data;
+    }
+    
+    /**********************************************************************************************
+     * Get table data in all rows of the specified column
+     *
+     * @param tableName Name of the table who's data is being requested
+     * 
+     * @param columnName Name of the column that data needs to be pulled from
+     *
+     * @return array representing the data in all rows of the specified column
+     *********************************************************************************************/
+    public String[] getTableDataByNameAndColumn(String tableName, String columnName) {
+        int columnIndex = -1;
+        
+        /* Convert the name to lower case and replace any whitespace with a underline */
+        columnName = columnName.toLowerCase().replace(" ", "_");
+        
+        /* Load the table data */
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        String[] data = new String[tableInfo.getData().length];
+        
+        /* Get the type definition so that the column names can be determined */
+        TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+        
+        /* Get the column names */
+        String[] columnNames = typeDef.getColumnNamesDatabase();
+        
+        /* Find the index of the provided column name */
+        for (int index = 0; index < columnNames.length; index++) {
+            if (columnNames[index].equals(columnName)) {
+                columnIndex = index;
+            }
+        }
+        
+        if (columnIndex != -1) {            
+            /* Trim off the key and index */
+            for (int dataIndex = 0; dataIndex < tableInfo.getData().length; dataIndex++) {
+                data[dataIndex] = tableInfo.getData()[dataIndex][columnIndex].toString();
+            }
+        }
+        
+        return data;
+    }
+    
+    /**********************************************************************************************
+     * Get all fields associated with the provided table name
+     *
+     * @param tableName Name of the table who's data is being requested
+     * 
+     * @param nameAndValue Return only the name and value
+     * 
+     * @return 2d array representing all fields related to the provided table name
+     *********************************************************************************************/
+    public String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {
+        /* Load the table data */
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        
+        /* Load the fieldInfo */
+        List<FieldInformation> fieldInfo = tableInfo.getFieldInformation();
+        
+        /* Convert the List of field info to a 2d object array */
+        Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(fieldInfo);
+        
+        String[][] data;
+        
+        if (nameAndValue == false) {
+            data = new String[fieldData.length][fieldData[0].length];
+            
+            /* Cast the 2d object array to a 2d string array */
+            for (int index = 0; index < data.length; index++) {
+                for (int index2 = 0; index2 < data[0].length; index2++) {
+                    data[index][index2] = fieldData[index][index2].toString();
+                }
+            }
+        } else {
+            data = new String[fieldData.length][2];
+            
+            /* Grab the name and value of all fields */
+            for (int index = 0; index < data.length; index++) {
+                data[index][0] = fieldInfo.get(index).getFieldName();
+                data[index][1] = fieldInfo.get(index).getValue();
+            }
+        }
+        
+        return data;
+    }
 
     /**********************************************************************************************
      * Get the description of the table at the row indicated for the table type
@@ -3639,7 +3743,7 @@ public class CcddScriptDataAccessHandler {
      *         error, or an empty array if there are no results
      *********************************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand) {
-        return dbTable.queryDatabase(sqlCommand, ccddMain.getMainFrame()).toArray(new String[0][0]);
+        return dbTable.queryDatabase(new StringBuilder(sqlCommand), ccddMain.getMainFrame()).toArray(new String[0][0]);
     }
 
     /**********************************************************************************************

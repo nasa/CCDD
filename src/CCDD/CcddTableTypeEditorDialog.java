@@ -45,7 +45,9 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -99,13 +101,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
     // List of references to the individual table type editors
     private final List<CcddTableTypeEditorHandler> typeEditors;
 
-    // List containing the table type names for the types that are being updated. If
-    // a table type
-    // change is stored, any tables of that type with unsaved changes will have the
-    // changes
-    // removed. This list is used when determining if the user is asked to confirm
-    // discarding the
-    // table changes
+    // List containing the table type names for the types that are being updated. If a table type
+    // change is stored, any tables of that type with unsaved changes will have the changes removed.
+    // This list is used when determining if the user is asked to confirm discarding the table changes
     private final List<String> changedTypes;
 
     /**********************************************************************************************
@@ -685,8 +683,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
                                 tableTypeHandler.getTypeDefinition(activeEditor.getTypeName()).isStructure(),
                                 MIN_WINDOW_WIDTH);
 
-                        // Enable/disable the Clear values command depending on if any data fields
-                        // remain
+                        // Enable/disable the Clear values command depending on if any data fields remain
                         mntmClearValues.setEnabled(!activeEditor.getPanelFieldInformation().isEmpty());
                     }
 
@@ -1196,13 +1193,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
         try {
             // Build the table updates based on the type definition changes
             editor.buildUpdates();
-
-            // Recreate the table type definitions table in the database and update the affected table(s)
-            dbTable.modifyTableTypeInBackground(editor.getTypeName(), activeEditor.getPanelFieldInformation(),
-                    getOverwriteFieldType(), editor.getTypeAdditions(), editor.getTypeModifications(),
-                    editor.getTypeDeletions(), editor.isColumnOrderChange(), editor.getTypeDefinition(),
-                    editor.getFieldAdditions(), editor.getFieldModifications(), editor.getFieldDeletions(),
-                    CcddTableTypeEditorDialog.this, activeEditor);
+            
+            dbTable.modifyTableType(editor.getTypeName(), activeEditor.getPanelFieldInformation(), getOverwriteFieldType(),
+                    editor.getTypeAdditions(), editor.getTypeModifications(), editor.getTypeDeletions(),
+                    editor.isColumnOrderChange(), editor.getTypeDefinition(), null, CcddTableTypeEditorDialog.this, activeEditor);
+            
         } catch (CCDDException ce) {
             // Update aborted by user
         }
@@ -1235,8 +1230,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
                             dbTable.modifyTableType(editor.getTypeName(), activeEditor.getPanelFieldInformation(),
                                     getOverwriteFieldType(), editor.getTypeAdditions(), editor.getTypeModifications(),
                                     editor.getTypeDeletions(), editor.isColumnOrderChange(), editor.getTypeDefinition(),
-                                    editor.getFieldAdditions(), editor.getFieldModifications(),
-                                    editor.getFieldDeletions(), CcddTableTypeEditorDialog.this, editor);
+                                    null, CcddTableTypeEditorDialog.this, editor);
                         } catch (CCDDException ce) {
                             // Update aborted by user
                         }

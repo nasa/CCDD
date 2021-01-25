@@ -286,10 +286,11 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler {
              * with the search criteria or are ancestors to a matching node
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, Component parent) {
+            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged,
+                    Component parent) {
                 int matchCount = 0;
 
-                super.buildTableTree(isExpanded, null, null, parent);
+                super.buildTableTree(isExpanded, null, null, false, parent);
 
                 // Check if the user provided search criteria
                 if (searchPattern != null) {
@@ -429,7 +430,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler {
 
                     // Rebuild the table tree, retaining only those nodes that contain a match with
                     // the search pattern or are ancestors to a matching node
-                    variableTree.buildTableTree(false, null, null, CcddSearchVariablesDialog.this);
+                    variableTree.buildTableTree(false, null, null, false, CcddSearchVariablesDialog.this);
                 }
             }
         }

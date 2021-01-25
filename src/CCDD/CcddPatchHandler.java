@@ -302,9 +302,8 @@ public class CcddPatchHandler {
             
             // Add the new table type to the project database
             dbTable.modifyTableType(TYPE_ENUM, null, OverwriteFieldValueType.NONE,
-                    new ArrayList<String[]>(0), new ArrayList<String[]>(0), new ArrayList<String[]>(0), false, null,
-                    new ArrayList<TableModification>(0), new ArrayList<TableModification>(0),
-                    new ArrayList<TableModification>(0), null, null);
+                    new ArrayList<String[]>(0), new ArrayList<String[]>(0), new ArrayList<String[]>(0),
+                    false, null, null, null, null);
         }
         
         // Build the command to modify the internal data type table
@@ -651,6 +650,7 @@ public class CcddPatchHandler {
                                 }
                             }
 
+                            int counter = 0; 
                             // Step through each table of this command type
                             for (String commandTableName : dbTable.getAllTablesOfType(typeDefn.getName(), null,
                                     ccddMain.getMainFrame())) {
@@ -688,7 +688,8 @@ public class CcddPatchHandler {
                                     // type. All of the command arguments are stored in this table
                                     if (dbTable.createTable(new String[] { cmdArgRefTableName },
                                             "Command " + commandTableName + " argument structure references",
-                                            STRUCT_CMD_ARG_REF, true, ccddMain.getMainFrame())) {
+                                            STRUCT_CMD_ARG_REF, true, (counter == dbTable.getAllTablesOfType(typeDefn.getName(), null,
+                                                    ccddMain.getMainFrame()).size()-1), ccddMain.getMainFrame())) {
                                         throw new CCDDException("Cannot create command argument structure reference table");
                                     }
 
@@ -936,7 +937,8 @@ public class CcddPatchHandler {
 
                                         // Create a prototype for the command argument structure table
                                         if (dbTable.createTable(new String[] { cmdName }, "Command argument structure",
-                                                newCmdArgStructType.getName(), true, ccddMain.getMainFrame())) {
+                                                newCmdArgStructType.getName(), true, (cmdRow == cmdTableInfo.getData().length - 1),
+                                                ccddMain.getMainFrame())) {
                                             throw new Exception("Cannot create command argument structure table");
                                         }
 
@@ -1208,6 +1210,7 @@ public class CcddPatchHandler {
                                 }
                                 commands.add(command);
                                 command = "";
+                                counter++;
                             }
 
                             // Replace the original command table type with the new one
@@ -1226,7 +1229,8 @@ public class CcddPatchHandler {
                             for (int index = 0; index < commandTableNames.size(); index++) {
                                 // Create the updated command table
                                 if (dbTable.createTable(new String[] { commandTableNames.get(index) },
-                                        commandTableDescriptions.get(index), typeDefn.getName(), false, ccddMain.getMainFrame())) {
+                                        commandTableDescriptions.get(index), typeDefn.getName(), false, (index == commandTableNames.size() -1),
+                                        ccddMain.getMainFrame())) {
                                     throw new CCDDException();
                                 }
                             }

@@ -310,6 +310,10 @@ public class CcddConstants {
     protected static final int appendToExistingDataCbIndex = 1;
     protected static final int ignoreErrorsCbIndex = 2;
     protected static final int keepDataFieldsCbIndex = 3;
+    
+    /* Snapshot file paths */
+    protected static final String SNAP_SHOT_FILE_PATH = "./.snapshot/";
+    protected static final String SNAP_SHOT_FILE_PATH_2 = "./.snapshot2/";
 
     // Endian type
     protected static enum EndianType {
@@ -371,8 +375,8 @@ public class CcddConstants {
 
     // Manager dialog types
     protected static enum ManagerDialogType {
-        NEW, EDIT, RENAME, COPY, DELETE, IMPORT_JSON, IMPORT_CSV, IMPORT_EDS, IMPORT_XTCE, EXPORT_CSV, EXPORT_XTCE,
-        EXPORT_EDS, EXPORT_JSON
+        NEW, EDIT, RENAME, COPY, DELETE, IMPORT_JSON, IMPORT_CSV, IMPORT_EDS, IMPORT_XTCE, IMPORT_C_HEADER,
+        EXPORT_CSV, EXPORT_XTCE, EXPORT_EDS, EXPORT_JSON
     }
 
     // Table tree types
@@ -1724,7 +1728,8 @@ public class CcddConstants {
         LOG("log", "CCDD project event logs"), DBU("dbu", "database backup files"),
         CSV("csv", "comma-separated values"),
         XTCE("xtce", "extensible markup language telemetric and command exchange XML"),
-        EDS("eds", "electronic data sheet XML"), JSON("json", "JavaScript object notation");
+        EDS("eds", "electronic data sheet XML"), JSON("json", "JavaScript object notation"),
+        C_HEADER("h", "C header file");
 
         private final String entensionName;
         private final String description;
@@ -1825,14 +1830,22 @@ public class CcddConstants {
      * Default primitive data type information
      *********************************************************************************************/
     protected static enum DefaultPrimitiveTypeInfo {
-        INT8("int8_t", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
-        INT16("int16_t", "signed short int", 2, BaseDataTypeInfo.SIGNED_INT),
-        INT32("int32_t", "signed int", 4, BaseDataTypeInfo.SIGNED_INT),
-        INT64("int64_t", "signed long int", 8, BaseDataTypeInfo.SIGNED_INT),
-        UINT8("uint8_t", "unsigned char", 1, BaseDataTypeInfo.UNSIGNED_INT),
-        UINT16("uint16_t", "unsigned short int", 2, BaseDataTypeInfo.UNSIGNED_INT),
-        UINT32("uint32_t", "unsigned int", 4, BaseDataTypeInfo.UNSIGNED_INT),
-        UINT64("uint64_t", "unsigned long int", 8, BaseDataTypeInfo.UNSIGNED_INT),
+        INT8_T("int8_t", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
+        INT16_T("int16_t", "signed short int", 2, BaseDataTypeInfo.SIGNED_INT),
+        INT32_T("int32_t", "signed int", 4, BaseDataTypeInfo.SIGNED_INT),
+        INT64_T("int64_t", "signed long int", 8, BaseDataTypeInfo.SIGNED_INT),
+        UINT8_T("uint8_t", "unsigned char", 1, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT16_T("uint16_t", "unsigned short int", 2, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT32_T("uint32_t", "unsigned int", 4, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT64_T("uint64_t", "unsigned long int", 8, BaseDataTypeInfo.UNSIGNED_INT),
+        INT8("int8", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
+        INT16("int16", "signed short int", 2, BaseDataTypeInfo.SIGNED_INT),
+        INT32("int32", "signed int", 4, BaseDataTypeInfo.SIGNED_INT),
+        INT64("int64", "signed long int", 8, BaseDataTypeInfo.SIGNED_INT),
+        UINT8("uint8", "unsigned char", 1, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT16("uint16", "unsigned short int", 2, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT32("uint32", "unsigned int", 4, BaseDataTypeInfo.UNSIGNED_INT),
+        UINT64("uint64", "unsigned long int", 8, BaseDataTypeInfo.UNSIGNED_INT),
         FLOAT("float", "float", 4, BaseDataTypeInfo.FLOATING_POINT),
         DOUBLE("double", "double", 8, BaseDataTypeInfo.FLOATING_POINT),
         CHAR("char", "char", 1, BaseDataTypeInfo.CHARACTER), STRING("string", "char", 2, BaseDataTypeInfo.CHARACTER),

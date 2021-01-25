@@ -199,9 +199,10 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface 
              * Override building the table tree so that the links can be added
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, Component parent) {
+            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged,
+                    Component parent) {
                 // Call to the super to build the tree
-                super.buildTableTree(isExpanded, rateName, rateFilter, parent);
+                super.buildTableTree(isExpanded, rateName, rateFilter, false, parent);
 
                 // Create a tree showing the links that contain variables with a sample rate
                 // matching the currently selected rate
@@ -643,7 +644,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface 
         linkTree.setSelectedRate(selectedRate);
 
         // Rebuild the variable tree using the selected rate as a filter
-        variableTree.buildTableTree(null, rateName, selectedRate, ccddMain.getMainFrame());
+        variableTree.buildTableTree(null, rateName, selectedRate, false, ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************

@@ -62,6 +62,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -91,7 +92,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private List<TableMembers> tableMembers;
     private List<Object[]> tablePathList;
     private ToolTipTreeNode root;
+    private ToolTipTreeNode preLoadedGroupRoot;
     private final TableTreeType treeType;
+    private TableTreeType defaultTreeType;
     private JCheckBox expandChkBx;
     private boolean skipMemberTables;
 
@@ -174,6 +177,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     }
 
     private final int GROUP_HEADER_LEVEL = 2;
+    
+    private boolean buildGroupTree;
+    
+    private boolean updatingPreLoadedGroupRoot;
 
     /**********************************************************************************************
      * Table tree handler class constructor
@@ -231,6 +238,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         this.ccddMain = ccddMain;
         this.groupHandler = groupHandler;
         this.treeType = treeType;
+        defaultTreeType = TableTreeType.TABLES;
         this.getDescriptions = getDescriptions;
         this.sortByName = sortByName;
         this.showGroupFilter = showGroupFilter;
@@ -255,6 +263,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         // Set the tree to be collapsed initially with no filters applied
         isByGroup = false;
         isByType = false;
+        
+        // This value is only used by the TableTreeHandler instantiated by CcddMain.java and NO ONE ELSE
+        buildGroupTree = false;
+        updatingPreLoadedGroupRoot = false;
 
         removeNodes = new ArrayList<ToolTipTreeNode>();
 
@@ -484,17 +496,30 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
      * @param parent component building this table tree
      *********************************************************************************************/
     protected void buildTableTreeFromDatabase(Component parent) {
-        // Get the tables and their members from the database, sorted by variable name
-        tableMembers = dbTable.loadTableMembers(
-                (treeType == TABLES_WITH_PRIMITIVES || treeType == STRUCTURES_WITH_PRIMITIVES
-                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
-                        || treeType == INSTANCE_TABLES_WITH_PRIMITIVES) ? INCLUDE_PRIMITIVES : TABLES_ONLY,
-                sortByName, parent);
+        // Check to see if the table members are currently updating
+        String updating = dbTable.defaultTableMembersUpdating();
+        
+        // If the table members are initialized and treeType equals defaultTreeType then 
+        // we can use the pre-loaded table members
+        if (treeType == defaultTreeType && (!updating.contentEquals("Uninitialized"))) {
+            // If the table members are currently updating then wait
+            while (updating.contentEquals("Updating")) {
+                updating = dbTable.defaultTableMembersUpdating();
+            }
+            
+            // Grab the table members
+            tableMembers = dbTable.getPreLoadedTableMembers();
+        } else {
+            // Get the tables and their members from the database, sorted by variable name
+            tableMembers = dbTable.loadTableMembers(
+                    (treeType == TABLES_WITH_PRIMITIVES || treeType == STRUCTURES_WITH_PRIMITIVES
+                            || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                            || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
+                            || treeType == INSTANCE_TABLES_WITH_PRIMITIVES) ? INCLUDE_PRIMITIVES : TABLES_ONLY,
+                    sortByName, parent);
+        }
 
-        // Register the tool tip manager for the table tree (otherwise the tool tips
-        // aren't
-        // displayed)
+        // Register the tool tip manager for the table tree (otherwise the tool tips aren't displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 
         // Check that the table members loaded successfully
@@ -505,7 +530,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
             String expState = getExpansionState();
 
             // Build the table tree
-            buildTableTree(null, rateName, rateFilter, parent);
+            buildTableTree(null, rateName, rateFilter, false, parent);
 
             // Restore the tree's expansion state
             setExpansionState(expState);
@@ -529,95 +554,157 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
      *
      * @param parent     component building this table tree
      *********************************************************************************************/
-    protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, Component parent) {
-        this.rateName = rateName;
-        this.rateFilter = rateFilter;
-
-        // Check if a rate filter is in effect and a filter name is provided
-        if (rateFilter != null && rateName != null) {
-            // Load all references to rate column values from the custom values table that
-            // match
-            // the rate name
-            rateValues = new ArrayListMultiple();
-            rateValues.addAll(dbTable.getCustomValues(rateName, null, parent));
-        }
-
-        // Get the index into the table member rate array
-        rateIndex = ccddMain.getRateParameterHandler().getRateInformationIndexByRateName(rateName);
-
-        // Set the flag to indicate that the table tree is being built. This flag is
-        // used to
-        // inhibit actions involving tree selection value changes during the build
-        // process
-        isBuilding = true;
-
-        // Create the tree's root node using the database name and hide the root node
-        // (project
-        // database name). Since the root node isn't visible there is no need for a
-        // description
-        root = new ToolTipTreeNode(dbControl.getDatabaseName(), null);
-        setModel(new DefaultTreeModel(root));
-        setRootVisible(false);
-        
-        // Set the flag to indicate if all nodes, only the prototype node, or only the
-        // instance
-        // node should be built and displayed
-        nodeFilter = ((treeType == PROTOTYPE_TABLES || treeType == PROTOTYPE_STRUCTURES || treeType == COMMAND_TABLES)
-                ? TableTreeNodeFilter.PROTOTYPE_ONLY
-                : (treeType == INSTANCE_TABLES || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
-                        || treeType == INSTANCE_TABLES_WITH_PRIMITIVES ? TableTreeNodeFilter.INSTANCE_ONLY
-                                : TableTreeNodeFilter.ALL));
-
-        // Check if both groups and table type are to be used to filter the table tree
-        if (isByGroup && isByType) {
-            
-            // Step through the groups
-            for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
-                // Create a node for the group and add it to the tree's root node
-                ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo.getName(),
-                        getDescriptions ? groupInfo.getDescription() : null);
-                root.add(groupNode);
-
-                // Add the group member tables to the group node by table type
-                addByType(groupNode, groupInfo, parent);
+    protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged, Component parent) {
+        if ((buildGroupTree == false) && (isByGroupChanged) && (isByGroup)) {
+            // If we made it into this if statement then that means that updatePreLoadedGroupRoot() was 
+            // called while the group root was already updating so this function should wait till it finishes
+            boolean updating = ccddMain.getTableTreeHandler().preLoadedGroupRootUpdating();
+            while (updating) {
+                updating = ccddMain.getTableTreeHandler().preLoadedGroupRootUpdating();
             }
-
-            // Add the pseudo-group containing all tables to the prototype and instance
-            // nodes
-            addAllTablesGroup(parent);
-        }
-        // Check if groups are to be used to filter the table tree
-        else if (isByGroup) {
             
-            // Step through the groups
-            for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
+            // Grab the pre-loaded group root
+            root = ccddMain.getTableTreeHandler().getPreLoadedGroupRoot();
+            
+            setModel(new DefaultTreeModel(root));
+            setRootVisible(false);
+        } else {
+            this.rateName = rateName;
+            this.rateFilter = rateFilter;
+            boolean overRiddenIsByGroup = false;
+            
+            // If we are building the group tree then override isByGroup for now. Will be restored later
+            if (buildGroupTree) {
+                overRiddenIsByGroup = isByGroup;
+                isByGroup = true;
+            }
+    
+            // Check if a rate filter is in effect and a filter name is provided
+            if (rateFilter != null && rateName != null) {
+                // Load all references to rate column values from the custom values table that
+                // match the rate name
+                rateValues = new ArrayListMultiple();
+                rateValues.addAll(dbTable.getCustomValues(rateName, null, parent));
+            }
+    
+            // Get the index into the table member rate array
+            rateIndex = ccddMain.getRateParameterHandler().getRateInformationIndexByRateName(rateName);
+    
+            // Set the flag to indicate that the table tree is being built. This flag is used to
+            // inhibit actions involving tree selection value changes during the build process
+            isBuilding = true;
+    
+            // Create the tree's root node using the database name and hide the root node (project
+            // database name). Since the root node isn't visible there is no need for a description
+            root = new ToolTipTreeNode(dbControl.getDatabaseName(), null);
+            setModel(new DefaultTreeModel(root));
+            setRootVisible(false);
+            
+            // Set the flag to indicate if all nodes, only the prototype node, or only the
+            // instance node should be built and displayed
+            nodeFilter = ((treeType == PROTOTYPE_TABLES || treeType == PROTOTYPE_STRUCTURES || treeType == COMMAND_TABLES)
+                    ? TableTreeNodeFilter.PROTOTYPE_ONLY : (treeType == INSTANCE_TABLES || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                            || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
+                            || treeType == INSTANCE_TABLES_WITH_PRIMITIVES ? TableTreeNodeFilter.INSTANCE_ONLY : TableTreeNodeFilter.ALL));
+    
+            // Check if both groups and table type are to be used to filter the table tree
+            if (isByGroup && isByType) {
+                
+                // Step through the groups
+                for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
+                    // Create a node for the group and add it to the tree's root node
+                    ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo.getName(),
+                            getDescriptions ? groupInfo.getDescription() : null);
+                    root.add(groupNode);
+    
+                    // Add the group member tables to the group node by table type
+                    addByType(groupNode, groupInfo, parent);
+                }
+    
+                // Add the pseudo-group containing all tables to the prototype and instance nodes
+                addAllTablesGroup(parent);
+            }
+            // Check if groups are to be used to filter the table tree
+            else if (isByGroup) {
+                // Step through the groups
+                for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
+                    ToolTipTreeNode prototype = null;
+                    ToolTipTreeNode instance = null;
+    
+                    // Create a node for the group and add it to the tree's root node
+                    ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo.getName(),
+                            getDescriptions ? groupInfo.getDescription() : null);
+                    root.add(groupNode);
+    
+                    // Check if the prototype node should be displayed
+                    if (nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY) {
+                        // Check if the prototype node name is provided
+                        if (prototypeNodeName != null) {
+                            // Add the prototype node to the group's node
+                            prototype = new ToolTipTreeNode(prototypeNodeName, treeType == PROTOTYPE_TABLES
+                                    ? "Prototype tables"
+                                    : (treeType == COMMAND_TABLES ? "Command tables" : "Prototype structure tables"));
+                            groupNode.add(prototype);
+                        }
+                        // No prototype node name is provided
+                        else {
+                            // Assign the nodes that normally go in the prototype node to the group node
+                            prototype = groupNode;
+                        }
+                    }
+    
+                    // Check if the instance node should be displayed
+                    if (nodeFilter != TableTreeNodeFilter.PROTOTYPE_ONLY) {
+                        // Check if the instance node name is provided
+                        if (instanceNodeName != null) {
+                            // Add the instance node to the group's node
+                            instance = new ToolTipTreeNode(instanceNodeName,
+                                    treeType == INSTANCE_TABLES ? "Parent and children tables"
+                                            : "Parent and children tables, with variables");
+                            groupNode.add(instance);
+                        }
+                        // No instance node name is provided
+                        else {
+                            // Assign the nodes that normally go in the instance node to the group node
+                            instance = groupNode;
+                        }
+                    }
+    
+                    // Build the top-level nodes filtered by group
+                    buildTopLevelNodes(groupInfo.getTableMembers(), instance, prototype, parent);
+                }
+    
+                // Add the pseudo-group containing all tables to the prototype and instance nodes
+                addAllTablesGroup(parent);
+            }
+            // Check if the table types are to be used to filter the table tree
+            else if (isByType) {
+                
+                // Add all tables to the prototype and instances nodes by table type
+                addByType(null, null, parent);
+            }
+            // Do not use the groups or types to filter the tree
+            else {
+                
                 ToolTipTreeNode prototype = null;
                 ToolTipTreeNode instance = null;
-
-                // Create a node for the group and add it to the tree's root node
-                ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo.getName(),
-                        getDescriptions ? groupInfo.getDescription() : null);
-                root.add(groupNode);
-
+    
                 // Check if the prototype node should be displayed
                 if (nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY) {
                     // Check if the prototype node name is provided
                     if (prototypeNodeName != null) {
-                        // Add the prototype node to the group's node
-                        prototype = new ToolTipTreeNode(prototypeNodeName, treeType == PROTOTYPE_TABLES
-                                ? "Prototype tables"
+                        // Add the prototype node to the root node
+                        prototype = new ToolTipTreeNode(prototypeNodeName, treeType == PROTOTYPE_TABLES ? "Prototype tables"
                                 : (treeType == COMMAND_TABLES ? "Command tables" : "Prototype structure tables"));
-                        groupNode.add(prototype);
+                        root.add(prototype);
                     }
                     // No prototype node name is provided
                     else {
-                        // Assign the nodes that normally go in the prototype node to the group
-                        // node
-                        prototype = groupNode;
+                        // Assign the nodes that normally go in the prototype node to the root node
+                        prototype = root;
                     }
                 }
-
+    
                 // Check if the instance node should be displayed
                 if (nodeFilter != TableTreeNodeFilter.PROTOTYPE_ONLY) {
                     // Check if the instance node name is provided
@@ -626,119 +713,73 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                         instance = new ToolTipTreeNode(instanceNodeName,
                                 treeType == INSTANCE_TABLES ? "Parent and children tables"
                                         : "Parent and children tables, with variables");
-                        groupNode.add(instance);
+                        root.add(instance);
                     }
                     // No instance node name is provided
                     else {
-                        // Assign the nodes that normally go in the instance node to the group node
-                        instance = groupNode;
+                        // Assign the nodes that normally go in the instance node to the root node
+                        instance = root;
                     }
                 }
-
-                // Build the top-level nodes filtered by group
-                buildTopLevelNodes(groupInfo.getTableMembers(), instance, prototype, parent);
+    
+                // Build the root's top-level nodes
+                buildTopLevelNodes(null, instance, prototype, parent);
             }
-
-            // Add the pseudo-group containing all tables to the prototype and instance
-            // nodes
-            addAllTablesGroup(parent);
-        }
-        // Check if the table types are to be used to filter the table tree
-        else if (isByType) {
             
-            // Add all tables to the prototype and instances nodes by table type
-            addByType(null, null, parent);
-        }
-        // Do not use the groups or types to filter the tree
-        else {
             
-            ToolTipTreeNode prototype = null;
-            ToolTipTreeNode instance = null;
-
-            // Check if the prototype node should be displayed
-            if (nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY) {
-                // Check if the prototype node name is provided
-                if (prototypeNodeName != null) {
-                    // Add the prototype node to the root node
-                    prototype = new ToolTipTreeNode(prototypeNodeName, treeType == PROTOTYPE_TABLES ? "Prototype tables"
-                            : (treeType == COMMAND_TABLES ? "Command tables" : "Prototype structure tables"));
-                    root.add(prototype);
+            // Check if the expansion check box exists
+            if (expandChkBx != null) {
+                // Check is the expansion state is not specified
+                if (isExpanded == null) {
+                    // Set the expansion state to the current expansion check box state
+                    isExpanded = expandChkBx.isSelected();
                 }
-                // No prototype node name is provided
+                // The expansion state is specified
                 else {
-                    // Assign the nodes that normally go in the prototype node to the root node
-                    prototype = root;
+                    // Update the expansion check box state to match the specified expansion state
+                    expandChkBx.setSelected(isExpanded);
                 }
             }
-
-            // Check if the instance node should be displayed
-            if (nodeFilter != TableTreeNodeFilter.PROTOTYPE_ONLY) {
-                // Check if the instance node name is provided
-                if (instanceNodeName != null) {
-                    // Add the instance node to the group's node
-                    instance = new ToolTipTreeNode(instanceNodeName,
-                            treeType == INSTANCE_TABLES ? "Parent and children tables"
-                                    : "Parent and children tables, with variables");
-                    root.add(instance);
-                }
-                // No instance node name is provided
-                else {
-                    // Assign the nodes that normally go in the instance node to the root node
-                    instance = root;
-                }
-            }
-
-            // Build the root's top-level nodes
-            buildTopLevelNodes(null, instance, prototype, parent);
-        }
-        
-        
-        // Check if the expansion check box exists
-        if (expandChkBx != null) {
             // Check is the expansion state is not specified
-            if (isExpanded == null) {
-                // Set the expansion state to the current expansion check box state
-                isExpanded = expandChkBx.isSelected();
+            else if (isExpanded == null) {
+                // Set the state to collapse the tree
+                isExpanded = false;
             }
-            // The expansion state is specified
-            else {
-                // Update the expansion check box state to match the specified expansion state
-                expandChkBx.setSelected(isExpanded);
-            }
-        }
-        // Check is the expansion state is not specified
-        else if (isExpanded == null) {
-            // Set the state to collapse the tree
-            isExpanded = false;
-        }
-        
-        // Force the root node to draw with the node additions
-        ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
-
-        // Expand or collapse the tree based on the expansion flag
-        setTreeExpansion(isExpanded);
-
-        // Set the node enable states based on the presence of child nodes
-        setNodeEnableByChildState(root);
-
-        // Check if groups are to be used to filter the table tree
-        if (isByGroup) {
-            // Step through the groups
-            for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
-                // Check if the group has no tables,but does have at least one data field
-                if (groupInfo.getTableMembers().size() == 0 && ccddMain.getFieldHandler()
-                        .getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName()))
-                        .size() != 0) {
-                    // The node is disabled due to having no children. Re-enable the node since it
-                    // does have data fields
-                    getNodeByNodeName(groupInfo.getName()).setUserObject(groupInfo.getName());
+            
+            // Force the root node to draw with the node additions
+            ((DefaultTreeModel) treeModel).nodeStructureChanged(root);
+    
+            // Expand or collapse the tree based on the expansion flag
+            setTreeExpansion(isExpanded);
+    
+            // Set the node enable states based on the presence of child nodes
+            setNodeEnableByChildState(root);
+    
+            // Check if groups are to be used to filter the table tree
+            if (isByGroup) {
+                // Step through the groups
+                for (GroupInformation groupInfo : groupHandler.getGroupInformation()) {
+                    // Check if the group has no tables,but does have at least one data field
+                    if (groupInfo.getTableMembers().size() == 0 && ccddMain.getFieldHandler()
+                            .getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName()))
+                            .size() != 0) {
+                        // The node is disabled due to having no children. Re-enable the node since it
+                        // does have data fields
+                        getNodeByNodeName(groupInfo.getName()).setUserObject(groupInfo.getName());
+                    }
                 }
+            }
+            
+            // If we just finished building the group tree then we need to set the preLoadedGroupRoot 
+            // and restore the original value of isByGroup.
+            if (buildGroupTree == true) {
+                preLoadedGroupRoot = root;
+                isByGroup = overRiddenIsByGroup;
             }
         }
 
         // Clear the flag that indicates the table tree is being built
         isBuilding = false;
-        
     }
 
     /**********************************************************************************************
@@ -2278,8 +2319,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         final JCheckBox typeFilterChkBx = new JCheckBox("Filter by type");
 
         // Step through the child nodes of the root. These are the nodes that specify
-        // the
-        // table/variable divisions (e.g., 'Prototype', 'Parents & Children')
+        // the table/variable divisions (e.g., 'Prototype', 'Parents & Children')
         for (int index = 0; index < root.getChildCount(); index++) {
             // Add the child node name with its path to the prefix list
             prefixes.add(
@@ -2315,11 +2355,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                     String expState = getExpansionState();
 
                     // Rebuild the tree based on the filter selection
-                    buildTableTree(expandChkBx.isSelected(), rateName, rateFilter, parent);
+                    buildTableTree(expandChkBx.isSelected(), rateName, rateFilter, true, parent);
 
                     // Adjust the expansion state to account for the change in filtering, then
                     // restore the expansion state
-                    expState = adjustExpansionState(expState, groupFilterChkBx.isSelected(), true,
+                    expState = adjustExpansionState(expState, isByGroup, true,
                             typeFilterChkBx.isSelected(), false, false, prefixes, groupHandler, tableTypeHandler);
                     setExpansionState(expState);
                 }
@@ -2355,12 +2395,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                     String expState = getExpansionState();
 
                     // Rebuild the tree based on the filter selection
-                    buildTableTree(expandChkBx.isSelected(), rateName, rateFilter, parent);
+                    buildTableTree(expandChkBx.isSelected(), rateName, rateFilter, false, parent);
 
                     // Adjust the expansion state to account for the change in filtering, then
                     // restore the expansion state
                     expState = adjustExpansionState(expState, groupFilterChkBx.isSelected(), false,
-                            typeFilterChkBx.isSelected(), true, false, prefixes, groupHandler, tableTypeHandler);
+                            isByType, true, false, prefixes, groupHandler, tableTypeHandler);
                     setExpansionState(expState);
                 }
             });
@@ -2388,6 +2428,49 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         }
 
         return treePnl;
+    }
+    
+    /**********************************************************************************************
+     * Returns preLoadedGroupRoot. 
+     * 
+     * THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler INSTANTIATED IN ccddMain.java
+     *********************************************************************************************/
+    public ToolTipTreeNode getPreLoadedGroupRoot() {
+        return preLoadedGroupRoot;
+    }
+    
+    /**********************************************************************************************
+     * Updates preLoadedGroupRoot. 
+     * 
+     * THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler INSTANTIATED IN ccddMain.java
+     *********************************************************************************************/
+    public void updatePreLoadedGroupRoot() {
+        if (!updatingPreLoadedGroupRoot) {
+            updatingPreLoadedGroupRoot = true;
+            
+            /* Update the pre-loaded table members in the background */
+            CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
+                /**************************************************************************************
+                 * Import the selected data
+                 *************************************************************************************/
+                @Override
+                protected void execute() {
+                    buildGroupTree = true;
+                    buildTableTree(false, rateName, rateFilter, false, ccddMain.getMainFrame());
+                    updatingPreLoadedGroupRoot = false;
+                    buildGroupTree = false;
+                }
+            });
+        }
+    }
+    
+    /**********************************************************************************************
+     * Returns boolean representing if the pre-loaded group root is currently updating. 
+     * 
+     * THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler INSTANTIATED IN ccddMain.java
+     *********************************************************************************************/
+    public boolean preLoadedGroupRootUpdating() {
+        return updatingPreLoadedGroupRoot;
     }
 
     /**********************************************************************************************

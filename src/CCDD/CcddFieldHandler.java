@@ -83,10 +83,9 @@ public class CcddFieldHandler {
         if (fieldInfo != null) {
             // Step through each field
             for (FieldInformation info : fieldInfo) {
-                // Add the field to the copy (note that the input field reference isn't included
-                // in
-                // the copy - the input field only is stored in the field handler and the input
-                // field panel's field information)
+                // Add the field to the copy (note that the input field reference isn't included in
+                // the copy - the input field only is stored in the field handler and the input field
+                // panel's field information)
                 fldInfo.add(new FieldInformation(info.getOwnerName(), info.getFieldName(), info.getDescription(),
                         info.getInputType(), info.getSize(), info.isRequired(), info.getApplicabilityType(),
                         info.getValue(), info.isInherited(), info.getInputFld(), info.getID()));
@@ -132,17 +131,14 @@ public class CcddFieldHandler {
      * @param fieldDefinitions list of data field definitions
      *********************************************************************************************/
     protected void setFieldInformationFromDefinitions(List<String[]> fieldDefinitions) {
-        // Clear the fields from the list. Note that this eliminates the input fields
-        // (text and
-        // check box) that are stored in the field information; these must be rebuilt
-        // (if needed)
+        // Clear the fields from the list. Note that this eliminates the input fields (text and
+        // check box) that are stored in the field information; these must be rebuilt (if needed)
         // after calling this method
         fieldInformation.clear();
 
         // Check if the field definitions exist
         if (fieldDefinitions != null) {
-            // Get the list containing the field information based on the supplied field
-            // definitions
+            // Get the list containing the field information based on the supplied field definitions
             fieldInformation = getFieldInformationFromDefinitions(fieldDefinitions);
         }
     }
@@ -167,8 +163,7 @@ public class CcddFieldHandler {
                         .getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
 
                 // Get the applicability type from its name. The all tables applicability type
-                // is
-                // the default if the applicability type name is invalid
+                // is the default if the applicability type name is invalid
                 ApplicabilityType applicability = ApplicabilityType.ALL;
                 String applicabilityName = fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString();
 
@@ -211,8 +206,7 @@ public class CcddFieldHandler {
             // Get the field's input type name before the change
             String inputTypeName = fldInfo.getInputType().getInputName();
 
-            // Check if a list of input type names is provided. If not, assume the names are
-            // unchanged
+            // Check if a list of input type names is provided. If not, assume the names are unchanged
             if (inputTypeNames != null) {
                 // Step through each input type that changed
                 for (String[] oldAndNewName : inputTypeNames) {
@@ -229,8 +223,7 @@ public class CcddFieldHandler {
             // Set the field's input type based on the input type name
             fldInfo.setInputType(inputTypeHandler.getInputTypeByName(inputTypeName));
 
-            // Check if the field value doesn't conform to the input type match regular
-            // expression
+            // Check if the field value doesn't conform to the input type match regular expression
             if (!fldInfo.getValue().matches(fldInfo.getInputType().getInputMatch())) {
                 // Set the field value to a blank
                 fldInfo.setValue("");
@@ -345,6 +338,66 @@ public class CcddFieldHandler {
         }
 
         return ownerFieldInfo;
+    }
+    
+    /**********************************************************************************************
+     * Get the list of field information for all groups
+     *
+     * @return List of field information for all groups; an empty list if
+     *         no group fields
+     *********************************************************************************************/
+    protected List<FieldInformation> getGroupFieldInformation() {
+        List<FieldInformation> groupFieldInfo = new ArrayList<FieldInformation>();
+
+        // Step through each data field
+        for (FieldInformation fieldInfo : fieldInformation) {
+            // Check if this is a group data field
+            if (fieldInfo.getOwnerName().contains("Group:")) {
+                // Add the field to the list
+                groupFieldInfo.add(fieldInfo);
+            }
+        }
+
+        return groupFieldInfo;
+    }
+    
+    /**********************************************************************************************
+     * Get the list of field information for all groups as a list of lists
+     *
+     * @return List of lists of field information for all groups; an empty list if
+     *         no group fields
+     *********************************************************************************************/
+    protected List<List<FieldInformation>> getGroupFieldInformationAsListOfArrays() {
+        List<FieldInformation> groupFieldInfo = getGroupFieldInformation();
+        List<List<FieldInformation>> Test = new ArrayList<List<FieldInformation>>();
+        List<FieldInformation> tempField = new ArrayList<FieldInformation>();
+        String groupName = groupFieldInfo.get(0).getOwnerName();
+        
+        // Step through each data field
+        for (FieldInformation fieldInfo : groupFieldInfo) {
+            if (groupName.contentEquals(fieldInfo.getOwnerName())) {
+                tempField.add(fieldInfo);
+            } else {
+                Test.add(tempField);
+                tempField = new ArrayList<FieldInformation>();
+                tempField.add(fieldInfo);
+                groupName = fieldInfo.getOwnerName();
+            }
+        }
+
+        return Test;
+    }
+    
+    /**********************************************************************************************
+     * Get the list of field information for the specified table type
+     *
+     * @param tableType name of the table type
+     *
+     * @return List of field information for the specified table type; an empty list if
+     *         the table type has no fields or the table type is invalid
+     *********************************************************************************************/
+    protected List<FieldInformation> getFieldInformationByTableType(String tableType) {
+        return getFieldInformationByOwner("Type:"+tableType);
     }
 
     /**********************************************************************************************

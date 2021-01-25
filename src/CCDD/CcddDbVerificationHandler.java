@@ -1304,9 +1304,9 @@ public class CcddDbVerificationHandler {
     private List<String[]> getInternalTableMembers(String intTableName, String intTableColumnA,
             String intTableColumnB) {
         // Get the entries from the specified column in the specified table
-        List<String[]> members = dbTable.queryDatabase("SELECT " + intTableColumnA
-                + (intTableColumnB != null ? ", " + intTableColumnB : "") + " FROM " + intTableName,
-                ccddMain.getMainFrame());
+        List<String[]> members = dbTable.queryDatabase(new StringBuilder("SELECT ").append(intTableColumnA)
+                .append((intTableColumnB != null ? ", " + intTableColumnB : "")).append(" FROM ").append(
+                        intTableName), ccddMain.getMainFrame());
 
         // Check if an error occurred obtaining the entries
         if (members == null) {

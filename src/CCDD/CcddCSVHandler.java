@@ -37,6 +37,7 @@ import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
@@ -851,6 +852,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         String groupDefnName = null;
         
         try {
+            /* Get a list of names for all of the groups currently defined within the database */
+            String[] currentGroupNames = groupHandler.getGroupNames(false);
+            List<String> newGroupNames = new ArrayList<String>();
+            List<FieldInformation> newFieldInformation = new ArrayList<FieldInformation>();
+            String currentGroupName = "";
+            
             /* Read first line in file */
             String line = br.readLine();
             
@@ -876,6 +883,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 
                 /* Check if all definitions are to be loaded */
                 if (readingGroupData == true && !line.isEmpty()) {
+                    /* Reset newFieldInformation */
+                    if (newFieldInformation.size() > 0) {
+                        /* Replace the old field information with the new field information */
+                        fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(currentGroupName), newFieldInformation);
+                    }
+                    newFieldInformation = new ArrayList<FieldInformation>();
+                    
                     /* Check if the expected number of inputs is present */
                     if (columnValues.length == GroupDefinitionColumn.values().length
                             || columnValues.length == GroupDefinitionColumn.values().length
@@ -886,6 +900,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     
                         /* Store the group name */
                         groupDefnName = columnValues[GroupDefinitionColumn.NAME.ordinal()];
+                        currentGroupName = groupDefnName;
+                        
                         /* Add the group definition, checking for (and if possible, correcting) errors */
                         addImportedGroupDefinition(new String[] { groupDefnName,
                                 columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
@@ -893,6 +909,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 columnValues[GroupDefinitionColumn.MEMBERS.ordinal()]},
                                 importFile.getAbsolutePath(), replaceExistingGroups,
                                 groupHandler);
+                        
+                        /* Add the group name to the list */
+                        newGroupNames.add(groupDefnName);
                     }
                     /* The number of inputs is incorrect */
                     else {
@@ -909,20 +928,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     /* Append empty columns as needed to fill out the expected number of inputs */
                     columnValues = CcddUtilities.appendArrayColumns(columnValues,
                             FieldsColumn.values().length - 1 - columnValues.length);
-    
-                    /* Add the data field definition, checking for (and if possible, correcting) errors */
-                    ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingGroups, projectDefn,
-                            new String[] { CcddFieldHandler.getFieldGroupName(groupDefnName),
-                                    columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                    columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                    columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                    columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                    columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                    columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                    "false"},
-                            importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
-                            parent);
+                    
+                    InputType inputType = inputTypeHandler.getInputTypeByName(columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1]);
+                    FieldInformation newField = new FieldInformation(CcddFieldHandler.getFieldGroupName(currentGroupName), columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                            columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1], inputType, Integer.parseInt(columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1]),
+                            Boolean.parseBoolean(columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1]), ApplicabilityType.getApplicabilityByName(
+                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1]), columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                            Boolean.parseBoolean(columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]), null, 0);
+                    
+                    newFieldInformation.add(newField);
                 }
                 
                 line = br.readLine();
@@ -931,6 +945,25 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     line = line.trim();
                 }
             }
+            
+            /* Determine which groups have been deleted */
+            List<String> deletedGroups = new ArrayList<String>();
+            
+            /* Search the list of new group names for every name in the current group names list. Each name that is
+             * not found in the new list will be added to the list of deleted groups.
+             */
+            for (int index = 0; index < currentGroupNames.length; index++) {
+                if (!newGroupNames.contains(currentGroupNames[index])) {
+                    deletedGroups.add(currentGroupNames[index]);
+                    
+                    // Remove the group's information
+                    groupHandler.removeGroupInformation(currentGroupNames[index]);
+                }
+            }
+
+            /* Update internal groups table */
+            dbTable.updateGroupsTable(fieldHandler.getGroupFieldInformationAsListOfArrays(), deletedGroups, ccddMain.getMainFrame());
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1114,6 +1147,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         readingColumnData = false;
                         readingDataField = true;
                         line = br.readLine();
+                        
+                        /* If this is the line that lists the name of the columns then skip it */
+                        if (line.contains(FieldsColumn.FIELD_NAME.getColumnName())) {
+                            line = br.readLine();
+                        }
                     }
                     if (line.replace(",", "").equals(CSVTags.DESCRIPTION.getTag())) {
                         line = br.readLine();
@@ -1478,11 +1516,22 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                     /* Get the table's data field information */
                     List<FieldInformation> fieldInformation = tableInfo.getFieldInformation();
+                    /* Get the visible column names based on the table's type */
+                    String[] fieldColumnNames = new String[FieldsColumn.values().length-2];
+                    fieldColumnNames[0] = FieldsColumn.FIELD_NAME.getColumnName();
+                    fieldColumnNames[1] = FieldsColumn.FIELD_DESC.getColumnName();
+                    fieldColumnNames[2] = FieldsColumn.FIELD_SIZE.getColumnName();
+                    fieldColumnNames[3] = FieldsColumn.FIELD_TYPE.getColumnName();
+                    fieldColumnNames[4] = FieldsColumn.FIELD_REQUIRED.getColumnName();
+                    fieldColumnNames[5] = FieldsColumn.FIELD_APPLICABILITY.getColumnName();
+                    fieldColumnNames[6] = FieldsColumn.FIELD_VALUE.getColumnName();
+                    
 
                     /* Check if the table contains any data fields */
                     if (!fieldInformation.isEmpty()) {
                         /* Output the data field marker */
-                        pw.printf(CSVTags.DATA_FIELD.getTag() + "\n");
+                        pw.printf(CSVTags.DATA_FIELD.getTag() + "\n%s\n",
+                        CcddUtilities.addEmbeddedQuotesAndCommas(fieldColumnNames));
 
                         /* Step through each data field */
                         for (FieldInformation fieldInfo : fieldInformation) {
@@ -2184,6 +2233,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             
             if (endIndex != -1 && beginIndex != -1) {
                 outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            } else if ((endIndex == -1) && (beginIndex != -1)) {
+                outData = new StringBuilder(data.toString().substring(beginIndex));
             }
         }
         

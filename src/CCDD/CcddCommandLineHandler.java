@@ -856,7 +856,7 @@ public class CcddCommandLineHandler {
         });
 
         /* Import one or more tables */
-        argument.add(new CommandHandler("import", "Import tables, etc. from a CSV, EDS,\n" + "  JSON, or XTCE file",
+        argument.add(new CommandHandler("import", "Import tables, etc. from a CSV, EDS,\n" + "  JSON, XTCE or C header file",
                 "'<import sub-commands>'", CommandLineType.NAME,
                 CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1, importArgument) {
             /**************************************************************************************
@@ -908,21 +908,35 @@ public class CcddCommandLineHandler {
                         replaceExistingMacros = true;
                         deleteAbsentFiles = true;
                     }
+                    
+                    /* Disable certain options if this is a C Header import */
+                    if (importFileType == FileExtension.C_HEADER) {
+                        importFullDatabase = false;
+                        includesReservedMsgIds = false;
+                        replaceExistingGroups = false;
+                        replaceExistingAssociations = false;
+                        deleteAbsentFiles = false;
+                        includesProjectFields = false;
+                    }
 
+                    /* Create the snapshot directory */
+                    ccddMain.getFileIOHandler().createSnapshotDirectory(ccddMain.getMainFrame());
+                    
                     /* Check if the GUI isn't displayed */
                     if (ccddMain.isGUIHidden()) {                        
-                        if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
-                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), importFullDatabase, backupFirst, replaceExistingTables,
-                                    appendExistingFields, useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
-                                    deleteAbsentFiles, includesReservedMsgIds, includesProjectFields, importFileType, dialogType, null)) {
+                        if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV) ||
+                                (importFileType == FileExtension.C_HEADER)) {
+                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
+                                    backupFirst, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
+                                    replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups, deleteAbsentFiles,
+                                    includesReservedMsgIds, includesProjectFields, importFileType, dialogType, null)) {
                                 throw new Exception();
                             }
                         } else if (importFileType != null){
-                            /* Import the table(s) from the specified file; check if the import operation
-                             * fails
-                             */
-                            if (ccddMain.getFileIOHandler().importFile(dataFile, backupFirst, replaceExistingTables, appendExistingFields, useExistingFields,
-                                    openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups, dialogType, null)) {
+                            /* Import the table(s) from the specified file; check if the import operation fails */
+                            if (ccddMain.getFileIOHandler().importFile(dataFile, backupFirst, replaceExistingTables, appendExistingFields,
+                                    useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations,
+                                    replaceExistingGroups, dialogType, null)) {
                                 throw new Exception();
                             }
                         } else {
@@ -939,6 +953,9 @@ public class CcddCommandLineHandler {
                                 replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
                                 includesReservedMsgIds, includesProjectFields, importFileType, dialogType, ccddMain.getMainFrame());
                     }
+                    
+                    /* Delete the snapshot directories */
+                    ccddMain.getFileIOHandler().deleteSnapshotDirectories(ccddMain.getMainFrame());
                 }
                 /* The user doesn't have write access */
                 else {
@@ -1200,9 +1217,9 @@ public class CcddCommandLineHandler {
 
         /* Import command - what type of files are being imported */
         importArgument.add(new CommandHandler("importFileType", "what type of files are being imported",
-                "String: 'JSON', 'CSV', 'EDS' or 'XTCE'", CommandLineType.OPTION, 0,
-                new Object[] { FileExtension.CSV, FileExtension.EDS, FileExtension.JSON, FileExtension.XTCE },
-                new String[] { "csv", "eds", "json", "xtce" }) {
+                "String: 'JSON', 'CSV', 'EDS', 'XTCE' or 'C_Header'", CommandLineType.OPTION, 0,
+                new Object[] { FileExtension.CSV, FileExtension.EDS, FileExtension.JSON, FileExtension.XTCE, FileExtension.C_HEADER},
+                new String[] { "csv", "eds", "json", "xtce", "c_header" }) {
             /**************************************************************************************
              * Set the flag to indicate if an entire database is to be imported
              *************************************************************************************/

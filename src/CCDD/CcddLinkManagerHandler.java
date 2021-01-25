@@ -425,11 +425,12 @@ public class CcddLinkManagerHandler {
              * the instances node name
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, Component parent) {
+            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged,
+                    Component parent) {
                 // Set the flag to inhibit registering a link change due to the tree is being
                 // built
                 isInitializing = true;
-                super.buildTableTree(isExpanded, rateName, rateFilter, parent);
+                super.buildTableTree(isExpanded, rateName, rateFilter, false, parent);
                 isInitializing = false;
 
                 // Clean up the links following rebuilding the tree
@@ -616,7 +617,7 @@ public class CcddLinkManagerHandler {
                     selectedRate = newRate;
 
                     // Rebuild the variable tree using the selected rate as a filter
-                    variableTree.buildTableTree(null, rateName, selectedRate, linkDialog);
+                    variableTree.buildTableTree(null, rateName, selectedRate, false, linkDialog);
                 }
 
                 // Get the list of all variable tree paths in the variable tree and set these in

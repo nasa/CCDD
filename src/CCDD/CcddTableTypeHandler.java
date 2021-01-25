@@ -54,9 +54,6 @@ public class CcddTableTypeHandler {
     // Type definitions list
     private List<TypeDefinition> typeDefinitions;
 
-    // Flag indicating that a data field was created for a table type
-    private boolean isNewField;
-
     /**********************************************************************************************
      * Table type definition class
      *********************************************************************************************/
@@ -1363,7 +1360,6 @@ public class CcddTableTypeHandler {
      *********************************************************************************************/
     protected void updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException {
         boolean isNewStruct = false;
-        isNewField = false;
 
         // Step through each table type definition
         for (TableTypeDefinition tableTypeDefn : tableTypeDefinitions) {
@@ -1747,7 +1743,7 @@ public class CcddTableTypeHandler {
         // Update the table types within the database
         dbTable.modifyTableType(newTableTypeDefn.getTypeName(), newDataFieldInformation,
                 OverwriteFieldValueType.NONE, typeAdditions, typeModifications, typeDeletions, columnOrderChange,
-                typeDefn, fieldAdditions, fieldModifications, fieldDeletions, null, null);
+                typeDefn, newDataFields, null, null);
         
         // Update the fieldHandler
         fieldHandler.replaceFieldInformationByOwner("Type:"+newTableTypeDefn.getTypeName(), newDataFieldInformation);

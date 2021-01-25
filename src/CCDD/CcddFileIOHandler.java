@@ -31,7 +31,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -85,10 +84,13 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddConstants.TableTreeType;
+import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH;
+import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddConstants.exportDataTypes;
 import CCDD.CcddBackupName;
+import CCDD.ConvertCStructureToCSV;
 
 import org.apache.commons.io.FileUtils;
 
@@ -113,8 +115,6 @@ public class CcddFileIOHandler {
     private final CcddEventLogDialog eventLog;
     private CcddHaltDialog haltDlg;
     private boolean errorFlag;
-    private String snapshotFilePath = "./.snapshot/";
-    private String snapshotFilePath2 = "./.snapshot2/";
 
     /**********************************************************************************************
      * File I/O handler class constructor
@@ -250,7 +250,7 @@ public class CcddFileIOHandler {
             final boolean replaceExistingMacros, final boolean replaceExistingAssociations,
             final boolean replaceExistingGroups, final boolean deleteNonExistingFiles,
             final boolean doReservedMessageIDsExist, final boolean includesProjectFields,
-            final FileExtension importFileType, final ManagerDialogType dialogType, final Component parent) {
+            FileExtension importFileType, ManagerDialogType dialogType, final Component parent) {
         /* Select all current tables in the database and prepare them for export. This
          * will be used later to resolve which import files are new/modified
          */
@@ -265,11 +265,37 @@ public class CcddFileIOHandler {
         /* Indicates if any changes were made to the database */
         boolean dataWasChanged = false;
         
+        /* If this is a bunch of C header files then they need to be converted */
+        if (importFileType == FileExtension.C_HEADER) {
+            ConvertCStructureToCSV conversionHandler = new ConvertCStructureToCSV();
+            dataFiles = conversionHandler.convertFile(dataFiles, ccddMain);
+            dialogType = ManagerDialogType.IMPORT_CSV;
+            importFileType = FileExtension.CSV;
+        } 
+        
+        /* Are we importing a single large file that represents the whole database? */
         if ((importingEntireDatabase) && (dataFiles.length == 1)) {
             if (dialogType == ManagerDialogType.IMPORT_JSON) {
                 dataFiles = processSingleJSONFileRepresentingDatabase(dataFiles[0], dialogType, parent);
             } else if (dialogType == ManagerDialogType.IMPORT_CSV) {
                 dataFiles = processSingleCSVFileRepresentingDatabase(dataFiles[0], parent);
+            } 
+        } else if ((!importingEntireDatabase) && (dataFiles.length == 1) && (dialogType == ManagerDialogType.IMPORT_CSV)) {
+            /* Create a buffered reader to read the file */
+            BufferedReader br;
+            try {
+                br = new BufferedReader(new FileReader(dataFiles[0]));
+                
+                /* Read first line in file */
+                String line = br.readLine();
+                
+                /* Check to see if this is a conversion file */
+                if (line.contains("c_struct_to_csv_conversion")) {
+                    /* Process the converted file into individual files that can be imported */
+                    dataFiles = processCSVConversionFile(dataFiles[0], parent);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -286,7 +312,7 @@ public class CcddFileIOHandler {
                 for (FileEnvVar dataFile : dataFiles) {
                     /* Only import files that end with the correct file extension */
                     if (dataFile.getName().endsWith(importFileType.getExtension())) {
-                        importFiles.add(new FileEnvVar(dataFile.getPath()));
+                        importFiles.add(dataFile);
                     }
                 }
     
@@ -392,9 +418,9 @@ public class CcddFileIOHandler {
             }
 
             /* If the snapshot directory exists than delete it */
-            if (Files.isDirectory(Paths.get(snapshotFilePath))) {
+            if (Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH))) {
                 /* Step through each file in the existent .snapshot directory */
-                for (File file : new File(snapshotFilePath).listFiles()) {
+                for (File file : new File(SNAP_SHOT_FILE_PATH).listFiles()) {
                     /* Delete each file */
                     file.delete();
                 }
@@ -1027,7 +1053,10 @@ public class CcddFileIOHandler {
              *************************************************************************************/
             @Override
             protected void execute() {
-                if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)) {
+                createSnapshotDirectory(parent);
+                
+                if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV) ||
+                        (importFileType == FileExtension.C_HEADER)) {
                     errorFlag = prepareJSONOrCSVImport(dataFile, importingEntireDatabase, backupFirst, replaceExisting, appendExistingFields,
                             useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations,
                             replaceExistingGroups, deleteNonExistingFiles, doReservedMessageIDsExist, includesProjectFields, importFileType,
@@ -1041,10 +1070,12 @@ public class CcddFileIOHandler {
                         importType = ManagerDialogType.IMPORT_XTCE;
                     }
                     /* Import the selected table(s) */
-                   importFile(dataFiles, backupFirst, replaceExisting, appendExistingFields, useExistingFields,
+                    importFile(dataFiles, backupFirst, replaceExisting, appendExistingFields, useExistingFields,
                            openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
                            importType, parent);
                 }
+                
+                deleteSnapshotDirectories(parent);
             }
 
             /**************************************************************************************
@@ -1914,20 +1945,23 @@ public class CcddFileIOHandler {
                     TableTreeType.TABLES_WITH_PRIMITIVES, ccddMain.getMainFrame())).getTableTreePathList(null);
             
             // Get all members of the internal groups table
-            List<String[]> members = dbTable.queryDatabase("SELECT " + GroupsColumn.MEMBERS.getColumnName()
-                    + " FROM " + InternalTable.GROUPS.getTableName(), ccddMain.getMainFrame());
+            List<String[]> members = dbTable.queryDatabase(new StringBuilder("SELECT ").append(GroupsColumn.MEMBERS.getColumnName())
+                    .append(" FROM ").append(InternalTable.GROUPS.getTableName()), ccddMain.getMainFrame());
             
             // Initialize the command that will be used to update the internal groups table
             StringBuilder command = new StringBuilder();
             
             for (String[] member : members) {
-                // Check if the table isn't in the list of valid names, but do not delete any members of the groups table that start with a '0' or a '1' as these
-                // are rows within the internal groups table that contain the description of the group and rather or not the group represents a CFS application.
-                // Groups that represent a CFS application will have this row start with a 0, and those that do not will have this row start with a 1.
-                if (!allTableAndVariableList.contains(member[0]) && !member[0].substring(0, 2).contentEquals("0,") && !member[0].substring(0, 2).contentEquals("1,")) {
+                // Check if the table isn't in the list of valid names, but do not delete any members of the groups table that start
+                // with a '0' or a '1' as these are rows within the internal groups table that contain the description of the group
+                // and rather or not the group represents a CFS application. Groups that represent a CFS application will have this
+                // row start with a 0, and those that do not will have this row start with a 1.
+                if (!allTableAndVariableList.contains(member[0]) && !member[0].substring(0, 2).contentEquals("0,") &&
+                        !member[0].substring(0, 2).contentEquals("1,")) {
                     // Group table member reference is invalid
-                    command.append("DELETE FROM ").append(InternalTable.GROUPS.getTableName()).append(" WHERE ").append(GroupsColumn.MEMBERS.getColumnName()).append(
-                            " = ").append(CcddDbTableCommandHandler.delimitText(member[0])).append("; ");
+                    command.append("DELETE FROM ").append(InternalTable.GROUPS.getTableName()).append(" WHERE ").append(
+                            GroupsColumn.MEMBERS.getColumnName()).append(" = ").append(CcddDbTableCommandHandler.delimitText(
+                                    member[0])).append("; ");
                 }
             }
             
@@ -2009,7 +2043,7 @@ public class CcddFileIOHandler {
             } else {
                 // Create the table in the database
                 if (dbTable.createTable(new String[] { tableInfo.getPrototypeName() }, tableInfo.getDescription(),
-                        tableInfo.getType(), true, parent)) {
+                        tableInfo.getType(), true, true, parent)) {
                     throw new CCDDException();
                 }
 
@@ -2086,6 +2120,13 @@ public class CcddFileIOHandler {
             else {
                 // Create the table editor handler without displaying the table
                 tableEditor = new CcddTableEditorHandler(ccddMain, tableInfo, null);
+            }
+            
+            /* Check all indexes of cellData and for any that are empty set them to null */
+            for (int index = 0; index < cellData.size(); index++) {
+                if ((cellData.get(index) != null) && cellData.get(index).isEmpty()) {
+                    cellData.set(index, null);
+                }
             }
 
             // Paste the data into the table; check if the user canceled importing the table
@@ -2695,27 +2736,8 @@ public class CcddFileIOHandler {
             }
 
             /* Delete the contents of the directory */
-            if (deleteTargetDirectory) {
-                try {
-                    if (!singleFile) {
-                        /* Clear the directory */
-                        File directory = new File(filePath);
-                        FileUtils.cleanDirectory(directory);
-                    } else if (!filePath.contentEquals(snapshotFilePath)){
-                        /* Trim the filename off */
-                        String[] temp = filePath.split("/");
-                        String name = temp[temp.length-1];
-                        String tempPath = filePath.replace(name, "");
-                        
-                        /* Clear the directory */
-                        File directory = new File(tempPath);
-                        FileUtils.cleanDirectory(directory);
-                    }
-                } catch (Exception e) {
-                    CcddUtilities.displayException(e, parent);
-                    e.printStackTrace();
-                    errorFlag = true;
-                }
+            if (!singleFile && deleteTargetDirectory) {
+                CleanExportDirectory(fileExtn, filePath, singleFile, parent);
             }
 
             /* Check if the tables are to be exported to a single file or multiple files */
@@ -3167,10 +3189,10 @@ public class CcddFileIOHandler {
     public List<File> compareToSnapshotDirectory(String[] tablePaths, boolean exportEntireDatabase, boolean doReservedMessageIDsExist,
             boolean includesProjectFields, FileExtension importFileType, boolean singleFile, Component parent) {
         /* Check if the .snapshot directory exists */
-        if (!Files.isDirectory(Paths.get(snapshotFilePath))) {
+        if (!Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH))) {
             try {
                 /* Create the .snapshot directory */
-                Files.createDirectory(Paths.get(snapshotFilePath));
+                Files.createDirectory(Paths.get(SNAP_SHOT_FILE_PATH));
             }
             /* Catch any possible exception while creating the .snapshot directory */
             catch (IOException e) {
@@ -3181,7 +3203,7 @@ public class CcddFileIOHandler {
         /* If the .snapshot directory exists, delete its contents */
         else {
             try {
-                File directory = new File(snapshotFilePath);
+                File directory = new File(SNAP_SHOT_FILE_PATH);
                 FileUtils.cleanDirectory(directory);
             } catch (IOException ioe) {
                 CcddUtilities.displayException(ioe, parent);
@@ -3191,7 +3213,7 @@ public class CcddFileIOHandler {
         }
         
         /* Backup current database state to .snapshot directory before import. */
-        exportSelectedTables(snapshotFilePath,     /* filePath */
+        exportSelectedTables(SNAP_SHOT_FILE_PATH,     /* filePath */
                 tablePaths,                        /* tablePaths */
                 true,                              /* overwriteFile */
                 false,                             /* singleFile */
@@ -3223,22 +3245,21 @@ public class CcddFileIOHandler {
                 null,                              /* scriptFileName */
                 null);                             /* parent */
         
-        return new ArrayList<>(Arrays.asList(new File(snapshotFilePath).listFiles()));
+        return new ArrayList<>(Arrays.asList(new File(SNAP_SHOT_FILE_PATH).listFiles()));
     }
-    
 
     /**********************************************************************************************
      * Create the snapshot2 directory which can be used as a temporary export location for files
      * that are spawned when a single file that represents an entire database is imported.
      *
-     * @param printWriter output file PrintWriter object
+     * @param parent CCDD component that called this function
      *********************************************************************************************/
     public void createSnapshotDirectory(Component parent) {
         /* Check if the .snapshot2 directory exists */
-        if (!Files.isDirectory(Paths.get(snapshotFilePath2))) {
+        if (!Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH_2))) {
             try {
                 /* Create the .snapshot2 directory */
-                Files.createDirectory(Paths.get(snapshotFilePath2));
+                Files.createDirectory(Paths.get(SNAP_SHOT_FILE_PATH_2));
             }
             /* Catch any possible exception while creating the .snapshot directory */
             catch (IOException e) {
@@ -3249,7 +3270,7 @@ public class CcddFileIOHandler {
         /* If the .snapshot2 directory exists, delete its contents */
         else {
             try {
-                File directory = new File(snapshotFilePath2);
+                File directory = new File(SNAP_SHOT_FILE_PATH_2);
                 FileUtils.cleanDirectory(directory);
             } catch (IOException ioe) {
                 CcddUtilities.displayException(ioe, parent);
@@ -3260,12 +3281,39 @@ public class CcddFileIOHandler {
     }
     
     /**********************************************************************************************
+     * Check if the snapshot directories exist and if so delete them
+     *
+     * @param parent CCDD component that called this function
+     *********************************************************************************************/
+    public void deleteSnapshotDirectories(Component parent) {
+        /* If the .snapshot directories exists, delete them */
+        try {
+            File directory = new File(SNAP_SHOT_FILE_PATH);
+            FileUtils.cleanDirectory(directory);
+            directory.delete();
+            
+            directory = new File(SNAP_SHOT_FILE_PATH_2);
+            FileUtils.cleanDirectory(directory);
+            directory.delete();
+        } catch (IOException ioe) {
+            CcddUtilities.displayException(ioe, parent);
+            ioe.printStackTrace();
+            errorFlag = true;
+        }
+    }
+    
+    /**********************************************************************************************
      * Process the single file, which represents an entire database, that is being imported and 
      * output the data to multiple files.
      *
      * @param dataFile Path to the file being imported
      * 
      * @param dialogType What format is the file? JSON/CSV
+     * 
+     * @param parent Component that called this function
+     * 
+     * @return FileEnvVar[] that represents all of the files created from the data found in the 
+     *         JSON file.
      *********************************************************************************************/
     public FileEnvVar[] processSingleJSONFileRepresentingDatabase(FileEnvVar dataFile, ManagerDialogType dialogType, final Component parent) {
         /* Create a list to hold all the files */
@@ -3274,9 +3322,6 @@ public class CcddFileIOHandler {
         String filePath = "";
         String nameType = "";
         String tableName = "";
-        
-        /* Create the snapShot directory */
-        createSnapshotDirectory(parent);
                 
         /* Detect the type of the parsed JSON file and only accept JSONObjects */
         /* This will throw an exception if it is incorrect */
@@ -3289,7 +3334,7 @@ public class CcddFileIOHandler {
             outputData += jsonHandler.retrieveJSONData(JSONTags.TABLE_TYPE_DEFN.getAlternateTag(), content).toString();
             outputData += jsonHandler.retrieveJSONData(JSONTags.DATA_TYPE_DEFN.getAlternateTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/_table_Info.json";
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/_table_Info.json";
             FileEnvVar file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3298,7 +3343,7 @@ public class CcddFileIOHandler {
             /*************** MACROS ***************/
             outputData = jsonHandler.retrieveJSONData(JSONTags.MACRO_DEFN.getAlternateTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/_macros.json";
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/_macros.json";
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3307,7 +3352,7 @@ public class CcddFileIOHandler {
             /*************** GROUPS ***************/
             outputData = jsonHandler.retrieveJSONData(JSONTags.GROUP.getAlternateTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/_group_info.json";
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/_group_info.json";
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3316,7 +3361,7 @@ public class CcddFileIOHandler {
             /*************** SCRIPT ASSOCIATIONS ***************/
             outputData = jsonHandler.retrieveJSONData(JSONTags.SCRIPT_ASSOCIATION.getAlternateTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/_script_associations.json";
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/_script_associations.json";
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3324,7 +3369,7 @@ public class CcddFileIOHandler {
             
             /*************** TLM SCHEDULER ***************/
             outputData = jsonHandler.retrieveJSONData(JSONTags.TLM_SCHEDULER_COMMENT.getAlternateTag(), content).toString();
-            filePath = snapshotFilePath2 + "/_tlm_scheduler.json";
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/_tlm_scheduler.json";
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3332,7 +3377,7 @@ public class CcddFileIOHandler {
             
             /*************** APP SCHEDULER ***************/
             outputData = jsonHandler.retrieveJSONData(JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag(), content).toString();
-            filePath = snapshotFilePath2 + "/_app_scheduler.json";
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/_app_scheduler.json";
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3352,7 +3397,7 @@ public class CcddFileIOHandler {
                 }
                 tableName = tableName.replaceAll("[,\\.\\[\\]]", "_");
                 
-                filePath = snapshotFilePath2 + tableName + ".json";
+                filePath = SNAP_SHOT_FILE_PATH_2 + tableName + ".json";
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
@@ -3373,19 +3418,83 @@ public class CcddFileIOHandler {
     }
     
     /**********************************************************************************************
+     * Process the conversion file, which represents data pulled from a C header file, that is
+     * being imported and output the data to multiple files to help with the import process
+     *
+     * @param dataFile Path to the file being imported
+     * 
+     * @param parent Component that called this function
+     * 
+     * @return FileEnvVar[] that represents all of the files created from the data found in the 
+     *         conversion file.
+     *********************************************************************************************/
+    public FileEnvVar[] processCSVConversionFile(FileEnvVar dataFile, final Component parent) {
+        /* Create a list to hold all the files */
+        List<FileEnvVar> dataFiles = new ArrayList<FileEnvVar>();
+        
+        String filePath = "";
+        
+        /* This will throw an exception if it is incorrect */
+        try {
+            /* Read the file */
+            StringBuilder content = new StringBuilder(new String((Files.readAllBytes(Paths.get(dataFile.getPath())))));
+            
+            /*************** MACROS ***************/
+            String outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
+            
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.MACROS.getName();
+            FileEnvVar file = new FileEnvVar(filePath);
+            dataFiles.add(file);
+            
+            writeToFile(outputData, filePath);
+            
+            /*************** TABLE DEFINITIONS ***************/
+            outputData = csvHandler.retrieveCSVData(CSVTags.NAME_TYPE.getTag(), content).toString();
+            
+            /* Divide the data up into the individual definitions */
+            String[] data = outputData.split("\n\n");
+            
+            /* Step through each definition */
+            for (int i = 0; i < data.length; i++) {
+                /* Parse the name */
+                String nameType = data[i].split("\n")[1];
+                String tableName = nameType.split("\",\"")[0].replace("\"", "");
+                tableName = tableName.replaceAll("[,\\.\\[\\]]", "_");
+                
+                /* Create the file path and use the path to create a new file */
+                filePath = SNAP_SHOT_FILE_PATH_2 + tableName + ".csv";
+                file = new FileEnvVar(filePath);
+                
+                /* Add this new file to the list of files */
+                dataFiles.add(file);
+                
+                /* Write the data to the new file */
+                writeToFile("\n" + data[i], filePath);
+                outputData = "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return dataFiles.toArray(new FileEnvVar[0]);
+    }
+    
+    /**********************************************************************************************
      * Process the single file, which represents an entire database, that is being imported and 
      * output the data to multiple files.
      *
      * @param dataFile Path to the file being imported
+     * 
+     * @param parent Component that called this function
+     * 
+     * @return FileEnvVar[] that represents all of the files created from the data found in the 
+     *         CSV file.
      *********************************************************************************************/
     public FileEnvVar[] processSingleCSVFileRepresentingDatabase(FileEnvVar dataFile, final Component parent) {
         /* Create a list to hold all the files */
         List<FileEnvVar> dataFiles = new ArrayList<FileEnvVar>();
         
         String filePath = "";
-        
-        /* Create the snapShot directory */
-        createSnapshotDirectory(parent);
         
         /* This will throw an exception if it is incorrect */
         try {
@@ -3397,7 +3506,7 @@ public class CcddFileIOHandler {
             outputData += csvHandler.retrieveCSVData(CSVTags.TABLE_TYPE.getTag(), content);
             outputData += csvHandler.retrieveCSVData(CSVTags.DATA_TYPE.getTag(), content);
             
-            filePath = snapshotFilePath2 + "/" + CSVFileNames.TABLE_INFO.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.TABLE_INFO.getName();
             FileEnvVar file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3406,7 +3515,7 @@ public class CcddFileIOHandler {
             /*************** MACROS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/" + CSVFileNames.MACROS.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.MACROS.getName();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3415,7 +3524,7 @@ public class CcddFileIOHandler {
             /*************** GROUPS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.GROUP.getTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/" + CSVFileNames.GROUPS.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.GROUPS.getName();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3424,7 +3533,7 @@ public class CcddFileIOHandler {
             /*************** SCRIPT ASSOCIATIONS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/" + CSVFileNames.SCRIPT_ASSOCIATION.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.SCRIPT_ASSOCIATION.getName();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3433,7 +3542,7 @@ public class CcddFileIOHandler {
             /*************** TLM SCHEDULER ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER.getTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/" + CSVFileNames.TELEM_SCHEDULER.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.TELEM_SCHEDULER.getName();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3442,7 +3551,7 @@ public class CcddFileIOHandler {
             /*************** APP SCHEDULER ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER.getTag(), content).toString();
             
-            filePath = snapshotFilePath2 + "/" + CSVFileNames.APP_SCHEDULER.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.APP_SCHEDULER.getName();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3458,7 +3567,7 @@ public class CcddFileIOHandler {
                 String tableName = nameType.split("\",\"")[0].replace("\"", "");
                 tableName = tableName.replaceAll("[,\\.\\[\\]]", "_");
                 
-                filePath = snapshotFilePath2 + tableName + ".csv";
+                filePath = SNAP_SHOT_FILE_PATH_2 + tableName + ".csv";
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
@@ -3521,6 +3630,52 @@ public class CcddFileIOHandler {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
+        }
+    }
+    
+    /**********************************************************************************************
+     * Write the JSON data to the specified file
+     *
+     * @param fileExt The extension type of the files that are going to be exported
+     * 
+     * @param directoryPath Path to the directory that is going to be cleaned
+     *********************************************************************************************/
+    public void CleanExportDirectory(FileExtension fileExt, String directoryPath, boolean singleFile,
+            Component parent) {
+        /* Delete the specified contents of the directory */
+        try {
+            if (!singleFile) {
+                /* Clear the directory */
+                File directory = new File(directoryPath);
+                File fList[] = directory.listFiles();
+                
+                for (int index = 0; index < fList.length; index++) {
+                    String currentFile = fList[index].getName();
+                    if (currentFile.endsWith(fileExt.getExtension())) {
+                        fList[index].delete();
+                    }
+                }
+            } else if (!directoryPath.contentEquals(SNAP_SHOT_FILE_PATH)){
+                /* Trim the filename off */
+                String[] temp = directoryPath.split("/");
+                String name = temp[temp.length-1];
+                String tempPath = directoryPath.replace(name, "");
+                
+                /* Clear the directory */
+                File directory = new File(tempPath);
+                File fList[] = directory.listFiles();
+                
+                for (int index = 0; index < fList.length; index++) {
+                    String currentFile = fList[index].getName();
+                    if (currentFile.endsWith(fileExt.getExtension())) {
+                        fList[index].delete();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            CcddUtilities.displayException(e, parent);
+            e.printStackTrace();
+            errorFlag = true;
         }
     }
 }

@@ -93,6 +93,7 @@ public class CcddDbControlHandler {
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbCommandHandler dbCommand;
+    private CcddDbTableCommandHandler dbTableCommand;
     private CcddEventLogDialog eventLog;
 
     // SQL server type and host
@@ -215,6 +216,7 @@ public class CcddDbControlHandler {
 
         // Create reference to shorten subsequent calls
         dbCommand = ccddMain.getDbCommandHandler();
+        dbTableCommand = ccddMain.getDbTableCommandHandler();
 
         // Initialize the database connection parameters
         connectionStatus = NO_CONNECTION;
@@ -2130,6 +2132,15 @@ public class CcddDbControlHandler {
                             // (for command line script execution or as a web server) then the
                             // project database is left unlocked
                             setDatabaseLockStatus(activeProject, true);
+                            if (dbTableCommand == null) {
+                                dbTableCommand = ccddMain.getDbTableCommandHandler();
+                            }
+                            
+                            // Build the table tree and update the pre-loaded table members. This is done in the background 
+                            // as soon as a database is opened so that when a user performs an action that loads the table
+                            // tree they do not have to wait for it to be built.
+                            ccddMain.buildTableTreeHandler();
+                            dbTableCommand.updatePreLoadedTableMembers();
 
                             // Update the recently opened projects list and store it in the program
                             // preferences, then update the command menu items

@@ -47,6 +47,7 @@ import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
@@ -1003,6 +1004,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 }
 
                 /*************** GROUPS ***************/
+                /* Get a list of names for all of the groups currently defined within the database */
+                String[] currentGroupNames = groupHandler.getGroupNames(false);
+                List<String> newGroupNames = new ArrayList<String>();
+                
                 /* Get the group definitions */
                 defn = jsonObject.get(JSONTags.GROUP.getTag());
 
@@ -1016,6 +1021,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         String isApplication = getString(groupJO, JSONTags.GROUP_IS_APPLICATION.getTag());
                         String members = "";
 
+                        /* Add the group name to the list */
+                        newGroupNames.add(name);
+                        
                         /* Get the table members for this group */
                         Object groupMember = getObject(groupJO, JSONTags.GROUP_TABLE.getTag());
 
@@ -1052,33 +1060,56 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         /*************** GROUP FIELDS ***************/
                         /* Get the data fields for this group */
                         Object groupField = getObject(groupJO, JSONTags.GROUP_FIELD.getTag());
+                        List<FieldInformation> newFieldInformation = new ArrayList<FieldInformation>();
 
                         /* Check if any data fields exists for this group */
                         if (groupField != null) {
                             /* Step through each group data field definition */
                             for (JSONObject grpFldJO : parseJSONArray(groupField)) {
-                                /* Add the data field definition, checking for (and if possible, correcting) errors */
-                                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingGroups, projectDefn,
-                                        new String[] {CcddFieldHandler.getFieldGroupName(name),
-                                                getString(grpFldJO, FieldEditorColumnInfo.NAME.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.REQUIRED.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.VALUE.getColumnName()),
-                                                getString(grpFldJO, FieldEditorColumnInfo.INHERITED.getColumnName())},
-                                        importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
+                                InputType inputType = inputTypeHandler.getInputTypeByName(getString(grpFldJO,
+                                        FieldEditorColumnInfo.INPUT_TYPE.getColumnName()));
+                                FieldInformation newField = new FieldInformation("", "", "", null, 0, false, null, "",
+                                        false, null, 0);
+                                
+                                newField.setFieldName(getString(grpFldJO, FieldEditorColumnInfo.NAME.getColumnName()));
+                                newField.setDescription(getString(grpFldJO, FieldEditorColumnInfo.DESCRIPTION.getColumnName()));
+                                newField.setSize(Integer.parseInt(getString(grpFldJO, FieldEditorColumnInfo.CHAR_SIZE.getColumnName())));
+                                newField.setInputType(inputType);
+                                newField.setRequired(Boolean.parseBoolean(getString(grpFldJO, FieldEditorColumnInfo.REQUIRED.getColumnName())));
+                                newField.setApplicabilityType(ApplicabilityType.getApplicabilityByName(
+                                        getString(grpFldJO, FieldEditorColumnInfo.APPLICABILITY.getColumnName())));
+                                newField.setValue(getString(grpFldJO, FieldEditorColumnInfo.VALUE.getColumnName()));
+                                newField.setInherited(Boolean.parseBoolean(getString(grpFldJO, FieldEditorColumnInfo.INHERITED.getColumnName())));
+                                
+                                newFieldInformation.add(newField);
                             }
+                            
+                            /* Replace the old field information with the new field information */
+                            fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(name), newFieldInformation);
                         }
                     }
+                    
+                    /* Add the reserved message ID definition if it's new */
+                    rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+                    
+                    /* Determine which groups have been deleted */
+                    List<String> deletedGroups = new ArrayList<String>();
+                    
+                    /* Search the list of new group names for every name in the current group names list. Each name that is
+                     * not found in the new list will be added to the list of deleted groups.
+                     */
+                    for (int index = 0; index < currentGroupNames.length; index++) {
+                        if (!newGroupNames.contains(currentGroupNames[index])) {
+                            deletedGroups.add(currentGroupNames[index]);
+                            
+                            // Remove the group's information
+                            groupHandler.removeGroupInformation(currentGroupNames[index]);
+                        }
+                    }
+                    
+                    /* Update internal groups table */
+                    dbTable.updateGroupsTable(fieldHandler.getGroupFieldInformationAsListOfArrays(), deletedGroups, ccddMain.getMainFrame());
                 }
-
-                /* Add the reserved message ID definition if it's new */
-                rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
-
-                /* Build the imported project-level data fields, if any */
-                buildProjectAndGroupDataFields(fieldHandler, projectDefn.getDataFields());
             }
 
             /*************** TABLE DEFINITIONS ***************/

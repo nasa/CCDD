@@ -253,7 +253,67 @@ public class CcddDataTypeHandler {
         // Will return a null if the key is not in the map
         // This is a much faster implementation than going through the
         // list and doing a string compare on each item in the list
-        return getDataTypesAsMap().get(dataTypeName);
+        String[] dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
+        
+        if (dataTypeInfo == null) {
+            // Some databases do not have uint8-uint64 and int8-int64 defined. If they
+            // are needed then add them
+            List<String[]> currentDataTypes = getDataTypeData();
+            String[] newDataType = new String[currentDataTypes.get(0).length];
+            String baseType = "signed integer";
+            boolean newType = true;
+            
+            newDataType[DataTypesColumn.USER_NAME.ordinal()] = dataTypeName;
+            
+            if (dataTypeName.equals("uint8")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "unsigned char";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "1";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = "un" + baseType;
+            } else if (dataTypeName.equals("uint16")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "unsigned short int";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "2";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = "un" + baseType;
+            } else if (dataTypeName.equals("uint32")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "unsigned int";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "4";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = "un" + baseType;
+            } else if (dataTypeName.equals("uint64")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "unsigned long int";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "8";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = "un" + baseType;
+            } else if (dataTypeName.equals("int8")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "signed char";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "1";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = baseType;
+            } else if (dataTypeName.equals("int16")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "signed short int";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "2";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = baseType;
+            } else if (dataTypeName.equals("int32")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "signed int";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "4";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = baseType;
+            } else if (dataTypeName.equals("int64")) {
+                newDataType[DataTypesColumn.C_NAME.ordinal()] = "signed long int";
+                newDataType[DataTypesColumn.SIZE.ordinal()] = "8";
+                newDataType[DataTypesColumn.BASE_TYPE.ordinal()] = baseType;
+            } else {
+                newType = false;
+            }
+            
+            if (newType) {
+                currentDataTypes.add(newDataType);
+                try {
+                    updateDataTypes(currentDataTypes);
+                    dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
+                } catch (CCDDException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        return dataTypeInfo;
     }
 
     /**********************************************************************************************

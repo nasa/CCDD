@@ -1028,9 +1028,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
         // ////////////////////////////////////////////////////////////////////////////////////////
         // Get the table type data array
         Object[][] typeData = table.getTableData(true);
+        Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(getPanelFieldInformation());
 
-        // Create/replace the type definition. The description is prepended with a '0'
-        // is the table
+        // Create/replace the type definition. The description is prepended with a '0' is the table
         // type doesn't represent a command argument structure, and a '1' if it does
         tableTypeHandler.createReplaceTypeDefinition(tableTypeName,
                 (cmdArgStructureCbx != null && cmdArgStructureCbx.isSelected() ? "1" : "0") + getDescription(),
@@ -1069,11 +1069,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
                     // Set the flag indicating this row has a match
                     matchFound = true;
 
-                    // Copy the current row's index into the empty comparison row so that the
-                    // otherwise blank index doesn't register as a difference when comparing the
-                    // rows below
-                    emptyRow[TableTypeEditorColumnInfo.INDEX
-                            .ordinal()] = typeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
+                    // Copy the current row's index into the empty comparison row so that the otherwise
+                    // blank index doesn't register as a difference when comparing the rows below
+                    emptyRow[TableTypeEditorColumnInfo.INDEX.ordinal()] =
+                            typeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
 
                     // Check if the row is not now empty (if empty then the change is processed as
                     // a row deletion instead of a modification)
@@ -1088,21 +1087,16 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
                         }
 
                         // Get the original and current input type
-                        String oldInputType = committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                .toString();
-                        String newInputType = typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                .toString();
+                        String oldInputType = committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+                        String newInputType = typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
 
-                        // Check if the column name changed or if the input type changed to/from a
-                        // rate
+                        // Check if the column name changed or if the input type changed to/from a rate
                         if (!prevColumnName.equals(currColumnName)
                                 || ((newInputType.equals(DefaultInputType.RATE.getInputName())
                                         || oldInputType.equals(DefaultInputType.RATE.getInputName()))
                                         && !newInputType.equals(oldInputType))) {
-                            // The column name is changed. Add the old and new column names and
-                            // input types to the list
-                            typeModifications
-                                    .add(new String[] { prevColumnName, currColumnName, oldInputType, newInputType });
+                            // The column name is changed. Add the old and new column names and input types to the list
+                            typeModifications.add(new String[] { prevColumnName, currColumnName, oldInputType, newInputType });
                         }
 
                         // Stop searching since a match exists
@@ -1113,9 +1107,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
 
             // Check if no match was made with the committed data for the current table row
             if (!matchFound) {
-                // The column definition is being added; add the column name and input type to
-                // the
-                // list
+                // The column definition is being added; add the column name and input type to the list
                 typeAdditions.add(new String[] { currColumnName,
                         typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString() });
             }
@@ -1125,141 +1117,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
         for (int comRow = 0; comRow < committedData.length; comRow++) {
             // Check if no matching row was found with the current data
             if (!rowModified[comRow]) {
-                // The column definition has been deleted; add the column name and input type to
-                // the list
-                typeDeletions
-                        .add(new String[] { committedData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
+                // The column definition has been deleted; add the column name and input type to the list
+                typeDeletions.add(new String[] { committedData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
                                 committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString() });
-            }
-        }
-
-        // ////////////////////////////////////////////////////////////////////////////////////////
-        // Build the changes to the table type's data field definitions
-        // ////////////////////////////////////////////////////////////////////////////////////////
-        boolean continueOnDuplicate = false;
-
-        // Get the field table data arrays prior to and after all changes
-        Object[][] committedFieldData = CcddFieldHandler.getFieldEditorDefinition(committedFieldInfo);
-        Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(getPanelFieldInformation());
-
-        // Get the list of names of all tables of the this table type
-        List<String> tablesOfType = dbTable.getAllTablesOfType(tableTypeName, null, editorDialog);
-
-        // Remove existing changes, if any
-        fieldAdditions.clear();
-        fieldModifications.clear();
-        fieldDeletions.clear();
-
-        // Create an empty row of data for comparison purposes
-        emptyRow = FieldEditorColumnInfo.getEmptyRow();
-
-        // Create storage for flags that indicate if a row has been modified
-        rowModified = new boolean[committedFieldData.length];
-
-        // Step through each row of the current data
-        for (int tblRow = 0; tblRow < fieldData.length; tblRow++) {
-            boolean matchFound = false;
-
-            // Check if the field's input type isn't a format type (separator or break)
-            if (!inputTypeHandler
-                    .getInputTypeByName(fieldData[tblRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString())
-                    .getInputFormat().equals(InputTypeFormat.PAGE_FORMAT)) {
-                // Step through each row of the committed data
-                for (int comRow = 0; comRow < committedFieldData.length && !matchFound; comRow++) {
-                    // Check if the committed row hasn't already been matched and if the current
-                    // and committed field IDs are the same
-                    if (!rowModified[comRow] && fieldData[tblRow][FieldEditorColumnInfo.ID.ordinal()]
-                            .equals(committedFieldData[comRow][FieldEditorColumnInfo.ID.ordinal()])) {
-                        // Set the flag indicating this row has a match
-                        matchFound = true;
-
-                        // Copy the current row's ID into the empty comparison row so that the
-                        // otherwise blank ID doesn't register as a difference when comparing the
-                        // rows below
-                        emptyRow[FieldEditorColumnInfo.ID.ordinal()] = fieldData[tblRow][FieldEditorColumnInfo.ID
-                                .ordinal()];
-
-                        // Check if the row is not now empty (if empty then the change is processed
-                        // as a row deletion instead of a modification)
-                        if (!Arrays.equals(fieldData[tblRow], emptyRow)) {
-                            // Set the flag indicating this row has a modification
-                            rowModified[comRow] = true;
-
-                            // Step through each column in the row
-                            for (int column = 0; column < fieldData[tblRow].length; column++) {
-                                // Check if the current and committed values don't match
-                                if (!fieldData[tblRow][column].equals(committedFieldData[comRow][column])) {
-                                    // Check if the modified default field's name causes a table's
-                                    // existing field to be renamed, unless the user has elected to
-                                    // allow renaming
-                                    if (!continueOnDuplicate && fieldHandler.checkForDuplicateField(tablesOfType,
-                                            fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString(),
-                                            fieldData[tblRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString())) {
-                                        // Inform the user that using the field name results in
-                                        // renaming a table's field
-                                        if (new CcddDialogHandler().showMessageDialog(editorDialog,
-                                                "<html><b>Use of data field name '</b>"
-                                                        + fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()]
-                                                                .toString()
-                                                        + "<b>' will cause an existing table's field to be renamed; continue?",
-                                                "Duplicate Field Name", JOptionPane.WARNING_MESSAGE,
-                                                DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON) {
-                                            throw new CCDDException();
-                                        }
-
-                                        // Set the flag to ignore further duplicates
-                                        continueOnDuplicate = true;
-                                    }
-
-                                    // Store the row modification information and stop searching
-                                    fieldModifications
-                                            .add(new TableModification(fieldData[tblRow], committedFieldData[comRow]));
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Check if no match was made with the committed data for the current table row
-                if (!matchFound) {
-                    // Check if the added default field's name causes a table's existing field to
-                    // be renamed, unless the user has elected to allow renaming
-                    if (!continueOnDuplicate && fieldHandler.checkForDuplicateField(tablesOfType,
-                            fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString(),
-                            fieldData[tblRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString())) {
-                        // Inform the user that using the field name results in renaming a table's
-                        // field
-                        if (new CcddDialogHandler().showMessageDialog(editorDialog,
-                                "<html><b>Use of data field name '</b>"
-                                        + fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString()
-                                        + "<b>' will cause an existing table's field to be renamed; continue?",
-                                "Duplicate Field Name", JOptionPane.WARNING_MESSAGE,
-                                DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON) {
-                            throw new CCDDException();
-                        }
-
-                        // Set the flag to ignore further duplicates
-                        continueOnDuplicate = true;
-                    }
-
-                    // The field definition is being added; add the field definition to the list
-                    fieldAdditions.add(new TableModification(fieldData[tblRow], null));
-                }
-            }
-        }
-
-        // Step through each row of the committed data
-        for (int comRow = 0; comRow < committedFieldData.length; comRow++) {
-            // Check if no matching row was found with the current data and the field's
-            // input type
-            // isn't a format type (separator or break)
-            if (!rowModified[comRow] && !inputTypeHandler
-                    .getInputTypeByName(
-                            committedFieldData[comRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString())
-                    .getInputFormat().equals(InputTypeFormat.PAGE_FORMAT)) {
-                // The field definition has been deleted; add the field definition to the list
-                fieldDeletions.add(new TableModification(null, committedFieldData[comRow]));
             }
         }
     }

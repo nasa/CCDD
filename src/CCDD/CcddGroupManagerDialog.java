@@ -739,8 +739,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler {
                                 "<html><b>Store groups?", "Store Groups", JOptionPane.QUESTION_MESSAGE,
                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON && ignoreFieldTableChanges()) {
                             // Store the group list into the database
-                            dbTable.storeInformationTableInBackground(InternalTable.GROUPS, currentGroupDefns,
-                                    updateFields, deletedGroups, null, null, groupMgr);
+                            dbTable.storeInformationTable(InternalTable.GROUPS, currentGroupDefns, updateFields, deletedGroups, null,
+                                    null, groupMgr);
                         }
                     }
                 });
@@ -856,6 +856,15 @@ public class CcddGroupManagerDialog extends CcddDialogHandler {
         // Set the enable state of the buttons that apply only when one group is
         // selected
         setGroupButtonsEnabled(enable);
+    }
+    
+    /**********************************************************************************************
+     * Return the group handler
+     *
+     * @return group handler
+     *********************************************************************************************/
+    public CcddGroupHandler getGroupHandler() {
+        return groupHandler;
     }
 
     /**********************************************************************************************

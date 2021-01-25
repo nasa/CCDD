@@ -18,7 +18,6 @@ import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
-import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
@@ -71,8 +70,6 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
@@ -120,17 +117,14 @@ public class CcddScriptHandler {
     // List of script engine factories that are available on this platform
     private final List<ScriptEngineFactory> scriptFactories;
 
-    // Global storage for the data obtained in the recursive table data reading
-    // method
+    // Global storage for the data obtained in the recursive table data reading method
     private Object[][] combinedData;
 
     // List containing the table paths for the tables loaded for a script
-    // association. Used to
-    // prevent loading the same table more than once
+    // association. Used to prevent loading the same table more than once
     private List<String> loadedTablePaths;
 
-    // Array to indicate if a script association has a problem that prevents its
-    // execution
+    // Array to indicate if a script association has a problem that prevents its execution
     private boolean[] isBad;
 
     // Environment variable map
@@ -236,19 +230,8 @@ public class CcddScriptHandler {
         // Read the stored script associations from the database
         List<String[]> committedAssociations = getScriptAssociations(parent);
 
-        // Get the list of table names and their associated table type
-        ArrayListMultiple protoNamesAndTableTypes = new ArrayListMultiple();
-        protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(parent));
-
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
-
-        // Create a list to contain the variables (dataType.variableName) that have been
-        // verified
-        // to exist. This reduces the number of database transactions in the event the
-        // same
-        // variable is used in multiple associations
-        List<String> verifiedVars = new ArrayList<String>();
 
         // Step through each script association
         for (String[] assn : committedAssociations) {
@@ -261,26 +244,13 @@ public class CcddScriptHandler {
 
                 // Step through each table referenced in this association
                 for (String tablePath : tablePaths) {
-                    // Check if the table hasn't already been verified to exist. Structure tables
-                    // and their children are found in the structure and variable paths list.
-                    // Command and other table types must be checked individually
-                    if (!variableHandler.getStructureAndVariablePaths().contains(tablePath)
-                            && !verifiedVars.contains(tablePath)) {
-                        // Check if the table is a child table (which would have been found in the
-                        // structure and variable paths list) or if it doesn't exist in the project
-                        // database
-                        if (tablePath.contains(",") || !dbTable.isTableExists(tablePath, parent)) {
-                            throw new CCDDException();
-                        }
-
-                        // Add the table to the list of those verified
-                        verifiedVars.add(tablePath);
+                    if (!dbTable.isTableExists(tablePath, parent)) {
+                        throw new CCDDException();
                     }
                 }
             } catch (CCDDException ce) {
                 // The script file or associated table doesn't exist; set the flag to indicate
-                // the
-                // association isn't available
+                // the association isn't available
                 availableStatus = AvailabilityType.TABLE_MISSING;
             }
 
@@ -340,10 +310,8 @@ public class CcddScriptHandler {
             gbc.gridy++;
         }
 
-        // Create the check box for hiding/showing the rows with unavailable
-        // associations (due to a
-        // missing script or table). This must be created before the row filter is
-        // created, which
+        // Create the check box for hiding/showing the rows with unavailable associations (due to a
+        // missing script or table). This must be created before the row filter is created, which
         // in turn must be created before the associations table is created
         hideUnavailableAssns = new JCheckBox("Hide unavailable script associations", false);
         hideUnavailableAssns.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -360,8 +328,7 @@ public class CcddScriptHandler {
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae) {
-                // Issue a table change event so the unavailable association rows are
-                // shown/hidden
+                // Issue a table change event so the unavailable association rows are shown/hidden
                 ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
                 ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
             }
@@ -448,11 +415,9 @@ public class CcddScriptHandler {
                 try {
                     // Check if the value isn't blank
                     if (!newValueS.isEmpty()) {
-                        // Check if the association name has been changed and if the name isn't
-                        // blank
+                        // Check if the association name has been changed and if the name isn't blank
                         if (column == AssociationsTableColumnInfo.NAME.ordinal()) {
-                            // Check if the association name does not match the alphanumeric input
-                            // type
+                            // Check if the association name does not match the alphanumeric input type
                             if (!newValueS.matches(DefaultInputType.ALPHANUMERIC.getInputMatch())) {
                                 throw new CCDDException("Illegal character(s) in association name");
                             }
@@ -462,8 +427,7 @@ public class CcddScriptHandler {
                             for (int otherRow = 0; otherRow < getRowCount(); otherRow++) {
                                 // Check if this row isn't the one being edited, and if the
                                 // association name matches the one being added (case insensitive)
-                                if (otherRow != row
-                                        && newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString())) {
+                                if (otherRow != row && newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString())) {
                                     throw new CCDDException("Association name already in use");
                                 }
                             }
@@ -480,8 +444,7 @@ public class CcddScriptHandler {
                                 "Invalid Input", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
                     }
 
-                    // Restore the cell contents to its original value and pop the edit from the
-                    // stack
+                    // Restore the cell contents to its original value and pop the edit from the stack
                     tableData.get(row)[column] = oldValue;
                     getUndoManager().undoRemoveEdit();
                 }
@@ -545,9 +508,7 @@ public class CcddScriptHandler {
                     }
                 }
 
-                // Check if this is the script file column and the script file path should not
-                // be
-                // displayed
+                // Check if this is the script file column and the script file path should not be displayed
                 if (column == convertColumnIndexToView(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal())
                         && hideScriptFilePath.isSelected()) {
                     // Remove the path, leaving only the script file name
@@ -565,16 +526,13 @@ public class CcddScriptHandler {
                 super.setTableSortable();
 
                 // Get a reference to the sorter
-                /*
-                 * Suppress warnings is used because when this code is compiled some of it is
+                /* Suppress warnings is used because when this code is compiled some of it is
                  * not legal, but it will be at runtime
                  */
                 @SuppressWarnings("unchecked")
                 TableRowSorter<UndoableTableModel> sorter = (TableRowSorter<UndoableTableModel>) getRowSorter();
 
-                // Check if the sorter exists. The sorter doesn't exist (is null) if there are
-                // no
-                // rows in the table
+                // Check if the sorter exists. The sorter doesn't exist (is null) if there are no rows in the table
                 if (sorter != null) {
                     // Check if the row filter hasn't been set and that there is an unavailable
                     // association row filter
@@ -591,12 +549,10 @@ public class CcddScriptHandler {
                          *************************************************************************/
                         @Override
                         public int compare(String filePath1, String filePath2) {
-                            return (hideScriptFilePath.isSelected()
-                                    ? filePath1.replaceFirst(".*" + Pattern.quote(File.separator), "")
-                                    : filePath1)
-                                            .compareTo(hideScriptFilePath.isSelected()
-                                                    ? filePath2.replaceFirst(".*" + Pattern.quote(File.separator), "")
-                                                    : filePath2);
+                            return (hideScriptFilePath.isSelected() ? filePath1.replaceFirst(".*" +
+                                    Pattern.quote(File.separator), "") : filePath1).compareTo(
+                                    hideScriptFilePath.isSelected() ? filePath2.replaceFirst(".*" +
+                                    Pattern.quote(File.separator), "") : filePath2);
                         }
                     });
                 }
@@ -617,8 +573,7 @@ public class CcddScriptHandler {
         };
 
         // Set the list selection model in order to detect table rows that aren't
-        // allowed to be
-        // selected
+        // allowed to be selected
         assnsTable.setSelectionModel(new DefaultListSelectionModel() {
             /**************************************************************************************
              * Check if the script association table item is selected, ignoring associations
@@ -627,8 +582,7 @@ public class CcddScriptHandler {
             @Override
             public boolean isSelectedIndex(int row) {
                 return allowSelectDisabled || isAssociationAvailable(assnsTable.convertRowIndexToModel(row))
-                        ? super.isSelectedIndex(row)
-                        : false;
+                        ? super.isSelectedIndex(row) : false;
             }
         });
 
@@ -649,8 +603,7 @@ public class CcddScriptHandler {
         assnsPnl.add(assnsTblPnl, gbc);
 
         // Create the check box for hiding/showing the file paths in the associations
-        // table script
-        // file column
+        // table script file column
         hideScriptFilePath = new JCheckBox("Hide script file path",
                 ccddMain.getProgPrefs().getBoolean(HIDE_SCRIPT_PATH, false));
         hideScriptFilePath.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -731,7 +684,7 @@ public class CcddScriptHandler {
      *
      * @return true if the script association on the specified row is available
      *********************************************************************************************/
-    private boolean isAssociationAvailable(int row) {
+    boolean isAssociationAvailable(int row) {
         return assnsTable.getModel().getValueAt(row,
                 AssociationsTableColumnInfo.AVAILABLE.ordinal()) == AvailabilityType.AVAILABLE;
     }
@@ -788,8 +741,8 @@ public class CcddScriptHandler {
                     }
 
                     // Get a list containing all prototype table names
-                    tablePaths = tableTree
-                            .getTablesWithoutChildren(tableTree.getNodeByNodeName(DEFAULT_PROTOTYPE_NODE_NAME));
+                    tablePaths = tableTree.getTablesWithoutChildren(tableTree.getNodeByNodeName(
+                            DEFAULT_PROTOTYPE_NODE_NAME));
 
                     // Check if the table list is to be used when exporting
                     if (isForExport) {
@@ -957,12 +910,10 @@ public class CcddScriptHandler {
                 }
                 // Insufficient parameters
                 else {
-                    // Inform the user that script association execution can't continue due to an
-                    // invalid input
-                    new CcddDialogHandler().showMessageDialog(parent,
-                            "<html><b>Environment variable override key '</b>" + keyAndValue[0]
-                                    + "<b>' has no corresponding value",
-                            "Invalid Input", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                    // Inform the user that script association execution can't continue due to an invalid input
+                    new CcddDialogHandler().showMessageDialog(parent, "<html><b>Environment variable override key '</b>" +
+                            keyAndValue[0] + "<b>' has no corresponding value", "Invalid Input", JOptionPane.WARNING_MESSAGE,
+                            DialogOption.OK_OPTION);
                     isValid = false;
                     break;
                 }
@@ -981,9 +932,8 @@ public class CcddScriptHandler {
                 if (assnsTable.getModel().getValueAt(row,
                         AssociationsTableColumnInfo.AVAILABLE.ordinal()) != AvailabilityType.TABLE_MISSING) {
                     // Get the reference to the association's script file
-                    FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(
-                            assnsTable.getValueAt(row, AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()).toString(),
-                            envVarMap));
+                    FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(assnsTable.getValueAt(row,
+                            AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()).toString(), envVarMap));
 
                     // Set the availability status based on if the script file exists
                     ((UndoableTableModel) assnsTable.getModel()).setValueAt(
@@ -993,8 +943,7 @@ public class CcddScriptHandler {
             }
 
             // Force the table to redraw so that a change in an association's availability
-            // status
-            // is reflected
+            // status is reflected
             ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
             ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
         }
@@ -1067,17 +1016,12 @@ public class CcddScriptHandler {
 
         // Step through each selected row in the associations table
         for (int row : assnsTable.getSelectedRows()) {
-            // Convert the row index to model coordinates in case the table is sorted by one
-            // of the
-            // columns
+            // Convert the row index to model coordinates in case the table is sorted by one of the columns
             row = assnsTable.convertRowIndexToModel(row);
 
-            // Check if the association is available; i.e., that the script file and
-            // table(s) are
-            // present
+            // Check if the association is available; i.e., that the script file and table(s) are present
             if (isAssociationAvailable(row)) {
-                // Remove any HTML tags from the member column; convert HTML breaks to line
-                // feeds
+                // Remove any HTML tags from the member column; convert HTML breaks to line feeds
                 assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()] = CcddUtilities.removeHTMLTags(
                         assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()].toString(), true);
 
@@ -1085,14 +1029,14 @@ public class CcddScriptHandler {
                 selectedAssn.add(assnsData.get(row));
             }
         }
-
+        
         // Check that at least one association is to be executed
         if (selectedAssn.size() != 0) {
             // Execute the script script association(s)
             getDataAndExecuteScriptInBackground(tableTree, selectedAssn, dialog);
         }
     }
-
+    
     /**********************************************************************************************
      * Get the table information array from the table data used by the script script
      * association(s), then execute the script(s). This command is executed in a
@@ -1112,100 +1056,48 @@ public class CcddScriptHandler {
      *********************************************************************************************/
     protected void getDataAndExecuteScriptInBackground(final CcddTableTreeHandler tree,
             final List<Object[]> associations, final Component dialog) {
-        // Create the script execution progress/cancellation dialog
-        haltDlg = new CcddHaltDialog(true);
-        haltDlg.setItemsPerStep(associations.size());
-
-        // Create a thread to execute the script in the background
-        final Thread scriptThread = new Thread(new Runnable() {
-            /**************************************************************************************
-             * Execute script association(s)
-             *************************************************************************************/
-            @Override
-            public void run() {
-                // Check if the script was executed via the script manager or executive dialogs
-                // (and not from the command line)
-                if (dialog instanceof CcddFrameHandler) {
-                    // Disable the script manager or executive dialog's controls
-                    ((CcddFrameHandler) dialog).setControlsEnabled(false);
-                }
-
-                // Execute the script association(s) and obtain the completion status(es)
-                isBad = getDataAndExecuteScript(tree, associations, dialog);
-
-                // Remove the converted variable name list(s) other than the one created using
-                // the
-                // separators stored in the program preferences
-                variableHandler.removeUnusedLists();
-
-                // Check if the user didn't cancel script execution
-                if (!haltDlg.isHalted()) {
-                    // Close the cancellation dialog
-                    haltDlg.closeDialog();
-                }
-                // Script execution was canceled
-                else {
-                    ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                            new StringBuilder("Script execution terminated by user"));
-                }
-            }
-        });
-
-        // Display the script cancellation dialog in a background thread
-        CcddBackgroundCommand.executeInBackground(ccddMain, dialog, new BackgroundCommand() {
-            /**************************************************************************************
-             * Display the cancellation dialog
-             *************************************************************************************/
-            @SuppressWarnings("deprecation")
-            @Override
-            protected void execute() {
-                // Display the script execution progress/cancellation dialog
-                int option = haltDlg.initialize("Script Executing", "Script execution in progress...",
-                        "script execution", 100, 1, true, dialog);
-
-                // Check if the script execution was terminated by the user and that the script
-                // is
-                // still executing
-                if (option == OK_BUTTON && scriptThread.isAlive()) {
-                    // Forcibly stop script execution. Note: this method is deprecated due to
-                    // inherent issues that can occur when a thread is abruptly stopped. However,
-                    // the stop method is the only manner in which the script can be terminated
-                    // (without additional code within the script itself, which cannot be assumed
-                    // since the scripts are user-generated). There shouldn't be a potential for
-                    // object corruption in the application since it doesn't reference any objects
-                    // created by a script
-                    scriptThread.stop();
-
-                    // Set the execution status(es) to indicate the scripts didn't complete
-                    isBad = new boolean[associations.size()];
-                    Arrays.fill(isBad, true);
-                }
+        // Check that at least one association is to be executed
+        if (associations.size() != 0) {
+            // Create the script execution progress/cancellation dialog
+            haltDlg = new CcddHaltDialog(true);
+            haltDlg.setItemsPerStep(associations.size());
+            
+            // Display the script execution progress/cancellation dialog
+            haltDlg.initialize("Script Executing", "Script execution in progress...",
+                    "script execution", 100, 1, false, dialog);
+            
+            // Check if the script was executed via the script manager or executive dialogs
+            // (and not from the command line)
+            if (dialog instanceof CcddFrameHandler) {
+                // Disable the script manager or executive dialog's controls
+                ((CcddFrameHandler) dialog).setControlsEnabled(false);
             }
 
-            /**************************************************************************************
-             * Perform cancellation dialog complete steps
-             *************************************************************************************/
-            @Override
-            protected void complete() {
-                // Log the result of the script execution(s)
-                logScriptCompletionStatus(associations, isBad);
+            // Execute the script association(s) and obtain the completion status(es)
+            isBad = getDataAndExecuteScript(tree, associations, dialog);
 
-                // Check if the script was executed via the script manager or executive dialogs
-                if (dialog instanceof CcddFrameHandler) {
-                    // Enable the script manager or executive dialog's controls
-                    ((CcddFrameHandler) dialog).setControlsEnabled(true);
-                }
-                // The script was executed via the command line
-                else {
-                    // Restore the script output path to what it was at program start-up (in case
-                    // it was altered by a command line command)
-                    ccddMain.restoreScriptOutputPath();
-                }
+            // Remove the converted variable name list(s) other than the one created using
+            // the separators stored in the program preferences
+            variableHandler.removeUnusedLists();
+            
+            // Log the result of the script execution(s)
+            logScriptCompletionStatus(associations, isBad);
+
+            // Check if the script was executed via the script manager or executive dialogs
+            if (dialog instanceof CcddFrameHandler) {
+                // Enable the script manager or executive dialog's controls
+                ((CcddFrameHandler) dialog).setControlsEnabled(true);
             }
-        });
-
-        // Execute the script in a background thread
-        scriptThread.start();
+            // The script was executed via the command line
+            else {
+                // Restore the script output path to what it was at program start-up (in case
+                // it was altered by a command line command)
+                ccddMain.restoreScriptOutputPath();
+            }
+            
+           // Close the cancellation dialog
+           haltDlg.closeDialog();
+        }
     }
 
     /**********************************************************************************************
@@ -1229,20 +1121,16 @@ public class CcddScriptHandler {
         int step = 0;
         CcddTableTreeHandler tableTree = tree;
 
-        // Create an array to indicate if an association has a problem that prevents its
-        // execution
+        // Create an array to indicate if an association has a problem that prevents its execution
         boolean[] isBad = new boolean[associations.size()];
 
-        // Get the variable path separators and the show/hide data type flag from the
-        // program
-        // preferences
+        // Get the variable path separators and the show/hide data type flag from the program preferences
         varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, DEFAULT_VARIABLE_PATH_SEP);
         typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, DEFAULT_TYPE_NAME_SEP);
         excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE));
 
         // Check if the script execution was initiated via command line command (and not
-        // from the
-        // script manager or executive dialog)
+        // from the script manager or executive dialog)
         if (!(parent instanceof CcddFrameHandler)) {
             // Get the system environment variables map
             envVarMap = new HashMap<String, String>(System.getenv());
@@ -1265,17 +1153,20 @@ public class CcddScriptHandler {
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
 
         // Get the list of the table paths in the order of appearance in the table tree.
-        // This
-        // is used to sort the association table paths
+        // This is used to sort the association table paths
         final List<String> allTablePaths = tableTree.getTableTreePathList(null);
 
         // To reduce database access and speed script execution when executing multiple
         // associations, first load all of the associated tables, making sure each is
-        // loaded only
-        // once. Step through each script association definition
+        // loaded only once. Step through each script association definition
         for (Object[] assn : associations) {
             // Check if script execution is canceled
             if (haltDlg != null && haltDlg.isHalted()) {
+                ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG, 
+                        new StringBuilder("Script execution terminated by user"));
+                
+                isBad = new boolean[associations.size()];
+                Arrays.fill(isBad, true);
                 break;
             }
 
@@ -1389,9 +1280,8 @@ public class CcddScriptHandler {
 
         assnIndex = 0;
 
-        // Once all table information is loaded then gather the data for each
-        // association and
-        // execute it. Step through each script association definition
+        // Once all table information is loaded then gather the data for each association
+        // and execute it. Step through each script association definition
         for (Object[] assn : associations) {
             // Check if script execution is canceled
             if (haltDlg != null && haltDlg.isHalted()) {
@@ -1424,9 +1314,8 @@ public class CcddScriptHandler {
                     // Create storage for the table types used by this script association
                     List<String> tableTypes = new ArrayList<String>();
 
-                    // Create a list of the table types referenced by this association. This is
-                    // used to create the storage for the combined tables. Step through each table
-                    // information instance
+                    // Create a list of the table types referenced by this association. This is used to
+                    // create the storage for the combined tables. Step through each table information instance
                     for (TableInformation tableInfo : tableInformation) {
                         // Check if this table is a member of the association
                         if (tablePaths.contains(tableInfo.getTablePath())) {
@@ -1476,8 +1365,7 @@ public class CcddScriptHandler {
                             }
                         }
 
-                        // Create the table information from the table data obtained from the
-                        // database
+                        // Create the table information from the table data obtained from the database
                         combinedTableInfo[typeIndex] = new TableInformation(tableTypes.get(typeIndex), tableName,
                                 allTableData, null, null, new ArrayList<FieldInformation>(0));
                     }
@@ -1546,10 +1434,9 @@ public class CcddScriptHandler {
      *         internal table to the viewable format, or vice versa
      *********************************************************************************************/
     protected static String convertAssociationMembersFormat(String assnMembers, boolean toInternal) {
-        return assnMembers.replaceAll(
-                (toInternal ? "\\s*" + Pattern.quote(ASSN_TABLE_SEPARATOR_CMD_LN) + "\\s*"
-                        : Pattern.quote(ASSN_TABLE_SEPARATOR)),
-                (toInternal ? ASSN_TABLE_SEPARATOR : " " + ASSN_TABLE_SEPARATOR_CMD_LN + " ")).trim();
+        return assnMembers.replaceAll((toInternal ? "\\s*" + Pattern.quote(ASSN_TABLE_SEPARATOR_CMD_LN) +
+                "\\s*" : Pattern.quote(ASSN_TABLE_SEPARATOR)), (toInternal ? ASSN_TABLE_SEPARATOR : " " +
+                ASSN_TABLE_SEPARATOR_CMD_LN + " ")).trim();
     }
 
     /**********************************************************************************************
@@ -1573,9 +1460,9 @@ public class CcddScriptHandler {
         // Step through each script association
         for (Object[] assn : associations) {
             // Get the association (script name and members) in the viewable format
-            String association = assn[AssociationsColumn.SCRIPT_FILE.ordinal()] + " : "
-                    + convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()].toString(), false)
-                    + ";";
+            String association = assn[AssociationsColumn.SCRIPT_FILE.ordinal()] + " : " +
+                    convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
+                    false) + ";";
 
             // Check if the script executed successfully
             if (isBad != null && !isBad[assnIndex]) {
@@ -1627,11 +1514,10 @@ public class CcddScriptHandler {
         members = convertAssociationMembersFormat(members, false);
 
         // Inform the user that the script can't be executed
-        eventLog.logFailEvent(parent, "Script Error",
-                "Cannot execute script '" + scriptFileName + "' using table(s) '" + members + "'; cause '"
-                        + cause.replaceAll("\\n", " ") + "'",
-                "<html><b>Cannot execute script '</b>" + scriptFileName + "<b>' using table(s) '</b>" + members
-                        + "<b>'");
+        eventLog.logFailEvent(parent, "Script Error", "Cannot execute script '" + scriptFileName +
+                "' using table(s) '" + members + "'; cause '" + cause.replaceAll("\\n", " ") + "'",
+                "<html><b>Cannot execute script '</b>" + scriptFileName + "<b>' using table(s) '</b>" +
+                members + "<b>'");
     }
 
     /**********************************************************************************************
@@ -1691,28 +1577,24 @@ public class CcddScriptHandler {
         // Extract the file extension from the file name
         String extension = scriptFileName.substring(extensionStart + 1);
 
-        // Flag that indicates if a script engine is found that matches the script file
-        // extension
+        // Flag that indicates if a script engine is found that matches the script file extension
         boolean isValidExt = false;
 
         // Step through each engine factory
         for (ScriptEngineFactory factory : scriptFactories) {
             // Check if this script engine is applicable to the script file's extension
             if (factory.getExtensions().contains(extension)) {
-                // Set the flag that indicates a script engine is found that matches the
-                // extension
+                // Set the flag that indicates a script engine is found that matches the extension
                 isValidExt = true;
 
                 // Get the script engine
                 scriptEngine = factory.getScriptEngine();
 
-                // Create an instance of the script data access handler, then use this as a
-                // reference for the version of the access handler class that contains static
-                // method calls to the non-static version. Some scripting languages work with
-                // either the non-static or static version (Python, Groovy), but others only
-                // work
-                // with the non-static (JavaScript, Ruby) or static version (Scala) (this can be
-                // Java version dependent as well).
+                // Create an instance of the script data access handler, then use this as a reference for
+                // the version of the access handler class that contains static method calls to the
+                // non-static version. Some scripting languages work with either the non-static or static
+                // version (Python, Groovy), but others only work with the non-static (JavaScript, Ruby)
+                // or static version (Scala) (this can be Java version dependent as well).
                 CcddScriptDataAccessHandler accessHandler = new CcddScriptDataAccessHandler(ccddMain, scriptEngine,
                         tableInformation, linkHandler, groupHandler, scriptFileName, groupNames, parent);
                 CcddScriptDataAccessHandlerStatic staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
@@ -1730,9 +1612,7 @@ public class CcddScriptHandler {
             }
         }
 
-        // Check if the file extension doesn't match one supported by any of the
-        // available script
-        // engines
+        // Check if the file extension doesn't match one supported by any of the available script engines
         if (!isValidExt) {
             // Inform the user that the selected file's extension isn't recognized
             throw new CCDDException("Script file '" + scriptFileName + "' extension is unsupported");
@@ -1801,8 +1681,7 @@ public class CcddScriptHandler {
             tableInfo = dbTable.loadTableData(tablePath, false, false, parent);
 
             // Check that the data was successfully loaded from the database and that the
-            // table
-            // isn't empty
+            // table isn't empty
             if (!tableInfo.isErrorFlag() && tableInfo.getData().length != 0) {
                 boolean isStructure = false;
                 int variableNameColumn = -1;
@@ -1832,8 +1711,7 @@ public class CcddScriptHandler {
 
                 // Step through each row
                 for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++) {
-                    // Use the index column to store the table path and type for reference during
-                    // script execution
+                    // Use the index column to store the table path and type for reference during script execution
                     data[row][typeColumn] = tableInfo.getType();
                     data[row][pathColumn] = tablePath;
 
@@ -1841,10 +1719,9 @@ public class CcddScriptHandler {
                     // and that the variable name and data type aren't blank
                     if (isStructure && variablePathColumn != -1 && !data[row][variableNameColumn].isEmpty()
                             && !data[row][dataTypeColumn].isEmpty()) {
-                        // Get the variable path and store it in the table data. The variable path
-                        // isn't stored in the database, but instead is constructed on-the-fly. The
-                        // path separators used are those currently stored in the program
-                        // preferences
+                        // Get the variable path and store it in the table data. The variable path isn't stored
+                        // in the database, but instead is constructed on-the-fly. The path separators used are
+                        // those currently stored in the program preferences
                         data[row][variablePathColumn] = variableHandler.getVariablePath(tableInfo.getTablePath(),
                                 data[row][variableNameColumn], data[row][dataTypeColumn], varPathSeparator,
                                 excludeDataTypes, typeNameSeparator, true);

@@ -522,6 +522,18 @@ public class CcddScriptDataAccessHandlerStatic {
     public static String getTableDescription(String tableName) {
         return accessHandler.getTableDescription(tableName);
     }
+    
+    public static String[][] getTableDataByName(String tableName) {
+        return accessHandler.getTableDataByName(tableName);
+    }
+    
+    public static String[] getTableDataByNameAndColumn(String tableName, String columnName) {
+        return accessHandler.getTableDataByNameAndColumn(tableName, columnName);
+    }
+    
+    public static String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {
+        return accessHandler.getTableFieldsByName(tableName, nameAndValue);
+    }
 
     public static String getTableDescriptionByRow(String tableType, int row) {
         return accessHandler.getTableDescriptionByRow(tableType, row);

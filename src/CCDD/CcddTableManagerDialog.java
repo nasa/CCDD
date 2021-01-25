@@ -407,12 +407,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                     break;
 
                 case IMPORT_JSON:
-                    break;
                 case IMPORT_CSV:
-                    break;
                 case IMPORT_EDS:
-                    break;
                 case IMPORT_XTCE:
+                case IMPORT_C_HEADER:
                     break;
 
                 case EXPORT_CSV:
@@ -463,6 +461,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                     FileEnvVar[] filePath;
                     FileExtension fileExt = null;
                     boolean importing = false;
+                    boolean errorFlag = false;
                     
                     // Display the dialog based on supplied dialog type
                     switch (dialogType) {
@@ -471,8 +470,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                         if (showOptionsDialog(caller, dialogPnl, "New Table", DialogOption.CREATE_OPTION,
                                 true) == OK_BUTTON) {
                             // Create the table(s)
-                            dbTable.createTableInBackground(tableNames, descriptionFld.getText(),
-                                    getRadioButtonSelected(), CcddTableManagerDialog.this);
+                            errorFlag = dbTable.createTable(tableNames, descriptionFld.getText(),
+                                    getRadioButtonSelected(), true, true, CcddTableManagerDialog.this);
+                            
+                            // Check if no error occurred creating the table
+                            if (!errorFlag) {
+                                CcddTableManagerDialog.this.doTableOperationComplete();
+                            }
                         }
 
                         break;
@@ -533,9 +537,24 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
 
                             // Check if a table is selected
                             if (!tableNames.isEmpty()) {
-                                // Delete the table(s)
-                                dbTable.deleteTableInBackground(tableNames.toArray(new String[0]),
-                                        CcddTableManagerDialog.this, caller);
+                                // Convert the array of names into a single string
+                                final String names = CcddUtilities.convertArrayToStringTruncate(tableNames.toArray(new String[0]));
+
+                                // Have the user confirm deleting the selected table(s)
+                                if (new CcddDialogHandler().showMessageDialog(caller,
+                                        "<html><b>Delete table(s) '</b>" + names + "<b>'?<br><br><i>Warning: This action cannot be undone!",
+                                        "Delete Table(s)", JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
+                                
+                                    // Delete the table(s)
+                                    errorFlag = dbTable.deleteTable(tableNames.toArray(new String[0]),
+                                            CcddTableManagerDialog.this, caller);
+                                    
+                                    // Check if no error occurred deleting the table and if the table manager
+                                    // called this method
+                                    if (!errorFlag && CcddTableManagerDialog.this != null) {
+                                        CcddTableManagerDialog.this.doTableOperationComplete();
+                                    }
+                                }
                             }
                         }
 
@@ -558,6 +577,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                         
                     case IMPORT_XTCE:
                         fileExt = FileExtension.XTCE;
+                        importing = true;
+                        break;
+                        
+                    case IMPORT_C_HEADER:
+                        fileExt = FileExtension.C_HEADER;
                         importing = true;
                         break;
                         
@@ -908,7 +932,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         replaceExistingMacrosCb.setEnabled(false);
         
         /* If the IMPORT type is not JSON than set this checkbox to disabled */
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
+        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV) ||
+                (dialogType == ManagerDialogType.IMPORT_C_HEADER)) {
             replaceExistingMacrosCb.setEnabled(true);
         }
 
