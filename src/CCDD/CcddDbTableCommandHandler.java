@@ -2023,6 +2023,14 @@ public class CcddDbTableCommandHandler {
     }
     
     /**********************************************************************************************
+     * Clear any pre-loaded table members
+     *********************************************************************************************/
+    protected void clearPreLoadedTableMembers() {
+        preLoadedTableMembers = null;
+        updatingDefaultTableMembers = "Uninitialized";
+    }
+    
+    /**********************************************************************************************
      * Retrieve the pre-loaded table members
      * 
      * @return A list of table members
@@ -7414,6 +7422,9 @@ public class CcddDbTableCommandHandler {
 
         // Check if a table of this type exists
         if (protoTableNames.length != 0) {
+            // Clear the preloaded table members
+            clearPreLoadedTableMembers();
+            
             // Build a table tree with all prototype and instance tables
             CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, parent);
 

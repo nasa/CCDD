@@ -16,6 +16,10 @@ import static CCDD.CcddConstants.overwriteExistingCbIndex;
 import static CCDD.CcddConstants.appendToExistingDataCbIndex;
 import static CCDD.CcddConstants.ignoreErrorsCbIndex;
 import static CCDD.CcddConstants.keepDataFieldsCbIndex;
+import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH;
+import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
+import static CCDD.CcddConstants.EXPORT_MULTIPLE_FILES;
+import static CCDD.CcddConstants.EXPORT_SINGLE_FILE;
 
 import java.awt.Component;
 import java.awt.Desktop;
@@ -55,7 +59,6 @@ import javax.xml.bind.JAXBException;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddCSVHandler.CSVTags;
-import CCDD.CcddCSVHandler.CSVFileNames;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -68,6 +71,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
+import CCDD.CcddConstants.FileNames;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
@@ -84,8 +88,6 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddConstants.TableTreeType;
-import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH;
-import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddConstants.exportDataTypes;
@@ -1234,18 +1236,18 @@ public class CcddFileIOHandler {
                     String fileName = filePath.substring(filePath.lastIndexOf("/")+1).split("\\.")[0];
                     
                     /* Import any macro/table type definition found */
-                    if (fileName.equals(CSVFileNames.MACROS.getAlternateName())) {
+                    if (fileName.equals(FileNames.MACROS.No_Extension())) {
                         ioHandler.importTableInfo(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingMacros, replaceExistingTables);
                         
                         /* Import any input/data type definitions found */
-                    } else if (fileName.equals(CSVFileNames.TABLE_INFO.getAlternateName())) {
+                    } else if (fileName.equals(FileNames.TABLE_INFO.No_Extension())) {
                         ioHandler.importTableInfo(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingMacros, replaceExistingTables);
                         ioHandler.importInputTypes(file, ImportType.IMPORT_ALL, ignoreErrors);
                         
                         /* Import any internal table found */
-                    } else if (fileName.equals(CSVFileNames.TELEM_SCHEDULER.getAlternateName()) ||
-                            fileName.equals(CSVFileNames.APP_SCHEDULER.getAlternateName()) ||
-                            fileName.equals(CSVFileNames.SCRIPT_ASSOCIATION.getAlternateName())) {
+                    } else if (fileName.equals(FileNames.TELEM_SCHEDULER.No_Extension()) ||
+                            fileName.equals(FileNames.APP_SCHEDULER.No_Extension()) ||
+                            fileName.equals(FileNames.SCRIPT_ASSOCIATION.No_Extension())) {
                         ioHandler.importInternalTables(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingAssociations);
                     } else {
                         /* Import the table definition(s) from the file */
@@ -2661,9 +2663,9 @@ public class CcddFileIOHandler {
         /* Are we writing to a single mega file or multiple files?  */
         String outputType = "";
         if (singleFile) {
-            outputType = "Single";
+            outputType = EXPORT_SINGLE_FILE;
         } else {
-            outputType = "Multiple";
+            outputType = EXPORT_MULTIPLE_FILES;
         }
         
         /* Converting the file path to a FileEnvVar object will expand any environment variables within the path */
@@ -3442,7 +3444,7 @@ public class CcddFileIOHandler {
             /*************** MACROS ***************/
             String outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.MACROS.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.MACROS.CSV();
             FileEnvVar file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3506,7 +3508,7 @@ public class CcddFileIOHandler {
             outputData += csvHandler.retrieveCSVData(CSVTags.TABLE_TYPE.getTag(), content);
             outputData += csvHandler.retrieveCSVData(CSVTags.DATA_TYPE.getTag(), content);
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.TABLE_INFO.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.TABLE_INFO.CSV();
             FileEnvVar file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3515,7 +3517,7 @@ public class CcddFileIOHandler {
             /*************** MACROS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.MACROS.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.MACROS.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3524,7 +3526,7 @@ public class CcddFileIOHandler {
             /*************** GROUPS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.GROUP.getTag(), content).toString();
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.GROUPS.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.GROUPS.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3533,7 +3535,7 @@ public class CcddFileIOHandler {
             /*************** SCRIPT ASSOCIATIONS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(), content).toString();
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.SCRIPT_ASSOCIATION.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.SCRIPT_ASSOCIATION.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3542,7 +3544,7 @@ public class CcddFileIOHandler {
             /*************** TLM SCHEDULER ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER.getTag(), content).toString();
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.TELEM_SCHEDULER.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.TELEM_SCHEDULER.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
@@ -3551,7 +3553,7 @@ public class CcddFileIOHandler {
             /*************** APP SCHEDULER ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER.getTag(), content).toString();
             
-            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + CSVFileNames.APP_SCHEDULER.getName();
+            filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.APP_SCHEDULER.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             

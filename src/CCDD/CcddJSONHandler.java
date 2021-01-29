@@ -9,6 +9,8 @@ package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.EXPORT_MULTIPLE_FILES;
+import static CCDD.CcddConstants.EXPORT_SINGLE_FILE;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -53,6 +55,7 @@ import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
+import CCDD.CcddConstants.FileNames;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeEditorColumnInfo;
 import CCDD.CcddConstants.InternalTable;
@@ -1411,7 +1414,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             scriptEngine.put("jsonString", orderedOutput.toString());
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-            if ((outputType.contentEquals("Single")) && (tableNames.length > 1)) {
+            if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (tableNames.length > 1)) {
                 int size = ((String) scriptEngine.get("result")).length()-3;
                 pw.println(((String) scriptEngine.get("result")).substring(0, size)+ "],");
             } else {
@@ -1648,7 +1651,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param exportFile reference to the user-specified output file
      * 
      * @param outputType String representing rather the output is going to a single
-     *                   file or multiple files. Should be "Single" or "Multiple"
+     *                   file or multiple files. Should be EXPORT_SINGLE_FILE or
+     *                   EXPORT_MULTIPLE_FILES
      * 
      * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
      * 
@@ -1670,7 +1674,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             if (includes[counter] == true) {
                 try {
                     /* Are we exporting this database to multiple files or a single file */
-                    if ((outputType == "Single") && (!fwCreated)) {
+                    if ((outputType == EXPORT_SINGLE_FILE) && (!fwCreated)) {
                         /* Single file */
                         fw = new FileWriter(exportFile, true);
                         bw = new BufferedWriter(fw);
@@ -1682,8 +1686,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Multiple files */
                     switch (dataType) {
                     case GROUPS:
-                        if (outputType == "Multiple") {
-                            fw = new FileWriter(exportFile + "/_group_info.json", false);
+                        if (outputType == EXPORT_MULTIPLE_FILES) {
+                            fw = new FileWriter(exportFile + "/" + FileNames.GROUPS.JSON(), false);
                             bw = new BufferedWriter(fw);
                             pw = new PrintWriter(bw);
                             outputJO = new OrderedJSONObject();
@@ -1701,8 +1705,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         break;
     
                     case MACROS:
-                        if (outputType == "Multiple") {
-                            fw = new FileWriter(exportFile + "/_macros.json", false);
+                        if (outputType == EXPORT_MULTIPLE_FILES) {
+                            fw = new FileWriter(exportFile + "/" + FileNames.MACROS.JSON(), false);
                             bw = new BufferedWriter(fw);
                             pw = new PrintWriter(bw);
                             outputJO = new OrderedJSONObject();
@@ -1714,8 +1718,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         break;
     
                     case ASSOCIATIONS:
-                        if (outputType == "Multiple") {
-                            fw = new FileWriter(exportFile + "/_script_associations.json", false);
+                        if (outputType == EXPORT_MULTIPLE_FILES) {
+                            fw = new FileWriter(exportFile + "/" + FileNames.SCRIPT_ASSOCIATION.JSON(), false);
                             bw = new BufferedWriter(fw);
                             pw = new PrintWriter(bw);
                             outputJO = new OrderedJSONObject();
@@ -1726,8 +1730,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         break;
     
                     case TELEMSCHEDULER:
-                        if (outputType == "Multiple") {
-                            fw = new FileWriter(exportFile + "/_tlm_scheduler.json", false);
+                        if (outputType == EXPORT_MULTIPLE_FILES) {
+                            fw = new FileWriter(exportFile + "/" + FileNames.TELEM_SCHEDULER.JSON(), false);
                             bw = new BufferedWriter(fw);
                             pw = new PrintWriter(bw);
                             outputJO = new OrderedJSONObject();
@@ -1738,8 +1742,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         break;
     
                     case APPSCHEDULER:
-                        if (outputType == "Multiple") {
-                            fw = new FileWriter(exportFile + "/_app_scheduler.json", false);
+                        if (outputType == EXPORT_MULTIPLE_FILES) {
+                            fw = new FileWriter(exportFile + "/" + FileNames.APP_SCHEDULER.JSON(), false);
                             bw = new BufferedWriter(fw);
                             pw = new PrintWriter(bw);
                             outputJO = new OrderedJSONObject();
@@ -1750,7 +1754,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         break;
                     }
                 
-                    if ((outputType.contentEquals("Multiple")) || (dataType == exportDataTypes.APPSCHEDULER)) {
+                    if ((outputType.contentEquals(EXPORT_MULTIPLE_FILES)) || (dataType == exportDataTypes.APPSCHEDULER)) {
                         if (outputJO != null) {
                             /* Create a JavaScript engine for use in formatting the JSON output */
                             ScriptEngineManager manager = new ScriptEngineManager();
@@ -1761,7 +1765,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             JSONValue.writeJSONString(outputJO, orderedOutput);
                             scriptEngine.put("jsonString", orderedOutput.toString());
                             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-                            if (outputType.contentEquals("Single")) {
+                            if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
                                 pw.println(((String) scriptEngine.get("result")).substring(1));
                             } else {
                                 pw.println((String) scriptEngine.get("result"));
@@ -1771,7 +1775,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 } catch (IOException | ScriptException iose) {
                     throw new CCDDException(iose.getMessage());
                 } finally {
-                    if ((outputType.contentEquals("Multiple")) || (dataType == exportDataTypes.APPSCHEDULER)) {
+                    if ((outputType.contentEquals(EXPORT_MULTIPLE_FILES)) || (dataType == exportDataTypes.APPSCHEDULER)) {
                         /* Check if the PrintWriter was opened */
                         if (pw != null) {
                             /* Close the file */
@@ -1819,8 +1823,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *                          included
      * 
      * @param outputType        String representing rather the output is going to a
-     *                          single file or multiple files. Should be "Single" or
-     *                          "Multiple"
+     *                          single file or multiple files. Should be EXPORT_SINGLE_FILE
+     *                          or EXPORT_MULTIPLE_FILES
      * 
      * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
      * 
@@ -1840,8 +1844,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
         try {
             // Determine the output type so that the correct naming convention can be used
-            if (outputType == "Multiple") {
-                fw = new FileWriter(exportFile + "/_table_Info.json", false);
+            if (outputType == EXPORT_MULTIPLE_FILES) {
+                fw = new FileWriter(exportFile + "/" + FileNames.TABLE_INFO.JSON(), false);
             } else {
                 fw = new FileWriter(exportFile, true);
             }
@@ -1850,12 +1854,15 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             // Determine what data is to be included
             if (includeTableTypes == true) {
-                referencedInputTypes.addAll(Arrays.asList(inputTypeHandler.getNames(true)));
-            }
-            if (includeInputTypes == true) {
+                // Export all table types
                 referencedTableTypes.addAll(Arrays.asList(tableTypeHandler.getTableTypeNames()));
             }
+            if (includeInputTypes == true) {
+                // Export all input types
+                referencedInputTypes.addAll(Arrays.asList(inputTypeHandler.getNames(true)));
+            }
             if (includeDataTypes == true) {
+                // Export all data types
                 referencedDataTypes.addAll(dataTypeHandler.getDataTypeNames());
             }
 
@@ -1881,7 +1888,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 JSONValue.writeJSONString(outputJO, orderedOutput);
                 scriptEngine.put("jsonString", orderedOutput.toString());
                 scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-                if (outputType.contentEquals("Single")) {
+                if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
                     int size = ((String) scriptEngine.get("result")).length()-3;
                     pw.println(((String) scriptEngine.get("result")).substring(1, size)+ "],");
                 } else {

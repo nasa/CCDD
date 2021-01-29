@@ -9,6 +9,8 @@ package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.EXPORT_SINGLE_FILE;
+import static CCDD.CcddConstants.EXPORT_MULTIPLE_FILES;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -41,6 +43,7 @@ import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
+import CCDD.CcddConstants.FileNames;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -123,9 +126,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             return tag;
         }
 
-        /**
-         * @return the alternateTag
-         */
+        /******************************************************************************************
+         * Get the alternate data type tag
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
         protected String getAlternateTag() {
             return alternateTag;
         }
@@ -140,50 +145,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
          *****************************************************************************************/
         protected boolean isTag(String text) {
             return tag.equalsIgnoreCase(text) || (alternateTag != null && alternateTag.equalsIgnoreCase(text));
-        }
-    }
-    
-    /**********************************************************************************************
-     * CSV file names
-     *********************************************************************************************/
-    public enum CSVFileNames {
-        TABLE_INFO("_table_Info.csv", "_table_Info"), GROUPS("_group_info.csv", "_group_info"),
-        MACROS("_macros.csv", "_macros"), SCRIPT_ASSOCIATION("_script_associations.csv", "_script_associations"),
-        TELEM_SCHEDULER("_tlm_scheduler.csv", "_tlm_scheduler"), APP_SCHEDULER("_app_scheduler.csv", "_app_scheduler"),
-        RESERVED_MSG_ID("_reserved_msg_ids.csv", "_reserved_msg_ids"), PROJECT_DATA_FIELD("_proj_data_fields.csv", "_proj_data_fields");
-
-        private final String name;
-        private final String alternateName;
-
-        /******************************************************************************************
-         * CSV file name constructor
-         *
-         * @param name          text describing the data
-         *
-         * @param alternateName text describing the data
-         *
-         *****************************************************************************************/
-        CSVFileNames(String name, String alternateName) {
-            this.name = name;
-            this.alternateName = alternateName;
-        }
-
-        /******************************************************************************************
-         * Get the file name
-         *
-         * @return Text describing the data
-         *****************************************************************************************/
-        protected String getName() {
-            return name;
-        }
-        
-        /******************************************************************************************
-         * Get the alternate file name
-         *
-         * @return Text describing the data
-         *****************************************************************************************/
-        protected String getAlternateName() {
-            return alternateName;
         }
     }
     
@@ -1340,15 +1301,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             br = new BufferedReader(new FileReader(importFile));
                       
             /*************** GROUPS ***************/
-            if (importFile.getName().equals(CSVFileNames.GROUPS.getName()) && importType == ImportType.IMPORT_ALL) {
+            if (importFile.getName().equals(FileNames.GROUPS.CSV()) && importType == ImportType.IMPORT_ALL) {
                 importGroupData(br, importFile, ignoreErrors, projectDefn, replaceExistingGroups);
                 
             /*************** RESERVED MSG IDS ***************/
-            } else if (importFile.getName().equals(CSVFileNames.RESERVED_MSG_ID.getName()) && importType == ImportType.IMPORT_ALL) {
+            } else if (importFile.getName().equals(FileNames.RESERVED_MSG_ID.CSV()) && importType == ImportType.IMPORT_ALL) {
                 importReservedMsgIDData(br, importFile, ignoreErrors);
                 
             /*************** PROJECT DATA FIELDS ***************/
-            } else if (importFile.getName().equals(CSVFileNames.PROJECT_DATA_FIELD.getName()) && importType == ImportType.IMPORT_ALL) {
+            } else if (importFile.getName().equals(FileNames.PROJECT_DATA_FIELD.CSV()) && importType == ImportType.IMPORT_ALL) {
                 importProjectDataFields(br, importFile, ignoreErrors, replaceExistingTables, projectDefn);
                 
             /*************** TABLE DEFINITIONS ***************/
@@ -1598,7 +1559,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             /* Add one last new line character to mark the end of this section of export data 
              * if exporting all data to a single file
              */
-            if ((outputType.contentEquals("Single")) && (tableNames.length > 1)) {
+            if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (tableNames.length > 1)) {
                 pw.printf("\n");
             }
         } catch (IOException ioe) {
@@ -1640,7 +1601,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param exportFile reference to the user-specified output file
      * 
      * @param outputType String representing rather the output is going to a single
-     *                   file or multiple files. Should be "Single" or "Multiple"
+     *                   file or multiple files. Should be EXPORT_SINGLE_FILE or EXPORT_MULTIPLE_FILES
      * 
      * @throws CCDDException If a file I/O or parsing error occurs
      * 
@@ -1665,27 +1626,27 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         
                 try {
                     /* Are we exporting this database to multiple files or a single file */
-                    if (outputType == "Multiple") {
+                    if (outputType == EXPORT_MULTIPLE_FILES) {
                         /* Multiple files */
                         switch (dataType) {
                             case GROUPS:
-                                FinalExportFile = new FileEnvVar(exportFile + "/_group_info.csv");
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.GROUPS.CSV());
                                 break;
             
                             case MACROS:
-                                FinalExportFile = new FileEnvVar(exportFile + "/_macros.csv");
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.MACROS.CSV());
                                 break;
             
                             case ASSOCIATIONS:
-                                FinalExportFile = new FileEnvVar(exportFile + "/_script_associations.csv");
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.SCRIPT_ASSOCIATION.CSV());
                                 break;
             
                             case TELEMSCHEDULER:
-                                FinalExportFile = new FileEnvVar(exportFile + "/_tlm_scheduler.csv");
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.TELEM_SCHEDULER.CSV());
                                 break;
             
                             case APPSCHEDULER:
-                                FinalExportFile = new FileEnvVar(exportFile + "/_app_scheduler.csv");
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.APP_SCHEDULER.CSV());
                                 break;
                         }
                     } else {
@@ -1910,7 +1871,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         /* Add one last new line character to mark the end of this section of export data 
                          * if exporting all data to a single file
                          */
-                        if (outputType.contentEquals("Single")) {
+                        if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
                             FinalOutput += "\n";
                         }
                         FileUtils.writeStringToFile(FinalExportFile, FinalOutput, (String) null, false);
@@ -1939,8 +1900,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *                          included
      * 
      * @param outputType        String representing rather the output is going to a
-     *                          single file or multiple files. Should be "Single" or
-     *                          "Multiple"
+     *                          single file or multiple files. Should be EXPORT_SINGLE_FILE or
+     *                          EXPORT_MULTIPLE_FILES
      * 
      * @throws CCDDException If a file I/O or parsing error occurs
      * 
@@ -1959,8 +1920,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
         try {
             /* Determine the output type so that the correct naming convention can be used */
-            if (outputType == "Multiple") {
-                FinalExportFile = new FileEnvVar(exportFile + "/_table_Info.csv");
+            if (outputType == EXPORT_MULTIPLE_FILES) {
+                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.TABLE_INFO.CSV());
             } else {
                 FinalExportFile = new FileEnvVar(exportFile.getPath());
             }
@@ -2066,7 +2027,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             /* Add one last new line character to mark the end of this section of export data 
              * if exporting all data to a single file
              */
-            if (outputType.contentEquals("Single")) {
+            if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
                 pw.printf("\n");
             }
         } catch (Exception e) {

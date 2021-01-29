@@ -193,7 +193,6 @@ public class CcddMain {
     private JMenuItem mntmDuplicateMsgID;
     private JMenuItem mntmManageProjectFields;
     private JMenuItem mntmEditDataField;
-    private JMenuItem mntmShowVariables;
     private JMenuItem mntmShowCommands;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmSearchVariables;
@@ -1083,7 +1082,6 @@ public class CcddMain {
         mntmDuplicateMsgID.setEnabled(activateIfDatabase);
         mntmManageProjectFields.setEnabled(activateIfDatabase);
         mntmEditDataField.setEnabled(activateIfDatabase);
-        mntmShowVariables.setEnabled(activateIfDatabase);
         mntmShowCommands.setEnabled(activateIfDatabase);
         mntmSearchTable.setEnabled(activateIfDatabase);
         mntmSearchVariables.setEnabled(activateIfDatabase);
@@ -1770,8 +1768,6 @@ public class CcddMain {
                 "Open the data field table editor");
         mnData.addSeparator();
         mntmPadding = createMenuItem(mnData, "Padding", KeyEvent.VK_P, 1, "Add, update, or remove padding variables");
-        mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1,
-                "Display all of the variable paths + names in various formats");
         mntmShowCommands = createMenuItem(mnData, "Show commands", KeyEvent.VK_O, 1,
                 "Display information for all of the commands");
         mnData.addSeparator();
@@ -2443,18 +2439,6 @@ public class CcddMain {
                     fieldTblEditorDialog.toFront();
                     fieldTblEditorDialog.repaint();
                 }
-            }
-        });
-
-        // Add a listener for the Show Variables command
-        mntmShowVariables.addActionListener(new ActionListener() {
-            /**************************************************************************************
-             * Display a dialog showing all of the variable paths + names. The application
-             * and user-defined formats are shown
-             *************************************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                new CcddVariableDialog(CcddMain.this);
             }
         });
 

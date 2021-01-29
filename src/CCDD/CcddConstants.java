@@ -92,13 +92,11 @@ public class CcddConstants {
     protected static final String GROUP_DATA_FIELD_IDENT = "Group:";
 
     // Number of columns in a data table that are not displayed (these columns are
-    // the primary key
-    // and row index)
+    // the primary key and row index)
     protected static final int NUM_HIDDEN_COLUMNS = 2;
 
     // Table type and path column index offsets from the last column of the table
-    // data array used
-    // for script access
+    // data array used for script access
     protected static final int TYPE_COLUMN_DELTA = 2;
     protected static final int PATH_COLUMN_DELTA = 1;
 
@@ -144,24 +142,19 @@ public class CcddConstants {
     protected static final String CHANGE_INDICATOR = "*";
 
     // Characters used to separate individual remembered strings that are stored as
-    // a single string
-    // in the program preferences
+    // a single string in the program preferences
     protected static final String STRING_LIST_TEXT_SEPARATOR = "%~%";
 
     // Characters used to separate the data field owner and name that is assigned as
-    // the text field
-    // name for the undo handler
+    // the text field name for the undo handler
     protected static final String DATA_FIELD_IDENTIFIER_SEPARATOR = "%~%";
 
-    // Characters used to separate the input type selection items in the input type
-    // table
+    // Characters used to separate the input type selection items in the input type table
     protected static final String SELECTION_ITEM_LIST_SEPARATOR = "\n";
 
-    // Special character to denote that a child data table cell value is to be
-    // replaced with the
-    // corresponding entry in its prototype table, and that its entry in the custom
-    // values table is
-    // to be removed
+    // Special character to denote that a child data table cell value is to be replaced
+    // with the corresponding entry in its prototype table, and that its entry in the custom
+    // values table is to be removed
     protected static final String REPLACE_INDICATOR = "\u00d8";
 
     // Radio button, and check box change event names
@@ -171,30 +164,25 @@ public class CcddConstants {
     // Characters used to encompass a macro name
     protected static final String MACRO_IDENTIFIER = "##";
 
-    // Character to append to a message ID to indicate it's protected from automatic
-    // reassignment
+    // Character to append to a message ID to indicate it's protected from automatic reassignment
     protected static final String PROTECTED_MSG_ID_IDENT = "#";
 
     // Regular expression to detect reserved characters. The backslash character as
-    // a reserved
-    // character isn't included here
+    // a reserved character isn't included here
     protected static final String POSTGRESQL_RESERVED_CHARS = "(.*?)([\\[\\]\\(\\)\\{\\}\\.\\+\\*\\^\\$\\|\\?\\-])(.*?)";
 
-    // Regular expression patterns for matching trailing zeroes (with or without a
-    // leading decimal)
+    // Regular expression patterns for matching trailing zeroes (with or without a leading decimal)
     protected static final String TRAILING_ZEROES = "\\.??0*$";
 
-    // Regular expression for separating text string at a specified separator
-    // character. Separator
-    // characters between double quotes are ignored so that an erroneous separation
-    // doesn't occur
+    // Regular expression for separating text string at a specified separator character.
+    // Separator characters between double quotes are ignored so that an erroneous
+    // separation doesn't occur
     protected static final String SPLIT_IGNORE_QUOTES = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
     // Regular expression for identifying part or all of a table and its path
     protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
-    // Regular expression that detects the strings 'true' or 'false' (case
-    // insensitive)
+    // Regular expression that detects the strings 'true' or 'false' (case insensitive)
     protected static final String TRUE_OR_FALSE = "(?i:true|false)";
 
     // Regular expression for detecting sizeof(data type) calls
@@ -206,8 +194,7 @@ public class CcddConstants {
     protected static final String SECONDARY_INSTANCE_NODE_NAME = "Parents";
     
 
-    // Node name for the linked and unlinked variables in trees displaying
-    // (un)linked variables
+    // Node name for the linked and unlinked variables in trees displaying (un)linked variables
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
     protected static final String UNLINKED_VARIABLES_NODE_NAME = "Unlinked Variables";
 
@@ -231,8 +218,7 @@ public class CcddConstants {
             .min(Math.min(Math.max(INIT_WINDOW_HEIGHT, ModifiableSizeInfo.MIN_WINDOW_HEIGHT.getSize()),
                     ModifiableSizeInfo.MIN_WINDOW_HEIGHT.getSize()), INIT_WINDOW_HEIGHT * 2);
 
-    // Disabled and invalid item highlight colors. These are primarily for
-    // indicating that an item
+    // Disabled and invalid item highlight colors. These are primarily for indicating that an item
     // in a tree or a list can't be selected or doesn't apply
     protected static final String FLAGGED = "<html><!-- Flag:";
     protected static final String DISABLED_TEXT_COLOR = FLAGGED + "Disabled --><font color=#b0b0b0>";
@@ -314,6 +300,10 @@ public class CcddConstants {
     /* Snapshot file paths */
     protected static final String SNAP_SHOT_FILE_PATH = "./.snapshot/";
     protected static final String SNAP_SHOT_FILE_PATH_2 = "./.snapshot2/";
+    
+    /* Exporting a single file or multiple files */
+    protected static final String EXPORT_MULTIPLE_FILES = "Multiple";
+    protected static final String EXPORT_SINGLE_FILE = "Single";
 
     // Endian type
     protected static enum EndianType {
@@ -803,6 +793,67 @@ public class CcddConstants {
                     }
                 }
             }
+        }
+    }
+    
+    /**********************************************************************************************
+     * File names
+     *********************************************************************************************/
+    public enum FileNames {
+        TABLE_INFO("_table_Info.csv", "_table_Info.json", "_table_Info"),
+        GROUPS("_group_info.csv", "_group_info.json", "_group_info"),
+        MACROS("_macros.csv", "_macros.json", "_macros"),
+        SCRIPT_ASSOCIATION("_script_associations.csv", "_script_associations.json", "_script_associations"),
+        TELEM_SCHEDULER("_tlm_scheduler.csv", "_tlm_scheduler.json", "_tlm_scheduler"),
+        APP_SCHEDULER("_app_scheduler.csv", "_app_scheduler.json", "_app_scheduler"),
+        RESERVED_MSG_ID("_reserved_msg_ids.csv", "_reserved_msg_ids.json", "_reserved_msg_ids"),
+        PROJECT_DATA_FIELD("_proj_data_fields.csv", "_proj_data_fields.json", "_proj_data_fields");
+
+        private final String CSV;
+        private final String JSON;
+        private final String No_Extension;
+
+        /******************************************************************************************
+         * File name constructor
+         *
+         * @param CSV  File name with CSV extension
+         *
+         * @param JSON File name with JSON extension
+         * 
+         * @param No_Extension File name with no extension
+         *
+         *****************************************************************************************/
+        FileNames(String CSV, String JSON, String No_Extension) {
+            this.CSV = CSV;
+            this.JSON = JSON;
+            this.No_Extension = No_Extension;
+        }
+
+        /******************************************************************************************
+         * Get the file name with CSV extension
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
+        protected String CSV() {
+            return CSV;
+        }
+        
+        /******************************************************************************************
+         * Get the file name with JSON extension
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
+        protected String JSON() {
+            return JSON;
+        }
+        
+        /******************************************************************************************
+         * Get the file name with no extension
+         *
+         * @return Text describing the data
+         *****************************************************************************************/
+        protected String No_Extension() {
+            return No_Extension;
         }
     }
 
