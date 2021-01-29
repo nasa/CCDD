@@ -95,3 +95,25 @@ Below is a brief description of what has changed from version 2.0.22 to 2.0.23.
 * A new table type was added to CCDD called 'Enum'. This new table allows users to store the names of all of the enums that make up a 'typedef enum' structure. Once this table is defined users can assign the data type to any variable they wish.
 * Two new data access methods were added for the new 'Enum' table type so that a user can retrieve all defined Enum tables and their members via scripts. More details available in the users guide.
 * The copy and paste functionality has been fixed. 
+
+*** Version 2.0.25 has been released ***
+
+Below is a brief description of what has changed from version 2.0.24 to 2.0.25.
+* Addressed a bug that prevented CCDD from auto-correcting data field related issues found during the verification process
+* Addressed a bug that prevented users from importing JSON or CSV files that contained info for tables without any rows of data
+* Addressed a bug that prevented group data from being exported in CSV format when any of the tables were array members
+* Refactored the assign-message-id dialog. Users can now use a table tree to select/omit tables when assigning message ids. Details can be found in the users guide.
+* Broke the users guide up to make it more approachable and moved all documents into the 'Docs' directory.
+* Updated the CCDD tutorial
+* Refactored the code that imports an entire database from a single JSON/CSV file to be more efficient
+* Introduced new data access methods in an attempt to make data easier to access in the future while retaining all current data access methods to prevent breaking any existing   scripts that projects may be using.
+* Addressed a bug that prevented a new root and a child of the new root from being imported at the same time
+* Refactored the code that imports data fields as users were encountering many issues when importing various data field changes.
+* Refactored the code that clears a directory prior to an export so that it can no longer delete folders. It can only delete JSON or CSV files now. * This is to prevent accidental deletion of unrelated files if an improper directory is selected for an export
+* Addressed a performance issue that caused some scripts to take an abnormally long time to finish
+* The external C_Header_To_CSV script is no longer needed when attempting to import C header files into CCDD. A user can now directly import them into CCDD by selecting the C_Header import option within CCDD. More details can be found in the users guide.
+* Addressed performance issues that were causing the script manager to take an abnormally long time to launch when a large CCDD database was open.
+* Addressed performance issues that were causing the 'Filter By Group' option to take an abnormally long time to rebuild the table tree for large databases.
+* Addressed an issue that prevented group data fields from being imported via JSON or CSV
+* Merged the 'Show variables' and 'Search variables' dialogs
+* Addressed a bug that was preventing the table type data from being exported unless the entire database was being exported
