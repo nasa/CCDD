@@ -527,8 +527,8 @@ public class CcddScriptDataAccessHandlerStatic {
         return accessHandler.getTableDataByName(tableName);
     }
     
-    public static String[] getTableDataByNameAndColumn(String tableName, String columnName) {
-        return accessHandler.getTableDataByNameAndColumn(tableName, columnName);
+    public static String[] getTableDataByNameAndColumn(String tableName, String columnName, boolean expandMacros) {
+        return accessHandler.getTableDataByNameAndColumn(tableName, columnName, expandMacros);
     }
     
     public static String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {

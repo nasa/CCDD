@@ -2171,17 +2171,18 @@ public class CcddFileIOHandler {
         try {
             // Check what type of extension is needed
             FileNameExtensionFilter[] extFilter = new FileNameExtensionFilter [1];
+            CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame());
             if (dialogType == ManagerDialogType.IMPORT_JSON) {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
                         FileExtension.JSON.getExtensionName());
                 // Create a JSON handler
-                ioHandler = new CcddJSONHandler(ccddMain, null, tableHandler.getOwner());
+                ioHandler = new CcddJSONHandler(ccddMain, groupHandler, tableHandler.getOwner());
                 importFileType = FileExtension.JSON;
             } else if (dialogType == ManagerDialogType.IMPORT_CSV) {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
                         FileExtension.CSV.getExtensionName());
                 // Create a CSV handler
-                ioHandler = new CcddCSVHandler(ccddMain, null, tableHandler.getOwner());
+                ioHandler = new CcddCSVHandler(ccddMain, groupHandler, tableHandler.getOwner());
                 importFileType = FileExtension.CSV;
             } else if (dialogType == ManagerDialogType.IMPORT_XTCE) {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),

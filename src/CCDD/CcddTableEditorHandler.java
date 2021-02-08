@@ -2739,7 +2739,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     // Check to see if a variable name was included. If numOfArratMembersVerified is greater than 0 
                     // then that means that this is an array member, but it has already been verified that the definition 
                     // and all members exist.
-                    if ((variableNameColumn != -1) && (numOfArrayMembersVerified == 0)) {
+                    if ((variableNameColumn != -1) && (numOfArrayMembersVerified == 0)  && (!dataComingFromClipboard)) {
                         // Get the index within the cell data that represents this row's variable name
                         int varIndex = index + variableNameColumn;
                         String varName = cellData[varIndex].toString();
@@ -3148,6 +3148,29 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 // invalid input set the flag to false then it can prevent closing the editor)
                 setLastCellValid(true);
 
+                // Check to see if the data came from the clipboard
+                if (dataComingFromClipboard) {
+                    // Determine the number of columns to copy based on the length of the first 
+                    // entry in the tableData list. We subtract two as the first two columns contain
+                    // information that we do not need
+                    int numberOfColumnsToCopy = tableData.get(0).length-2;
+                    
+                    // Adjust the size of cell data so that it can hold all of the required data
+                    cellData = new String[tableData.size() * numberOfColumnsToCopy];
+                    
+                    // Step through all of the data in tableData and copy it to cellData while skipping
+                    // the first two indexes of each entry in tableData
+                    for (int i = 0; i < tableData.size(); i++) {
+                        for (int y = 0; y  < numberOfColumnsToCopy; y++) {
+                            cellData[(i*numberOfColumnsToCopy) + y] = tableData.get(i)[y+2];
+                        }
+                    }
+                    
+                    // Call pasteData again with the new cellData. The first call allowed the function to place the pasted data in 
+                    // the correct locations of tableData. This next call makes any needed changes to the table like expanding 
+                    // arrays if an array size was changed.
+                    pasteData(cellData, numberOfColumnsToCopy, isInsert, isAddIfNeeded, true, combineAsSingleEdit, highlightPastedData, false);
+                }
                 return showMessage == null;
             }
 

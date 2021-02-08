@@ -851,7 +851,7 @@ public class CcddScriptDataAccessHandler {
      *         exist
      *********************************************************************************************/
     public String getTableNameByRow(String tableType, int row) {
-        return getTablePathByRow(tableType, row, TablePathType.PROTOTYPE, true);
+        return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, true);
     }
 
     /**********************************************************************************************
@@ -2382,8 +2382,7 @@ public class CcddScriptDataAccessHandler {
         TableInformation tableInfo = getTableInformation(tableType);
 
         // Check if table information exists for the specified type and if the row is
-        // within the
-        // table data array size
+        // within the table data array size
         if (tableInfo != null && row >= 0 && row < tableInfo.getData().length) {
             // Calculate the column index for the structure path
             int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
@@ -3393,7 +3392,7 @@ public class CcddScriptDataAccessHandler {
         /* Get the column names */
         String[] columnNames = typeDef.getColumnNamesDatabase();
 
-        String[][] data = new String[tableInfo.getData().length-2][columnNames.length-2];
+        String[][] data = new String[tableInfo.getData().length][columnNames.length-2];
         
         /* Add the data to the 2d array */
         for (int dataIndex = 0; dataIndex < data.length; dataIndex++) {
@@ -3416,10 +3415,12 @@ public class CcddScriptDataAccessHandler {
      * @param tableName Name of the table who's data is being requested
      * 
      * @param columnName Name of the column that data needs to be pulled from
+     * 
+     * @param expandMacros Expand any macros within the data
      *
      * @return array representing the data in all rows of the specified column
      *********************************************************************************************/
-    public String[] getTableDataByNameAndColumn(String tableName, String columnName) {
+    public String[] getTableDataByNameAndColumn(String tableName, String columnName, boolean expandMacros) {
         int columnIndex = -1;
         
         /* Convert the name to lower case and replace any whitespace with a underline */
@@ -3446,6 +3447,12 @@ public class CcddScriptDataAccessHandler {
             /* Trim off the key and index */
             for (int dataIndex = 0; dataIndex < tableInfo.getData().length; dataIndex++) {
                 data[dataIndex] = tableInfo.getData()[dataIndex][columnIndex].toString();
+            }
+        }
+        
+        if (expandMacros) {
+            for (int index = 0; index < data.length; index++) {
+                data[index] = macroHandler.getMacroExpansion(data[index]);
             }
         }
         

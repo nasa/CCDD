@@ -571,6 +571,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler {
                                 && ccddMain.ignoreUncommittedChanges("Open Project", "Discard changes?", true, null,
                                         CcddDbManagerDialog.this)) {
                             // Open the selected project
+                            dbTable.clearPreLoadedTableMembers();
                             dbControl.openDatabaseInBackground(getRadioButtonSelected());
                         }
 
