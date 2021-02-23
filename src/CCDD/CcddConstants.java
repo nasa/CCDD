@@ -509,7 +509,7 @@ public class CcddConstants {
 
     // Various data types that can be exported
     protected static enum exportDataTypes {
-        GROUPS, MACROS, ASSOCIATIONS, TELEMSCHEDULER, APPSCHEDULER
+        GROUPS, MACROS, ASSOCIATIONS, TELEMSCHEDULER, APPSCHEDULER, RESERVED_MSG_ID, PROJECT_FIELDS
     }
 
     // Command line priority range

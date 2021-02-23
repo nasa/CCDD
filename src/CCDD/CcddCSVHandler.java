@@ -982,6 +982,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     line = line.trim();
                 }
             }
+            
+            if (!reservedMsgIDDefns.isEmpty()) {
+                /* Overwrite the reserved message id data with the imported data */
+                rsvMsgIDHandler.setReservedMsgIDData(reservedMsgIDDefns);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1011,27 +1016,33 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             columnValues = trimLine(line, br);
             
             while (line != null) {
-                /* Append empty columns as needed to fill out the expected number of inputs */
-                columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                        FieldsColumn.values().length - 1 - columnValues.length);
-    
-                /* Add the data field definition, checking for (and if possible, correcting) errors */
-                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, projectDefn,
-                        new String[] { CcddFieldHandler.getFieldProjectName(),
-                                columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
-                        importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
-                        parent);
+                if (!line.isEmpty() && !line.contentEquals(CSVTags.PROJECT_DATA_FIELD.getTag())) {
+                    /* Append empty columns as needed to fill out the expected number of inputs */
+                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                            FieldsColumn.values().length - 1 - columnValues.length);
+        
+                    /* Add the data field definition, checking for (and if possible, correcting) errors */
+                    ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables, projectDefn,
+                            new String[] { CcddFieldHandler.getFieldProjectName(),
+                                    columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                    columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1] },
+                            importFile.getAbsolutePath(), inputTypeHandler, fieldHandler,
+                            parent);
+                }
+                
+                line = br.readLine();
+                columnValues = trimLine(line, br);
             }
             
-            line = br.readLine();
-            columnValues = trimLine(line, br);
+            // Replace the old project fields with the new ones
+            fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldProjectName(),
+                    fieldHandler.getFieldInformationFromDefinitions(projectDefn.getDataFields()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1350,9 +1361,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param includeReservedMsgIDs   true to include the contents of the reserved
      *                                message ID table in the export file
      *
-     * @param includeProjectFields    true to include the project-level data field
-     *                                definitions in the export file
-     *
      * @param includeVariablePaths    true to include the variable path for each
      *                                variable in a structure table, both in
      *                                application format and using the user-defined
@@ -1375,9 +1383,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
-            boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
-            Object... extraInfo) throws CCDDException, Exception {
+            boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
+            String[] separators, String outputType, Object... extraInfo) throws CCDDException, Exception {
         /* Init local variables */
         FileWriter fw = null;
         BufferedWriter bw = null;
@@ -1506,44 +1513,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
 
-            /* Check if the user elected to store the reserved message IDs and if there are any
-             * reserved message IDs defined
-             */
-            if (includeReservedMsgIDs && !rsvMsgIDHandler.getReservedMsgIDData().isEmpty()) {
-                /* Output the reserved message ID marker */
-                pw.printf("\n" + CSVTags.RESERVED_MSG_IDS.getTag() + "\n");
-
-                /* Step through each reserved message ID */
-                for (String[] reservedMsgID : rsvMsgIDHandler.getReservedMsgIDData()) {
-                    /* Output the reserved message ID definition */
-                    pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(
-                            reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                            reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
-                }
-            }
-
-            /* Check if the user elected to store the project-level data fields */
-            if (includeProjectFields) {
-                /* Build the data field information for the project */
-                List<FieldInformation> fieldInformation = fieldHandler
-                        .getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
-
-                /* Check if the project contains any data fields */
-                if (!fieldInformation.isEmpty()) {
-                    /* Output the project data field marker */
-                    pw.printf("\n" + CSVTags.PROJECT_DATA_FIELD.getTag() + "\n");
-
-                    /* Step through each data field */
-                    for (FieldInformation fieldInfo : fieldInformation) {
-                        /* Output the field information */
-                        pw.printf("%s\n", CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
-                                fieldInfo.getDescription(), Integer.toString(fieldInfo.getSize()),
-                                fieldInfo.getInputType().getInputName(), Boolean.toString(fieldInfo.isRequired()),
-                                fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue()));
-                    }
-                }
-            }
-
             /* Check if variable paths are to be output and that any exist */
             if (includeVariablePaths && !variablePaths.isEmpty()) {
                 /* Output the variable path marker */
@@ -1647,6 +1616,14 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             
                             case APPSCHEDULER:
                                 FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.APP_SCHEDULER.CSV());
+                                break;
+                                
+                            case RESERVED_MSG_ID:
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.RESERVED_MSG_ID.CSV());
+                                break;
+                                
+                            case PROJECT_FIELDS:
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.PROJECT_DATA_FIELD.CSV());
                                 break;
                         }
                     } else {
@@ -1864,6 +1841,46 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 }
                             }
                             break;
+                            
+                        case RESERVED_MSG_ID:
+                            /* Check if the user elected to store the reserved message IDs and if there are any
+                             * reserved message IDs defined
+                             */
+                            if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty()) {
+                                /* Output the reserved message ID marker */
+                                FinalOutput += "\n" + CSVTags.RESERVED_MSG_IDS.getTag() + "\n";
+
+                                /* Step through each reserved message ID */
+                                for (String[] reservedMsgID : rsvMsgIDHandler.getReservedMsgIDData()) {
+                                    /* Output the reserved message ID definition */
+                                    FinalOutput += CcddUtilities.addEmbeddedQuotesAndCommas(
+                                            reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                            reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]) + "\n";
+                                }
+                            }
+                            break;
+                            
+                        case PROJECT_FIELDS:
+                            /* Build the data field information for the project */
+                            List<FieldInformation> fieldInformation = fieldHandler
+                                    .getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
+
+                            /* Check if the project contains any data fields */
+                            if (!fieldInformation.isEmpty()) {
+                                /* Output the project data field marker */
+                                FinalOutput += "\n" + CSVTags.PROJECT_DATA_FIELD.getTag() + "\n";
+
+                                /* Step through each data field */
+                                for (FieldInformation fieldInfo : fieldInformation) {
+                                    /* Output the field information */
+                                    FinalOutput += CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                            fieldInfo.getDescription(), Integer.toString(fieldInfo.getSize()),
+                                            fieldInfo.getInputType().getInputName(), Boolean.toString(fieldInfo.isRequired()),
+                                            fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue()) + "\n";
+                                }
+                            }
+                            
+                            break;
                     }
         
                     /* If there is any data than write it to the file */
@@ -1873,8 +1890,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                          */
                         if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
                             FinalOutput += "\n";
+                            FileUtils.writeStringToFile(FinalExportFile, FinalOutput, (String) null, true);
+                        } else {
+                            FileUtils.writeStringToFile(FinalExportFile, FinalOutput, (String) null, false);
                         }
-                        FileUtils.writeStringToFile(FinalExportFile, FinalOutput, (String) null, false);
                     }
                 } catch (Exception e) {
                     throw new CCDDException(e.getMessage());
@@ -2178,6 +2197,30 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         } else if (searchKey == CSVTags.APP_SCHEDULER.getTag()) {
             /* Extract the data related to the application scheduler */
             beginIndex = data.toString().indexOf(CSVTags.APP_SCHEDULER.getTag());
+            endIndex = data.toString().indexOf("\n\n", beginIndex);
+            
+            if (beginIndex != -1) {
+                if (endIndex != -1) {
+                    outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+                } else {
+                    outData = new StringBuilder(data.toString().substring(beginIndex));
+                }
+            }
+        } else if (searchKey == CSVTags.RESERVED_MSG_IDS.getTag()) {
+            /* Extract the data related to the application scheduler */
+            beginIndex = data.toString().indexOf(CSVTags.RESERVED_MSG_IDS.getTag());
+            endIndex = data.toString().indexOf("\n\n", beginIndex);
+            
+            if (beginIndex != -1) {
+                if (endIndex != -1) {
+                    outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+                } else {
+                    outData = new StringBuilder(data.toString().substring(beginIndex));
+                }
+            }
+        } else if (searchKey == CSVTags.PROJECT_DATA_FIELD.getTag()) {
+            /* Extract the data related to the application scheduler */
+            beginIndex = data.toString().indexOf(CSVTags.PROJECT_DATA_FIELD.getTag());
             endIndex = data.toString().indexOf("\n\n", beginIndex);
             
             if (beginIndex != -1) {

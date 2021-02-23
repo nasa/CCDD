@@ -1865,14 +1865,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *                                expanded) * true to replace any embedded
      *                                macros with their corresponding values
      *
-     * @param includeReservedMsgIDs   * Not used for EDS export * true to include
-     *                                the contents of the reserved message ID table
-     *                                in the export file
-     *
-     * @param includeProjectFields    * Not used for EDS export * true to include
-     *                                the project-level data field definitions in
-     *                                the export file
-     *
      * @param includeVariablePaths    * Not used for EDS export * true to include
      *                                the variable path for each variable in a
      *                                structure table, both in application format
@@ -1900,18 +1892,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
-            boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
-            Object... extraInfo) throws JAXBException, MarshalException, CCDDException, Exception {
+            boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
+            String[] separators, String outputType, Object... extraInfo) throws JAXBException, MarshalException,
+            CCDDException, Exception {
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1]);
 
-        // Output the XML to the specified file. The Marshaller has a hard-coded limit
-        // of 8
-        // levels; once exceeded it starts back at the first column. Therefore, a
-        // Transformer
-        // is used to set the indentation amount (it doesn't have an indentation level
-        // limit)
+        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
+        // levels; once exceeded it starts back at the first column. Therefore, a Transformer
+        // is used to set the indentation amount (it doesn't have an indentation level limit)
         DOMResult domResult = new DOMResult();
         marshaller.marshal(project, domResult);
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -1944,13 +1933,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         device = factory.createDeviceType();
 
         // The device name, built from the project name, is restricted as to format, so
-        // replace all
-        // invalid characters in the project name with an underscore
+        // replace all invalid characters in the project name with an underscore
         String deviceName = dbControl.getProjectName().replaceAll("[^a-zA-Z0-9_]", "_");
 
         // Check if the initial character is invalid (i.e., a numeral after the above
-        // replacement
-        // is performed)
+        // replacement is performed)
         if (deviceName.matches("[^a-zA-Z_].*")) {
             // Preface the device with an underscore to make it valid
             deviceName = "_" + deviceName;
@@ -1976,8 +1963,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 DefaultInputType.XML_CMD_HDR);
 
         // Get the command header argument names for the application ID and the command
-        // function
-        // code. These are stored as project-level data fields
+        // function code. These are stored as project-level data fields
         applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                 DefaultInputType.XML_APP_ID);
         cmdFuncCodeName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
@@ -1996,11 +1982,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             cmdFuncCodeName = DefaultHeaderVariableName.FUNC_CODE.getDefaultVariableName();
         }
 
-        // The telemetry and command header table names, and application ID and command
-        // function
-        // code variable names are stored as metadata which is used if the export file
-        // is imported
-        // into CCDD
+        // The telemetry and command header table names, and application ID and command function code variable
+        // names are stored as metadata which is used if the export file is imported into CCDD
         MetadataType data = factory.createMetadataType();
         MetadataValueSetType dataValue = factory.createMetadataValueSetType();
 

@@ -2362,6 +2362,9 @@ public class CcddDbTableCommandHandler {
             ReferenceCheckResults varRefChk = null;
             ReferenceCheckResults cmdRefChk = null;
             
+            // Store the data fields
+            storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null, parent);
+            
             updateListsAndReferences(parent);
 
             // Get the name of the table to modify and convert the table name to lower case. PostgreSQL automatically
@@ -4784,7 +4787,9 @@ public class CcddDbTableCommandHandler {
         
         // After storing the new information in the internal table make sure that the field handler
         // is in sync with the current data in the internal table.
-        fieldHandler.buildFieldInformation(parent);
+        if (intTable == InternalTable.FIELDS) {
+            fieldHandler.buildFieldInformation(parent);
+        }
 
     }
     
@@ -5167,32 +5172,35 @@ public class CcddDbTableCommandHandler {
      * @param editorDialog     reference to the project field editor dialog
      *********************************************************************************************/
     protected void modifyProjectFields(String description, List<FieldInformation> fieldInformation,
-            CcddProjectFieldDialog editorDialog) {
+            final Component parent) {
         boolean errorFlag = false;
 
         try {
             // Update the project's description
             dbCommand.executeDbUpdate(new StringBuilder(dbControl.buildDatabaseCommentCommandAndUpdateInternalTable(dbControl.getProjectName(),
-                    dbControl.getDatabaseAdmins(dbControl.getDatabaseName()), true, description)), editorDialog);
+                    dbControl.getDatabaseAdmins(dbControl.getDatabaseName()), true, description)), parent);
 
             // Replace the project data fields with the ones provided
             dbCommand.executeDbUpdate(new StringBuilder(modifyFieldsCommand(CcddFieldHandler.getFieldProjectName(), fieldInformation)),
-                    editorDialog);
+                    parent);
         } catch (SQLException se) {
             // Inform the user that updating the project data fields failed
-            eventLog.logFailEvent(editorDialog, "Cannot modify project data field(s); cause '" + se.getMessage() + "'",
+            eventLog.logFailEvent(parent, "Cannot modify project data field(s); cause '" + se.getMessage() + "'",
                     "<html><b>Cannot modify project data field(s)");
             errorFlag = true;
         } catch (Exception e) {
             // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, editorDialog);
+            CcddUtilities.displayException(e, parent);
             errorFlag = true;
         }
 
         // Check that no error occurred
         if (!errorFlag) {
-            // Perform the project field modification clean-up steps
-            editorDialog.doProjectFieldModificationComplete(errorFlag);
+            if (parent instanceof CcddProjectFieldDialog) {
+                CcddProjectFieldDialog editorDialog = (CcddProjectFieldDialog) parent;
+                // Perform the project field modification clean-up steps
+                editorDialog.doProjectFieldModificationComplete(errorFlag);
+            }
         }
     }
 

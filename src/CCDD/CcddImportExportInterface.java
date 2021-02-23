@@ -175,12 +175,6 @@ public interface CcddImportExportInterface {
      * @param replaceMacros           true to replace any embedded macros with their
      *                                corresponding values
      *
-     * @param includeReservedMsgIDs   true to include the contents of the reserved
-     *                                message ID table in the export file
-     *
-     * @param includeProjectFields    true to include the project-level data field
-     *                                definitions in the export file
-     *
      * @param includeVariablePaths    true to include the variable path for each
      *                                variable in a structure table, both in
      *                                application format and using the user-defined
@@ -206,9 +200,8 @@ public interface CcddImportExportInterface {
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
-            boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
-            Object... extraInfo)
+            boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
+            String[] separators, String outputType, Object... extraInfo)
             throws JAXBException, CCDDException, Exception;
     
     /**********************************************************************************************

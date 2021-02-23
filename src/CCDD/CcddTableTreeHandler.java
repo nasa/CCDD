@@ -112,8 +112,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     // Flag to indicate if the tree should be filtered by table type
     private boolean isByType;
 
-    // Flag indicating if the node descriptions should be obtained and added as tool
-    // tips
+    // Flag indicating if the node descriptions should be obtained and added as tool tips
     private final boolean getDescriptions;
 
     // Flags indicating if the filter check boxes should be displayed
@@ -121,8 +120,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private final boolean showTypeFilter;
 
     // Data stream rate column name and rate value used to filter the table tree for
-    // variables with
-    // rates
+    // variables with rates
     private String rateName;
     private String rateFilter;
 
@@ -151,13 +149,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private List<String> linkedVariables;
 
     // Flag that indicates if a hidden check box should be placed under the filter
-    // check boxes for
-    // alignment purposes with an adjacent tree
+    // check boxes for alignment purposes with an adjacent tree
     private final boolean addHiddenCheckBox;
 
     // List containing variable paths from the custom values table that match the
-    // current rate
-    // column name and rate value
+    // current rate column name and rate value
     private ArrayListMultiple rateValues;
 
     // Flag to indicate if any errors when building the tree are annunciated via a
@@ -165,13 +161,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private final boolean isSilent;
 
     // Flag to indicate if the tree should display both prototype and instances
-    // nodes, only the
-    // prototype node, or only the instance node
+    // nodes, only the prototype node, or only the instance node
     private TableTreeNodeFilter nodeFilter;
 
     // Filter to indicate if the tree should display both prototype and instances
-    // nodes, only the
-    // prototype node, or only the instance node
+    // nodes, only the prototype node, or only the instance node
     private enum TableTreeNodeFilter {
         ALL, PROTOTYPE_ONLY, INSTANCE_ONLY
     }
@@ -181,6 +175,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private boolean buildGroupTree;
     
     private boolean updatingPreLoadedGroupRoot;
+    
+    private int allTablesNodeIndex;
 
     /**********************************************************************************************
      * Table tree handler class constructor
@@ -259,6 +255,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         dataTypeHandler = ccddMain.getDataTypeHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
+        allTablesNodeIndex = -1;
 
         // Set the tree to be collapsed initially with no filters applied
         isByGroup = false;
@@ -566,6 +563,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
             // Grab the pre-loaded group root
             root = ccddMain.getTableTreeHandler().getPreLoadedGroupRoot();
             
+            ccddMain.getTableTreeHandler().removeAllTablesGroup(parent);
+            // Add the pseudo-group containing all tables to the prototype and instance nodes
+            addAllTablesGroup(parent);
+            
             setModel(new DefaultTreeModel(root));
             setRootVisible(false);
         } else {
@@ -781,6 +782,17 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         // Clear the flag that indicates the table tree is being built
         isBuilding = false;
     }
+    
+    /**********************************************************************************************
+     * If the AllTablesNode exists then delete it
+     *
+     * @param parent GUI component over which to center any error dialog
+     *********************************************************************************************/
+    private void removeAllTablesGroup(Component parent) {
+        if (allTablesNodeIndex != -1) {
+            root.remove(allTablesNodeIndex);
+        }
+    }
 
     /**********************************************************************************************
      * Add the pseudo-group containing all tables to the specified prototype and
@@ -795,7 +807,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         // Add the 'All tables' group node to the root node
         ToolTipTreeNode allTablesNode = new ToolTipTreeNode("<html><i>" + ALL_TABLES_GROUP_NODE_NAME,
                 "Group containing all tables");
+        
+        // If an allTablesNode already exists then delete it
+        if (allTablesNodeIndex != -1) {
+            root.remove(allTablesNodeIndex);
+        }
+        
         root.add(allTablesNode);
+        allTablesNodeIndex = root.getIndex(allTablesNode);
 
         // Check if the tree is filtered by table type
         if (isByType) {

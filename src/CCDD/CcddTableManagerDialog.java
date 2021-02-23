@@ -97,9 +97,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
     private JCheckBox ignoreErrorsCb;
     private JCheckBox backupFirstCb;
     private JCheckBox deleteNonExistingFilesCb;
-    private JCheckBox doReservedMessageIDsExistCb;
     private JCheckBox importEntireDatabaseCb;
-    private JCheckBox includesProjectFieldsCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
     private JCheckBox includeProjectFieldsCb;
@@ -595,9 +593,15 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                 DialogOption.EXPORT_OPTION, true) == OK_BUTTON) {
                             // Create storage for the list of table paths
                             List<String> tablePaths = new ArrayList<String>();
-
+                            
+                            if (exportEntireDatabaseCb.isSelected()) {
+                                /* Select all current tables in the database and prepare them for export. */
+                                CcddTableTreeHandler TempTableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, null);
+                                TempTableTree.setSelectionInterval(0, TempTableTree.getRowCount());
+                                tablePaths = TempTableTree.getSelectedTablesWithChildren();                                                    
+                            }
                             // Check if the export command originated from the main menu
-                            if (callingEditorDlg == null) {
+                            else if (callingEditorDlg == null) {
                                 // Get the list of selected tables, including children
                                 tablePaths = tableTree.getSelectedTablesWithChildren();
 
@@ -610,8 +614,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                 tablePaths.add(callingEditorDlg.getTableEditor().getTableInformation().getTablePath());
                             }
 
-                            // Export the contents of the selected table(s) in the specified
-                            // format
+                            // Export the contents of the selected table(s) in the specified format
                             fileIOHandler.exportSelectedTablesInBackground(pathFld.getText(),
                                     tablePaths.toArray(new String[0]), overwriteFileCb.isSelected(),
                                     (singleFileRBtn != null ? singleFileRBtn.isSelected() : true), true,
@@ -679,11 +682,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                 /* Export the contents of the selected table(s) in the specified format */
                                 fileIOHandler.importFileInBackground(filePath, importEntireDatabaseCb.isSelected(), backupFirstCb.isSelected(),
                                         replaceExistingTablesCb.isSelected(), appendExistingFieldsCb.isSelected(),
-                                        useExistingFieldsCb.isSelected(), openEditorCb.isSelected(),
-                                        ignoreErrorsCb.isSelected(), replaceExistingMacrosCb.isSelected(),
-                                        replaceExistingGroupsCb.isSelected(), replaceExistingAssociationsCb.isSelected(),
-                                        deleteNonExistingFilesCb.isSelected(),
-                                        doReservedMessageIDsExistCb.isSelected(), includesProjectFieldsCb.isSelected(),
+                                        useExistingFieldsCb.isSelected(), openEditorCb.isSelected(), ignoreErrorsCb.isSelected(),
+                                        replaceExistingMacrosCb.isSelected(), replaceExistingGroupsCb.isSelected(),
+                                        replaceExistingAssociationsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
                                         fileExt, dialogType, CcddTableManagerDialog.this);
                             }
                         } else {
@@ -795,8 +796,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             upperPnl.add(dlgLabel, gbc);
             allPnl.add(upperPnl, gbc);
 
-            // Create the table tree panel with selection check boxes and add it to the
-            // dialog
+            /* Create the table tree panel with selection check boxes and add it to the dialog */
             gbc.weighty = 1.0;
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             lowerPnl.add(tableTree.createTreePanel("Tables", tableSelect, false, ccddMain.getMainFrame()), gbc);
@@ -804,9 +804,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             gbc.gridy++;
             allPnl.add(lowerPnl, gbc);
         }
-        // No tables are stored in the project database
+        /* No tables are stored in the project database */
         else {
-            // Inform the user that no table exists for this database
+            /* Inform the user that no table exists for this database */
             new CcddDialogHandler().showMessageDialog(caller,
                     "<html><b>Project '</b>" + dbControl.getDatabaseName() + "<b>' has no tables", "No Tables",
                     JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
@@ -851,8 +851,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 .setToolTipText(CcddUtilities.wrapText("Replace data tables that already exist with the imported table",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-        /*
-         * Add a listener for changes to the Replace Existing Tables check box selection
+        /* Add a listener for changes to the Replace Existing Tables check box selection
          * status
          */
         replaceExistingTablesCb.addActionListener(new ActionListener() {
@@ -861,9 +860,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae) {
-                /*
-                 * Set the Append Existing Fields check box status based on the Replace Existing
-                 ** Tables check box status
+                /* Set the Append Existing Fields check box status based on the Replace Existing
+                 * Tables check box status
                  */
                 appendExistingFieldsCb.setEnabled(replaceExistingTablesCb.isSelected());
             }
@@ -882,8 +880,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         appendExistingFieldsCb.setEnabled(false);
 
-        /*
-         * Add a listener for changes to the Append Existing Fields check box selection
+        /* Add a listener for changes to the Append Existing Fields check box selection
          * status
          */
         appendExistingFieldsCb.addActionListener(new ActionListener() {
@@ -892,8 +889,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae) {
-                /*
-                 * Set the Use Existing Fields check box status based on the Append Existing
+                /* Set the Use Existing Fields check box status based on the Append Existing
                  * Fields check box status
                  */
                 useExistingFieldsCb.setEnabled(appendExistingFieldsCb.isSelected());
@@ -937,9 +933,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             replaceExistingMacrosCb.setEnabled(true);
         }
 
-        /*
-         * Create a check box for indicating existing group definitions can be replaced
-         */
+        /* Create a check box for indicating existing group definitions can be replaced */
         replaceExistingGroupsCb = new JCheckBox("Replace existing groups");
         replaceExistingGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingGroupsCb.setBorder(emptyBorder);
@@ -956,9 +950,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             replaceExistingGroupsCb.setEnabled(true);
         }
         
-        /*
-         * Create a check box for indicating existing group definitions can be replaced
-         */
+        /* Create a check box for indicating existing group definitions can be replaced */
         replaceExistingAssociationsCb = new JCheckBox("Replace existing associations");
         replaceExistingAssociationsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingAssociationsCb.setBorder(emptyBorder);
@@ -975,8 +967,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             replaceExistingAssociationsCb.setEnabled(true);
         }
 
-        /*
-         * Create a check box for indicating that the a table editor should be opened
+        /* Create a check box for indicating that the a table editor should be opened
          * for each imported table
          */
         openEditorCb = new JCheckBox("Open editor for each imported table");
@@ -987,8 +978,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         gbc.gridy++;
         dialogPnl.add(openEditorCb, gbc);
 
-        /*
-         * Create a check box for indicating that all errors in the import file should
+        /* Create a check box for indicating that all errors in the import file should
          * be ignored
          */
         ignoreErrorsCb = new JCheckBox("Ignore all import file errors");
@@ -1006,8 +996,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             ignoreErrorsCb.setEnabled(true);
         }
 
-        /*
-         * Create a check box for indicating that the project should be backed up prior
+        /* Create a check box for indicating that the project should be backed up prior
          * to importing tables
          */
         backupFirstCb = new JCheckBox("Backup project before importing");
@@ -1022,8 +1011,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         gbc.gridx = 0;
         dialogPnl.add(backupFirstCb, gbc);
 
-        /*
-         * Create a check box for indicating if files that are not in the import should
+        /* Create a check box for indicating if files that are not in the import should
          * be deleted from the database.
          */
         deleteNonExistingFilesCb = new JCheckBox("Delete absent files");
@@ -1045,53 +1033,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         gbc.gridx++;
         dialogPnl.add(deleteNonExistingFilesCb, gbc);
 
-        /*
-         * Create a check box for indicating if the files to be imported contain
-         * reserved message IDs
-         */
-        doReservedMessageIDsExistCb = new JCheckBox("Includes reserved message IDs");
-        doReservedMessageIDsExistCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        doReservedMessageIDsExistCb.setBorder(emptyBorder);
-        doReservedMessageIDsExistCb.setToolTipText(CcddUtilities.wrapText(
-                "Check this box if the files that are about to be imported contain" + " Reserved message IDs.",
-                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        doReservedMessageIDsExistCb.setEnabled(false);
-        
-        /* If the IMPORT type is not JSON than set this checkbox to disabled */
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
-            doReservedMessageIDsExistCb.setEnabled(true);
-        }
-
-        gbc.insets.bottom = 0;
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridx = 0;
-        gbc.gridy++;
-        dialogPnl.add(doReservedMessageIDsExistCb, gbc);
-
-        /*
-         * Create a check box for indicating if the fies to be imported include project
-         * fields
-         */
-        includesProjectFieldsCb = new JCheckBox("Includes project fields");
-        includesProjectFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        includesProjectFieldsCb.setBorder(emptyBorder);
-        includesProjectFieldsCb.setToolTipText(
-                CcddUtilities.wrapText("Check this box if the files to be imported include project fields.",
-                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        includesProjectFieldsCb.setEnabled(false);
-        
-        /* If the IMPORT type is not JSON than set this checkbox to disabled */
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)) {
-            includesProjectFieldsCb.setEnabled(true);
-        }
-
-        gbc.insets.bottom = 0;
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridx++;
-        dialogPnl.add(includesProjectFieldsCb, gbc);
-
-        /*
-         * Add a listener for changes to the i,port entire database check box selection
+        /* Add a listener for changes to the i,port entire database check box selection
          * status
          */
         importEntireDatabaseCb.addActionListener(new ActionListener() {

@@ -2309,14 +2309,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *                                expanded) * true to replace any embedded
      *                                macros with their corresponding values
      *
-     * @param includeReservedMsgIDs   * Not used for XTCE export * true to include
-     *                                the contents of the reserved message ID table
-     *                                in the export file
-     *
-     * @param includeProjectFields    * Not used for XTCE export * true to include
-     *                                the project-level data field definitions in
-     *                                the export file
-     *
      * @param includeVariablePaths    * Not used for XTCE export * true to include
      *                                the variable path for each variable in a
      *                                structure table, both in application format
@@ -2353,20 +2345,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
-            boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
-            Object... extraInfo) throws JAXBException, MarshalException, CCDDException, Exception {
+            boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
+            String[] separators, String outputType, Object... extraInfo) throws JAXBException, MarshalException,
+            CCDDException, Exception {
         // Convert the table data into XTCE XML format
         convertTablesToXTCE(tableNames, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1],
                 (String) extraInfo[2], (String) extraInfo[3], (String) extraInfo[4], (String) extraInfo[5],
                 (String) extraInfo[6]);
 
-        // Output the XML to the specified file. The Marshaller has a hard-coded limit
-        // of 8
-        // levels; once exceeded it starts back at the first column. Therefore, a
-        // Transformer
-        // is used to set the indentation amount (it doesn't have an indentation level
-        // limit)
+        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
+        // levels; once exceeded it starts back at the first column. Therefore, a Transformer
+        // is used to set the indentation amount (it doesn't have an indentation level limit)
         DOMResult domResult = new DOMResult();
         marshaller.marshal(project, domResult);
         Transformer transformer = TransformerFactory.newInstance().newTransformer();

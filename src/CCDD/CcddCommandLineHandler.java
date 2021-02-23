@@ -82,8 +82,6 @@ public class CcddCommandLineHandler {
     private boolean replaceExistingAssociations;
     private boolean deleteAbsentFiles;
     private boolean backupFirst;
-    private boolean includesReservedMsgIds;
-    private boolean includesProjectFields;
     private boolean importFullDatabase;
     private FileExtension importFileType;
     private ManagerDialogType dialogType;
@@ -912,11 +910,9 @@ public class CcddCommandLineHandler {
                     /* Disable certain options if this is a C Header import */
                     if (importFileType == FileExtension.C_HEADER) {
                         importFullDatabase = false;
-                        includesReservedMsgIds = false;
                         replaceExistingGroups = false;
                         replaceExistingAssociations = false;
                         deleteAbsentFiles = false;
-                        includesProjectFields = false;
                     }
 
                     /* Create the snapshot directory */
@@ -929,12 +925,12 @@ public class CcddCommandLineHandler {
                             if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
                                     backupFirst, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
                                     replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups, deleteAbsentFiles,
-                                    includesReservedMsgIds, includesProjectFields, importFileType, dialogType, null)) {
+                                    importFileType, dialogType, null)) {
                                 throw new Exception();
                             }
                         } else if (importFileType != null){
                             /* Import the table(s) from the specified file; check if the import operation fails */
-                            if (ccddMain.getFileIOHandler().importFile(dataFile, backupFirst, replaceExistingTables, appendExistingFields,
+                            if (ccddMain.getFileIOHandler().importFiles(dataFile, backupFirst, replaceExistingTables, appendExistingFields,
                                     useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations,
                                     replaceExistingGroups, dialogType, null)) {
                                 throw new Exception();
@@ -951,7 +947,7 @@ public class CcddCommandLineHandler {
                         ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
                                 false, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
                                 replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
-                                includesReservedMsgIds, includesProjectFields, importFileType, dialogType, ccddMain.getMainFrame());
+                                importFileType, dialogType, ccddMain.getMainFrame());
                     }
                     
                     /* Delete the snapshot directories */
@@ -1172,33 +1168,6 @@ public class CcddCommandLineHandler {
             @Override
             protected void doCommand(Object parmVal) {
                 backupFirst = (Boolean) parmVal;
-            }
-        });
-
-        /* Import command - do reserved message ids exist in the files to be imported */
-        importArgument.add(new CommandHandler("includesReservedMsgIds",
-                "do the files that are to be imported contain reserved message ids", "true or false (default: false)",
-                CommandLineType.OPTION, 0, new Object[] { true, false }, new String[] { "true", "false" }) {
-            /**************************************************************************************
-             * Set the flag to indicate if the files to be imported contain reserved message
-             * ids
-             *************************************************************************************/
-            @Override
-            protected void doCommand(Object parmVal) {
-                includesReservedMsgIds = (Boolean) parmVal;
-            }
-        });
-
-        /* Import command - do project fields exist in the files to be imported */
-        importArgument.add(new CommandHandler("includesProjectFields",
-                "do the files that are to be imported contain project fields", "true or false (default: false)",
-                CommandLineType.OPTION, 0, new Object[] { true, false }, new String[] { "true", "false" }) {
-            /**************************************************************************************
-             * Set the flag to indicate if the files to be imported contain project fields
-             *************************************************************************************/
-            @Override
-            protected void doCommand(Object parmVal) {
-                includesProjectFields = (Boolean) parmVal;
             }
         });
 

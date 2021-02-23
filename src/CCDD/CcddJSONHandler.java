@@ -980,6 +980,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                     parent);
                         }
                     }
+                    
+                    /* Overwrite the reserved message id data with the imported data */
+                    rsvMsgIDHandler.setReservedMsgIDData(reservedMsgIDDefns);
                 }
 
                 /*************** PROJECT FIELDS ***************/
@@ -1004,6 +1007,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                         getString(typeJO, FieldEditorColumnInfo.INHERITED.getColumnName()) },
                                 importFile.getAbsolutePath(), inputTypeHandler, fieldHandler, parent);
                     }
+                    
+                    // Replace the old project fields with the new ones
+                    fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldProjectName(),
+                            fieldHandler.getFieldInformationFromDefinitions(projectDefn.getDataFields()));
                 }
 
                 /*************** GROUPS ***************/
@@ -1091,9 +1098,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(name), newFieldInformation);
                         }
                     }
-                    
-                    /* Add the reserved message ID definition if it's new */
-                    rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
                     
                     /* Determine which groups have been deleted */
                     List<String> deletedGroups = new ArrayList<String>();
@@ -1261,9 +1265,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeReservedMsgIDs   true to include the contents of the reserved
      *                                message ID table in the export file
      *
-     * @param includeProjectFields    true to include the project-level data field
-     *                                definitions in the export file
-     *
      * @param includeVariablePaths    true to include the variable path for each
      *                                variable in a structure table, both in
      *                                application format and using the user-defined
@@ -1286,10 +1287,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
-            boolean replaceMacros, boolean includeReservedMsgIDs, boolean includeProjectFields,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators, String outputType,
-            Object... extraInfo)
-            throws CCDDException, Exception {
+            boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
+            String[] separators, String outputType, Object... extraInfo) throws CCDDException, Exception {
         /* Initialize local variables */
         FileWriter fw = null;
         BufferedWriter bw = null;
@@ -1383,19 +1382,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Add the table information to the JSON output */
                     outputJO.put(JSONTags.TABLE_DEFN.getTag(), tableJA);
                 }
-            }
-
-            /* Check if the user elected to store the reserved message IDs */
-            if (includeReservedMsgIDs) {
-                /* Add the reserved message ID definition(s), if any, to the output */
-                outputJO = getReservedMsgIDDefinitions(outputJO);
-            }
-
-            /* Check if the user elected to store the project-level data fields */
-            if (includeProjectFields) {
-                /* Add the project-level data field(s), if any, to the output */
-                outputJO = getDataFields(CcddFieldHandler.getFieldProjectName(), JSONTags.PROJECT_FIELD.getTag(),
-                        referencedInputTypes, outputJO);
             }
 
             /* Check if variable paths are to be output */
@@ -1645,8 +1631,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Export script association data, group data, macro data, telemetry scheduler
      * data or application scheduler data to the specified folder
+     * 
+     * @param includes   The types of table to be included in the export
      *
-     * @param dataType   the data type that is about to be exported
+     * @param dataTypes  The data types that are about to be exported
      * 
      * @param exportFile reference to the user-specified output file
      * 
@@ -1752,10 +1740,42 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         /* Get the application scheduler data */
                         getAppSchedulerData(outputJO);
                         break;
+
+                    case RESERVED_MSG_ID:
+                        if (!getReservedMsgIDDefinitions(outputJO).isEmpty())
+                        {
+                            if (outputType == EXPORT_MULTIPLE_FILES) {
+                                fw = new FileWriter(exportFile + "/" + FileNames.RESERVED_MSG_ID.JSON(), false);
+                                bw = new BufferedWriter(fw);
+                                pw = new PrintWriter(bw);
+                                outputJO = new OrderedJSONObject();
+                            }
+                            
+                            /* Get the reserved message id data */
+                            outputJO = getReservedMsgIDDefinitions(outputJO);
+                        }
+                        break;
+                        
+                    case PROJECT_FIELDS:
+                        if (!getDataFields(CcddFieldHandler.getFieldProjectName(), JSONTags.PROJECT_FIELD.getTag(),
+                                referencedInputTypes, outputJO).isEmpty())
+                        {
+                            if (outputType == EXPORT_MULTIPLE_FILES) {
+                                fw = new FileWriter(exportFile + "/" + FileNames.PROJECT_DATA_FIELD.JSON(), false);
+                                bw = new BufferedWriter(fw);
+                                pw = new PrintWriter(bw);
+                                outputJO = new OrderedJSONObject();
+                            }
+                            
+                            /* Get the project data fields data */
+                            outputJO = getDataFields(CcddFieldHandler.getFieldProjectName(), JSONTags.PROJECT_FIELD.getTag(),
+                                    referencedInputTypes, outputJO);
+                        }
+                        break;
                     }
                 
-                    if ((outputType.contentEquals(EXPORT_MULTIPLE_FILES)) || (dataType == exportDataTypes.APPSCHEDULER)) {
-                        if (outputJO != null) {
+                    if (outputType.contentEquals(EXPORT_MULTIPLE_FILES)) {
+                        if (outputJO != null && !outputJO.isEmpty()) {
                             /* Create a JavaScript engine for use in formatting the JSON output */
                             ScriptEngineManager manager = new ScriptEngineManager();
                             ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
@@ -1765,17 +1785,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             JSONValue.writeJSONString(outputJO, orderedOutput);
                             scriptEngine.put("jsonString", orderedOutput.toString());
                             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-                            if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
-                                pw.println(((String) scriptEngine.get("result")).substring(1));
-                            } else {
-                                pw.println((String) scriptEngine.get("result"));
-                            }
+                            pw.println((String) scriptEngine.get("result"));
                         }
                     }
                 } catch (IOException | ScriptException iose) {
                     throw new CCDDException(iose.getMessage());
                 } finally {
-                    if ((outputType.contentEquals(EXPORT_MULTIPLE_FILES)) || (dataType == exportDataTypes.APPSCHEDULER)) {
+                    if (outputType.contentEquals(EXPORT_MULTIPLE_FILES)) {
                         /* Check if the PrintWriter was opened */
                         if (pw != null) {
                             /* Close the file */
@@ -1805,6 +1821,53 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             }
             
             counter++;
+        }
+        
+        try {
+            if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
+                if (outputJO != null && !outputJO.isEmpty()) {
+                    /* Create a JavaScript engine for use in formatting the JSON output */
+                    ScriptEngineManager manager = new ScriptEngineManager();
+                    ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
+    
+                    /* Output the ordered and formatted JSON object to the file */
+                    StringWriter orderedOutput = new StringWriter();
+                    JSONValue.writeJSONString(outputJO, orderedOutput);
+                    scriptEngine.put("jsonString", orderedOutput.toString());
+                    scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
+                    
+                    pw.println(((String) scriptEngine.get("result")).substring(1));
+                }
+            }
+        } catch (IOException | ScriptException iose) {
+            throw new CCDDException(iose.getMessage());
+        } finally {
+            if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
+                /* Check if the PrintWriter was opened */
+                if (pw != null) {
+                    /* Close the file */
+                    pw.close();
+                }
+    
+                try {
+                    /* Check if the BufferedWriter was opened */
+                    if (bw != null) {
+                        /* Close the file */
+                        bw.close();
+                    }
+    
+                    /* Check if the FileWriter was opened */
+                    if (fw != null) {
+                        /* Close the file */
+                        fw.close();
+                    }
+                } catch (IOException ioe) {
+                    /* Inform the user that the data file cannot be closed */
+                    new CcddDialogHandler().showMessageDialog(parent,
+                            "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
+                            "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                }
+            }
         }
     }
 
@@ -3133,6 +3196,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         } else if (searchKey == JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag()) {
             /* Extract the data related to the application scheduler */
             beginIndex = data.toString().indexOf(JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag());
+            endIndex = data.toString().indexOf("]", beginIndex);
+        } else if (searchKey == JSONTags.RESERVED_MSG_ID_DEFN.getAlternateTag()) {
+            /* Extract the data related to the project fields */
+            beginIndex = data.toString().indexOf(JSONTags.RESERVED_MSG_ID_DEFN.getAlternateTag());
+            endIndex = data.toString().indexOf("]", beginIndex);
+        } else if (searchKey == JSONTags.PROJECT_FIELD.getAlternateTag()) {
+            /* Extract the data related to the project fields */
+            beginIndex = data.toString().indexOf(JSONTags.PROJECT_FIELD.getAlternateTag());
             endIndex = data.toString().indexOf("]\n}", beginIndex);
         } else if (searchKey == JSONTags.TABLE_DEFN.getAlternateTag()) {
             /* Extract the table definitions */

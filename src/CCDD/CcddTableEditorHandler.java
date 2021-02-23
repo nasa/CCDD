@@ -2742,7 +2742,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     if ((variableNameColumn != -1) && (numOfArrayMembersVerified == 0)  && (!dataComingFromClipboard)) {
                         // Get the index within the cell data that represents this row's variable name
                         int varIndex = index + variableNameColumn;
-                        String varName = cellData[varIndex].toString();
+                        String varName = "";
+                        if (cellData[varIndex] != null) {
+                            varName = cellData[varIndex].toString();
+                        }
                         
                         // Get the index within the cell data that represents this row's array size
                         int arrayIndex = index + arraySizeColumn;
@@ -2757,7 +2760,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                         // definition was not included. Check to see if only the definition is missing. If so add it,
                         // but if the array is missing a definition and a few members then skip this row. If it is neither
                         // then the row is a non-array variable.                     
-                        if ((varName != null) && (arraySizeColumn != -1) && (isValidAtIndex)) {
+                        if ((varName != null) && (!varName.isEmpty()) && (arraySizeColumn != -1) && (isValidAtIndex)) {
                             // Determine if this is the definition of an array. If not it is a member
                             boolean isDefinition = !ArrayVariable.isArrayMember(varName);
                             
@@ -3059,7 +3062,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                                             Object oldValue = tableData.get(row)[columnModel];
                                                                                     
                                             // Check to see if we are working with a boolean as it needs special handling
-                                            if (isColumnBoolean(column+2)) {
+                                            if (isColumnBoolean(column+2) && !(newValue instanceof Boolean)) {
                                                 newValue = Boolean.parseBoolean((String)newValue);
                                             }
     
@@ -3156,7 +3159,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     int numberOfColumnsToCopy = tableData.get(0).length-2;
                     
                     // Adjust the size of cell data so that it can hold all of the required data
-                    cellData = new String[tableData.size() * numberOfColumnsToCopy];
+                    cellData = new Object[tableData.size() * numberOfColumnsToCopy];
                     
                     // Step through all of the data in tableData and copy it to cellData while skipping
                     // the first two indexes of each entry in tableData
