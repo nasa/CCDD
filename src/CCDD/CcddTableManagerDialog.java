@@ -2425,6 +2425,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                     }
                 }
                 break;
+                
+            case IMPORT_C_HEADER:
+                break;
             }
             
             if (importing == true) {

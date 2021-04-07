@@ -47,7 +47,6 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackNodeIndex;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
-import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
@@ -4936,6 +4935,12 @@ public class CcddDbTableCommandHandler {
 
             case VALUES:
                 break;
+                
+            case DBU_INFO:
+                break;
+                
+            default:
+                break;
             }
 
             // Execute the database update
@@ -5027,6 +5032,10 @@ public class CcddDbTableCommandHandler {
         case SCRIPT:
         case TABLE_TYPES:
         case VALUES:
+        case DBU_INFO:
+            break;
+            
+        default:
             break;
         }
     }

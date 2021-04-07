@@ -31,7 +31,6 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
