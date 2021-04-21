@@ -1,13 +1,32 @@
-/**
- * // List containing the table paths for children of root tables not explicitly included in the //
- * array of tables to export private List<String> missingChildTables;
- *
- * CFS Command and Data Dictionary EDS handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddEDSHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for handling import and export of data tables in EDS XML format. This class implements
+*     the CcddImportExportInterface class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.TYPE_COMMAND;
@@ -293,7 +312,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingAssociations)
             throws CCDDException, IOException, Exception {
-        /* TODO */
+        /* Will not be implemented */
         return;
     }
 
@@ -318,7 +337,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
             boolean replaceExistingMacros, boolean replaceExistingTables)
             throws CCDDException, IOException, Exception {
-        /* TODO */
+        /* Will not be implemented */
         return;
     }
 
@@ -339,7 +358,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
             throws CCDDException, IOException, Exception {
-        /* TODO */
+        /* Will not be implemented */
         return;
     }
 

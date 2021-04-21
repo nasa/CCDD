@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary common constants.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddConstants.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing constant values used by the other classes.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -37,7 +58,7 @@ import CCDD.CcddConstants.InternalTable.ValuesColumn;
 public class CcddConstants {
     // CCDD author and contributors
     protected static final String CCDD_AUTHOR = "NASA JSC: ER6/Kevin McCluney";
-    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh, Bryan Willis, Jacob Macneal";
+    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh, Bryan Willis";
 
     // Create the database driver class name
     protected static final String DATABASE_DRIVER = "org.postgresql.Driver";
@@ -120,6 +141,7 @@ public class CcddConstants {
     protected static final String COL_ENUMERATION = "Enumeration";
     protected static final String COL_MINIMUM = "Minimum";
     protected static final String COL_MAXIMUM = "Maximum";
+    protected static final String COL_VALUE = "Value";
 
     // Script association item separators
     protected static final String ASSN_TABLE_SEPARATOR = ";\n";
@@ -300,6 +322,7 @@ public class CcddConstants {
     /* Snapshot file paths */
     protected static final String SNAP_SHOT_FILE_PATH = "./.snapshot/";
     protected static final String SNAP_SHOT_FILE_PATH_2 = "./.snapshot2/";
+    protected static final String SNAP_SHOT_FILE = "snapshot";
     
     /* Exporting a single file or multiple files */
     protected static final String EXPORT_MULTIPLE_FILES = "Multiple";
@@ -2129,10 +2152,7 @@ public class CcddConstants {
                 InputTypeFormat.HEXADECIMAL,
                 "Hexadecimal range; hexadecimal value followed optionally by a "
                         + "hyphen and a second hexadecimal value (see Hexadecimal)"),
-
-        // TODO Add an input type that allows the format: alphanumeric( [alphanumeric [
-        // ,
-        // alphanumeric [ , ...]]) and use it for macro names
+        
         MACRO_NAME("Macro name","[a-zA-Z][a-zA-Z0-9_]*(?:\\:\\:?:[a-zA-Z][a-zA-Z0-9_]*)?",
                 InputTypeFormat.TEXT,
                 "Macro name: [a-zA-Z][a-zA-Z0-9_]*(?:\\\\:\\\\:?:[a-zA-Z][a-zA-Z0-9_]*)?"),
@@ -2217,6 +2237,7 @@ public class CcddConstants {
                         + "constraints as for an alphanumeric (see Alphanumeric)"),
 
         BREAK("Break", "", InputTypeFormat.PAGE_FORMAT, "Line break"),
+        
         SEPARATOR("Separator", "", InputTypeFormat.PAGE_FORMAT, "Line separator");
 
         private final String inputName;
@@ -2424,7 +2445,10 @@ public class CcddConstants {
                 false, true, true),
         
         DESCRIPTION_ENUM(TYPE_ENUM, COL_DESCRIPTION, "ENUM description", DefaultInputType.DESCRIPTION,
-                false, false, false, true, true, true);
+                false, false, false, true, true, true),
+        
+        VALUE_ENUM(TYPE_ENUM, COL_VALUE, "ENUM Value", DefaultInputType.INTEGER, false, false,
+                false, false, false, false);
 
         private final String tableType;
         private final String columnName;
@@ -5299,7 +5323,7 @@ public class CcddConstants {
          * @return Text describing the data
          *****************************************************************************************/
         protected String getAlternateTag() {
-            return tag;
+            return alternateTag;
         }
     }
 

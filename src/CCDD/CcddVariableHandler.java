@@ -1,10 +1,34 @@
-/**
- * CFS Command and Data Dictionary variable handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddVariableHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for building a list of project variables and converting the variable paths to unique
+*     path names, and for calculating the variable offsets. This is used for populating the the
+*     Variable reference input type selection item list and by the script data access methods.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
+
 package CCDD;
 
 import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
@@ -16,17 +40,17 @@ import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
+import static CCDD.CcddConstants.TYPE_ENUM;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableMembers;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
@@ -60,47 +84,35 @@ public class CcddVariableHandler {
     private CcddTableTreeHandler allVariableTree;
 
     // List containing the paths for every structure and variable, and the offset to
-    // the structures
-    // and variables relative to their root structures
+    // the structures and variables relative to their root structures
     private List<String> structureAndVariablePaths;
     
     // List containing all variable names.
     private List<String> allVariableNames;
 
-    // List containing the offset to the structures and variables relative to their
-    // root
-    // structures, and the overall structure sizes. The index of a value in this
-    // list corresponds
-    // to the index of the variable path in the structureAndVariablePaths list
+    // List containing the offset to the structures and variables relative to their root
+    // structures, and the overall structure sizes. The index of a value in this list
+    // corresponds to the index of the variable path in the structureAndVariablePaths list
     private List<Integer> structureAndVariableOffsets;
 
-    // List that indicates if the corresponding structure and variable path is a
-    // variable. False if
-    // the path is for a non-root table and its children. The index of a value in
-    // this list
-    // corresponds to the index of the variable path in the
-    // structureAndVariablePaths list
+    // List that indicates if the corresponding structure and variable path is a variable.
+    // False if the path is for a non-root table and its children. The index of a value in
+    // this list corresponds to the index of the variable path in the structureAndVariablePaths list
     private List<Boolean> isVariable;
 
-    // List containing a converted variable name list and the separators used to
-    // create the list.
-    // Until forced to empty the list, the application stores each list if one with
-    // the specified
+    // List containing a converted variable name list and the separators used to create the list.
+    // Until forced to empty the list, the application stores each list if one with the specified
     // separators doesn't already exist
     private List<ConversionListStorage> conversionLists;
 
-    // List containing all of the program-formatted variable paths, and their
-    // corresponding name
-    // after converting any commas and brackets based on the specified separator
-    // characters. The
-    // index of a value in this list corresponds to the index of the variable path
-    // in the
+    // List containing all of the program-formatted variable paths, and their corresponding name
+    // after converting any commas and brackets based on the specified separator characters. The
+    // index of a value in this list corresponds to the index of the variable path in the
     // structureAndVariablePaths list
     private List<String> convertedVariableName;
 
     // List containing the program-formatted variable paths (key). Only variable
-    // paths that have
-    // user-defined names are included in this list
+    // paths that have user-defined names are included in this list
     private List<String> userDefinedVariablePathKey;
 
     // List containing the/ user-defined variable path names. The
@@ -335,14 +347,11 @@ public class CcddVariableHandler {
 
             // Check if the data type isn't allowed in the current context
             if (invalidDataTypes != null && invalidDataTypes.contains(dataType)) {
-                // Set the flag to indicate an invalid data type reference is made in a sizeof()
-                // call
+                // Set the flag to indicate an invalid data type reference is made in a sizeof() call
                 isInvalid = true;
             }
 
-            // Get the size of the data type in bytes and replace the sizeof() call with
-            // this
-            // value
+            // Get the size of the data type in bytes and replace the sizeof() call with this value
             expression = expression.replaceFirst(SIZEOF_DATATYPE, String.valueOf(getDataTypeSizeInBytes(dataType)));
         }
 
@@ -378,8 +387,7 @@ public class CcddVariableHandler {
         // The data type isn't a primitive; check for a structure
         else {
             // Get the index in the path list for the specified structure or variable.
-            // Remove the
-            // bit length if provided
+            // Remove the bit length if provided
             int index = structureAndVariablePaths.indexOf(dataType);
 
             // Check if the target exists
@@ -410,8 +418,7 @@ public class CcddVariableHandler {
     protected int getVariableOffset(String targetVariable) {
         int offset = -1;
 
-        // Get the index into the variable path list for the specified
-        // structure/variable. A
+        // Get the index into the variable path list for the specified structure/variable. A
         // variable's bit length is ignored if present
         int index = structureAndVariablePaths
                 .indexOf(macroHandler.getMacroExpansion(targetVariable).replaceFirst(":.+$", ""));
@@ -425,8 +432,7 @@ public class CcddVariableHandler {
             }
             // The target is a prototype/root structure
             else {
-                // The offset for a prototype/root structure is always 0; the offset list value
-                // for
+                // The offset for a prototype/root structure is always 0; the offset list value for
                 // a prototype/root structure name is the structure size
                 offset = 0;
             }
@@ -497,14 +503,38 @@ public class CcddVariableHandler {
 
                         // Adjust the offset to account for bit-packing
                         offset = adjustVariableOffset(dataType, bitLength, offset);
+                    } else if (allVariableTree.getTableMemberByName(dataType) != null &&
+                            allVariableTree.getTableMemberByName(dataType).getTableType().contentEquals(TYPE_ENUM)) {
+                        String size = "0";
+                        
+                        // Add the last variable's byte size to the offset total
+                        offset += lastByteSize;
+                        // Then add the size of the enum table to the offset total
+                        FieldInformation sizeField = ccddMain.getFieldHandler().getFieldInformationByName(varPath, "Size (Bytes):");
+                        
+                        // If the value of the field is blank then set it to 0
+                        if (sizeField != null) {
+                            size = sizeField.getValue();
+                            if (size.isEmpty()) {
+                                size = "0";
+                            }
+                        }
+                        
+                        // set the offset
+                        offset += Integer.parseInt(size);
+
+                        // Reinitialize the bit count, and the previous variable's size, type, and bit length
+                        bitCount = 0;
+                        lastByteSize = 0;
+                        lastDataType = "";
+                        lastBitLength = 0;
                     }
                     // Not a primitive data type (i.e., it's a structure)
                     else {
                         // Add the last variable's byte size to the offset total
                         offset += lastByteSize;
 
-                        // Reinitialize the bit count, and the previous variable's size, type, and
-                        // bit length
+                        // Reinitialize the bit count, and the previous variable's size, type, and bit length
                         bitCount = 0;
                         lastByteSize = 0;
                         lastDataType = "";
@@ -542,10 +572,31 @@ public class CcddVariableHandler {
                     // Store the index of the prototype structure
                     structIndex = lastIndex;
 
-                    // Reset the offset since this indicates the start of a new root structure.
-                    // Initialize the bit count, and the previous variable's size, type, and bit
-                    // length
-                    offset = 0;
+                    // Grab the table member
+                    TableMembers tableMember = allVariableTree.getTableMemberByName(varPath);
+                    
+                    // Check to see if we are working with an ENUM table
+                    if (tableMember.getTableType().contentEquals(TYPE_ENUM)) {
+                        String size = "0";
+                        
+                        // add the size of the enum table to the offset total
+                        FieldInformation sizeField = ccddMain.getFieldHandler().getFieldInformationByName(varPath, "Size (Bytes):");
+                        
+                        // If the value of the field is blank then set it to 0
+                        if (sizeField != null) {
+                            size = sizeField.getValue();
+                            if (size.isEmpty()) {
+                                size = "0";
+                            }
+                        }
+                        
+                        // set the offset
+                        offset = Integer.parseInt(size);
+                    } else {
+                        // Reset the offset since this indicates the start of a new root structure. Initialize
+                        // the bit count, and the previous variable's size, type, and bit length
+                        offset = 0;
+                    }
                     bitCount = 0;
                     lastByteSize = 0;
                     lastDataType = "";
@@ -612,20 +663,17 @@ public class CcddVariableHandler {
         // Get the size in bytes based on the variable's data type
         int byteSize = dataTypeHandler.getSizeInBytes(dataType);
 
-        // Get the bit length associated with the variable; use 0 if no bit length is
-        // specified
+        // Get the bit length associated with the variable; use 0 if no bit length is specified
         int bits = bitLength.matches("\\d+") ? bits = Integer.valueOf(bitLength) : 0;
 
         // Update the bit counter using the bit length
         bitCount += bits;
 
-        // Check if the current or previous variable has no bit length specified, the
-        // data type
+        // Check if the current or previous variable has no bit length specified, the data type
         // changed, or the data type has no room for the requested number of bits
         if (bits == 0 || lastBitLength == 0 || !dataType.equals(lastDataType) || bitCount > byteSize * 8) {
             // Set the bit counter to the current variable's bit length (0 if this is a
-            // non-bit
-            // variable)
+            // non-bit variable)
             bitCount = bits;
 
             // Add the previous parameter's byte size to the offset counter
@@ -633,8 +681,7 @@ public class CcddVariableHandler {
         }
 
         // Store the size in bytes, the data type, and bit length for calculating the
-        // offset to the
-        // next variable
+        // offset to the next variable
         lastByteSize = byteSize;
         lastDataType = dataType;
         lastBitLength = bits;
@@ -659,14 +706,11 @@ public class CcddVariableHandler {
         // Locate the alternate name in the list of user-defined variable names
         int index = userDefinedVariableName.indexOf(alternateName);
 
-        // Check if the name was found (i.e., the name matches one manually set by the
-        // user)
+        // Check if the name was found (i.e., the name matches one manually set by the user)
         if (index != -1) {
             // Check if the supplied program-formatted path doesn't correspond with of the
-            // user-defined name - if the program-formatted path is the 'key' for the
-            // user-defined
-            // name then it's the legitimate owner and doesn't constitute a duplicate
-            // reference
+            // user-defined name - if the program-formatted path is the 'key' for the user-defined
+            // name then it's the legitimate owner and doesn't constitute a duplicate reference
             if (index != userDefinedVariablePathKey.indexOf(progDefinedPath)) {
                 // Set the flag to indicate the user-defined name is already in use
                 isInUse = true;
@@ -678,8 +722,7 @@ public class CcddVariableHandler {
             index = convertedVariableName.indexOf(alternateName);
 
             // Check if the name was found (i.e., the name matches one manually generated by
-            // the
-            // program)
+            // the program)
             if (index != -1) {
                 // Check if the supplied program-formatted path doesn't correspond with of the
                 // converted name - if the program-formatted path is the 'key' for the converted
@@ -731,8 +774,7 @@ public class CcddVariableHandler {
                 includeCustom);
 
         // Check if the variable isn't found in the variable list. This occurs if the
-        // user changes
-        // the variable name, data type, or array size
+        // user changes the variable name, data type, or array size
         if (convertedPath.isEmpty()) {
             // Build the converted variable path
             convertedPath = convertVariableName(path, varPathSeparator, excludeDataTypes, typeNameSeparator);
@@ -815,8 +857,7 @@ public class CcddVariableHandler {
                 for (ConversionListStorage conversionList : conversionLists) {
                     // Check if this conversion lists uses the same separators as those requested
                     if (conversionList.isSeparatorsEqual(varPathSeparator, excludeDataTypes, typeNameSeparator)) {
-                        // Set the converted variable name list to the stored list and stop
-                        // searching
+                        // Set the converted variable name list to the stored list and stop searching
                         convertedVariableName = conversionList.getConvertedVariableName();
                         break;
                     }
@@ -826,13 +867,11 @@ public class CcddVariableHandler {
             // Check if the conversion list hasn't been created already, of if the converted
             // variable name list doesn't already exists
             if (conversionLists == null || convertedVariableName == null) {
-                // Create the conversion list. The conversion list is needed since it's possible
-                // that duplicate variable path + names can occur if underscores are part of the
-                // names. The lists ensure that no duplicate is returned; instead, a unique name
-                // is
-                // created by appending one or more underscores to the otherwise duplicate name.
-                // Variable paths that are explicitly defined by the user are then added to the
-                // lists
+                // Create the conversion list. The conversion list is needed since it's possible that
+                // duplicate variable path + names can occur if underscores are part of the names. The
+                // lists ensure that no duplicate is returned; instead, a unique name is created by
+                // appending one or more underscores to the otherwise duplicate name. Variable paths
+                // that are explicitly defined by the user are then added to the lists
                 createVariableNameList(varPathSeparator, excludeDataTypes, typeNameSeparator);
             }
 
@@ -844,8 +883,7 @@ public class CcddVariableHandler {
                 // Check if the variable name was extracted from the list
                 if (index != -1) {
                     // Get the converted variable name for this variable. This name has one or more
-                    // underscores appended since it would otherwise duplicate another variable's
-                    // name
+                    // underscores appended since it would otherwise duplicate another variable's name
                     convertedFullName = userDefinedVariableName.get(index);
                 }
             }
@@ -858,8 +896,7 @@ public class CcddVariableHandler {
                 // Check if the variable name was extracted from the list
                 if (index != -1 && convertedVariableName.get(index) != null) {
                     // Get the converted variable name for this variable. This name has one or more
-                    // underscores appended since it would otherwise duplicate another variable's
-                    // name
+                    // underscores appended since it would otherwise duplicate another variable's name
                     convertedFullName = convertedVariableName.get(index);
                 }
             }
@@ -896,13 +933,9 @@ public class CcddVariableHandler {
         for (int index = 0; index < structureAndVariablePaths.size(); index++) {
             String fullName = null;
 
-            // Check if the variable path is a valid variable. The structureAndVariablePaths
-            // list
-            // includes non-root structures and their children; these are not valid
-            // variables (they
-            // are in the list for size and offset purposes), so are not included in the
-            // list
-            // returned
+            // Check if the variable path is a valid variable. The structureAndVariablePaths list
+            // includes non-root structures and their children; these are not valid variables (they
+            // are in the list for size and offset purposes), so are not included in the list returned
             if (isVariable.get(index)) {
                 // Convert the variable path + name
                 fullName = convertVariableName(structureAndVariablePaths.get(index), varPathSeparator, excludeDataTypes,
@@ -941,8 +974,7 @@ public class CcddVariableHandler {
                 varPathColumnsUser = CcddUtilities.removeTrailer(varPathColumnsUser, " OR ");
 
                 // Get the references in the prototype tables that contain user-defined (i.e.,
-                // non-blank) variable paths. This accounts for root tables with user-defined
-                // paths
+                // non-blank) variable paths. This accounts for root tables with user-defined paths
                 String[] matches = dbCommand.getList(DatabaseListCommand.SEARCH,
                         new String[][] { { "_search_text_", ".+" }, { "_case_insensitive_", "false" },
                                 { "_allow_regex_", "true" }, { "_selected_tables_", SearchType.DATA.toString() },
@@ -997,14 +1029,11 @@ public class CcddVariableHandler {
         ConversionListStorage conversionList = new ConversionListStorage(varPathSeparator, excludeDataTypes,
                 typeNameSeparator, convertedVariableName);
 
-        // Check if the number of stored conversion lists has reached the maximum
-        // allowed
+        // Check if the number of stored conversion lists has reached the maximum allowed
         if (conversionLists.size() == ModifiableSizeInfo.MAX_STORED_CONVERSIONS.getSize()
                 && ModifiableSizeInfo.MAX_STORED_CONVERSIONS.getSize() > 1) {
-            // Remove the second converted variable name list from the conversion lists.
-            // This
-            // assumes that the first one likely contains the list built using the
-            // separators
+            // Remove the second converted variable name list from the conversion lists. This
+            // assumes that the first one likely contains the list built using the separators
             // stored in the program preferences
             conversionLists.remove(1);
         }
@@ -1087,10 +1116,8 @@ public class CcddVariableHandler {
         }
         // Data types are retained
         else {
-            // Replace the data type/variable name separator with marker characters. These
-            // are used
-            // to detect and replace the data type and variable name separator below, and
-            // prevents
+            // Replace the data type/variable name separator with marker characters. These are used
+            // to detect and replace the data type and variable name separator below, and prevents
             // collisions between the two separators and their original characters
             fullName = fullName.replaceAll("\\.", "@~~@");
         }
@@ -1127,8 +1154,7 @@ public class CcddVariableHandler {
 
             // Step through each of the stored conversion lists
             for (ConversionListStorage conversionList : conversionLists) {
-                // Check if this conversion lists uses the separators stored in the program
-                // preferences
+                // Check if this conversion lists uses the separators stored in the program preferences
                 if (conversionList.isSeparatorsEqual(varPathSeparator, excludeDataTypes, typeNameSeparator)) {
                     // Set the converted variable name list to the stored list
                     convertedVariableName = conversionList.getConvertedVariableName();

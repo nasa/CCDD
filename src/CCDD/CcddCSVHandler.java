@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary CSV handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddCSVHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for handling import and export of data tables in CSV format. This class implements the
+*     CcddImportExportInterface class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -23,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 
@@ -63,6 +86,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddDbTableCommandHandler dbTable;
+    private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddInputTypeHandler inputTypeHandler;
@@ -96,7 +120,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         PROJECT_DATA_FIELD("_project_data_field_", "_project_data_fields_"),
         VARIABLE_PATHS("_variable_path_", "_variable_paths_"), GROUP("_group_", null),
         GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"), SCRIPT_ASSOCIATION("_script_association_", null),
-        APP_SCHEDULER("_app_sched_", null), TELEM_SCHEDULER("_telem_sched_", null), RATE_INFO("_rate_info_", null);
+        APP_SCHEDULER("_app_sched_", null), TELEM_SCHEDULER("_telem_sched_", null), RATE_INFO("_rate_info_", null), FILE_DESCRIPTION("File Description", "");
 
         private final String tag;
         private final String alternateTag;
@@ -203,6 +227,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         this.groupHandler = groupHandler;
         rateHandler = ccddMain.getRateParameterHandler();
         appHandler = ccddMain.getApplicationParameterHandler();
+        dbControl = ccddMain.getDbControlHandler();
         tableDefinitions = null;
         associations = null;
     }
@@ -333,7 +358,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 maximumBytesPerSecond[0] = Integer.parseInt(Columns[6]);
                 
                 /* Set and store the rate parameters obtained from the JSON file */
-                /* TODO: three of these are blank strings. Not sure how to handle them yet */
                 rateHandler.setRateParameters(maxSecPerMsg, maxMsgsPerSec, rateDataStreamNames,
                         maximumMessagesPerCycle, maximumBytesPerSecond, includeUneven, parent);
             }
@@ -378,8 +402,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
-            /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("1Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
 
         return;
@@ -644,8 +667,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
-            /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("2Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         return;
     }
@@ -785,8 +807,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
-            /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("3Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         return;
     }
@@ -1436,6 +1457,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         /* Replace all macro names with their corresponding values */
                         tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
                     }
+                    
+                    // Check if the build information is to be output
+                    if (includeBuildInformation) {
+                        // Create the file creation comment
+                        pw.printf("\"" + CSVTags.FILE_DESCRIPTION.getTag() + " Created %s : CCDD version = %s : project = %s : host = %s : user = %s\"\n",
+                                new Date().toString(), ccddMain.getCCDDVersionInformation(), dbControl.getProjectName(), dbControl.getServer(), dbControl.getUser());
+                        
+                        // If we are exporting to a single file then set includeBuildInformation to false after the first printout
+                        // to prevent it being added to the same file multiple times
+                        if (outputType == EXPORT_SINGLE_FILE) {
+                            includeBuildInformation = false;
+                        }
+                    }
 
                     /* Output the table path (if applicable) and name, table type, and system path (if provided) */
                     pw.printf("\n" + CSVTags.NAME_TYPE.getTag() + "\n%s\n",
@@ -1896,8 +1930,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         }
                     }
                 } catch (Exception e) {
-                    throw new CCDDException(e.getMessage());
-                    /* TODO: Add more code to handle the exception here */
+                    /* Inform the user that the export failed */
+                    throw new CCDDException("Export error; cause '</b>" + e.getMessage() + "<b>'");
                 }
             }
             counter++;
@@ -2050,8 +2084,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 pw.printf("\n");
             }
         } catch (Exception e) {
-            throw new CCDDException(e.getMessage());
-            /* TODO: Add more code to handle the exception here */
+            /* Inform the user that the export failed */
+            throw new CCDDException("Export error; cause '</b>" + e.getMessage() + "<b>'");
         } finally {
             /* Check if the PrintWriter was opened */
             if (pw != null) {

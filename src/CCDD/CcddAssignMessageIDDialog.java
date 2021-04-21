@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary message ID assignment dialog.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddAssignMessageIDDialog.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Dialog for automatic assignment of message IDs to data tables or telemetry messages.
+*     The dialog is built on the CcddDialogHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -396,11 +418,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
-                        GridBagConstraints.BOTH,
-                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0, 0),
-                        0, 0);
-
+                        GridBagConstraints.BOTH, new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0, 0), 0, 0);
 
                 // Check if this is the table and group message ID assignment dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD) {
@@ -448,8 +467,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     dialogPnl.add(tabbedPane, gbc);
 
                     // Create the information for the message name and ID assignment
-                    msgTabs = new MsgTabInfo[] {
-                            new MsgTabInfo("Msg ID", "Message ID tab", "Message ID assignment tab"),
+                    msgTabs = new MsgTabInfo[] { new MsgTabInfo("Msg ID", "Message ID tab", "Message ID assignment tab"),
                             new MsgTabInfo("Group", "group", "Group message ID assignment")};
                     
                     // Add the Msg ID Panels
@@ -538,8 +556,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
     private void addMessageIDTab(final MsgTabInfo tabInfo, final boolean isTlmName) {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
-                GridBagConstraints.NONE,
-                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                GridBagConstraints.NONE, new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                         ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                         ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                         ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2), 0, 0);
@@ -765,8 +782,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     // Set the flag indicating the input is invalid
                     isValid = false;
 
-                    // Toggle the controls enable status so that the buttons are redrawn
-                    // correctly
+                    // Toggle the controls enable status so that the buttons are redrawn correctly
                     CcddAssignMessageIDDialog.this.setControlsEnabled(false);
                     CcddAssignMessageIDDialog.this.setControlsEnabled(true);
                 }
@@ -1109,8 +1125,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                             // Rebuild the data field panel in the table editor using the updated fields
                             editor.createDataFieldPanel(false, editor.getTableInformation().getFieldInformation(), false);
 
-                            // Set the flag to indicate the table/field combination was located and
-                            // stop searching
+                            // Set the flag to indicate the table/field combination was located and stop searching
                             isUpdate = true;
                             break;
                         }
@@ -1240,8 +1255,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
             startID = setMessageID(tlmID, message, startID, interval, formatLength);
 
             // Step through each of the message's sub-messages. The default sub-message is
-            // skipped
-            // since its ID gets set when the parent message's ID is set
+            // skipped since its ID gets set when the parent message's ID is set
             for (int index = 1; index < message.getSubMessages().size(); index++) {
                 // Check if the user canceled ID assignment
                 if (haltDlg.isHalted()) {
@@ -1276,8 +1290,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
         int nextID = idValue;
 
         // Check if the message has no ID, or if it does, that the overwrite ID check
-        // box is
-        // selected
+        // box is selected
         if (!message.getID().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (message.getID().isEmpty() || tlmID.getOverwriteCbx().isSelected())) {
             // Get the next unused message ID value
@@ -1302,12 +1315,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
      *********************************************************************************************/
     private int getNextMessageID(int idValue, int interval) {
         // Continue to loop as long as the ID value matches a reserved or existing one.
-        // This
-        // prevents assigning a duplicate ID
+        // This prevents assigning a duplicate ID
         while (idsInUse.contains(idValue)) {
             // Adjust the message ID value by the interval amount and set the flag to
-            // indicate a
-            // message ID value is changed
+            // indicate a message ID value is changed
             idValue += interval;
         }
 

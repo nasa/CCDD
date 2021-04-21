@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary table tree handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddTableTreeHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing the methods for creating and manipulating a data table tree. This class is
+*     an extension of the CcddCommonTreeHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
@@ -15,6 +37,7 @@ import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.INVALID_TEXT_COLOR;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
+import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.TableMemberType.INCLUDE_PRIMITIVES;
 import static CCDD.CcddConstants.TableMemberType.TABLES_ONLY;
 import static CCDD.CcddConstants.TableTreeType.COMMAND_TABLES;
@@ -89,7 +112,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private final CcddDbControlHandler dbControl;
 
     // Components referenced by multiple methods
-    private List<TableMembers> tableMembers;
+    protected List<TableMembers> tableMembers;
     private List<Object[]> tablePathList;
     private ToolTipTreeNode root;
     private ToolTipTreeNode preLoadedGroupRoot;
@@ -98,8 +121,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     private JCheckBox expandChkBx;
     private boolean skipMemberTables;
 
-    // Flag that indicates if the table tree child structures should be sorted by
-    // variable name
+    // Flag that indicates if the table tree child structures should be sorted by variable name
     private final boolean sortByName;
 
     // Names of the prototype and instance tree nodes
@@ -393,6 +415,32 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         // Build the table tree
         this(ccddMain, null, treeType, false, false, false, false, false, null, null, null, false,
                 DEFAULT_PROTOTYPE_NODE_NAME, DEFAULT_INSTANCE_NODE_NAME, false, parent);
+    }
+    
+    /**********************************************************************************************
+     * Get the table members
+     *
+     * @return Table members
+     *********************************************************************************************/
+    protected List<TableMembers> getTableMembers() {
+        return tableMembers;
+    }
+    
+    /**********************************************************************************************
+     * Get the table member by name
+     *
+     * @return Table member by name
+     *********************************************************************************************/
+    protected TableMembers getTableMemberByName(String tableName) {
+        TableMembers tableMember = null;
+        // Search tableMembers for the requested table member
+        for (int index = 0; index < tableMembers.size(); index++) {
+            if (tableMembers.get(index).getTableName().contentEquals(tableName)) {
+                tableMember = tableMembers.get(index);
+                break;
+            }
+        }
+        return tableMember;
     }
 
     /**********************************************************************************************
@@ -1077,13 +1125,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
 
             // Set the flag if the member represents a command
             boolean isCommand = typeDefn.isCommand();
+            
+            // Set the flag if the member represents a ENUM
+            boolean isENUM = typeDefn.isENUM();
 
             // Check if the member meets the criteria for inclusion in the tree: (1) structures-
             // only or structures-with-primitives-only is specified and the member is a structure,
             // or (2) commands-only is specified and the member is a command
             if (((treeType != STRUCTURE_TABLES && treeType != STRUCTURES_WITH_PRIMITIVES
                     && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                    && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES) || isStructure)
+                    && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES) || (isStructure || isENUM))
                     && (treeType != COMMAND_TABLES || isCommand)) {
                 // Check if the member meets the criteria for inclusion in the prototypes node: (1) this
                 // isn't the special structures with primitives tree type (normal prototype nodes are
@@ -1195,7 +1246,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
     long recursionCounter = 0;
     long recursionAccumulator = 0;
     private void buildNodes(TableMembers thisMember, ToolTipTreeNode parentNode, ToolTipTreeNode childNode) {
-        // TODO: This is a lot of work to do for every recursive function call .. does it need to be done
         recursionCounter++;
         // Step through each node in the parent's path
         for (TreeNode node : parentNode.getPath()) {
@@ -1222,7 +1272,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
         
         // If we are skipping member tables than the function should only be called once and this will
         // end the recursion process
-        if (skipMemberTables) {
+        if (skipMemberTables || thisMember.getTableType().contentEquals(TYPE_ENUM)) {
             return;
         }
 

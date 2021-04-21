@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary table type editor dialog.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddTableTypeEditorHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class that handles the commands associated with a specific table type editor. This class
+*     is an extension of the CcddInputFieldPanelHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
@@ -45,7 +67,10 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.OverwriteFieldValueType;
@@ -213,8 +238,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
         }
 
         // Set the menu item/button based on the input flag for these items since these
-        // are valid
-        // even when no table type exists
+        // are valid even when no table type exists
         mnFile.setEnabled(enable);
         mntmNewType.setEnabled(enableIfReadWrite);
         mntmCopyType.setEnabled(enableIfType && enableIfReadWrite);
@@ -228,8 +252,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
         btnClose.setEnabled(enable);
 
         // Set the menu item based on the input flag and if there are any data fields
-        // assigned to
-        // the table type
+        // assigned to the table type
         mntmClearValues
                 .setEnabled(enable && activeEditor != null && !activeEditor.getPanelFieldInformation().isEmpty());
     }
@@ -255,14 +278,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
 
         // Check if no error occurred and that a table was modified
         if (!commandError && tableNames != null) {
-            // If any table editors are open then the displayed columns and data fields need
-            // to be
-            // updated to match the table type changes. Both the currently displayed and
-            // committed
-            // values are updated so that when the table editor is closed these changes
-            // aren't seen
-            // as table changes since they're already committed to the database Step through
-            // the
+            // If any table editors are open then the displayed columns and data fields need to be
+            // updated to match the table type changes. Both the currently displayed and committed
+            // values are updated so that when the table editor is closed these changes aren't seen
+            // as table changes since they're already committed to the database Step through the
             // open table editor dialogs
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs()) {
                 // Step through each individual editor
@@ -914,10 +933,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
                         changedTypes.clear();
                         changedTypes.add(activeEditor.getTypeName());
 
-                        // Only update the table in the database if a cell's content has changed,
-                        // none of the required columns is missing a value, no duplicate input
-                        // types exists for types defined as unique, and the user confirms the
-                        // action
+                        // Only update the table in the database if a cell's content has changed, none
+                        // of the required columns is missing a value, no duplicate input types exists
+                        // for types defined as unique, and the user confirms the action
                         if (activeEditor.isTableChanged() && !activeEditor.checkForMissingColumns()
                                 && !activeEditor.isInvalidInputTypes()
                                 && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
@@ -927,6 +945,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
                                         changedTypes, CcddTableTypeEditorDialog.this)) {
                             // Store the changes for the currently displayed editor in the database
                             storeChanges(activeEditor);
+                            
+                            // Step through the open editor dialogs
+                            for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs()) {
+                                // Step through each individual editor
+                                for (CcddTableEditorHandler editor : editorDialog.getTableEditors()) {
+                                    String[] names = {editor.getOwnerName()};
+                                    
+                                    doTypeModificationComplete(false, activeEditor, names);
+                                }
+                            }
                         }
                     }
 
@@ -1190,9 +1218,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
             // Build the table updates based on the type definition changes
             editor.buildUpdates();
             
+            // Get the new data fields
+            List<FieldInformation> fieldInfo = editor.getPanelFieldInformation();
+            List<String[]> newDataFields = CcddFieldHandler.getFieldDefnsAsListOfStrings(fieldInfo);
+            
             dbTable.modifyTableType(editor.getTypeName(), activeEditor.getPanelFieldInformation(), getOverwriteFieldType(),
                     editor.getTypeAdditions(), editor.getTypeModifications(), editor.getTypeDeletions(),
-                    editor.isColumnOrderChange(), editor.getTypeDefinition(), null, CcddTableTypeEditorDialog.this, activeEditor);
+                    editor.isColumnOrderChange(), editor.getTypeDefinition(), newDataFields, CcddTableTypeEditorDialog.this, activeEditor);
             
         } catch (CCDDException ce) {
             // Update aborted by user

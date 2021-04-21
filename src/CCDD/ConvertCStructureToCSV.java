@@ -1,13 +1,33 @@
-/**
- * CFS Command and Data Dictionary C header file conversion handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file ConvertCStructureToCSV.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing methods that can be used to convert a C header file to CSV format
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -49,9 +69,6 @@ public class ConvertCStructureToCSV
     public FileEnvVar[] convertFile(FileEnvVar[] dataFiles, CcddMain ccddMain) {
         /* Create a list to hold all file */
         List<FileEnvVar> newDataFile = new ArrayList<FileEnvVar>();
-        
-        // TODO need to display this as a dialog
-        // TODO remove all prints and make them dialog messages
         String message = "Macro values or formulae for a variable's array size or bit length are \n"
                 + "converted to CCDD macros. However, the value of these macros is set to \n"
                 + "\"2\" - the user may edit the CSV file to update the macro values \n"
@@ -60,9 +77,11 @@ public class ConvertCStructureToCSV
                 + "size evaluates to less than 2 (array size must be >= 2).";
         
         if (!ccddMain.isGUIHidden()) {
-            boolean dialog = new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), message,
+            if (!(new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), message,
                     "Notice", JOptionPane.QUESTION_MESSAGE,
-                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
+                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)) {
+                System.out.print(message + "\n");
+            }
         } else {
             System.out.print(message + "\n");
         }

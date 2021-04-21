@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary file I/O handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddFileIOHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing file input and output methods (project database backup and restore, table
+*     import and export, script storage and retrieval).
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
@@ -18,6 +40,7 @@ import static CCDD.CcddConstants.ignoreErrorsCbIndex;
 import static CCDD.CcddConstants.keepDataFieldsCbIndex;
 import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH;
 import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
+import static CCDD.CcddConstants.SNAP_SHOT_FILE;
 import static CCDD.CcddConstants.EXPORT_MULTIPLE_FILES;
 import static CCDD.CcddConstants.EXPORT_SINGLE_FILE;
 
@@ -312,6 +335,9 @@ public class CcddFileIOHandler {
                 }
     
                 List<File> deletedFiles = new ArrayList<>(snapshotFiles);
+                
+                // First try to compare files using the linux diff command. If it fails use the file utils compare that ignore the EOL char
+                boolean compareFilesUsingLinuxDiffCommand = true;
     
                 /* Step through each file in the deleted files array */
                 for (int index = 0; index < deletedFiles.size(); index++) {
@@ -322,13 +348,51 @@ public class CcddFileIOHandler {
                         if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName())) {
                             /* This file exists. Determine if it has been modified or not before deletion */
                             try {
-                                if (FileUtils.contentEqualsIgnoreEOL(new File(importFiles.get(index2).getPath()),
-                                        new File(deletedFiles.get(index).getPath()), null)) {
-                                    /* The files are the same so nothing will be done with this file. Remove it from
-                                     * the importFiles list
-                                     */
-                                    importFiles.remove(index2);
+                                // First try to compare files using the linux diff command.
+                                if (compareFilesUsingLinuxDiffCommand) {
+                                    try {
+                                        Process p;
+                                        
+                                        // Build the command
+                                        String[] command = new String[] {"diff", "-I", JSONTags.FILE_DESCRIPTION.getTag(),
+                                                importFiles.get(index2).getPath(), deletedFiles.get(index).getPath()};
+                                        
+                                        // Execute the command
+                                        p = Runtime.getRuntime().exec(command);
+                                        
+                                        // Wait for the command to finish
+                                        p.waitFor();
+                                        final int exitValue = p.waitFor();
+                                        
+                                        // Check the exit value
+                                        if (exitValue == 0) {
+                                            /* The files are the same so nothing will be done with this file. Remove it from
+                                             * the importFiles list
+                                             */
+                                            importFiles.remove(index2);
+                                        }
+                                        
+                                        // Destroy the process
+                                        p.destroy();
+                                        
+                                    } catch (Exception e) {
+                                        // An error occurred. Stop trying to compare using the linux diff command. Most often this is due
+                                        // to running CCDD on a windows platform
+                                        compareFilesUsingLinuxDiffCommand = false;
+                                    }
                                 }
+                                
+                                // If comparing files using the linux diff command failed then compare them using the FileUtils function
+                                if (!compareFilesUsingLinuxDiffCommand) {
+                                    if (FileUtils.contentEqualsIgnoreEOL(new File(importFiles.get(index2).getPath()),
+                                            new File(deletedFiles.get(index).getPath()), null)) {
+                                        /* The files are the same so nothing will be done with this file. Remove it from
+                                         * the importFiles list
+                                         */
+                                        importFiles.remove(index2);
+                                    }
+                                }
+                                
                                 /* The file exists so remove it from the deletedFiles list */
                                 deletedFiles.remove(index);
                                 index--;
@@ -340,6 +404,20 @@ public class CcddFileIOHandler {
                             }
                             break;
                         }
+                    }
+                }
+                
+                /* Check to see if the files that are going to be deleted are the reserved message ids and project fields.
+                 * If so then ignore them
+                 */
+                for (int index = 0; index < deletedFiles.size(); index++) {
+                    if ( deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.JSON()) ||
+                            deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.JSON()) ||
+                            deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.CSV()) ||
+                            deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.CSV())) {
+                        /* Remove it from the deletedFiles list */
+                        deletedFiles.remove(index);
+                        index--;
                     }
                 }
                 /* End of checking for deleted files */
@@ -1262,7 +1340,7 @@ public class CcddFileIOHandler {
                         
                         /* Step through each table definition that has already been imported and added to the list 
                          * and compare it to the table definition that is about to be imported to ensure no duplicates 
-                         * are added */ // TODO: Look for a faster solution if possible. Array.Contains() only works on primitive types
+                         * are added */
                         for (TableDefinition existingDefn : allTableDefinitions) {
                             /* Check if the table is already defined in the list */
                             if (tableDefn.getName().equals(existingDefn.getName())) {
@@ -1337,10 +1415,6 @@ public class CcddFileIOHandler {
 
             /* Commit the change(s) to the database */
             dbControl.getConnection().commit();
-
-            /* Store the data file path in the program preferences backing store */
-            storePath(ccddMain, dataFiles.get(0).getAbsolutePathWithEnvVars(), true,
-                    ModifiablePathInfo.TABLE_EXPORT_PATH);
 
             /* Update any open editor's data type columns to include the new table(s), if applicable */
             dbTable.updateDataTypeColumns(parent);
@@ -1494,17 +1568,12 @@ public class CcddFileIOHandler {
      *         table that references them
      *********************************************************************************************/
     private List<TableDefinition> orderTableDefinitionsByReference(List<TableDefinition> tableDefinitions) {
-        // TODO THIS MAY CAN BE OPTIMIZED
         List<TableDefinition> orderedTableDefinitions = new ArrayList<TableDefinition>();
         List<String> orderedTableNames = new ArrayList<String>();
 
-        // Sort the table definitions by the table path+names. This is to ensure a
-        // prototype isn't
-        // created as an ancestor when a child already exists that defines the prototype
-        // (if the
-        // actual prototype exists or the flag to replace existing tables is set then
-        // this isn't
-        // necessary)
+        // Sort the table definitions by the table path+names. This is to ensure a prototype isn't
+        // created as an ancestor when a child already exists that defines the prototype (if the
+        // actual prototype exists or the flag to replace existing tables is set then his isn't necessary)
         Collections.sort(tableDefinitions, new Comparator<Object>() {
             /**************************************************************************************
              * Compare table names
@@ -2358,35 +2427,59 @@ public class CcddFileIOHandler {
      *                          imported ones if the field names match
      *********************************************************************************************/
     private void addImportedDataField(TableDefinition tableDefn, String ownerName, boolean useExistingFields) {
+        /* Grab the current data fields */
+        List<String[]> currentFieldInfo = CcddFieldHandler.getFieldDefnsAsListOfStrings(
+                fieldHandler.getFieldInformationByOwner(ownerName));
+        /* Grab the new data fields */
+        List<String[]> newFieldInfo = tableDefn.getDataFields();
+        
+        boolean fieldExists;
+        int atIndex;
+        
         /* Step through the imported data fields. The order is reversed so that field definitions
          * can be removed if needed
          */
-        for (int index = tableDefn.getDataFields().size() - 1; index >= 0; index--) {
-            /* Get the reference to the data field definitions to shorten subsequent calls */
-            String[] fieldDefn = tableDefn.getDataFields().get(index);
-
+        for (int index = 0; index < newFieldInfo.size(); index++) {
+            fieldExists = false;
+            atIndex = -1;
+            
             /* Set the data field owner to the specified table (if importing entire tables this
              * isn't necessary, but is when importing into an existing table since the owner in the
              * import file may differ)
              */
-            fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
-
-            /* Get the reference to the data field based on the table name and field name */
-            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
-                    fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
-
-            /* Check if the data field already exists (name and input type must match) and the user
-             * has elected to use existing fields over ones in the import file
-             */
-            if (fieldInfo != null && useExistingFields
-                    && fieldInfo.getInputType().getInputName().equals(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()])) {
-                /* Remove the new data field definition and replace it with the existing definition */
-                tableDefn.getDataFields().remove(index);
-                tableDefn.getDataFields().add(index, new String[] { ownerName, fieldInfo.getFieldName(),
-                        fieldInfo.getDescription(), String.valueOf(fieldInfo.getSize()),
-                        fieldInfo.getInputType().getInputName(), String.valueOf(fieldInfo.isRequired()),
-                        fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue(), "false" });
+            newFieldInfo.get(index)[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
+            
+            /* Check to see if the field already exists */
+            for (int index2 = 0; index2 < currentFieldInfo.size(); index2++) {
+                if (currentFieldInfo.get(index2)[FieldsColumn.FIELD_NAME.ordinal()].contentEquals(
+                        newFieldInfo.get(index)[FieldsColumn.FIELD_NAME.ordinal()])) {
+                    if (currentFieldInfo.get(index2)[FieldsColumn.FIELD_TYPE.ordinal()].contentEquals(
+                        newFieldInfo.get(index)[FieldsColumn.FIELD_TYPE.ordinal()])) {
+                        /* If the field does exists then set the flag and save the index */
+                        fieldExists = true;
+                        atIndex = index2;
+                        break;
+                    }
+                }
             }
+            
+            /* Does the field exists? */
+            if (fieldExists) {
+                /* Did the user decide to use existing fields? */
+                if (useExistingFields) {
+                    /* Remove the new data field definition and replace it with the existing definition */
+                    newFieldInfo.remove(index);
+                    newFieldInfo.add(index, currentFieldInfo.get(atIndex));
+                }
+                
+                /* Remove the field from the list of current fields */
+                currentFieldInfo.remove(atIndex);
+            }
+        }
+        
+        /* If there are any values left in the currentFieldInfo list they will need to be added */
+        for (int index = 0; index < currentFieldInfo.size(); index++) {
+            tableDefn.getDataFields().add(currentFieldInfo.get(index));
         }
     }
 
@@ -2726,7 +2819,7 @@ public class CcddFileIOHandler {
             }
 
             /* Delete the contents of the directory */
-            if (!singleFile && deleteTargetDirectory) {
+            if (deleteTargetDirectory) {
                 CleanExportDirectory(fileExtn, filePath, singleFile, parent);
             }
 
@@ -2817,7 +2910,9 @@ public class CcddFileIOHandler {
             }
 
             /* Store the export file path in the program preferences backing store */
-            storePath(ccddMain, filePath, singleFile, ModifiablePathInfo.TABLE_EXPORT_PATH);
+            if (!filePath.contains(SNAP_SHOT_FILE)) {
+                storePath(ccddMain, filePath, singleFile, ModifiablePathInfo.TABLE_EXPORT_PATH);
+            }
 
             /* Check if no errors occurred exporting the table(s) */
             if (!errorFlag) {
@@ -3321,88 +3416,95 @@ public class CcddFileIOHandler {
             StringBuilder content = new StringBuilder(new String((Files.readAllBytes(Paths.get(dataFile.getPath())))));
             
             /*************** INPUT TYPES, TABLE TYPES AND DATA TYPES ***************/
-            String outputData = jsonHandler.retrieveJSONData(JSONTags.INPUT_TYPE_DEFN.getAlternateTag(), content).toString();
-            outputData += jsonHandler.retrieveJSONData(JSONTags.TABLE_TYPE_DEFN.getAlternateTag(), content).toString();
-            outputData += jsonHandler.retrieveJSONData(JSONTags.DATA_TYPE_DEFN.getAlternateTag(), content).toString();
+            String outputData = jsonHandler.retrieveJSONData(JSONTags.INPUT_TYPE_DEFN.getTag(), content).toString();
+            outputData += jsonHandler.retrieveJSONData(JSONTags.TABLE_TYPE_DEFN.getTag(), content).toString();
+            outputData += jsonHandler.retrieveJSONData(JSONTags.DATA_TYPE_DEFN.getTag(), content).toString();
             
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.TABLE_INFO.JSON();
             FileEnvVar file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+            writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
             
             /*************** MACROS ***************/
-            outputData = jsonHandler.retrieveJSONData(JSONTags.MACRO_DEFN.getAlternateTag(), content).toString();
+            outputData = jsonHandler.retrieveJSONData(JSONTags.MACRO_DEFN.getTag(), content).toString();
             
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.MACROS.JSON();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+            writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
 
             /*************** GROUPS ***************/
-            outputData = jsonHandler.retrieveJSONData(JSONTags.GROUP.getAlternateTag(), content).toString();
+            outputData = jsonHandler.retrieveJSONData(JSONTags.GROUP.getTag(), content).toString();
             
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.GROUPS.JSON();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile("{\n  \"" + outputData + "\n  ]\n}", filePath);
+            writeToFile("{\n  \"" + outputData + "\n  ]\n}\n", filePath);
             
             /*************** SCRIPT ASSOCIATIONS ***************/
-            outputData = jsonHandler.retrieveJSONData(JSONTags.SCRIPT_ASSOCIATION.getAlternateTag(), content).toString();
+            outputData = jsonHandler.retrieveJSONData(JSONTags.SCRIPT_ASSOCIATION.getTag(), content).toString();
             
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.SCRIPT_ASSOCIATION.JSON();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+            writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
             
             /*************** TLM SCHEDULER ***************/
-            outputData = jsonHandler.retrieveJSONData(JSONTags.TLM_SCHEDULER_COMMENT.getAlternateTag(), content).toString();
+            outputData = jsonHandler.retrieveJSONData(JSONTags.TLM_SCHEDULER_COMMENT.getTag(), content).toString();
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.TELEM_SCHEDULER.JSON();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+            writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
             
             /*************** APP SCHEDULER ***************/
-            outputData = jsonHandler.retrieveJSONData(JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag(), content).toString();
+            outputData = jsonHandler.retrieveJSONData(JSONTags.APP_SCHEDULER_COMMENT.getTag(), content).toString();
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.APP_SCHEDULER.JSON();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+            writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
             
             /*************** RESERVED MESSAGE IDS ***************/
-            if (!jsonHandler.retrieveJSONData(JSONTags.RESERVED_MSG_ID_DEFN.getAlternateTag(), content).toString().isEmpty()) {
-                outputData = jsonHandler.retrieveJSONData(JSONTags.RESERVED_MSG_ID_DEFN.getAlternateTag(), content).toString();
+            if (!jsonHandler.retrieveJSONData(JSONTags.RESERVED_MSG_ID_DEFN.getTag(), content).toString().isEmpty()) {
+                outputData = jsonHandler.retrieveJSONData(JSONTags.RESERVED_MSG_ID_DEFN.getTag(), content).toString();
                 filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.RESERVED_MSG_ID.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
-                writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+                writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
             }
             
             /*************** PROJECT FIELDS ***************/
-            if (!jsonHandler.retrieveJSONData(JSONTags.PROJECT_FIELD.getAlternateTag(), content).toString().isEmpty()) {
-                outputData = jsonHandler.retrieveJSONData(JSONTags.PROJECT_FIELD.getAlternateTag(), content).toString();
+            if (!jsonHandler.retrieveJSONData(JSONTags.PROJECT_FIELD.getTag(), content).toString().isEmpty()) {
+                outputData = jsonHandler.retrieveJSONData(JSONTags.PROJECT_FIELD.getTag(), content).toString();
                 filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.PROJECT_DATA_FIELD.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
-                writeToFile("{\n  \"" + outputData + "]\n}", filePath);
+                writeToFile("{\n  \"" + outputData + "]\n}\n", filePath);
             }
             
             /*************** TABLE DEFINITIONS ***************/
-            outputData = jsonHandler.retrieveJSONData(JSONTags.TABLE_DEFN.getAlternateTag(), content).toString();
+            outputData = jsonHandler.retrieveJSONData(JSONTags.TABLE_DEFN.getTag(), content).toString();
             
             String[] data = outputData.split("]\n    },\n");
             
             for (int i = 0; i < data.length; i++) {
                 nameType = data[i].split(",\n")[0];
                 if (i == 0) {
-                    tableName = nameType.split(": ")[2].replace("\"", "");
+                    // Check if this line contains the file description. Will change how data is parsed
+                    if (nameType.contains(JSONTags.FILE_DESCRIPTION.getTag())) {
+                        nameType = data[i].split(",\n")[1];
+                        // Grab the table name
+                        tableName = nameType.split(": ")[1].replace("\"", "");
+                    } else {
+                        tableName = nameType.split(": ")[2].replace("\"", "");
+                    }
                 } else {
                     tableName = nameType.split(": ")[1].replace("\"", "");
                 }
@@ -3413,11 +3515,11 @@ public class CcddFileIOHandler {
                 dataFiles.add(file);
                 
                 if (i == 0) {
-                    writeToFile("{\n  \"" + data[i] + "]\n" + "    }\n" + "  ]\n}", filePath);
+                    writeToFile("{\n  \"" + data[i] + "]\n    }\n  ]\n}\n", filePath);
                 } else if (i == data.length - 1) {
-                    writeToFile("{\n  \"Table Definition\": [\n" + data[i] + "  ]\n}", filePath);
+                    writeToFile("{\n  \"" + JSONTags.TABLE_DEFN.getTag() + "\": [\n" + data[i] + "  ]\n}\n", filePath);
                 } else {
-                    writeToFile("{\n  \"Table Definition\": [\n" + data[i] + "]\n" + "    }\n" + "  ]\n}", filePath);
+                    writeToFile("{\n  \"" + JSONTags.TABLE_DEFN.getTag() + "\": [\n" + data[i] + "]\n    }\n  ]\n}\n", filePath);
                 }
             }
 
@@ -3521,7 +3623,7 @@ public class CcddFileIOHandler {
             FileEnvVar file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile(outputData, filePath);
+            writeToFile(outputData + "\n", filePath);
             
             /*************** MACROS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
@@ -3530,7 +3632,7 @@ public class CcddFileIOHandler {
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile(outputData, filePath);
+            writeToFile(outputData + "\n", filePath);
 
             /*************** GROUPS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.GROUP.getTag(), content).toString();
@@ -3539,7 +3641,7 @@ public class CcddFileIOHandler {
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile(outputData, filePath);
+            writeToFile(outputData + "\n", filePath);
             
             /*************** SCRIPT ASSOCIATIONS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(), content).toString();
@@ -3548,7 +3650,7 @@ public class CcddFileIOHandler {
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile(outputData, filePath);
+            writeToFile(outputData + "\n", filePath);
             
             /*************** TLM SCHEDULER ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER.getTag(), content).toString();
@@ -3557,7 +3659,7 @@ public class CcddFileIOHandler {
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile(outputData, filePath);
+            writeToFile(outputData + "\n", filePath);
             
             /*************** APP SCHEDULER ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER.getTag(), content).toString();
@@ -3566,7 +3668,7 @@ public class CcddFileIOHandler {
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             
-            writeToFile(outputData, filePath);
+            writeToFile(outputData + "\n", filePath);
             
             /*************** RESERVED MESSAGE IDS ***************/
             outputData = csvHandler.retrieveCSVData(CSVTags.RESERVED_MSG_IDS.getTag(), content).toString();
@@ -3578,7 +3680,7 @@ public class CcddFileIOHandler {
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
-                writeToFile(outputData, filePath);
+                writeToFile(outputData + "\n", filePath);
             }
             
             /*************** PROJECT FIELDS ***************/
@@ -3591,7 +3693,7 @@ public class CcddFileIOHandler {
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
-                writeToFile(outputData, filePath);
+                writeToFile(outputData + "\n", filePath);
             }
             
             /*************** TABLE DEFINITIONS ***************/
@@ -3608,7 +3710,12 @@ public class CcddFileIOHandler {
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 
-                writeToFile("\n" + data[i], filePath);
+                if (i == data.length -1) {
+                    writeToFile("\n" + data[i], filePath);
+                } else {
+                    writeToFile("\n" + data[i] + "\n", filePath);
+                }
+                
                 outputData = "";
             }
 

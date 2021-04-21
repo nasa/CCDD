@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary table manager dialog.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddTableManagerDialog.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Dialog for the user create, edit, copy, rename, and delete data tables. The dialog is
+*     built on the CcddDialogHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.EXPORT_ICON;
@@ -99,6 +121,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
     private JCheckBox deleteNonExistingFilesCb;
     private JCheckBox importEntireDatabaseCb;
     private JCheckBox replaceMacrosCb;
+    private JCheckBox includeBuildInfoCb;
     private JCheckBox includeReservedMsgIDsCb;
     private JCheckBox includeProjectFieldsCb;
     private JCheckBox includeGroupsCb;
@@ -617,7 +640,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                             // Export the contents of the selected table(s) in the specified format
                             fileIOHandler.exportSelectedTablesInBackground(pathFld.getText(),
                                     tablePaths.toArray(new String[0]), overwriteFileCb.isSelected(),
-                                    (singleFileRBtn != null ? singleFileRBtn.isSelected() : true), true,
+                                    (singleFileRBtn != null ? singleFileRBtn.isSelected() : true), 
+                                    (includeBuildInfoCb != null ? includeBuildInfoCb.isSelected() : true),
                                     (replaceMacrosCb != null ? replaceMacrosCb.isSelected() : true),
                                     (deleteTargetDirectoryCb != null ? deleteTargetDirectoryCb.isSelected() : false),
                                     (includeAllTableTypesCb != null ? includeAllTableTypesCb.isSelected() : false),
@@ -1019,7 +1043,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
         deleteNonExistingFilesCb.setBorder(emptyBorder);
         deleteNonExistingFilesCb.setToolTipText(CcddUtilities.wrapText(
                 "If a file is not in the import it will be deleted from the database."
-                        + "Use this selection when importing entire database from JSON.",
+                        + "(Applies to JSON and CSV imports)",
                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         deleteNonExistingFilesCb.setEnabled(false);
         
@@ -1291,6 +1315,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
             /* Overwrite files is set to checked by default */
             overwriteFileCb.setSelected(true);
 
+            /* Create the export entire database check box */
+            exportEntireDatabaseCb = new JCheckBox("Export full database");
+            exportEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            exportEntireDatabaseCb.setBorder(emptyBorder);
+            
             /* Check if exporting in CSV or JSON format */
             if (dialogType == ManagerDialogType.EXPORT_CSV || dialogType == ManagerDialogType.EXPORT_JSON) {
 
@@ -1318,9 +1347,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 gbc.gridy++;
                 lowerPnl.add(separatorPnl, gbc);
 
-                /*
-                 * Add a dummy label so that when the dialog width increases the lower panel
-                 ** remains unchanged in size and position
+                /* Add a dummy label so that when the dialog width increases the lower panel
+                 * remains unchanged in size and position
                  */
                 gbc.weightx = 1.0;
                 gbc.gridx++;
@@ -1335,16 +1363,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 includePnl.add(includeLbl, gbc);
-
-                /* Create the export entire database check box */
-                exportEntireDatabaseCb = new JCheckBox("Export full database");
-                exportEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                exportEntireDatabaseCb.setBorder(emptyBorder);
-                
-                /* This checkbox is only usable during a JSON export */
-                if ((fileExtn != FileExtension.JSON) && (fileExtn != FileExtension.CSV)) {
-                    exportEntireDatabaseCb.setEnabled(false);
-                }
                 
                 exportEntireDatabaseCb
                         .setToolTipText(CcddUtilities.wrapText("Check this box if exporting the entire database",
@@ -1547,6 +1565,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.gridx++;
                 includePnl.add(replaceMacrosCb, gbc);
+                
+                /* Create the include build information check box */
+                includeBuildInfoCb = new JCheckBox("Include build information");
+                includeBuildInfoCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeBuildInfoCb.setBorder(emptyBorder);
+                includeBuildInfoCb.setToolTipText(CcddUtilities.wrapText(
+                        "If checked, the build information will be added to each file.",
+                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
+                gbc.gridy++;
+                includePnl.add(includeBuildInfoCb, gbc);
 
                 /* Create the variable path separator label and input field, and add them to the
                  * dialog panel

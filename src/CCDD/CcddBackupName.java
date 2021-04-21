@@ -1,3 +1,31 @@
+/**************************************************************************************************
+/** \file CcddBackupName.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class responsible for modifying the name of the database when it is backed up
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import java.text.SimpleDateFormat;
@@ -10,7 +38,7 @@ import CCDD.CcddClassesComponent.FileEnvVar;
 public final class CcddBackupName {
     public static final String FAILSAFE_BACKUP_NAME = "failsafe_backup_name";
 
-    /**
+    /**********************************************************************************************
      * Take the full path to the backup file and remove the file name portion.
      * Take the user selected file name and append this a the initial path.
      * Note: This is to handle cases where there are spaces entered into the
@@ -22,7 +50,7 @@ public final class CcddBackupName {
      *            User selected backup file name
      * @return A reconstructed path with the expected backup filename at the
      *         expected location or null on error
-     */
+     **********************************************************************************************/
     public static final FileEnvVar reconstructBackupFilePath(
             FileEnvVar[] selectedPaths, String chosenBackupFileName) {
         if (selectedPaths == null)
@@ -50,7 +78,7 @@ public final class CcddBackupName {
         return chosenBackupPath;
     }
 
-    /**
+    /**********************************************************************************************
      * Take in a string of type [ID]_[DATE-TIME-STAMP].[EXT]
      * -Note:[DATE-TIME-STAMP] is optional Strip _[DATE-TIME-STAMP].[EXT] and
      * return the [ID] Note: If an error in the chosenBackupFileName is
@@ -67,7 +95,7 @@ public final class CcddBackupName {
      *            Is there an _[DATE-TIME-STAMP] field in the
      *            chosenBackupFileName
      * @return [ID]
-     */
+     **********************************************************************************************/
     public static String removeExtensionTimeStamp(String extension,
             String dateTimeFormat, String chosenBackupFileName,
             boolean isTimeDateStamped) {

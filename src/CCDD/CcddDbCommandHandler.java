@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary database command handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddDbCommandHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for handling database commands.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -25,7 +46,6 @@ import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DbCommandType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableSizeInfo;
-import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary database command handler class
@@ -211,14 +231,14 @@ public class CcddDbCommandHandler {
             } catch (SQLException se3) {
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize())) {
-                    System.out.println("   no connection"); // TODO
+                    System.out.println("   no connection");
                     // Execute at least once; continue to execute as long as the user elects to
                     // attempt to reconnect
                     while (true) {
-                        System.out.println("    attempt reconnect"); // TODO
+                        System.out.println("    attempt reconnect");
                         // Check if the attempt to reconnect to the server is successful
                         if (!ccddMain.getDbControlHandler().reconnectToDatabase()) {
-                            System.out.println("     reconnected -> resend"); // TODO
+                            System.out.println("     reconnected -> resend");
                             // Send the command again
                             return executeDbStatement(commandType, command, component);
                         }
@@ -228,11 +248,11 @@ public class CcddDbCommandHandler {
                                 "<html><b>Server connection lost and " + "reconnection attempt failed; try again?",
                                 "Server Connection Lost", JOptionPane.QUESTION_MESSAGE,
                                 DialogOption.OK_CANCEL_OPTION) != OK_BUTTON) {
-                            System.out.println("     user quit; throw"); // TODO
+                            System.out.println("     user quit; throw");
                             throw new SQLException("Connection to server lost");
                         }
 
-                        System.out.println("     try again"); // TODO
+                        System.out.println("     try again");
                     }
                 }
                 // The server is connected. Shouldn't be able to get to this

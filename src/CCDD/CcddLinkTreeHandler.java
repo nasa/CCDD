@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary variable link tree handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddLinkTreeHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing the methods for creating and manipulating a variable link tree. This class
+*     is an extension of the CcddInformationTreeHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_ICON;
@@ -70,8 +92,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler {
     private List<String[]> linkDefinitions;
 
     // List containing the information for each defined link (name, rate, size, and
-    // description).
-    // Link member variables are stored in the linkDefinitions
+    // description). Link member variables are stored in the linkDefinitions
     private UndoableArrayList<LinkInformation> linkInformation;
 
     // Flag to indicate if the link tree is being built

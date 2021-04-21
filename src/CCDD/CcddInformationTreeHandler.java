@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary generic information tree handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddInformationTreeHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Generic utility class for manipulating information trees. This class is an extension of the
+*     CcddCommonTreeHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -39,13 +61,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler {
     private boolean isFilterByApp;
 
     // String value that may be used to modify the tree building method; null or
-    // blank if not
-    // filtering
+    // blank if not filtering
     private String filterValue;
 
     // List of all tree paths in the table tree in the order to be maintained in the
-    // information
-    // tree
+    // information tree
     private List<String> treePathOrder;
 
     // Information tree child node insertion order, relative to the sibling nodes
@@ -756,12 +776,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler {
     protected List<String[]> createDefinitionsFromTree() {
         // Initialize the definitions list
         treeDefinitions = createDefinitionsFromInformation();
-
-        // TODO TIME AN OPERATION USING THESE STEPS:
-        // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss.SSS");// TODO
-        // System.out.println("\nStart: " + dtf.format(LocalDateTime.now()));// TODO
-        // ...perform operation
-        // System.out.println(" ...done: " + dtf.format(LocalDateTime.now()));// TODO
 
         // Start with the root node and step through the tree to find the child nodes
         // and their
