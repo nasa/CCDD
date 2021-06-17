@@ -1,10 +1,33 @@
-/**
- * CFS Command and Data Dictionary JSON handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddJSONHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for handling import and export of data tables in JSON format. This class implements
+*     the CcddImportExportInterface class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
+
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -23,6 +46,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +97,6 @@ import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.MsgIDTableColumnInfo;
 import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
-import CCDD.CcddConstants.exportDataTypes;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -84,6 +107,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
+    private final CcddDbControlHandler dbControl;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddFieldHandler fieldHandler;
     private final CcddMacroHandler macroHandler;
@@ -128,6 +152,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
+        dbControl = ccddMain.getDbControlHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
         scriptHandler = ccddMain.getScriptHandler();
         this.groupHandler = groupHandler;
@@ -210,7 +235,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return String representation of the supplied object; blank if the object is
      *         null
      *********************************************************************************************/
-    private String getString(JSONObject jsonObj, String key) {
+    String getString(JSONObject jsonObj, String key) {
         String str = "";
 
         // Get the JSON object referred to by the supplied key
@@ -239,8 +264,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * Suppress warnings is used because when this code is compiled some of it is
      * not legal, but it will be at runtime
      */
-    @SuppressWarnings("unchecked")
-    private List<JSONObject> parseJSONArray(Object arrayObj) throws ParseException {
+    @SuppressWarnings("unchecked") List<JSONObject> parseJSONArray(Object arrayObj) throws ParseException {
         List<JSONObject> results = new ArrayList<JSONObject>();
 
         JSONArray objectJA = (JSONArray) arrayObj;
@@ -390,7 +414,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 }
 
                 /*************** TELEMETRY SCHEDULER ***************/
-                /* TODO: This functionality is currently broken and does not work as expected. */
                 /* Get the telemetry scheduler table */
                 defn = jsonObject.get(JSONTags.TLM_SCHEDULER.getTag());
 
@@ -1278,6 +1301,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *                                flag ('true' or 'false'), and data
      *                                type/variable name separator character(s);
      *                                null if includeVariablePaths is false
+     *                                
+     * @param addEOFMarker            Is this the last data to be added to the file?
      *
      * @param extraInfo               unused
      *
@@ -1288,14 +1313,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
-            String[] separators, String outputType, Object... extraInfo) throws CCDDException, Exception {
+            String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws CCDDException, Exception {
         /* Initialize local variables */
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
 
         try {
-            List<String> referencedInputTypes = new ArrayList<String>();
             List<String[]> variablePaths = new ArrayList<String[]>();
 
             /* Check if all variable paths are to be exported. This is only possible if no tables
@@ -1345,7 +1369,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 for (String tblName : tableNames) {
                     /* Get the table's information */
                     OrderedJSONObject tableInfoJO = getTableInformation(tblName, replaceMacros, includeVariablePaths,
-                            variableHandler, separators);
+                            includeBuildInformation, variableHandler, separators);
+                    
+                    // If outputType equals SINGLE_FILE than set includeBuildInformation to false so that it is 
+                    // not added multiple times
+                    if (outputType == EXPORT_SINGLE_FILE) {
+                        includeBuildInformation = false;
+                    }
 
                     /* Check if the table's data successfully loaded */
                     if (tableInfoJO != null && !tableInfoJO.isEmpty()) {
@@ -1400,7 +1430,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             scriptEngine.put("jsonString", orderedOutput.toString());
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-            if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (tableNames.length > 1)) {
+            if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (tableNames.length > 1) &&
+                    (!addEOFMarker)) {
                 int size = ((String) scriptEngine.get("result")).length()-3;
                 pw.println(((String) scriptEngine.get("result")).substring(0, size)+ "],");
             } else {
@@ -1481,7 +1512,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         JSONArray tableDataJA = null;
 
         // Get the information from the database for the specified table
-        tableInfo = dbTable.loadTableData(tableName, !getDescription, false, ccddMain.getMainFrame());
+        tableInfo = dbTable.loadTableData(tableName, !getDescription, false, false, ccddMain.getMainFrame());
 
         // Check if the table exists and successfully loaded
         if (tableInfo != null && !tableInfo.isErrorFlag()) {
@@ -1599,8 +1630,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             for (FieldInformation fieldInfo : fieldInformation) {
                 fieldJO = new OrderedJSONObject();
 
-                // Check if if the input type is user-defined and this input type is not already
-                // output
+                // Check if if the input type is user-defined and this input type is not already output
                 if (referencedInputTypes != null && fieldInfo.getInputType().isCustomInput()
                         && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName())) {
                     // Add the input type to the list of those referenced
@@ -1625,6 +1655,56 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 outputJO.put(tagName, dataFieldDefnJA);
             }
         }
+        return outputJO;
+    }
+    
+    /**********************************************************************************************
+     * Grab the database name, description and users. Each piece of data will be separated by
+     * a comma.
+     *
+     * @return The database information separated by a comma.
+     *********************************************************************************************/
+    protected OrderedJSONObject getDBUInfo(OrderedJSONObject outputJO) {
+        JSONArray DBUInfoJA = new JSONArray();
+        
+        String[] comment = dbControl.getDatabaseComment(dbControl.getDatabaseName());
+        
+        if (comment.length > 0) {
+            OrderedJSONObject DBUInfoJO = new OrderedJSONObject();
+            
+            // Export the database name
+            DBUInfoJO.put("Database Name", comment[1]);
+            
+            // Export the user access level information
+            String[][] usersAndAcessLevel = dbTable.retrieveInformationTable(InternalTable.USERS, true, ccddMain.getMainFrame())
+                    .toArray(new String[0][0]);
+            
+            String usersAndAcessLevelDataToExport = "";
+            
+            // Each user will be added with their individual access level in the format of 
+            // "user1:accessLevel,user2:accessLevel"
+            for (int index = 0; index < usersAndAcessLevel.length; index++) {
+                usersAndAcessLevelDataToExport += usersAndAcessLevel[index][0] + ":" +
+                        usersAndAcessLevel[index][1];
+                if (index != usersAndAcessLevel.length - 1) {
+                    usersAndAcessLevelDataToExport += ",";
+                }
+            }
+            
+            DBUInfoJO.put("Database Users", usersAndAcessLevelDataToExport);
+            
+            // Export the database description
+            DBUInfoJO.put("Database Description", comment[3]);
+            
+            DBUInfoJA.add(DBUInfoJO);
+            
+            // Check if any data field exists
+            if (!DBUInfoJA.isEmpty()) {
+                // Add the data field(s) to the JSON output
+                outputJO.put(JSONTags.DBU_INFO.getTag(), DBUInfoJA);
+            }
+        }
+        
         return outputJO;
     }
     
@@ -1654,7 +1734,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         PrintWriter pw = null;
         boolean fwCreated = false;
         int counter = 0;
-        List<String> referencedInputTypes = new ArrayList<String>(); // TODO: Not sure this is needed
+        List<String> referencedInputTypes = new ArrayList<String>();
         List<String> referencedMacros = new ArrayList<String>();
         OrderedJSONObject outputJO = new OrderedJSONObject();
         
@@ -1770,6 +1850,21 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             /* Get the project data fields data */
                             outputJO = getDataFields(CcddFieldHandler.getFieldProjectName(), JSONTags.PROJECT_FIELD.getTag(),
                                     referencedInputTypes, outputJO);
+                        }
+                        break;
+                        
+                    case DBU_INFO:
+                        if (!getDBUInfo(outputJO).isEmpty())
+                        {
+                            if (outputType == EXPORT_MULTIPLE_FILES) {
+                                fw = new FileWriter(exportFile + "/" + FileNames.DBU_INFO.JSON(), false);
+                                bw = new BufferedWriter(fw);
+                                pw = new PrintWriter(bw);
+                                outputJO = new OrderedJSONObject();
+                            }
+                            
+                            /* Get the project data fields data */
+                            outputJO = getDBUInfo(outputJO);
                         }
                         break;
                     }
@@ -1888,6 +1983,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param outputType        String representing rather the output is going to a
      *                          single file or multiple files. Should be EXPORT_SINGLE_FILE
      *                          or EXPORT_MULTIPLE_FILES
+     *                          
+     * @param addEOFMarker      Is this the last data to be added to the file?
+     * 
+     * @param addSOFMarker      Is this the first data to be added to the file?
      * 
      * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
      * 
@@ -1895,7 +1994,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
 
     public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
-            boolean includeInputTypes, boolean includeDataTypes, String outputType) throws CCDDException, Exception {
+            boolean includeInputTypes, boolean includeDataTypes, String outputType,
+            boolean addEOFMarker, boolean addSOFMarker) throws CCDDException, Exception {
         List<String> referencedTableTypes = new ArrayList<String>();
         List<String> referencedInputTypes = new ArrayList<String>();
         List<String> referencedDataTypes = new ArrayList<String>();
@@ -1951,9 +2051,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 JSONValue.writeJSONString(outputJO, orderedOutput);
                 scriptEngine.put("jsonString", orderedOutput.toString());
                 scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-                if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
+                if (outputType.contentEquals(EXPORT_SINGLE_FILE) && (!addEOFMarker)) {
                     int size = ((String) scriptEngine.get("result")).length()-3;
                     pw.println(((String) scriptEngine.get("result")).substring(1, size)+ "],");
+                } else if (!addSOFMarker) {
+                    pw.println(((String) scriptEngine.get("result")).substring(1));
                 } else {
                     pw.println((String) scriptEngine.get("result"));
                 }
@@ -2015,7 +2117,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *         if the specified table doesn't exist or fails to load
      *********************************************************************************************/
     protected OrderedJSONObject getTableInformation(String tableName, boolean replaceMacros,
-            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators) {
+            boolean includeVariablePaths, boolean includeBuildInformation,
+            CcddVariableHandler variableHandler, String[] separators) {
         OrderedJSONObject tableInformation = null;
 
         // Store the table's data
@@ -2026,6 +2129,17 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         // Check that the table loaded successfully
         if (tableData != null) {
             tableInformation = new OrderedJSONObject();
+            
+            // Check if the build information is to be output
+            if (includeBuildInformation) {
+                // Create the file creation comment
+                tableInformation.put(JSONTags.FILE_DESCRIPTION.getTag(),
+                        "Created " + new Date().toString() + " : CCDD version = " + ccddMain.getCCDDVersionInformation()
+                        + " : project = " + dbControl.getProjectName() + " : host = " + dbControl.getServer()
+                        + " : user = " + dbControl.getUser());
+            }
+
+
 
             // Store the table's name, type, description, data, and data fields
             tableInformation.put(JSONTags.TABLE_NAME.getTag(), tableName);
@@ -3165,49 +3279,49 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         int beginIndex = 0;
         int endIndex = 0;
         
-        if (searchKey == JSONTags.INPUT_TYPE_DEFN.getAlternateTag()) {
+        if (searchKey == JSONTags.INPUT_TYPE_DEFN.getTag()) {
             /* Extract the data related to input type definitions */
-            beginIndex = data.toString().indexOf(JSONTags.INPUT_TYPE_DEFN.getAlternateTag());
-            endIndex = data.toString().indexOf(JSONTags.TABLE_TYPE_DEFN.getAlternateTag());
-        } else if (searchKey == JSONTags.TABLE_TYPE_DEFN.getAlternateTag()) {
+            beginIndex = data.toString().indexOf(JSONTags.INPUT_TYPE_DEFN.getTag());
+            endIndex = data.toString().indexOf(JSONTags.TABLE_TYPE_DEFN.getTag());
+        } else if (searchKey == JSONTags.TABLE_TYPE_DEFN.getTag()) {
             /* Extract the data related to table type definitions */
-            beginIndex = data.toString().indexOf(JSONTags.TABLE_TYPE_DEFN.getAlternateTag());
-            endIndex = data.toString().indexOf(JSONTags.DATA_TYPE_DEFN.getAlternateTag());
-        } else if (searchKey == JSONTags.DATA_TYPE_DEFN.getAlternateTag()) {
+            beginIndex = data.toString().indexOf(JSONTags.TABLE_TYPE_DEFN.getTag());
+            endIndex = data.toString().indexOf(JSONTags.DATA_TYPE_DEFN.getTag());
+        } else if (searchKey == JSONTags.DATA_TYPE_DEFN.getTag()) {
             /* Extract the data type definitions */
-            beginIndex = data.toString().indexOf(JSONTags.DATA_TYPE_DEFN.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.DATA_TYPE_DEFN.getTag());
             endIndex = data.toString().indexOf("]", beginIndex);
-        } else if (searchKey == JSONTags.MACRO_DEFN.getAlternateTag()) {
+        } else if (searchKey == JSONTags.MACRO_DEFN.getTag()) {
             /* Extract the data related to macro definitions */
-            beginIndex = data.toString().indexOf(JSONTags.MACRO_DEFN.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.MACRO_DEFN.getTag());
             endIndex = data.toString().indexOf("]", beginIndex);
-        } else if (searchKey == JSONTags.GROUP.getAlternateTag()) {
+        } else if (searchKey == JSONTags.GROUP.getTag()) {
             /* Extract the data related to group definitions */
-            beginIndex = data.toString().indexOf(JSONTags.GROUP.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.GROUP.getTag());
             endIndex = data.toString().indexOf("\n  ],\n", beginIndex);
-        } else if (searchKey == JSONTags.SCRIPT_ASSOCIATION.getAlternateTag()) {
+        } else if (searchKey == JSONTags.SCRIPT_ASSOCIATION.getTag()) {
             /* Extract the data related to script associations */
-            beginIndex = data.toString().indexOf(JSONTags.SCRIPT_ASSOCIATION.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.SCRIPT_ASSOCIATION.getTag());
             endIndex = data.toString().indexOf("]", beginIndex);
-        } else if (searchKey == JSONTags.TLM_SCHEDULER_COMMENT.getAlternateTag()) {
+        } else if (searchKey == JSONTags.TLM_SCHEDULER_COMMENT.getTag()) {
             /* Extract the data related to the telemetry scheduler */
-            beginIndex = data.toString().indexOf(JSONTags.TLM_SCHEDULER_COMMENT.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.TLM_SCHEDULER_COMMENT.getTag());
             endIndex = data.toString().indexOf("],", beginIndex);
-        } else if (searchKey == JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag()) {
+        } else if (searchKey == JSONTags.APP_SCHEDULER_COMMENT.getTag()) {
             /* Extract the data related to the application scheduler */
-            beginIndex = data.toString().indexOf(JSONTags.APP_SCHEDULER_COMMENT.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.APP_SCHEDULER_COMMENT.getTag());
             endIndex = data.toString().indexOf("]", beginIndex);
-        } else if (searchKey == JSONTags.RESERVED_MSG_ID_DEFN.getAlternateTag()) {
+        } else if (searchKey == JSONTags.RESERVED_MSG_ID_DEFN.getTag()) {
             /* Extract the data related to the project fields */
-            beginIndex = data.toString().indexOf(JSONTags.RESERVED_MSG_ID_DEFN.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.RESERVED_MSG_ID_DEFN.getTag());
             endIndex = data.toString().indexOf("]", beginIndex);
-        } else if (searchKey == JSONTags.PROJECT_FIELD.getAlternateTag()) {
+        } else if (searchKey == JSONTags.PROJECT_FIELD.getTag()) {
             /* Extract the data related to the project fields */
-            beginIndex = data.toString().indexOf(JSONTags.PROJECT_FIELD.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.PROJECT_FIELD.getTag());
             endIndex = data.toString().indexOf("]\n}", beginIndex);
-        } else if (searchKey == JSONTags.TABLE_DEFN.getAlternateTag()) {
+        } else if (searchKey == JSONTags.TABLE_DEFN.getTag()) {
             /* Extract the table definitions */
-            beginIndex = data.toString().indexOf(JSONTags.TABLE_DEFN.getAlternateTag());
+            beginIndex = data.toString().indexOf(JSONTags.TABLE_DEFN.getTag());
             endIndex = data.toString().indexOf("  ],\n\n", beginIndex);
         }
         

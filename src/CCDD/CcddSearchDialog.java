@@ -1,9 +1,32 @@
-/**
- * CFS Command and Data Dictionary search database tables, scripts, and event log dialog. Copyright
- * 2017 United States Government as represented by the Administrator of the National Aeronautics
- * and Space Administration. No copyright is claimed in the United States under Title 17, U.S.
- * Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddSearchDialog.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Dialog for the user to perform text string searches of the project database data tables
+*     and stored scripts. The dialog is built on the CcddDialogHandler class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -96,14 +119,10 @@ public class CcddSearchDialog extends CcddFrameHandler {
     private JLabel numMatchesLbl;
     private MultilineLabel selectedColumnsLbl;
 
-    // Pattern for matching search text in the table cells. The highlight pattern
-    // differs slightly
-    // from the search pattern depending of the type of search. If calling the
-    // PostgreSQL
-    // search_table() function the ignore case flag is provided as an option to the
-    // function
-    // instead of being part of the matching string (the '?i' flag). If searching a
-    // text string
+    // Pattern for matching search text in the table cells. The highlight pattern differs slightly
+    // from the search pattern depending of the type of search. If calling the PostgreSQL
+    // search_table() function the ignore case flag is provided as an option to the function
+    // instead of being part of the matching string (the '?i' flag). If searching a text string
     // (e.g., a log entry) the '?i' flag is used in the matching string
     private Pattern searchPattern;
     private Pattern highlightPattern;
@@ -119,13 +138,11 @@ public class CcddSearchDialog extends CcddFrameHandler {
     private String prevColumns;
 
     // String containing the names of columns, separated by commas, to which to
-    // constrain a table
-    // search
+    // constrain a table search
     private String searchColumns;
 
     // Row index to match if this is an event log entry search on a table that
-    // displays only a
-    // single log entry; null otherwise
+    // displays only a single log entry; null otherwise
     private final Long targetRow;
 
     // Search dialog type

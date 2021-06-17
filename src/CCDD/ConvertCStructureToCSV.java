@@ -1,13 +1,33 @@
-/**
- * CFS Command and Data Dictionary C header file conversion handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file ConvertCStructureToCSV.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing methods that can be used to convert a C header file to CSV format
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -49,9 +69,6 @@ public class ConvertCStructureToCSV
     public FileEnvVar[] convertFile(FileEnvVar[] dataFiles, CcddMain ccddMain) {
         /* Create a list to hold all file */
         List<FileEnvVar> newDataFile = new ArrayList<FileEnvVar>();
-        
-        // TODO need to display this as a dialog
-        // TODO remove all prints and make them dialog messages
         String message = "Macro values or formulae for a variable's array size or bit length are \n"
                 + "converted to CCDD macros. However, the value of these macros is set to \n"
                 + "\"2\" - the user may edit the CSV file to update the macro values \n"
@@ -60,9 +77,11 @@ public class ConvertCStructureToCSV
                 + "size evaluates to less than 2 (array size must be >= 2).";
         
         if (!ccddMain.isGUIHidden()) {
-            boolean dialog = new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), message,
+            if (!(new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), message,
                     "Notice", JOptionPane.QUESTION_MESSAGE,
-                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
+                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)) {
+                System.out.print(message + "\n");
+            }
         } else {
             System.out.print(message + "\n");
         }
@@ -70,8 +89,8 @@ public class ConvertCStructureToCSV
         try {
             structDataIn = new ArrayList<String>();
             structDataOut = new ArrayList<String>();
-            macros = new ArrayList<String>();
             List<String> variableNames = new ArrayList<String>();
+            macros = new ArrayList<String>();
 
             // Step through each file
             for (FileEnvVar file : dataFiles) {
@@ -108,25 +127,59 @@ public class ConvertCStructureToCSV
                 // Close the input file
                 br.close();
             }
-
-            // Get the row index where any macros will be stored in the output file
-            macroIndex = structDataOut.size();
             
             structDataOut.add("c_struct_to_csv_conversion");
+            
+            boolean firstMacro = true;
 
             // Step through each row of the input file data
             for (int row = 0; row < structDataIn.size(); row++) {
                 String structName = "";
                 boolean isTypeDef = false;
 
-                // Check if this is a type definition or a structure or neither
+                // Check if this is a type, structure or macro definition.
                 if (structDataIn.get(row).matches("\\s*typedef\\s+struct\\s*\\{?\\s*(?:$||/\\*.*|//.*)")) {
                     // Set the flag indicating this is a type definition
                     isTypeDef = true;
+                    
+                    if (!firstMacro) {
+                        structDataOut.add("\n");
+                        firstMacro = true;
+                        macroIndex = structDataOut.size();
+                    }
                 } else if (structDataIn.get(row).startsWith("struct")) {
                     // Get the structure's name
                     structName = structDataIn.get(row).replaceAll("struct\\s*([a-zA-Z_][a-zA-Z0-9_]*).*", "$1");
+                    
+                    if (!firstMacro) {
+                        structDataOut.add("\n");
+                        firstMacro = true;
+                        macroIndex = structDataOut.size();
+                    }
+                } else if (structDataIn.get(row).startsWith("#define")) {
+                    String[] macroData = structDataIn.get(row).split(" ");
+                    String name = "";
+                    String value = "";
+                    
+                    if (macroData.length == 3) {
+                        name = macroData[1];
+                        value = macroData[2];
+                        
+                        if (firstMacro) {
+                            structDataOut.add("\n_macro_");
+                            firstMacro = false;
+                        }
+                        structDataOut.add("\"" + name + "\",\"" + value + "\"");  
+                        macros.add(name);
+                    }
+                    
+                    continue;                    
                 } else {
+                    if (!firstMacro) {
+                        structDataOut.add("\n");
+                        firstMacro = true;
+                        macroIndex = structDataOut.size();
+                    }
                     // Not a type definition or a structure so skip this row
                     continue;
                 }
@@ -292,6 +345,14 @@ public class ConvertCStructureToCSV
 
                                         // Evaluate and adjust the array size for macros
                                         arraySize = getMacros(arraySize);
+                                        
+                                        if (arraySize.contains("##")) {
+                                            String macroName = arraySize.replace("#", "");
+                                            if (!macros.contains(macroName)) {
+                                                structDataOut.add(macroIndex-1, "\"" + macroName + "\",\"2\"");
+                                                macroIndex++;
+                                            }
+                                        }
                                     }
                                     // Check if the variable has a bit length
                                     else if (variableName.contains(":")) {
@@ -458,9 +519,6 @@ public class ConvertCStructureToCSV
                     for (String macroName : part.split("\\s*[\\(\\)\\+\\-\\*\\/]\\s*")) {
                         // Check if this is a macro name
                         if (macroName.matches("[a-zA-Z_].*")) {
-                            // Add the macro to the list
-                            addMacro(macroName);
-
                             // Bound each instance of the macro's name with the macro identifier
                             part = part.replaceAll("(^|[^" + MACRO_IDENTIFIER + "])" + macroName
                                     + "([^" + MACRO_IDENTIFIER + "]|$)", "$1" + MACRO_IDENTIFIER
@@ -473,9 +531,6 @@ public class ConvertCStructureToCSV
                 }
                 // The macro isn't a mathematical expression
                 else {
-                    // Add the macro to the list
-                    addMacro(part);
-
                     // Add the macro identifier to the macro name
                     outputString += MACRO_IDENTIFIER + part + MACRO_IDENTIFIER;
                 }
@@ -492,33 +547,5 @@ public class ConvertCStructureToCSV
 
         // Remove the trailing comma
         return outputString.substring(0, outputString.length() - 1);
-    }
-
-    /**********************************************************************************************
-     * Add a macro definition to the macro list if it does not already exist in the list. Macro
-     * values are set to '2' by default; macros that are a mathematical expression are set to the
-     * expression
-     *
-     * @param macroName
-     *            macro name
-     *********************************************************************************************/
-    private void addMacro(String macroName) {
-        // Check if the macro hasn't already been defined
-        if (!macros.contains(macroName)) {
-            // Check if this is the first macro
-            if (macros.isEmpty()) {
-                // Create the macro tag
-                structDataOut.add(macroIndex, "_macros_");
-                macroIndex++;
-                structDataOut.add(macroIndex, "");
-            }
-
-            // Add the macro to the list
-            macros.add(macroName);
-
-            // Add the macro definition. Set the default value to '2'
-            structDataOut.add(macroIndex, "\"" + macroName + "\",\"2\"");
-            macroIndex++;
-        }
     }
 }

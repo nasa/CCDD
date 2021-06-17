@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary database control handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddDbControlHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing the methods for connecting to, creating, copying, renaming, and deleting
+*     project databases.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
@@ -108,16 +130,14 @@ public class CcddDbControlHandler {
     private String activePassword;
     private AccessLevel accessLevel;
 
-    // Flag indicating if the database connection attempt failed due to a missing
-    // password
+    // Flag indicating if the database connection attempt failed due to a missing password
     private boolean isAuthenticationFail;
 
     // Array of reserved words
     private String[] keyWords;
 
     // Current connection status (none, connected to the server (default database),
-    // or connected to
-    // a database
+    // or connected to a database
     private ConnectionType connectionStatus;
 
     // SQL database connection
@@ -126,8 +146,7 @@ public class CcddDbControlHandler {
     // Flag that indicates is an SSL connection is enabled
     private boolean isSSL;
 
-    // File path and name to automatically backup the database to on first
-    // connection
+    // File path and name to automatically backup the database to on first connection
     private String backupFileName;
 
     // PostgreSQL function parameters
@@ -138,6 +157,8 @@ public class CcddDbControlHandler {
 
     // Temporary data storage table
     private static final String TEMP_TABLE_NAME = INTERNAL_TABLE_PREFIX + "temp_table";
+    
+    private boolean addDefaultDataTypes;
 
     /**********************************************************************************************
      * Input stream consumer class
@@ -230,14 +251,13 @@ public class CcddDbControlHandler {
         backupFileName = "";
         isSSL = false;
         isFirstConnectionAttempt = true;
+        addDefaultDataTypes = true;
 
         // Reset the flag that indicates a connection failure occurred due to a missing
-        // or invalid
-        // user name or password
+        // or invalid user name or password
         isAuthenticationFail = false;
 
-        // Create the parameters for the the 'by name' and 'by index' postgreSQL
-        // functions
+        // Create the parameters for the the 'by name' and 'by index' postgreSQL functions
         functionParameters = new String[][] { { "name", DefaultColumn.VARIABLE_NAME.getDbName() },
                 { "index", DefaultColumn.ROW_INDEX.getDbName() } };
     }
@@ -291,8 +311,7 @@ public class CcddDbControlHandler {
      *********************************************************************************************/
     protected String convertProjectNameToDatabase(String projectName) {
         // Convert any upper case characters to lower case, prepend an underscore if the
-        // name
-        // begins with a numeral, and replace all special characters with an underscore
+        // name  begins with a numeral, and replace all special characters with an underscore
         String databaseName = projectName.toLowerCase().replaceFirst("^([0-9])", "_$1").replaceAll("[^a-z0-9_]", "_");
 
         // Check if the database name is longer than allowed
@@ -496,15 +515,11 @@ public class CcddDbControlHandler {
     protected List<String> getUserAdminAccess() {
         List<String> adminAccess = new ArrayList<String>();
 
-        // Step through the array containing the database name, lock status, visible
-        // (project)
-        // name, project administrator(s), and description for each project to which the
-        // current
-        // user has access
+        // Step through the array containing the database name, lock status, visible (project) name,
+        // project administrator(s), and description for each project to which the current user has access
         for (String userDbInfo : queryDatabaseByUserList(ccddMain.getMainFrame(), activeUser)) {
             // Separate the information retrieved into the database name and its comment,
-            // then
-            // parse the comment into its separate fields
+            // then parse the comment into its separate fields
             String[] nameAndComment = userDbInfo.split(DATABASE_COMMENT_SEPARATOR, 2);
             String commentFields[] = parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
 
@@ -611,8 +626,7 @@ public class CcddDbControlHandler {
         for (String keyWord : keyWords) {
             // Check if the table/column name matches the reserved word
             if (name.equalsIgnoreCase(keyWord)) {
-                // Set the flag to indicate the supplied name is a reserved word and stop
-                // searching
+                // Set the flag to indicate the supplied name is a reserved word and stop searching
                 isKeyWord = true;
                 break;
             }
@@ -850,8 +864,7 @@ public class CcddDbControlHandler {
                         .append(databaseName).append("';"), ccddMain.getMainFrame());
             resultSet.next();
 
-            // Parse the comment, with the CFS project identifier removed, into its separate
-            // fields
+            // Parse the comment, with the CFS project identifier removed, into its separate fields
             commentFields = parseDatabaseComment(databaseName, resultSet.getString(1).substring(CCDD_PROJECT_IDENTIFIER.length()));
 
             resultSet.close();
@@ -886,31 +899,23 @@ public class CcddDbControlHandler {
         String[] commentParts = comment.split(DATABASE_COMMENT_SEPARATOR, DatabaseComment.values().length);
 
         // Check if at least 3 fields exist, the first field is either '0' or '1', and
-        // the second
-        // field is the project name
+        // the second field is the project name
         if (commentParts.length >= 2 && commentParts[0].matches("[01]")
                 && databaseName.equals(convertProjectNameToDatabase(commentParts[1]))) {
             // Check if all the expected fields exist and the third field meets the
-            // constraints for
-            // one or more user names
+            // constraints for one or more user names
             if (commentParts.length >= DatabaseComment.values().length && commentParts[2].matches(
                     "(?:" + DefaultInputType.ALPHANUMERIC.getInputMatch() + DATABASE_ADMIN_SEPARATOR + "?)+")) {
-                // Comment is in the post patch #07242018 format (lock status;project
-                // name;project
-                // creator;description). This check can be fooled if the description contains a
-                // semi-colon and the text prior to the semi-colon matches an alphanumeric.
-                // Store
-                // the comment fields
+                // Comment is in the post patch #07242018 format (lock status;project name;project creator;description).
+                // This check can be fooled if the description contains a semi-colon and the text prior to the semi-colon
+                // matches an alphanumeric. Store the comment fields
                 commentFields = commentParts;
             }
-            // The comment is in the post patch #07112017 format (lock status;project
-            // name;description)
+            // The comment is in the post patch #07112017 format (lock status;project name;description)
             else {
                 // Get the lock status, project name, and description from the comment
-                commentFields[DatabaseComment.LOCK_STATUS.ordinal()] = commentParts[DatabaseComment.LOCK_STATUS
-                        .ordinal()];
-                commentFields[DatabaseComment.PROJECT_NAME.ordinal()] = commentParts[DatabaseComment.PROJECT_NAME
-                        .ordinal()];
+                commentFields[DatabaseComment.LOCK_STATUS.ordinal()] = commentParts[DatabaseComment.LOCK_STATUS.ordinal()];
+                commentFields[DatabaseComment.PROJECT_NAME.ordinal()] = commentParts[DatabaseComment.PROJECT_NAME.ordinal()];
                 commentFields[DatabaseComment.DESCRIPTION.ordinal()] = commentParts[DatabaseComment.ADMINS.ordinal()];
 
                 // Set the project creator to a blank to indicate it's unknown
@@ -924,8 +929,7 @@ public class CcddDbControlHandler {
             commentFields[DatabaseComment.DESCRIPTION.ordinal()] = comment.substring(1);
 
             // Set the project name to the database name and set the project creator to a
-            // blank to
-            // indicate it's unknown
+            // blank to indicate it's unknown
             commentFields[DatabaseComment.PROJECT_NAME.ordinal()] = databaseName;
             commentFields[DatabaseComment.ADMINS.ordinal()] = "";
         }
@@ -965,12 +969,9 @@ public class CcddDbControlHandler {
      * @param lockStatus  true if the database is locked; false if unlocked
      *********************************************************************************************/
     protected void setDatabaseLockStatus(String projectName, boolean lockStatus) {
-        // Check if the GUI is visible. If the application is started with the GUI
-        // hidden (via
-        // command line command) then the project database lock status is not changed.
-        // This allows,
-        // for example, web server access or script execution when another instance of
-        // CCDD has
+        // Check if the GUI is visible. If the application is started with the GUI hidden (via
+        // command line command) then the project database lock status is not changed. This allows,
+        // for example, web server access or script execution when another instance of CCDD has
         // opened the database
         if (!ccddMain.isGUIHidden()) {
             // Convert the project name into its database form
@@ -1017,8 +1018,7 @@ public class CcddDbControlHandler {
         String[] comment = getDatabaseComment(databaseName);
 
         // Check if a comment was successfully retrieved and that the project
-        // administrator is
-        // present
+        // administrator is present
         if (comment != null && !comment[DatabaseComment.ADMINS.ordinal()].isEmpty()) {
             // Add the user to the string of database administrators
             admins = comment[DatabaseComment.ADMINS.ordinal()];
@@ -1325,7 +1325,6 @@ public class CcddDbControlHandler {
             connection.setAutoCommit(true);
 
             /* Execute the command to create the project database */
-            // TODO: Below I will have to change how the comment command is handled */
             command.append("CREATE DATABASE ").append(getQuotedName(databaseName)).append(" ENCODING 'UTF8'; ")
                    .append(buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false, description))
                    .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, databaseName))
@@ -1766,6 +1765,8 @@ public class CcddDbControlHandler {
                 /* Update the column build command with the creator name */
                 columnCommand = columnCommand.replaceFirst("_admin_user_", creator);
             }
+        } else if (intTable == InternalTable.DATA_TYPES) {
+            columnCommand = columnCommand.split("INSERT INTO")[0];
         }
 
         return "CREATE TABLE " + intTable.getTableName() + " " + columnCommand
@@ -1838,52 +1839,33 @@ public class CcddDbControlHandler {
         boolean errorFlag = false;
 
         try {
-            // System.out.println("\nconnectToDatabase"); // TODO
             connectionStatus = NO_CONNECTION;
 
-            // TODO QUESTION AS TO WHETHER setLoginTimeout() DOES ANYTHING. TRIED SETTING
-            // PROPERTY
-            // INSTEAD BUT IT HAD NO DISCERNABLE EFFECT; SAME FOR SETTING socketTimeout
             // Set the time allowed for the connection to occur
             // DriverManager.setLoginTimeout(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize());
             Properties properties = new Properties();
             properties.put("connectTimeout",
                     String.valueOf(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize() * 1000));
 
-            // System.out.println(" attempt conn"); // TODO GETS HUNG UP ON THE CALL BELOW
-            // SOMETIMES.
-            // WHY DOESN'T IT TIME OUT AND THROW AN EXCEPTION?
-            // connection = DriverManager.getConnection(getDatabaseURL(databaseName) +
-            // "?user=" +
-            // activeUser + "&password=" + activePassword + "&socketTimeout=5000",
-            // properties);
-
             // Connect the user to the database
             connection = DriverManager.getConnection(getDatabaseURL(databaseName), activeUser, activePassword);
-            // end TODO
 
             dbCommand.setStatement(connection.createStatement());
-            // System.out.println(" conn success"); // TODO
 
             // Reset the flag that indicates a connection failure occurred due to a missing
-            // or
-            // invalid user name or password
+            // or invalid user name or password
             isAuthenticationFail = false;
 
             // Set the transaction isolation mode to serializable to prevent transaction
-            // collisions
-            // if there are concurrent users of the database
+            // collisions if there are concurrent users of the database
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
             // Disable automatic commit of database updates. This allows database commands
-            // to be
-            // grouped prior to committing
+            // to be grouped prior to committing
             connection.setAutoCommit(false);
 
-            // The connection to the server must exist in order to reach this point, so set
-            // the
-            // connection status to indicate the server is connected. If connecting to a
-            // specific
+            // The connection to the server must exist in order to reach this point, so set the
+            // connection status to indicate the server is connected. If connecting to a specific
             // project, once the connection is completed the flag is updated accordingly
             connectionStatus = TO_SERVER_ONLY;
 
@@ -1893,8 +1875,7 @@ public class CcddDbControlHandler {
             // Save the name of the newly connected database
             setDatabaseName(databaseName);
 
-            // Check if the reserved word list hasn't been retrieved or if a connection to
-            // the
+            // Check if the reserved word list hasn't been retrieved or if a connection to the
             // server is made (the new server may be a different PostgreSQL version and have
             // different key words)
             if (keyWords == null || databaseName.equals(DEFAULT_DATABASE)) {
@@ -1968,7 +1949,6 @@ public class CcddDbControlHandler {
                         .append(" to project '").append(activeProject).append("' as user '").append(activeUser).append("'"));
             }
         } catch (SQLException se) {
-            // System.out.println(" conn failed"); // TODO
             // Check if the connection failed due to a missing or invalid password
             if ((se.getMessage().contains("authentication failed") || se.getMessage().contains("password"))
                     && !ccddMain.isGUIHidden()) {
@@ -1976,10 +1956,8 @@ public class CcddDbControlHandler {
                 // invalid user name or password
                 isAuthenticationFail = true;
             }
-            // Connection failed for reason other than a missing password. Check if this
-            // isn't a
-            // reconnection attempt (errors are suppressed here if a reconnection attempt
-            // fails)
+            // Connection failed for reason other than a missing password. Check if this isn't a
+            // reconnection attempt (errors are suppressed here if a reconnection attempt fails)
             else if (!isReconnect) {
                 // Inform the user that the database connection failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1996,15 +1974,13 @@ public class CcddDbControlHandler {
             errorFlag = true;
         }
 
-        // Check if a connection is established. Don't log the version information when
-        // reconnecting
+        // Check if a connection is established. Don't log the version information when reconnecting
         if (!errorFlag && !isReconnect) {
             // Log the PostgreSQL and JDBC versions
             eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("PostgreSQL: ")
                     .append(getDatabaseVersion()).append("  *** JDBC: ").append(getJDBCVersion()));
         }
 
-        // System.out.println(" return " + errorFlag); // TODO
         return errorFlag;
     }
 
@@ -2036,11 +2012,33 @@ public class CcddDbControlHandler {
      *
      * @param createFunctions true to create the database functions; false if
      *                        reopening a database (so the functions already exist)
+     *                        
+     * @param addDefaultDataTypes Should the default data type be added to the database? This is normally
+     *                            false only when restoring a database from JSON or CSV
      *
      * @return true if an error occurred opening the database; false if the database
      *         successfully opened
      *********************************************************************************************/
     protected boolean openDatabase(String projectName, boolean createFunctions) {
+        return openDatabase(projectName, serverHost, serverPort, isSSL, createFunctions);
+    }
+    
+    /**********************************************************************************************
+     * Open a database using the current host, port, and SSL settings
+     *
+     * @param projectName     name of the project to open
+     *
+     * @param createFunctions true to create the database functions; false if
+     *                        reopening a database (so the functions already exist)
+     *                        
+     * @param addDefaultDataTypes Should the default data type be added to the database? This is normally
+     *                            false only when restoring a database from JSON or CSV
+     *
+     * @return true if an error occurred opening the database; false if the database
+     *         successfully opened
+     *********************************************************************************************/
+    protected boolean openDatabase(String projectName, boolean createFunctions, boolean addDefaultDataTypes) {
+        this.addDefaultDataTypes = addDefaultDataTypes;
         return openDatabase(projectName, serverHost, serverPort, isSSL, createFunctions);
     }
 
@@ -2071,8 +2069,7 @@ public class CcddDbControlHandler {
             String databaseName = convertProjectNameToDatabase(projectName);
 
             // Check if the required server inputs are available. A password may be needed;
-            // if so,
-            // then it is requested after the connection attempt fails
+            // if so, then it is requested after the connection attempt fails
             if (serverHost != null && activeUser != null && !serverHost.isEmpty() && !activeUser.isEmpty()) {
                 try {
                     // Store the host, port, and SSL settings as the new defaults
@@ -2115,13 +2112,13 @@ public class CcddDbControlHandler {
                             throw new CCDDException();
                         }
 
-                        // Create and set the project-specific handlers that must be created after
-                        // creating the project-specific PostgreSQL functions
-                        ccddMain.setPostFunctionDbSpecificHandlers();
-
                         // Perform any patches to update this project database to the latest schema
                         // that must be implemented after initializing the handler classes
                         patchHandler.applyPatches(false);
+                        
+                        // Create and set the project-specific handlers that must be created after
+                        // creating the project-specific PostgreSQL functions
+                        ccddMain.setPostFunctionDbSpecificHandlers();
 
                         // Set the user's access level
                         setAccessLevel();
@@ -2207,7 +2204,7 @@ public class CcddDbControlHandler {
 
                     // Check that successful connection was made to a project database and not just
                     // the server (default database)
-                    if (isDatabaseConnected()) {
+                    if (isDatabaseConnected() && addDefaultDataTypes) {
                         // Parse any command line commands that require a project database to be
                         // open
                         ccddMain.parseDbSpecificCommandLineCommands();

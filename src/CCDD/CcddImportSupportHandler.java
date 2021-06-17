@@ -1,10 +1,34 @@
-/**
- * CFS Command and Data Dictionary import support handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddImportSupportHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing support methods for classes based on the CcddImportExportInterface class.
+*     The support methods handle validation and addition of table types and data fields, and for
+*     obtaining the user’s response to a non-fatal error condition. Classes utilizing these support
+*     methods must extend this class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
@@ -32,7 +56,6 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeFormat;
-import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -45,14 +68,12 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
  *************************************************************************************************/
 public class CcddImportSupportHandler {
     // Names of the structure tables that represent the common header for all
-    // telemetry and command
-    // tables
+    // telemetry and command tables
     protected String tlmHeaderTable;
     protected String cmdHeaderTable;
 
     // Telemetry and command header variable names for the application ID, and
-    // command header
-    // variable name for the command function code
+    // command header variable name for the command function code
     protected String applicationIDName;
     protected String cmdFuncCodeName;
     
@@ -97,7 +118,7 @@ public class CcddImportSupportHandler {
      * @param None
      *********************************************************************************************/
     void setMacroHandler(CcddMacroHandler macroHandler) {
-        this.macroHandler = macroHandler;
+        CcddImportSupportHandler.macroHandler = macroHandler;
     }
 
     /**********************************************************************************************
@@ -1046,7 +1067,6 @@ public class CcddImportSupportHandler {
      *********************************************************************************************/
     protected ImmutablePair<Boolean, List<String[]>> convertToUniqueList(List<String[]> NewMacroDefns)
     {
-        // TODO This could be made generic with an input that is comparable
         if(NewMacroDefns == null){
             return null;
         }

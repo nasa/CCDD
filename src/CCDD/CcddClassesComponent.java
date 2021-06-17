@@ -1,9 +1,32 @@
-/**
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddClassesComponent.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Collection of common classes used by other CCDD classes. These classes, in general, override
+*     existing Java component classes or introduce new ones.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
@@ -2065,12 +2088,10 @@ public class CcddClassesComponent {
         // Maximum number of items to maintain in the auto-complete list
         private final int maxItems;
 
-        // Flag that determines if the text entered must match the case of the text in
-        // the list
+        // Flag that determines if the text entered must match the case of the text in the list
         private boolean isCaseSensitive;
 
-        // Flag that determines if only selections from the list are valid; if false
-        // then input
+        // Flag that determines if only selections from the list are valid; if false then input
         // other than what's in the list is valid
         private boolean isOnlyFromList;
 
@@ -2230,6 +2251,7 @@ public class CcddClassesComponent {
                                 ((PlainDocument) getDocument()).replace(startIndex, length, null, null);
                             }
                         } catch (BadLocationException ble) {
+                            // Ignore the exception
                         }
 
                         // Check if text not in the list is allowed (this is required for correct
@@ -2315,6 +2337,7 @@ public class CcddClassesComponent {
                 int length = Math.max(getCaret().getDot(), getCaret().getMark()) - startIndex;
                 ((AutoDocument) getDocument()).replace(startIndex, length, selectedTxt, null);
             } catch (Exception exception) {
+                // Ignore the exception
             }
         }
 
@@ -4064,9 +4087,6 @@ public class CcddClassesComponent {
          *****************************************************************************************/
         @Override
         public void paintComponent(final Graphics g) {
-            // TODO ADDED TRY-CATCH DUE TO ARRAY OUT OF BOUNDS EXCEPTIONS WHEN IMPORTING A
-            // LARGE
-            // NUMBER OF TABLES (WHICH CREATE A LARGE NUMBER OF TABLE EDITORS)
             try {
                 super.paintComponent(g);
             } catch (Exception e) {

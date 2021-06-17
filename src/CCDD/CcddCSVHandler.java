@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary CSV handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddCSVHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for handling import and export of data tables in CSV format. This class implements the
+*     CcddImportExportInterface class.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -23,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 
@@ -45,6 +68,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.FileNames;
 import CCDD.CcddConstants.GroupDefinitionColumn;
+import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -63,6 +87,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddDbTableCommandHandler dbTable;
+    private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddInputTypeHandler inputTypeHandler;
@@ -94,9 +119,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         DATA_TYPE("_data_type_", "_data_types_"), INPUT_TYPE("_input_type_", "_input_types_"),
         RESERVED_MSG_IDS("_reserved_msg_id_", "_reserved_msg_ids_"),
         PROJECT_DATA_FIELD("_project_data_field_", "_project_data_fields_"),
-        VARIABLE_PATHS("_variable_path_", "_variable_paths_"), GROUP("_group_", null),
+        VARIABLE_PATHS("_variable_path_", "_variable_paths_"), GROUP("_group_", null), DBU_INFO("_dbu_info_", null),
         GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"), SCRIPT_ASSOCIATION("_script_association_", null),
-        APP_SCHEDULER("_app_sched_", null), TELEM_SCHEDULER("_telem_sched_", null), RATE_INFO("_rate_info_", null);
+        APP_SCHEDULER("_app_sched_", null), TELEM_SCHEDULER("_telem_sched_", null), RATE_INFO("_rate_info_", null), FILE_DESCRIPTION("File Description", "");
 
         private final String tag;
         private final String alternateTag;
@@ -203,6 +228,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         this.groupHandler = groupHandler;
         rateHandler = ccddMain.getRateParameterHandler();
         appHandler = ccddMain.getApplicationParameterHandler();
+        dbControl = ccddMain.getDbControlHandler();
         tableDefinitions = null;
         associations = null;
     }
@@ -333,7 +359,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 maximumBytesPerSecond[0] = Integer.parseInt(Columns[6]);
                 
                 /* Set and store the rate parameters obtained from the JSON file */
-                /* TODO: three of these are blank strings. Not sure how to handle them yet */
                 rateHandler.setRateParameters(maxSecPerMsg, maxMsgsPerSec, rateDataStreamNames,
                         maximumMessagesPerCycle, maximumBytesPerSecond, includeUneven, parent);
             }
@@ -378,8 +403,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
-            /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("1Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
 
         return;
@@ -644,8 +668,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
-            /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("2Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         return;
     }
@@ -785,8 +808,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
         } catch (Exception pe) {
             /* Inform the user that the file cannot be parsed */
-            /* TODO: Add more code here to handle exceptions */
-            throw new CCDDException("3Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
+            throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
         return;
     }
@@ -1046,6 +1068,54 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    /**********************************************************************************************
+     * Grab the database name, description and users. Each piece of data will be separated by
+     * a comma.
+     *
+     * @return The database information separated by a comma.
+     *********************************************************************************************/
+    protected String getDBUInfo() {
+        String FinalOutput = "";
+
+        try {
+            // Grab the database comment
+            String[] comment = dbControl.getDatabaseComment(dbControl.getDatabaseName());
+            
+            if (comment.length > 0) {
+                FinalOutput += "\n" + CSVTags.DBU_INFO.getTag() + "\n";
+                
+                // Add the database name
+                FinalOutput += "\"" + comment[1] + "\",";
+                
+                // Add the user access level information
+                String[][] usersAndAcessLevel = dbTable.retrieveInformationTable(InternalTable.USERS, true, ccddMain.getMainFrame())
+                        .toArray(new String[0][0]);
+                
+                String usersAndAcessLevelDataToExport = "";
+                
+                // Each user will be added with their individual access level in the format of 
+                // "user1:accessLevel,user2:accessLevel"
+                for (int index = 0; index < usersAndAcessLevel.length; index++) {
+                    usersAndAcessLevelDataToExport += usersAndAcessLevel[index][0] + ":" +
+                            usersAndAcessLevel[index][1];
+                    if (index != usersAndAcessLevel.length - 1) {
+                        usersAndAcessLevelDataToExport += ",";
+                    }
+                }
+                                
+                // Add the database users
+                FinalOutput += "\"" + usersAndAcessLevelDataToExport + "\",";
+                
+                // Add the database description
+                FinalOutput += "\"" + comment[3] + "\"";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return FinalOutput;
     }
     
     /**********************************************************************************************
@@ -1374,6 +1444,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *                                flag ('true' or 'false'), and data
      *                                type/variable name separator character(s);
      *                                null if includeVariablePaths is false
+     *                                
+     * @param addEOFMarker            Is this the last data to be added to the file?
      *
      * @param extraInfo               unused
      *
@@ -1384,7 +1456,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
-            String[] separators, String outputType, Object... extraInfo) throws CCDDException, Exception {
+            String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws CCDDException, Exception {
         /* Init local variables */
         FileWriter fw = null;
         BufferedWriter bw = null;
@@ -1415,7 +1487,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             /* Step through each table */
             for (String tblName : tableNames) {
                 /* Get the information from the database for the specified table */
-                TableInformation tableInfo = dbTable.loadTableData(tblName, true, false, parent);
+                TableInformation tableInfo = dbTable.loadTableData(tblName, true, false, false, parent);
 
                 /* Check if the table's data successfully loaded */
                 if (!tableInfo.isErrorFlag()) {
@@ -1435,6 +1507,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     if (replaceMacros) {
                         /* Replace all macro names with their corresponding values */
                         tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
+                    }
+                    
+                    // Check if the build information is to be output
+                    if (includeBuildInformation) {
+                        // Create the file creation comment
+                        pw.printf("\"" + CSVTags.FILE_DESCRIPTION.getTag() + " Created %s : CCDD version = %s : project = %s : host = %s : user = %s\"\n",
+                                new Date().toString(), ccddMain.getCCDDVersionInformation(), dbControl.getProjectName(), dbControl.getServer(), dbControl.getUser());
+                        
+                        // If we are exporting to a single file then set includeBuildInformation to false after the first printout
+                        // to prevent it being added to the same file multiple times
+                        if (outputType == EXPORT_SINGLE_FILE) {
+                            includeBuildInformation = false;
+                        }
                     }
 
                     /* Output the table path (if applicable) and name, table type, and system path (if provided) */
@@ -1625,6 +1710,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             case PROJECT_FIELDS:
                                 FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.PROJECT_DATA_FIELD.CSV());
                                 break;
+                                
+                            case DBU_INFO:
+                                FinalExportFile = new FileEnvVar(exportFile + "/" + FileNames.DBU_INFO.CSV());
+                                break;
                         }
                     } else {
                         if (!fwCreated) {
@@ -1768,6 +1857,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                     }
                                 }
                             }
+                            
+                            if (outputType.contentEquals(EXPORT_MULTIPLE_FILES)) {
+                                FinalOutput += "\n\n";
+                            }
+                            
                             break;
             
                         case TELEMSCHEDULER:
@@ -1881,6 +1975,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                             
                             break;
+                            
+                        case DBU_INFO:
+                            /* Output the DBU Info */
+                            FinalOutput += getDBUInfo();
+                            
+                            break;
                     }
         
                     /* If there is any data than write it to the file */
@@ -1896,8 +1996,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         }
                     }
                 } catch (Exception e) {
-                    throw new CCDDException(e.getMessage());
-                    /* TODO: Add more code to handle the exception here */
+                    /* Inform the user that the export failed */
+                    throw new CCDDException("Export error; cause '</b>" + e.getMessage() + "<b>'");
                 }
             }
             counter++;
@@ -1921,13 +2021,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param outputType        String representing rather the output is going to a
      *                          single file or multiple files. Should be EXPORT_SINGLE_FILE or
      *                          EXPORT_MULTIPLE_FILES
+     *                          
+     * @param addEOFMarker      Is this the last data to be added to the file?
+     * 
+     * @param addSOFMarker      Is this the first data to be added to the file?
      * 
      * @throws CCDDException If a file I/O or parsing error occurs
      * 
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
-            boolean includeInputTypes, boolean includeDataTypes, String outputType) throws CCDDException, Exception {
+            boolean includeInputTypes, boolean includeDataTypes, String outputType,
+            boolean addEOFMarker, boolean addSOFMarker) throws CCDDException, Exception {
         /* Init local variables */
         List<String> referencedTableTypes = new ArrayList<String>();
         List<String> referencedInputTypes = new ArrayList<String>();
@@ -2050,8 +2155,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 pw.printf("\n");
             }
         } catch (Exception e) {
-            throw new CCDDException(e.getMessage());
-            /* TODO: Add more code to handle the exception here */
+            /* Inform the user that the export failed */
+            throw new CCDDException("Export error; cause '</b>" + e.getMessage() + "<b>'");
         } finally {
             /* Check if the PrintWriter was opened */
             if (pw != null) {
@@ -2181,6 +2286,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             
             if (endIndex != -1 && beginIndex != -1) {
                 outData = new StringBuilder(data.toString().substring(beginIndex, endIndex));
+            } else if (beginIndex != -1) {
+                outData = new StringBuilder(data.toString().substring(beginIndex));
             }
         } else if (searchKey == CSVTags.TELEM_SCHEDULER.getTag()) {
             /* Extract the data related to the telemetry scheduler */

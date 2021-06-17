@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary web data access handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddWebDataAccessHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class that accepts web access commands and provides JSON formatted output of the
+*     requested project data.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -62,17 +84,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
     private CcddGroupHandler groupHandler;
 
     // Flag that indicates if the macro name(s) in the table cells is to be replaced
-    // by the
-    // corresponding macro values
+    // by the corresponding macro values
     private boolean isReplaceMacro;
 
-    // Flag that indicates if the variable paths are to be appended to structure
-    // table data
+    // Flag that indicates if the variable paths are to be appended to structure table data
     private boolean isIncludePath;
 
     // Flag that indicates if the table tree path list should only include table
-    // names to a
-    // specified level in the tree. This is used to get the root tables
+    // names to a specified level in the tree. This is used to get the root tables
     private boolean isMaxLevel;
 
     /**********************************************************************************************
@@ -123,8 +142,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         }
 
         // Process the request and get the information encoded as a JSON string. The
-        // leading '/' is
-        // removed from the request path
+        // leading '/' is removed from the request path
         String jsonResponse = getQueryResults(target.replaceFirst("^/", "").trim(), query);
 
         // Check if the specified content was loaded successfully
@@ -251,8 +269,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         String response = null;
 
         // Log the web server request. Mask the password for authentication requests
-        // (match an
-        // expanded range in case the user mistypes the command)
+        // (match an expanded range in case the user mistypes the command)
         eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder("Request component '").append(component)
                 .append("' item '").append((component.contains("authentic") ? item.replaceFirst("=.*(?:;|$)", "=*****") : item))
                 .append("'"));
@@ -276,16 +293,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                 // Display macro names command
                 case "macro":
                 case "macros":
-                    // Set the flag so that the macro names (in place of macro values) are
-                    // displayed
+                    // Set the flag so that the macro names (in place of macro values) are displayed
                     isReplaceMacro = false;
                     break;
 
                 // Include variable paths command
                 case "path":
                 case "paths":
-                    // Set the flag to include the variable paths and parse the variable path
-                    // separators
+                    // Set the flag to include the variable paths and parse the variable path separators
                     isIncludePath = true;
                     separators = getVariablePathSeparators(parts[1]);
                     break;
@@ -316,14 +331,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                     break;
 
                 case "data":
-                    // Get the data for the specified table (or all tables if no table name is
-                    // specified)
+                    // Get the data for the specified table (or all tables if no table name is specified)
                     response = getTableData(attributeAndName[1], true, separators);
                     break;
 
                 case "description":
-                    // Get the description for the specified table (or all tables if no table
-                    // name is specified)
+                    // Get the description for the specified table (or all tables if no table name is specified)
                     response = getTableDescription(attributeAndName[1]);
                     break;
 
@@ -356,8 +369,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             }
             // Check if this is a group or application related request
             else if (component.equals("group") || component.equals("application")) {
-                // Set the flag to true if this request only applies to groups that represent an
-                // application
+                // Set the flag to true if this request only applies to groups that represent an application
                 boolean applicationOnly = component.equals("application");
 
                 // Set the name based on if a group or application is requested
@@ -373,14 +385,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                     break;
 
                 case "tables":
-                    // Get the tables for the specified group (or all groups if no group name
-                    // is specified)
+                    // Get the tables for the specified group (or all groups if no group name is specified)
                     response = jsonHandler.getGroupTables(attributeAndName[1], applicationOnly, true);
                     break;
 
                 case "description":
-                    // Get the description for the specified group (or all groups if no group
-                    // name is specified)
+                    // Get the description for the specified group (or all groups if no group name is specified)
                     response = jsonHandler.getGroupDescription(attributeAndName[1], applicationOnly, true);
                     break;
 
@@ -497,9 +507,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
         // Check if a response to the request was made
         if (response != null) {
-            // Remove the extraneous escape (\) characters that the JSON encoder inserts
-            // into the
-            // string
+            // Remove the extraneous escape (\) characters that the JSON encoder inserts into the string
             response = response.replaceAll("\\\\\\\\", "\\\\").replaceAll("\\\\/", "/");
         }
 
@@ -555,11 +563,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
     private String getSearchResults(String searchCriteria) {
         String response = null;
 
-        // Separate the search criteria string into the search text, ignore case flag,
-        // allow
-        // regular expression, search data table cells only flag, and the column names
-        // in which to
-        // search
+        // Separate the search criteria string into the search text, ignore case flag, allow regular
+        // expression, search data table cells only flag, and the column names in which to search
         String[] parameter = getParts(searchCriteria, ",", 5, true);
         String searchText = parameter[0];
         String ignoreCase = parameter[1];
@@ -575,8 +580,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
         // Check if the flag to search only the data tables isn't present
         if (dataTablesOnly.isEmpty()) {
-            // Default to searching the entire project database (data and internal table
-            // references)
+            // Default to searching the entire project database (data and internal table references)
             dataTablesOnly = "false";
         }
 
@@ -586,8 +590,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             String dbColumns = "";
             JSONArray searchJA = new JSONArray();
 
-            // Check if one or more column names to which the search is constrained is
-            // provided
+            // Check if one or more column names to which the search is constrained is provided
             if (!searchColumns.isEmpty()) {
                 // Step through each column name
                 for (String column : getParts(searchColumns, ",", -1, true)) {
@@ -595,8 +598,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                     for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions()) {
                         // Step through each visible column in the table type
                         for (int index = NUM_HIDDEN_COLUMNS; index < typeDefn.getColumnCountDatabase(); ++index) {
-                            // Check if the column name matches the one in the table type
-                            // definition
+                            // Check if the column name matches the one in the table type definition
                             if (column.equals(typeDefn.getColumnNamesUser()[index])) {
                                 // Add the column's corresponding database name to the column
                                 // constraints string. Stop searching since column names can't be
@@ -628,8 +630,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                 // Perform the search and step through the results, if any
                 for (Object[] searchResult : searchHandler.searchTablesOrScripts(searchPattern.pattern(),
                         Boolean.valueOf(ignoreCase), Boolean.valueOf(dataTablesOnly), dbColumns)) {
-                    // Store each search result in a JSON object and add it to the search results
-                    // array
+                    // Store each search result in a JSON object and add it to the search results array
                     OrderedJSONObject searchJO = new OrderedJSONObject();
                     searchJO.put(SearchResultsColumnInfo.OWNER.getColumnName(SearchDialogType.TABLES),
                             searchResult[SearchResultsColumnInfo.OWNER.ordinal()]);
@@ -670,8 +671,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         }
 
         // Store the project name, equivalent database name, description, lock status,
-        // user name,
-        // owner, server, port, and data fields in the JSON object
+        // user name, owner, server, port, and data fields in the JSON object
         projectJO.put("Project", dbControl.getProjectName());
         projectJO.put("Database", dbControl.getDatabaseName());
         projectJO.put("Description", dbControl.getDatabaseDescription(dbControl.getDatabaseName()));
@@ -915,8 +915,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             }
         }
         // A table name is provided. Check if the table existence should be ignored, or
-        // else if the
-        // table exists in the database
+        // else if the table exists in the database
         else if (!checkExists || dbTable.isTableExists(tableName, ccddMain.getMainFrame())) {
             // Add the table name and data field information to the output
             OrderedJSONObject tableNameAndFields = new OrderedJSONObject();
@@ -1006,8 +1005,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                 }
             }
 
-            // Check if the specified table type exists, or any type exists if none is
-            // specified
+            // Check if the specified table type exists, or any type exists if none is specified
             if (response != null) {
                 // Set the response based of if a single or multiple types are included in the
                 // response. If single then the JSON object is used to prevent the extraneous
@@ -1080,13 +1078,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         }
 
         // Check if the specified table exists and is a structure, or any structure
-        // table exists if
-        // none is specified
+        // table exists if none is specified
         if (responseJO != null) {
             // Set the response based of if a single or multiple types are included in the
             // response. If single then the JSON object is used to prevent the extraneous
-            // brackets
-            // from enclosing the response
+            // brackets from enclosing the response
             response = isSingle ? responseJO.toString() : responseJA.toString();
         }
 
@@ -1151,7 +1147,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         {
             // Get the tables information
             OrderedJSONObject tableInfoJO = jsonHandler.getTableInformation(tableName, isReplaceMacro, isIncludePath,
-                    variableHandler, separators);
+                    true, variableHandler, separators);
 
             // Check if the table loaded successfully
             if (tableInfoJO != null) {
@@ -1248,8 +1244,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             }
 
             // Create an instance of the copy table handler in order to read the information
-            // from
-            // the database
+            // from the database
             CcddCopyTableHandler copyHandler = new CcddCopyTableHandler(ccddMain);
 
             // Create the copy table entries based on the supplied parameters
@@ -1264,8 +1259,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
                     // Step through each column in the row
                     for (int column = 0; column < row.length; column++) {
-                        // Add the copy table value to the array. An array is used to preserve the
-                        // order of the items
+                        // Add the copy table value to the array. An array is used to preserve the order of the items
                         rowJO.put(CopyTableEntry.values()[column].getColumnName(), row[column]);
                     }
 
@@ -1314,8 +1308,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         JSONArray tableJA = new JSONArray();
 
         // Create an instance of the application scheduler table handler in order to
-        // read the
-        // information from the database
+        // read the information from the database
         CcddApplicationSchedulerTableHandler appSchTable = new CcddApplicationSchedulerTableHandler(ccddMain);
 
         // Check if the schedule definition table data is requested
@@ -1415,8 +1408,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         // Parse the variable path separators
         String[] separators = getVariablePathSeparators(parameters);
 
-        // Check if all the input parameters are present and that they're in the
-        // expected formats
+        // Check if all the input parameters are present and that they're in the expected formats
         if (separators != null) {
             OrderedJSONObject responseJO = new OrderedJSONObject();
             response = "";
@@ -1428,8 +1420,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
             // Check if a variable path is specified
             if (!variablePath.isEmpty()) {
-                // Store the variable path and name in the application and user-specified
-                // formats
+                // Store the variable path and name in the application and user-specified formats
                 responseJO.put(variablePath, variableHandler.getFullVariableName(variablePath, varPathSeparator,
                         hideDataTypes, typeNameSeparator));
             }
@@ -1437,8 +1428,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             else {
                 // Step through each row in the variables table
                 for (int row = 0; row < variableHandler.getAllVariableNames().size(); row++) {
-                    // Store the variable paths and names in the application and user-specified
-                    // formats
+                    // Store the variable paths and names in the application and user-specified formats
                     responseJO.put(variableHandler.getAllVariableNames().get(row).toString(),
                             variableHandler.getFullVariableName(
                                     variableHandler.getAllVariableNames().get(row).toString(), varPathSeparator,
@@ -1511,10 +1501,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             // Separate the filter parameters
             String[] filter = getParts(telemetryFilter, ",", 3, true);
 
-            // Check that the number of filter parameters is correct, that the data stream
-            // name
-            // filter is blank or matches an existing data stream, and that the rate value
-            // filter,
+            // Check that the number of filter parameters is correct, that the data stream name
+            // filter is blank or matches an existing data stream, and that the rate value filter,
             // if present, is in the expected format
             if ((filter[1].isEmpty() || Arrays.asList(dataStreamNames).contains(filter[1]))
                     && (filter[2].isEmpty() || filter[2].matches("\\d+(?:$|(?:\\.|\\s*/\\s*)\\d+)"))) {
@@ -1553,7 +1541,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         // Step through each structure table
         for (String table : allTableNameList) {
             // Get the information from the database for the specified table
-            TableInformation tableInfo = dbTable.loadTableData(table, false, false, ccddMain.getMainFrame());
+            TableInformation tableInfo = dbTable.loadTableData(table, false, false, false, ccddMain.getMainFrame());
 
             // Check if the table loaded successfully
             if (!tableInfo.isErrorFlag()) {
@@ -1562,9 +1550,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
                 // Check if the table represents a telemetry structure
                 if (typeDefn.isTelemetryStructure()) {
-                    // Check if the table type changed. This accounts for multiple table types that
-                    // represent structures, and prevents reloading the table type information for
-                    // every table
+                    // Check if the table type changed. This accounts for multiple table types that represent
+                    // structures, and prevents reloading the table type information for every table
                     if (!tableInfo.getType().equals(lastType)) {
                         String descColName;
                         String unitsColName;
@@ -1585,12 +1572,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
                         // Check if a data stream filter is in effect
                         if (!streamFilter.isEmpty()) {
-                            // Get the index of the rate column corresponding to the data stream
-                            // filter
+                            // Get the index of the rate column corresponding to the data stream filter
                             rateIndices = new ArrayList<Integer>();
 
-                            // Get the index of the rate column with the corresponding data stream
-                            // name
+                            // Get the index of the rate column with the corresponding data stream name
                             int rateIndex = typeDefn.getColumnIndexByUserName(
                                     rateHandler.getRateInformationByStreamName(streamFilter).getRateName());
 
@@ -1628,8 +1613,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                         }
                     }
 
-                    // Check if the macro names should be replaced with the corresponding macro
-                    // values
+                    // Check if the macro names should be replaced with the corresponding macro values
                     if (isReplaceMacro) {
                         // Replace all macros in the table
                         tableInfo.setData(ccddMain.getMacroHandler().replaceAllMacros(tableInfo.getData()));
@@ -1640,8 +1624,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                         OrderedJSONObject structureJO = new OrderedJSONObject();
                         String cellValue;
 
-                        // Check if the variable name is present. If not then all the variable data
-                        // on this row is skipped
+                        // Check if the variable name is present. If not then all the variable data on this row is skipped
                         if (!(cellValue = tableInfo.getData()[row][variableNameIndex].toString()).isEmpty()) {
                             boolean hasRate = false;
 
@@ -1661,8 +1644,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
                             // Check if a variable matching the rate filters exists
                             if (hasRate) {
-                                // Store the name of the structure table from which this variable
-                                // is taken
+                                // Store the name of the structure table from which this variable is taken
                                 structureJO.put("Structure Table Name", table);
 
                                 // Store the variable name in the JSON output
@@ -1764,17 +1746,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         // Step through each command table
         for (String commandTable : dbTable.getPrototypeTablesOfType(TYPE_COMMAND)) {
             // Check if all commands are to be returned, or if a specific group's commands
-            // are
-            // requested that the table is a member of the group
+            // are requested that the table is a member of the group
             if (groupFilter.isEmpty() || groupTables.contains(commandTable)) {
                 // Get the information from the database for the specified table
-                TableInformation tableInfo = dbTable.loadTableData(commandTable, false, false, ccddMain.getMainFrame());
+                TableInformation tableInfo = dbTable.loadTableData(commandTable, false, false, false, ccddMain.getMainFrame());
 
                 // Check if the table loaded successfully
                 if (!tableInfo.isErrorFlag()) {
-                    // Check if the table type changed. This accounts for multiple table types that
-                    // represent commands, and prevents reloading the table type information for
-                    // every table
+                    // Check if the table type changed. This accounts for multiple table types that represent
+                    // commands, and prevents reloading the table type information for every table
                     if (!tableInfo.getType().equals(lastType)) {
                         String descColName;
                         commandDescriptionIndex = -1;
@@ -1804,8 +1784,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                         }
                     }
 
-                    // Check if the macro names should be replaced with the corresponding macro
-                    // values
+                    // Check if the macro names should be replaced with the corresponding macro values
                     if (!isReplaceMacro) {
                         // Replace all macros in the table
                         tableInfo.setData(ccddMain.getMacroHandler().replaceAllMacros(tableInfo.getData()));

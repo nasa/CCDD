@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary common constants.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddConstants.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing constant values used by the other classes.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -37,7 +58,7 @@ import CCDD.CcddConstants.InternalTable.ValuesColumn;
 public class CcddConstants {
     // CCDD author and contributors
     protected static final String CCDD_AUTHOR = "NASA JSC: ER6/Kevin McCluney";
-    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh, Bryan Willis, Jacob Macneal";
+    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh, Bryan Willis";
 
     // Create the database driver class name
     protected static final String DATABASE_DRIVER = "org.postgresql.Driver";
@@ -120,6 +141,7 @@ public class CcddConstants {
     protected static final String COL_ENUMERATION = "Enumeration";
     protected static final String COL_MINIMUM = "Minimum";
     protected static final String COL_MAXIMUM = "Maximum";
+    protected static final String COL_VALUE = "Value";
 
     // Script association item separators
     protected static final String ASSN_TABLE_SEPARATOR = ";\n";
@@ -192,7 +214,6 @@ public class CcddConstants {
     protected static final String DEFAULT_PROTOTYPE_NODE_NAME = "Prototypes";
     protected static final String DEFAULT_INSTANCE_NODE_NAME = "Parents & Children";
     protected static final String SECONDARY_INSTANCE_NODE_NAME = "Parents";
-    
 
     // Node name for the linked and unlinked variables in trees displaying (un)linked variables
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
@@ -300,10 +321,19 @@ public class CcddConstants {
     /* Snapshot file paths */
     protected static final String SNAP_SHOT_FILE_PATH = "./.snapshot/";
     protected static final String SNAP_SHOT_FILE_PATH_2 = "./.snapshot2/";
+    protected static final String SNAP_SHOT_FILE = "snapshot";
     
     /* Exporting a single file or multiple files */
     protected static final String EXPORT_MULTIPLE_FILES = "Multiple";
     protected static final String EXPORT_SINGLE_FILE = "Single";
+    
+    /* Manual fix for data type verification issues */
+    protected static final String MANUAL_FIX = "Manually correct";
+    
+    /* Default values that can be used when restoring a database */
+    protected static final String DEFAULT_DATABASE_NAME = "restored_db";
+    protected static final String DEFAULT_DATABASE_USER = "current user";
+    protected static final String DEFAULT_DATABASE_DESCRIPTION = "Recently restored database.";
 
     // Endian type
     protected static enum EndianType {
@@ -509,7 +539,7 @@ public class CcddConstants {
 
     // Various data types that can be exported
     protected static enum exportDataTypes {
-        GROUPS, MACROS, ASSOCIATIONS, TELEMSCHEDULER, APPSCHEDULER, RESERVED_MSG_ID, PROJECT_FIELDS
+        GROUPS, MACROS, ASSOCIATIONS, TELEMSCHEDULER, APPSCHEDULER, RESERVED_MSG_ID, PROJECT_FIELDS, DBU_INFO
     }
 
     // Command line priority range
@@ -807,7 +837,8 @@ public class CcddConstants {
         TELEM_SCHEDULER("_tlm_scheduler.csv", "_tlm_scheduler.json", "_tlm_scheduler"),
         APP_SCHEDULER("_app_scheduler.csv", "_app_scheduler.json", "_app_scheduler"),
         RESERVED_MSG_ID("_reserved_msg_ids.csv", "_reserved_msg_ids.json", "_reserved_msg_ids"),
-        PROJECT_DATA_FIELD("_proj_data_fields.csv", "_proj_data_fields.json", "_proj_data_fields");
+        PROJECT_DATA_FIELD("_proj_data_fields.csv", "_proj_data_fields.json", "_proj_data_fields"),
+        DBU_INFO("_dbu_info.csv", "_dbu_info.json", "_dbu_info");
 
         private final String CSV;
         private final String JSON;
@@ -2129,10 +2160,7 @@ public class CcddConstants {
                 InputTypeFormat.HEXADECIMAL,
                 "Hexadecimal range; hexadecimal value followed optionally by a "
                         + "hyphen and a second hexadecimal value (see Hexadecimal)"),
-
-        // TODO Add an input type that allows the format: alphanumeric( [alphanumeric [
-        // ,
-        // alphanumeric [ , ...]]) and use it for macro names
+        
         MACRO_NAME("Macro name","[a-zA-Z][a-zA-Z0-9_]*(?:\\:\\:?:[a-zA-Z][a-zA-Z0-9_]*)?",
                 InputTypeFormat.TEXT,
                 "Macro name: [a-zA-Z][a-zA-Z0-9_]*(?:\\\\:\\\\:?:[a-zA-Z][a-zA-Z0-9_]*)?"),
@@ -2217,6 +2245,7 @@ public class CcddConstants {
                         + "constraints as for an alphanumeric (see Alphanumeric)"),
 
         BREAK("Break", "", InputTypeFormat.PAGE_FORMAT, "Line break"),
+        
         SEPARATOR("Separator", "", InputTypeFormat.PAGE_FORMAT, "Line separator");
 
         private final String inputName;
@@ -2424,7 +2453,10 @@ public class CcddConstants {
                 false, true, true),
         
         DESCRIPTION_ENUM(TYPE_ENUM, COL_DESCRIPTION, "ENUM description", DefaultInputType.DESCRIPTION,
-                false, false, false, true, true, true);
+                false, false, false, true, true, true),
+        
+        VALUE_ENUM(TYPE_ENUM, COL_VALUE, "ENUM Value", DefaultInputType.INTEGER, false, false,
+                false, false, false, false);
 
         private final String tableType;
         private final String columnName;
@@ -5262,14 +5294,15 @@ public class CcddConstants {
         APPLICATION_DESCRIPTION("Application Description", ""), APPLICATION_FIELD("Application Data Field", ""),
         APPLICATION_TABLE("Application Table", ""), APP_SCHED_SCHEDULE_TABLE("Schedule Definition Table", ""),
         APP_SCHED_MESSAGE_TABLE("Message Definition Table", ""), COPY_TABLE_STREAM("Stream Name", ""),
-        COPY_TABLE_HDR_SIZE("Header Size", ""), COPY_TABLE_OPTIMIZE("Optimized", ""), COPY_TABLE_DATA("Copy Table", ""),
+        COPY_TABLE_HDR_SIZE("Header Size", ""), COPY_TABLE_OPTIMIZE("Optimized", ""), COPY_TABLE_DATA("Copy Table", ""), DBU_INFO("DBU Info", ""),
         PROJECT_FIELD("Project Data Field", ""), INPUT_TYPE_DEFN("Input Type Definition", "  \"Input Type Definition\""), GROUP("Group", "  \"Group\":"),
         SCRIPT_ASSOCIATION("Script Association", "  \"Script Association\""), TLM_SCHEDULER("Telemetry Scheduler", ""),
         TLM_SCHEDULER_COMMENT("Telemetry Scheduler Comments", "  \"Telemetry Scheduler Comments\""),
         MAXIMUM_SECONDS_PER_MESSAGE("Maximum Seconds Per Message", ""),
         MAXIMUM_MESSAGES_PER_SECOND("Maximum Messages Per Second", ""), INCLUDE_UNEVEN_RATES("Include Uneven Rates", ""),
         RATE_INFORMATION("Rate Information", ""), APP_SCHEDULER("Application Scheduler", ""),
-        APP_SCHEDULER_COMMENT("Application Scheduler Comment", "  \"Application Scheduler Comment\"");
+        APP_SCHEDULER_COMMENT("Application Scheduler Comment", "  \"Application Scheduler Comment\""),
+        DB_NAME("Database Name", ""), DB_USERS("Database Users", ""), DB_DESCRIPTION("Database Description", "");
 
         private final String tag;
         private final String alternateTag;
@@ -5299,7 +5332,7 @@ public class CcddConstants {
          * @return Text describing the data
          *****************************************************************************************/
         protected String getAlternateTag() {
-            return tag;
+            return alternateTag;
         }
     }
 

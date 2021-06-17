@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary database verification handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddDbVerificationHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class that executes the database information consistency check.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
@@ -16,6 +37,7 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
+import static CCDD.CcddConstants.MANUAL_FIX;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
 import java.awt.GridBagConstraints;
@@ -56,6 +78,7 @@ import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.GroupsColumn;
@@ -86,6 +109,8 @@ public class CcddDbVerificationHandler {
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddMacroHandler macroHandler;
     private final CcddInputTypeHandler inputTypeHandler;
+    private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddMessageIDHandler messageIDHandler;
     private TypeDefinition typeDefn;
     private CcddJTableHandler updateTable;
     private CcddHaltDialog haltDlg;
@@ -448,6 +473,8 @@ public class CcddDbVerificationHandler {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
+        dataTypeHandler = ccddMain.getDataTypeHandler();
+        messageIDHandler = ccddMain.getMessageIDHandler();
 
         // Data table column indices
         primaryKeyIndex = DefaultColumn.PRIMARY_KEY.ordinal();
@@ -476,7 +503,7 @@ public class CcddDbVerificationHandler {
             @Override
             protected void execute() {
                 // Display the verification cancellation dialog
-                haltDlg = new CcddHaltDialog("Verifying Project", "Verification in progress", "verification", 100, 8,
+                haltDlg = new CcddHaltDialog("Verifying Project", "Verification in progress", "verification", 100, 9,
                         ccddMain.getMainFrame());
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and
@@ -557,6 +584,16 @@ public class CcddDbVerificationHandler {
 
                                                 // Check for inconsistencies within the data tables
                                                 verifyDataTables();
+                                                
+                                                // Check if verification isn't canceled
+                                                if (!haltDlg.isHalted()) {
+                                                    // Update the progress bar
+                                                    haltDlg.updateProgressBar("Verify data tables",
+                                                            haltDlg.getNumDivisionPerStep() * 8);
+                                                    
+                                                    // Check for inconsistencies within the Message IDs
+                                                    verifyMessageIDs();
+                                                }
                                             }
                                         }
                                     }
@@ -1615,7 +1652,7 @@ public class CcddDbVerificationHandler {
             if (path.getPathCount() > tableTree.getHeaderNodeLevel()) {
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(tableTree.getFullVariablePath(path.getPath()), false,
-                        false, ccddMain.getMainFrame());
+                        false, false, ccddMain.getMainFrame());
 
                 // Check if the table loaded successfully and that the table has data
                 if (!tableInfo.isErrorFlag() && tableInfo.getData().length > 0) {
@@ -1657,6 +1694,18 @@ public class CcddDbVerificationHandler {
                         // Check if the user canceled verification
                         if (haltDlg.isHalted()) {
                             continue;
+                        }
+                        
+                        // Check if the data type exists
+                        if (dataTypeIndex != -1) {
+                            if (dataTypeHandler.getBaseDataType(tableInfo.getData()[row][dataTypeIndex].toString()) == null) {
+                                if (!dbTable.isTableExists(tableInfo.getData()[row][dataTypeIndex].toString(), ccddMain.getMainFrame())) {
+                                    // Data type doesn't exist
+                                    issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" +
+                                        tableInfo.getData()[row][variableNameIndex].toString() + "' data type does not exist",
+                                        MANUAL_FIX, row, dataTypeIndex, dataType, tableInfo));
+                                }
+                            }
                         }
 
                         // Check if this is a structure table
@@ -1768,6 +1817,33 @@ public class CcddDbVerificationHandler {
 
             // Update the within-step progress value
             haltDlg.updateProgressBar(null, -1);
+        }
+    }
+    
+    /**********************************************************************************************
+     * Verify that duplicate message IDs do not exist
+     *********************************************************************************************/
+    private void verifyMessageIDs() {
+        List<String[]> messageIDInfo = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
+                false, ccddMain.getMainFrame());
+        boolean issueFound = false;
+        
+        for (int index = 0; index < messageIDInfo.size(); index++) {
+            for (int index2 = 0; index2 < messageIDInfo.size(); index2++) {
+                if (messageIDInfo.get(index)[2].contentEquals(messageIDInfo.get(index2)[2]) &&
+                        (index != index2)) {
+                    // Duplicate message ids found
+                    issues.add(new TableIssue("Duplicate message IDs exist.",
+                            MANUAL_FIX, 0, 0, "", null));
+                    
+                    issueFound = true;
+                    break;
+                }
+            }
+            
+            if (issueFound == true) {
+                break;
+            }
         }
     }
 
@@ -2219,8 +2295,18 @@ public class CcddDbVerificationHandler {
                  *********************************************************************************/
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column == VerificationColumnInfo.FIX.ordinal()
-                            && (issues.get(row).getCommand() != null || issues.get(row).getRow() != -1);
+                    boolean result;
+                    
+                    // If the issue is related to a non-existent data type than CCDD can not fix it.
+                    // The user will need to manually address this issue.
+                    if (issues.get(row).getAction().contentEquals(MANUAL_FIX)) {
+                        result = false;
+                    } else {
+                        result = (column == VerificationColumnInfo.FIX.ordinal()
+                            && (issues.get(row).getCommand() != null || issues.get(row).getRow() != -1));
+                    }
+                    
+                    return result;
                 }
 
                 /**********************************************************************************
@@ -2526,7 +2612,7 @@ public class CcddDbVerificationHandler {
                             // Modify the table
                             if (dbTable.modifyTableData(tableChange.getTableInformation(), tableChange.getAdditions(),
                                     tableChange.getModifications(), tableChange.getDeletions(), true, false, false,
-                                    false, false, null, ccddMain.getMainFrame())) {
+                                    false, false, null, true, true, false, ccddMain.getMainFrame())) {
                                 // Set the flag indicating an error occurred updating one or more
                                 // tables, and stop modifying
                                 isErrors = true;

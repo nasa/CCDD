@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary macro handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddMacroHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for handling macro operations.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
@@ -51,10 +72,8 @@ public class CcddMacroHandler {
     // List containing the macro names and associated unexpanded values
     private List<String[]> macros;
 
-    // Array containing the expanded macro values. Unless the macro's value
-    // definition changes the
-    // expanded value remains the same. Using the stored data saves the time needed
-    // to reevaluate
+    // Array containing the expanded macro values. Unless the macro's value definition changes the
+    // expanded value remains the same. Using the stored data saves the time needed to reevaluate
     // the macro value
     private List<String> expandedMacroValues;
 
@@ -475,19 +494,14 @@ public class CcddMacroHandler {
      *         true if the macro contains a recursive reference
      *********************************************************************************************/
     protected String getMacroValue(String macroName) {
-        // TODO NEED TO HANDLE MACROS IN THE FORMAT name(a[,b[,...]])
-
         String macroValue = null;
         isMacroRecursive = false;
 
         // Step through each defined macro
         for (int index = 0; index < macros.size(); index++) {
-            // Check if the supplied name matches this macro's name and this is not a new
-            // macro.
-            // When a macro is added the expanded macro value array size isn't updated
-            // immediately
-            // so as not to erase the existing expanded macro values. Therefore the macro
-            // name may
+            // Check if the supplied name matches this macro's name and this is not a new macro.
+            // When a macro is added the expanded macro value array size isn't updated immediately
+            // so as not to erase the existing expanded macro values. Therefore the macro name may
             // be in the list but not in the array
             if (macroName.equalsIgnoreCase(macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()])) {
                 // Check if the macro's expanded value hasn't already been determined

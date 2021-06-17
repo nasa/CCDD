@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary import/export interface.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddImportExportInterface.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class that defines the interface for data table import and export classes.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import java.io.IOException;
@@ -21,10 +42,8 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
  * CFS Command and Data Dictionary import/export interface
  *************************************************************************************************/
 public interface CcddImportExportInterface {
-    // Import type: IMPORT_ALL to import the table type, data type, and macro
-    // definitions, and the
-    // data from all the table definitions; FIRST_DATA_ONLY to load only the data
-    // for the first
+    // Import type: IMPORT_ALL to import the table type, data type, and macro definitions, and the
+    // data from all the table definitions; FIRST_DATA_ONLY to load only the data for the first
     // table defined
     static enum ImportType {
         IMPORT_ALL, FIRST_DATA_ONLY
@@ -188,6 +207,8 @@ public interface CcddImportExportInterface {
      *                                flag ('true' or 'false'), and data
      *                                type/variable name separator character(s);
      *                                null if includeVariablePaths is false
+     *                                
+     * @param addEOFMarker            Is this the last data to be added to the file?
      *
      * @param extraInfo               extra parameters dependent on the export
      *                                format
@@ -201,7 +222,7 @@ public interface CcddImportExportInterface {
      *********************************************************************************************/
     abstract void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
-            String[] separators, String outputType, Object... extraInfo)
+            String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo)
             throws JAXBException, CCDDException, Exception;
     
     /**********************************************************************************************
@@ -221,13 +242,18 @@ public interface CcddImportExportInterface {
      * @param outputType        String representing rather the output is going to a
      *                          single file or multiple files. Should be "Single" or
      *                          "Multiple"
+     *                          
+     * @param addEOFMarker      Is this the last data to be added to the file?
+     * 
+     * @param addSOFMarker      Is this the first data to be added to the file?
      * 
      * @throws CCDDException If a file I/O or parsing error occurs
      * 
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
-            boolean includeInputTypes, boolean includeDataTypes, String outputType) throws CCDDException, Exception;
+            boolean includeInputTypes, boolean includeDataTypes, String outputType,
+            boolean addEOFMarker, boolean addSOFMarker) throws CCDDException, Exception;
     
     /**********************************************************************************************
      * Export script association data, group data, macro data, telemetry scheduler

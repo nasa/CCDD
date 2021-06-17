@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary background command handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddBackgroundCommand.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for generically handling execution of code in a background thread.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -82,10 +103,8 @@ public class CcddBackgroundCommand {
             // Get the main window's glass pane
             glassPane = ccddMain.getMainFrame().getGlassPane();
 
-            // Since this could take a while, show the "wait" mouse pointer over the main
-            // window to
-            // alert the user. The pointer is restored to the default when the command
-            // completes
+            // Since this could take a while, show the "wait" mouse pointer over the main window to
+            // alert the user. The pointer is restored to the default when the command completes
             glassPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             glassPane.setVisible(true);
 
@@ -111,8 +130,7 @@ public class CcddBackgroundCommand {
                 // Check if this is a dialog or frame
                 if (dlgGlassPane != null) {
                     // Since this could take a while, show the "wait" mouse pointer over the dialog
-                    // to alert the user. The pointer is restored to the default when the command
-                    // completes
+                    // to alert the user. The pointer is restored to the default when the command completes
                     dlgGlassPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     dlgGlassPane.setVisible(true);
                 }
@@ -122,8 +140,7 @@ public class CcddBackgroundCommand {
         // Create a SwingWorker in which to perform the command on a separate thread
         SwingWorker<?, ?> backCommandWorker = new SwingWorker<Void, Object>() {
             /**************************************************************************************
-             * Execute command steps. These are performed on a newly spawned background
-             * thread
+             * Execute command steps. These are performed on a newly spawned background thread
              *************************************************************************************/
             @Override
             protected Void doInBackground() {
@@ -175,8 +192,7 @@ public class CcddBackgroundCommand {
             }
         };
 
-        // Initiate the command. The application does not wait for this thread to
-        // complete
+        // Initiate the command. The application does not wait for this thread to complete
         backCommandWorker.execute();
 
         return backCommandWorker;

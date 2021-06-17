@@ -1,15 +1,35 @@
-/**
- * CFS Command and Data Dictionary command line argument handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddCommandLineHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class for reading and executing the command line options.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
-import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
 import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
@@ -58,13 +78,11 @@ public class CcddCommandLineHandler {
     private final List<CommandHandler> createArgument;
     private final List<CommandHandler> deleteArgument;
 
-    // Flag that indicates if further command line argument processing should not
-    // occur
+    // Flag that indicates if further command line argument processing should not occur
     private boolean stopProcessingCommands;
 
     // Flag that indicates the application should exit once the command is complete.
-    // Used by the
-    // script execution command
+    // Used by the script execution command
     private boolean shutdownWhenComplete;
 
     // Flag that indicates if the command line usage information should be displayed
@@ -398,7 +416,7 @@ public class CcddCommandLineHandler {
         tablePaths = null;
         overwriteFile = false;
         singleFile = false;
-        includeBuildInformation = true;
+        includeBuildInformation = false;
         replaceMacros = false;
         includeReservedMsgIDs = false;
         includeProjectFields = false;
@@ -423,15 +441,13 @@ public class CcddCommandLineHandler {
         showUsage = false;
 
         // Get the variable path separators and the show/hide data type flag from the
-        // program
-        // preferences
+        // program preferences
         varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, DEFAULT_VARIABLE_PATH_SEP);
         typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, DEFAULT_TYPE_NAME_SEP);
         excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE));
 
         // Store the session event log and script output paths, in case these are
-        // modified by a
-        // command line command
+        // modified by a command line command
         sessionLogPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPreferenceKey(), "");
         scriptOutPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
 
@@ -449,8 +465,7 @@ public class CcddCommandLineHandler {
         });
 
         // Event log file path command. This command, if present, is executed prior to
-        // all other
-        // commands (except the version command), regardless of relative priorities
+        // all other commands (except the version command), regardless of relative priorities
         argument.add(new CommandHandler("logPath",
                 "Set event log file path. This\n" + "  path is in effect for the\n" + "  current session only",
                 "file path", CommandLineType.NAME, CommandLinePriority.PRE_START.getStartPriority() + 1) {
@@ -947,7 +962,7 @@ public class CcddCommandLineHandler {
                         ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
                                 false, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
                                 replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
-                                importFileType, dialogType, ccddMain.getMainFrame());
+                                importFileType, dialogType, null, ccddMain.getMainFrame());
                     }
                     
                     /* Delete the snapshot directories */
@@ -1728,19 +1743,44 @@ public class CcddCommandLineHandler {
 
                 // Check if a connection is made to the PostgreSQL server
                 if (!ccddMain.getDbControlHandler().connectToServer()) {
-                    // Create the project database; check if creating the database fails. The
-                    // project can't be created in a background thread since the operation may not
-                    // be complete before subsequent database operations are commanded
-                    if (!ccddMain.getDbControlHandler().createDatabase(createName, createOwner, createOwner,
-                            createDescription)) {
-                        throw new Exception();
+                    // If this is a dbu file; Create the project database; check if creating the database
+                    // fails. The project can't be created in a background thread since the operation may
+                    // not be complete before subsequent database operations are commanded
+                    if (createRestore.endsWith("dbu")) {
+                        if (!ccddMain.getDbControlHandler().createDatabase(createName, createOwner, createOwner,
+                                createDescription)) {
+                            throw new Exception();
+                        }
                     }
 
                     // Check if a backup file was chosen to restore
                     if (createRestore != null) {
-                        // Restore the backup file to the newly created project database
-                        ccddMain.getFileIOHandler().restoreDatabaseFromDBU(createRestore, createName, createOwner,
-                                createDescription);
+                        // Check the extension of the file and call the correct function to restore the database
+                        if (createRestore.endsWith("json")) {
+                            ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
+                                    createName, createOwner, createDescription, createRestore);
+                        } else if (createRestore.endsWith("csv")) {
+                            ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
+                                    createName, createOwner, createDescription, createRestore);
+                        } else if (createRestore.endsWith("dbu")) {
+                            // Restore the backup file to the newly created project database
+                            ccddMain.getFileIOHandler().restoreDatabaseFromDBU(createRestore, createName, createOwner,
+                                    createDescription);
+                        } else {
+                            // If we are working with a directory look at the first file within the directory 
+                            // to determine if we are working with JSON or CSV files
+                            FileEnvVar directory = new FileEnvVar(createRestore);
+                            if (directory.isDirectory()) {
+                                File firstFile = directory.listFiles()[0];
+                                if (firstFile.getName().endsWith(".json")) {
+                                    ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
+                                            createName, createOwner, createDescription, createRestore);
+                                } else if (firstFile.getName().endsWith(".csv")) {
+                                    ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
+                                            createName, createOwner, createDescription, createRestore);
+                                }
+                            }
+                        }
                     }
                 }
                 // The attempt to connect to the PostgreSQL server failed

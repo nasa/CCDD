@@ -1,10 +1,32 @@
-/**
- * CFS Command and Data Dictionary database table command handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddDbTableCommandHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing the methods for creating, altering, copying, renaming, and deleting the
+*     database tables.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
@@ -47,7 +69,6 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackNodeIndex;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
-import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
@@ -106,15 +127,6 @@ public class CcddDbTableCommandHandler {
     // links table should be updated
     private boolean updateLinks;
 
-    // Flag that indicates that a variable has been added or deleted, or an existing variable's
-    // name, data type, array size, or bit length has changed. If this flag is true then the
-    // variable paths and offsets lists needs to be rebuilt
-    private boolean isVariablePathChange;
-
-    // Flag that indicates that a command has been added or deleted, or an existing command's name, code,
-    // or argument name has changed. If this flag is true then the command list needs to be rebuilt
-    private boolean isCommandChange;
-
     // Flag that indicates that a message name or ID has been added, modified, or
     // deleted. If this flag is true then the message name & ID list needs to be rebuilt
     private boolean isMsgIDChange;
@@ -137,6 +149,9 @@ public class CcddDbTableCommandHandler {
     // Are the default table members currently updating?
     private String updatingDefaultTableMembers;
     
+    // Table tree
+    CcddTableTreeHandler tableTree;
+    
     // Characters used to create a unique delimiter for literal strings stored in the database
     private final static String DELIMITER_CHARACTERS = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -158,6 +173,9 @@ public class CcddDbTableCommandHandler {
         // scheduler table separators
         assnsSeparator = CcddUtilities.escapePostgreSQLReservedChars(ASSN_TABLE_SEPARATOR);
         tlmSchSeparator = CcddUtilities.escapePostgreSQLReservedChars(TLM_SCH_SEPARATOR);
+        
+        // Set the table tree to null
+        tableTree = null;
     }
 
     /**********************************************************************************************
@@ -173,7 +191,20 @@ public class CcddDbTableCommandHandler {
         commandHandler = ccddMain.getCommandHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
-
+    }
+    
+    /**********************************************************************************************
+     * Set the table type handler
+     *********************************************************************************************/
+    protected void setTableTypeHandler() {
+        // set the table type handler
+        tableTypeHandler = ccddMain.getTableTypeHandler();
+    }
+    
+    /**********************************************************************************************
+     * Init the root structures
+     *********************************************************************************************/
+    protected void initRootStructures() {
         // Get the list of root structure tables
         rootStructures = getRootStructures(ccddMain.getMainFrame());
     }
@@ -204,13 +235,10 @@ public class CcddDbTableCommandHandler {
                     // Use $$ as the delimiter
                     delim = "$$";
                 }
-                // The item does contain $$. A delimiter that doesn't conflict with the text
-                // must
-                // be created. This delimiter is in the form $_$ where _ is a single underscore
-                // or
+                // The item does contain $$. A delimiter that doesn't conflict with the text must
+                // be created. This delimiter is in the form $_$ where _ is a single underscore or
                 // upper/lower case letter, or one or more underscores followed by a single
-                // upper
-                // or lower case letter
+                // upper or lower case letter
                 else {
                     String delimInit = "";
                     int index = 0;
@@ -829,7 +857,11 @@ public class CcddDbTableCommandHandler {
             // Check if the column order exists for this table
             if (orderData.next()) {
                 // Get the table column order
-                columnOrder = orderData.getString(1);
+                if (orderData.getString(1).length() == columnOrder.length()) {
+                    columnOrder = orderData.getString(1);
+                } else {
+                    columnOrder = orderData.getString(1).concat(columnOrder).substring(orderData.getString(1).length());
+                }
             }
 
             orderData.close();
@@ -934,7 +966,12 @@ public class CcddDbTableCommandHandler {
     protected void updateListsAndReferences(Component parent) {
         rootStructures = getRootStructures(parent);
         variableHandler.buildPathAndOffsetLists();
-        commandHandler.buildCommandList();
+        if (commandHandler != null) {
+            commandHandler.buildCommandList();
+        } else {
+            commandHandler = ccddMain.getCommandHandler();
+            commandHandler.buildCommandList();
+        }
         inputTypeHandler.updateMessageReferences(parent);
     }
 
@@ -1057,12 +1094,9 @@ public class CcddDbTableCommandHandler {
             Component parent) {
         StringBuilder command = new StringBuilder("");
 
-        // Convert the table name to lower case and bound it with double quotes if it
-        // matches a
-        // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless
-        // the name
-        // is quoted), so forcing the name to lower case is done here to differentiate
-        // the table
+        // Convert the table name to lower case and bound it with double quotes if it matches a
+        // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the name
+        // is quoted), so forcing the name to lower case is done here to differentiate the table
         // name from the upper case database commands in the event log
         String dbTableName = dbControl.getQuotedName(tableName);
 
@@ -1079,19 +1113,14 @@ public class CcddDbTableCommandHandler {
                     + DefaultColumn.getColumnDbType(column) + ", ");
         }
 
-        // Remove the trailing comma and space, then append the closing portion of the
-        // command, add
-        // the command to save the table comments, and add the column descriptions as
-        // table column
-        // comments
+        // Remove the trailing comma and space, then append the closing portion of the command, add
+        // the command to save the table comments, and add the column descriptions as table column comments
         command = CcddUtilities.removeTrailer(command, ", ");
         command.append(
                 "); " + buildDataTableComment(tableName, tableType) + buildTableDescription(tableName, description)
                         + buildColumnOrder(tableName, tableTypeHandler.getDefaultColumnOrder(tableType)));
 
-        // Copy the default fields for the new table's type to the new table and set the
-        // table's
-        // owner
+        // Copy the default fields for the new table's type to the new table and set the table's owner
         if (defaultFields) {
         command.append(copyDataFieldCommand(CcddFieldHandler.getFieldTypeName(tableType), tableName, parent)
                 + dbControl.buildOwnerCommand(DatabaseObject.TABLE, tableName));
@@ -1652,7 +1681,7 @@ public class CcddDbTableCommandHandler {
                         // Check if the table is not already open in an editor
                         if (!isOpen) {
                             // Get the information from the database for the specified table
-                            TableInformation tableInfo = loadTableData(tablePaths[index], true, true, parent);
+                            TableInformation tableInfo = loadTableData(tablePaths[index], true, true, false, parent);
 
                             // Check if the table failed to load successfully
                             if (!tableInfo.isErrorFlag()) {
@@ -1738,6 +1767,8 @@ public class CcddDbTableCommandHandler {
      * @param loadDescription true to load the table's description
      *
      * @param loadColumnOrder true to load the table's column order
+     * 
+     * @param ignoreErrors    Should errors be ignored
      *
      * @param parent          GUI component over which to center any error dialog
      *
@@ -1746,7 +1777,7 @@ public class CcddDbTableCommandHandler {
      *         invalid
      *********************************************************************************************/
     protected TableInformation loadTableData(String tablePath, boolean loadDescription, boolean loadColumnOrder,
-            Component parent) {
+            boolean ignoreErrors, Component parent) {
         // Create an empty table information class
         TableInformation tableInfo = new TableInformation(tablePath);
 
@@ -1779,13 +1810,10 @@ public class CcddDbTableCommandHandler {
                 throw new CCDDException("Invalid table type");
             }
 
-            // Get a comma-separated list of the columns for this table's type
-            String columnNames = CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabaseQuoted());
-
             // Get the table's row information for the specified columns. The table must have all
             // of its table type's columns or else it fails to load
             StringBuilder command = new StringBuilder();
-            command.append("SELECT ").append(columnNames).append(" FROM ").append(dbTableName).append(" ORDER BY ")
+            command.append("SELECT * FROM ").append(dbTableName).append(" ORDER BY ")
                    .append(DefaultColumn.ROW_INDEX.getDbName()).append(";");
             ResultSet rowData = dbCommand.executeDbQuery(command, parent);
 
@@ -1910,9 +1938,11 @@ public class CcddDbTableCommandHandler {
                 rowData.close();
             }
         } catch (SQLException | CCDDException se) {
-            // Inform the user that loading the table failed
-            eventLog.logFailEvent(parent, "Cannot load table '" + tablePath + "'; cause '" + se.getMessage() + "'",
-                    "<html><b>Cannot load table '</b>" + tablePath + "<b>'");
+            if (!ignoreErrors) {
+                // Inform the user that loading the table failed
+                eventLog.logFailEvent(parent, "Cannot load table '" + tablePath + "'; cause '" + se.getMessage() + "'",
+                        "<html><b>Cannot load table '</b>" + tablePath + "<b>'");
+            }
         } catch (Exception e) {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, parent);
@@ -2202,14 +2232,50 @@ public class CcddDbTableCommandHandler {
 
                 // Check if the table is not already in the member list
                 if (!isFound) {
-                    // Get the comment array for this table
-                    String[] comment = getTableComment(tableName, comments);
-
-                    // Add the table to the member list with empty data type, variable name, bit
-                    // length, and rate lists
-                    newMembers.add(new TableMembers(tableName, comment[TableCommentIndex.TYPE.ordinal()],
-                            new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),
-                            new ArrayList<String[]>()));
+                    // Grab the table info
+                    TableInformation tableInfo = ccddMain.getDbTableCommandHandler().loadTableData(tableName.toLowerCase(), false, true, false, parent);
+                    
+                    // Check if this table is of type ENUM
+                    if (tableInfo.getType().equals(TYPE_ENUM) && memberType == TableMemberType.INCLUDE_PRIMITIVES) {
+                        // If this table is of type enum the var names must be added to a list before
+                        // adding this table to the newMembers list. For each var name a blank entry is
+                        // added to data type, rates and bit lengths. They do not apply to enums, but
+                        // the lists need to be the same size regardless
+                        List<String> EnumBitLenths = new ArrayList<String>();
+                        List<String> EnumDataTypes = new ArrayList<String>();
+                        List<String[]> EnumRates = new ArrayList<String[]>();
+                        List<String> EnumVarNames = new ArrayList<String>();
+                        
+                        // Get the type definition
+                        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(TYPE_ENUM);
+                        
+                        // Step through each row of data and populate the lists
+                        for (int index = 0; index < tableInfo.getData().length; index++) {
+                            EnumVarNames.add(tableInfo.getData()[index][typeDefn.getColumnIndexByUserName(
+                                    DefaultColumn.ENUM_NAME.getName())].toString());
+                            EnumDataTypes.add("");
+                            EnumBitLenths.add("");
+                            String[] newRate = {""};
+                            EnumRates.add(newRate);
+                        }
+                        
+                        // Get the comment array for this table
+                        String[] comment = getTableComment(tableName, comments);
+    
+                        // Add the table to the member list with empty data type, variable name, bit
+                        // length, and rate lists
+                        newMembers.add(new TableMembers(tableName, comment[TableCommentIndex.TYPE.ordinal()],
+                                EnumDataTypes, EnumVarNames, EnumBitLenths, EnumRates));
+                    } else {
+                        // Get the comment array for this table
+                        String[] comment = getTableComment(tableName, comments);
+    
+                        // Add the table to the member list with empty data type, variable name, bit
+                        // length, and rate lists
+                        newMembers.add(new TableMembers(tableName, comment[TableCommentIndex.TYPE.ordinal()],
+                                new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),
+                                new ArrayList<String[]>()));
+                    }
                 }
             }
 
@@ -2295,7 +2361,10 @@ public class CcddDbTableCommandHandler {
             @Override
             protected void execute() {
                 modifyTableData(tableInfo, additions, modifications, deletions, forceUpdate, skipInternalTables,
-                        updateDescription, updateColumnOrder, updateFieldInfo, newDataTypeHandler, parent);
+                        updateDescription, updateColumnOrder, updateFieldInfo, newDataTypeHandler, true, true, false, parent);
+                
+                // update the table tree
+                updateTableTree();
             }
         });
     }
@@ -2338,6 +2407,13 @@ public class CcddDbTableCommandHandler {
      *                           null (or a reference to the current data type
      *                           handler) if the change does not originate from the
      *                           data type editor
+     *                           
+     * @param updateListsAndRefs Should lists and references be updated?
+     * 
+     * @param isRootTable        Does the tableInfo belong to a root table? If 'updateListsAndRefs'
+     *                           is true then it does not matter what value this is set to.
+     *                           
+     * @param ignoreErrors       Should errors be ignored
      *
      * @param parent             GUI component over which to center any error dialog
      *
@@ -2345,19 +2421,17 @@ public class CcddDbTableCommandHandler {
      *********************************************************************************************/
     protected boolean modifyTableData(TableInformation tableInfo, List<TableModification> additions,
             List<TableModification> modifications, List<TableModification> deletions, boolean forceUpdate,
-            boolean skipInternalTables, boolean updateDescription, boolean updateColumnOrder, boolean updateFieldInfo,
-            CcddDataTypeHandler newDataTypeHandler, Component parent) {
+            boolean skipInternalTables, boolean updateDescription, boolean updateColumnOrder,
+            boolean updateFieldInfo, CcddDataTypeHandler newDataTypeHandler, boolean updateListsAndRefs,
+            boolean isRootTable, boolean ignoreErrors, Component parent) {
         boolean errorFlag = false;
         ReferenceCheckResults msgIDRefChk = null;
         boolean isRefFieldChange = false;
 
         try {
-            CcddTableTreeHandler tableTree = null;
             ToolTipTreeNode orgTableNode = null;
             updateLinks = false;
             addLinkHandler = null;
-            isVariablePathChange = false;
-            isCommandChange = false;
             isMsgIDChange = false;
             ReferenceCheckResults varRefChk = null;
             ReferenceCheckResults cmdRefChk = null;
@@ -2365,8 +2439,29 @@ public class CcddDbTableCommandHandler {
             // Store the data fields
             storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null, parent);
             
-            updateListsAndReferences(parent);
 
+            // build the command list for every command defined in the database.
+            if (commandHandler != null) {
+                commandHandler.buildCommandList();
+            } else {
+                commandHandler = ccddMain.getCommandHandler();
+                commandHandler.buildCommandList();
+            }
+            
+            if (updateListsAndRefs) {
+                // Update all lists and references
+                rootStructures = getRootStructures(parent);
+                variableHandler.buildPathAndOffsetLists();
+                inputTypeHandler.updateMessageReferences(parent);
+                
+                // Create the table tree. Suppress any warning messages when creating this tree
+                tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.STRUCTURES_WITH_PRIMITIVES, true, parent);
+            } else if (isRootTable) {
+                // Update the root structures list
+                rootStructures = getRootStructures(parent);
+            }
+            
+            
             // Get the name of the table to modify and convert the table name to lower case. PostgreSQL automatically
             // does this, so it's done here just to differentiate the table name from the database commands in the event log
             String dbTableName = dbControl.getQuotedName(tableInfo.getPrototypeName());
@@ -2378,8 +2473,10 @@ public class CcddDbTableCommandHandler {
             if (!skipInternalTables && typeDefinition.isStructure()) {
                 deletedArrayDefns = new ArrayList<String>();
 
-                // Create the table tree. Suppress any warning messages when creating this tree
-                tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.STRUCTURES_WITH_PRIMITIVES, true, parent);
+                if (tableTree == null) {
+                    // Create the table tree. Suppress any warning messages when creating this tree
+                    tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.STRUCTURES_WITH_PRIMITIVES, true, parent);
+                }
 
                 // Check if the table is a prototype
                 if (tableInfo.isPrototype()) {
@@ -2442,19 +2539,21 @@ public class CcddDbTableCommandHandler {
             // Build the commands to add, modify, and delete table rows, and to update any table cells or data fields that
             // have the message name & ID input type if a message name or ID value is changed
             if (!deletions.isEmpty()) {
-                if (buildAndExecuteDeletionCommand(tableInfo, deletions, dbTableName, typeDefinition, skipInternalTables, varRefChk, cmdRefChk, parent)) {
+                if (buildAndExecuteDeletionCommand(tableInfo, deletions, dbTableName, typeDefinition, skipInternalTables,
+                        varRefChk, cmdRefChk, parent)) {
                     commandExecuted = true;
                 }
             }
             
             if (!modifications.isEmpty()) {
-                if (buildAndExecuteModificationCommand(tableInfo, modifications, dbTableName, typeDefinition, newDataTypeHandler, tableTree, skipInternalTables, varRefChk, cmdRefChk, parent)) {
+                if (buildAndExecuteModificationCommand(tableInfo, modifications, dbTableName, typeDefinition, newDataTypeHandler, 
+                        tableTree, skipInternalTables, varRefChk, cmdRefChk, parent)) {
                     commandExecuted = true;
                 }
             }
             
             if (!additions.isEmpty()) {
-                if (buildAndExecuteAdditionCommand(tableInfo, additions, dbTableName, typeDefinition, skipInternalTables, parent)) {
+                if (buildAndExecuteAdditionCommand(tableInfo, additions, dbTableName, typeDefinition, skipInternalTables, ignoreErrors, parent)) {
                     commandExecuted = true;
                 }
             }
@@ -2519,28 +2618,10 @@ public class CcddDbTableCommandHandler {
         
         // Check that no error occurred
         if (!errorFlag) {
-            // Check if a variable has been added or deleted, or an existing variable's name, data
-            // type, array size, or bit length has changed
-            if (isVariablePathChange) {
-                // Rebuild the variable paths and offsets lists
-                variableHandler.buildPathAndOffsetLists();
-            }
             // Check if the table's data fields were updated
             if (updateFieldInfo) {
                 // Update the table's data field information in the field handler
                 fieldHandler.replaceFieldInformationByOwner(tableInfo.getTablePath(), tableInfo.getFieldInformation());
-            }
-
-            // Check if a command has been added or deleted, or an existing command's name, code, or argument(s) has changed
-            if (isCommandChange) {
-                // Rebuild the command list
-                commandHandler.buildCommandList();
-            }
-
-            // Check if a data field exists that references the message name & ID input type
-            if (isMsgIDChange) {
-                // Update the message name & ID input type list
-                inputTypeHandler.updateMessageReferences(parent);
             }
             
             // Make changes to any open table editors
@@ -2559,60 +2640,72 @@ public class CcddDbTableCommandHandler {
      * @param tableMod           Data for the table modification
      *
      * @param variablePath       The path of the variable that was modified
+     * 
+     * @param ignoreErrors       Should errors be ignored
      *
      * @return String representing the command that was built to modify the data fields
      *********************************************************************************************/
-    private String UpdateSubTableDataFields(String dataType, String variablePath, TableModification tableMod) {
+    private String UpdateSubTableDataFields(String dataType, String variablePath, TableModification tableMod, boolean ignoreErrors) {
         StringBuilder command = new StringBuilder();
+        boolean skipTable = false;
 
         try {           
             if (dataType != null && !dataType.isEmpty()) {
-                TableInformation subTableInfo = loadTableData(dataType, false, false, null);
-                if(subTableInfo.getType() == null || subTableInfo.getData() == null){
-                    throw new CCDDException("Type \"" + dataType + "\" is not defined in this database.");
+                TableInformation subTableInfo = loadTableData(dataType, false, false, ignoreErrors, null);
+                if (subTableInfo.getType() == null || subTableInfo.getData() == null) {
+                    if (!ignoreErrors) {
+                        throw new CCDDException("Type \"" + dataType + "\" is not defined in this database.");
+                    } else {
+                        skipTable = true;
+                    }
                 }
-                Object[][] subTableData = subTableInfo.getData();
                 
-                // Step through all of the subTableData
-                for (int index = 0; index < subTableData.length; index++) {
-                    // Check that this variable is either a non-array member or if it is an array member
-                    // that it is not the definition
-                    if ((subTableData[index][tableMod.getArraySizeColumn()].toString().isEmpty()) || 
-                            (!subTableData[index][tableMod.getArraySizeColumn()].toString().isEmpty() &&
-                             subTableData[index][tableMod.getVariableColumn()].toString().endsWith("]"))) {
-                        // Get the data type
-                        String subDataType = subTableData[index][tableMod.getDataTypeColumn()].toString();
-                        
-                        // Check if the data type represents a structure
-                        if (!dataTypeHandler.isPrimitive(subDataType)) {
-                            // Get the variable name
-                            String subVariableName = subTableData[index][tableMod.getVariableColumn()].toString();
-    
-                            // Get the variable path
-                            String subVariablePath = variablePath + "," + subDataType + "." + subVariableName;
-                            
-                            // Check to see if this is an array definition. If so do not add its data to the internal
-                            // fields table.
-                            if ((tableMod.getRowData()[tableMod.getArraySizeColumn()].equals("")) || (variablePath.endsWith("]"))) {
-                                // Now build the command to update this tables data fields
-                                command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
-                                    .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType).append("$', E'")
-                                    .append(subVariablePath).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName()).append(", ")
-                                    .append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
-                                    .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ")
-                                    .append(FieldsColumn.FIELD_REQUIRED.getColumnName()).append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
-                                    .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName()).append(", ")
-                                    .append(FieldsColumn.FIELD_INHERITED.getColumnName()).append(" FROM ")
-                                    .append(InternalTable.FIELDS.getTableName()).append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName())
-                                    .append(" = '").append(dataType).append("' AND ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
-                                    .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
+                if (!skipTable) {
+                    Object[][] subTableData = subTableInfo.getData();
+                    
+                    if (!subTableInfo.getType().contentEquals(TYPE_ENUM)) {
+                        // Step through all of the subTableData
+                        for (int index = 0; index < subTableData.length; index++) {
+                            // Check that this variable is either a non-array member or if it is an array member
+                            // that it is not the definition
+                            if ((subTableData[index][tableMod.getArraySizeColumn()].toString().isEmpty()) || 
+                                    (!subTableData[index][tableMod.getArraySizeColumn()].toString().isEmpty() &&
+                                     subTableData[index][tableMod.getVariableColumn()].toString().endsWith("]"))) {
+                                // Get the data type
+                                String subDataType = subTableData[index][tableMod.getDataTypeColumn()].toString();
+                                
+                                // Check if the data type represents a structure
+                                if (!dataTypeHandler.isPrimitive(subDataType)) {
+                                    // Get the variable name
+                                    String subVariableName = subTableData[index][tableMod.getVariableColumn()].toString();
+            
+                                    // Get the variable path
+                                    String subVariablePath = variablePath + "," + subDataType + "." + subVariableName;
+                                    
+                                    // Check to see if this is an array definition. If so do not add its data to the internal
+                                    // fields table.
+                                    if ((tableMod.getRowData()[tableMod.getArraySizeColumn()].equals("")) || (variablePath.endsWith("]"))) {
+                                        // Now build the command to update this tables data fields
+                                        command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" SELECT regexp_replace(")
+                                            .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^").append(dataType).append("$', E'")
+                                            .append(subVariablePath).append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName()).append(", ")
+                                            .append(FieldsColumn.FIELD_DESC.getColumnName()).append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName()).append(", ")
+                                            .append(FieldsColumn.FIELD_REQUIRED.getColumnName()).append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName()).append(", ")
+                                            .append(FieldsColumn.FIELD_INHERITED.getColumnName()).append(" FROM ")
+                                            .append(InternalTable.FIELDS.getTableName()).append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName())
+                                            .append(" = '").append(dataType).append("' AND ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName()).append(" != '")
+                                            .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName()).append("'; ");
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            // TODO add more info and code here
+            e.printStackTrace();
         }
         
         return command.toString();
@@ -2626,10 +2719,13 @@ public class CcddDbTableCommandHandler {
      * @param mod                The table modification data for the variable that is being altered
      * 
      * @param dataTypeChanged    Data type was changed from one primitive to another
+     * 
+     * @param ignoreErrors       Should errors be ignored
      *
      * @return String representing the command that was built to modify the data fields
      *********************************************************************************************/
-    private String BuildReferencedVariablesDataFieldsCmd(TableInformation tableInfo, TableModification mod, boolean dataTypeChanged) {
+    private String BuildReferencedVariablesDataFieldsCmd(TableInformation tableInfo, TableModification mod,
+            boolean dataTypeChanged, boolean ignoreErrors) {
         StringBuilder command = new StringBuilder();
         if ((mod.getArraySizeColumn() != -1) && (mod.getDataTypeColumn() != -1) && (mod.getVariableColumn() != -1)) {
             // If this mod represents a new variable that is being added to the table then we need to assign
@@ -2713,7 +2809,7 @@ public class CcddDbTableCommandHandler {
                     // Check if the new variable's data type is a structure table
                     if (!dataTypeHandler.isPrimitive(dataType)) {
                         // Update the data fields of any sub-tables that were altered due to the modified tables
-                        command.append(UpdateSubTableDataFields(dataType, variablePath, mod));
+                        command.append(UpdateSubTableDataFields(dataType, variablePath, mod, ignoreErrors));
                     }
                     
                     for (int index = 0; index < newVariablePaths.size(); index++) {
@@ -2754,12 +2850,15 @@ public class CcddDbTableCommandHandler {
      *                           update the internal tables. This is used during a
      *                           data type update where only the data type name has
      *                           changed in order to speed up the operation
+     *                           
+     * @param ignoreErrors       Should errors be ignored
      *
      * @return Table row addition command
      * @throws CCDDException if the a datatype to add is not currently in the database
      *********************************************************************************************/
     private boolean buildAndExecuteAdditionCommand(TableInformation tableInfo, List<TableModification> additions,
-            String dbTableName, TypeDefinition typeDefn, boolean skipInternalTables, Component parent) throws CCDDException {
+            String dbTableName, TypeDefinition typeDefn, boolean skipInternalTables, boolean ignoreErrors,
+            Component parent) throws CCDDException {
         // Various local variables
         ResultSet queryResult;
         int nextKeyValue = 1;
@@ -2813,10 +2912,6 @@ public class CcddDbTableCommandHandler {
 
             // Check if internal tables are to be updated and the parent table is a structure
             if (!skipInternalTables && typeDefn.isStructure()) {
-                // Since a variable has been added set the flag to force the variable paths and
-                // offsets lists to be rebuilt
-                isVariablePathChange = true;
-
                 // Get the variable name and data type for the variable in the new row
                 String variableName = add.getRowData()[add.getVariableColumn()].toString();
                 String dataType = add.getRowData()[add.getDataTypeColumn()].toString();
@@ -2829,7 +2924,7 @@ public class CcddDbTableCommandHandler {
                     // Check to see if this is an array definition. If so do not add its data to the internal
                     // fields table. If not update any tables that reference this prototype
                     if (((add.getRowData()[add.getArraySizeColumn()].equals("")) || (newVariablePath.endsWith("]")))) {  
-                        fieldsAddCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, add, false));
+                        fieldsAddCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, add, false, ignoreErrors));
                     }
                     
                     // Check if this structure data type is currently a root table (i.e., it's
@@ -2979,7 +3074,7 @@ public class CcddDbTableCommandHandler {
         StringBuilder assnsModCmd = new StringBuilder("");
         StringBuilder linksDelCmd = new StringBuilder("");
         StringBuilder tlmDelCmd = new StringBuilder("");
-        
+        List<String> changedDataTypes = new ArrayList<String>();
         List<Object[]> tablePathList = null;
                 
         // Retrieve the internal associations table data
@@ -2988,7 +3083,7 @@ public class CcddDbTableCommandHandler {
         // Create an array of all of the member tables
         String[] assnsMemberTables = new String[assnsData.size()];
         for (int index = 0; index < assnsMemberTables.length; index++) {
-            assnsMemberTables[index] = assnsData.get(index)[3]; // TODO: create a define for the number 3 which is the table members column
+            assnsMemberTables[index] = assnsData.get(index)[AssociationsColumn.MEMBERS.ordinal()];
         }
 
         // Check if no updated data type handler is provided. This implies the modifications
@@ -3000,6 +3095,7 @@ public class CcddDbTableCommandHandler {
 
         // Step through each modification
         for (TableModification mod : modifications) {
+            boolean wasShifted = false;
             
             // Check if this is a prototype table (modifications are made to the table)
             if (tableInfo.isPrototype()) {
@@ -3052,25 +3148,24 @@ public class CcddDbTableCommandHandler {
                     boolean dataTypeChanged = !oldDataType.equals(newDataType);
                     boolean arraySizeChanged = !oldArraySize.equals(newArraySize);
                     boolean bitLengthChanged = !oldBitLength.equals(newBitLength);
-
+                    
+                    // If the data type changed then add it to the list
+                    if (dataTypeChanged) {
+                        changedDataTypes.add(oldDataType);
+                    }
+                    
                     // Check if the variable name, data type, array size, bit length, or rate
                     // column value(s) changed; this change must be propagated to the instances
                     // of this prototype and their entries in the internal tables
                     if (variableChanged || dataTypeChanged || arraySizeChanged || bitLengthChanged || rateChanged) {
-                        // Check if the variable's name, data type, array size, or bit length has changed
-                        if (variableChanged || dataTypeChanged || arraySizeChanged || bitLengthChanged) {
-                            // Set the flag to force the variable paths and offsets lists to be rebuilt
-                            isVariablePathChange = true;
-                        }
-
                         // Get the variable path
                         String newVariablePath = tableInfo.getTablePath() + "," + newDataType + "."
                                 + newVariableName;
                         
                         // Check if the data type has been changed, the new data type is a
                         // structure, and this structure is a root table
-                        if (dataTypeChanged && !newDataTypeHandler.isPrimitive(newDataType)
-                                && rootStructures.contains(newDataType)) {
+                        if (dataTypeChanged && !newDataTypeHandler.isPrimitive(newDataType) &&
+                                rootStructures.contains(newDataType)) {
                             // If the structure chosen as the variable's data type is a root
                             // structure, then any references in the internal tables are
                             // changed to the structure's new path as a child
@@ -3145,28 +3240,27 @@ public class CcddDbTableCommandHandler {
 
                         // Step through each table path found
                         try {
-                            for (Object[] path : tablePathList) {
-                                // Before making all the changes below make sure that we are not dealing with a shift 
-                                // due to a new row of data being added
-                                boolean wasShifted = false;
-                                boolean variableStillExists = false;
-                                for (int i = 0; i < modifications.size(); i++) {
-                                    Object[] rowData = modifications.get(i).getRowData();
-                                    String variableName = (String)rowData[(int)modifications.get(i).getVariableColumn()];
-                                    if (variableName.contentEquals(oldVariableName)) {
-                                        variableStillExists = true;
-                                        // We now know that the variable name is the same so check to see if the data
-                                        // type and array size is the same
-                                        String dataType = (String)rowData[(int)modifications.get(i).getDataTypeColumn()];
-                                        String arraySize = (String)rowData[(int)modifications.get(i).getArraySizeColumn()];
-                                        if (dataType.contentEquals(oldDataType) && arraySize.contentEquals(oldArraySize)) {
-                                            wasShifted = true;
-                                            break;
-                                        }
+                            // Before making all the changes below make sure that we are not dealing with a shift 
+                            // due to a new row of data being added
+                            boolean variableStillExists = false;
+                            for (int i = 0; i < modifications.size(); i++) {
+                                Object[] rowData = modifications.get(i).getRowData();
+                                String variableName = (String)rowData[(int)modifications.get(i).getVariableColumn()];
+                                if (variableName.contentEquals(oldVariableName)) {
+                                    variableStillExists = true;
+                                    // We now know that the variable name is the same so check to see if the data
+                                    // type and array size is the same
+                                    String dataType = (String)rowData[(int)modifications.get(i).getDataTypeColumn()];
+                                    String arraySize = (String)rowData[(int)modifications.get(i).getArraySizeColumn()];
+                                    if (dataType.contentEquals(oldDataType) && arraySize.contentEquals(oldArraySize)) {
+                                        wasShifted = true;
+                                        break;
                                     }
                                 }
-                                
-                                if (!wasShifted) {
+                            }
+                            
+                            if (!wasShifted) {
+                                for (Object[] path : tablePathList) {
                                     boolean isDelLinksAndTlm = false;
     
                                     // Get the variable name path from the table tree
@@ -3195,9 +3289,6 @@ public class CcddDbTableCommandHandler {
                                             groupsModCmd.append(updateVarNameAndDataType(orgVarPathEsc, newVariablePath,
                                                     InternalTable.GROUPS.getTableName(), GroupsColumn.MEMBERS.getColumnName(),
                                                     "", "", true));
-                                            fieldsModCmd.append(updateVarNameAndDataType(orgVarPathEsc, newVariablePath,
-                                                    InternalTable.FIELDS.getTableName(),
-                                                    FieldsColumn.OWNER_NAME.getColumnName(), "", "", true));
                                             ordersModCmd.append(updateVarNameAndDataType(orgVarPathEsc, newVariablePath,
                                                     InternalTable.ORDERS.getTableName(),
                                                     OrdersColumn.TABLE_PATH.getColumnName(), "", "", true));
@@ -3207,7 +3298,7 @@ public class CcddDbTableCommandHandler {
                                         // The associations table should only be updated if it contains a reference to the table path 
                                         // that is being modified. 
                                         for (int index = 0; index < assnsMemberTables.length; index++) {
-                                            if (assnsMemberTables[index].contains((String)path[2])) { // TODO: create a define for the number 2 which is the table members column
+                                            if (assnsMemberTables[index].contains((String)path[path.length-1])) {
                                                 assnsModCmd.append("UPDATE ").append(InternalTable.ASSOCIATIONS.getTableName())
                                                 .append(" SET ").append(AssociationsColumn.MEMBERS.getColumnName())
                                                 .append(" = regexp_replace(").append(AssociationsColumn.MEMBERS.getColumnName())
@@ -3298,7 +3389,7 @@ public class CcddDbTableCommandHandler {
                                         // fields table. If not update any tables that reference this prototype
                                         if (((mod.getRowData()[mod.getArraySizeColumn()].equals("")) || (newVariablePath.endsWith("]")))
                                                 && !rootStructures.contains(newDataType)) {  
-                                            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod, true));
+                                            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod, true, false));
                                         }
                                         
                                         ordersModCmd.append("DELETE FROM ").append(InternalTable.ORDERS.getTableName()).append(" WHERE ")
@@ -3429,9 +3520,6 @@ public class CcddDbTableCommandHandler {
                     // Check if a command name, code, or argument structure changed
                     if (!oldCommandName.equals(newCommandName) || !oldCommandCode.equals(newCommandCode)
                             || !oldCommandArg.equals(newCommandArg)) {
-                        // Set the flag to force the command list to be rebuilt
-                        isCommandChange = true;
-
                         // Update any table cells or data fields with the command reference
                         // input type containing the command with a name, code, or names of
                         // arguments change
@@ -3508,11 +3596,10 @@ public class CcddDbTableCommandHandler {
                 }
             }
             
-            // If this mod represents a new variable that is being added to the table then we need to assign the appropriate
-            // data fields.
-            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod, false));
+            // Update the data fields
+            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod, false, false));
         }
-        
+
         modCmd.append(valuesModCmd).append(groupsModCmd).append(fieldsModCmd).append(ordersModCmd)
               .append(assnsModCmd).append(linksModCmd).append(tlmModCmd).append(linksDelCmd)
               .append(tlmDelCmd);
@@ -3530,7 +3617,128 @@ public class CcddDbTableCommandHandler {
                     "SQL command failed cause " + e.getMessage() + ".",
                     "<html><b>SQL command failed</b>");
         }
+        
+        // Check to see if this is a child table that is being converted to a root table.
+        if (changedDataTypes.size() != 0) {
+            result = updateTablesRecentlyConvertedToRoot(changedDataTypes, parent);
+        }
+
         return result;
+    }
+    
+    /**********************************************************************************************
+     * Update the data fields of a table that is being converted from a non-root to a root.
+     * 
+     * @param updatedDataTypes List of tables that were converted from non-root to root
+     * 
+     * @param parent           GUI component over which to center any error dialog
+     * 
+     * @return result          Did the update succeed
+     *********************************************************************************************/
+    private boolean updateTablesRecentlyConvertedToRoot(List<String> updatedDataTypes, Component parent) {
+        StringBuilder modCmd = new StringBuilder("");
+        boolean result = false;
+        
+        // Update the root structures
+        rootStructures = getRootStructures(parent);
+
+        // Step through each data type
+        for (int i = 0; i < updatedDataTypes.size(); i++) {
+            // Check to see if this data type represents a root table
+            if (rootStructures.contains(updatedDataTypes.get(i))) {
+                // Udpate the new root table
+                modCmd.append(updateTableFields(updatedDataTypes.get(i), "", "", parent, modCmd));
+            }
+        }
+        
+        try {
+            if (modCmd.length() != 0) {
+                // Execute the commands
+                dbCommand.executeDbUpdate(modCmd, parent);
+                result = true;
+            }
+        } catch (SQLException e) {
+            // Inform the user that the database command failed
+            eventLog.logFailEvent(parent,
+                    "SQL command failed cause " + e.getMessage() + ".",
+                    "<html><b>SQL command failed</b>");
+        }
+        
+        return result;
+    }
+    
+    /**********************************************************************************************
+     * Update the data fields of the new root table or members of a root table
+     * 
+     * @param dataType    What is the data type of the table being updated
+     * 
+     * @param parentPath  If this data type is used to define a member of a root table then what is the path to the root table?
+     * 
+     * @param currVarName If this data type is used to define a member of a root table then what is the name of the member?
+     * 
+     * @param parent      GUI component over which to center any error dialog
+     * 
+     * @param modCmd      PSQL command to update the tables
+     * 
+     * @return modCmd PSQL command to update the tables
+     *********************************************************************************************/
+    private StringBuilder updateTableFields(String dataType, String parentPath, String currVarName, 
+            Component parent, StringBuilder modCmd) {
+        // Grab the data for the table being updated
+        TableInformation currTableInfo = loadTableData(dataType, true, true, false, parent);
+        Object[][] tableData = currTableInfo.getData();
+        
+        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(currTableInfo.getType());
+        
+        int dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+        int variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+        
+        if (dataTypeIndex != -1 && variableNameIndex != -1) {
+            // Step through each row of data
+            for (int x = 0; x < tableData.length; x++) {
+                // Check if the data type for this row is a primitive
+                if (!dataTypeHandler.isPrimitive(tableData[x][dataTypeIndex].toString())) {
+                    // If it is a primitive type then construct the name used to reference its CCDD table
+                    String childTableDbName =  dataType+","+tableData[x][dataTypeIndex].toString()+"."+
+                    tableData[x][variableNameIndex].toString();
+                    
+                    // Check if the parent path is empty
+                    if (parentPath != "") {
+                        // If not append the data to childTableDbName
+                        childTableDbName = parentPath+","+childTableDbName;
+                    }
+    
+                    // Create the command used to update the data fields
+                    modCmd.append(copyDataFieldCommand(CcddFieldHandler.getFieldTypeName(
+                    currTableInfo.getType()), childTableDbName, parent));
+                    
+                    // Grab the table data for this non-primitive data type
+                    Object[][] childTableData = loadTableData(tableData[x][dataTypeIndex].toString(), true, true, false, parent).getData();
+                    
+                    // Step through each row of table data 
+                    for (int i = 0; i < childTableData.length; i++) {
+                        // Check if the data type for this row is a primitive
+                        if (!dataTypeHandler.isPrimitive(childTableData[i][dataTypeIndex].toString())) {
+                            // If not then recursively call this function
+                            modCmd.append(updateTableFields(childTableData[i][dataTypeIndex].toString(), childTableDbName,
+                                    childTableData[i][variableNameIndex].toString(),parent, modCmd));
+                        }
+                    }
+                }
+            }
+        }
+        
+        // If the parentPath and currVarName is not empty then this table needs to be updated
+        if (!parentPath.contentEquals("") && !currVarName.contentEquals("")) {
+            // Construct the name used to reference its CCDD table
+            String childTableDbName = parentPath+","+dataType+"."+currVarName;
+            
+            // Create the command used to update the data fields
+            modCmd.append(copyDataFieldCommand(CcddFieldHandler.getFieldTypeName(
+                    currTableInfo.getType()), childTableDbName, parent));
+        }
+        
+        return modCmd;
     }
 
     /**********************************************************************************************
@@ -3578,10 +3786,6 @@ public class CcddDbTableCommandHandler {
             // Check if the internal tables are to be updated and the table represents a
             // structure
             if (!skipInternalTables && typeDefn.isStructure()) {
-                // Since a variable has been deleted set the flag to force the variable paths
-                // and offsets lists to be rebuilt
-                isVariablePathChange = true;
-
                 // Get the variable name, data type, and bit length
                 String variableName = del.getRowData()[del.getVariableColumn()].toString();
                 String dataType = del.getRowData()[del.getDataTypeColumn()].toString();
@@ -3654,10 +3858,6 @@ public class CcddDbTableCommandHandler {
             }
             // Check if this is a command table
             else if (typeDefn.isCommand()) {
-                // Since a command has been deleted set the flag to force the command list to
-                // be rebuilt
-                isCommandChange = true;
-
                 // Blank any table cells or data fields with the command reference input type
                 // containing the deleted command
                 deleteCommandReference(del.getRowData()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)].toString(),
@@ -4936,6 +5136,9 @@ public class CcddDbTableCommandHandler {
 
             case VALUES:
                 break;
+                
+            case DBU_INFO:
+                break;
             }
 
             // Execute the database update
@@ -5026,6 +5229,7 @@ public class CcddDbTableCommandHandler {
         case ORDERS:
         case SCRIPT:
         case TABLE_TYPES:
+        case DBU_INFO:
         case VALUES:
             break;
         }
@@ -5045,7 +5249,7 @@ public class CcddDbTableCommandHandler {
      *
      * @return Command for building the specified table
      *********************************************************************************************/
-    private String storeNonTableTypesInfoTableCommand(InternalTable intTable, List<String[]> tableData,
+    String storeNonTableTypesInfoTableCommand(InternalTable intTable, List<String[]> tableData,
             String tableComment, Component parent) {
         // Get the internal table's name
         String tableName = intTable.getTableName(tableComment);
@@ -5700,6 +5904,9 @@ public class CcddDbTableCommandHandler {
             String names = "";
 
             // Get the type definition based on the table type name
+            if (tableTypeHandler == null) {
+                tableTypeHandler = ccddMain.getTableTypeHandler();
+            }
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
 
             // Set the flags that indicates if the table type definition represents a structure
@@ -5990,177 +6197,179 @@ public class CcddDbTableCommandHandler {
                 // ////////////////////////////////////////////////////////////////////////////
 
                 // Get the list of names of all tables of the specified type
-                List<String> tableNamesList = getAllTablesOfType(typeName, protoTableNames, editorDialog);
-                List<FieldInformation> tableTypeFields = fieldHandler.getFieldInformationByTableType(typeName);
-                boolean fieldsUpdated = false;
-                Object[][] newFields = null;
-                
-                if (editor != null) {
-                    newFields = CcddFieldHandler.getFieldEditorDefinition(editor.getPanelFieldInformation());
-                } else if (newDataFields.size() != 0) {
-                    newFields = new Object[newDataFields.size()][newDataFields.get(0).length];
-                    newFields = newDataFields.toArray(newFields);
+                if (newDataFields != null) {
+                    List<String> tableNamesList = getAllTablesOfType(typeName, protoTableNames, editorDialog);
+                    List<FieldInformation> tableTypeFields = fieldHandler.getFieldInformationByTableType(typeName);
+                    boolean fieldsUpdated = false;
+                    Object[][] newFields = null;
                     
-                    // The new fields are not in the expected order and need to be rearranged
-                    for (int index1 = 0; index1 < newFields.length; index1++) {
-                        for (int index2 = 0; index2 < newFields[0].length-1; index2++) {
-                            newFields[index1][index2] = newFields[index1][index2+1];
+                    if (editor != null) {
+                        newFields = CcddFieldHandler.getFieldEditorDefinition(editor.getPanelFieldInformation());
+                    } else if (newDataFields.size() != 0) {
+                        newFields = new Object[newDataFields.size()][newDataFields.get(0).length];
+                        newFields = newDataFields.toArray(newFields);
+                        
+                        // The new fields are not in the expected order and need to be rearranged
+                        for (int index1 = 0; index1 < newFields.length; index1++) {
+                            for (int index2 = 0; index2 < newFields[0].length-1; index2++) {
+                                newFields[index1][index2] = newFields[index1][index2+1];
+                            }
+                            newFields[index1][newFields[0].length-1] = Integer.toString(-1);
                         }
-                        newFields[index1][newFields[0].length-1] = Integer.toString(-1);
                     }
-                }
-
-                if (newFields != null) {
-                    // Step through each table of the specified type
-                    for (String tableName : tableNamesList) {
-                        List<FieldInformation> currentFields = fieldHandler.getFieldInformationByOwner(tableName);
-                        
-                        // Delete any fields that no longer exist
-                        for (int currIndex = 0; currIndex < currentFields.size(); currIndex++) {
-                            boolean fieldMatched = false;
-                            
-                            // Check to see if the existing field can be found in the list of new fields
-                            for (int newIndex = 0; newIndex < newFields.length; newIndex++) {
-                                if (newFields[newIndex][0].equals(currentFields.get(currIndex).getFieldName())) {
-                                    fieldMatched = true;
-                                    break;
-                                }
-                            }
-                            
-                            // If the existing field was not found that means it was deleted
-                            if (fieldMatched == false) {
-                                // Before deleting the field it is important to check if this field is a custom field that
-                                // was not inherited from the table type, but rather added directly to this individual table
-                                // by a user. If no field with the same name is found in the tableTypeFields then that means 
-                                // it is custom and should not be deleted.
-                                boolean isCustomField = true;
-                                
-                                for (int index = 0; index < tableTypeFields.size(); index++) {
-                                    if (tableTypeFields.get(index).getFieldName().equals(currentFields.get(currIndex).getFieldName())) {
-                                        isCustomField = false;
-                                    }
-                                }
-                                
-                                if (isCustomField == false) {
-                                    // Delete the field
-                                    fieldHandler.getFieldInformation().remove(currentFields.get(currIndex));
-                                    fieldsUpdated = true;
-                                }
-                            }
-                        }
-                        
-                        // Now check to see which fields need to be updated and added
-                        for (int newIndex = 0; newIndex < newFields.length; newIndex++) {
-                            boolean fieldMatched = false;
-                            
-                            for (int currIndex = 0; currIndex < currentFields.size(); currIndex++) {
-                                // If a match is found then replace it
-                                if (newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].equals(
-                                        currentFields.get(currIndex).getFieldName())) {
-                                    String fieldValue = "";
-                                    
-                                    // Set the table field's value based on the overwrite type
-                                    switch (overwriteFields) {
-                                        case ALL:
-                                            // Overwrite the table field's value with the inheritable field's value
-                                            fieldValue = newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString();
-                                            break;
-                                            
-                                        case SAME:
-                                            for(int index = 0; index < tableTypeFields.size(); index++) {
-                                                if (tableTypeFields.get(index).getFieldName().equals(currentFields.get(currIndex).getFieldName())) {
-                                                    fieldValue = newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString();
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                            
-                                        case EMPTY:
-                                            // Only overwrite the table field's value if it's blank
-                                            if (currentFields.get(currIndex).getValue().equals("")) {
-                                                fieldValue = newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString();
-                                            }
-                                            break;
-                                            
-                                        case NONE:
-                                            // Keep the table field's current value
-                                            fieldValue = currentFields.get(currIndex).getValue();
-                                            break;
-                                            
-                                        default:
-                                            // Keep the table field's current value
-                                            fieldValue = currentFields.get(currIndex).getValue();
-                                            break;
-                                                
-                                    }
-                                    
-                                    // Replace the existing field with the new one
-                                    fieldHandler.getFieldInformation().set(
-                                           fieldHandler.getFieldInformation().indexOf(currentFields.get(currIndex)),
-                                           new FieldInformation(tableName,
-                                                   newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].toString(),
-                                                   newFields[newIndex][FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                                   inputTypeHandler.getInputTypeByName(
-                                                           newFields[newIndex][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
-                                                   Integer.parseInt(newFields[newIndex][FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
-                                                   Boolean.parseBoolean(newFields[newIndex][FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
-                                                   ApplicabilityType.getApplicabilityByName(newFields[newIndex][
-                                                           FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
-                                                   fieldValue, true, currentFields.get(currIndex).getInputFld(), -1));
-                               
-                                    fieldMatched = true;
-                                    fieldsUpdated = true;
-                                    break;
-                                }
-                            }
-                            
-                            boolean addField = false;
-                            
-                            // If no match was found that means this is a new field
-                            if (fieldMatched == false) {
-                                // Check that the field is applicable to this table before adding
-                                if ((newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString().equals(
-                                        ApplicabilityType.ROOT_ONLY.getApplicabilityName())) &&  isRootStructure(tableName)) {
-                                    addField = true;
-                                } else if ((newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString().equals(
-                                        ApplicabilityType.CHILD_ONLY.getApplicabilityName())) && !isRootStructure(tableName)) {
-                                    addField = true;
-                                } else if (newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString().equals(
-                                        ApplicabilityType.ALL.getApplicabilityName())) {
-                                    addField = true;
-                                }
-                                
-                                if (addField == true) {
-                                    // Add the data field to the table and set the flag indicating a change has been made
-                                    fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
-                                            newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].toString(),
-                                            newFields[newIndex][FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                            inputTypeHandler.getInputTypeByName(newFields[newIndex][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
-                                            Integer.parseInt(newFields[newIndex][FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
-                                            Boolean.parseBoolean(newFields[newIndex][FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
-                                            ApplicabilityType.getApplicabilityByName(newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
-                                            newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString(), true, null,
-                                            -1));
-                                    fieldsUpdated = true;
-                                }
-                            }
-                        }
     
-                        // Check if any fields were added, modified, or deleted
-                        if (fieldsUpdated == true) {
-                            // Create the command to modify the table's data field entries
-                            command.append(modifyFieldsCommand(tableName, fieldHandler.getFieldInformationByOwner(tableName)));
+                    if (newFields != null) {
+                        // Step through each table of the specified type
+                        for (String tableName : tableNamesList) {
+                            List<FieldInformation> currentFields = fieldHandler.getFieldInformationByOwner(tableName);
+                            
+                            // Delete any fields that no longer exist
+                            for (int currIndex = 0; currIndex < currentFields.size(); currIndex++) {
+                                boolean fieldMatched = false;
+                                
+                                // Check to see if the existing field can be found in the list of new fields
+                                for (int newIndex = 0; newIndex < newFields.length; newIndex++) {
+                                    if (newFields[newIndex][0].equals(currentFields.get(currIndex).getFieldName())) {
+                                        fieldMatched = true;
+                                        break;
+                                    }
+                                }
+                                
+                                // If the existing field was not found that means it was deleted
+                                if (fieldMatched == false) {
+                                    // Before deleting the field it is important to check if this field is a custom field that
+                                    // was not inherited from the table type, but rather added directly to this individual table
+                                    // by a user. If no field with the same name is found in the tableTypeFields then that means 
+                                    // it is custom and should not be deleted.
+                                    boolean isCustomField = true;
+                                    
+                                    for (int index = 0; index < tableTypeFields.size(); index++) {
+                                        if (tableTypeFields.get(index).getFieldName().equals(currentFields.get(currIndex).getFieldName())) {
+                                            isCustomField = false;
+                                        }
+                                    }
+                                    
+                                    if (isCustomField == false) {
+                                        // Delete the field
+                                        fieldHandler.getFieldInformation().remove(currentFields.get(currIndex));
+                                        fieldsUpdated = true;
+                                    }
+                                }
+                            }
+                            
+                            // Now check to see which fields need to be updated and added
+                            for (int newIndex = 0; newIndex < newFields.length; newIndex++) {
+                                boolean fieldMatched = false;
+                                
+                                for (int currIndex = 0; currIndex < currentFields.size(); currIndex++) {
+                                    // If a match is found then replace it
+                                    if (newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].equals(
+                                            currentFields.get(currIndex).getFieldName())) {
+                                        String fieldValue = "";
+                                        
+                                        // Set the table field's value based on the overwrite type
+                                        switch (overwriteFields) {
+                                            case ALL:
+                                                // Overwrite the table field's value with the inheritable field's value
+                                                fieldValue = newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString();
+                                                break;
+                                                
+                                            case SAME:
+                                                for(int index = 0; index < tableTypeFields.size(); index++) {
+                                                    if (tableTypeFields.get(index).getFieldName().equals(currentFields.get(currIndex).getFieldName())) {
+                                                        fieldValue = newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString();
+                                                        break;
+                                                    }
+                                                }
+                                                break;
+                                                
+                                            case EMPTY:
+                                                // Only overwrite the table field's value if it's blank
+                                                if (currentFields.get(currIndex).getValue().equals("")) {
+                                                    fieldValue = newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString();
+                                                }
+                                                break;
+                                                
+                                            case NONE:
+                                                // Keep the table field's current value
+                                                fieldValue = currentFields.get(currIndex).getValue();
+                                                break;
+                                                
+                                            default:
+                                                // Keep the table field's current value
+                                                fieldValue = currentFields.get(currIndex).getValue();
+                                                break;
+                                                    
+                                        }
+                                        
+                                        // Replace the existing field with the new one
+                                        fieldHandler.getFieldInformation().set(
+                                               fieldHandler.getFieldInformation().indexOf(currentFields.get(currIndex)),
+                                               new FieldInformation(tableName,
+                                                       newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                       newFields[newIndex][FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                       inputTypeHandler.getInputTypeByName(
+                                                               newFields[newIndex][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                       Integer.parseInt(newFields[newIndex][FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                                       Boolean.parseBoolean(newFields[newIndex][FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                       ApplicabilityType.getApplicabilityByName(newFields[newIndex][
+                                                               FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                                       fieldValue, true, currentFields.get(currIndex).getInputFld(), -1));
+                                   
+                                        fieldMatched = true;
+                                        fieldsUpdated = true;
+                                        break;
+                                    }
+                                }
+                                
+                                boolean addField = false;
+                                
+                                // If no match was found that means this is a new field
+                                if (fieldMatched == false) {
+                                    // Check that the field is applicable to this table before adding
+                                    if ((newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString().equals(
+                                            ApplicabilityType.ROOT_ONLY.getApplicabilityName())) &&  isRootStructure(tableName)) {
+                                        addField = true;
+                                    } else if ((newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString().equals(
+                                            ApplicabilityType.CHILD_ONLY.getApplicabilityName())) && !isRootStructure(tableName)) {
+                                        addField = true;
+                                    } else if (newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString().equals(
+                                            ApplicabilityType.ALL.getApplicabilityName())) {
+                                        addField = true;
+                                    }
+                                    
+                                    if (addField == true) {
+                                        // Add the data field to the table and set the flag indicating a change has been made
+                                        fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
+                                                newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                newFields[newIndex][FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                inputTypeHandler.getInputTypeByName(newFields[newIndex][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                Integer.parseInt(newFields[newIndex][FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                                Boolean.parseBoolean(newFields[newIndex][FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                ApplicabilityType.getApplicabilityByName(newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                                newFields[newIndex][FieldEditorColumnInfo.VALUE.ordinal()].toString(), true, null,
+                                                -1));
+                                        fieldsUpdated = true;
+                                    }
+                                }
+                            }
+        
+                            // Check if any fields were added, modified, or deleted
+                            if (fieldsUpdated == true) {
+                                // Create the command to modify the table's data field entries
+                                command.append(modifyFieldsCommand(tableName, fieldHandler.getFieldInformationByOwner(tableName)));
+                            }
                         }
                     }
-                }
+                    
+                    // Convert the list of modified tables names to an array
+                    tableNames = tableNamesList.toArray(new String[0]);
 
-                // Convert the list of modified tables names to an array
-                tableNames = tableNamesList.toArray(new String[0]);
-
-                // Check if any table of this type exists
-                if (tableNames.length != 0) {
-                    // Convert the array of tables names into a single string and shorten it if too long
-                    names = " and table(s) '</b>" + CcddUtilities.convertArrayToStringTruncate(tableNames) + "<b>'";
+                    // Check if any table of this type exists
+                    if (tableNames.length != 0) {
+                        // Convert the array of tables names into a single string and shorten it if too long
+                        names = " and table(s) '</b>" + CcddUtilities.convertArrayToStringTruncate(tableNames) + "<b>'";
+                    }
                 }
 
                 // Build the command to update the data fields table
@@ -6591,7 +6800,7 @@ public class CcddDbTableCommandHandler {
              *************************************************************************************/
             private ModifiedTable(String tablePath) {
                 // Load the table's information from the project database
-                tableInformation = loadTableData(tablePath, false, true, dialog);
+                tableInformation = loadTableData(tablePath, false, true, false, dialog);
 
                 // Create a table editor handler using the updated data types and/or macros, but
                 // without displaying the editor itself
@@ -6990,7 +7199,7 @@ public class CcddDbTableCommandHandler {
                 // editors that contain the data type (macro) reference(s)
                 if (modifyTableData(modTbl.getTableInformation(), modTbl.getEditor().getAdditions(),
                         modTbl.getEditor().getModifications(), modTbl.getEditor().getDeletions(), true, nameChangeOnly,
-                        false, false, false, newDataTypeHandler, dialog)) {
+                        false, false, false, newDataTypeHandler, true, true, false, dialog)) {
                     throw new CCDDException("table modification error");
                 }
             }
@@ -7027,6 +7236,9 @@ public class CcddDbTableCommandHandler {
             
             // Commit the change(s) to the database
             dbControl.getConnection().commit();
+            
+            // Update the table tree
+            updateTableTree();
 
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG, new StringBuilder(changeName).append(" and all affected tables updated"));
@@ -7094,7 +7306,7 @@ public class CcddDbTableCommandHandler {
              *************************************************************************************/
             ModifiedTable(String tablePath) {
                 // Load the table's information from the project database
-                tableInformation = loadTableData(tablePath, false, true, dialog);
+                tableInformation = loadTableData(tablePath, false, true, false, dialog);
 
                 // Create a table editor handler using the updated input types, but without
                 // displaying the editor itself
@@ -7299,7 +7511,7 @@ public class CcddDbTableCommandHandler {
                         // table editors that contain the input type reference(s)
                         if (modifyTableData(modTbl.getTableInformation(), modTbl.getEditor().getAdditions(),
                                 modTbl.getEditor().getModifications(), modTbl.getEditor().getDeletions(), true, false,
-                                false, false, false, null, dialog)) {
+                                false, false, false, null, true, true, false, dialog)) {
                             throw new SQLException("table modification error");
                         }
                     }

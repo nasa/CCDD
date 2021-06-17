@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddMain.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     The CCDD main application class handles flow and execution of the menu bar items.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -160,7 +181,9 @@ public class CcddMain {
     private JMenuItem mntmCopyDb;
     private JMenuItem mntmDeleteDb;
     private JMenuItem mntmBackupDb;
-    private JMenuItem mntmRestoreDb;
+    private JMenuItem mntmRestoreDbJSON;
+    private JMenuItem mntmRestoreDbCSV;
+    private JMenuItem mntmRestoreDbDBU;
     private JMenuItem mntmUnlock;
     private JMenuItem mntmVerifyDatabase;
     private JMenuItem mntmManageUsers;
@@ -814,8 +837,7 @@ public class CcddMain {
         rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
         // Now that the handlers exist, store its reference in the other persistent
-        // classes that
-        // use them
+        // classes that use them
         CcddClassesDataTable.setHandlers(CcddMain.this);
         CcddClassesComponent.setHandlers(CcddMain.this);
         fileIOHandler.setHandlers();
@@ -834,25 +856,28 @@ public class CcddMain {
     protected void setPostFunctionDbSpecificHandlers() {
         // Create a variable handler for the project database
         variableHandler = new CcddVariableHandler(CcddMain.this);
-
-        // Create a command handler for the project database
-        commandHandler = new CcddCommandHandler(CcddMain.this);
-
-        // Create a message ID handler for the project database
-        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
-
-        // Now that the variable handler exists, store its reference in the table command and macro handlers
+        
+        // Now that the variable handler exists, build most of the required handlers
         dbTable.setHandlers();
         macroHandler.setHandlers(variableHandler, dataTypeHandler);
         scriptHandler.setHandlers();
-
+        
         // Build the variables list and determine the variable offsets (note that the variables class must
         // be fully instantiated and the macro handler updated with the variable handler reference before
         // calling the path and offset list build method)
         variableHandler.buildPathAndOffsetLists();
 
+        // Create a command handler for the project database
+        commandHandler = new CcddCommandHandler(CcddMain.this);
+        
         // Build the command information list
         commandHandler.buildCommandList();
+
+        // Create a message ID handler for the project database
+        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
+
+        // Initialize the root structures
+        dbTable.initRootStructures();        
 
         // Create the list for the message ID name and ID selection input type (note that the message
         // ID class must be fully instantiated before calling the name and ID list build method)
@@ -1050,7 +1075,9 @@ public class CcddMain {
         mntmCopyDb.setEnabled(activateIfServer);
         mntmDeleteDb.setEnabled(activateIfServer);
         mntmBackupDb.setEnabled(activateIfDatabase && activateIfReadWrite);
-        mntmRestoreDb.setEnabled(activateIfServer);
+        mntmRestoreDbJSON.setEnabled(activateIfServer);
+        mntmRestoreDbCSV.setEnabled(activateIfServer);
+        mntmRestoreDbDBU.setEnabled(activateIfServer);
         mntmUnlock.setEnabled(activateIfServer);
         mntmVerifyDatabase.setEnabled(activateIfDatabase);
         mntmManageUsers.setEnabled(activateIfDatabase && activateIfAdmin);
@@ -1101,7 +1128,11 @@ public class CcddMain {
         if (mntmRecentProjects != null && mntmRecentProjects.length != 0) {
             // Step through each project in the recently opened projects list
             for (JMenuItem recent : mntmRecentProjects) {
-                recent.setEnabled(activateIfServer);
+                try {
+                    recent.setEnabled(activateIfServer);
+                } catch (Exception e) {
+                    // TODO
+                }
             }
         }
 
@@ -1711,8 +1742,10 @@ public class CcddMain {
         mnProject.addSeparator();
         mntmBackupDb = createMenuItem(mnProject, "Backup", KeyEvent.VK_B, 1,
                 "Backup the currently open project database");
-        mntmRestoreDb = createMenuItem(mnProject, "Restore", KeyEvent.VK_S, 1,
-                "Restore a previously backed-up project database");
+        JMenu mnRestore = createSubMenu(mnProject, "Restore", KeyEvent.VK_S, 1, null);
+        mntmRestoreDbJSON = createMenuItem(mnRestore, "JSON", KeyEvent.VK_A, 1, "Restore from JSON data");
+        mntmRestoreDbCSV = createMenuItem(mnRestore, "CSV", KeyEvent.VK_B, 1, "Restore from CSV data");
+        mntmRestoreDbDBU = createMenuItem(mnRestore, "DBU", KeyEvent.VK_D, 1, "Restore from DBU data");
         mnProject.addSeparator();
         mntmUnlock = createMenuItem(mnProject, "Unlock", KeyEvent.VK_U, 1, "Unlock project database(s)");
         mnProject.addSeparator();
@@ -2032,18 +2065,47 @@ public class CcddMain {
             }
         });
 
-        // Add a listener for the Restore Project menu item
-        mntmRestoreDb.addActionListener(new ActionListener() {
+        // Add a listener for the Restore Project from DBU menu item
+        mntmRestoreDbDBU.addActionListener(new ActionListener() {
             /**************************************************************************************
              * Restore a project database from a backup file
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae) {
                 // Check if there are uncommitted changes and if so, confirm discarding the
-                // changes
-                // before proceeding
+                // changes before proceeding
                 if (ignoreUncommittedChanges("Restore Project", "Discard changes?", true, null, frameCCDD)) {
                     fileIOHandler.restoreDatabaseFromDBU();
+                }
+            }
+        });
+        
+        // Add a listener for the Restore Project from JSON menu item
+        mntmRestoreDbJSON.addActionListener(new ActionListener() {
+            /**************************************************************************************
+             * Restore a project database from JSON file(s)
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                // Check if there are uncommitted changes and if so, confirm discarding the
+                // changes before proceeding
+                if (ignoreUncommittedChanges("Restore Project", "Discard changes?", true, null, frameCCDD)) {
+                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON, null, null, null, null);
+                }
+            }
+        });
+        
+        // Add a listener for the Restore Project from CSV menu item
+        mntmRestoreDbCSV.addActionListener(new ActionListener() {
+            /**************************************************************************************
+             * Restore a project database from CSV file(s)
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                // Check if there are uncommitted changes and if so, confirm discarding the
+                // changes before proceeding
+                if (ignoreUncommittedChanges("Restore Project", "Discard changes?", true, null, frameCCDD)) {
+                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV, null, null, null, null);
                 }
             }
         });

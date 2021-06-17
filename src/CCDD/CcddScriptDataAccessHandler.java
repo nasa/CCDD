@@ -1,10 +1,31 @@
-/**
- * CFS Command and Data Dictionary script data access handler.
- *
- * Copyright 2017 United States Government as represented by the Administrator of the National
- * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
- * 17, U.S. Code. All Other Rights Reserved.
- */
+/**************************************************************************************************
+/** \file CcddScriptDataAccessHandler.java
+*
+*   \author Kevin Mccluney
+*           Bryan Willis
+*
+*   \brief
+*     Class containing the methods whereby scripts can access the project database information.
+*
+*   \copyright
+*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+*
+*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
+*
+*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     the specific language governing permissions and limitations under the
+*     License at https://software.nasa.gov/.
+*
+*     Unless required by applicable law or agreed to in writing, software distributed under the
+*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+*     either expressed or implied.
+*
+*   \par Limitations, Assumptions, External Events and Notes:
+*     - TBD
+*
+**************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
@@ -948,7 +969,7 @@ public class CcddScriptDataAccessHandler {
                 // Check if the table name hasn't been added to the list
                 if (!names.contains(tableName)) {
                     // Store the table name
-                    TableInformation tableData = dbTable.loadTableData(tableName, false, false, parent);
+                    TableInformation tableData = dbTable.loadTableData(tableName, false, false, false, parent);
                     String type = tableData.getType();
                     
                     if (type.contains(tableType)) {
@@ -3384,7 +3405,7 @@ public class CcddScriptDataAccessHandler {
      *********************************************************************************************/
     public String[][] getTableDataByName(String tableName) {
         /* Load the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
         
         /* Get the type definition so that the column names can be determined */
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
@@ -3427,7 +3448,7 @@ public class CcddScriptDataAccessHandler {
         columnName = columnName.toLowerCase().replace(" ", "_");
         
         /* Load the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
         String[] data = new String[tableInfo.getData().length];
         
         /* Get the type definition so that the column names can be determined */
@@ -3470,7 +3491,7 @@ public class CcddScriptDataAccessHandler {
      *********************************************************************************************/
     public String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {
         /* Load the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
+        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
         
         /* Load the fieldInfo */
         List<FieldInformation> fieldInfo = tableInfo.getFieldInformation();
@@ -4549,33 +4570,18 @@ public class CcddScriptDataAccessHandler {
      *
      * @return Array containing the data associated with the named table
      *********************************************************************************************/
-    public String[] getEnumTableData(String tableName) {
-        int index = 0;
-        int columnNameIndex = 0;
-        
-        /* Store the value of the enum name column in a string and replace any spaces with underlines
-        ** as that is how it would be stored in the database.
-        */ 
-        String enumNameColumn = DefaultColumn.ENUM_NAME.getName().toLowerCase().replace(" ", "_");
-
+    public String[][] getEnumTableData(String tableName) {
         /* Find the index that represents the enum name column */
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(TYPE_ENUM);
-        String[] columnNames = typeDef.getColumnNamesDatabase();
         
-        for (index = 0; index < columnNames.length; index++) {
-            if (columnNames[index].equals(enumNameColumn)) {
-                columnNameIndex = index;
-            }
-        }
-
         /* Get the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, parent);
-        String[] data = new String[tableInfo.getData().length];
+        Object[][] tableData = dbTable.loadTableData(tableName, false, true, false, parent).getData();
+        String[][] data = new String[tableData.length][typeDef.getColumnCountVisible()];
         
-        /* Step though all of the data and pull out all of the enum names */
-        if (columnNameIndex != 0) {
-            for (int i = 0; i < data.length; i++) {
-                data[i] = tableInfo.getData()[i][columnNameIndex].toString();
+        /* Step though all of the data */
+        for (int row = 0; row < tableData.length; row++) {
+            for (int column = 0; column < typeDef.getColumnCountVisible(); column++) {
+                data[row][column] = tableData[row][column+2].toString();
             }
         }
         
@@ -4688,6 +4694,7 @@ public class CcddScriptDataAccessHandler {
                     false, // unused for XTCE export
                     null, // unused for XTCE export
                     null, // unused for XTCE export
+                    false, // unused for XTCE export
                     null, // unused for XTCE export
                     (isBigEndian ? EndianType.BIG_ENDIAN : EndianType.LITTLE_ENDIAN), isHeaderBigEndian, version,
                     validationStatus, classification1, classification2, classification3);
@@ -5148,8 +5155,6 @@ public class CcddScriptDataAccessHandler {
     }
 
     /**********************************************************************************************
-     * *** TODO INCLUDED FOR TESTING ***
-     *
      * Display the table information for each associated table type
      *********************************************************************************************/
     public void showData() {
