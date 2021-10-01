@@ -88,7 +88,7 @@ import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultInputType;
@@ -245,7 +245,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler {
                 // Step through each individual editor in this editor dialog
                 for (CcddTableEditorHandler editor : editorDialog.getTableEditors()) {
                     List<String> redrawnTables = new ArrayList<String>();
-                    TableInformation tableInfo = editor.getTableInformation();
+                    TableInfo tableInfo = editor.getTableInformation();
 
                     // Step through the data field deletions
                     for (String[] del : fieldDeletions) {

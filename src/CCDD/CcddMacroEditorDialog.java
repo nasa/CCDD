@@ -131,9 +131,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
     protected void doMacroUpdatesComplete(boolean commandError) {
         // Check that no error occurred performing the database commands
         if (!commandError) {
-            // Assign temporary OIDs to the added rows so that these can be matched when
-            // building
-            // updates
+            // Assign temporary OIDs to the added rows so that these can be matched when building updates
             tempOID = macroTable.assignOIDsToNewRows(tempOID, MacrosColumn.OID.ordinal());
 
             // Update the macro handler with the changes
@@ -148,8 +146,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                 }
             }
 
-            // Update the copy of the macro data so it can be used to determine if changes
-            // are made
+            // Update the copy of the macro data so it can be used to determine if changes are made
             storeCurrentData();
 
             // Initialize the list of macro references already loaded
@@ -208,8 +205,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
                         GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-                // Create a copy of the macro data so it can be used to determine if changes are
-                // made
+                // Create a copy of the macro data so it can be used to determine if changes are made
                 storeCurrentData();
 
                 // Define the panel to contain the table and place it in the editor
@@ -356,9 +352,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                      *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae) {
-                        // Only update the table in the database if a cell's content has changed,
-                        // none of the required columns is missing a value, and the user confirms
-                        // the action
+                        // Only update the table in the database if a cell's content has changed, none of
+                        // the required columns is missing a value, and the user confirms the action
                         if (macroTable.isTableChanged(committedData) && !checkForMissingColumns()
                                 && new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
                                         "<html><b>Store changes in project database?", "Store Changes",
@@ -388,8 +383,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -442,8 +436,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                 // Check if this is the macro values column
                 if (column == MacroEditorColumnInfo.VALUE.ordinal()) {
                     // Highlight any macro names in the table cell. Adjust the highlight color to
-                    // account for the cell selection highlighting so that the macro is easily
-                    // readable
+                    // account for the cell selection highlighting so that the macro is easily readable
                     macroHandler.highlightMacro(component, text, isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                             : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
@@ -469,8 +462,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
 
                 // Check if a cell is beneath the mouse pointer
                 if (row != -1 && column != -1) {
-                    // Expand any macros in the cell text and display this as the cell's tool tip
-                    // text
+                    // Expand any macros in the cell text and display this as the cell's tool tip text
                     toolTipText = macroHandler.getMacroToolTipText(getValueAt(row, column).toString());
                 }
 
@@ -566,8 +558,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                         }
                         // Check if the macro value changed
                         else if (column == MacroEditorColumnInfo.VALUE.ordinal()) {
-                            // Create a macro handler using the values currently displayed in the
-                            // macro editor
+                            // Create a macro handler using the values currently displayed in the macro editor
                             CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain, getUpdatedData());
                             newMacroHandler.setHandlers(ccddMain.getVariableHandler(), ccddMain.getDataTypeHandler());
 
@@ -610,8 +601,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                                 DialogOption.OK_OPTION);
                     }
 
-                    // Restore the cell contents to its original value and pop the edit from the
-                    // stack
+                    // Restore the cell contents to its original value and pop the edit from the stack
                     tableData.get(row)[column] = oldValue;
                     macroTable.getUndoManager().undoRemoveEdit();
                 } catch (Exception e) {
@@ -636,16 +626,14 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
             }
 
             /**************************************************************************************
-             * Override prepareRenderer to allow adjusting the background colors of table
-             * cells
+             * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell isn't already selected (selection highlighting overrides
-                // the
-                // invalid highlighting, if applicable)
+                // the invalid highlighting, if applicable)
                 if (!(isFocusOwner() && isRowSelected(row)
                         && (isColumnSelected(column) || !getColumnSelectionAllowed()))) {
                     boolean found = true;
@@ -683,9 +671,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
              *************************************************************************************/
             @Override
             protected void processTableContentChange() {
-                // Add or remove the change indicator based on whether or not any unstored
-                // changes
-                // exist
+                // Add or remove the change indicator based on whether or not any unstored changes exist
                 setTitle(DIALOG_TITLE + (macroTable.isTableChanged(committedData) ? CHANGE_INDICATOR : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed
@@ -709,11 +695,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
      *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction() {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // there are changes that haven't been stored. If changes exist then confirm
-        // discarding the
-        // changes
+        // Check if the contents of the last cell edited in the editor table is validated and that there
+        // are changes that haven't been stored. If changes exist then confirm discarding the changes
         if (macroTable.isLastCellValid() && (!macroTable.isTableChanged(committedData)
                 || new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this, "<html><b>Discard changes?",
                         "Discard Changes", JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)) {
@@ -751,8 +734,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
             }
 
             // Replace the table cells with their original contents (i.e., show macro names
-            // in
-            // place of their corresponding values)
+            // in place of their corresponding values)
             tableModel
                     .setValueAt(
                             (isExpand
@@ -851,8 +833,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler {
                         for (int column = 0; column < tableData[tblRow].length; column++) {
                             // Check if the current and committed values don't match
                             if (!tableData[tblRow][column].equals(committedData[comRow][column])) {
-                                // Set the flag to indicate a column value changed and stop
-                                // searching
+                                // Set the flag to indicate a column value changed and stop searching
                                 isChangedColumn = true;
                                 break;
                             }

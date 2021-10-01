@@ -49,6 +49,7 @@ import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.InputType;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InternalTable;
@@ -382,8 +383,7 @@ public class CcddMacroHandler {
                 int position = text.indexOf(macroName);
 
                 // Check if the pattern matches a defined macro. This uses the macro name
-                // without
-                // the delimiters
+                // without the delimiters
                 if (isMacroExists(matcher.group(2))) {
                     // Update the macro name starting position and remove the characters from the
                     // beginning of the text string to the end of the macro name
@@ -427,8 +427,7 @@ public class CcddMacroHandler {
         List<MacroLocation> locations = getMacroLocation(text);
 
         // Step through each macro in the text string. This is done in reverse since the
-        // start
-        // indices after the current location change as the text string length changes
+        // start indices after the current location change as the text string length changes
         for (int index = locations.size() - 1; index >= 0; index--) {
             // Check if this location contains the target macro name
             if (text.startsWith(oldName, locations.get(index).getStart())) {
@@ -456,8 +455,7 @@ public class CcddMacroHandler {
             if (CcddVariableHandler.hasSizeof(macros.get(index)[MacrosColumn.VALUE.ordinal()], oldDataTypeName,
                     CcddMacroHandler.this)) {
                 // Replace instances of the old data type name in any sizeof() calls with the
-                // new
-                // name
+                // new name
                 macros.set(index,
                         new String[] { macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()],
                                 macros.get(index)[MacrosColumn.VALUE.ordinal()].replaceAll(
@@ -723,8 +721,7 @@ public class CcddMacroHandler {
             // Step through each macro in the text string
             for (MacroLocation location : getMacroLocation(text)) {
                 // Append the text leading to the macro name, then add the macro value in place
-                // of
-                // the name
+                // of the name
                 expandedText.append(text.substring(lastEnd, location.getStart())
                         + getMacroValue(location.getMacroName().replaceAll(MACRO_IDENTIFIER, "")));
 
@@ -735,15 +732,12 @@ public class CcddMacroHandler {
             // Append any remaining text
             expandedText.append(text.substring(lastEnd));
 
-            // Separate the text at any comma. This is to evaluate each substring to see if
-            // it's an
-            // expression. This allows macros to represent array sizes for multi-dimensional
-            // arrays
+            // Separate the text at any comma. This is to evaluate each substring to see if it's an
+            // expression. This allows macros to represent array sizes for multi-dimensional arrays
             String[] parts = expandedText.toString().split("\\s*,\\s*");
 
             // Check if there is no comma to separate the text (so that it's potentially a
-            // single
-            // expression)
+            // single expression)
             if (parts.length == 1) {
                 // Evaluate the text as a mathematical expression
                 Double exprResult = CcddMathExpressionHandler.evaluateExpression(expandedText.toString());
@@ -754,8 +748,7 @@ public class CcddMacroHandler {
                     expandedText = new StringBuilder(String.valueOf((int) ((double) exprResult)));
                 }
             }
-            // The string contains one or more commas. Each substring is evaluated as an
-            // expression
+            // The string contains one or more commas. Each substring is evaluated as an expression
             else {
                 boolean isExpr = true;
                 String multiText = "";
@@ -788,8 +781,7 @@ public class CcddMacroHandler {
             }
 
             // Reset the invalid data types so this list doesn't inadvertently affect macro
-            // checks
-            // where there is no data type constraint
+            // checks where there is no data type constraint
             this.invalidDataTypes = null;
         }
         // The text doesn't contain a macro or sizeof() call
@@ -810,19 +802,43 @@ public class CcddMacroHandler {
      * @return String array with any embedded macro names replaced with the
      *         associated macro values
      *********************************************************************************************/
-    protected Object[][] replaceAllMacros(Object[][] array) {
+    protected List<Object[]> replaceAllMacros(List<Object[]> array) {
         // Step through each row in the array
-        for (int row = 0; row < array.length; row++) {
+        for (int row = 0; row < array.size(); row++) {
             // Step through each column in the row
-            for (int column = 0; column < array[row].length; column++) {
+            for (int column = 0; column < array.get(row).length; column++) {
                 // Replace any macro names with the corresponding values
-                array[row][column] = array[row][column] instanceof String
-                        ? getMacroExpansion(array[row][column].toString())
-                        : array[row][column];
+                array.get(row)[column] = array.get(row)[column] instanceof String
+                        ? getMacroExpansion(array.get(row)[column].toString())
+                        : array.get(row)[column];
             }
         }
 
         return array;
+    }
+    
+    /**********************************************************************************************
+     * Replace any macro names embedded in the supplied string array with the
+     * associated macro values
+     *
+     * @param array array of strings containing macro names
+     *
+     * @return String array with any embedded macro names replaced with the
+     *         associated macro values
+     *********************************************************************************************/
+    protected TableInfo replaceAllMacros(TableInfo data) {
+        // Step through each row in the array
+        for (int row = 0; row < data.getData().size(); row++) {
+            // Step through each column in the row
+            for (int column = 0; column < data.getData().get(row).length; column++) {
+                // Replace any macro names with the corresponding values
+                data.getData().get(row)[column] = data.getData().get(row)[column] instanceof String
+                        ? getMacroExpansion(data.getData().get(row)[column].toString())
+                        : data.getData().get(row)[column];
+            }
+        }
+
+        return data;
     }
 
     /**********************************************************************************************
@@ -928,10 +944,8 @@ public class CcddMacroHandler {
 
             // Step through each macro definition
             for (String[] macro : macros) {
-                // Check that this isn't the definition for the specified macro. Since a macro
-                // is
-                // programatically prevented from referencing itself (since that would
-                // constitute a
+                // Check that this isn't the definition for the specified macro. Since a macro is
+                // programatically prevented from referencing itself (since that would constitute a
                 // recursion error) this check simply prevents making unneeded calls below
                 if (!macro[MacrosColumn.MACRO_NAME.ordinal()].equalsIgnoreCase(macroName)) {
                     // Get a list of every macro name referenced in this macro's value
@@ -1014,8 +1028,12 @@ public class CcddMacroHandler {
 
             // Check if the macro by this name doesn't exist
             if (macroIndex == -1) {
-                // Add the new macro to the existing ones
-                updatedMacros.add(macroDefn);
+                try {
+                    // Add the new macro to the existing ones
+                    updatedMacros.add(macroDefn);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             // The macro exists. Check if the values differ
             else if (!macroDefn[MacrosColumn.VALUE.ordinal()]
@@ -1077,8 +1095,7 @@ public class CcddMacroHandler {
             // Search for references to this macro
             macroRefs = new MacroReference(macroName, parent);
 
-            // Add the search results to the list so that this search doesn't get performed
-            // again
+            // Add the search results to the list so that this search doesn't get performed again
             loadedReferences.add(macroRefs);
         }
 
@@ -1086,8 +1103,7 @@ public class CcddMacroHandler {
     }
 
     /**********************************************************************************************
-     * Get the list containing the name of every table that references the specified
-     * macro
+     * Get the list containing the name of every table that references the specified macro
      *
      * @param macroName macro name
      *
@@ -1282,10 +1298,8 @@ public class CcddMacroHandler {
      *********************************************************************************************/
     protected void updateExistingMacroUsage(Component parent) throws CCDDException {
         // Perform the macro updates and check if an error occurred
-        if (ccddMain.getDbTableCommandHandler().modifyTablesPerDataTypeOrMacroChanges(modifications, updatedMacros,
-                parent))
-
-        {
+        if (ccddMain.getDbTableCommandHandler().modifyTablesPerDataTypeOrMacroChanges(modifications,
+                updatedMacros, parent)) {
             throw new CCDDException();
         }
 
@@ -1347,8 +1361,7 @@ public class CcddMacroHandler {
 
             // Check if a cell is beneath the mouse pointer
             if (text != null) {
-                // Expand any macros in the cell text and display this as the cell's tool tip
-                // text
+                // Expand any macros in the cell text and display this as the cell's tool tip text
                 text = CcddUtilities.wrapText(
                         "<html><i><b>Macro Expansion:</b></i>" + "<br><p style=\"margin-left: 5px\">" + text,
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize());
@@ -1389,19 +1402,15 @@ public class CcddMacroHandler {
                         + macro[MacrosColumn.VALUE.ordinal()]
                         + textComp.getText().substring(textComp.getSelectionEnd());
 
-                // Initialize the parentheses counters. For each left (right) parenthesis a
-                // right
+                // Initialize the parentheses counters. For each left (right) parenthesis a right
                 // (left) one is added to the end (beginning) of the string. This ensures the
-                // parentheses are balanced if the number of left and right parentheses are
-                // unequal
+                // parentheses are balanced if the number of left and right parentheses are unequal
                 // or if the one or more right parentheses precedes the first left parenthesis.
                 // Note that this may not match the user's intended final arrangement for the
-                // parentheses; it serves only to ensure that the resulting string a valid
-                // formula.
+                // parentheses; it serves only to ensure that the resulting string a valid formula.
                 // The macro is then evaluated in this context to see if the resulting string
                 // matches the specified input type and thus determine if teh macro is included
-                // in
-                // the pop-up menu
+                // in the pop-up menu
                 int leftParenthesisCount = 0;
                 int rightParenthesisCount = 0;
 
@@ -1434,13 +1443,11 @@ public class CcddMacroHandler {
                 }
 
                 // Create a string version of the new value, replacing any macro in the text
-                // with
-                // its corresponding value
+                // with its corresponding value
                 text = getMacroExpansion(text, validDataTypes);
 
                 // Check if the text component's text, with the macro's value inserted, is
-                // allowed
-                // in the target text component based on the component's input type
+                // allowed in the target text component based on the component's input type
                 if ((text.isEmpty() || text.matches(inputType.getInputMatch())) && !isMacroRecursive) {
                     // Add the macro name to the list with its value as the item's tool tip text
                     validMacros.add(macro[MacrosColumn.MACRO_NAME.ordinal()]);

@@ -68,7 +68,7 @@ import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -289,7 +289,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
                     // Check if the editor is for the table that was altered
                     if (Arrays.asList(tableNames).contains(editor.getTableInformation().getTablePath())) {
                         // Load the data for the table
-                        TableInformation tableInfo = dbTable.loadTableData(editor.getTableInformation().getTablePath(),
+                        TableInfo tableInfo = dbTable.loadTableData(editor.getTableInformation().getTablePath(),
                                 true, true, false, CcddTableTypeEditorDialog.this);
 
                         // Check that no error occurred loading the table's data

@@ -71,7 +71,7 @@ import javax.swing.text.JTextComponent;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -155,7 +155,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
      * @param editor           reference to an existing table editor; null if adding
      *                         new tables to the editor dialog
      *********************************************************************************************/
-    CcddTableEditorDialog(CcddMain ccddMain, List<TableInformation> tableInformation, CcddTableEditorHandler editor) {
+    CcddTableEditorDialog(CcddMain ccddMain, List<TableInfo> tableInformation, CcddTableEditorHandler editor) {
         this.ccddMain = ccddMain;
 
         // Create references to shorten subsequent calls
@@ -174,7 +174,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
      *
      * @param tableInformation list containing the information for each table
      *********************************************************************************************/
-    CcddTableEditorDialog(CcddMain ccddMain, List<TableInformation> tableInformation) {
+    CcddTableEditorDialog(CcddMain ccddMain, List<TableInfo> tableInformation) {
         this(ccddMain, tableInformation, null);
     }
 
@@ -366,7 +366,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
      * @param isMsgNameIDChange true is a message name or ID changed and a cell or
      *                          field uses the message name and ID input type
      *********************************************************************************************/
-    protected static void doTableModificationComplete(CcddMain main, TableInformation tableInfo,
+    protected static void doTableModificationComplete(CcddMain main, TableInfo tableInfo,
             List<TableModification> modifications, List<TableModification> deletions, boolean forceUpdate,
             boolean isRefFieldChange, boolean isMsgNameIDChange) {
         // Get references to shorten subsequent calls. Can't use global references since this is
@@ -441,7 +441,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
                         || (isMsgNameIDChange && editor.getTableTypeDefinition()
                                 .getColumnIndexByInputType(DefaultInputType.MESSAGE_REFERENCE) != -1)) {
                     // Load the table from the database
-                    TableInformation updateInfo = main.getDbTableCommandHandler()
+                    TableInfo updateInfo = main.getDbTableCommandHandler()
                             .loadTableData(editor.getTableInformation().getTablePath(), true, true, false, editorDialog);
 
                     // Store the updates as the committed changes in the table (so that other
@@ -546,7 +546,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
      *
      * @param editor           reference to an existing table editor
      *********************************************************************************************/
-    private void initialize(List<TableInformation> tableInformation, CcddTableEditorHandler editor) {
+    private void initialize(List<TableInfo> tableInformation, CcddTableEditorHandler editor) {
         // Create the data table menu bar
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -1743,7 +1743,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
      *
      * @param tableInformation list containing information for each table
      *********************************************************************************************/
-    protected void addTablePanes(List<TableInformation> tableInformation) {
+    protected void addTablePanes(List<TableInfo> tableInformation) {
         addTablePanes(tableInformation, null);
     }
 
@@ -1755,7 +1755,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
      *
      * @param editor           reference to an existing table editor
      *********************************************************************************************/
-    protected void addTablePanes(List<TableInformation> tableInformation, CcddTableEditorHandler editor) {
+    protected void addTablePanes(List<TableInfo> tableInformation, CcddTableEditorHandler editor) {
         // Get the number of table editors already in the editor dialog
         int numExisting = tableEditors.size();
 
@@ -1774,7 +1774,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler {
         // Check if table information is provided
         if (tableInformation != null) {
             // Step through the tables
-            for (TableInformation tableInfo : tableInformation) {
+            for (TableInfo tableInfo : tableInformation) {
                 // Create an editor for this table and add it to the list of editors
                 editor = new CcddTableEditorHandler(ccddMain, tableInfo, this);
                 tableEditors.add(editor);

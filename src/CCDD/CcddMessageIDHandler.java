@@ -43,7 +43,7 @@ import java.util.List;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.Message;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InputTypeFormat;
@@ -305,7 +305,7 @@ public class CcddMessageIDHandler {
             // assigned to a structure (command, other) table and the structure (command, other)
             // IDs are to be included
             if (msgID.endsWith(PROTECTED_MSG_ID_IDENT)
-                    || (includeStructures && structureTables.contains(TableInformation.getPrototypeName(owner)))
+                    || (includeStructures && structureTables.contains(TableInfo.getPrototypeName(owner)))
                     || (includeCommands && commandTables.contains(owner))
                     || (includeOthers && otherTables.contains(owner))) {
                 // Get the IDs in use in the table cells and data fields, and update the duplicates

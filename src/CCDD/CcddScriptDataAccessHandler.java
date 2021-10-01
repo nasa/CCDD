@@ -47,6 +47,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -72,11 +74,10 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddCommandHandler.CommandInformation;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
-import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
@@ -131,7 +132,7 @@ public class CcddScriptDataAccessHandler {
     private final List<String> groupNames;
 
     // Data table information array
-    private final TableInformation[] tableInformation;
+    private final TableInfo[] tableInformation;
 
     /**********************************************************************************************
      * Script data access class constructor
@@ -156,7 +157,7 @@ public class CcddScriptDataAccessHandler {
      *                         the CCDD application; main window frame if executing
      *                         from the command line)
      *********************************************************************************************/
-    CcddScriptDataAccessHandler(CcddMain ccddMain, ScriptEngine scriptEngine, TableInformation[] tableInformation,
+    CcddScriptDataAccessHandler(CcddMain ccddMain, ScriptEngine scriptEngine, TableInfo[] tableInformation,
             CcddLinkHandler linkHandler, CcddGroupHandler groupHandler, String scriptFileName, List<String> groupNames,
             Component parent) {
         this.ccddMain = ccddMain;
@@ -197,8 +198,8 @@ public class CcddScriptDataAccessHandler {
      * @return Table information class for the type specified; return null if an
      *         instance of the table type doesn't exist
      *********************************************************************************************/
-    private TableInformation getTableInformation(String tableType) {
-        TableInformation tableInfo = null;
+    private TableInfo getTableInformation(String tableType) {
+        TableInfo tableInfo = null;
 
         // Get the type definition based on the table type name
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
@@ -218,7 +219,7 @@ public class CcddScriptDataAccessHandler {
         }
 
         // Step through the available table information instances
-        for (TableInformation info : tableInformation) {
+        for (TableInfo info : tableInformation) {
             // Check if the requested type matches the table information type; ignore case
             // sensitivity
             if (info.getType().equalsIgnoreCase(tableType)) {
@@ -740,18 +741,18 @@ public class CcddScriptDataAccessHandler {
         List<String> name = new ArrayList<String>();
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists and that there is data for the specified
         // table type
-        if (tableInfo != null && tableInfo.getData().length != 0) {
+        if (tableInfo != null && tableInfo.getData().size() != 0) {
             // Step through each row in the table data
-            for (int row = 0; row < tableInfo.getData().length; row++) {
+            for (int row = 0; row < tableInfo.getData().size(); row++) {
                 // Calculate the column index for the structure path
-                int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
+                int pathColumn = tableInfo.getData().get(row).length - PATH_COLUMN_DELTA;
 
                 // Split the table path into an array
-                String[] parts = tableInfo.getData()[row][pathColumn].toString().split(Pattern.quote(","));
+                String[] parts = tableInfo.getData().get(row)[pathColumn].toString().split(Pattern.quote(","));
 
                 // Check if the list doesn't already contain the parent name
                 if (!name.contains(parts[0])) {
@@ -799,12 +800,12 @@ public class CcddScriptDataAccessHandler {
         int numRows = -1;
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists
         if (tableInfo != null) {
             // Store the number of rows for the table
-            numRows = tableInfo.getData().length;
+            numRows = tableInfo.getData().size();
         }
 
         return numRows;
@@ -820,9 +821,9 @@ public class CcddScriptDataAccessHandler {
         int numRows = 0;
 
         // Step through the available table information instances
-        for (TableInformation info : tableInformation) {
+        for (TableInfo info : tableInformation) {
             // Add the table's number of rows to the total
-            numRows += info.getData().length;
+            numRows += info.getData().size();
         }
 
         return numRows;
@@ -948,28 +949,28 @@ public class CcddScriptDataAccessHandler {
         List<String> names = new ArrayList<String>();
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check that there is data for the specified table type
-        if (tableInfo != null && tableInfo.getData().length != 0) {
+        if (tableInfo != null && tableInfo.getData().size() != 0) {
             // Step through each row in the table
-            for (int row = 0; row < tableInfo.getData().length; row++) {
+            for (int row = 0; row < tableInfo.getData().size(); row++) {
                 // Calculate the column index for the table path
-                int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
+                int pathColumn = tableInfo.getData().get(row).length - PATH_COLUMN_DELTA;
 
                 // Get the table's prototype name from the path
-                String tableName = tableInfo.getData()[row][pathColumn].toString();
+                String tableName = tableInfo.getData().get(row)[pathColumn].toString();
 
                 // Check if only prototype names should be returned for child structures
                 if (prototypeOnly) {
                     // Get the prototype name form the table name
-                    tableName = TableInformation.getPrototypeName(tableName);
+                    tableName = TableInfo.getPrototypeName(tableName);
                 }
                 
                 // Check if the table name hasn't been added to the list
                 if (!names.contains(tableName)) {
                     // Store the table name
-                    TableInformation tableData = dbTable.loadTableData(tableName, false, false, false, parent);
+                    TableInfo tableData = dbTable.loadTableData(tableName, false, false, false, parent);
                     String type = tableData.getType();
                     
                     if (type.contains(tableType)) {
@@ -994,16 +995,16 @@ public class CcddScriptDataAccessHandler {
         List<String> names = new ArrayList<String>();
 
         // Step through each table type's information
-        for (TableInformation tableInfo : tableInformation) {
+        for (TableInfo tableInfo : tableInformation) {
             // Check that there is data for the specified table type
-            if (tableInfo.getData().length != 0) {
+            if (tableInfo.getData().size() != 0) {
                 // Step through each row in the table
-                for (int row = 0; row < tableInfo.getData().length; row++) {
+                for (int row = 0; row < tableInfo.getData().size(); row++) {
                     // Calculate the column index for the table path
-                    int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
+                    int pathColumn = tableInfo.getData().get(row).length - PATH_COLUMN_DELTA;
 
                     // Get the table's name, including the path (if it's a child structure)
-                    String tableName = tableInfo.getData()[row][pathColumn].toString();
+                    String tableName = tableInfo.getData().get(row)[pathColumn].toString();
 
                     // Check if the table name hasn't been added to the list
                     if (!names.contains(tableName)) {
@@ -1067,10 +1068,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the variable name
-            variableName = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)]
+            variableName = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)]
                     .toString();
 
             // Check if any macros should be expanded
@@ -1101,10 +1102,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the data type
-            dataType = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
+            dataType = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
                     .toString();
         }
 
@@ -1161,10 +1162,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the array size
-            arraySize = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX)]
+            arraySize = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX)]
                     .toString();
 
             // Check if any macros should be expanded
@@ -1227,10 +1228,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the bit length
-            bitLength = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH)]
+            bitLength = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH)]
                     .toString();
 
             // Check if any macros should be expanded
@@ -1295,7 +1296,7 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the index of the first column with the 'Description' input type
             int column = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
@@ -1303,7 +1304,7 @@ public class CcddScriptDataAccessHandler {
             // Check if the column exists
             if (column != -1) {
                 // Get the description
-                description = tableInfo.getData()[row][column].toString();
+                description = tableInfo.getData().get(row)[column].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros) {
@@ -1367,7 +1368,7 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the index of the first column with the 'Units' input type
             int column = typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
@@ -1375,7 +1376,7 @@ public class CcddScriptDataAccessHandler {
             // Check if the column exists
             if (column != -1) {
                 // Get the units
-                units = tableInfo.getData()[row][column].toString();
+                units = tableInfo.getData().get(row)[column].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros) {
@@ -1439,12 +1440,12 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a structure
         if (typeDefn != null && typeDefn.isStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Step through each enumeration column
             for (int enumIndex : typeDefn.getColumnIndicesByInputTypeFormat(InputTypeFormat.ENUMERATION)) {
                 // Get the enumeration
-                String enumeration = tableInfo.getData()[row][enumIndex].toString();
+                String enumeration = tableInfo.getData().get(row)[enumIndex].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros) {
@@ -1477,12 +1478,12 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a telemetry structure
         if (typeDefn != null && typeDefn.isTelemetryStructure()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+            TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Step through each rate column
             for (int rateIndex : typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE)) {
                 // Add the rate to the list
-                rates.add(tableInfo.getData()[row][rateIndex].toString());
+                rates.add(tableInfo.getData().get(row)[rateIndex].toString());
             }
         }
 
@@ -1538,10 +1539,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
+            TableInfo tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command name
-            commandName = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
+            commandName = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
                     .toString();
 
             // Check if any macros should be expanded
@@ -1603,10 +1604,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
+            TableInfo tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command code
-            commandCode = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
+            commandCode = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
                     .toString();
 
             // Check if any macros should be expanded
@@ -1699,10 +1700,10 @@ public class CcddScriptDataAccessHandler {
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand()) {
             // Get the reference to the table information
-            TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
+            TableInfo tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command argument variable name
-            commandArgument = tableInfo.getData()[row][typeDefn
+            commandArgument = tableInfo.getData().get(row)[typeDefn
                     .getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)].toString();
 
             // Check if any macros should be expanded
@@ -1764,12 +1765,12 @@ public class CcddScriptDataAccessHandler {
         String typeName = "";
 
         // Get the reference to the table information
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check if the table type and the row exist
-        if (tableInfo != null && row < tableInfo.getData().length) {
+        if (tableInfo != null && row < tableInfo.getData().size()) {
             // Get the table type for the specified row
-            typeName = tableInfo.getData()[row][tableInfo.getData()[row].length - TYPE_COLUMN_DELTA].toString();
+            typeName = tableInfo.getData().get(row)[tableInfo.getData().get(row).length - TYPE_COLUMN_DELTA].toString();
         }
 
         return typeName;
@@ -1789,13 +1790,13 @@ public class CcddScriptDataAccessHandler {
         String typeName = "";
 
         // Step through the available table information instances
-        for (TableInformation tableInfo : tableInformation) {
+        for (TableInfo tableInfo : tableInformation) {
             // Step through each row of data for this table type
-            for (int row = 0; row < tableInfo.getData().length; row++) {
+            for (int row = 0; row < tableInfo.getData().size(); row++) {
                 // Check if the supplied table name matches the one for this row
-                if (tableName.equals(tableInfo.getData()[row][tableInfo.getData()[row].length - PATH_COLUMN_DELTA])) {
+                if (tableName.equals(tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA])) {
                     // Store the table's type name and stop searching
-                    typeName = tableInfo.getData()[row][tableInfo.getData()[row].length - TYPE_COLUMN_DELTA].toString();
+                    typeName = tableInfo.getData().get(row)[tableInfo.getData().get(row).length - TYPE_COLUMN_DELTA].toString();
                     break;
                 }
             }
@@ -1882,6 +1883,38 @@ public class CcddScriptDataAccessHandler {
 
         return columnNames;
     }
+    
+    /**********************************************************************************************
+     * Process each member of a structure to determine if it references any other structures.
+     * If one of the members of the structure references another structure then that structure will
+     * need to be processed as well. This is to ensure structures are returned in the order they are
+     * referenced.
+     *
+     * @param structuresMap A map containing all structures which reference another structure
+     *
+     * @return Array containing the names of the columns of the table type specified
+     *********************************************************************************************/
+    public void processStructureMemberForOrdering(HashMap<String, List<String>> structuresMap,
+            List<String> orderedNames, String member) {
+        // If the map does not contain the key then the structure only contains primitive data types
+        if (!structuresMap.containsKey(member)) {
+            if (!orderedNames.contains(member)) {
+                orderedNames.add(member);
+            }
+        // If the map does contain the key then the structure contains a reference to another structure
+        // which will need to be processed first
+        } else {
+            List<String> structMembers = structuresMap.get(member);
+            
+            for (int memberIndex = 0; memberIndex < structMembers.size(); memberIndex++) {
+                processStructureMemberForOrdering(structuresMap, orderedNames, structMembers.get(memberIndex));
+            }
+            
+            if (!orderedNames.contains(member)) {
+                orderedNames.add(member);
+            }
+        }
+    }
 
     /**********************************************************************************************
      * Get an array containing the names of the prototype structures in the order in
@@ -1893,62 +1926,65 @@ public class CcddScriptDataAccessHandler {
      *         structures tables are associated with the script
      *********************************************************************************************/
     public String[] getStructureTablesByReferenceOrder() {
-        List<String> allStructs = new ArrayList<String>();
+        List<String> keys = new ArrayList<String>();
         List<String> orderedNames = new ArrayList<String>();
 
         // Get the list of all referenced structure names
-        List<String> structureNames = Arrays.asList(getStructureTableNames());
-
-        // Check if any structures exist
-        if (!structureNames.isEmpty()) {
-            // Step through the structure data rows
-            for (int row = 0; row < getStructureTableNumRows(); row++) {
-                // Get the name of the data type column
-                String dataTypeColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(row),
-                        DefaultInputType.PRIM_AND_STRUCT);
-
-                // Check that the data type column exists
-                if (dataTypeColumnName != null) {
-                    // Get the variable data type
-                    String dataType = getStructureTableData(dataTypeColumnName, row);
-
-                    // Check if the data type is a pointer to a structure
-                    if (dataTypeHandler.isPointer(dataType)) {
-                        // Extract the structure from the data type's C name
-                        dataType = dataTypeHandler.getDataTypeByName(dataType)[DataTypesColumn.C_NAME.ordinal()]
-                                .replaceFirst("\\s\\*", "");
-                    }
-
-                    // Check if this data type is one of the structures and not already added to
-                    // the list
-                    if (dataType != null && structureNames.contains(dataType) && !allStructs.contains(dataType)) {
-                        // Add the structure to the structure list
-                        allStructs.add(dataType);
+        List<String> structureNames = new LinkedList<String>(Arrays.asList(getStructureTableNames()));
+        HashMap<String, List<String>> structuresMap = new HashMap<>();
+        
+        // Step though all of the structure names
+        for (int index = 0; index < structureNames.size(); index++) {
+            // Determine which column represents the data type
+            String dataTypeColumn = tableTypeHandler.getColumnNameByInputType(getTypeNameByTable(structureNames.get(index)),
+                    DefaultInputType.PRIM_AND_STRUCT);
+            // Grab all rows of data from the data type column
+            String[] data = getTableDataByNameAndColumn(structureNames.get(index), dataTypeColumn, false);
+            
+            // Step through each row of data
+            for (int row = 0; row < data.length; row++) {
+                // Determine which rows contain a non-primitive data type
+                if (structureNames.contains(data[row])) {
+                    // If the structure which this row belongs to is not in the structures map then add it with a new list
+                    // that contains this row
+                    if (!structuresMap.containsKey(structureNames.get(index))) {
+                        List<String> list = new ArrayList<String>();
+                        list.add(data[row]);
+                        structuresMap.put(structureNames.get(index), list);
+                        // Add this structure to the list of keys used to access the structures map
+                        keys.add(structureNames.get(index));
+                     // If the structure which this row belongs to is  in the structures map then add this row to its list
+                    } else if (!structuresMap.get(structureNames.get(index)).contains(data[row])) {
+                        structuresMap.get(structureNames.get(index)).add(data[row]);
                     }
                 }
             }
+            
+        }
 
-            // Check if any child structures are referenced
-            if (!allStructs.isEmpty()) {
-                // Add the last structure as the first one in the ordered list
-                orderedNames.add(allStructs.get(allStructs.size() - 1));
-
-                // Step backwards through the list of all structures beginning with the next to the
-                // last structure in the list
-                for (int index = allStructs.size() - 2; index >= 0; index--) {
-                    // Add the structure name to the list
-                    orderedNames.add(allStructs.get(index));
+        // Check if any structures exist in the map that may need to be reordered
+        if (!structuresMap.isEmpty()) {
+            // Step through the structures that are keys
+            for (int keyIndex = 0; keyIndex < keys.size(); keyIndex++) {
+                // Grab the list of members that belong to this structure
+                List<String> structMembers = structuresMap.get(keys.get(keyIndex));
+                               
+                // Process each member
+                for (int memberIndex = 0; memberIndex < structMembers.size(); memberIndex++) {
+                    processStructureMemberForOrdering(structuresMap, orderedNames, structMembers.get(memberIndex));
+                }
+                
+                // If this structure is not already in the ordered list then add it
+                if (!orderedNames.contains(keys.get(keyIndex))) {
+                    orderedNames.add(keys.get(keyIndex));
                 }
             }
-
-            // Step through the structure names
-            for (String structureName : structureNames) {
-                // Check if the structure isn't already in the list. This is true for the root
-                // structure(s) without children
-                if (!orderedNames.contains(structureName)) {
-                    // Add the structure to the list
-                    orderedNames.add(structureName);
-                }
+        }
+        
+        // Add the rest of the structures that do not contain any references to other structures.
+        for (int index = 0; index < structureNames.size(); index++) {
+            if (!orderedNames.contains(structureNames.get(index))) {
+                orderedNames.add(structureNames.get(index));
             }
         }
 
@@ -2400,18 +2436,18 @@ public class CcddScriptDataAccessHandler {
         String structurePath = "";
 
         // Get the reference to the table information class for the specified table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check if table information exists for the specified type and if the row is
         // within the table data array size
-        if (tableInfo != null && row >= 0 && row < tableInfo.getData().length) {
+        if (tableInfo != null && row >= 0 && row < tableInfo.getData().size()) {
             // Calculate the column index for the structure path
-            int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
+            int pathColumn = tableInfo.getData().get(row).length - PATH_COLUMN_DELTA;
 
             // Check that the row index is valid
-            if (tableInfo.getData().length != 0 && pathColumn > 0) {
+            if (tableInfo.getData().size() != 0 && pathColumn > 0) {
                 // Get the structure path for this row
-                structurePath = tableInfo.getData()[row][pathColumn].toString();
+                structurePath = tableInfo.getData().get(row)[pathColumn].toString();
 
                 switch (pathType) {
                 case PARENT_AND_VARIABLE:
@@ -2420,7 +2456,7 @@ public class CcddScriptDataAccessHandler {
 
                 case PROTOTYPE:
                     // Get the table's prototype table name
-                    structurePath = TableInformation.getPrototypeName(structurePath);
+                    structurePath = TableInfo.getPrototypeName(structurePath);
                     break;
 
                 case VARIABLE_ONLY:
@@ -2478,20 +2514,18 @@ public class CcddScriptDataAccessHandler {
         }
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+        TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
-        // Check that the table type exists and that there is data for the specified
-        // table type
-        if (tableInfo != null && tableInfo.getData().length != 0) {
+        // Check that the table type exists and that there is data for the specified table type
+        if (tableInfo != null && tableInfo.getData().size() != 0) {
             // Step through each row in the table data
-            for (int tableRow = 0; tableRow < tableInfo.getData().length; tableRow++) {
+            for (int tableRow = 0; tableRow < tableInfo.getData().size(); tableRow++) {
                 // Calculate the column index for the structure path
-                int pathColumn = tableInfo.getData()[tableRow].length - PATH_COLUMN_DELTA;
+                int pathColumn = tableInfo.getData().get(tableRow).length - PATH_COLUMN_DELTA;
 
                 // Check if the path of the child structure table at the supplied row matches
-                // the
-                // path in the structure data
-                if (path.equals(tableInfo.getData()[tableRow][pathColumn])) {
+                // the path in the structure data
+                if (path.equals(tableInfo.getData().get(tableRow)[pathColumn])) {
                     // Store the row index for the parent structure and stop searching
                     parentRow = tableRow;
                     break;
@@ -3089,10 +3123,10 @@ public class CcddScriptDataAccessHandler {
         String tableData = null;
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists and the row index is valid
-        if (tableInfo != null && row < tableInfo.getData().length) {
+        if (tableInfo != null && row < tableInfo.getData().size()) {
             // Get the type definition based on the table's specific type name
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getTypeNameByRow(tableType, row));
 
@@ -3102,7 +3136,7 @@ public class CcddScriptDataAccessHandler {
             // Check that the column name exists in the table
             if (column != -1) {
                 // Store the contents of the table at the specified row and column
-                tableData = tableInfo.getData()[row][column].toString();
+                tableData = tableInfo.getData().get(row)[column].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros) {
@@ -3171,14 +3205,15 @@ public class CcddScriptDataAccessHandler {
         List<Integer> tableRows = new ArrayList<Integer>();
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists
         if (tableInfo != null) {
             // Step through the table data
-            for (int row = 0; row < tableInfo.getData().length; row++) {
+            for (int row = 0; row < tableInfo.getData().size(); row++) {
                 // Check if the table name matches the target table
-                if (tableInfo.getData()[row][tableInfo.getData()[row].length - PATH_COLUMN_DELTA].equals(tablePath)) {
+                if (tableInfo.getData().get(row)[tableInfo.getData().get(row).length -
+                                                          PATH_COLUMN_DELTA].equals(tablePath)) {
                     // Add the row number to the list
                     tableRows.add(row);
                 }
@@ -3337,12 +3372,12 @@ public class CcddScriptDataAccessHandler {
         String tableData = null;
 
         // Get the reference to the table information class for the requested table type
-        TableInformation tableInfo = getTableInformation(tableType);
+        TableInfo tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists
         if (tableInfo != null) {
             // Step through the table data
-            for (int row = 0; row < tableInfo.getData().length; row++) {
+            for (int row = 0; row < tableInfo.getData().size(); row++) {
                 // Get the type definition based on the table's specific type name
                 TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getTypeNameByRow(tableType, row));
 
@@ -3354,11 +3389,10 @@ public class CcddScriptDataAccessHandler {
                 if (matchColumnIndex != -1 && dataColumnIndex != -1) {
                     // Check if the table name matches the target table and the matching name
                     // matches that in the matching name column
-                    if (tableInfo.getData()[row][tableInfo.getData()[row].length - PATH_COLUMN_DELTA].equals(tablePath)
-                            && tableInfo.getData()[row][matchColumnIndex].equals(matchName)) {
-                        // Store the contents of the table at the specified row and column and stop
-                        // searching
-                        tableData = tableInfo.getData()[row][dataColumnIndex].toString();
+                    if (tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA].equals(tablePath)
+                            && tableInfo.getData().get(row)[matchColumnIndex].equals(matchName)) {
+                        // Store the contents of the table at the specified row and column and stop searching
+                        tableData = tableInfo.getData().get(row)[dataColumnIndex].toString();
 
                         // Check if any macros should be expanded
                         if (expandMacros) {
@@ -3405,7 +3439,7 @@ public class CcddScriptDataAccessHandler {
      *********************************************************************************************/
     public String[][] getTableDataByName(String tableName) {
         /* Load the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
+        TableInfo tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
         
         /* Get the type definition so that the column names can be determined */
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
@@ -3413,16 +3447,16 @@ public class CcddScriptDataAccessHandler {
         /* Get the column names */
         String[] columnNames = typeDef.getColumnNamesDatabase();
 
-        String[][] data = new String[tableInfo.getData().length][columnNames.length-2];
+        String[][] data = new String[tableInfo.getData().size()][columnNames.length-2];
         
         /* Add the data to the 2d array */
         for (int dataIndex = 0; dataIndex < data.length; dataIndex++) {
             for (int columnIndex = 2; columnIndex < columnNames.length; columnIndex++) {
-                String value = tableInfo.getData()[dataIndex][columnIndex].toString();
+                String value = tableInfo.getData().get(dataIndex)[columnIndex].toString();
                 if (value.isEmpty()) {
                     data[dataIndex][columnIndex-2] = null;
                 } else {
-                    data[dataIndex][columnIndex-2] = tableInfo.getData()[dataIndex][columnIndex].toString();
+                    data[dataIndex][columnIndex-2] = tableInfo.getData().get(dataIndex)[columnIndex].toString();
                 }
             }
         }
@@ -3448,8 +3482,8 @@ public class CcddScriptDataAccessHandler {
         columnName = columnName.toLowerCase().replace(" ", "_");
         
         /* Load the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
-        String[] data = new String[tableInfo.getData().length];
+        TableInfo tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
+        String[] data = new String[tableInfo.getData().size()];
         
         /* Get the type definition so that the column names can be determined */
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
@@ -3466,8 +3500,8 @@ public class CcddScriptDataAccessHandler {
         
         if (columnIndex != -1) {            
             /* Trim off the key and index */
-            for (int dataIndex = 0; dataIndex < tableInfo.getData().length; dataIndex++) {
-                data[dataIndex] = tableInfo.getData()[dataIndex][columnIndex].toString();
+            for (int dataIndex = 0; dataIndex < tableInfo.getData().size(); dataIndex++) {
+                data[dataIndex] = tableInfo.getData().get(dataIndex)[columnIndex].toString();
             }
         }
         
@@ -3491,7 +3525,7 @@ public class CcddScriptDataAccessHandler {
      *********************************************************************************************/
     public String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {
         /* Load the table data */
-        TableInformation tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
+        TableInfo tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
         
         /* Load the fieldInfo */
         List<FieldInformation> fieldInfo = tableInfo.getFieldInformation();
@@ -4575,13 +4609,13 @@ public class CcddScriptDataAccessHandler {
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(TYPE_ENUM);
         
         /* Get the table data */
-        Object[][] tableData = dbTable.loadTableData(tableName, false, true, false, parent).getData();
-        String[][] data = new String[tableData.length][typeDef.getColumnCountVisible()];
+        List<Object[]> tableData = dbTable.loadTableData(tableName, false, true, false, parent).getData();
+        String[][] data = new String[tableData.size()][typeDef.getColumnCountVisible()];
         
         /* Step though all of the data */
-        for (int row = 0; row < tableData.length; row++) {
+        for (int row = 0; row < tableData.size(); row++) {
             for (int column = 0; column < typeDef.getColumnCountVisible(); column++) {
-                data[row][column] = tableData[row][column+2].toString();
+                data[row][column] = tableData.get(row)[column+2].toString();
             }
         }
         
@@ -4611,7 +4645,7 @@ public class CcddScriptDataAccessHandler {
      * @return The name of the prototype table for the specified table
      *********************************************************************************************/
     public String getPrototypeName(String tableName) {
-        return TableInformation.getPrototypeName(tableName);
+        return TableInfo.getPrototypeName(tableName);
     }
 
     /**********************************************************************************************
@@ -5165,17 +5199,17 @@ public class CcddScriptDataAccessHandler {
         // A table is associated with the script
         else {
             // Step through the information for each table type
-            for (TableInformation tableInfo : tableInformation) {
+            for (TableInfo tableInfo : tableInformation) {
                 // Display the table's type
                 System.out.println("Table data for type '" + tableInfo.getType() + "'");
 
                 // Get the table's data
-                Object[][] data = tableInfo.getData();
+                List<Object[]> data = tableInfo.getData();
 
                 // Step through each row in the table
-                for (int row = 0; row < data.length; row++) {
+                for (int row = 0; row < data.size(); row++) {
                     // Display the row of table data
-                    System.out.println(row + ": " + Arrays.toString(data[row]));
+                    System.out.println(row + ": " + Arrays.toString(data.get(row)));
                 }
 
                 System.out.println("");

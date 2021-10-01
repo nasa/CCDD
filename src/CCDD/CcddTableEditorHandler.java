@@ -88,7 +88,7 @@ import CCDD.CcddClassesDataTable.DataTypeEnumPair;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.MinMaxPair;
 import CCDD.CcddClassesDataTable.RateInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
@@ -120,8 +120,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
     private final CcddInputTypeHandler inputTypeHandler;
     private final CcddFieldHandler fieldHandler;
     private CcddJTableHandler table;
-    private final TableInformation currentTableInfo;
-    private TableInformation committedTableInfo;
+    private final TableInfo currentTableInfo;
+    private TableInfo committedTableInfo;
     private UndoableTableModel tableModel;
     private TypeDefinition typeDefn;
 
@@ -234,7 +234,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @param parent             GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddTableEditorHandler(CcddMain ccddMain, TableInformation tableInfo, CcddTableTypeHandler tableTypeHandler,
+    CcddTableEditorHandler(CcddMain ccddMain, TableInfo tableInfo, CcddTableTypeHandler tableTypeHandler,
             CcddInputTypeHandler inputTypeHandler, CcddDataTypeHandler newDataTypeHandler,
             CcddMacroHandler newMacroHandler, CcddTableEditorDialog editorDialog, Component parent) {
         this.ccddMain = ccddMain;
@@ -297,7 +297,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @param editorDialog       editor dialog from which this editor was created
      *********************************************************************************************/
-    CcddTableEditorHandler(CcddMain ccddMain, TableInformation tableInfo, CcddDataTypeHandler newDataTypeHandler,
+    CcddTableEditorHandler(CcddMain ccddMain, TableInfo tableInfo, CcddDataTypeHandler newDataTypeHandler,
             CcddMacroHandler newMacroHandler, CcddTableEditorDialog editorDialog) {
         this(ccddMain, tableInfo, ccddMain.getTableTypeHandler(), ccddMain.getInputTypeHandler(), newDataTypeHandler,
                 newMacroHandler, editorDialog, editorDialog);
@@ -312,7 +312,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @param editorDialog editor dialog from which this editor was created
      *********************************************************************************************/
-    protected CcddTableEditorHandler(CcddMain ccddMain, TableInformation tableInfo,
+    protected CcddTableEditorHandler(CcddMain ccddMain, TableInfo tableInfo,
             CcddTableEditorDialog editorDialog) {
         this(ccddMain, tableInfo, ccddMain.getTableTypeHandler(), ccddMain.getInputTypeHandler(),
                 ccddMain.getDataTypeHandler(), ccddMain.getMacroHandler(), editorDialog, editorDialog);
@@ -333,7 +333,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @param parent           GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected CcddTableEditorHandler(CcddMain ccddMain, TableInformation tableInfo,
+    protected CcddTableEditorHandler(CcddMain ccddMain, TableInfo tableInfo,
             CcddTableTypeHandler tableTypeHandler, CcddInputTypeHandler inputTypeHandler, Component parent) {
         this(ccddMain, tableInfo, tableTypeHandler, inputTypeHandler, ccddMain.getDataTypeHandler(),
                 ccddMain.getMacroHandler(), null, parent);
@@ -355,7 +355,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @param parent             GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected CcddTableEditorHandler(CcddMain ccddMain, TableInformation tableInfo,
+    protected CcddTableEditorHandler(CcddMain ccddMain, TableInfo tableInfo,
             CcddDataTypeHandler newDataTypeHandler, CcddMacroHandler newMacroHandler, Component parent) {
         this(ccddMain, tableInfo, ccddMain.getTableTypeHandler(), ccddMain.getInputTypeHandler(), newDataTypeHandler,
                 newMacroHandler, null, parent);
@@ -475,7 +475,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     // Replace the data type with the new data type name. Treat the update as
                     // having been committed to the database
                     tableModel.setValueAt(newPrototype, row, column, false);
-                    committedTableInfo.getData()[row][column] = newPrototype;
+                    committedTableInfo.getData().get(row)[column] = newPrototype;
                 }
             }
 
@@ -492,7 +492,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     // Replace the data type with the new data type name. Treat the update as
                     // having been committed to the database
                     tableModel.setValueAt(value, row, column, false);
-                    committedTableInfo.getData()[row][column] = value;
+                    committedTableInfo.getData().get(row)[column] = value;
                 }
             }
         }
@@ -585,7 +585,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      * @return Table information class for extracting the current table name, type,
      *         and column order
      *********************************************************************************************/
-    protected TableInformation getTableInformation() {
+    protected TableInfo getTableInformation() {
         return currentTableInfo;
     }
 
@@ -594,7 +594,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @return Committed table information class
      *********************************************************************************************/
-    protected TableInformation getCommittedTableInformation() {
+    protected TableInfo getCommittedTableInformation() {
         return committedTableInfo;
     }
 
@@ -604,8 +604,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      * @param info table information class for extracting the current table name,
      *             type, column order, and description
      *********************************************************************************************/
-    private void setCommittedInformation(TableInformation info) {
-        committedTableInfo = new TableInformation(info.getType(), info.getTablePath(), info.getData(),
+    private void setCommittedInformation(TableInfo info) {
+        committedTableInfo = new TableInfo(info.getType(), info.getTablePath(), info.getData(),
                 info.getColumnOrder(), info.getDescription(),
                 (editorDialog != null ? CcddFieldHandler.getFieldInformationCopy(info.getFieldInformation()) : null));
 
@@ -652,8 +652,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 // Check that the variable name and data type are present, the variable path
                 // isn't manually set, and this isn't an array definition
                 if (!variableName.isEmpty() && !dataType.isEmpty()
-                        && (committedTableInfo.getData().length == 0 || (row < committedTableInfo.getData().length
-                                && committedTableInfo.getData()[row][variablePathIndex].toString().isEmpty()))
+                        && (committedTableInfo.getData().size() == 0 || (row < committedTableInfo.getData().size()
+                                && committedTableInfo.getData().get(row)[variablePathIndex].toString().isEmpty()))
                         && (tableModel.getValueAt(row, arraySizeIndex).toString().isEmpty()
                                 || ArrayVariable.isArrayMember(tableModel.getValueAt(row, variableNameIndex)))) {
                     // Build the variable path and store it in the table model's variable path column
@@ -804,7 +804,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      *
      * @param tblInfo table information
      *********************************************************************************************/
-    protected void updateForTableTypeChange(TableInformation tblInfo) {
+    protected void updateForTableTypeChange(TableInfo tblInfo) {
         // Update the table type name (in case it changed) in the current table information
         currentTableInfo.setType(tblInfo.getType());
 
@@ -898,7 +898,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
 
                     // Store the value in the cell without the flag
                     tableModel.setValueAt(cellValue, row, column);
-                    committedTableInfo.getData()[row][column] = cellValue;
+                    committedTableInfo.getData().get(row)[column] = cellValue;
                 }
             }
         }
@@ -960,7 +960,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
      * @param applyToInstance true if the table that was updated is a prototype and
      *                        this table is an instance of the updated table
      *********************************************************************************************/
-    protected void doTableUpdatesComplete(TableInformation dbTableInfo, boolean applyToInstance) {
+    protected void doTableUpdatesComplete(TableInfo dbTableInfo, boolean applyToInstance) {
         Object[][] originalCommData = null;
         Integer[] emptyRows = null;
 
@@ -982,17 +982,18 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         }
 
         // Check if the table contains any committed data
-        if (committedTableInfo.getData().length != 0) {
-            originalCommData = new Object[committedTableInfo.getData().length][committedTableInfo.getData()[0].length];
+        if (committedTableInfo.getData().size() != 0) {
+            originalCommData = new Object[committedTableInfo.getData().size()][
+                committedTableInfo.getData().get(0).length];
 
             // Step through the currently committed data rows
-            for (int row = 0; row < committedTableInfo.getData().length; row++) {
+            for (int row = 0; row < committedTableInfo.getData().size(); row++) {
                 // Step through the currently committed data columns
-                for (int column = 0; column < committedTableInfo.getData()[row].length; column++) {
+                for (int column = 0; column < committedTableInfo.getData().get(row).length; column++) {
                     // Store the currently committed data cell value. Note that this is what this editor
                     // considers the committed data and doesn't reflect changes that were made externally
                     // (such as a change to a prototype altering an instance's contents)
-                    originalCommData[row][column] = committedTableInfo.getData()[row][column];
+                    originalCommData[row][column] = committedTableInfo.getData().get(row)[column];
                 }
             }
         }
@@ -1007,7 +1008,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         }
 
         // Load the committed array of data into the table
-        table.loadDataArrayIntoTable(dbTableInfo.getData(), false);
+        table.loadDataArrayIntoTable(dbTableInfo.getDataArray(), false);
 
         // Store the table information that represents the currently committed table data
         setCommittedInformation(dbTableInfo);
@@ -1924,7 +1925,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                int totalWidth = setUpdatableCharacteristics(committedTableInfo.getData(),
+                int totalWidth = setUpdatableCharacteristics(committedTableInfo.getDataArray(),
                         typeDefn.getColumnNamesUser(), committedTableInfo.getColumnOrder(), toolTips, true, true, true);
 
                 // Check that the table is open in a table editor (versus open for a macro name
@@ -2550,7 +2551,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             @Override
             protected String getSpecialReplacement(int row, int column) {
                 return dbTable.queryTableCellValue(currentTableInfo.getPrototypeName(),
-                        committedTableInfo.getData()[row][primaryKeyIndex].toString(),
+                        committedTableInfo.getData().get(row)[primaryKeyIndex].toString(),
                         typeDefn.getColumnNamesDatabaseQuoted()[column], editorDialog);
             }
 
@@ -2599,8 +2600,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 
                 // Check to see if the old data was not correctly loaded. If not try another method
                 if ((oldData == null || oldData.isEmpty()) && dbTable.isTableExists(committedTableInfo.getTablePath(), parent)) {
-                    TableInformation example = dbTable.loadTableData(committedTableInfo.getTablePath(), false, false, false, ccddMain.getMainFrame());
-                    oldData = Arrays.asList(example.getData());
+                    TableInfo example = dbTable.loadTableData(committedTableInfo.getTablePath(), false, false, false, ccddMain.getMainFrame());
+                    oldData = example.getData();
                 }
                 
                 // Get the column index of the variable name column
@@ -3474,23 +3475,23 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 String arraySize = getExpandedValueAt(modelRow, arraySizeIndex);
 
                 // Get the number of rows that have been committed to the database for this table
-                int numCommitted = committedTableInfo != null ? committedTableInfo.getData().length : 0;
+                int numCommitted = committedTableInfo != null ? committedTableInfo.getData().size() : 0;
 
                 // Step through each row in the committed version of the table data
                 for (int comRow = 0; comRow < numCommitted; comRow++) {
                     // Check if the primary key values match for these rows, indicating this row
                     // represents the same one in both the committed and current table data
-                    if (rowPrimaryKey.equals(committedTableInfo.getData()[comRow][primaryKeyIndex])) {
+                    if (rowPrimaryKey.equals(committedTableInfo.getData().get(comRow)[primaryKeyIndex])) {
                         // Check that the variable name isn't blank and if the variable name, data
                         // type, and array size values match for these rows. Only a child table
                         // with these parameters committed may be opened
                         if (!variableName.isEmpty()
                                 && variableName.equals(newMacroHandler.getMacroExpansion(
-                                        committedTableInfo.getData()[comRow][variableNameIndex].toString()))
+                                        committedTableInfo.getData().get(comRow)[variableNameIndex].toString()))
                                 && dataType.equals(newMacroHandler.getMacroExpansion(
-                                        committedTableInfo.getData()[comRow][dataTypeIndex].toString()))
+                                        committedTableInfo.getData().get(comRow)[dataTypeIndex].toString()))
                                 && arraySize.equals(newMacroHandler.getMacroExpansion(
-                                        committedTableInfo.getData()[comRow][arraySizeIndex].toString()))) {
+                                        committedTableInfo.getData().get(comRow)[arraySizeIndex].toString()))) {
                             // Check if the table isn't a prototype (i.e., it's a child structure),
                             // or if it is a prototype that it's a top-level (root) structure
                             if (!currentTableInfo.isPrototype()
@@ -3526,7 +3527,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         // This is a command argument cell
         else {
             // Get the number of rows that have been committed to the database for this table
-            int numCommitted = committedTableInfo != null ? committedTableInfo.getData().length : 0;
+            int numCommitted = committedTableInfo != null ? committedTableInfo.getData().size() : 0;
 
             // Get the row's primary key, variable name, and array size
             String rowPrimaryKey = tableModel.getValueAt(modelRow, primaryKeyIndex).toString();
@@ -3536,13 +3537,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             for (int comRow = 0; comRow < numCommitted; comRow++) {
                 // Check if the primary key values match for these rows, indicating this row
                 // represents the same one in both the committed and current table data
-                if (rowPrimaryKey.equals(committedTableInfo.getData()[comRow][primaryKeyIndex])) {
+                if (rowPrimaryKey.equals(committedTableInfo.getData().get(comRow)[primaryKeyIndex])) {
                     // Check that the variable path isn't blank and the parent data
                     // type is a structure, and the paths match for these rows
                     if (!commandArg.isEmpty()
                             && commandArg.equals(newMacroHandler
-                                    .getMacroExpansion(committedTableInfo.getData()[comRow][column].toString()))
-                            && !dataTypeHandler.isPrimitive(TableInformation.getParentTable(commandArg))) {
+                                    .getMacroExpansion(committedTableInfo.getData().get(comRow)[column].toString()))
+                            && !dataTypeHandler.isPrimitive(TableInfo.getParentTable(commandArg))) {
                         // Load the selected child table's data into a table editor
                         dbTable.loadTableDataInBackground(commandArg, editorDialog);
                     }
@@ -3701,7 +3702,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                 for (String argVar : dbTable.queryDataTypeAndVariablesTypeList(
                         CcddUtilities.removeTrailer(tableTypes, ","), editorDialog)) {
                     // Check if the variable is a structure
-                    if (!dataTypeHandler.isPrimitive(TableInformation.getPrototypeName(argVar))) {
+                    if (!dataTypeHandler.isPrimitive(TableInfo.getPrototypeName(argVar))) {
                         // Add the argument structure path to the list
                         cmdArgs.add(argVar);
                     }
@@ -4643,7 +4644,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
 
         // Check if the table has changes, ignoring the variable path column (if present; this
         // column must be checked for changes separately due to how the values are maintained)
-        isChanged = table.isTableChanged(committedTableInfo.getData(),
+        isChanged = table.isTableChanged(committedTableInfo.getDataArray(),
                 Arrays.asList(new Integer[] { variablePathIndex }));
 
         // Check if a change wasn't detected above and that the variable path, variable
@@ -4663,19 +4664,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                     // is an array definition, which doesn't allow a variable path, or an empty row)
                     if (!varPath.isEmpty()) {
                         // Step through each row in the committed data
-                        for (int commRow = 0; commRow < committedTableInfo.getData().length; commRow++) {
+                        for (int commRow = 0; commRow < committedTableInfo.getData().size(); commRow++) {
                             // Check if the primary key in the table matches the one in this row of
                             // the committed data
-                            if (primaryKey.equals(committedTableInfo.getData()[commRow][primaryKeyIndex])) {
+                            if (primaryKey.equals(committedTableInfo.getData().get(commRow)[primaryKeyIndex])) {
                                 // Set the flag to indicate if the variable path is automatically set
-                                boolean isVarPathAuto = committedTableInfo.getData()[commRow][variablePathIndex]
+                                boolean isVarPathAuto = committedTableInfo.getData().get(commRow)[variablePathIndex]
                                         .toString().isEmpty();
 
                                 // Check if the variable path was manually set and has been changed
                                 // (either to a new name or allowed to be automatically), or the
                                 // path wasn't manually set but it is now
                                 if ((!isVarPathAuto
-                                        && !varPath.equals(committedTableInfo.getData()[commRow][variablePathIndex]))
+                                        && !varPath.equals(committedTableInfo.getData().get(commRow)[variablePathIndex]))
                                         || (isVarPathAuto && !varPath.equals(getVariablePath(
                                                 tableModel.getValueAt(row, variableNameIndex).toString(),
                                                 tableModel.getValueAt(row, dataTypeIndex).toString(), true)))) {
@@ -4735,16 +4736,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
         updateRowIndices();
 
         // Get the number of rows that have been committed to the database for this table
-        int numCommitted = committedTableInfo != null ? committedTableInfo.getData().length : 0;
+        int numCommitted = committedTableInfo != null ? committedTableInfo.getData().size() : 0;
 
         // Check to see if the primary keys need to be updated or reordered.
-        updatePrimaryKeyIndices(committedTableInfo.getData());
+        updatePrimaryKeyIndices(committedTableInfo.getDataArray());
         
         // Get the table cell values
         Object[][] tableData = table.getTableData(true);
 
         // Create storage for the array used to indicate if a row has been modified
-        boolean[] rowModified = new boolean[committedTableInfo.getData().length];
+        boolean[] rowModified = new boolean[committedTableInfo.getData().size()];
 
         // Step through each row in the table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++) {
@@ -4764,7 +4765,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             // Step through each row in the committed version of the table data
             for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++) {
                 // Check if the primary key values match for these rows
-                if (tableData[tblRow][primaryKeyIndex].equals(committedTableInfo.getData()[comRow][primaryKeyIndex])) {
+                if (tableData[tblRow][primaryKeyIndex].equals(committedTableInfo.getData().get(comRow)[primaryKeyIndex])) {
                     // Set the flag indicating this row has a match
                     matchFound = true;
 
@@ -4781,10 +4782,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
                         // Step through each column in the row
                         for (int column = 0; column < tableData[tblRow].length; column++) {
                             // Check if the current and committed values don't match
-                            if (!tableData[tblRow][column].equals(committedTableInfo.getData()[comRow][column])) {
+                            if (!tableData[tblRow][column].equals(committedTableInfo.getData().get(comRow)[column])) {
                                 // Store the row modification information and stop searching
                                 modifications.add(new TableModification(tableData[tblRow],
-                                        committedTableInfo.getData()[comRow], variableNameIndex, dataTypeIndex,
+                                        committedTableInfo.getData().get(comRow), variableNameIndex, dataTypeIndex,
                                         arraySizeIndex, bitLengthIndex, rateIndex));
                                 break;
                             }
@@ -4806,7 +4807,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler {
             // Check if no matching row was found with the current data
             if (!rowModified[comRow]) {
                 // Store the row deletion information
-                deletions.add(new TableModification(committedTableInfo.getData()[comRow], variableNameIndex,
+                deletions.add(new TableModification(committedTableInfo.getData().get(comRow), variableNameIndex,
                         dataTypeIndex, arraySizeIndex, bitLengthIndex));
             }
         }

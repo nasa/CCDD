@@ -109,6 +109,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
     private JScrollPane descScrollPane;
     private JCheckBox overwriteFileCb;
     private JCheckBox replaceExistingTablesCb;
+    private JCheckBox replaceExistingDataTypesCb;
     private JCheckBox appendExistingFieldsCb;
     private JCheckBox useExistingFieldsCb;
     private JCheckBox replaceExistingMacrosCb;
@@ -712,7 +713,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                                         useExistingFieldsCb.isSelected(), openEditorCb.isSelected(), ignoreErrorsCb.isSelected(),
                                         replaceExistingMacrosCb.isSelected(), replaceExistingGroupsCb.isSelected(),
                                         replaceExistingAssociationsCb.isSelected(), deleteNonExistingFilesCb.isSelected(),
-                                        fileExt, dialogType, null, CcddTableManagerDialog.this);
+                                        replaceExistingDataTypesCb.isSelected(), fileExt, dialogType, null, CcddTableManagerDialog.this);
                             }
                         } else {
                             // Importing into an open table editor
@@ -1084,6 +1085,20 @@ public class CcddTableManagerDialog extends CcddDialogHandler {
                 appendExistingFieldsCb.setEnabled(importEntireDatabaseCb.isSelected());
             }
         });
+        
+        /* Create a check box for indicating existing data types can be replaced */
+        replaceExistingDataTypesCb = new JCheckBox("Replace existing data types");
+        replaceExistingDataTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        replaceExistingDataTypesCb.setBorder(emptyBorder);
+        replaceExistingDataTypesCb
+                .setToolTipText(CcddUtilities.wrapText("Replace data types that already exist which share the name with an imported data type",
+                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.top = 0;
+        gbc.gridy++;
+        dialogPnl.add(replaceExistingDataTypesCb, gbc);
+        
         return dialogPnl;
     }
     

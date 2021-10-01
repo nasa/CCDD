@@ -53,7 +53,7 @@ import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseComment;
@@ -705,7 +705,7 @@ public class CcddPatchHandler {
                             for (String commandTableName : dbTable.getAllTablesOfType(typeDefn.getName(), null,
                                     ccddMain.getMainFrame())) {
                                 // Load the command table's information
-                                TableInformation cmdTableInfo = dbTable.loadTableData(commandTableName,
+                                TableInfo cmdTableInfo = dbTable.loadTableData(commandTableName,
                                         true, /* Load description? */
                                         false, /* Load columnOrder? */
                                         false,
@@ -725,7 +725,7 @@ public class CcddPatchHandler {
                                 commandTableDescriptions.add(cmdTableInfo.getDescription());
 
                                 // Check if the table has commands defined
-                                if (cmdTableInfo.getData().length != 0) {
+                                if (cmdTableInfo.getData().size() != 0) {
                                     List<String[]> argNamesAndNumber = new ArrayList<String[]>();
 
                                     ///////////////////////////////////////////////////////////////////
@@ -745,7 +745,7 @@ public class CcddPatchHandler {
                                     }
 
                                     // Load the command argument structure table
-                                    TableInformation cmdArgTableInfo = dbTable.loadTableData(cmdArgRefTableName, false,
+                                    TableInfo cmdArgTableInfo = dbTable.loadTableData(cmdArgRefTableName, false,
                                             false, false, ccddMain.getMainFrame());
 
                                     // Check if an error occurred loading the command argument structure table
@@ -966,7 +966,7 @@ public class CcddPatchHandler {
                                     int missingNameSeq = 1;
 
                                     // Step through each command defined in this command table
-                                    for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().length; cmdRow++) {
+                                    for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().size(); cmdRow++) {
                                         String argNameString = "";
 
                                         ///////////////////////////////////////////////////////////////
@@ -976,19 +976,19 @@ public class CcddPatchHandler {
                                         Arrays.fill(cmdArgRef, "");
 
                                         // Get the command name
-                                        String cmdName = cmdTableInfo.getData()[cmdRow][cmdNameIndex].toString();
+                                        String cmdName = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex].toString();
 
                                         // Check if no command name is defined
                                         if (cmdName.isEmpty()) {
                                             // Create a command name
                                             cmdName = commandTableName + "_missing_cmd_name_" + missingNameSeq;
-                                            cmdTableInfo.getData()[cmdRow][cmdNameIndex] = cmdName;
+                                            cmdTableInfo.getData().get(cmdRow)[cmdNameIndex] = cmdName;
                                             missingNameSeq++;
                                         }
 
                                         // Create a prototype for the command argument structure table
                                         if (dbTable.createTable(new String[] { cmdName }, "Command argument structure",
-                                                newCmdArgStructType.getName(), true, (cmdRow == cmdTableInfo.getData().length - 1),
+                                                newCmdArgStructType.getName(), true, (cmdRow == cmdTableInfo.getData().size() - 1),
                                                 ccddMain.getMainFrame())) {
                                             throw new Exception("Cannot create command argument structure table");
                                         }
@@ -1012,7 +1012,7 @@ public class CcddPatchHandler {
                                                 .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)] = cmdName;
 
                                         // Load the command argument structure table's information
-                                        TableInformation argTableInfo = dbTable.loadTableData(argStructRef, false, false,
+                                        TableInfo argTableInfo = dbTable.loadTableData(argStructRef, false, false,
                                                 false, ccddMain.getMainFrame());
 
                                         // Check if an error occurred loading the command argument
@@ -1037,7 +1037,7 @@ public class CcddPatchHandler {
                                                 try {
                                                     cmdArg[newCmdArgStructType.getColumnIndexByInputType(
                                                             typeDefn.getInputTypes()[argCol])] = cmdTableInfo
-                                                                    .getData()[cmdRow][argCol];
+                                                                    .getData().get(cmdRow)[argCol];
                                                 } catch (Exception e) {
                                                     /* this input type no longer exists and the function returns a -1. This
                                                      * will catch the -1 and allow the function to continue
@@ -1045,11 +1045,11 @@ public class CcddPatchHandler {
                                                 }
 
                                                 // Check if this is the argument variable name and isn't blank
-                                                if (!cmdTableInfo.getData()[cmdRow][argCol].toString().isEmpty()
+                                                if (!cmdTableInfo.getData().get(cmdRow)[argCol].toString().isEmpty()
                                                         && typeDefn.getInputTypes()[argCol].equals(inputTypeHandler
                                                                 .getInputTypeByDefaultType(DefaultInputType.VARIABLE))) {
                                                     // Add the argument variable name to the string
-                                                    argNameString += cmdTableInfo.getData()[cmdRow][argCol] + ", ";
+                                                    argNameString += cmdTableInfo.getData().get(cmdRow)[argCol] + ", ";
                                                 }
                                             }
 
@@ -1108,16 +1108,16 @@ public class CcddPatchHandler {
                                         String argCommand = "";
 
                                         // Step through each row in the argument structure table's data
-                                        for (int argRow = 0; argRow < argTableInfo.getData().length; argRow++) {
+                                        for (int argRow = 0; argRow < argTableInfo.getData().size(); argRow++) {
                                             // Begin building the command to populate the argument structure table
                                             argCommand += "INSERT INTO " + cmdName.toLowerCase() + " (" + argColumnNames
                                                     + ") VALUES (" + (argRow + 1) + ", " + (argRow + 1) + ", ";
 
                                             // Step through each column in the argument structure table's data
                                             for (int argColumn = NUM_HIDDEN_COLUMNS; argColumn < argTableInfo
-                                                    .getData()[argRow].length; argColumn++) {
+                                                    .getData().get(argRow).length; argColumn++) {
                                                 // Store the argument structure value in the command
-                                                argCommand += "'" + argTableInfo.getData()[argRow][argColumn] + "', ";
+                                                argCommand += "'" + argTableInfo.getData().get(argRow)[argColumn] + "', ";
                                             }
 
                                             argCommand = CcddUtilities.removeTrailer(argCommand, ", ") + "); ";
@@ -1149,21 +1149,21 @@ public class CcddPatchHandler {
                                     cmdColumnNames = CcddUtilities.removeTrailer(cmdColumnNames, ", ");
 
                                     // Step through each row in the original command table's data
-                                    for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().length; cmdRow++) {
+                                    for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().size(); cmdRow++) {
                                         // Begin building the command to populate the command table
                                         command += "INSERT INTO " + commandTableName.toLowerCase() + " (" + cmdColumnNames
                                                 + ") VALUES ("
-                                                + cmdTableInfo.getData()[cmdRow][DefaultColumn.PRIMARY_KEY.ordinal()] + ", "
-                                                + cmdTableInfo.getData()[cmdRow][DefaultColumn.ROW_INDEX.ordinal()] + ", ";
+                                                + cmdTableInfo.getData().get(cmdRow)[DefaultColumn.PRIMARY_KEY.ordinal()] + ", "
+                                                + cmdTableInfo.getData().get(cmdRow)[DefaultColumn.ROW_INDEX.ordinal()] + ", ";
 
                                         // Step through each column in the original command table's data
                                         for (int cmdColumn = NUM_HIDDEN_COLUMNS; cmdColumn < cmdTableInfo
-                                                .getData()[cmdRow].length; cmdColumn++) {
+                                                .getData().get(cmdRow).length; cmdColumn++) {
                                             // Check if this column belongs to the command versus to an argument
                                             if (commandColumns.contains(cmdColumn)) {
                                                 // Store the command value in the command
                                                 command += CcddDbTableCommandHandler
-                                                        .delimitText(cmdTableInfo.getData()[cmdRow][cmdColumn]) + ", ";
+                                                        .delimitText(cmdTableInfo.getData().get(cmdRow)[cmdColumn]) + ", ";
                                             }
                                         }
 
@@ -1194,7 +1194,7 @@ public class CcddPatchHandler {
                                     String argRefCommand = "";
 
                                     // Step through each row in the argument structure table's data
-                                    for (int argRefRow = 0; argRefRow < cmdArgTableInfo.getData().length; argRefRow++) {
+                                    for (int argRefRow = 0; argRefRow < cmdArgTableInfo.getData().size(); argRefRow++) {
                                         // Begin building the command to populate the argument
                                         // structure reference table
                                         argRefCommand += "INSERT INTO " + cmdArgTableInfo.getRootTable().toLowerCase()
@@ -1204,10 +1204,10 @@ public class CcddPatchHandler {
                                         // Step through each column in the argument structure reference
                                         // table's data
                                         for (int argRefColumn = NUM_HIDDEN_COLUMNS; argRefColumn < cmdArgTableInfo
-                                                .getData()[argRefRow].length; argRefColumn++) {
+                                                .getData().get(argRefRow).length; argRefColumn++) {
                                             // Store the argument structure reference value in the
                                             // command
-                                            argRefCommand += "'" + cmdArgTableInfo.getData()[argRefRow][argRefColumn]
+                                            argRefCommand += "'" + cmdArgTableInfo.getData().get(argRefRow)[argRefColumn]
                                                     + "', ";
                                         }
 
@@ -1225,12 +1225,12 @@ public class CcddPatchHandler {
                                     // Step through each row in the command table's data
                                     for (int cmdRow = 0; cmdRow < argNamesAndNumber.size(); cmdRow++) {
                                         // Build the original and new command references
-                                        String oldCmdRef = cmdTableInfo.getData()[cmdRow][cmdNameIndex] + " (code: "
-                                                + cmdTableInfo.getData()[cmdRow][cmdCodeIndex] + ", owner: "
+                                        String oldCmdRef = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex] + " (code: "
+                                                + cmdTableInfo.getData().get(cmdRow)[cmdCodeIndex] + ", owner: "
                                                 + cmdTableInfo.getTablePath() + ", args: "
                                                 + argNamesAndNumber.get(cmdRow)[1] + ")";
-                                        String newCmdRef = cmdTableInfo.getData()[cmdRow][cmdNameIndex] + " (code: "
-                                                + cmdTableInfo.getData()[cmdRow][cmdCodeIndex] + ", owner: "
+                                        String newCmdRef = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex] + " (code: "
+                                                + cmdTableInfo.getData().get(cmdRow)[cmdCodeIndex] + ", owner: "
                                                 + cmdTableInfo.getTablePath() + ", arg: " + argNamesAndNumber.get(cmdRow)[0]
                                                 + ")";
 
@@ -1432,7 +1432,7 @@ public class CcddPatchHandler {
                         if (CcddFieldHandler.isTableField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()])) {
                             // Get the table's type name from the table comment
                             String tableType = dbTable.getTableComment(
-                                    TableInformation.getPrototypeName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]),
+                                    TableInfo.getPrototypeName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]),
                                     comments)[TableCommentIndex.TYPE.ordinal()];
 
                             // Step through the data field definitions

@@ -325,7 +325,7 @@ public class CcddDataTypeHandler {
             if (newType) {
                 currentDataTypes.add(newDataType);
                 try {
-                    updateDataTypes(currentDataTypes);
+                    updateDataTypes(currentDataTypes, true);
                     dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
                 } catch (CCDDException e) {
                     e.printStackTrace();
@@ -644,11 +644,17 @@ public class CcddDataTypeHandler {
      * Add new data types and check for matches with existing ones
      *
      * @param dataTypeDefinitions list of data type definitions
+     * 
+     * @param replaceExistingDataTypes True if any existing data types that share a name with an
+     *                                 imported one should be replaced
      *
      * @throws CCDDException If an data type with the same same already exists and
      *                       the imported type doesn't match
      *********************************************************************************************/
-    protected void updateDataTypes(List<String[]> dataTypeDefinitions) throws CCDDException {
+    protected void updateDataTypes(List<String[]> dataTypeDefinitions, boolean replaceExistingDataTypes)
+            throws CCDDException {
+        boolean update = false;
+        
         // Step through each imported data type definition
         for (String[] typeDefn : dataTypeDefinitions) {
             // Get the data type information associated with this data type name
@@ -660,17 +666,28 @@ public class CcddDataTypeHandler {
                 dataTypes.add(typeDefn);
             }
             // The data type exists; check if the type information provided matches the
-            // existing
-            // type information
+            // existing type information
             else if (!(dataType[DataTypesColumn.USER_NAME.ordinal()]
                     .equals(typeDefn[DataTypesColumn.USER_NAME.ordinal()])
                     && dataType[DataTypesColumn.C_NAME.ordinal()].equals(typeDefn[DataTypesColumn.C_NAME.ordinal()])
                     && dataType[DataTypesColumn.SIZE.ordinal()].equals(typeDefn[DataTypesColumn.SIZE.ordinal()])
                     && dataType[DataTypesColumn.BASE_TYPE.ordinal()]
                             .equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()]))) {
-                throw new CCDDException("Imported data type '</b>" + CcddDataTypeHandler.getDataTypeName(typeDefn)
-                        + "<b>' doesn't match the existing definition");
+                
+                // If it does not match then check if we should replace the existing data type
+                if (replaceExistingDataTypes) {
+                    dataTypes.set(dataTypes.indexOf(dataType), typeDefn);
+                    update = true;
+                } else {
+                    throw new CCDDException("Imported data type '</b>" + CcddDataTypeHandler.getDataTypeName(typeDefn)
+                            + "<b>' doesn't match the existing definition");
+                }
             }
+        }
+        
+        // Update the data types if any were replaced
+        if (update) {
+            setDataTypeData(dataTypes);
         }
     }
 

@@ -2907,7 +2907,7 @@ public class CcddDbControlHandler {
             // This probably means that the database has already been created 
             // and is probably coming from the command line functionality. So,
             // do it here
-            if(overwriteExisting){
+            if(overwriteExisting) {
                 try {
                     dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(
                             projectName, administrator, false, description)), ccddMain.getMainFrame());

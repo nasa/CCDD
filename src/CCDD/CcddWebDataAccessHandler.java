@@ -55,7 +55,7 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -1043,7 +1043,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(ccddMain.getMainFrame()));
 
         // Get the specified table's prototype table name
-        String prototypeName = TableInformation.getPrototypeName(tableName);
+        String prototypeName = TableInfo.getPrototypeName(tableName);
 
         // Flag indicating if a single table is requested
         boolean isSingle = !prototypeName.isEmpty();
@@ -1541,7 +1541,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
         // Step through each structure table
         for (String table : allTableNameList) {
             // Get the information from the database for the specified table
-            TableInformation tableInfo = dbTable.loadTableData(table, false, false, false, ccddMain.getMainFrame());
+            TableInfo tableInfo = dbTable.loadTableData(table, false, false, false, ccddMain.getMainFrame());
 
             // Check if the table loaded successfully
             if (!tableInfo.isErrorFlag()) {
@@ -1620,25 +1620,25 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                     }
 
                     // Step through each variable in the structure table
-                    for (int row = 0; row < tableInfo.getData().length; row++) {
+                    for (int row = 0; row < tableInfo.getData().size(); row++) {
                         OrderedJSONObject structureJO = new OrderedJSONObject();
                         String cellValue;
 
                         // Check if the variable name is present. If not then all the variable data on this row is skipped
-                        if (!(cellValue = tableInfo.getData()[row][variableNameIndex].toString()).isEmpty()) {
+                        if (!(cellValue = tableInfo.getData().get(row)[variableNameIndex].toString()).isEmpty()) {
                             boolean hasRate = false;
 
                             // Step through the relevant rate columns
                             for (Integer rateIndex : rateIndices) {
                                 // Check that a rate value is present and if the rate matches the
                                 // rate filter value (or no filter is in effect)
-                                if (!tableInfo.getData()[row][rateIndex].toString().isEmpty() && (rateFilter.isEmpty()
-                                        || tableInfo.getData()[row][rateIndex].equals(rateFilter))) {
+                                if (!tableInfo.getData().get(row)[rateIndex].toString().isEmpty() && (rateFilter.isEmpty()
+                                        || tableInfo.getData().get(row)[rateIndex].equals(rateFilter))) {
                                     hasRate = true;
 
                                     // Store the rate in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[rateIndex],
-                                            tableInfo.getData()[row][rateIndex]);
+                                            tableInfo.getData().get(row)[rateIndex]);
                                 }
                             }
 
@@ -1651,13 +1651,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                                 structureJO.put(typeDefn.getColumnNamesUser()[variableNameIndex], cellValue);
 
                                 // Check if the data type is present
-                                if (!(cellValue = tableInfo.getData()[row][dataTypeIndex].toString()).isEmpty()) {
+                                if (!(cellValue = tableInfo.getData().get(row)[dataTypeIndex].toString()).isEmpty()) {
                                     // Store the data type in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[dataTypeIndex], cellValue);
                                 }
 
                                 // Check if the bit length is present
-                                if (!(cellValue = tableInfo.getData()[row][bitLengthIndex].toString()).isEmpty()) {
+                                if (!(cellValue = tableInfo.getData().get(row)[bitLengthIndex].toString()).isEmpty()) {
                                     // Store the bit length in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[bitLengthIndex], cellValue);
                                 }
@@ -1665,7 +1665,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                                 // Step through each enumeration column
                                 for (Integer enumerationIndex : enumerationIndices) {
                                     // Check if the enumeration is present
-                                    if (!(cellValue = tableInfo.getData()[row][enumerationIndex].toString())
+                                    if (!(cellValue = tableInfo.getData().get(row)[enumerationIndex].toString())
                                             .isEmpty()) {
                                         // Store the enumeration in the JSON output
                                         structureJO.put(typeDefn.getColumnNamesUser()[enumerationIndex], cellValue);
@@ -1674,7 +1674,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
                                 // Check if the description is present
                                 if (descriptionIndex != -1
-                                        && !(cellValue = tableInfo.getData()[row][descriptionIndex].toString())
+                                        && !(cellValue = tableInfo.getData().get(row)[descriptionIndex].toString())
                                                 .isEmpty()) {
                                     // Store the description in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex], cellValue);
@@ -1682,7 +1682,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
 
                                 // Check if the units is present
                                 if (unitsIndex != -1
-                                        && !(cellValue = tableInfo.getData()[row][unitsIndex].toString()).isEmpty()) {
+                                        && !(cellValue = tableInfo.getData().get(row)[unitsIndex].toString()).isEmpty()) {
                                     // Store the units in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex], cellValue);
                                 }
@@ -1749,7 +1749,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
             // are requested that the table is a member of the group
             if (groupFilter.isEmpty() || groupTables.contains(commandTable)) {
                 // Get the information from the database for the specified table
-                TableInformation tableInfo = dbTable.loadTableData(commandTable, false, false, false, ccddMain.getMainFrame());
+                TableInfo tableInfo = dbTable.loadTableData(commandTable, false, false, false, ccddMain.getMainFrame());
 
                 // Check if the table loaded successfully
                 if (!tableInfo.isErrorFlag()) {
@@ -1791,13 +1791,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                     }
 
                     // Step through each command in the command table
-                    for (int row = 0; row < tableInfo.getData().length; row++) {
+                    for (int row = 0; row < tableInfo.getData().size(); row++) {
                         OrderedJSONObject commandJO = new OrderedJSONObject();
                         String cellValue;
 
                         // Check if the command name is present. If not then all the command data
                         // on this row is skipped
-                        if (!(cellValue = tableInfo.getData()[row][commandNameIndex].toString()).isEmpty()) {
+                        if (!(cellValue = tableInfo.getData().get(row)[commandNameIndex].toString()).isEmpty()) {
                             // Store the name of the command table from which this command is taken
                             commandJO.put("Command Table Name", commandTable);
 
@@ -1805,20 +1805,20 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
                             commandJO.put(typeDefn.getColumnNamesUser()[commandNameIndex], cellValue);
 
                             // Check if the command code is present
-                            if (!(cellValue = tableInfo.getData()[row][commandCodeIndex].toString()).isEmpty()) {
+                            if (!(cellValue = tableInfo.getData().get(row)[commandCodeIndex].toString()).isEmpty()) {
                                 // Store the command code in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandCodeIndex], cellValue);
                             }
 
                             // Check if the command argument is present
-                            if (!(cellValue = tableInfo.getData()[row][commandArgumentIndex].toString()).isEmpty()) {
+                            if (!(cellValue = tableInfo.getData().get(row)[commandArgumentIndex].toString()).isEmpty()) {
                                 // Store the command argument in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandArgumentIndex], cellValue);
                             }
 
                             // Check if the command description is present
                             if (commandDescriptionIndex != -1
-                                    && !(cellValue = tableInfo.getData()[row][commandDescriptionIndex].toString())
+                                    && !(cellValue = tableInfo.getData().get(row)[commandDescriptionIndex].toString())
                                             .isEmpty()) {
                                 // Store the command description in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandDescriptionIndex], cellValue);

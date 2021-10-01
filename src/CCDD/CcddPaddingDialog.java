@@ -50,7 +50,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeSelectionModel;
 
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.PadOperationType;
@@ -228,7 +228,7 @@ public class CcddPaddingDialog extends CcddDialogHandler {
                 // Step through each table referenced in the instance table's path
                 while (index != -1) {
                     // Get the parent table name for the last table in the path
-                    String parentTable = TableInformation.getParentTable(tablePath);
+                    String parentTable = TableInfo.getParentTable(tablePath);
 
                     // Check if this table hasn't already been added to the list of affected tables
                     if (!selectedPrototypeTables.contains(parentTable) && !affectedTables.contains(parentTable)) {
@@ -246,23 +246,18 @@ public class CcddPaddingDialog extends CcddDialogHandler {
         }
 
         // Add any table(s) (prototype and instance) that the selected prototype(s)
-        // affect to the
-        // list of prototype tables
+        // affect to the list of prototype tables
         selectedPrototypeTables.addAll(affectedTables);
 
-        // Step through each selected table and its descendant table(s) (if any).
-        // Information on
-        // the tables and the prototypes of their descendants is required when
-        // determining
+        // Step through each selected table and its descendant table(s) (if any). Information on
+        // the tables and the prototypes of their descendants is required when determining
         // structure size and alignment
         for (String table : instanceTree.getTablesWithChildren(selectedPrototypeTables)) {
-            // The table path can reference multiple prototypes (the root table plus one for
-            // each
-            // child structure variable). Each of these prototypes must be included in the
-            // referenced tables list
+            // The table path can reference multiple prototypes (the root table plus one for each child
+            // structure variable). Each of these prototypes must be included in the referenced tables list
             do {
                 // Get the prototype for the last child structure variable in the table path
-                String protoTable = TableInformation.getPrototypeName(table);
+                String protoTable = TableInfo.getPrototypeName(table);
 
                 // Check if the list doesn't already contain this prototype table
                 if (!referencedPrototypeTables.contains(protoTable)) {
@@ -280,8 +275,7 @@ public class CcddPaddingDialog extends CcddDialogHandler {
                 }
             } while (table.contains(","));
             // Continue to process the table path, until no child structure variable
-            // reference
-            // remains
+            // reference remains
         }
 
         // Sort the lists alphabetically

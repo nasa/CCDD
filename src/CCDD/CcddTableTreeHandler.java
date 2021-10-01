@@ -89,7 +89,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.GroupInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableMembers;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -934,7 +934,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                             // Check if the prototype name of the table matching the current type
                             // matches the group table's prototype table name; that is, the group
                             // table is of the matching table type
-                            if (member.getTableName().equals(TableInformation.getPrototypeName(grpTbl))
+                            if (member.getTableName().equals(TableInfo.getPrototypeName(grpTbl))
                                     && !validTables.contains(grpTbl)) {
                                 // Add the group table name to the list for this type
                                 validTables.add(grpTbl);
@@ -1762,7 +1762,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler {
                     // Check if prototypes of ancestor tables should be included
                     if (includeAncestorPrototype) {
                         // Remove the last child in the table path
-                        String prototypeTable = TableInformation.getPrototypeName(tablePath);
+                        String prototypeTable = TableInfo.getPrototypeName(tablePath);
 
                         // Check if the table isn't in the lists
                         if (!ancestorTables.contains(prototypeTable) && !tablePaths.contains(prototypeTable)) {

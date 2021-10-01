@@ -38,6 +38,8 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.MacrosColumn;
 
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
@@ -50,11 +52,11 @@ public class ConvertCStructureToCSV
 {
     private List<String> structDataIn;
     private List<String> structDataOut;
-    private List<String> macros;
+    private List<String> macrosFoundInHeaderFiles; // All macros found in the imported header files
+    private List<String> currentMacros; // All macros currently defined in the database
+    private List<String[]> newMacros; // Macros that were found and currently do not exist in this database
 
     private String description;
-
-    private int macroIndex;
 
     // Characters used to encompass a macro name
     private static final String MACRO_IDENTIFIER = "##";
@@ -67,6 +69,9 @@ public class ConvertCStructureToCSV
      * @param parent CCDD component that called this function
      *********************************************************************************************/
     public FileEnvVar[] convertFile(FileEnvVar[] dataFiles, CcddMain ccddMain) {
+        CcddMacroHandler macroHandler = ccddMain.getMacroHandler();
+        CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
         /* Create a list to hold all file */
         List<FileEnvVar> newDataFile = new ArrayList<FileEnvVar>();
         String message = "Macro values or formulae for a variable's array size or bit length are \n"
@@ -90,7 +95,9 @@ public class ConvertCStructureToCSV
             structDataIn = new ArrayList<String>();
             structDataOut = new ArrayList<String>();
             List<String> variableNames = new ArrayList<String>();
-            macros = new ArrayList<String>();
+            macrosFoundInHeaderFiles = new ArrayList<String>();
+            currentMacros = macroHandler.getMacroNames();
+            newMacros = new ArrayList<String[]>();
 
             // Step through each file
             for (FileEnvVar file : dataFiles) {
@@ -145,7 +152,6 @@ public class ConvertCStructureToCSV
                     if (!firstMacro) {
                         structDataOut.add("\n");
                         firstMacro = true;
-                        macroIndex = structDataOut.size();
                     }
                 } else if (structDataIn.get(row).startsWith("struct")) {
                     // Get the structure's name
@@ -154,7 +160,6 @@ public class ConvertCStructureToCSV
                     if (!firstMacro) {
                         structDataOut.add("\n");
                         firstMacro = true;
-                        macroIndex = structDataOut.size();
                     }
                 } else if (structDataIn.get(row).startsWith("#define")) {
                     String[] macroData = structDataIn.get(row).split(" ");
@@ -170,7 +175,7 @@ public class ConvertCStructureToCSV
                             firstMacro = false;
                         }
                         structDataOut.add("\"" + name + "\",\"" + value + "\"");  
-                        macros.add(name);
+                        macrosFoundInHeaderFiles.add(name);
                     }
                     
                     continue;                    
@@ -178,7 +183,6 @@ public class ConvertCStructureToCSV
                     if (!firstMacro) {
                         structDataOut.add("\n");
                         firstMacro = true;
-                        macroIndex = structDataOut.size();
                     }
                     // Not a type definition or a structure so skip this row
                     continue;
@@ -348,9 +352,14 @@ public class ConvertCStructureToCSV
                                         
                                         if (arraySize.contains("##")) {
                                             String macroName = arraySize.replace("#", "");
-                                            if (!macros.contains(macroName)) {
-                                                structDataOut.add(macroIndex-1, "\"" + macroName + "\",\"2\"");
-                                                macroIndex++;
+                                            
+                                            // Was the macro defined within the file?
+                                            if (!macrosFoundInHeaderFiles.contains(macroName)) {
+                                                // If not was the macro already defined within the database?
+                                                if (!currentMacros.contains(macroName)) {
+                                                    // If not store the macro with a value of 2
+                                                    newMacros.add(new String[]{macroName, "2", ""});
+                                                }
                                             }
                                         }
                                     }
@@ -432,6 +441,17 @@ public class ConvertCStructureToCSV
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        // Update the macros 
+        macroHandler.initializeMacroUpdates();
+        macroHandler.updateMacros(newMacros, true);
+        macroHandler.setMacroData();
+        
+         // Store the macros in the database
+        dbTable.storeInformationTable(InternalTable.MACROS,
+                CcddUtilities.removeArrayListColumn(macroHandler.getMacroData(), MacrosColumn.OID.ordinal()), null,
+                ccddMain.getMainFrame());
+
         
         return newDataFile.toArray(new FileEnvVar[0]);
     }

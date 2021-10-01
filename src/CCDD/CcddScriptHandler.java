@@ -96,7 +96,7 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DefaultInputType;
@@ -1172,7 +1172,7 @@ public class CcddScriptHandler {
         }
 
         // Create storage for the individual tables' data and table path+names
-        List<TableInformation> tableInformation = new ArrayList<TableInformation>();
+        List<TableInfo> tableInformation = new ArrayList<TableInfo>();
         loadedTablePaths = new ArrayList<String>();
 
         // Get the link assignment information, if any
@@ -1241,7 +1241,7 @@ public class CcddScriptHandler {
                         // Read the table and child table data from the database and store the
                         // results from the last table loaded. This builds the combined data with
                         // the data from the table and all of its child tables
-                        TableInformation tableInfo = readTable(tablePath, parent);
+                        TableInfo tableInfo = readTable(tablePath, parent);
 
                         // Check if the table hasn't already been loaded
                         if (tableInfo != null) {
@@ -1319,7 +1319,7 @@ public class CcddScriptHandler {
 
             // Check that an error didn't occur loading the data for this association
             if (!isBad[assnIndex]) {
-                TableInformation[] combinedTableInfo = null;
+                TableInfo[] combinedTableInfo = null;
                 List<String> groupNames = new ArrayList<String>();
 
                 // Get the list of association table paths
@@ -1345,7 +1345,7 @@ public class CcddScriptHandler {
 
                     // Create a list of the table types referenced by this association. This is used to
                     // create the storage for the combined tables. Step through each table information instance
-                    for (TableInformation tableInfo : tableInformation) {
+                    for (TableInfo tableInfo : tableInformation) {
                         // Check if this table is a member of the association
                         if (tablePaths.contains(tableInfo.getTablePath())) {
                             // Check if the type for this table is not already in the list
@@ -1357,19 +1357,19 @@ public class CcddScriptHandler {
                     }
 
                     // Create storage for the combined table data
-                    combinedTableInfo = new TableInformation[tableTypes.size()];
+                    combinedTableInfo = new TableInfo[tableTypes.size()];
 
                     // Gather the table data, by table type, for each associated table. Step
                     // through each table type represented in this association
                     for (int typeIndex = 0; typeIndex < tableTypes.size(); typeIndex++) {
                         String tableName = "";
-                        Object[][] allTableData = new Object[0][0];
+                        List<Object[]> allTableData = new ArrayList<Object[]>();
 
                         // Step through each associated table. This combines the table data for a
                         // given table type in the order that the table appears in the association
                         for (String tablePath : tablePaths) {
                             // Step through each table information instance
-                            for (TableInformation tableInfo : tableInformation) {
+                            for (TableInfo tableInfo : tableInformation) {
                                 // Check if the path for the table described by the table
                                 // information matches the path of the associated table
                                 if (tablePath.equals(tableInfo.getTablePath())) {
@@ -1383,8 +1383,7 @@ public class CcddScriptHandler {
                                         }
 
                                         // Append the table data to the combined data array
-                                        allTableData = CcddUtilities.concatenateArrays(allTableData,
-                                                tableInfo.getData());
+                                        allTableData.addAll(tableInfo.getData());
                                     }
 
                                     // Stop searching the table information list since since the
@@ -1395,7 +1394,7 @@ public class CcddScriptHandler {
                         }
 
                         // Create the table information from the table data obtained from the database
-                        combinedTableInfo[typeIndex] = new TableInformation(tableTypes.get(typeIndex), tableName,
+                        combinedTableInfo[typeIndex] = new TableInfo(tableTypes.get(typeIndex), tableName,
                                 allTableData, null, null, new ArrayList<FieldInformation>(0));
                     }
                 }
@@ -1403,8 +1402,8 @@ public class CcddScriptHandler {
                 else {
                     // Create a table information class in order to load and parse the data fields,
                     // and to allow access to the field methods
-                    combinedTableInfo = new TableInformation[1];
-                    combinedTableInfo[0] = new TableInformation("", "", new String[0][0], null, null,
+                    combinedTableInfo = new TableInfo[1];
+                    combinedTableInfo[0] = new TableInfo("", "", new String[0][0], null, null,
                             new ArrayList<FieldInformation>(0));
                 }
 
@@ -1574,7 +1573,7 @@ public class CcddScriptHandler {
      * @throws CCDDException If an error occurs while attempting to access the
      *                       script file
      *********************************************************************************************/
-    protected ScriptEngine getScriptEngine(String scriptFileName, TableInformation[] tableInformation,
+    protected ScriptEngine getScriptEngine(String scriptFileName, TableInfo[] tableInformation,
             CcddLinkHandler linkHandler, CcddGroupHandler groupHandler, List<String> groupNames, Component parent)
             throws CCDDException {
         ScriptEngine scriptEngine = null;
@@ -1671,7 +1670,7 @@ public class CcddScriptHandler {
      * @throws CCDDException If an error occurs while attempting to access the
      *                       script file
      *********************************************************************************************/
-    private void executeScript(String scriptFileName, TableInformation[] tableInformation, List<String> groupNames,
+    private void executeScript(String scriptFileName, TableInfo[] tableInformation, List<String> groupNames,
             CcddLinkHandler linkHandler, CcddGroupHandler groupHandler, Component parent) throws CCDDException {
         // Get the script engine for the supplied script file name and table information
         ScriptEngine scriptEngine = getScriptEngine(scriptFileName, tableInformation, linkHandler, groupHandler,
@@ -1698,8 +1697,8 @@ public class CcddScriptHandler {
      *         table has already been loaded. The error flag for the table data
      *         handler is set if an error occurred loading the data
      *********************************************************************************************/
-    private TableInformation readTable(String tablePath, Component parent) {
-        TableInformation tableInfo = null;
+    private TableInfo readTable(String tablePath, Component parent) {
+        TableInfo tableInfo = null;
 
         // Check if the table is not already stored in the list
         if (!loadedTablePaths.contains(tablePath)) {
@@ -1711,7 +1710,7 @@ public class CcddScriptHandler {
 
             // Check that the data was successfully loaded from the database and that the
             // table isn't empty
-            if (!tableInfo.isErrorFlag() && tableInfo.getData().length != 0) {
+            if (!tableInfo.isErrorFlag() && tableInfo.getData().size() != 0) {
                 boolean isStructure = false;
                 int variableNameColumn = -1;
                 int dataTypeColumn = -1;
@@ -1734,7 +1733,7 @@ public class CcddScriptHandler {
 
                 // Get the data and place it in an array for reference below. Add columns to
                 // contain the table type and path
-                String[][] data = CcddUtilities.appendArrayColumns(tableInfo.getData(), 2);
+                String[][] data = CcddUtilities.appendArrayColumns(tableInfo.getDataArray(), 2);
                 int typeColumn = data[0].length - TYPE_COLUMN_DELTA;
                 int pathColumn = data[0].length - PATH_COLUMN_DELTA;
 
@@ -1772,7 +1771,7 @@ public class CcddScriptHandler {
                             // Get the variable in the format dataType.variableName, prepend a
                             // comma to separate the new variable from the preceding variable path,
                             // then break down the child table
-                            TableInformation childInfo = readTable(
+                            TableInfo childInfo = readTable(
                                     tablePath + "," + data[row][dataTypeColumn] + "." + data[row][variableNameColumn],
                                     parent);
 

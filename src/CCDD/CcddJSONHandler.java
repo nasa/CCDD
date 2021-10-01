@@ -45,7 +45,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -70,8 +69,8 @@ import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableDefinition;
-import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
@@ -79,6 +78,7 @@ import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.FileNames;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeEditorColumnInfo;
@@ -117,7 +117,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddScriptHandler scriptHandler;
     private final CcddApplicationParameterHandler appHandler;
     private final CcddRateParameterHandler rateHandler;
-    private TableInformation tableInfo;
+    private TableInfo tableInfo;
 
     // GUI component over which to center any error dialog
     private final Component parent;
@@ -797,6 +797,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param importFile   import file reference
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingDataTypes true to replace existing data types that share a name
+     *                                 with an imported data type
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -805,8 +808,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
-            throws CCDDException, IOException, Exception {
+    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
+            boolean replaceExistingDataTypes) throws CCDDException, IOException, Exception {
         BufferedReader br = null;
 
         try {
@@ -901,7 +904,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     /* Add the data type if it's new or match it to an existing one with the same name if the type
                      * definitions are the same
                      */
-                    dataTypeHandler.updateDataTypes(dataTypeDefns);
+                    dataTypeHandler.updateDataTypes(dataTypeDefns, replaceExistingDataTypes);
                 }
             }
         } catch (ParseException pe) {
@@ -1273,7 +1276,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Export the project in JSON format to the specified file
+     * Export the project for a JSON export
      *
      * @param exportFile              reference to the user-specified output file
      *
@@ -1313,156 +1316,204 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @Override
     public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
-            String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws CCDDException, Exception {
+            String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo)
+            throws CCDDException, Exception {
+    }
+    
+    /**********************************************************************************************
+     * Export the provided tables in JSON format
+     *
+     *
+     * @param tableDefs               List of TableInfo containing data for the tables being exported
+     * 
+     * @param variableHandler         variable handler class reference; null if
+     *                                includeVariablePaths is false
+     *                                
+     * @param replaceMacros           true to replace any embedded macros with their
+     *                                corresponding values
+     *                                
+     * @param includeVariablePaths    true to include the variable path for each
+     *                                variable in a structure table, both in
+     *                                application format and using the user-defined
+     *                                separator characters
+     *
+     * @param includeBuildInformation true to include the CCDD version, project,
+     *                                host, and user information
+     *                                
+     * @param separators              string array containing the variable path
+     *                                separator character(s), show/hide data types
+     *                                flag ('true' or 'false'), and data
+     *                                type/variable name separator character(s);
+     *                                null if includeVariablePaths is false
+     *                                
+     * @param outputType              Is this a single or multi file export
+     * 
+     * @param variablePaths           List of all of the variable paths
+     * 
+     * @param path                    File path to the export location
+     * 
+     * @param addEOFMarker            Is this the last data to be added to the file?
+     *********************************************************************************************/
+    protected void exportPreparedTables(List<TableInfo> tableDefs, CcddVariableHandler variableHandler,
+            boolean replaceMacros, boolean includeVariablePaths, boolean includeBuildInformation,
+            String[] separators, String outputType, List<String[]> variablePaths, String path, boolean addEOFMarker) {
         /* Initialize local variables */
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
-
-        try {
-            List<String[]> variablePaths = new ArrayList<String[]>();
-
-            /* Check if all variable paths are to be exported. This is only possible if no tables
-             * are specified; otherwise only those variables in the table are exported
-             */
-            if (includeVariablePaths && tableNames.length == 0) {
-                /* Step through each structure and variable name */
-                for (String variablePath : variableHandler.getAllVariableNames()) {
-                    /* Add the path, in both application and user-defined formats, to the list to be output */
-                    variablePaths.add(new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
-                            separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
-                }
-            }
-
-            /* Output the table data to the selected file. Multiple writers are needed in case
-             * tables are appended to an existing file
-             */
-            fw = new FileWriter(exportFile, true);
-            bw = new BufferedWriter(fw);
-            pw = new PrintWriter(bw);
-
-            /* Use of the JSONObject does not retain the order that the key:value pairs are stored.
-             * This custom JSON object is used so that the stored order is reflected in the output */
-            OrderedJSONObject outputJO = new OrderedJSONObject();
-
-            /* Check if any tables are provided */
-            if (tableNames.length != 0) {
+        FileEnvVar file = null;
+        
+        /* Step through each table */
+        for (int counter = 0; counter < tableDefs.size() && counter < tableDefs.size(); counter++) {
+            try {
+                /* Use of the JSONObject does not retain the order that the key:value pairs are stored.
+                 * This custom JSON object is used so that the stored order is reflected in the output */
+                OrderedJSONObject outputJO = new OrderedJSONObject();
                 JSONArray tableJA = new JSONArray();
+    
 
-                /* Sort the array of table names alphabetically, accounting for array dimension
-                 * values within the table names. This causes the tables to be placed in the JSON
-                 * output in a predictable and reproducible order
-                 */
-                Arrays.sort(tableNames, new Comparator<String>() {
-                    /******************************************************************************
-                     * Compare the table names, ignoring case and accounting for array dimension
-                     * values as integers and not as strings
-                     *****************************************************************************/
-                    @Override
-                    public int compare(String tblName1, String tblName2) {                        
-                        /* Compare the two names as strings, ignoring case */
-                        return tblName1.compareToIgnoreCase(tblName2);
-                    }
-                });
+                OrderedJSONObject tableInfoJO = new OrderedJSONObject();
+                
+                // Store the table's name, type, description, data, and data fields
+                tableInfoJO.put(JSONTags.TABLE_NAME.getTag(), tableDefs.get(counter).getTablePath());
+                tableInfoJO.put(JSONTags.TABLE_TYPE.getTag(), tableDefs.get(counter).getType());
+                tableInfoJO.put(JSONTags.TABLE_DESCRIPTION.getTag(), tableDefs.get(counter).getDescription());
+                
+                // Store the table data in a JSONArray
+                JSONArray data = (JSONArray) convertTableData(tableDefs.get(counter), replaceMacros, includeVariablePaths,
+                        variableHandler, separators).get(JSONTags.TABLE_DATA.getTag());
+                tableInfoJO.put(JSONTags.TABLE_DATA.getTag(), data);
+                
+                // Grab the data field info
+                tableInfoJO = getDataFields(tableDefs.get(counter).getTablePath(), JSONTags.TABLE_FIELD.getTag(), null, tableInfoJO);
+                
+                // If outputType equals SINGLE_FILE than set includeBuildInformation to false so that it is 
+                // not added multiple times
+                if (outputType == EXPORT_SINGLE_FILE) {
+                    includeBuildInformation = false;
+                }
 
-                /* Step through each table */
-                for (String tblName : tableNames) {
-                    /* Get the table's information */
-                    OrderedJSONObject tableInfoJO = getTableInformation(tblName, replaceMacros, includeVariablePaths,
-                            includeBuildInformation, variableHandler, separators);
+                /* Check if the table's data successfully loaded */
+                if (tableInfoJO != null && !tableInfoJO.isEmpty()) {
+                    /* Add the wrapper for the table */
+                    tableJA.add(tableInfoJO);
+
+                    /* Get the table type definition based on the type name */
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefs.get(counter).getType());
                     
-                    // If outputType equals SINGLE_FILE than set includeBuildInformation to false so that it is 
-                    // not added multiple times
-                    if (outputType == EXPORT_SINGLE_FILE) {
-                        includeBuildInformation = false;
-                    }
+                    /* Check if variable paths are to be output and if this table represents a structure */
+                    if (includeVariablePaths && typeDefn.isStructure()) {
+                        /* Step through each row in the table */
+                        for (int row = 0; row < tableDefs.get(counter).getData().size(); row++) {
+                            /* Get the variable path */
+                            String variablePath = tableDefs.get(counter).getTablePath() + ","
+                                    + tableDefs.get(counter).getData().get(row)[typeDefn
+                                            .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
+                                    + "." + tableDefs.get(counter).getData().get(row)[typeDefn
+                                            .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
-                    /* Check if the table's data successfully loaded */
-                    if (tableInfoJO != null && !tableInfoJO.isEmpty()) {
-                        /* Add the wrapper for the table */
-                        tableJA.add(tableInfoJO);
-
-                        /* Get the table type definition based on the type name */
-                        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
-                        
-                        /* Check if variable paths are to be output and if this table represents a structure */
-                        if (includeVariablePaths && typeDefn.isStructure()) {
-                            /* Step through each row in the table */
-                            for (int row = 0; row < tableInfo.getData().length; row++) {
-                                /* Get the variable path */
-                                String variablePath = tableInfo.getTablePath() + ","
-                                        + tableInfo.getData()[row][typeDefn
-                                                .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
-                                        + "." + tableInfo.getData()[row][typeDefn
-                                                .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
-
-                                /* Add the path, in both application and user-defined formats, to
-                                 * the list to be output
-                                 */
-                                variablePaths.add(
-                                        new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
-                                                separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
-                            }
+                            /* Add the path, in both application and user-defined formats, to
+                             * the list to be output
+                             */
+                            variablePaths.add(
+                                    new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
+                                            separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
                         }
                     }
                 }
-
+                
+                /* Create a JavaScript engine for use in formatting the JSON output */
+                ScriptEngineManager manager = new ScriptEngineManager();
+                ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
+    
+                /* Output the ordered and formatted JSON object to the file */
+                StringWriter orderedOutput = new StringWriter();
+    
                 /* Check if any tables were processed successfully */
                 if (tableJA != null) {
                     /* Add the table information to the JSON output */
                     outputJO.put(JSONTags.TABLE_DEFN.getTag(), tableJA);
                 }
-            }
-
-            /* Check if variable paths are to be output */
-            if (includeVariablePaths) {
-                /* Add the variable paths, if any, to the output */
-                outputJO = getVariablePaths(variablePaths, outputJO);
-            }
-
-            /* Create a JavaScript engine for use in formatting the JSON output */
-            ScriptEngineManager manager = new ScriptEngineManager();
-            ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
-
-            /* Output the ordered and formatted JSON object to the file */
-            StringWriter orderedOutput = new StringWriter();
-            JSONValue.writeJSONString(outputJO, orderedOutput);
-
-            scriptEngine.put("jsonString", orderedOutput.toString());
-            scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
-            if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (tableNames.length > 1) &&
-                    (!addEOFMarker)) {
-                int size = ((String) scriptEngine.get("result")).length()-3;
-                pw.println(((String) scriptEngine.get("result")).substring(0, size)+ "],");
-            } else {
-                pw.println((String) scriptEngine.get("result"));
-            }
-        } catch (IOException | ScriptException iose) {
-            throw new CCDDException(iose.getMessage());
-        } finally {
-            /* Check if the PrintWriter was opened */
-            if (pw != null) {
-                /* Close the file */
-                pw.close();
-            }
-
-            try {
-                /* Check if the BufferedWriter was opened */
-                if (bw != null) {
-                    /* Close the file */
-                    bw.close();
+                
+                /* Check if variable paths are to be output */
+                if (includeVariablePaths) {
+                    /* Add the variable paths, if any, to the output */
+                    outputJO = getVariablePaths(variablePaths, outputJO);
                 }
-
-                /* Check if the FileWriter was opened */
-                if (fw != null) {
-                    /* Close the file */
-                    fw.close();
+                
+                JSONValue.writeJSONString(outputJO, orderedOutput);
+                
+                /* Create the file using a name derived from the table name */
+                file = new FileEnvVar(path + tableDefs.get(counter).getTablePath().replaceAll("[,\\.\\[\\]]", "_") + FileExtension.JSON.getExtension());
+                
+                /* Output the table data to the selected file. Multiple writers are needed in case
+                 * tables are appended to an existing file
+                 */
+                fw = new FileWriter(file, true);
+                bw = new BufferedWriter(fw);
+                pw = new PrintWriter(bw);
+    
+                scriptEngine.put("jsonString", orderedOutput.toString());
+                scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
+                if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (tableDefs.size() > 1) &&
+                        (!addEOFMarker)) {
+                    int size = ((String) scriptEngine.get("result")).length()-3;
+                    pw.println(((String) scriptEngine.get("result")).substring(0, size)+ "],");
+                } else {
+                    pw.println((String) scriptEngine.get("result"));
                 }
-            } catch (IOException ioe) {
-                /* Inform the user that the data file cannot be closed */
-                new CcddDialogHandler().showMessageDialog(parent,
-                        "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
-                        "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                
+                /* Check if the PrintWriter was opened */
+                if (pw != null) {
+                    /* Close the file */
+                    pw.close();
+                }
+    
+                try {
+                    /* Check if the BufferedWriter was opened */
+                    if (bw != null) {
+                        /* Close the file */
+                        bw.close();
+                    }
+    
+                    /* Check if the FileWriter was opened */
+                    if (fw != null) {
+                        /* Close the file */
+                        fw.close();
+                    }
+                } catch (Exception e) {
+                    /* Inform the user that the data file cannot be closed */
+                    new CcddDialogHandler().showMessageDialog(parent,
+                            "<html><b>Cannot close export file '</b>" + file.getAbsolutePath() + "<b>'",
+                            "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                    break;
+                }
+            } catch (IOException | ScriptException ioe) {
+                /* Check if the PrintWriter was opened */
+                if (pw != null) {
+                    /* Close the file */
+                    pw.close();
+                }
+    
+                try {
+                    /* Check if the BufferedWriter was opened */
+                    if (bw != null) {
+                        /* Close the file */
+                        bw.close();
+                    }
+    
+                    /* Check if the FileWriter was opened */
+                    if (fw != null) {
+                        /* Close the file */
+                        fw.close();
+                    }
+                } catch (Exception e) {
+                    /* Inform the user that the data file cannot be closed */
+                    new CcddDialogHandler().showMessageDialog(parent,
+                            "<html><b>Cannot export file '</b>" + file.getAbsolutePath() + "<b>'",
+                            "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                    break;
+                }
             }
         }
     }
@@ -1519,29 +1570,28 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             OrderedJSONObject columnJO = new OrderedJSONObject();
             tableDataJA = new JSONArray();
 
-            // Check if the macro names should be replaced with the corresponding macro
-            // values
+            // Check if the macro names should be replaced with the corresponding macro values
             if (replaceMacros) {
                 // Replace all macros in the table
                 tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
             }
 
             // Check if the table has any data
-            if (tableInfo.getData().length != 0) {
+            if (tableInfo.getData().size() != 0) {
                 // Get the column names for this table's type definition
                 TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
                 String[] columnNames = typeDefn.getColumnNamesUser();
 
                 // Step through each table row
-                for (int row = 0; row < tableInfo.getData().length; row++) {
+                for (int row = 0; row < tableInfo.getData().size(); row++) {
                     columnJO = new OrderedJSONObject();
 
                     // Step through each table column
-                    for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++) {
+                    for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData().get(row).length; column++) {
                         // Check if a cell isn't blank
-                        if (!tableInfo.getData()[row][column].toString().isEmpty()) {
+                        if (!tableInfo.getData().get(row)[column].toString().isEmpty()) {
                             // Add the column name and value to the cell object
-                            columnJO.put(columnNames[column], tableInfo.getData()[row][column]);
+                            columnJO.put(columnNames[column], tableInfo.getData().get(row)[column]);
 
                             // Check if the table represents a structure, that the variable path
                             // column is to be included, and that a variable handler and path
@@ -1549,14 +1599,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             if (typeDefn.isStructure() && includeVariablePaths && variableHandler != null
                                     && separators != null) {
                                 // Get the variable's data type
-                                String dataType = tableInfo.getData()[row][typeDefn
+                                String dataType = tableInfo.getData().get(row)[typeDefn
                                         .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
 
                                 // Check if the data type is a primitive
                                 if (dataTypeHandler.isPrimitive(dataType)) {
                                     // Build the variable's full path
                                     String variablePath = tableInfo.getTablePath() + "," + dataType + "."
-                                            + tableInfo.getData()[row][typeDefn
+                                            + tableInfo.getData().get(row)[typeDefn
                                                     .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                                     // Add the formatted path in the 'Variable Path' column
@@ -1576,6 +1626,119 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             // Check if any table data was loaded
             if (!tableDataJA.isEmpty()) {
                 // Add the table data to the JSON output
+                outputJO.put(JSONTags.TABLE_DATA.getTag(), tableDataJA);
+            }
+        }
+        // The table failed to load (database error or the table doesn't exist)
+        else {
+            // Set the output to null in order to indicate the error
+            outputJO = null;
+        }
+
+        return outputJO;
+    }
+    
+    /**********************************************************************************************
+     * Convert the table data to JSONArray format
+     *
+     * @param tableInfo            The data for the table to be converted
+     *
+     * @param replaceMacros        true to display the macro values in place of the
+     *                             corresponding macro names; false to display the
+     *                             macro names
+     *
+     * @param includeVariablePaths true to include a column, 'Variable Path',
+     *                             showing the variable path for each variable in a
+     *                             structure table using the user-defined separator
+     *                             characters
+     *
+     * @param variableHandler      variable handler class reference; null if
+     *                             isIncludePath is false
+     *
+     * @param separators           string array containing the variable path
+     *                             separator character(s), show/hide data types flag
+     *                             ('true' or 'false'), and data type/variable name
+     *                             separator character(s); null if isIncludePath is
+     *                             false
+     *
+     *
+     * @return The table data in OrderedJSONObject format
+     *********************************************************************************************/
+    protected OrderedJSONObject convertTableData(TableInfo tableInfo, boolean replaceMacros,
+            boolean includeVariablePaths, CcddVariableHandler variableHandler, String[] separators) {
+        JSONArray tableDataJA = null;
+        OrderedJSONObject outputJO = new OrderedJSONObject();
+
+        // Check if the table exists and successfully loaded
+        if (tableInfo != null) {
+            OrderedJSONObject columnJO = new OrderedJSONObject();
+            tableDataJA = new JSONArray();
+
+            // Check if the macro names should be replaced with the corresponding macro values
+            if (replaceMacros) {
+                // Replace all macros in the table
+                tableInfo = (macroHandler.replaceAllMacros(tableInfo));
+            }
+
+            // Check if the table has any data
+            if (tableInfo.getData().size() != 0) {
+                // Get the column names for this table's type definition
+                TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
+                String[] columnNames = typeDefn.getColumnNamesUser();
+                List<Integer> booleanColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.BOOLEAN);
+
+                // Step through each table row
+                for (int row = 0; row < tableInfo.getData().size(); row++) {
+                    columnJO = new OrderedJSONObject();
+
+                    // Step through each table column
+                    for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData().get(row).length; column++) {
+                        // Check if a cell isn't blank
+                        if (!tableInfo.getData().get(row)[column].toString().isEmpty() || booleanColumns.contains(column)) {
+                            if (booleanColumns.contains(column)) {
+                                // Add the column name and value to the cell object
+                                columnJO.put(columnNames[column], Boolean.parseBoolean(tableInfo.getData().get(row)[column].toString()));
+                            } else {
+                                // Add the column name and value to the cell object
+                                columnJO.put(columnNames[column], tableInfo.getData().get(row)[column]);
+                            }
+
+                            // Check if the table represents a structure, that the variable path
+                            // column is to be included, and that a variable handler and path
+                            // separators are supplied
+                            if (typeDefn.isStructure() && includeVariablePaths && variableHandler != null
+                                    && separators != null) {
+                                // Get the variable's data type
+                                String dataType = tableInfo.getData().get(row)[typeDefn
+                                        .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
+
+                                // Check if the data type is a primitive
+                                if (dataTypeHandler.isPrimitive(dataType)) {
+                                    // Build the variable's full path
+                                    String variablePath = tableInfo.getTablePath() + "," + dataType + "."
+                                            + tableInfo.getData().get(row)[typeDefn
+                                                    .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+
+                                    // Add the formatted path in the 'Variable Path' column
+                                    columnJO.put("Variable Path", variableHandler.getFullVariableName(variablePath,
+                                            separators[0], Boolean.valueOf(separators[1]), separators[2]));
+                                }
+                            }
+                        }
+                    }
+
+                    // Add the column values to the data array. An array is used to preserve the
+                    // order of the rows
+                    tableDataJA.add(columnJO);
+                }
+            }
+
+            // Check if any table data was loaded
+            if (!tableDataJA.isEmpty()) {
+                // Add the table data to the JSON output
+                outputJO.put(JSONTags.TABLE_DATA.getTag(), tableDataJA);
+            } else {
+                tableDataJA = new JSONArray();
                 outputJO.put(JSONTags.TABLE_DATA.getTag(), tableDataJA);
             }
         }

@@ -36,6 +36,7 @@ import javax.xml.bind.JAXBException;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -137,6 +138,9 @@ public interface CcddImportExportInterface {
      * @param importFile   import file reference
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingDataTypes true to replace existing data types that share a name
+     *                                 with an imported data type
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -145,8 +149,8 @@ public interface CcddImportExportInterface {
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    abstract void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
-            throws CCDDException, IOException, Exception;
+    abstract void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
+            boolean replaceExistingDataTypes) throws CCDDException, IOException, Exception;
 
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file

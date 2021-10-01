@@ -97,6 +97,7 @@ public class CcddCommandLineHandler {
     private boolean ignoreErrors;
     private boolean replaceExistingMacros;
     private boolean replaceExistingGroups;
+    private boolean replaceExistingDataTypes;
     private boolean replaceExistingAssociations;
     private boolean deleteAbsentFiles;
     private boolean backupFirst;
@@ -410,6 +411,7 @@ public class CcddCommandLineHandler {
         deleteArgument = new ArrayList<CommandHandler>();
         dataFile = new ArrayList<FileEnvVar>();
         replaceExistingTables = false;
+        replaceExistingDataTypes = false;
         appendExistingFields = false;
         useExistingFields = false;
         filePath = "";
@@ -920,6 +922,7 @@ public class CcddCommandLineHandler {
                         replaceExistingGroups = true;
                         replaceExistingMacros = true;
                         deleteAbsentFiles = true;
+                        replaceExistingDataTypes = true;
                     }
                     
                     /* Disable certain options if this is a C Header import */
@@ -928,6 +931,7 @@ public class CcddCommandLineHandler {
                         replaceExistingGroups = false;
                         replaceExistingAssociations = false;
                         deleteAbsentFiles = false;
+                        replaceExistingDataTypes = false;
                     }
 
                     /* Create the snapshot directory */
@@ -939,15 +943,15 @@ public class CcddCommandLineHandler {
                                 (importFileType == FileExtension.C_HEADER)) {
                             if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
                                     backupFirst, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
-                                    replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups, deleteAbsentFiles,
-                                    importFileType, dialogType, null)) {
+                                    replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups, replaceExistingDataTypes,
+                                    deleteAbsentFiles, importFileType, dialogType, null)) {
                                 throw new Exception();
                             }
                         } else if (importFileType != null){
                             /* Import the table(s) from the specified file; check if the import operation fails */
                             if (ccddMain.getFileIOHandler().importFiles(dataFile, backupFirst, replaceExistingTables, appendExistingFields,
                                     useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations,
-                                    replaceExistingGroups, dialogType, null)) {
+                                    replaceExistingGroups, replaceExistingDataTypes, dialogType, null)) {
                                 throw new Exception();
                             }
                         } else {
@@ -962,7 +966,7 @@ public class CcddCommandLineHandler {
                         ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
                                 false, replaceExistingTables, appendExistingFields, useExistingFields, openEditor, ignoreErrors,
                                 replaceExistingMacros, replaceExistingGroups, replaceExistingAssociations, deleteAbsentFiles,
-                                importFileType, dialogType, null, ccddMain.getMainFrame());
+                                replaceExistingDataTypes, importFileType, dialogType, null, ccddMain.getMainFrame());
                     }
                     
                     /* Delete the snapshot directories */
@@ -1057,6 +1061,19 @@ public class CcddCommandLineHandler {
             @Override
             protected void doCommand(Object parmVal) {
                 replaceExistingTables = (Boolean) parmVal;
+            }
+        });
+        
+        // Import command - replace existing data types
+        importArgument.add(new CommandHandler("replaceExistingDataTypes", "Replace existing data type(s)",
+                "true or false (default: false)", CommandLineType.OPTION, 0, new Object[] { true, false },
+                new String[] { "true", "false" }) {
+            /**************************************************************************************
+             * Set the flag to replace existing data types
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal) {
+                replaceExistingDataTypes = (Boolean) parmVal;
             }
         });
 

@@ -109,7 +109,7 @@ import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultColumn;
@@ -117,6 +117,7 @@ import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
@@ -163,8 +164,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private TypeDefinition commandTypeDefn;
 
     // Flags to indicate if a structure table type and a command table type is
-    // defined in the
-    // import file
+    // defined in the import file
     private boolean isStructureExists;
     private boolean isCommandExists;
 
@@ -222,20 +222,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         tableDefinitions = null;
 
         try {
-            // Create the XML marshaller used to convert the CCDD project data into EDS XML
-            // format
+            // Create the XML marshaller used to convert the CCDD project data into EDS XML format
             JAXBContext context = JAXBContext.newInstance("org.ccsds.schema.sois.seds");
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
                     ModifiableOtherSettingInfo.EDS_SCHEMA_LOCATION_URL.getValue());
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             // Create the factory for building the data sheet objects
             factory = new ObjectFactory();
 
-            // Create the XML unmarshaller used to convert EDS XML data into CCDD project
-            // data
-            // format
+            // Create the XML unmarshaller used to convert EDS XML data into CCDD project data format
             unmarshaller = context.createUnmarshaller();
         } catch (JAXBException je) {
             // Inform the user that the EDS/JAXB set up failed
@@ -348,6 +345,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param importFile   import file reference
      * 
      * @param ignoreErrors true to ignore all errors in the import file
+     * 
+     * @param replaceExistingDataTypes true to replace existing data types that share a name
+     *                                 with an imported data type
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -356,7 +356,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors)
+    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingDataTypes)
             throws CCDDException, IOException, Exception {
         /* Will not be implemented */
         return;
@@ -1916,6 +1916,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws JAXBException, MarshalException,
             CCDDException, Exception {
+        
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1]);
 
@@ -2060,15 +2061,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Step through each table name
         for (String tableName : tableNames) {
             // Get the information from the database for the specified table
-            TableInformation tableInfo = dbTable.loadTableData(tableName, true, false, false, parent);
+            TableInfo tableInfo = dbTable.loadTableData(tableName, true, false, false, parent);
 
             // Check if the table's data successfully loaded
             if (!tableInfo.isErrorFlag()) {
-                // Get the table type and from the type get the type definition. The type
-                // definition can be a global parameter since if the table represents a
-                // structure,
-                // then all of its children are also structures, and if the table represents
-                // commands or other table type then it is processed within this nest level
+                // Get the table type and from the type get the type definition. The type definition
+                // can be a global parameter since if the table represents a structure, then all of
+                // its children are also structures, and if the table represents commands or other
+                // table type then it is processed within this nest level
                 typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                 // Check if the table type represents a structure or command
@@ -2170,7 +2170,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     // This is a command table
                     else {
                         // Add the command(s) from this table to the data sheet
-                        addNamespaceCommands(namespace, CcddUtilities.convertObjectToString(tableInfo.getData()),
+                        addNamespaceCommands(namespace, CcddUtilities.convertObjectToString(tableInfo.getDataArray()),
                                 typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME),
                                 typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE),
                                 typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT),
@@ -2340,7 +2340,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param maxColumn  maximum value column index (model coordinates)
      *********************************************************************************************/
-    private void addParameterContainer(NamespaceType namespace, TableInformation tableInfo, int varColumn,
+    private void addParameterContainer(NamespaceType namespace, TableInfo tableInfo, int varColumn,
             int typeColumn, int sizeColumn, int minColumn, int maxColumn) {
         ContainerDataType containerType = null;
         EntryListType entryList = factory.createEntryListType();
@@ -2586,7 +2586,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // Check if an argument structure is provided for the command
                 if (commandArgStruct != null && !commandArgStruct.isEmpty()) {
                     // Get the information from the database for the specified table
-                    TableInformation tableInfo = dbTable.loadTableData(commandArgStruct, true, false, false, parent);
+                    TableInfo tableInfo = dbTable.loadTableData(commandArgStruct, true, false, false, parent);
 
                     // Check if the table's data successfully loaded
                     if (!tableInfo.isErrorFlag()) {
@@ -2611,7 +2611,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                             // Step through each variable (command name) in the command
                             // argument structure
-                            for (String[] argRowData : CcddUtilities.convertObjectToString(tableInfo.getData())) {
+                            for (String[] argRowData : CcddUtilities.convertObjectToString(tableInfo.getDataArray())) {
                                 // Check if the command argument name exists and isn't an array
                                 // member (only the array definition is used to define a
                                 // command argument), and that the data type exists
@@ -2651,8 +2651,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                         // Check if the command argument has a string data type
                                         if (argRowData[sizeColumn]
                                                 .equals(DefaultPrimitiveTypeInfo.STRING.getUserName())) {
-                                            // Separate the array dimension values and get the
-                                            // string size
+                                            // Separate the array dimension values and get the string size
                                             int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
                                             stringSize = arrayDims[0];
                                         }

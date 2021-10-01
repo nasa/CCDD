@@ -38,7 +38,7 @@ import org.omg.space.xtce.NameDescriptionType;
 import org.omg.space.xtce.SpaceSystemType;
 
 import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddImportSupportHandler.BasePrimitiveDataType;
 
 /**************************************************************************************************
@@ -746,7 +746,7 @@ public class CcddScriptDataAccessHandlerStatic {
     }
 
     public static String getPrototypeName(String tableName) {
-        return TableInformation.getPrototypeName(tableName);
+        return TableInfo.getPrototypeName(tableName);
     }
 
     public static boolean isArrayMember(Object variableName) {

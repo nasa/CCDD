@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.PadOperationType;
@@ -66,7 +66,7 @@ public class CcddPaddingVariableHandler {
      *********************************************************************************************/
     private class StructurePaddingHandler {
         // Structure table's information
-        private final TableInformation tableInfo;
+        private final TableInfo tableInfo;
 
         // Structure table editor
         private CcddTableEditorHandler tableEditor;
@@ -120,7 +120,9 @@ public class CcddPaddingVariableHandler {
                         if (editor.getOwnerName().equals(structureName)) {
                             // Replace the table's contents with the committed data. This
                             // eliminates for any uncommitted changes
-                            editor.getTable().loadDataArrayIntoTable(editor.getCommittedTableInformation().getData(),
+                            List<Object[]> data = editor.getCommittedTableInformation().getData();
+                            
+                            editor.getTable().loadDataArrayIntoTable(data.toArray(new Object[data.size()][]),
                                     false);
 
                             editor.getTable().getUndoManager().discardAllEdits();

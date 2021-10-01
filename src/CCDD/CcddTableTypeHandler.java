@@ -366,7 +366,15 @@ public class CcddTableTypeHandler {
          * @return true if the table type represents a command argument structure
          *****************************************************************************************/
         protected boolean isCommandArgumentStructure() {
-            return !columnToolTip.get(0).startsWith("0");
+            boolean result = false;
+            
+            if (!columnToolTip.get(0).isEmpty()) {
+                result = !columnToolTip.get(0).startsWith("0");
+            } else {
+                result = !columnToolTip.get(0).startsWith("0");
+            }
+            
+            return result;
         }
 
         /******************************************************************************************
@@ -805,7 +813,7 @@ public class CcddTableTypeHandler {
         /******************************************************************************************
          * Get the row index in the structure table for the specified variable name
          *
-         * @param tableData   array of table data
+         * @param tableData   List of table data
          *
          * @param columnValue variable name
          *
@@ -814,13 +822,13 @@ public class CcddTableTypeHandler {
          * @return Row index for the specified variable name; -1 if the variable name is
          *         not found
          *****************************************************************************************/
-        protected int getRowIndexByColumnValue(Object[][] tableData, Object columnValue, int columnIndex) {
+        protected int getRowIndexByColumnValue(List<Object[]> tableData, Object columnValue, int columnIndex) {
             int varRow = -1;
 
             // Step through each row in the table data
-            for (int row = 0; row < tableData.length; row++) {
+            for (int row = 0; row < tableData.size(); row++) {
                 // Check if the variable name matches the name in this row
-                if (columnValue.equals(tableData[row][columnIndex])) {
+                if (columnValue.equals(tableData.get(row)[columnIndex])) {
                     // Store the row index and stop searching
                     varRow = row;
                     break;

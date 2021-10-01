@@ -65,7 +65,7 @@ import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -365,11 +365,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler {
                         // Groups are not filtered by application status
                         else {
                             // Locate the index of this table's comment in the comment list
-                            int commentIndex = tableComments.indexOf((Object)TableInformation.getPrototypeName(table));
+                            int commentIndex = tableComments.indexOf((Object)TableInfo.getPrototypeName(table));
 
                             // Check if the table was located in the list. It's possible to import
-                            // groups containing references to tables that don't exist in the
-                            // database
+                            // groups containing references to tables that don't exist in the database
                             if (commentIndex != -1) {
                                 // Get the table type for the current group table member
                                 String tableType = tableComments.get(commentIndex)[TableCommentIndex.TYPE.ordinal()];
@@ -386,7 +385,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler {
                                         for (int index = 0; index < sourcePath.length; index++) {
                                             // Get the comment for this table reference
                                             commentIndex = tableComments
-                                                    .indexOf((Object)TableInformation.getPrototypeName(sourcePath[index]));
+                                                    .indexOf((Object)TableInfo.getPrototypeName(sourcePath[index]));
 
                                             // Check if the table type for this reference doesn't
                                             // match the current table type node or if the table
@@ -529,7 +528,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler {
                     // Check if the type for the table in the reference matches the table type
                     // represented by this node
                     if (tableType.equals(tableComments.get(tableComments.indexOf(
-                            (Object)TableInformation.getPrototypeName(tablePath[index])))[TableCommentIndex.TYPE.ordinal()])) {
+                            (Object)TableInfo.getPrototypeName(tablePath[index])))[TableCommentIndex.TYPE.ordinal()])) {
                         int firstValidIndex = -1;
 
                         // Copy the table path array so that HTML formatting can be applied without
@@ -541,7 +540,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler {
                             // Check if the table type for this table reference doesn't match the
                             // node's table type
                             if (!tableType.equals(tableComments.get(tableComments.indexOf(
-                                    (Object)TableInformation.getPrototypeName(tempPath[pathIndex])))[TableCommentIndex.TYPE
+                                    (Object)TableInfo.getPrototypeName(tempPath[pathIndex])))[TableCommentIndex.TYPE
                                             .ordinal()])) {
                                 // Flag the table reference as not matching the node table type
                                 tempPath[pathIndex] = INVALID_TEXT_COLOR + tempPath[pathIndex];

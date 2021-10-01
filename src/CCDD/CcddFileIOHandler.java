@@ -64,6 +64,8 @@ import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,6 +73,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -81,7 +84,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.AbstractDocument.Content;
 import javax.xml.bind.JAXBException;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -90,7 +92,7 @@ import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableDefinition;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultInputType;
@@ -207,7 +209,7 @@ public class CcddFileIOHandler {
                     
                     // Display the user's guide - replace the .jar file name with the user's guide name
                     Desktop.getDesktop()
-                            .open(new File(path.substring(0, path.lastIndexOf(File.separator) + 1) + "docs/" + USERS_GUIDE));
+                            .open(new File(path.substring(0, path.lastIndexOf(File.separator) + 1) + "Docs/" + USERS_GUIDE));
                 } catch (Exception e) {
                     // Inform the user that an error occurred opening the user's guide
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
@@ -259,6 +261,9 @@ public class CcddFileIOHandler {
      * 
      * @param replaceExistingGroups      true to replace the values for existing
      *                                   groups
+     *                                   
+     * @param replaceExistingDataTypes true to replace existing data types that share a name
+     *                                 with an imported data type
      * 
      * @param deleteNonExistingFiles     true to delete any tables from the database
      *                                   that were not part of the import
@@ -274,8 +279,9 @@ public class CcddFileIOHandler {
             final boolean backupFirst, final boolean replaceExistingTables, final boolean appendExistingFields,
             final boolean useExistingFields, final boolean openEditor, final boolean ignoreErrors,
             final boolean replaceExistingMacros, final boolean replaceExistingAssociations,
-            final boolean replaceExistingGroups, final boolean deleteNonExistingFiles,
-            FileExtension importFileType, ManagerDialogType dialogType, final Component parent) {
+            final boolean replaceExistingGroups, final boolean replaceExistingDataTypes,
+            final boolean deleteNonExistingFiles, FileExtension importFileType, ManagerDialogType dialogType,
+            final Component parent) {
         /* Select all current tables in the database and prepare them for export. This
          * will be used later to resolve which import files are new/modified
          */
@@ -478,7 +484,7 @@ public class CcddFileIOHandler {
                 /* Import file into database */
                 importFiles(importFiles, backupFirst, replaceExistingTables, appendExistingFields, useExistingFields,
                         openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
-                        dialogType, parent);
+                        replaceExistingDataTypes, dialogType, parent);
 
                 dataWasChanged = true;
             }
@@ -1121,20 +1127,24 @@ public class CcddFileIOHandler {
                 
                 // Check that the GUI is not in headless state
                 if (!ccddMain.isGUIHidden()) {
-                    // Multi-file import
-                    if (dataFile.length > 1) {
-                        // Look for the dbu_info file
-                        for (int index = 0; index < dataFile.length; index++) {
-                            if (dataFile[index].getName().contentEquals(fileName)) {
-                                // Indicate that the file was found and break out of the loop
-                                dbuInfoFile = dataFile[index];
-                                break;
+                    if (dataFile != null) {
+                        // Multi-file import
+                        if (dataFile.length > 1) {
+                            // Look for the dbu_info file
+                            for (int index = 0; index < dataFile.length; index++) {
+                                if (dataFile[index].getName().contentEquals(fileName)) {
+                                    // Indicate that the file was found and break out of the loop
+                                    dbuInfoFile = dataFile[index];
+                                    break;
+                                }
+                                
                             }
-                            
+                        // Single file import
+                        } else if (dataFile.length == 1) {
+                            dbuInfoFile = dataFile[0];
                         }
-                    // Single file import
-                    } else if (dataFile.length == 1) {
-                        dbuInfoFile = dataFile[0];
+                    } else {
+                        cancelExecution = true;
                     }
                 } else {
                     // GUI is in headless state
@@ -1164,179 +1174,182 @@ public class CcddFileIOHandler {
                 }
             }
             
-            // If CCDD is not in headless state, let the user know that no DBU_Info data was found
-            if (dbuInfoFile == null && !ccddMain.isGUIHidden()) {
-                if (displayDbuInfoWarningDialog()) {
-                    useDefaultValues = true;
-                } else {
-                    cancelExecution = true;
-                }
-            }
-            
-            if ((dbuInfoFile != null && cancelExecution == false) || useDefaultValues) {
-                String projectName = "";
-                String projectDescription = "";
-                
-                if (!useDefaultValues) {
-                    if (restoreFileType == ManagerDialogType.IMPORT_JSON) {
-                        /* Detect the type of the parsed JSON file and only accept JSONObjects */
-                        /* This will throw an exception if it is incorrect */
-                        jsonHandler.verifyJSONObjectType(dbuInfoFile);
-                        /* Create a JSON parser and use it to parse the import file contents */
-                        JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(dbuInfoFile));
-                        Object defn = jsonObject.get(JSONTags.DBU_INFO.getTag());
-                        
-                        // Let the user know that no DBU_Info data was found unless we are running in headless state
-                        if (defn == null && !ccddMain.isGUIHidden()) {
-                            if (displayDbuInfoWarningDialog()) {
-                                useDefaultValues = true;
-                            } else {
-                                cancelExecution = true;
-                            }
-                        }
-                        
-                        // Check to see that the user has not cancelled the process
-                        if (!cancelExecution) {
-                            /* Check if the DBU info exist */
-                            if (defn != null && defn instanceof JSONArray) {
-                                JSONObject dbuInfoJO = jsonHandler.parseJSONArray(defn).get(0);
-                                
-                                /* Get the project description */
-                                dbuInfoDescription = jsonHandler.getString(dbuInfoJO, JSONTags.DB_DESCRIPTION.getTag());
-    
-                                /* Get the project name */
-                                dbuInfoName = jsonHandler.getString(dbuInfoJO, JSONTags.DB_NAME.getTag());
-                                
-                                /* Get the project users */
-                                String[] projectUsers = jsonHandler.getString(dbuInfoJO, JSONTags.DB_USERS.getTag()).split(",");
-                                
-                                for (int index = 0; index < projectUsers.length; index++) {
-                                    usersAndAccessLevel.add(projectUsers[index].split(":"));
-                                }
-                            }
-                        }
+            if (!cancelExecution) {
+                // If CCDD is not in headless state, let the user know that no DBU_Info data was found
+                if (dbuInfoFile == null && !ccddMain.isGUIHidden()) {
+                    if (displayDbuInfoWarningDialog()) {
+                        useDefaultValues = true;
                     } else {
-                        boolean dbuInfoFound = false;
-                        
-                        /* Create a buffered reader to read the file */
-                        BufferedReader br = new BufferedReader(new FileReader(dbuInfoFile));
-    
-                        /* Read first line in file */
-                        String line = br.readLine();
-                        
-                        // Step though the file looking for dbu_info
-                        while (line != null) {
-                            if (line.contentEquals(CSVTags.DBU_INFO.getTag()))  {
-                                line = br.readLine();
-                                dbuInfoFound = true;
-                                break;
-                            }
-                            line = br.readLine();
-                        }
-                        
-                        // Let the user know that no DBU_Info data was found unless we are running in headless state
-                        if (dbuInfoFound == false && !ccddMain.isGUIHidden()) {
-                            if (displayDbuInfoWarningDialog()) {
-                                useDefaultValues = true;
-                            } else {
-                                cancelExecution = true;
-                            }
-                        }
-                        
-                        // Check to see that the user has not cancelled the process
-                        if (!cancelExecution) {
-                            String[] columnValues = csvHandler.trimLine(line, br);
+                        cancelExecution = true;
+                    }
+                }
+                
+                if ((dbuInfoFile != null && cancelExecution == false) || useDefaultValues) {
+                    String projectName = "";
+                    String projectDescription = "";
+                    
+                    if (!useDefaultValues) {
+                        if (restoreFileType == ManagerDialogType.IMPORT_JSON) {
+                            /* Detect the type of the parsed JSON file and only accept JSONObjects */
+                            /* This will throw an exception if it is incorrect */
+                            jsonHandler.verifyJSONObjectType(dbuInfoFile);
+                            /* Create a JSON parser and use it to parse the import file contents */
+                            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new FileReader(dbuInfoFile));
+                            Object defn = jsonObject.get(JSONTags.DBU_INFO.getTag());
                             
-                            /* Check if the DBU info exist */
-                            if (columnValues != null && columnValues.length == 3) {
-                                /* Get the project description */
-                                dbuInfoDescription = columnValues[2];
+                            // Let the user know that no DBU_Info data was found unless we are running in headless state
+                            if (defn == null && !ccddMain.isGUIHidden()) {
+                                if (displayDbuInfoWarningDialog()) {
+                                    useDefaultValues = true;
+                                } else {
+                                    cancelExecution = true;
+                                }
+                            }
+                            
+                            // Check to see that the user has not cancelled the process
+                            if (!cancelExecution) {
+                                /* Check if the DBU info exist */
+                                if (defn != null && defn instanceof JSONArray) {
+                                    JSONObject dbuInfoJO = jsonHandler.parseJSONArray(defn).get(0);
+                                    
+                                    /* Get the project description */
+                                    dbuInfoDescription = jsonHandler.getString(dbuInfoJO, JSONTags.DB_DESCRIPTION.getTag());
+        
+                                    /* Get the project name */
+                                    dbuInfoName = jsonHandler.getString(dbuInfoJO, JSONTags.DB_NAME.getTag());
+                                    
+                                    /* Get the project users */
+                                    String[] projectUsers = jsonHandler.getString(dbuInfoJO, JSONTags.DB_USERS.getTag()).split(",");
+                                    
+                                    for (int index = 0; index < projectUsers.length; index++) {
+                                        usersAndAccessLevel.add(projectUsers[index].split(":"));
+                                    }
+                                }
+                            }
+                        } else {
+                            boolean dbuInfoFound = false;
+                            
+                            /* Create a buffered reader to read the file */
+                            BufferedReader br = new BufferedReader(new FileReader(dbuInfoFile));
+        
+                            /* Read first line in file */
+                            String line = br.readLine();
+                            
+                            // Step though the file looking for dbu_info
+                            while (line != null) {
+                                if (line.contentEquals(CSVTags.DBU_INFO.getTag()))  {
+                                    line = br.readLine();
+                                    dbuInfoFound = true;
+                                    break;
+                                }
+                                line = br.readLine();
+                            }
+                            
+                            // Let the user know that no DBU_Info data was found unless we are running in headless state
+                            if (dbuInfoFound == false && !ccddMain.isGUIHidden()) {
+                                if (displayDbuInfoWarningDialog()) {
+                                    useDefaultValues = true;
+                                } else {
+                                    cancelExecution = true;
+                                }
+                            }
+                            
+                            // Check to see that the user has not cancelled the process
+                            if (!cancelExecution) {
+                                String[] columnValues = csvHandler.trimLine(line, br);
                                 
-                                /* Get the project name */
-                                dbuInfoName = columnValues[0];
-                                
-                                /* Get the project users */
-                                String[] projectUsers = columnValues[1].split(",");
-                                
-                                for (int index = 0; index < projectUsers.length; index++) {
-                                    usersAndAccessLevel.add(projectUsers[index].split(":"));
+                                /* Check if the DBU info exist */
+                                if (columnValues != null && columnValues.length == 3) {
+                                    /* Get the project description */
+                                    dbuInfoDescription = columnValues[2];
+                                    
+                                    /* Get the project name */
+                                    dbuInfoName = columnValues[0];
+                                    
+                                    /* Get the project users */
+                                    String[] projectUsers = columnValues[1].split(",");
+                                    
+                                    for (int index = 0; index < projectUsers.length; index++) {
+                                        usersAndAccessLevel.add(projectUsers[index].split(":"));
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                
-                // Check to see that the user has not cancelled the process
-                if (!cancelExecution) {
-                    // Check to see if the default values should be used when creating the database
-                    if (useDefaultValues) {
-                        // Set the default values
-                        createName = DEFAULT_DATABASE_NAME;
-                        createOwner = dbControl.getUser();
-                        createDescription = DEFAULT_DATABASE_DESCRIPTION;
-                    }
-                
-                    /* set the project description */
-                    if (createDescription == null) {
-                        if (!dbuInfoDescription.isEmpty()) {
-                            projectDescription = dbuInfoDescription;
-                        } else {
-                            projectDescription = DEFAULT_DATABASE_DESCRIPTION;
-                        }
-                    } else {
-                        projectDescription = createDescription;
-                    }
-                
-                    /* Set the project name */
-                    if (createName == null) {
-                        if (!dbuInfoName.isEmpty()) {
-                            projectName = dbuInfoName;
-                        } else {
-                            projectName = DEFAULT_DATABASE_NAME;
-                        }
-                    } else {
-                        projectName = createName;
-                    }
-                
-                    /* Create a new project */
-                    if (createOwner == null) {
-                        dbControl.createDatabase(projectName, dbControl.getUser(), dbControl.getUser(), projectDescription);
-                    } else {
-                        dbControl.createDatabase(projectName, createOwner, createOwner, projectDescription);
-                    }
                     
-                    dbControl.openDatabase(projectName, true, false);
+                    // Check to see that the user has not cancelled the process
+                    if (!cancelExecution) {
+                        // Check to see if the default values should be used when creating the database
+                        if (useDefaultValues) {
+                            // Set the default values
+                            createName = DEFAULT_DATABASE_NAME;
+                            createOwner = dbControl.getUser();
+                            createDescription = DEFAULT_DATABASE_DESCRIPTION;
+                        }
                     
-                    /* Import data */
-                    if (createRestore == null) {
-                        importFileInBackground(dataFile, true, false, true, false, false, false, true, true, true,
-                                true, false, fileExtension, restoreFileType, usersAndAccessLevel, ccddMain.getMainFrame());
-                    } else {
-                        createSnapshotDirectory(ccddMain.getMainFrame());
-                        
-                        // Step through the array of files and ensure that all files starting with '_' are placed 
-                        // at the start of the list. The order of the other files does not matter
-                        int numOfModifications = 0;
-                        for (int index = 0; index < dataFile.length; index++) {
-                            if (dataFile[index].getName().startsWith("_") && index != 0) {
-                                FileEnvVar tempFile = dataFile[numOfModifications];
-                                dataFile[numOfModifications] = dataFile[index];
-                                dataFile[index] = tempFile;
-                                numOfModifications++;
+                        /* set the project description */
+                        if (createDescription == null) {
+                            if (!dbuInfoDescription.isEmpty()) {
+                                projectDescription = dbuInfoDescription;
+                            } else {
+                                projectDescription = DEFAULT_DATABASE_DESCRIPTION;
                             }
+                        } else {
+                            projectDescription = createDescription;
                         }
-
+                    
+                        /* Set the project name */
+                        if (createName == null) {
+                            if (!dbuInfoName.isEmpty()) {
+                                projectName = dbuInfoName;
+                            } else {
+                                projectName = DEFAULT_DATABASE_NAME;
+                            }
+                        } else {
+                            projectName = createName;
+                        }
+                    
+                        /* Create a new project */
+                        if (createOwner == null) {
+                            dbControl.createDatabase(projectName, dbControl.getUser(), dbControl.getUser(), projectDescription);
+                        } else {
+                            dbControl.createDatabase(projectName, createOwner, createOwner, projectDescription);
+                        }
+                        
+                        dbControl.openDatabase(projectName, true, false);
+                        
+                        /* Import data */
+                        if (createRestore == null) {
+                            importFileInBackground(dataFile, true, false, true, false, false, false, true, true, true,
+                                    true, false, true, fileExtension, restoreFileType,
+                                    usersAndAccessLevel, ccddMain.getMainFrame());
+                        } else {
+                            createSnapshotDirectory(ccddMain.getMainFrame());
+                            
+                            // Step through the array of files and ensure that all files starting with '_' are placed 
+                            // at the start of the list. The order of the other files does not matter
+                            int numOfModifications = 0;
+                            for (int index = 0; index < dataFile.length; index++) {
+                                if (dataFile[index].getName().startsWith("_") && index != 0) {
+                                    FileEnvVar tempFile = dataFile[numOfModifications];
+                                    dataFile[numOfModifications] = dataFile[index];
+                                    dataFile[index] = tempFile;
+                                    numOfModifications++;
+                                }
+                            }
     
-                        errorFlag = prepareJSONOrCSVImport(dataFile, true, false, true, false, false, false, true, true,
-                                true, true, false, fileExtension, restoreFileType, ccddMain.getMainFrame());
-                        
-                        if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0) {
-                            /* Execute the database update for users and access levels */
-                                dbCommand.executeDbUpdate(new StringBuilder(dbTable.storeNonTableTypesInfoTableCommand(InternalTable.USERS,
-                                        usersAndAccessLevel, null, ccddMain.getMainFrame())), ccddMain.getMainFrame());
+        
+                            errorFlag = prepareJSONOrCSVImport(dataFile, true, false, true, false, false, false, true, true,
+                                    true, true, true, false, fileExtension, restoreFileType, ccddMain.getMainFrame());
+                            
+                            if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0) {
+                                /* Execute the database update for users and access levels */
+                                    dbCommand.executeDbUpdate(new StringBuilder(dbTable.storeNonTableTypesInfoTableCommand(InternalTable.USERS,
+                                            usersAndAccessLevel, null, ccddMain.getMainFrame())), ccddMain.getMainFrame());
+                            }
+                            
+                            deleteSnapshotDirectories(ccddMain.getMainFrame());
                         }
-                        
-                        deleteSnapshotDirectories(ccddMain.getMainFrame());
                     }
                 }
             }
@@ -1390,6 +1403,9 @@ public class CcddFileIOHandler {
      * @param deleteNonExistingFiles     true to delete any tables from the database
      *                                   that were not part of the import
      *                                   
+     * @param replaceExistingDataTypes true to replace existing data types that share a name
+     *                                 with an imported data type
+     *                                   
      * @param importFileType             The extension for what type of file is being imported
      * 
      * @param dialogType                 The type of file import being performed
@@ -1401,8 +1417,8 @@ public class CcddFileIOHandler {
             final boolean backupFirst, final boolean replaceExisting, final boolean appendExistingFields,
             final boolean useExistingFields, final boolean openEditor, final boolean ignoreErrors,
             final boolean replaceExistingMacros, final boolean replaceExistingGroups, final boolean replaceExistingAssociations,
-            final boolean deleteNonExistingFiles, final FileExtension importFileType, final ManagerDialogType dialogType,
-            final List<String[]> usersAndAccessLevel, final Component parent) {
+            final boolean deleteNonExistingFiles, final boolean replaceExistingDataTypes, final FileExtension importFileType,
+            final ManagerDialogType dialogType, final List<String[]> usersAndAccessLevel, final Component parent) {
         /* Execute the import operation in the background */
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             /**************************************************************************************
@@ -1416,7 +1432,7 @@ public class CcddFileIOHandler {
                         (importFileType == FileExtension.C_HEADER)) {
                     errorFlag = prepareJSONOrCSVImport(dataFile, importingEntireDatabase, backupFirst, replaceExisting, appendExistingFields,
                             useExistingFields, openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations,
-                            replaceExistingGroups, deleteNonExistingFiles, importFileType, dialogType, parent);
+                            replaceExistingGroups, replaceExistingDataTypes, deleteNonExistingFiles, importFileType, dialogType, parent);
                     
                     if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0) {
                         /* Execute the database update for users and access levels */
@@ -1439,7 +1455,7 @@ public class CcddFileIOHandler {
                     /* Import the selected table(s) */
                     importFiles(dataFiles, backupFirst, replaceExisting, appendExistingFields, useExistingFields,
                            openEditor, ignoreErrors, replaceExistingMacros, replaceExistingAssociations, replaceExistingGroups,
-                           importType, parent);
+                           replaceExistingDataTypes, importType, parent);
                 }
                 
                 deleteSnapshotDirectories(parent);
@@ -1509,6 +1525,9 @@ public class CcddFileIOHandler {
      *                                    those from the import file
      *
      * @param replaceExistingGroups true to replace existing group definitions
+     * 
+     * @param replaceExistingDataTypes true to replace existing data types that share a name
+     *                                 with an imported data type
      *
      * @param parent                GUI component over which to center any error
      *                              dialog
@@ -1517,8 +1536,8 @@ public class CcddFileIOHandler {
      *********************************************************************************************/
     protected boolean importFiles(List<FileEnvVar> dataFiles, boolean backupFirst, boolean replaceExistingTables,
             boolean appendExistingFields, boolean useExistingFields, boolean openEditor, boolean ignoreErrors,
-            boolean replaceExistingMacros, boolean replaceExistingAssociations, boolean replaceExistingGroups, CcddConstants.ManagerDialogType fileType,
-            Component parent) {
+            boolean replaceExistingMacros, boolean replaceExistingAssociations, boolean replaceExistingGroups, 
+            boolean replaceExistingDataTypes, CcddConstants.ManagerDialogType fileType, Component parent) {
         /* Initialize any needed variables */
         boolean errorFlag = false;
         String filePath = null;
@@ -1606,7 +1625,7 @@ public class CcddFileIOHandler {
                         
                         /* Import any input/data type definitions found */
                     } else if (fileName.equals(FileNames.TABLE_INFO.No_Extension())) {
-                        ioHandler.importInputTypes(file, ImportType.IMPORT_ALL, ignoreErrors);
+                        ioHandler.importInputTypes(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingDataTypes);
                         ioHandler.importTableInfo(file, ImportType.IMPORT_ALL, ignoreErrors, replaceExistingMacros, replaceExistingTables);
                         
                         /* Import any internal table found */
@@ -1900,7 +1919,7 @@ public class CcddFileIOHandler {
             // Check if the table is an instance (child)
             if (tableDefn.getName().contains(",")) {
                 // Get the index in the list for the table's prototype
-                insertIndex = orderedTableNames.indexOf(TableInformation.getPrototypeName(tableDefn.getName()));
+                insertIndex = orderedTableNames.indexOf(TableInfo.getPrototypeName(tableDefn.getName()));
             }
 
             // Check if the table is a prototype or is a child whose prototype isn't in the
@@ -2068,7 +2087,7 @@ public class CcddFileIOHandler {
                     // Get the number of table columns
                     int numColumns = typeDefn.getColumnCountVisible();
 
-                    TableInformation tableInfo;
+                    TableInfo tableInfo;
 
                     // Load the old data, not the imported data, so that it can be used for comparison
                     if (dbTable.isTableExists(tableDefn.getName(), parent)) {
@@ -2086,7 +2105,7 @@ public class CcddFileIOHandler {
                             tableInfo = dbTable.loadTableData(ancestor, true, true, false, ccddMain.getMainFrame());
                         } else {
                             // Create the table information for the new table
-                            tableInfo = new TableInformation(tableDefn.getTypeName(), tableDefn.getName(),
+                            tableInfo = new TableInfo(tableDefn.getTypeName(), tableDefn.getName(),
                                                              new String[0][0], tableTypeHandler.getDefaultColumnOrder(
                                                              tableDefn.getTypeName()), tableDefn.getDescription(),
                                                              fieldHandler.getFieldInformationFromDefinitions(tableDefn.getDataFields()));
@@ -2098,7 +2117,7 @@ public class CcddFileIOHandler {
                         tableInfo.setTablePath(tableDefn.getName());
                     } else {
                         // Create the table information for the new table, but with no data
-                        tableInfo = new TableInformation(tableDefn.getTypeName(), tableDefn.getName(),
+                        tableInfo = new TableInfo(tableDefn.getTypeName(), tableDefn.getName(),
                                 new String[0][0], tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                 tableDefn.getDescription(),
                                 fieldHandler.getFieldInformationFromDefinitions(tableDefn.getDataFields()));
@@ -2167,20 +2186,20 @@ public class CcddFileIOHandler {
 
                             // Check if the ancestor prototype table doesn't exist.
                             if (!dbTable.isTableExists(typeAndVar[0], ccddMain.getMainFrame())) {
-                                TableInformation ancestorInfo;
+                                TableInfo ancestorInfo;
                                 
                                 if (!dbTable.isTableExists(typeAndVar[0], ccddMain.getMainFrame())) {
                                     // Create the table information for the new prototype table
-                                    ancestorInfo = new TableInformation(tableDefn.getTypeName(),
+                                    ancestorInfo = new TableInfo(tableDefn.getTypeName(),
                                                                         typeAndVar[0], new String[0][0],
                                                                         tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                         "", new ArrayList<FieldInformation>());
                                 } else {
-                                    TableInformation ancestorPreInfo = dbTable.loadTableData(typeAndVar[0], true, false,
+                                    TableInfo ancestorPreInfo = dbTable.loadTableData(typeAndVar[0], true, false,
                                             false, ccddMain.getMainFrame());
                                     
                                     // Create the table information for the new prototype table
-                                    ancestorInfo = new TableInformation(ancestorPreInfo.getType(),
+                                    ancestorInfo = new TableInfo(ancestorPreInfo.getType(),
                                             ancestorPreInfo.getTablePath(), new String[0][0],
                                             tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                             ancestorPreInfo.getDescription(), new ArrayList<FieldInformation>());
@@ -2241,7 +2260,7 @@ public class CcddFileIOHandler {
                             // Load the table's prototype data from the database and copy the
                             // prototype's data to the table. The data from the import file is
                             // pasted over the prototype's
-                            TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(), false,
+                            TableInfo protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(), false,
                                     false, false, ccddMain.getMainFrame());
                             tableInfo.setData(protoInfo.getData());
                         }
@@ -2264,10 +2283,8 @@ public class CcddFileIOHandler {
                         }
                     }
                 }
-                
                 tableDefnIndex++;
             }
-
             prototypesOnly = false;
         }
 
@@ -2396,7 +2413,7 @@ public class CcddFileIOHandler {
      *                       be removed, the new table cannot be created, or the
      *                       data cannot be added to the newly created table
      *********************************************************************************************/
-    private boolean createImportedTable(TableInformation tableInfo, List<String> cellData, int numColumns,
+    private boolean createImportedTable(TableInfo tableInfo, List<String> cellData, int numColumns,
             boolean replaceExisting, boolean openEditor, List<String> allTables, boolean lastTableDefn,
             boolean isRootTable, boolean ignoreErrors, Component parent) throws CCDDException {
         boolean isImported = true;
@@ -2450,7 +2467,7 @@ public class CcddFileIOHandler {
                 final CcddTableEditorDialog tableEditorDlg;
 
                 // Create a list to hold the table's information
-                List<TableInformation> tableInformation = new ArrayList<TableInformation>();
+                List<TableInfo> tableInformation = new ArrayList<TableInfo>();
                 tableInformation.add(tableInfo);
 
                 // Check if a table editor dialog has not already been created for the added tables, or if
@@ -3095,7 +3112,7 @@ public class CcddFileIOHandler {
                  */
 
                 /* Get the script engine for the supplied script file name */
-                scriptEngine = ccddMain.getScriptHandler().getScriptEngine(scriptFileName, new TableInformation[0],
+                scriptEngine = ccddMain.getScriptHandler().getScriptEngine(scriptFileName, new TableInfo[0],
                         null, null, null, parent);
             } catch (CCDDException ce) {
                 /* Inform the user that an error occurred accessing the script file */
@@ -3162,11 +3179,17 @@ public class CcddFileIOHandler {
                             addEOFMarker = false;
                         }
                         
-                        /* Export the formatted table data to the specified file */
-                        ioHandler.exportTables(file, tablePaths, includeBuildInformation, replaceMacros,
-                                includeVariablePaths, variableHandler, separators, addEOFMarker, outputType, endianess,
-                                isHeaderBigEndian, version, validationStatus, classification1,
-                                classification2, classification3);
+                        if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV)) {
+                            /* Export the formatted JSON or EDS table data to the specified file */
+                            prepareJSONOrCSVExport(path, fileExtn, tablePaths, includeBuildInformation, replaceMacros,
+                                    includeVariablePaths, variableHandler, separators, addEOFMarker, outputType, parent);
+                        } else {
+                            /* Export the XTCE or EDS files */
+                            ioHandler.exportTables(file, tablePaths, includeBuildInformation, replaceMacros,
+                                    includeVariablePaths, variableHandler, separators, addEOFMarker, outputType, endianess,
+                                    isHeaderBigEndian, version, validationStatus, classification1,
+                                    classification2, classification3);
+                        }
     
                         /* Check if the file is empty following the export. This occurs if an error
                          * halts output to the file
@@ -3180,32 +3203,38 @@ public class CcddFileIOHandler {
                         skippedTables.addAll(Arrays.asList(tablePaths));
                     }
                 } else {
-                    /* Export each table to its own file */
-                    for (String tablePath : tablePaths) {
-                        /* Create the file using a name derived from the table name */
-                        file = new FileEnvVar(path + tablePath.replaceAll("[,\\.\\[\\]]", "_") + fileExtn.getExtension());
-    
-                        /* Check if a file exist for this table. If it doesn't one will be created. If
-                         * it does did the user elect to overwrite it?
-                         */
-                        if (isOverwriteExportFileIfExists(file, overwriteFile, parent)) {
-                            /* Export the formatted table data. The file name is derived from the table name */
-                            ioHandler.exportTables(file, new String[] { tablePath }, includeBuildInformation, replaceMacros,
-                                    includeVariablePaths, variableHandler, separators, true, outputType, version, validationStatus,
-                                    classification1, classification2, classification3);
-    
-                            /* Check if the file is empty following the export. This occurs if an error
-                             * halts output to the file
+                    if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV)) {
+                        /* Export the formatted tables */
+                        prepareJSONOrCSVExport(path, fileExtn, tablePaths, includeBuildInformation, replaceMacros,
+                                includeVariablePaths, variableHandler, separators, addEOFMarker, outputType, parent);
+                    } else {
+                        /* Export each table to its own file */
+                        for (String tablePath : tablePaths) {
+                            /* Create the file using a name derived from the table name */
+                            file = new FileEnvVar(path + tablePath.replaceAll("[,\\.\\[\\]]", "_") + fileExtn.getExtension());
+                            
+                            /* Check if a file exist for this table. If it doesn't one will be created. If
+                             * it does did the user elect to overwrite it?
                              */
-                            if (file.length() == 0) {
-                                /* Delete the empty file */
-                                file.delete();
+                            if (isOverwriteExportFileIfExists(file, overwriteFile, parent)) {
+                                /* Export the formatted table data. The file name is derived from the table name */
+                                ioHandler.exportTables(file, new String[] { tablePath }, includeBuildInformation, replaceMacros,
+                                        includeVariablePaths, variableHandler, separators, true, outputType, version, validationStatus,
+                                        classification1, classification2, classification3);
+                                
+                                /* Check if the file is empty following the export. This occurs if an error
+                                 * halts output to the file
+                                 */
+                                if (file.length() == 0) {
+                                    /* Delete the empty file */
+                                    file.delete();
+                                }
                             }
-                        }
-                        /* The table is skipped */
-                        else {
-                            /* Add the skipped table to the list */
-                            skippedTables.add(tablePath);
+                            /* The table is skipped */
+                            else {
+                                /* Add the skipped table to the list */
+                                skippedTables.add(tablePath);
+                            }
                         }
                     }
                 }
@@ -3922,21 +3951,23 @@ public class CcddFileIOHandler {
             
             /* Step through each definition */
             for (int i = 0; i < data.length; i++) {
-                /* Parse the name */
-                String nameType = data[i].split("\n")[1];
-                String tableName = nameType.split("\",\"")[0].replace("\"", "");
-                tableName = tableName.replaceAll("[,\\.\\[\\]]", "_");
-                
-                /* Create the file path and use the path to create a new file */
-                filePath = SNAP_SHOT_FILE_PATH_2 + tableName + ".csv";
-                file = new FileEnvVar(filePath);
-                
-                /* Add this new file to the list of files */
-                dataFiles.add(file);
-                
-                /* Write the data to the new file */
-                writeToFile("\n" + data[i], filePath);
-                outputData = "";
+                if (!data[i].isEmpty()) {
+                    /* Parse the name */
+                    String nameType = data[i].split("\n")[1];
+                    String tableName = nameType.split("\",\"")[0].replace("\"", "");
+                    tableName = tableName.replaceAll("[,\\.\\[\\]]", "_");
+                    
+                    /* Create the file path and use the path to create a new file */
+                    filePath = SNAP_SHOT_FILE_PATH_2 + tableName + ".csv";
+                    file = new FileEnvVar(filePath);
+                    
+                    /* Add this new file to the list of files */
+                    dataFiles.add(file);
+                    
+                    /* Write the data to the new file */
+                    writeToFile("\n" + data[i], filePath);
+                    outputData = "";
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -4006,8 +4037,12 @@ public class CcddFileIOHandler {
             writeToFile(outputData + "\n", filePath);
             
             /*************** TLM SCHEDULER ***************/
-            outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER.getTag(), content).toString();
-            
+            if (outputData.contains(CSVTags.TELEM_SCHEDULER_OLD.getTag())) {
+                outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER_OLD.getTag(), content).toString();
+            } else {
+                outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag(), content).toString();
+            }
+
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.TELEM_SCHEDULER.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
@@ -4015,7 +4050,11 @@ public class CcddFileIOHandler {
             writeToFile(outputData + "\n", filePath);
             
             /*************** APP SCHEDULER ***************/
-            outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER.getTag(), content).toString();
+            if (outputData.contains(CSVTags.APP_SCHEDULER_OLD.getTag())) {
+                outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_OLD.getTag(), content).toString();
+            } else {
+                outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_COMMENTS.getTag(), content).toString();
+            }
             
             filePath = SNAP_SHOT_FILE_PATH_2 + "/" + FileNames.APP_SCHEDULER.CSV();
             file = new FileEnvVar(filePath);
@@ -4174,5 +4213,359 @@ public class CcddFileIOHandler {
             e.printStackTrace();
             errorFlag = true;
         }
+    }
+    
+    /**********************************************************************************************
+     * Prepare the project for a JSON or CSV export
+     *
+     * @param exportFile              reference to the user-specified output file
+     *
+     * @param tableNames              array of table names to convert
+     *
+     * @param includeBuildInformation true to include the CCDD version, project,
+     *                                host, and user information
+     *
+     * @param replaceMacros           true to replace any embedded macros with their
+     *                                corresponding values
+     *
+     * @param includeReservedMsgIDs   true to include the contents of the reserved
+     *                                message ID table in the export file
+     *
+     * @param includeVariablePaths    true to include the variable path for each
+     *                                variable in a structure table, both in
+     *                                application format and using the user-defined
+     *                                separator characters
+     *
+     * @param variableHandler         variable handler class reference; null if
+     *                                includeVariablePaths is false
+     *
+     * @param separators              string array containing the variable path
+     *                                separator character(s), show/hide data types
+     *                                flag ('true' or 'false'), and data
+     *                                type/variable name separator character(s);
+     *                                null if includeVariablePaths is false
+     *                                
+     * @param addEOFMarker            Is this the last data to be added to the file?
+     *
+     * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
+     *
+     * @throws Exception     If an unanticipated error occurs
+     *********************************************************************************************/
+    public void prepareJSONOrCSVExport(String path, FileExtension fileExt, String[] tableNames,
+            boolean includeBuildInformation, boolean replaceMacros, boolean includeVariablePaths,
+            CcddVariableHandler variableHandler, String[] separators, boolean addEOFMarker,
+            String outputType, Component parent) throws CCDDException, Exception {
+        /* Initialize local variables */
+        List<String[]> variablePaths = new ArrayList<String[]>();
+        List<TableInfo> tableDefs = new ArrayList<TableInfo>(tableNames.length);
+        StringBuilder tableDataCommand =  new StringBuilder();
+        StringBuilder tableValuesCommand = new StringBuilder();
+        StringBuilder tableDescriptionCommand =  new StringBuilder();
+        StringBuilder tableTypeCommand =  new StringBuilder();
+        TableInfo[] tableInfos = new TableInfo[tableNames.length];
+        int index = 0;
+                
+        // Create an empty hash map. The key will be the name of the proto type table
+        // The value will be a string[] with values [table description, table type, location of this tables information
+        // within the tableInfos array, columnnames]
+        HashMap<String, String[]> ProtoTypeMap = new HashMap<>();
+        HashMap<String, String[]> ProtoTypeColumnsMap = new HashMap<>();
+        HashMap<String, String> tableNamesMap = new HashMap<>();
+        
+        for (int i = 0; i < tableNames.length; i++) {
+            tableNamesMap.put(tableNames[i], tableNames[i]);
+        }
+
+        // Check if all variable paths are to be exported. This is only possible if no tables
+        // are specified; otherwise only those variables in the table are exported
+        if (includeVariablePaths && tableNames.length == 0) {
+            // Step through each structure and variable name
+            for (String variablePath : variableHandler.getAllVariableNames()) {
+                // Add the path, in both application and user-defined formats, to the list to be output
+                variablePaths.add(new String[] { variablePath, variableHandler.getFullVariableName(variablePath,
+                        separators[0], Boolean.parseBoolean(separators[1]), separators[2]) });
+            }
+        }
+
+        // Check if any tables are provided
+        if (tableNames.length != 0) {
+            index = 0;
+            
+            // Build the commands using the name of each table
+            for (String tblName : tableNames) {
+                tableInfos[index] = new TableInfo(tblName);
+                tableInfos[index].setTablePath(tblName); // Is this needed?
+                
+                // Is this table a prototype table
+                boolean isProtoTypeTable = tableInfos[index].isPrototype();
+                String protoTypeTable = tableInfos[index].getPrototypeName();
+                
+                // Only add this table to the table type command if it is a proto type table
+                if (isProtoTypeTable) {
+                    tableTypeCommand.append("SELECT obj_description('public.").append(
+                            protoTypeTable).append("'::regclass, 'pg_class'); ");
+                } else {
+                    // If so it may have values in the custom values
+                    // table that must be loaded
+                    
+                    // Get the rows from the custom values table that match the specified parent table and
+                    // variable path. These values replace those loaded for the prototype of this table
+                    tableValuesCommand.append("SELECT * FROM ").append(InternalTable.VALUES.getTableName()).append(" WHERE ")
+                        .append("table_path LIKE '").append(tblName).append("%';");
+                }
+                
+                tableDescriptionCommand.append("SELECT value FROM __values WHERE table_path = '")
+                    .append(tblName).append("' AND column_name = ''; ");
+                index++;
+            }
+            
+            // Execute the tableDescriptionCommand as a prepared statement as it may return multiple result sets
+            PreparedStatement tableDescriptionStatement = dbCommand.executePreparedStatement(tableDescriptionCommand,
+                    parent);
+            
+            // Check that the command returned something
+            if (tableDescriptionStatement != null) {
+                boolean execute = true;
+                index = 0;
+                
+                // While there is at least one result set left and index is less than the total number of
+                // tables; continue to process data
+                while (execute && index < tableNames.length) {
+                    // Grab the next result set
+                    ResultSet rs = tableDescriptionStatement.getResultSet();
+                    
+                    // Step though each entry of this result set
+                    if (rs.next()) {
+                        // Get the table description
+                        tableInfos[index].setDescription(rs.getString(1).trim());
+                    }
+                    
+                    // Close the current result set
+                    rs.close();
+                    
+                    // Check if this description is null
+                    if (tableInfos[index].getDescription() == null) {
+                        // If this table is not a prototype and has no description then assign it the description
+                        // of its prototype. If it is a proto type then set it to an empty string
+                        if (!tableInfos[index].isPrototype()) {
+                            tableInfos[index].setDescription(ProtoTypeMap.get(tableInfos[index].getPrototypeName())[0]);
+                        } else {
+                            tableInfos[index].setDescription("");
+                        }
+                    }
+                    
+                    // If this table is a prototype then add this table and its description to the prototype hash map
+                    if (tableInfos[index].isPrototype()) {
+                        ProtoTypeMap.put(tableInfos[index].getPrototypeName(), new String[] {
+                                tableInfos[index].getDescription(), "", ""});
+                    }
+                    
+                    tableInfos[index].setDescription(tableInfos[index].getDescription());
+                    
+                    // Check if there are more result sets and increment the index
+                    execute = tableDescriptionStatement.getMoreResults();
+                    index++;
+                }
+            }
+            
+            // Execute the tableTypeCommand as a prepared statement as it may return multiple result sets
+            PreparedStatement tableTypeStatement = dbCommand.executePreparedStatement(tableTypeCommand, parent);
+            
+            // Check that the command returned something
+            if (tableTypeStatement != null) {
+                boolean execute = true;
+                index = 0;
+                
+                // Step through each table name
+                while (index < tableNames.length) {
+                    // Check if there is another result set to process and if it belongs to a prototype table
+                    if (tableInfos[index].isPrototype() && execute) {
+                        // Grab the result set
+                        ResultSet rs = tableTypeStatement.getResultSet();
+
+                        // Step though each entry in this result
+                        if (rs.next()) {
+                            // Get the table type
+                            tableInfos[index].setType(rs.getString(1).split(",")[1]);
+                        }
+
+                        // Close the current result set
+                        rs.close();
+                        
+                        // Check if there are any more result sets to process
+                        execute = tableTypeStatement.getMoreResults();
+                        
+                        // Add this table type to the correct location within the hash map while preserving the current info for this key
+                        ProtoTypeMap.put(tableInfos[index].getPrototypeName(), new String[] {ProtoTypeMap.get(
+                                tableInfos[index].getPrototypeName())[0], tableInfos[index].getType(), ""});
+                        
+                        TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfos[index].getType());
+                        String[] columnNames = typeDefn.getColumnNamesUser();
+                        
+                        ProtoTypeColumnsMap.put(tableNames[index], columnNames);
+                        
+                        // Create a command that grabs the data of each column in the correct order
+                        if (columnNames.length > 0) {
+                            tableDataCommand.append("SELECT");
+                            for (int column = 0; column < columnNames.length; column++) {
+                                if (column == 0) {
+                                    tableDataCommand.append(" ").append(columnNames[column].replace(" ", "_").replace("?", "_").toLowerCase());
+                                } else {
+                                    tableDataCommand.append(", ").append(columnNames[column].replace(" ", "_").replace("?", "_").toLowerCase());
+                                }
+                            }
+                            tableDataCommand.append(" FROM ").append(tableInfos[index].getPrototypeName()).append(" ORDER BY _index_; ");
+                        }
+                    } else if (index < tableNames.length) {
+                        // Get the table type
+                        tableInfos[index].setType(ProtoTypeMap.get(tableInfos[index].getPrototypeName())[1]);
+                    }
+                    
+                    index++;
+                }
+            }
+            
+            // Execute the table data command as a prepared statement as it will have multiple result sets
+            PreparedStatement tableDataStatement = dbCommand.executePreparedStatement(tableDataCommand, parent);
+            PreparedStatement tableValuesStatement = null;
+            
+            // Check that the command returned something
+            if (tableDataStatement != null) {
+                boolean execute = true;
+                List<TableInfo> protoTypeTableObjects = new ArrayList<TableInfo>();
+                index = 0;
+                
+                // Step through each table name
+                while (index < tableNames.length) {
+                    List<Object[]> tableData = new ArrayList<Object[]>(1000);
+                    
+                    if (!execute) {
+                        // Execute the table data command as a prepared statement as it will have multiple result sets
+                        tableValuesStatement = dbCommand.executePreparedStatement(tableValuesCommand, parent);
+                        
+                        if (tableValuesStatement != null) {
+                            execute = true;
+                        }
+                    }
+
+                    // If there is another result set to process and this table is a prototype table
+                    if (execute && tableInfos[index].isPrototype()) {
+                        // Grab the result set
+                        ResultSet rs = tableDataStatement.getResultSet();
+                        
+                        // Step though each entry in the current result set
+                        while (rs.next()) {
+                            // Create an array to contain the data for this row
+                            String[] currRowData = new String[rs.getMetaData().getColumnCount()];
+                            
+                            // Step through each column in the table
+                            for (int column = 0; column < rs.getMetaData().getColumnCount(); column++) {
+                                // Add the column value to the array. Note that the first column's index in the
+                                // database is 1, not 0
+                                currRowData[column] = rs.getString(column+ 1);
+                            }
+                            tableData.add(currRowData);
+                        }
+                        
+                        // Create a new tableData Object that will contain all the information for this table
+                        TableInfo tableInfo = new TableInfo(tableNames[index], tableInfos[index].getType(),
+                                tableInfos[index].getDescription(), tableData);
+                        
+                        // Add the object to the protoTypeTableObjects list and tableDefs list
+                        protoTypeTableObjects.add(tableInfo);
+                        tableDefs.add(tableInfo);
+                        
+                        // Determine which entry will need to be updated
+                        String[] entryToUpdate = ProtoTypeMap.get(tableInfos[index].getPrototypeName());
+                        
+                        // Update the correct entry
+                        ProtoTypeMap.put(tableInfos[index].getPrototypeName(), 
+                                new String[] {entryToUpdate[0], entryToUpdate[1], Integer.toString(protoTypeTableObjects.size()-1)});
+                        
+                        // Close the current result set
+                        rs.close();
+                        
+                        // Check if there are more result sets to process
+                        execute = tableDataStatement.getMoreResults();
+                    } else if (execute && index < tableNames.length) {
+                        // Grab the index that represents this tables information within the protoTypeTableObjects list from the hash map
+                        int location = Integer.parseInt(ProtoTypeMap.get(tableInfos[index].getPrototypeName())[2]);
+                        
+                        // Grab the information
+                        List<Object[]> data = cloneList(protoTypeTableObjects.get(location).getData());
+                        
+                        // Grab the result set
+                        ResultSet rs = tableValuesStatement.getResultSet();
+                        
+                        // Grab the column names
+                        List<String> columnNames = Arrays.asList(ProtoTypeColumnsMap.get(tableInfos[index].getPrototypeName()));
+                        
+                        HashMap<String, Integer> rowNamesMap = new HashMap<>();
+                        boolean firstRun = true;
+                        
+                        // Step though each entry in the current result set
+                        while (rs.next()) {
+                            String rsEntryTableName = rs.getString(1).substring(0, rs.getString(1).lastIndexOf(","));
+                            
+                            if (!rs.getString(2).isEmpty()) {
+                                if (tableNamesMap.get(rsEntryTableName) != null &&
+                                        rsEntryTableName.contentEquals(tableNames[index])) {
+                                    if (firstRun) {
+                                        firstRun = false;
+                                        
+                                        for (int i = 0; i < data.size(); i++) {
+                                            rowNamesMap.put(data.get(i)[2].toString(), i);
+                                        }
+                                    }
+                                    int currRow = -1;
+                                    String currRowVarName = rs.getString(1).substring(rs.getString(1).lastIndexOf(".")+1);
+                                    
+                                    if (rowNamesMap.get(currRowVarName) != null) {
+                                        currRow = rowNamesMap.get(currRowVarName);
+                                        
+                                        // Get the location of this column
+                                        int columnLocation = columnNames.indexOf(rs.getString(2));
+                                        
+                                        if (columnLocation != -1) {
+                                            data.get(currRow)[columnLocation] = rs.getString(3);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Add this information to the tableDefs list
+                        tableDefs.add(new TableInfo(tableNames[index], tableInfos[index].getType(),
+                                tableInfos[index].getDescription(), data));
+                        
+                        execute = tableValuesStatement.getMoreResults();
+                    }
+                    index++;
+                }
+            }
+            
+            if (fileExt == FileExtension.JSON) {
+                // Export the tables in JSON format
+                CcddJSONHandler ioHandler = new CcddJSONHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent), parent);
+                ioHandler.exportPreparedTables(tableDefs, variableHandler, replaceMacros, includeVariablePaths,
+                        includeBuildInformation, separators, outputType, variablePaths, path, addEOFMarker);
+            } else {
+                // Export the tables in CSV format
+                CcddCSVHandler ioHandler = new CcddCSVHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent), parent);
+                ioHandler.exportPreparedTables(tableDefs, variableHandler, replaceMacros, includeVariablePaths,
+                        includeBuildInformation, separators, outputType, variablePaths, path, addEOFMarker);
+            }
+        }
+    }
+    
+    /**********************************************************************************************
+     * Return the clone of a list
+     *
+     * @param list  The list to be cloned
+     *********************************************************************************************/
+    public static List<Object[]> cloneList(List<Object[]> list) {
+        List<Object[]> clone = new ArrayList<Object[]>(list.size());
+        for (Object[] item : list) clone.add(item.clone());
+        return clone;
     }
 }

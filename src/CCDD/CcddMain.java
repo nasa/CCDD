@@ -102,7 +102,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
@@ -1592,11 +1592,10 @@ public class CcddMain {
                 // Step through each stored recently opened table name
                 for (int index = 0; index < recentTableNames.size(); index++) {
                     // Get the root and prototype/variable names from the table path
-                    String root = TableInformation.getRootTable(recentTableNames.get(index));
-                    String protoVar = TableInformation.getProtoVariableName(recentTableNames.get(index));
+                    String root = TableInfo.getRootTable(recentTableNames.get(index));
+                    String protoVar = TableInfo.getProtoVariableName(recentTableNames.get(index));
 
-                    // Create the new recently opened table menu item in the main window command
-                    // menu
+                    // Create the new recently opened table menu item in the main window command menu
                     mntmRecentTables[index] = createMenuItem(mnData,
                             (index + 1) + " " + (protoVar.equals(root) ? protoVar : root + ": " + protoVar),
                             KeyEvent.VK_1 + (index == 9 ? -1 : index), 1, "Open table " + recentTableNames.get(index));
@@ -1615,8 +1614,7 @@ public class CcddMain {
 
                     // Step through each open table editor
                     for (final CcddTableEditorDialog editorDlg : tableEditorDialogs) {
-                        // Create the new recently opened table menu item in the table editor
-                        // command menu
+                        // Create the new recently opened table menu item in the table editor  command menu
                         editorDlg.getRecentTableMenuItems()[index] = createMenuItem(editorDlg.getFilesMenu(),
                                 (index + 1) + " " + (protoVar.equals(root) ? protoVar : root + ": " + protoVar),
                                 KeyEvent.VK_1 + (index == 9 ? -1 : index), 1,
@@ -1675,11 +1673,9 @@ public class CcddMain {
         frameCCDD.setBounds(100, 100, INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
         frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT));
 
-        // Set the default close operation so that the main window frame's close button
-        // doesn't
+        // Set the default close operation so that the main window frame's close button doesn't
         // automatically exit the program. Instead, if this close button is pressed a
-        // 'click' event
-        // is sent to the File | Exit command
+        // 'click' event is sent to the File | Exit command
         frameCCDD.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         // Add a listener for main window events
@@ -1690,8 +1686,7 @@ public class CcddMain {
             @Override
             public void windowClosing(WindowEvent we) {
                 // Send a 'click' event for the main window frame's File | Exit menu item. This
-                // allows the frame's close button to perform the same actions as the File |
-                // Exit
+                // allows the frame's close button to perform the same actions as the File | Exit
                 // command; i.e., asks the user to confirm exiting the program
                 mntmExit.doClick();
             }

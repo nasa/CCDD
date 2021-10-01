@@ -137,10 +137,10 @@ public class CcddClassesDataTable {
      * a child table, or the parent and root tables are the same in the case where
      * the child is referenced directly in the root table
      *********************************************************************************************/
-    protected static class TableInformation {
+    protected static class TableInfo {
         private String tableType;
         private String tablePath;
-        private Object[][] tableData;
+        private List<Object[]> tableData;
         private String columnOrder;
         private String description;
         private boolean isPrototype;
@@ -162,7 +162,7 @@ public class CcddClassesDataTable {
          *                    coming from the next level down in the structure's
          *                    hierarchy
          *
-         * @param tableData   two-dimensional table data array (rows x columns)
+         * @param data   two-dimensional table data array (rows x columns)
          *
          * @param columnOrder table column display order in the format
          *                    column#0[:column#1[:...[:column#N]]]. The column numbers
@@ -171,15 +171,83 @@ public class CcddClassesDataTable {
          *
          * @param description table description
          *****************************************************************************************/
-        TableInformation(String tableType, String tablePath, Object[][] tableData, String columnOrder,
+        TableInfo(String tableType, String tablePath, Object[][] data, String columnOrder,
                 String description) {
             this.tableType = tableType;
             this.tablePath = tablePath;
-            this.tableData = tableData;
             this.columnOrder = columnOrder;
             this.description = description;
             isPrototype = !tablePath.contains(".");
             errorFlag = false;
+            tableData = Arrays.asList(data);
+        }
+        
+        /******************************************************************************************
+         * Table information class constructor
+         *
+         * @param tableType   table type
+         *
+         * @param tablePath   table path in the format
+         *                    rootTable[,dataType1.variable1[,dataType2
+         *                    .variable2[,...]]]. The table path for a non-structure
+         *                    table is simply the root table name. For a structure table
+         *                    the root table is the top level structure table from which
+         *                    this table descends. The first data type/variable name
+         *                    pair is from the root table, with each succeeding pair
+         *                    coming from the next level down in the structure's
+         *                    hierarchy
+         *
+         * @param data   two-dimensional table data array (rows x columns)
+         *
+         * @param columnOrder table column display order in the format
+         *                    column#0[:column#1[:...[:column#N]]]. The column numbers
+         *                    are based on the position of the column's definition in
+         *                    the table's type definition
+         *
+         * @param description table description
+         *****************************************************************************************/
+        TableInfo(String tableType, String tablePath, List<Object[]> data, String columnOrder,
+                String description) {
+            this.tableType = tableType;
+            this.tablePath = tablePath;
+            this.columnOrder = columnOrder;
+            this.description = description;
+            isPrototype = !tablePath.contains(".");
+            errorFlag = false;
+            tableData = data;
+        }
+        
+        /******************************************************************************************
+         * Table information class constructor
+         *
+         * @param tableType   table type
+         *
+         * @param tablePath   table path in the format
+         *                    rootTable[,dataType1.variable1[,dataType2
+         *                    .variable2[,...]]]. The table path for a non-structure
+         *                    table is simply the root table name. For a structure table
+         *                    the root table is the top level structure table from which
+         *                    this table descends. The first data type/variable name
+         *                    pair is from the root table, with each succeeding pair
+         *                    coming from the next level down in the structure's
+         *                    hierarchy
+         *
+         * @param data        List of String[] containing the table data
+         *
+         * @param columnOrder table column display order in the format
+         *                    column#0[:column#1[:...[:column#N]]]. The column numbers
+         *                    are based on the position of the column's definition in
+         *                    the table's type definition
+         *
+         * @param description table description
+         *****************************************************************************************/
+        TableInfo(String tablePath, String tableType, String description, List<Object[]> data) {
+            this.tableType = tableType;
+            this.tablePath = tablePath;
+            this.description = description;
+            isPrototype = !tablePath.contains(".");
+            errorFlag = false;
+            tableData = data;
         }
 
         /******************************************************************************************
@@ -210,10 +278,47 @@ public class CcddClassesDataTable {
          *
          * @param fieldInformation list of field information
          *****************************************************************************************/
-        TableInformation(String tableType, String tablePath, Object[][] tableData, String columnOrder,
+        TableInfo(String tableType, String tablePath, Object[][] tableData, String columnOrder,
                 String description, List<FieldInformation> fieldInformation) {
             this(tableType, tablePath, tableData, columnOrder, description);
-
+            // Check if the data field information is provided
+            if (fieldInformation != null) {
+                // Store the field information
+                this.fieldInformation = fieldInformation;
+            }
+        }
+        
+        /******************************************************************************************
+         * Table information class constructor. Used when the array of field definitions
+         * are retrieved from the database. These are converted to a list of
+         * FieldInformation references
+         *
+         * @param tableType        table type
+         *
+         * @param tablePath        table path in the format
+         *                         rootTable[,dataType1.variable1[,dataType2
+         *                         .variable2[,...]]]. The table path for a
+         *                         non-structure table is simply the root table name.
+         *                         For a structure table the root table is the top level
+         *                         structure table from which this table descends. The
+         *                         first data type/variable name pair is from the root
+         *                         table, with each succeeding pair coming from the next
+         *                         level down in the structure's hierarchy
+         *
+         * @param tableData        two-dimensional table data array (rows x columns)
+         *
+         * @param columnOrder      table column display order in the format
+         *                         column#0[:column#1[:...[:column#N]]]. The column
+         *                         numbers are based on the position of the column's
+         *                         definition in the table's type definition
+         *
+         * @param description      table description
+         *
+         * @param fieldInformation list of field information
+         *****************************************************************************************/
+        TableInfo(String tableType, String tablePath, List<Object[]> tableData, String columnOrder,
+                String description, List<FieldInformation> fieldInformation) {
+            this(tableType, tablePath, tableData, columnOrder, description);
             // Check if the data field information is provided
             if (fieldInformation != null) {
                 // Store the field information
@@ -234,7 +339,7 @@ public class CcddClassesDataTable {
          *                  from the root table, with each succeeding pair coming from
          *                  the next level down in the structure's hierarchy
          *****************************************************************************************/
-        TableInformation(String tablePath) {
+        TableInfo(String tablePath) {
             this.tablePath = tablePath;
             errorFlag = true;
         }
@@ -434,23 +539,42 @@ public class CcddClassesDataTable {
         protected void setRootTable(String rootTable) {
             tablePath = tablePath.replaceFirst("^.*?(,|$)", rootTable + "$1");
         }
-
+        
         /******************************************************************************************
-         * Get the table data array
+         * Get the table data as a list of String[]
          *
          * @return Table data array
          *****************************************************************************************/
-        protected Object[][] getData() {
+        protected List<Object[]> getData() {
             return tableData;
+        }
+        
+        /******************************************************************************************
+         * Get the table data as a 2d object array
+         *
+         * @return Table data as a 2d object array
+         *****************************************************************************************/
+        protected Object[][] getDataArray() {
+            Object[][] data = tableData.toArray(new Object[tableData.size()][]);
+            return data;
         }
 
         /******************************************************************************************
-         * Set the table data array
+         * Set the table data using the array
          *
-         * @param tableData table data array
+         * @param data table data array
          *****************************************************************************************/
-        protected void setData(Object[][] tableData) {
-            this.tableData = tableData;
+        protected void setData(Object[][] data) {
+            tableData = Arrays.asList(data);
+        }
+        
+        /******************************************************************************************
+         * Set the table data
+         *
+         * @param data table data array
+         *****************************************************************************************/
+        protected void setData(List<Object[]> data) {
+            tableData = data;
         }
 
         /******************************************************************************************

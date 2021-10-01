@@ -897,9 +897,13 @@ public class CcddImportSupportHandler {
      *
      * @param macroDefn array containing the macro definition
      *
+     * @return result Should macro be imported?
+     * 
      * @throws CCDDException If an invalid macro parameter is detected
      *********************************************************************************************/
-    protected static void checkMacroDefinition(String[] macroDefn) throws CCDDException {
+    protected static boolean checkMacroDefinition(String[] macroDefn) throws CCDDException {
+        boolean result = true;
+        
         // Check if the macro name is empty
         if (macroDefn[MacrosColumn.MACRO_NAME.ordinal()].isEmpty()) {
             // Inform the user that the macro name is missing
@@ -912,9 +916,11 @@ public class CcddImportSupportHandler {
 
         // Check if the macro name isn't valid
         if (!macroDefn[MacrosColumn.MACRO_NAME.ordinal()].matches(DefaultInputType.MACRO_NAME.getInputMatch())) {
-            // Inform the user that the macro name is invalid
-            throw new CCDDException("Macro name '" + macroDefn[MacrosColumn.MACRO_NAME.ordinal()] + "' invalid");
+            // Macro name is invalid
+            result = false;
         }
+        
+        return result;
     }
 
     /**********************************************************************************************
