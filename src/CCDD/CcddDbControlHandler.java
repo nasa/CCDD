@@ -1765,8 +1765,6 @@ public class CcddDbControlHandler {
                 /* Update the column build command with the creator name */
                 columnCommand = columnCommand.replaceFirst("_admin_user_", creator);
             }
-        } else if (intTable == InternalTable.DATA_TYPES) {
-            columnCommand = columnCommand.split("INSERT INTO")[0];
         }
 
         return "CREATE TABLE " + intTable.getTableName() + " " + columnCommand
