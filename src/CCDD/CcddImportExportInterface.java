@@ -36,6 +36,7 @@ import javax.xml.bind.JAXBException;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -190,7 +191,7 @@ public interface CcddImportExportInterface {
      *
      * @param exportFile              reference to the user-specified output file
      *
-     * @param tableNames              array of table names to convert
+     * @param tableDefs               list of table definitions to convert
      *
      * @param includeBuildInformation true to include the CCDD version, project,
      *                                host, and user information
@@ -224,7 +225,7 @@ public interface CcddImportExportInterface {
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    abstract void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
+    abstract void exportTables(FileEnvVar exportFile, List<TableInfo> tableDefs, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo)
             throws JAXBException, CCDDException, Exception;

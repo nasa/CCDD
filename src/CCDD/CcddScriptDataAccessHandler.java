@@ -4721,8 +4721,14 @@ public class CcddScriptDataAccessHandler {
             // Create the XTCE handler
             xtceHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
 
+			List<TableInfo> tableDefs = new ArrayList<TableInfo>();
+			
+			for (String tablePath : getTableNames()) {
+				tableDefs.add(new TableInfo(tablePath));
+			}
+
             // Export the specified tables to the specified output file in XTCE XML format
-            xtceHandler.exportTables(new FileEnvVar(outputFileName), getTableNames(), 
+            xtceHandler.exportTables(new FileEnvVar(outputFileName), tableDefs, 
                     true, 
                     true, // unused for XTCE export
                     false, // unused for XTCE export

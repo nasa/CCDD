@@ -2087,7 +2087,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param exportFile              reference to the user-specified output file
      *
-     * @param tableNames              array of table names to convert
+     * @param tableDefs               list of table definitions to convert
      *
      * @param includeBuildInformation true to include the CCDD version, project,
      *                                host, and user information
@@ -2133,13 +2133,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
+    public void exportTables(FileEnvVar exportFile, List<TableInfo> tableDefs, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws JAXBException, MarshalException,
             CCDDException, Exception {
         
         // Convert the table data into XTCE XML format
-        convertTablesToXTCE(tableNames, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1],
+        convertTablesToXTCE(tableDefs, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1],
                 (String) extraInfo[2], (String) extraInfo[3], (String) extraInfo[4], (String) extraInfo[5],
                 (String) extraInfo[6]);
 
@@ -2157,7 +2157,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Convert the project database contents to XTCE XML format
      *
-     * @param tableNames              array of table names to convert
+     * @param tableDefs               list of table definitions to convert
      *
      * @param includeBuildInformation true to include the CCDD version, project,
      *                                host, and user information
@@ -2180,7 +2180,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws CCDDException error occurs executing an external (script) method
      *********************************************************************************************/
-    private void convertTablesToXTCE(String[] tableNames, boolean includeBuildInformation, EndianType endianess,
+    private void convertTablesToXTCE(List<TableInfo> tableDefs, boolean includeBuildInformation, EndianType endianess,
             boolean isHeaderBigEndian, String version, String validationStatus, String classification1,
             String classification2, String classification3) throws CCDDException {
         this.endianess = endianess;
@@ -2280,17 +2280,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         project.getValue().setAncillaryDataSet(ancillarySet);
 
         // Add the project's space systems, parameters, and commands
-        buildSpaceSystems(tableNames);
+        buildSpaceSystems(tableDefs);
     }
 
     /**********************************************************************************************
      * Build the space systems
      *
-     * @param tableNames array containing the names of the tables to export
+     * @param tableDefs list containing the definitions of the tables to export
      *
      * @throws CCDDException error occurred executing an external (script) method
      *********************************************************************************************/
-    private void buildSpaceSystems(String[] tableNames) throws CCDDException {
+    private void buildSpaceSystems(List<TableInfo> tableDefs) throws CCDDException {
         List<String> processedTables = new ArrayList<String>();
 
         // Get the telemetry and command header table system paths (if present)
@@ -2298,8 +2298,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         String cmdHdrSysPath = fieldHandler.getFieldValue(cmdHeaderTable, DefaultInputType.SYSTEM_PATH);
 
         // Step through each table path+name
-        for (String tablePath : tableNames) {
-            String tableName = tablePath;
+        for (TableInfo tableDef : tableDefs) {
+            String tableName = tableDef.getTablePath();
+            String tablePath = tableDef.getTablePath();
             String systemPath = null;
             boolean isTlmHdrTable = false;
             boolean isCmdHdrTable = false;

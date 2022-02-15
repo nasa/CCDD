@@ -1439,7 +1439,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param exportFile              reference to the user-specified output file
      *
-     * @param tableNames              array of table names to convert
+     * @param tableDefs               list of table definitions to convert
      *
      * @param includeBuildInformation true to include the CCDD version, project,
      *                                host, and user information
@@ -1466,69 +1466,28 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *                                
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
-     * @param extraInfo               unused
+     * @param extraInfo               Unused
      *
      * @throws CCDDException If a file I/O or parsing error occurs
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
+    public void exportTables(FileEnvVar exportFile, List<TableInfo> tableDefs, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws CCDDException, Exception {
-    }
-
-    /**********************************************************************************************
-     * Export the project tables in CSV format to the specified file
-     *
-     * @param tableDefs               List of TableDataObjects containing data for the tables being exported
-     * 
-     * @param variableHandler         variable handler class reference; null if
-     *                                includeVariablePaths is false
-     *                                
-     * @param replaceMacros           true to replace any embedded macros with their
-     *                                corresponding values
-     *                                
-     * @param includeVariablePaths    true to include the variable path for each
-     *                                variable in a structure table, both in
-     *                                application format and using the user-defined
-     *                                separator characters
-     *
-     * @param includeBuildInformation true to include the CCDD version, project,
-     *                                host, and user information
-     *                                
-     * @param separators              string array containing the variable path
-     *                                separator character(s), show/hide data types
-     *                                flag ('true' or 'false'), and data
-     *                                type/variable name separator character(s);
-     *                                null if includeVariablePaths is false
-     *                                
-     * @param outputType              Is this a single or multi file export
-     * 
-     * @param variablePaths           List of all of the variable paths
-     * 
-     * @param path                    File path to the export location
-     *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *********************************************************************************************/
-    protected void exportPreparedTables(List<TableInfo> tableDefs, CcddVariableHandler variableHandler,
-            boolean replaceMacros, boolean includeVariablePaths, boolean includeBuildInformation,
-            String[] separators, String outputType, List<String[]> variablePaths, String path, boolean addEOFMarker) {
         // Initialize local variables
+		List<String[]> variablePaths = new ArrayList<String[]>();
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
-        FileEnvVar file = null;
                 
         // Step through each table
         for (int counter = 0; counter < tableDefs.size() && counter < tableDefs.size(); counter++) {
             try {
-                // Create the file using a name derived from the table name
-                file = new FileEnvVar(path + tableDefs.get(counter).getTablePath().replaceAll("[,\\.\\[\\]]", "_") + FileExtension.CSV.getExtension());
-                
                 // Output the table data to the selected file. Multiple writers are needed in case
                 // tables are appended to an existing file
-                fw = new FileWriter(file, true);
+                fw = new FileWriter(exportFile, true);
                 bw = new BufferedWriter(fw);
                 pw = new PrintWriter(bw);
                 
@@ -1627,7 +1586,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     
                     // If outputType equals SINGLE_FILE than set includeBuildInformation to false so that it is 
                     // not added multiple times
-                    if (outputType == EXPORT_SINGLE_FILE) {
+                    if (outputType.contentEquals(EXPORT_SINGLE_FILE)) {
                         includeBuildInformation = false;
                     }
                 }
@@ -1677,7 +1636,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 } catch (Exception e) {
                     // Inform the user that the data file cannot be closed
                     new CcddDialogHandler().showMessageDialog(parent,
-                            "<html><b>Cannot close export file '</b>" + file.getAbsolutePath() + "<b>'",
+                            "<html><b>Cannot close export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
                             "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
                     break;
                 }
@@ -1703,14 +1662,14 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 } catch (Exception e) {
                     // Inform the user that the data file cannot be closed
                     new CcddDialogHandler().showMessageDialog(parent,
-                            "<html><b>Cannot export file '</b>" + file.getAbsolutePath() + "<b>'",
+                            "<html><b>Cannot export file '</b>" + exportFile.getAbsolutePath() + "<b>'",
                             "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
                     break;
                 }
             }
         }
     }
-    
+
     /****************************************************************************************************
      * Retrieve the telemetry scheduler data, including the table comments. If no data is stored, then
      * nothing is returned

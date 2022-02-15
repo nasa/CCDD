@@ -1719,10 +1719,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         // Check if the command table definition contains any commands. If the entire
-        // table was
-        // converted to a structure then there won't be any data rows, in which case the
-        // command
-        // table doesn't get generated
+        // table was converted to a structure then there won't be any data rows, in which case the
+        // command table doesn't get generated
         if (!tableDefn.getData().isEmpty()) {
             isCommandExists = true;
 
@@ -1779,17 +1777,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
             // Create a new row of data in the table definition to contain this parameter's
             // information. Columns values are null if no value is specified (the table
-            // paste
-            // method uses this to distinguish between a skipped cell and a pasted blank)
+            // paste method uses this to distinguish between a skipped cell and a pasted blank)
             String[] newRow = new String[numStructureColumns];
             Arrays.fill(newRow, null);
             tableDefn.addData(newRow);
 
             // Step through each parameter to add. A single pass is made for non-array
-            // parameters.
-            // For array parameters a pass is made for the array definition plus for each
-            // array
-            // member
+            // parameters. For array parameters a pass is made for the array definition plus for each
+            // array member
             for (int varIndex = 0; varIndex <= numArrayMembers; varIndex++) {
                 // Check if this is an array parameter
                 if (numArrayMembers != 0) {
@@ -1834,10 +1829,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Store the variable definition's column values if the column exists in the
                 // structure table type definition (all of these columns exist when the table
-                // type
-                // is created during import, but certain ones may not exist when importing into
-                // an
-                // existing structure)
+                // type is created during import, but certain ones may not exist when importing into
+                // an existing structure)
                 tableDefn.getData().set(rowIndex * numStructureColumns + variableNameIndex, variableName);
                 tableDefn.getData().set(rowIndex * numStructureColumns + dataTypeIndex, dataType);
                 tableDefn.getData().set(rowIndex * numStructureColumns + arraySizeIndex, arraySize);
@@ -1875,7 +1868,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param exportFile              reference to the user-specified output file
      *
-     * @param tableNames              array of table names to convert
+     * @param tableDefs               list of table definitions to convert
      *
      * @param includeBuildInformation true to include the CCDD version, project,
      *                                host, and user information
@@ -1912,13 +1905,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public void exportTables(FileEnvVar exportFile, String[] tableNames, boolean includeBuildInformation,
+    public void exportTables(FileEnvVar exportFile, List<TableInfo> tableDefs, boolean includeBuildInformation,
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws JAXBException, MarshalException,
             CCDDException, Exception {
         
         // Convert the table data into EDS format
-        convertTablesToEDS(tableNames, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1]);
+        convertTablesToEDS(tableDefs, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1]);
 
         // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
         // levels; once exceeded it starts back at the first column. Therefore, a Transformer
@@ -1934,7 +1927,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Convert the project database contents to EDS XML format
      *
-     * @param tableNames              array of table names to convert to EDS format
+     * @param tableDefs               list of table definitions to convert to EDS format
      *
      * @param includeBuildInformation true to include the CCDD version, project,
      *                                host, and user information
@@ -1945,7 +1938,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param isHeaderBigEndian       true if the telemetry and command headers are
      *                                always big endian (e.g., as with CCSDS)
      *********************************************************************************************/
-    private void convertTablesToEDS(String[] tableNames, boolean includeBuildInformation, EndianType endianess,
+    private void convertTablesToEDS(List<TableInfo> tableDefs, boolean includeBuildInformation, EndianType endianess,
             boolean isHeaderBigEndian) {
         this.endianess = endianess;
 
@@ -2049,17 +2042,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         dataSheet.setDevice(device);
 
         // Add the project's name spaces, parameters, and commands
-        buildNamespaces(tableNames);
+        buildNamespaces(tableDefs);
     }
 
     /**********************************************************************************************
      * Build the name spaces for the list of tables specified
      *
-     * @param tableNames array of table names
+     * @param tableNames list of table definitions to convert
      *********************************************************************************************/
-    private void buildNamespaces(String[] tableNames) {
+    private void buildNamespaces(List<TableInfo> tableDefs) {
         // Step through each table name
-        for (String tableName : tableNames) {
+        for (TableInfo tableDef : tableDefs) {
+        	String tableName = tableDef.getTablePath();
+        	
             // Get the information from the database for the specified table
             TableInfo tableInfo = dbTable.loadTableData(tableName, true, false, false, parent);
 
@@ -2181,7 +2176,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         // Step through each table name
-        for (String tableName : tableNames) {
+        for (TableInfo tableDef : tableDefs) {
+        	String tableName = tableDef.getTablePath();
+        	
             // Get the name of the system to which this table belongs from the table's
             // system path data field (if present)
             String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName, DefaultInputType.SYSTEM_PATH));
