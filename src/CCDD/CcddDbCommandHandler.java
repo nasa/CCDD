@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -267,7 +267,7 @@ public class CcddDbCommandHandler {
         }
         return result;
     }
-    
+
     /**********************************************************************************************
      * Execute a command that is in the format of a PreparedStatement and return the result
      *********************************************************************************************/
@@ -483,7 +483,7 @@ public class CcddDbCommandHandler {
 
         return list.toArray(new String[0]);
     }
-    
+
     /**********************************************************************************************
      * Retrieve a 2D list from the server or database. The command strings are set up
      * to explicitly sort the list alphabetically, without regard to capitalization
@@ -505,7 +505,7 @@ public class CcddDbCommandHandler {
 
         try {
             StringBuilder command = new StringBuilder(listType.getListCommand(null));
-            
+
             // Execute the command and obtain the results
             if (listType == DatabaseListCommand.TABLE_TYPE_DATA) {
                 command.append(typeName).append("';");

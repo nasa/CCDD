@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -945,13 +945,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
                                         changedTypes, CcddTableTypeEditorDialog.this)) {
                             // Store the changes for the currently displayed editor in the database
                             storeChanges(activeEditor);
-                            
+
                             // Step through the open editor dialogs
                             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs()) {
                                 // Step through each individual editor
                                 for (CcddTableEditorHandler editor : editorDialog.getTableEditors()) {
                                     String[] names = {editor.getOwnerName()};
-                                    
+
                                     doTypeModificationComplete(false, activeEditor, names);
                                 }
                             }
@@ -1217,15 +1217,15 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler {
         try {
             // Build the table updates based on the type definition changes
             editor.buildUpdates();
-            
+
             // Get the new data fields
             List<FieldInformation> fieldInfo = editor.getPanelFieldInformation();
             List<String[]> newDataFields = CcddFieldHandler.getFieldDefnsAsListOfStrings(fieldInfo);
-            
+
             dbTable.modifyTableType(editor.getTypeName(), activeEditor.getPanelFieldInformation(), getOverwriteFieldType(),
                     editor.getTypeAdditions(), editor.getTypeModifications(), editor.getTypeDeletions(),
                     editor.isColumnOrderChange(), editor.getTypeDefinition(), newDataFields, CcddTableTypeEditorDialog.this, activeEditor);
-            
+
         } catch (CCDDException ce) {
             // Update aborted by user
         }

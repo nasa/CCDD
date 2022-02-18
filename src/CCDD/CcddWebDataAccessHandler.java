@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -555,10 +555,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *         no matches are found, and null if the search parameters are missing
      *         or invalid
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getSearchResults(String searchCriteria) {
         String response = null;
@@ -724,10 +722,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *
      * @throws CCDDException If an error occurs while parsing the table data
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName, boolean getDescription, String[] separators) throws CCDDException {
         String response = null;
@@ -789,10 +785,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *         null if the specified table doesn't exist or the project has no data
      *         tables
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableDescription(String tableName) {
         String response = null;
@@ -868,10 +862,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      * @throws CCDDException If an error occurs while parsing the table data field
      *                       data
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableFields(String tableName, boolean checkExists) throws CCDDException {
         String response = null;
@@ -940,10 +932,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *         null if the specified table type doesn't exist or if no data tables
      *         exist in the project database
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableNames(String tableType) {
         String response = null;
@@ -1028,10 +1018,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *         the table doesn't exist or isn't a structure, or if no structure
      *         tables exist in the project database
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getStructureSize(String tableName) {
         String response = null;
@@ -1108,10 +1096,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *
      * @throws CCDDException If an error occurs while parsing the table information
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableInformation(String tableName, String[] separators) throws CCDDException {
         JSONArray responseJA = new JSONArray();
@@ -1168,10 +1154,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      * @return JSON encoded string containing the all group/application names; null
      *         if no groups/applications exist in the project database
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getGroupNames(boolean applicationOnly) {
         String response = null;
@@ -1213,10 +1197,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      * @throws CCDDException If an error occurs while parsing the telemetry
      *                       scheduler data
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTelemetrySchedulerData(String parameters) throws CCDDException {
         String response = null;
@@ -1298,10 +1280,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *
      * @throws CCDDException If the scheduler table type is unrecognized
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getApplicationSchedulerData(String appTableType) throws CCDDException {
         String response = null;
@@ -1470,10 +1450,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      * @throws CCDDException If an invalid group name, data stream name, or rate
      *                       value format is detected
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getTelemetryInformation(String telemetryFilter) throws CCDDException {
         JSONArray telemetryJA = new JSONArray();
@@ -1712,10 +1690,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler {
      *
      * @throws CCDDException If the supplied group name is unrecognized
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     private String getCommandInformation(String groupFilter) throws CCDDException {
         JSONArray commandsJA = new JSONArray();

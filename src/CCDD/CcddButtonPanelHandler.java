@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -114,7 +114,7 @@ public class CcddButtonPanelHandler {
      *********************************************************************************************/
     protected void closeWindow(int buttonSelected) {
     }
-    
+
     /**********************************************************************************************
      * Placeholder for method to close the window without any checks
      *
@@ -289,10 +289,10 @@ public class CcddButtonPanelHandler {
      *********************************************************************************************/
     private JPanel createButtonPanel(DialogOption optionType) {
 
-    	// If this contains an array of options, then create the buttons
-    	// according to those options and return the new panel.
-    	if(optionType.getOptionArray() != null && optionType.getOptionArray().length > 0){
-    		
+        // If this contains an array of options, then create the buttons
+        // according to those options and return the new panel.
+        if(optionType.getOptionArray() != null && optionType.getOptionArray().length > 0){
+
             // Add each of the extra buttons here
             for(DialogOption option:optionType.getOptionArray()){
                 JButton extraButtonOption = new JButton(option.getButtonText(),
@@ -301,7 +301,7 @@ public class CcddButtonPanelHandler {
                 extraButtonOption.setMnemonic(option.getButtonMnemonic());
                 buttonPnl.add(extraButtonOption);
                 final int BUTTON_VALUE = option.getButtonType();
-                
+
                 // Add a listener for the Cancel button
                 extraButtonOption.addActionListener(new ActionListener() {
                     /**********************************************************************************
@@ -309,29 +309,29 @@ public class CcddButtonPanelHandler {
                      *********************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae) {
-                    	boolean isDirectWindowClose = !(BUTTON_VALUE == CANCEL_BUTTON || BUTTON_VALUE == OK_BUTTON);
-                    	
-                    	if(isDirectWindowClose) {
-                    		// This method will directly close the dialog and return the users
-                    		// button selection. This is needed to enable more than two button
-                    		// selection options (read values) to be sent back to the calling
-                    		// method
-                    		closeWindowDirect(BUTTON_VALUE);
-                    	}
-                    	else {
-                    		// This method will only accept the OK or CANCEL buttons with an optional 
-                    		// parameter verification before closing the dialog and returning the
-                    		// users button selection
-                    		closeWindow(BUTTON_VALUE);
-                    	}
+                        boolean isDirectWindowClose = !(BUTTON_VALUE == CANCEL_BUTTON || BUTTON_VALUE == OK_BUTTON);
+
+                        if(isDirectWindowClose) {
+                            // This method will directly close the dialog and return the users
+                            // button selection. This is needed to enable more than two button
+                            // selection options (read values) to be sent back to the calling
+                            // method
+                            closeWindowDirect(BUTTON_VALUE);
+                        }
+                        else {
+                            // This method will only accept the OK or CANCEL buttons with an optional
+                            // parameter verification before closing the dialog and returning the
+                            // users button selection
+                            closeWindow(BUTTON_VALUE);
+                        }
                     }
                 });
             }
             // Return the modifed button panel with all of the extra buttons assigned
-            return buttonPnl;  
-    	}
+            return buttonPnl;
+        }
 
-	// Otherwise create the button panel like previously
+    // Otherwise create the button panel like previously
 
         // Create the Okay button
         JButton btnOkButton = new JButton(optionType.getButtonText(),

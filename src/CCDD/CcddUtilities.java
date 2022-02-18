@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -526,9 +526,8 @@ public class CcddUtilities {
             // Separate the enumeration at the value+enumerated value separator characters
             String[] parts = enumeration.split("\\s*\\d+\\s*" + Pattern.quote(enumValueSeparator));
 
-            /* If parts.length is less than or equal to 2 than that means there is only a single 
-            ** enum and no enum pair separator.
-            */
+            // If parts.length is less than or equal to 2 than that means there is only a single
+            // enum and no enum pair separator.
             if (parts.length > 2) {
                 // Determine the length of the second array member. This consists of the first
                 // enumerated value followed by the enumerated pair separator character. Extract
@@ -757,10 +756,8 @@ public class CcddUtilities {
      * @return One-dimensional array with the contents of the second array appended
      *         to the first array
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     protected static <T> T[] concatenateArrays(T[] array1, T[] array2) {
         T[] concatArray;
@@ -800,10 +797,8 @@ public class CcddUtilities {
      * @return Two-dimensional array with the contents of the second array appended
      *         to the first array
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     protected static <T> T[][] concatenateArrays(T[][] array1, T[][] array2) {
         T[][] concatArray;

@@ -13,11 +13,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -76,7 +76,7 @@ public class CcddImportSupportHandler {
     // command header variable name for the command function code
     protected String applicationIDName;
     protected String cmdFuncCodeName;
-    
+
     protected static CcddMacroHandler macroHandler;
 
     // Basic primitive data types
@@ -111,7 +111,7 @@ public class CcddImportSupportHandler {
             return defaultVariableName;
         }
     }
-    
+
     /**********************************************************************************************
      * Set the macro handler
      *
@@ -199,8 +199,8 @@ public class CcddImportSupportHandler {
      *
      * @param continueOnError  current state of the flag that indicates if all data
      *                         field errors should be ignored
-     *                         
-     * @param replaceExisting  Replace any existing fields 
+     *
+     * @param replaceExisting  Replace any existing fields
      *
      * @param defnContainer    TableDefinition, TableTypeDefinition, or
      *                         projectDefinition object to which this data field
@@ -314,7 +314,7 @@ public class CcddImportSupportHandler {
                         || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
                         || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
                         || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue())) {
-                    
+
                     if (!replaceExisting) {
                         // Check if the error should be ignored or the import canceled
                         continueOnError = getErrorResponse(continueOnError,
@@ -325,7 +325,7 @@ public class CcddImportSupportHandler {
                                 "Data Field Error", "Ignore this data field (keep existing field)",
                                 "Ignore this and any remaining invalid data fields (use default values or keep existing)",
                                 "Stop importing", parent);
-                        
+
                         // Keep the existing field info
                         fieldDefn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
                         fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()] = Integer.toString(fieldInfo.getSize());
@@ -552,7 +552,7 @@ public class CcddImportSupportHandler {
         // Check if the association name is in use or an association with the same
         // script file and members exists
         else if (nameIndex >= 0 || matchingIndex != -1) {
-            
+
             if(replaceExistingAssociations) {
                 // Find and then overwrite the association
                 for (int i=0; i<associations.size();i++) {
@@ -568,7 +568,7 @@ public class CcddImportSupportHandler {
 
                 // Set the flag to not store this association since it exists
                 addAssn = false;
-    
+
                 // Check if the associations with the same name and script/members don't have
                 // the same
                 // index
@@ -898,12 +898,12 @@ public class CcddImportSupportHandler {
      * @param macroDefn array containing the macro definition
      *
      * @return result Should macro be imported?
-     * 
+     *
      * @throws CCDDException If an invalid macro parameter is detected
      *********************************************************************************************/
     protected static boolean checkMacroDefinition(String[] macroDefn) throws CCDDException {
         boolean result = true;
-        
+
         // Check if the macro name is empty
         if (macroDefn[MacrosColumn.MACRO_NAME.ordinal()].isEmpty()) {
             // Inform the user that the macro name is missing
@@ -919,7 +919,7 @@ public class CcddImportSupportHandler {
             // Macro name is invalid
             result = false;
         }
-        
+
         return result;
     }
 
@@ -932,7 +932,7 @@ public class CcddImportSupportHandler {
      *********************************************************************************************/
     protected static void checkDataTypeDefinition(String[] dataTypeDefn) throws CCDDException {
         String size = dataTypeDefn[DataTypesColumn.SIZE.ordinal()];
-        
+
         // Check if the data type names are both empty
         if (dataTypeDefn[DataTypesColumn.C_NAME.ordinal()].isEmpty()
                 && dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty()) {
@@ -1062,13 +1062,13 @@ public class CcddImportSupportHandler {
 
         return path;
     }
-    
+
     /**********************************************************************************************
      * Convert a list to a unique list and detect if there are any duplicate entries
-     * 
+     *
      * @param NewMacroDefns     A list of string arrays containing informatino
-     * 
-     * @return Pair containing a list of unique values and a Boolean indicating if the set was 
+     *
+     * @return Pair containing a list of unique values and a Boolean indicating if the set was
      *         unique
      *********************************************************************************************/
     protected ImmutablePair<Boolean, List<String[]>> convertToUniqueList(List<String[]> NewMacroDefns)
@@ -1083,7 +1083,7 @@ public class CcddImportSupportHandler {
         boolean isDuplicate = true;
         Set<String> uniqueSet = new HashSet<String>();
         List<String[]> uniqueMacroList = new ArrayList<>();
-        
+
         // Go through each entry in the list
         for(String[] macros:NewMacroDefns)
         {
@@ -1097,14 +1097,14 @@ public class CcddImportSupportHandler {
             {
                 // Mark the flag if it is
                 isDuplicate = false;
-            } 
-            else 
+            }
+            else
             {
                 // Otherwise add this unique value to the list
                 uniqueMacroList.add(macros);
                 // And the set
                 uniqueSet.add(macroName);
-            } 
+            }
         }
         return new ImmutablePair<>(isDuplicate, uniqueMacroList);
     }

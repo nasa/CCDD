@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -341,7 +341,7 @@ public class CcddTableTypeHandler {
         protected String getDescription() {
             return columnToolTip.get(0).length() < 2 ? "" : columnToolTip.get(0).substring(1);
         }
-        
+
         /******************************************************************************************
          * Does the table represent a command?
          *
@@ -367,13 +367,13 @@ public class CcddTableTypeHandler {
          *****************************************************************************************/
         protected boolean isCommandArgumentStructure() {
             boolean result = false;
-            
+
             if (!columnToolTip.get(0).isEmpty()) {
                 result = !columnToolTip.get(0).startsWith("0");
             } else {
                 result = !columnToolTip.get(0).startsWith("0");
             }
-            
+
             return result;
         }
 
@@ -744,7 +744,7 @@ public class CcddTableTypeHandler {
         protected boolean isStructure() {
             return isTargetType(TYPE_STRUCTURE);
         }
-        
+
         /******************************************************************************************
          * Determine if this table type contains all of the default protected columns of
          * the ENUM table type
@@ -985,7 +985,7 @@ public class CcddTableTypeHandler {
 
         return typeDefn;
     }
-    
+
     /**********************************************************************************************
      * Remove an existing table type (if it is found)
      * Add a new table type
@@ -994,7 +994,7 @@ public class CcddTableTypeHandler {
      *
      * @param nTypeName    The name of the new table type. If this is null the table will not be
      *                     created
-     * 
+     *
      * @param description  The description for the new table type
      *
      * @param typeData     array of table type data
@@ -1002,19 +1002,19 @@ public class CcddTableTypeHandler {
      * @return Reference to the type definition created
      *********************************************************************************************/
     protected TypeDefinition addRemoveTypeDefinition(String eTypeName, String nTypeName, String description, Object[][] typeData) {
-        
+
         // Remove the Type Definition
         removeTypeDefinition(eTypeName);
 
         return addTypeDefinition(nTypeName, description, typeData);
     }
-    
+
     /**********************************************************************************************
      * Add a new table type
      *
      * @param nTypeName    The name of the new table type. If this is null the table will not be
      *                     created
-     * 
+     *
      * @param description  The description for the new table type
      *
      * @param typeData     array of table type data
@@ -1027,14 +1027,14 @@ public class CcddTableTypeHandler {
         if(nTypeName != null){
             // Create the type definition
             typeDefn = createTypeDefinition(nTypeName, description, typeData);
-    
+
             // Add it to the list of type definitions
             typeDefinitions.add(typeDefn);
         }
 
         return typeDefn;
     }
-    
+
     /**********************************************************************************************
      * Remove an existing table type (if it is found)
      * Add a new table type
@@ -1389,6 +1389,8 @@ public class CcddTableTypeHandler {
      *
      * @param tableTypeDefinitions list of table type definitions
      *
+     * @param removeExistingTypes true to remove any existing table types
+     *
      * @return null if all of the table types are created or match existing ones;
      *         the name of the table type that matches an existing one but the type
      *         definitions differ
@@ -1397,8 +1399,13 @@ public class CcddTableTypeHandler {
      *                       table's field to be renamed and the user elects to
      *                       cancel the update
      *********************************************************************************************/
-    protected void updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException {
+    protected void updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions, boolean removeExistingTypes) throws CCDDException {
         boolean isNewStruct = false;
+
+        // Replace all existing input types if the flag is set
+        if (removeExistingTypes) {
+            typeDefinitions.clear();
+        }
 
         // Step through each table type definition
         for (TableTypeDefinition tableTypeDefn : tableTypeDefinitions) {
@@ -1418,7 +1425,7 @@ public class CcddTableTypeHandler {
 
         // Clear the table type definitions since they have been incorporated
         tableTypeDefinitions.clear();
-        
+
         // Check if a new struct was added
         if (isNewStruct) {
             // Update the database functions that collect structure table members and
@@ -1473,7 +1480,7 @@ public class CcddTableTypeHandler {
                 // Add the new table type tab to the editor
                 ccddMain.getTableTypeEditor().addTypePanes(new String[] { tableTypeDefn.getTypeName() });
             }
-            
+
             // Update the fieldHandler
             fieldHandler.replaceFieldInformationByOwner("Type:"+tableTypeDefn.getTypeName(),
                     fieldHandler.getFieldInformationFromDefinitions(tableTypeDefn.getDataFields()));
@@ -1481,7 +1488,7 @@ public class CcddTableTypeHandler {
             // A table type with this name already exists
             // Get a list of all of the table type names and descriptions
             String[][] tableTypeNamesAndDescriptions = dbTable.queryTableTypeNamesAndDescriptions(ccddMain.getMainFrame());
-            
+
             // Check if the description differs
             for (String[] entry : tableTypeNamesAndDescriptions) {
                 if (entry[0].equals(tableTypeDefn.getTypeName())) {
@@ -1492,13 +1499,13 @@ public class CcddTableTypeHandler {
                     }
                 }
             }
-            
+
             // Check each row of the table to see if any of the columns differ
             if (typeUpdate != TableTypeUpdate.MISMATCH) {
                 // Add the table type with a different name and get a reference to it
                 TypeDefinition altTypeDefn = createReplaceTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
                         tableTypeDefn.getDescription(), tableTypeDefn.getColumns().toArray(new Object[0][0]));
-                
+
                 // See if the same number of columns exists, but subtract 2 from typeDefn due to the key and index
                 // being included
                 if (tableTypeDefn.getColumns().size() == (typeDefn.getColumnNamesUser().length-2)) {
@@ -1506,17 +1513,17 @@ public class CcddTableTypeHandler {
                     for (String columnName : typeDefn.getColumnNamesUser()) {
                         // Get the index for the column name in the alternate type definition
                         int altIndex = altTypeDefn.getColumnIndexByUserName(columnName);
-        
+
                         // Check if the alternate definition doesn't have a column with this name
                         if (altIndex == -1) {
                             // Set the flag indicating a mismatch exists and stop searching
                             typeUpdate = TableTypeUpdate.MISMATCH;
                             break;
                         }
-        
+
                         // Get the index for the column name in the existing type definition
                         int index = typeDefn.getColumnIndexByUserName(columnName);
-        
+
                         // Check if the column definitions differ
                         if (!typeDefn.getInputTypes()[index].getInputName()
                                 .equals(altTypeDefn.getInputTypes()[altIndex].getInputName())
@@ -1533,7 +1540,7 @@ public class CcddTableTypeHandler {
                     // Set the flag indicating a mismatch exists and stop searching
                     typeUpdate = TableTypeUpdate.MISMATCH;
                 }
-                
+
                 // Delete the added type definition
                 getTypeDefinitions().remove(altTypeDefn);
             }
@@ -1542,7 +1549,7 @@ public class CcddTableTypeHandler {
             if (typeUpdate == TableTypeUpdate.MATCH) {
                 // Get the existing data fields
                 List<FieldInformation> currentDataFields = fieldHandler.getFieldInformationByOwner("Type:"+tableTypeDefn.getTypeName());
-                
+
                 // Check to see if the same number of data fields exist for both the new and existing table type definition
                 if ((currentDataFields == null ) || (currentDataFields.size() != tableTypeDefn.getDataFields().size())) {
                     // Set the flag indicating a mismatch exists and stop searching
@@ -1551,7 +1558,7 @@ public class CcddTableTypeHandler {
                     // Step through each table type data field
                     for (int i = 0; i < tableTypeDefn.getDataFields().size(); i++) {
                         String[] dataField = tableTypeDefn.getDataFields().get(i);
-                        
+
                         // Check if the existing field's input type, required state, applicability, or
                         // value don't match (the description and size are allowed to differ)
                         if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(currentDataFields.get(i).getInputType().getInputName())
@@ -1573,7 +1580,7 @@ public class CcddTableTypeHandler {
 
         return typeUpdate;
     }
-    
+
     /**********************************************************************************************
      * Compare the current table type data to the committed table type data and
      * create lists of the changed values necessary to update the table definitions
@@ -1587,27 +1594,27 @@ public class CcddTableTypeHandler {
         List<String[]> typeAdditions = new ArrayList<String[]>();
         List<String[]> typeModifications = new ArrayList<String[]>();
         List<String[]> typeDeletions = new ArrayList<String[]>();
-        
+
         // Get the type definition based on the type name
         TypeDefinition typeDefn = getTypeDefinition(newTableTypeDefn.getTypeName());
-        
+
         // Create a 2d Object array for the new type data
         List<Object[]> typeDataList = newTableTypeDefn.getColumns();
         Object[][] newTypeData = new Object[typeDataList.size()][];
         newTypeData = typeDataList.toArray(newTypeData);
-        
+
         // Create/replace the type definition. The description is prepended with a '0'
         // is the table
         // type doesn't represent a command argument structure, and a '1' if it does
         createReplaceTypeDefinition(newTableTypeDefn.getTypeName(), newTableTypeDefn.getDescription(),
                 newTypeData);
-        
+
         // Create a 2d Object array for the old type data
         String[][] tempArray = dbTable.queryTableTypeDataList(newTableTypeDefn.getTypeName(), ccddMain.getMainFrame());
         Object[][] oldTypeData = new Object[tempArray.length][tempArray[0].length];
         for (int i = 0; i < tempArray.length; i++) {
             Object[] row = new Object[tempArray[0].length];
-            for (int x = 0; x < tempArray[0].length; x++) {                
+            for (int x = 0; x < tempArray[0].length; x++) {
                 if (newTypeData[0][x] instanceof Integer) {
                     row[x] = Integer.parseInt(tempArray[i][x]);
                 } else if (newTypeData[0][x] instanceof Boolean) {
@@ -1622,40 +1629,40 @@ public class CcddTableTypeHandler {
             }
             oldTypeData[i] = row;
         }
-        
+
         // Initialize the column order change status
         boolean columnOrderChange = false;
-        
+
         // Create an empty row of data for comparison purposes
         Object[] emptyRow = FieldEditorColumnInfo.getEmptyRow();
-        
+
         // Create storage for flags that indicate if a row has been modified
         boolean[] rowModified = new boolean[oldTypeData.length];
-        
+
         // Step through each row of the current data
         for (int tblRow = 0; tblRow < newTypeData.length; tblRow++) {
             boolean matchFound = false;
 
             // Get the current column name
             String currColumnName = newTypeData[tblRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString();
-            
+
             // Step through each row of the committed data
             for (int comRow = 0; comRow < oldTypeData.length; comRow++) {
                 // Get the previous column name
                 String prevColumnName = oldTypeData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString();
-                
+
                 // Check if the committed row hasn't already been matched and if the current and
                 // committed column indices are the same
                 if (!rowModified[comRow] && newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()]
                         .equals(oldTypeData[comRow][TableTypeEditorColumnInfo.INDEX.ordinal()])) {
                     // Set the flag indicating this row has a match
                     matchFound = true;
-                    
+
                     // Copy the current row's index into the empty comparison row so that the otherwise
                     // blank index doesn't register as a difference when comparing the rows below
-                    emptyRow[TableTypeEditorColumnInfo.INDEX.ordinal()] = 
+                    emptyRow[TableTypeEditorColumnInfo.INDEX.ordinal()] =
                             newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
-                    
+
                     // Check if the row is not now empty (if empty then the change is processed as
                     // a row deletion instead of a modification)
                     if (!Arrays.equals(newTypeData[tblRow], emptyRow)) {
@@ -1686,7 +1693,7 @@ public class CcddTableTypeHandler {
                     }
                 }
             }
-            
+
             // Check if no match was made with the committed data for the current table row
             if (!matchFound) {
                 // The column definition is being added; add the column name and input type to the list
@@ -1694,7 +1701,7 @@ public class CcddTableTypeHandler {
                         newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }
         }
-        
+
         // Step through each row of the committed data
         for (int comRow = 0; comRow < oldTypeData.length; comRow++) {
             // Check if no matching row was found with the current data
@@ -1704,24 +1711,24 @@ public class CcddTableTypeHandler {
                                 oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }
         }
-        
+
         // ////////////////////////////////////////////////////////////////////////////////////////
         // Build the changes to the table type's data field definitions. To keep things simple we
         // delete all existing fields and replace them with the new ones.
         // ////////////////////////////////////////////////////////////////////////////////////////
-        
+
         // Lists of table modifications that will be used to update the database
         List<TableModification> fieldAdditions = new ArrayList<TableModification>();
         List<TableModification> fieldDeletions = new ArrayList<TableModification>();
         List<TableModification> fieldModifications = new ArrayList<TableModification>();
-        
+
         // Get the existing data fields information and convert it to a list of string arrays for easier use
         List<FieldInformation> oldDataFieldInformation = fieldHandler.getFieldInformationByOwner("Type:"+newTableTypeDefn.getTypeName());
-        
-        
+
+
         // Get the new data fields
         List<String[]> newDataFields = newTableTypeDefn.getDataFields();
-        // Convert the new data fields information into a list of FieldInformation objects that 
+        // Convert the new data fields information into a list of FieldInformation objects that
         // can be passed to the modifyTable() function.
         List<FieldInformation> newDataFieldInformation = new ArrayList<FieldInformation>();
         for (int i = 0; i < newDataFields.size(); i++) {
@@ -1733,7 +1740,7 @@ public class CcddTableTypeHandler {
             } else if (newDataFields.get(i)[6].equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName())) {
                 appType = ApplicabilityType.CHILD_ONLY;
             }
-            
+
             // All FieldColumns offset by 1 to account for owner name which is the first index of each row of newDataFields
             FieldInformation currentFieldInformation = new FieldInformation(newDataFields.get(i)[0],
                     newDataFields.get(i)[FieldEditorColumnInfo.NAME.ordinal()+1],
@@ -1742,20 +1749,20 @@ public class CcddTableTypeHandler {
                     Boolean.parseBoolean(newDataFields.get(i)[FieldEditorColumnInfo.REQUIRED.ordinal()+1]),
                     appType, newDataFields.get(i)[FieldEditorColumnInfo.VALUE.ordinal()+1],
                     Boolean.parseBoolean(newDataFields.get(i)[FieldEditorColumnInfo.INHERITED.ordinal()+1]), null, -1);
-            
+
             newDataFieldInformation.add(currentFieldInformation);
         }
-        
+
         Object[][] oldFieldData = CcddFieldHandler.getFieldEditorDefinition(oldDataFieldInformation);
         Object[][] newFieldData = CcddFieldHandler.getFieldEditorDefinition(newDataFieldInformation);
         boolean[] oldDataProcessed = new boolean[oldFieldData.length];
         boolean fieldProcessed = false;
-        
+
         // Step through all of the new data fields
         for (int i = 0; i < newFieldData.length; i++) {
             // Step though all of the old data fields
             for (int x = 0; x < oldFieldData.length; x++) {
-                // See if the new data field name matches any of the old data field names 
+                // See if the new data field name matches any of the old data field names
                 if (newFieldData[i][0].toString().equals(oldFieldData[x][0].toString())) {
                     if (!Arrays.equals(newFieldData[i], oldFieldData[x])) {
                         fieldModifications.add(new TableModification(newFieldData[i], oldFieldData[x]));
@@ -1765,16 +1772,16 @@ public class CcddTableTypeHandler {
                     break;
                 }
             }
-            
+
             if (fieldProcessed == false) {
                 // if we reach this point no match was found and this is an addition
                 fieldAdditions.add(new TableModification(newFieldData[i], null));
             }
             fieldProcessed = false;
         }
-        
+
         // All of the old field data that was matched to a row in the new field data array has an index
-        // within oldDataMatched set to true. If the given index is not true then the old field data no 
+        // within oldDataMatched set to true. If the given index is not true then the old field data no
         // longer exists and should be deleted.
         for (int i = 0; i < oldFieldData.length; i++) {
             if (oldDataProcessed[i] != true) {
@@ -1787,7 +1794,7 @@ public class CcddTableTypeHandler {
         dbTable.modifyTableType(newTableTypeDefn.getTypeName(), newDataFieldInformation,
                 OverwriteFieldValueType.NONE, typeAdditions, typeModifications, typeDeletions, columnOrderChange,
                 typeDefn, newDataFields, null, null);
-        
+
         // Update the fieldHandler
         fieldHandler.replaceFieldInformationByOwner("Type:"+newTableTypeDefn.getTypeName(), newDataFieldInformation);
     }

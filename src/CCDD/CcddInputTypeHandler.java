@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -709,26 +709,32 @@ public class CcddInputTypeHandler {
      *
      * @param inputTypeDefinitions list of input type definitions
      *
+     * @param removeExistingTypes true to replace all existing input types
+     *
      * @throws CCDDException If an input type with the same same already exists and
      *                       the imported type doesn't match
      *********************************************************************************************/
-    protected void updateInputTypes(List<String[]> inputTypeDefinitions) throws CCDDException {
-        /* List of new input type definitions to add */
+    protected void updateInputTypes(List<String[]> inputTypeDefinitions, boolean removeExistingTypes) throws CCDDException {
+        // List of new input type definitions to add
         List<String[]> newInputTypeDefinitions = new ArrayList<String[]>();
-        
-        /* Step through each imported input type definition */
+
+        // Replace all existing input types if the flag is set
+        if (removeExistingTypes) {
+            inputTypeMap.clear();
+        }
+
+        // Step through each imported input type definition
         for (String[] typeDefn : inputTypeDefinitions) {
-            /* Locate the input type in the map using its name as the key */
+            // Locate the input type in the map using its name as the key
             InputType inputType = inputTypeMap.get(typeDefn[InputTypesColumn.NAME.ordinal()].toLowerCase());
 
-            /* Check if the input type doesn't already exist */
+            // Check if the input type doesn't already exist
             if (inputType == null) {
-                /* The input type does not exist yet so add it to the list. */
+                // The input type does not exist yet so add it to the list.
                 newInputTypeDefinitions.add(typeDefn);
             }
-            /* The input type exists; check if the type information provided matches the existing
-             * type information
-             */
+            // The input type exists; check if the type information provided matches the existing
+            // type information
             else if (!(inputType.getInputName().equals(typeDefn[InputTypesColumn.NAME.ordinal()])
                     && inputType.getInputDescription().equals(typeDefn[InputTypesColumn.DESCRIPTION.ordinal()])
                     && inputType.getInputMatch().equals(typeDefn[InputTypesColumn.MATCH.ordinal()])
@@ -740,7 +746,7 @@ public class CcddInputTypeHandler {
                         + "<b>' doesn't match the existing definition");
             }
         }
-        
+
         if (newInputTypeDefinitions.size() > 0) {
             // Add the input type
             customInputTypes = CcddUtilities.concatenateArrays(customInputTypes,

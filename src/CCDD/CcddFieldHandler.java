@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -360,7 +360,7 @@ public class CcddFieldHandler {
 
         return ownerFieldInfo;
     }
-    
+
     /**********************************************************************************************
      * Get the list of field information for all groups
      *
@@ -381,7 +381,7 @@ public class CcddFieldHandler {
 
         return groupFieldInfo;
     }
-    
+
     /**********************************************************************************************
      * Get the list of field information for all groups as a list of lists
      *
@@ -393,7 +393,7 @@ public class CcddFieldHandler {
         List<List<FieldInformation>> Test = new ArrayList<List<FieldInformation>>();
         List<FieldInformation> tempField = new ArrayList<FieldInformation>();
         String groupName = groupFieldInfo.get(0).getOwnerName();
-        
+
         // Step through each data field
         for (FieldInformation fieldInfo : groupFieldInfo) {
             if (groupName.contentEquals(fieldInfo.getOwnerName())) {
@@ -408,7 +408,7 @@ public class CcddFieldHandler {
 
         return Test;
     }
-    
+
     /**********************************************************************************************
      * Get the list of field information for the specified table type
      *
@@ -449,10 +449,10 @@ public class CcddFieldHandler {
     protected void replaceFieldInformationByOwner(String ownerName, List<FieldInformation> newOwnerFldInfo) {
         // Get the list of the owner's current fields
         List<FieldInformation> oldOwnerFldInfo = getFieldInformationByOwner(ownerName);
-        
+
         // Remove the owner's current fields
         fieldInformation.removeAll(oldOwnerFldInfo);
-        
+
         // Check if the ownerName of the newOwnerFldInfo is empty. If so add information
         if (newOwnerFldInfo != null && !newOwnerFldInfo.isEmpty()) {
             if (newOwnerFldInfo.get(0).getOwnerName().isEmpty()) {
@@ -460,7 +460,7 @@ public class CcddFieldHandler {
                     newOwnerFldInfo.get(index).setOwnerName(ownerName);
                 }
             }
-            
+
             // Add the owner's new fields
             fieldInformation.addAll(getFieldInformationCopy(newOwnerFldInfo));
         }
@@ -594,7 +594,7 @@ public class CcddFieldHandler {
     protected List<FieldInformation> getFieldInformationFromData(Object[][] fieldData, String ownerName) {
         List<FieldInformation> fieldInfo = new ArrayList<FieldInformation>();
         boolean ownerNameInArray = false;
-        
+
         // If the ownerName is empty then that means it is the first index in the array
         if (ownerName.isEmpty() && fieldData.length != 0) {
             ownerNameInArray = true;
@@ -682,12 +682,12 @@ public class CcddFieldHandler {
 
         return definitions;
     }
-    
+
     /**********************************************************************************************
      * Take a list of FieldInformation objects and convert it to a list of strings
      *
      * @param List<FieldInformation> The Field information that needs to be converted
-     * 
+     *
      * @return String list containing all of the data field definitions
      *********************************************************************************************/
     static protected List<String[]> getFieldDefnsAsListOfStrings(List<FieldInformation> fieldInformation) {

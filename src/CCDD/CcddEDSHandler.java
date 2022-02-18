@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -294,9 +294,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *                     type, and macro definitions, and the data from all the
      *                     table definitions; ImportType.FIRST_DATA_ONLY to load
      *                     only the data for the first table defined
-     * 
+     *
      * @param ignoreErrors true to ignore all errors in the import file
-     * 
+     *
      * @param replaceExistingAssociations true to overwrite internal associations with
      *                                    those from the import file
      *
@@ -309,7 +309,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     public void importInternalTables(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingAssociations)
             throws CCDDException, IOException, Exception {
-        /* Will not be implemented */
+        // Will not be implemented
         return;
     }
 
@@ -317,12 +317,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Import the input types, table types, table type data fields and data types from the given file
      *
      * @param importFile   import file reference
-     * 
+     *
      * @param ignoreErrors true to ignore all errors in the import file
      *
      * @param replaceExistingMacros true to replace existing macros
-     * 
+     *
      * @param replaceExistingTables true to replace existing tables or table fields
+     *
+     * @param importingEntireDatabase true to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -332,9 +334,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     public void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
-            boolean replaceExistingMacros, boolean replaceExistingTables)
+            boolean replaceExistingMacros, boolean replaceExistingTables, boolean importingEntireDatabase)
             throws CCDDException, IOException, Exception {
-        /* Will not be implemented */
+        // Will not be implemented
         return;
     }
 
@@ -343,11 +345,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * current file
      *
      * @param importFile   import file reference
-     * 
+     *
      * @param ignoreErrors true to ignore all errors in the import file
-     * 
+     *
      * @param replaceExistingDataTypes true to replace existing data types that share a name
      *                                 with an imported data type
+     *
+     * @param importingEntireDatabase true to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -356,9 +360,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors, boolean replaceExistingDataTypes)
-            throws CCDDException, IOException, Exception {
-        /* Will not be implemented */
+    public void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
+            boolean replaceExistingDataTypes, boolean importingEntireDatabase) throws CCDDException, IOException, Exception {
+        // Will not be implemented
         return;
     }
 
@@ -381,8 +385,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param replaceExistingMacros true to replace the values for existing macros
      *
      * @param replaceExistingGroups true to replace existing group definitions
-     * 
+     *
      * @param replaceExistingTables true to replace existing tables or table fields
+     *
+     * @param importingEntireDatabase true to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -393,8 +399,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn,
-            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups, boolean replaceExistingTables)
-            throws CCDDException, IOException, Exception {
+            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups, boolean replaceExistingTables,
+            boolean importingEntireDatabase) throws CCDDException, IOException, Exception {
         try {
             // Import the XML from the specified file
             JAXBElement<?> jaxbElement = (JAXBElement<?>) unmarshaller.unmarshal(importFile);
@@ -456,7 +462,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     cmdHeaderTable, applicationIDName, cmdFuncCodeName);
 
             // Create the table type definitions for any new structure and command tables
-            createTableTypeDefinitions(importFile, importType, targetTypeDefn);
+            createTableTypeDefinitions(importFile, importType, targetTypeDefn, importingEntireDatabase);
 
             // Check if at least one structure or command table needs to be built
             if (structureTypeDefn != null || commandTypeDefn != null) {
@@ -526,7 +532,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *                       addImportedTableTypeColumnDefinition(); since default
      *                       column definitions are used this error can't occur
      *********************************************************************************************/
-    private void createTableTypeDefinitions(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn)
+    private void createTableTypeDefinitions(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn, boolean importingEntireDatabase)
             throws CCDDException {
         isStructureExists = false;
         isCommandExists = false;
@@ -578,15 +584,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // Continue to check while a table type with this name exists. This also adds
                 // the tab for the new definition to the table type manager, if open
                 List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
-                
+
                 while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName())) {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Structure " + sequence;
                     tableTypeDefns.get(0).setTypeName(typeName);
                     sequence++;
                 }
-                
-                tableTypeHandler.updateTableTypes(tableTypeDefns);
+
+                tableTypeHandler.updateTableTypes(tableTypeDefns, importingEntireDatabase);
 
                 // Store the reference to the structure table type definition
                 structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -645,19 +651,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Add the command table type definition
                 tableTypeDefns.add(tableTypeDefn);
-                
+
                 // Continue to check while a table type with this name exists. This also adds
                 // the tab for the new definition to the table type manager, if open
                 List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
-                
+
                 while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName())) {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Command " + sequence;
                     tableTypeDefns.get(0).setTypeName(typeName);
                     sequence++;
                 }
-                
-                tableTypeHandler.updateTableTypes(tableTypeDefns);
+
+                tableTypeHandler.updateTableTypes(tableTypeDefns, importingEntireDatabase);
 
                 // Store the reference to the command table type definition
                 commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -1892,7 +1898,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *                                ('true' or 'false'), and data type/variable
      *                                name separator character(s); null if
      *                                includeVariablePaths is false
-     *                                
+     *
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
      * @param extraInfo               [0] endianess (EndianType.BIG_ENDIAN or
@@ -1909,7 +1915,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo) throws JAXBException, MarshalException,
             CCDDException, Exception {
-        
+
         // Convert the table data into EDS format
         convertTablesToEDS(tableDefs, includeBuildInformation, (EndianType) extraInfo[0], (boolean) extraInfo[1]);
 
@@ -2053,8 +2059,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private void buildNamespaces(List<TableInfo> tableDefs) {
         // Step through each table name
         for (TableInfo tableDef : tableDefs) {
-        	String tableName = tableDef.getTablePath();
-        	
+            String tableName = tableDef.getTablePath();
+
             // Get the information from the database for the specified table
             TableInfo tableInfo = dbTable.loadTableData(tableName, true, false, false, parent);
 
@@ -2177,8 +2183,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         // Step through each table name
         for (TableInfo tableDef : tableDefs) {
-        	String tableName = tableDef.getTablePath();
-        	
+            String tableName = tableDef.getTablePath();
+
             // Get the name of the system to which this table belongs from the table's
             // system path data field (if present)
             String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName, DefaultInputType.SYSTEM_PATH));
@@ -3237,56 +3243,56 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private String getObjectIdentifier(String arraySize) {
         return arraySize == null || arraySize.isEmpty() ? TYPE : ARRAY;
     }
-    
+
     /**********************************************************************************************
      * Export table type definitions to the specified folder
-     * 
+     *
      * @param exportFile        reference to the user-specified output file
-     * 
+     *
      * @param includeTableTypes Boolean representing if the table types should be
      *                          included
-     * 
+     *
      * @param includeInputTypes Boolean representing if the input types should be
      *                          included
-     * 
+     *
      * @param includeDataTypes  Boolean representing if the data types should be
      *                          included
-     * 
+     *
      * @param outputType        String representing rather the output is going to a
      *                          single file or multiple files. Should be "Single" or
      *                          "Multiple"
-     *                          
+     *
      * @param addEOFMarker      Is this the last data to be added to the file?
-     * 
+     *
      * @param addSOFMarker      Is this the first data to be added to the file?
-     * 
+     *
      * @throws CCDDException If a file I/O or parsing error occurs
-     * 
+     *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
             boolean includeInputTypes, boolean includeDataTypes, String outputType,
             boolean addEOFMarker, boolean addSOFMarker) throws CCDDException, Exception {
-        /* Placeholder */
+        // Placeholder
     }
-    
+
     /**********************************************************************************************
      * Export script association data, group data, macro data, telemetry scheduler
      * data or application scheduler data to the specified folder
      *
      * @param dataType   the data type that is about to be exported
-     * 
+     *
      * @param exportFile reference to the user-specified output file
-     * 
+     *
      * @param outputType String representing rather the output is going to a single
      *                   file or multiple files. Should be "Single" or "Multiple"
-     * 
+     *
      * @throws CCDDException If a file I/O or parsing error occurs
-     * 
+     *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     public void exportInternalCCDDData(boolean[] includes, CcddConstants.exportDataTypes[] dataTypes, FileEnvVar exportFile,
             String outputType) throws CCDDException, Exception {
-        /* Placeholder */
+        // Placeholder
     }
 }

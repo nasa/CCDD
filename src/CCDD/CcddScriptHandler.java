@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -273,7 +273,7 @@ public class CcddScriptHandler {
                                 throw new CCDDException();
                             }
                         }
-                        /* Remember each path that was verified */
+                        // Remember each path that was verified
                         verifiedPaths.add(tablePath);
                     }
                 }
@@ -555,9 +555,8 @@ public class CcddScriptHandler {
                 super.setTableSortable();
 
                 // Get a reference to the sorter
-                /* Suppress warnings is used because when this code is compiled some of it is
-                 * not legal, but it will be at runtime
-                 */
+                // Suppress warnings is used because when this code is compiled some of it is
+                // not legal, but it will be at runtime
                 @SuppressWarnings("unchecked")
                 TableRowSorter<UndoableTableModel> sorter = (TableRowSorter<UndoableTableModel>) getRowSorter();
 
@@ -1015,7 +1014,7 @@ public class CcddScriptHandler {
             // Pull out the string array to compare against. If it is empty, then create an array with an empty entry
             String[] compareAgainst = members.isEmpty() ? new String[] {""} : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR));
             boolean isArraySame = CcddUtilities.isArraySetsEqual(tables,compareAgainst);
-            
+
             if (isRowValid && isNameSame && isArraySame) {
                 // Store the matching row number and stop searching
                 matchingIndex = row;
@@ -1058,14 +1057,14 @@ public class CcddScriptHandler {
                 selectedAssn.add(assnsData.get(row));
             }
         }
-        
+
         // Check that at least one association is to be executed
         if (selectedAssn.size() != 0) {
             // Execute the script script association(s)
             getDataAndExecuteScriptInBackground(tableTree, selectedAssn, dialog);
         }
     }
-    
+
     /**********************************************************************************************
      * Get the table information array from the table data used by the script script
      * association(s), then execute the script(s). This command is executed in a
@@ -1090,11 +1089,11 @@ public class CcddScriptHandler {
             // Create the script execution progress/cancellation dialog
             haltDlg = new CcddHaltDialog(true);
             haltDlg.setItemsPerStep(associations.size());
-            
+
             // Display the script execution progress/cancellation dialog
             haltDlg.initialize("Script Executing", "Script execution in progress...",
                     "script execution", 100, 1, false, dialog);
-            
+
             // Check if the script was executed via the script manager or executive dialogs
             // (and not from the command line)
             if (dialog instanceof CcddFrameHandler) {
@@ -1108,7 +1107,7 @@ public class CcddScriptHandler {
             // Remove the converted variable name list(s) other than the one created using
             // the separators stored in the program preferences
             variableHandler.removeUnusedLists();
-            
+
             // Log the result of the script execution(s)
             logScriptCompletionStatus(associations, isBad);
 
@@ -1123,7 +1122,7 @@ public class CcddScriptHandler {
                 // it was altered by a command line command)
                 ccddMain.restoreScriptOutputPath();
             }
-            
+
            // Close the cancellation dialog
            haltDlg.closeDialog();
         }
@@ -1191,9 +1190,9 @@ public class CcddScriptHandler {
         for (Object[] assn : associations) {
             // Check if script execution is canceled
             if (haltDlg != null && haltDlg.isHalted()) {
-                ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG, 
+                ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
                         new StringBuilder("Script execution terminated by user"));
-                
+
                 isBad = new boolean[associations.size()];
                 Arrays.fill(isBad, true);
                 break;

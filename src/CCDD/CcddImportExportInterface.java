@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -72,7 +72,7 @@ public interface CcddImportExportInterface {
      *
      * @return List of original and new telemetry scheduler messages; null if no
      *         telemetry scheduler messages have been added
-     * 
+     *
      *********************************************************************************************/
     abstract List<String[]> getTlmSchedulerData();
 
@@ -93,9 +93,9 @@ public interface CcddImportExportInterface {
      *                     type, and macro definitions, and the data from all the
      *                     table definitions; ImportType.FIRST_DATA_ONLY to load
      *                     only the data for the first table defined
-     * 
+     *
      * @param ignoreErrors true to ignore all errors in the import file
-     * 
+     *
      * @param replaceExistingAssociations true to overwrite internal associations with
      *                                    those from the import file
      *
@@ -114,12 +114,14 @@ public interface CcddImportExportInterface {
      * current file
      *
      * @param importFile   import file reference
-     * 
+     *
      * @param ignoreErrors true to ignore all errors in the import file
-     * 
+     *
      * @param replaceExistingMacros true to replace existing macros
-     * 
+     *
      * @param replaceExistingTables true to replace existing tables or table fields
+     *
+     * @param importingEntireDatabase true to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -129,7 +131,7 @@ public interface CcddImportExportInterface {
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void importTableInfo(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
-            boolean replaceExistingMacros, boolean replaceExistingTables)
+            boolean replaceExistingMacros, boolean replaceExistingTables, boolean importingEntireDatabase)
             throws CCDDException, IOException, Exception;
 
     /**********************************************************************************************
@@ -137,11 +139,13 @@ public interface CcddImportExportInterface {
      * current file
      *
      * @param importFile   import file reference
-     * 
+     *
      * @param ignoreErrors true to ignore all errors in the import file
-     * 
+     *
      * @param replaceExistingDataTypes true to replace existing data types that share a name
      *                                 with an imported data type
+     *
+     * @param importingEntireDatabase true to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the
      *                       import file
@@ -151,7 +155,7 @@ public interface CcddImportExportInterface {
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void importInputTypes(FileEnvVar importFile, ImportType importType, boolean ignoreErrors,
-            boolean replaceExistingDataTypes) throws CCDDException, IOException, Exception;
+            boolean replaceExistingDataTypes, boolean importingEntireDatabase) throws CCDDException, IOException, Exception;
 
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
@@ -172,8 +176,10 @@ public interface CcddImportExportInterface {
      * @param replaceExistingMacros true to replace the values for existing macros
      *
      * @param replaceExistingGroups true to replace existing group definitions
-     * 
+     *
      * @param replaceExistingTables true to replace existing tables or table fields
+     *
+     * @param importingEntireDatabase true to replace existing database internal tables
      *
      * @throws CCDDException If data is missing, extraneous, or an error in the
      *                       import file
@@ -183,7 +189,8 @@ public interface CcddImportExportInterface {
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void importFromFile(FileEnvVar importFile, ImportType importType, TypeDefinition targetTypeDefn,
-            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups, boolean replaceExistingTables)
+            boolean ignoreErrors, boolean replaceExistingMacros, boolean replaceExistingGroups, boolean replaceExistingTables,
+            boolean importingEntireDatabase)
             throws CCDDException, IOException, Exception;
 
     /**********************************************************************************************
@@ -212,7 +219,7 @@ public interface CcddImportExportInterface {
      *                                flag ('true' or 'false'), and data
      *                                type/variable name separator character(s);
      *                                null if includeVariablePaths is false
-     *                                
+     *
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
      * @param extraInfo               extra parameters dependent on the export
@@ -229,50 +236,50 @@ public interface CcddImportExportInterface {
             boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
             String[] separators, boolean addEOFMarker, String outputType, Object... extraInfo)
             throws JAXBException, CCDDException, Exception;
-    
+
     /**********************************************************************************************
      * Export table type definitions to the specified folder
-     * 
+     *
      * @param exportFile        reference to the user-specified output file
-     * 
+     *
      * @param includeTableTypes Boolean representing if the table types should be
      *                          included
-     * 
+     *
      * @param includeInputTypes Boolean representing if the input types should be
      *                          included
-     * 
+     *
      * @param includeDataTypes  Boolean representing if the data types should be
      *                          included
-     * 
+     *
      * @param outputType        String representing rather the output is going to a
      *                          single file or multiple files. Should be "Single" or
      *                          "Multiple"
-     *                          
+     *
      * @param addEOFMarker      Is this the last data to be added to the file?
-     * 
+     *
      * @param addSOFMarker      Is this the first data to be added to the file?
-     * 
+     *
      * @throws CCDDException If a file I/O or parsing error occurs
-     * 
+     *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes,
             boolean includeInputTypes, boolean includeDataTypes, String outputType,
             boolean addEOFMarker, boolean addSOFMarker) throws CCDDException, Exception;
-    
+
     /**********************************************************************************************
      * Export script association data, group data, macro data, telemetry scheduler
      * data or application scheduler data to the specified folder
      *
      * @param dataType   the data type that is about to be exported
-     * 
+     *
      * @param exportFile reference to the user-specified output file
-     * 
+     *
      * @param outputType String representing rather the output is going to a single
      *                   file or multiple files. Should be "Single" or "Multiple"
-     * 
+     *
      * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
-     * 
+     *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     abstract void exportInternalCCDDData(boolean[] includes, CcddConstants.exportDataTypes[] dataTypes, FileEnvVar exportFile,

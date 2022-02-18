@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -600,44 +600,44 @@ public class CcddDbManagerDialog extends CcddDialogHandler {
                         break;
 
                     case RENAME:
-                        // Display the rename project dialog. 
-			// Only the description can be altered for the currently 
-			// open project. The description and names can be 
-			// altered for all other projects.
-                    	int chosenButton = showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Rename Project",
+                        // Display the rename project dialog.
+            // Only the description can be altered for the currently
+            // open project. The description and names can be
+            // altered for all other projects.
+                        int chosenButton = showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Rename Project",
                                 DialogOption.RENAME_UPDATE_OPTIONS, true);
-                    	
-                    	String selectedProject = getRadioButtonSelected();
-                    	
-                    	// Ensure that there is a project selected otherwise exit
-                    	if(selectedProject == null)
-                    		break;
-                    	
-                    	boolean isDifferentDataBaseSelected = !selectedProject.equals(dbControl.getDatabaseName());
-                    	boolean isIgnoringUncommittedChanges = ccddMain.ignoreUncommittedChanges("Rename Project", "Discard changes?", true, null, CcddDbManagerDialog.this);
-                    	
-                    	String dbCurrentName = selectedProject;
-                    	String dbNewName = "";
-                    	
-                    	boolean updateDb = false;
-                    	// The OK button was chosen so rename the database and update the description
-                    	if(chosenButton == CcddConstants.OK_BUTTON && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges) ){
+
+                        String selectedProject = getRadioButtonSelected();
+
+                        // Ensure that there is a project selected otherwise exit
+                        if(selectedProject == null)
+                            break;
+
+                        boolean isDifferentDataBaseSelected = !selectedProject.equals(dbControl.getDatabaseName());
+                        boolean isIgnoringUncommittedChanges = ccddMain.ignoreUncommittedChanges("Rename Project", "Discard changes?", true, null, CcddDbManagerDialog.this);
+
+                        String dbCurrentName = selectedProject;
+                        String dbNewName = "";
+
+                        boolean updateDb = false;
+                        // The OK button was chosen so rename the database and update the description
+                        if(chosenButton == CcddConstants.OK_BUTTON && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges) ){
                             // Rename the project
                             dbNewName = nameFld.getText();
                             updateDb = true;
-                    	}
-                    	
-                    	// The UPDATE button was chosen so just update the description and keep the name the same
-                    	if(chosenButton == CcddConstants.UPDATE_BUTTON && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges) ){
+                        }
+
+                        // The UPDATE button was chosen so just update the description and keep the name the same
+                        if(chosenButton == CcddConstants.UPDATE_BUTTON && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges) ){
                             dbNewName = dbCurrentName;
                             updateDb = true;
-                    	}
-                    	
-                    	if(updateDb){
+                        }
+
+                        if(updateDb){
                             // Update the Description
                             dbControl.renameDatabaseInBackground(dbCurrentName, dbNewName, descriptionFld.getText());
-                    	}
-                    	
+                        }
+
                         break;
 
                     case COPY:
@@ -848,10 +848,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler {
                         nameFld.setBackground(isAlterable ? ModifiableColorInfo.INPUT_BACK.getColor()
                                 : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
 
-                        /*
-                         * If needed inform the user that an open project cannot be renamed. 16 is the
-                         * length of "New project name"
-                         */
+                        // If needed inform the user that an open project cannot be renamed. 16 is the
+                        // length of "New project name"
                         if (nameLbl.getText().substring(0, 16).equals("New project name")) {
                             nameLbl.setText(isAlterable ? "New project name"
                                     : "New project name (Note: Please close this project if you wish to rename it.)");

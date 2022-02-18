@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -288,7 +288,7 @@ public class CcddScriptDataAccessHandlerStatic {
     public String getCommandArgumentStructureWithMacros(int row) {
         return accessHandler.getCommandArgumentWithMacros(row);
     }
-    
+
     public String[][] getCommandArgumentData(String tableName) {
         return accessHandler.getCommandArgumentData(tableName);
     }
@@ -296,7 +296,7 @@ public class CcddScriptDataAccessHandlerStatic {
     public String[] getCommandArgumentColumnNames(String tableName) {
         return accessHandler.getCommandArgumentColumnNames(tableName);
     }
-    
+
     public static String getStructureTypeNameByRow(int row) {
         return accessHandler.getStructureTypeNameByRow(row);
     }
@@ -544,15 +544,15 @@ public class CcddScriptDataAccessHandlerStatic {
     public static String getTableDescription(String tableName) {
         return accessHandler.getTableDescription(tableName);
     }
-    
+
     public static String[][] getTableDataByName(String tableName) {
         return accessHandler.getTableDataByName(tableName);
     }
-    
+
     public static String[] getTableDataByNameAndColumn(String tableName, String columnName, boolean expandMacros) {
         return accessHandler.getTableDataByNameAndColumn(tableName, columnName, expandMacros);
     }
-    
+
     public static String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {
         return accessHandler.getTableFieldsByName(tableName, nameAndValue);
     }
@@ -732,11 +732,11 @@ public class CcddScriptDataAccessHandlerStatic {
     public static String[] getApplicationMessageDefinitionTable() {
         return accessHandler.getApplicationMessageDefinitionTable();
     }
-    
+
     public static String[] getEnumTableNames() {
         return accessHandler.getEnumTableNames();
     }
-    
+
     public static String[][] getEnumTableData(String tableName) {
         return accessHandler.getEnumTableData(tableName);
     }

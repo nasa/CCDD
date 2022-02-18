@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -966,13 +966,13 @@ public class CcddScriptDataAccessHandler {
                     // Get the prototype name form the table name
                     tableName = TableInfo.getPrototypeName(tableName);
                 }
-                
+
                 // Check if the table name hasn't been added to the list
                 if (!names.contains(tableName)) {
                     // Store the table name
                     TableInfo tableData = dbTable.loadTableData(tableName, false, false, false, parent);
                     String type = tableData.getType();
-                    
+
                     if (type.contains(tableType)) {
                         names.add(tableName);
                     }
@@ -1647,7 +1647,7 @@ public class CcddScriptDataAccessHandler {
     public String getCommandArgumentWithMacros(int row) {
         return getCommandArgument(row, false);
     }
-    
+
     /**********************************************************************************************
      * Get the command argument data related to the table name that was provided
      *
@@ -1658,7 +1658,7 @@ public class CcddScriptDataAccessHandler {
     public String[][] getCommandArgumentData(String tableName) {
         return getTableDataByName(tableName);
     }
-    
+
     /**********************************************************************************************
      * Get all columns that make up the command argument table
      *
@@ -1667,13 +1667,13 @@ public class CcddScriptDataAccessHandler {
      * @return array representing all of the column names belonging to the table
      *********************************************************************************************/
     public String[] getCommandArgumentColumnNames(String tableName) {
-        /* Get the type definition so that the column names can be determined */
+        // Get the type definition so that the column names can be determined
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(STRUCT_CMD_ARG_REF);
-        /* Get the column names, but remove the key and index */
+        // Get the column names, but remove the key and index
         int numColumnNames = typeDef.getColumnNamesDatabase().length;
-        
+
         String[] columnNames = Arrays.copyOfRange(typeDef.getColumnNamesDatabase(), 2, numColumnNames);
-        
+
         return columnNames;
     }
 
@@ -1883,7 +1883,7 @@ public class CcddScriptDataAccessHandler {
 
         return columnNames;
     }
-    
+
     /**********************************************************************************************
      * Process each member of a structure to determine if it references any other structures.
      * If one of the members of the structure references another structure then that structure will
@@ -1905,11 +1905,11 @@ public class CcddScriptDataAccessHandler {
         // which will need to be processed first
         } else {
             List<String> structMembers = structuresMap.get(member);
-            
+
             for (int memberIndex = 0; memberIndex < structMembers.size(); memberIndex++) {
                 processStructureMemberForOrdering(structuresMap, orderedNames, structMembers.get(memberIndex));
             }
-            
+
             if (!orderedNames.contains(member)) {
                 orderedNames.add(member);
             }
@@ -1932,7 +1932,7 @@ public class CcddScriptDataAccessHandler {
         // Get the list of all referenced structure names
         List<String> structureNames = new LinkedList<String>(Arrays.asList(getStructureTableNames()));
         HashMap<String, List<String>> structuresMap = new HashMap<>();
-        
+
         // Step though all of the structure names
         for (int index = 0; index < structureNames.size(); index++) {
             // Determine which column represents the data type
@@ -1940,7 +1940,7 @@ public class CcddScriptDataAccessHandler {
                     DefaultInputType.PRIM_AND_STRUCT);
             // Grab all rows of data from the data type column
             String[] data = getTableDataByNameAndColumn(structureNames.get(index), dataTypeColumn, false);
-            
+
             // Step through each row of data
             for (int row = 0; row < data.length; row++) {
                 // Determine which rows contain a non-primitive data type
@@ -1959,7 +1959,7 @@ public class CcddScriptDataAccessHandler {
                     }
                 }
             }
-            
+
         }
 
         // Check if any structures exist in the map that may need to be reordered
@@ -1968,19 +1968,19 @@ public class CcddScriptDataAccessHandler {
             for (int keyIndex = 0; keyIndex < keys.size(); keyIndex++) {
                 // Grab the list of members that belong to this structure
                 List<String> structMembers = structuresMap.get(keys.get(keyIndex));
-                               
+
                 // Process each member
                 for (int memberIndex = 0; memberIndex < structMembers.size(); memberIndex++) {
                     processStructureMemberForOrdering(structuresMap, orderedNames, structMembers.get(memberIndex));
                 }
-                
+
                 // If this structure is not already in the ordered list then add it
                 if (!orderedNames.contains(keys.get(keyIndex))) {
                     orderedNames.add(keys.get(keyIndex));
                 }
             }
         }
-        
+
         // Add the rest of the structures that do not contain any references to other structures.
         for (int index = 0; index < structureNames.size(); index++) {
             if (!orderedNames.contains(structureNames.get(index))) {
@@ -3429,7 +3429,7 @@ public class CcddScriptDataAccessHandler {
         // Get the description for the table
         return dbTable.queryTableDescription(tableName, ccddMain.getMainFrame());
     }
-    
+
     /**********************************************************************************************
      * Get the table data related to the table name that was provided
      *
@@ -3438,18 +3438,18 @@ public class CcddScriptDataAccessHandler {
      * @return 2d array representing all data related to the table name provided
      *********************************************************************************************/
     public String[][] getTableDataByName(String tableName) {
-        /* Load the table data */
+        // Load the table data
         TableInfo tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
-        
-        /* Get the type definition so that the column names can be determined */
+
+        // Get the type definition so that the column names can be determined
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
-        
-        /* Get the column names */
+
+        // Get the column names
         String[] columnNames = typeDef.getColumnNamesDatabase();
 
         String[][] data = new String[tableInfo.getData().size()][columnNames.length-2];
-        
-        /* Add the data to the 2d array */
+
+        // Add the data to the 2d array
         for (int dataIndex = 0; dataIndex < data.length; dataIndex++) {
             for (int columnIndex = 2; columnIndex < columnNames.length; columnIndex++) {
                 String value = tableInfo.getData().get(dataIndex)[columnIndex].toString();
@@ -3460,85 +3460,85 @@ public class CcddScriptDataAccessHandler {
                 }
             }
         }
-        
+
         return data;
     }
-    
+
     /**********************************************************************************************
      * Get table data in all rows of the specified column
      *
      * @param tableName Name of the table who's data is being requested
-     * 
+     *
      * @param columnName Name of the column that data needs to be pulled from
-     * 
+     *
      * @param expandMacros Expand any macros within the data
      *
      * @return array representing the data in all rows of the specified column
      *********************************************************************************************/
     public String[] getTableDataByNameAndColumn(String tableName, String columnName, boolean expandMacros) {
         int columnIndex = -1;
-        
-        /* Convert the name to lower case and replace any whitespace with a underline */
+
+        // Convert the name to lower case and replace any whitespace with a underline
         columnName = columnName.toLowerCase().replace(" ", "_");
-        
-        /* Load the table data */
+
+        // Load the table data
         TableInfo tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
         String[] data = new String[tableInfo.getData().size()];
-        
-        /* Get the type definition so that the column names can be determined */
+
+        // Get the type definition so that the column names can be determined
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(tableInfo.getType());
-        
-        /* Get the column names */
+
+        // Get the column names
         String[] columnNames = typeDef.getColumnNamesDatabase();
-        
-        /* Find the index of the provided column name */
+
+        // Find the index of the provided column name
         for (int index = 0; index < columnNames.length; index++) {
             if (columnNames[index].equals(columnName)) {
                 columnIndex = index;
             }
         }
-        
-        if (columnIndex != -1) {            
-            /* Trim off the key and index */
+
+        if (columnIndex != -1) {
+            // Trim off the key and index
             for (int dataIndex = 0; dataIndex < tableInfo.getData().size(); dataIndex++) {
                 data[dataIndex] = tableInfo.getData().get(dataIndex)[columnIndex].toString();
             }
         }
-        
+
         if (expandMacros) {
             for (int index = 0; index < data.length; index++) {
                 data[index] = macroHandler.getMacroExpansion(data[index]);
             }
         }
-        
+
         return data;
     }
-    
+
     /**********************************************************************************************
      * Get all fields associated with the provided table name
      *
      * @param tableName Name of the table who's data is being requested
-     * 
+     *
      * @param nameAndValue Return only the name and value
-     * 
+     *
      * @return 2d array representing all fields related to the provided table name
      *********************************************************************************************/
     public String[][] getTableFieldsByName(String tableName, boolean nameAndValue) {
-        /* Load the table data */
+        // Load the table data
         TableInfo tableInfo = dbTable.loadTableData(tableName, false, true, false, parent);
-        
-        /* Load the fieldInfo */
+
+        // Load the fieldInfo
         List<FieldInformation> fieldInfo = tableInfo.getFieldInformation();
-        
-        /* Convert the List of field info to a 2d object array */
+
+        // Convert the List of field info to a 2d object array
         Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(fieldInfo);
-        
+
         String[][] data;
-        
+
         if (nameAndValue == false) {
             data = new String[fieldData.length][fieldData[0].length];
-            
-            /* Cast the 2d object array to a 2d string array */
+
+            // Cast the 2d object array to a 2d string array
             for (int index = 0; index < data.length; index++) {
                 for (int index2 = 0; index2 < data[0].length; index2++) {
                     data[index][index2] = fieldData[index][index2].toString();
@@ -3546,14 +3546,14 @@ public class CcddScriptDataAccessHandler {
             }
         } else {
             data = new String[fieldData.length][2];
-            
-            /* Grab the name and value of all fields */
+
+            // Grab the name and value of all fields
             for (int index = 0; index < data.length; index++) {
                 data[index][0] = fieldInfo.get(index).getFieldName();
                 data[index][1] = fieldInfo.get(index).getValue();
             }
         }
-        
+
         return data;
     }
 
@@ -4589,7 +4589,7 @@ public class CcddScriptDataAccessHandler {
 
         return schTable.getMessageDefinitionTable();
     }
-    
+
     /**********************************************************************************************
      * Get the names of all tables of type ENUM
      *
@@ -4598,30 +4598,30 @@ public class CcddScriptDataAccessHandler {
     public String[] getEnumTableNames() {
         return getTableNames(TYPE_ENUM);
     }
-    
+
     /**********************************************************************************************
      * Get the data associated with the provided table name which is of type ENUM
      *
      * @return Array containing the data associated with the named table
      *********************************************************************************************/
     public String[][] getEnumTableData(String tableName) {
-        /* Find the index that represents the enum name column */
+        // Find the index that represents the enum name column
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(TYPE_ENUM);
-        
-        /* Get the table data */
+
+        // Get the table data
         List<Object[]> tableData = dbTable.loadTableData(tableName, false, true, false, parent).getData();
         String[][] data = new String[tableData.size()][typeDef.getColumnCountVisible()];
-        
-        /* Step though all of the data */
+
+        // Step though all of the data
         for (int row = 0; row < tableData.size(); row++) {
             for (int column = 0; column < typeDef.getColumnCountVisible(); column++) {
                 data[row][column] = tableData.get(row)[column+2].toString();
             }
         }
-        
+
         return data;
     }
-    
+
     /**********************************************************************************************
      * Get the number of time slots in the schedule definition table
      *
@@ -4721,15 +4721,15 @@ public class CcddScriptDataAccessHandler {
             // Create the XTCE handler
             xtceHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
 
-			List<TableInfo> tableDefs = new ArrayList<TableInfo>();
-			
-			for (String tablePath : getTableNames()) {
-				tableDefs.add(new TableInfo(tablePath));
-			}
+            List<TableInfo> tableDefs = new ArrayList<TableInfo>();
+
+            for (String tablePath : getTableNames()) {
+                tableDefs.add(new TableInfo(tablePath));
+            }
 
             // Export the specified tables to the specified output file in XTCE XML format
-            xtceHandler.exportTables(new FileEnvVar(outputFileName), tableDefs, 
-                    true, 
+            xtceHandler.exportTables(new FileEnvVar(outputFileName), tableDefs,
+                    true,
                     true, // unused for XTCE export
                     false, // unused for XTCE export
                     null, // unused for XTCE export

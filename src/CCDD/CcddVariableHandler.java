@@ -12,11 +12,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -86,7 +86,7 @@ public class CcddVariableHandler {
     // List containing the paths for every structure and variable, and the offset to
     // the structures and variables relative to their root structures
     private List<String> structureAndVariablePaths;
-    
+
     // List containing all variable names.
     private List<String> allVariableNames;
 
@@ -197,7 +197,7 @@ public class CcddVariableHandler {
         this.ccddMain = ccddMain;
         this.dataTypeHandler = dataTypeHandler == null ? ccddMain.getDataTypeHandler() : dataTypeHandler;
         this.macroHandler = macroHandler == null ? ccddMain.getMacroHandler() : macroHandler;
-        
+
         allVariableNames = new ArrayList<String>();
         dbCommand = ccddMain.getDbCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -232,7 +232,7 @@ public class CcddVariableHandler {
     protected List<String> getAllVariableNames() {
         return allVariableNames;
     }
-    
+
     /**********************************************************************************************
      * Update the list of structure and variable paths for valid variables as a map
      *
@@ -240,19 +240,19 @@ public class CcddVariableHandler {
      *********************************************************************************************/
     protected void updateAllVariableNames() {
         allVariableNames = new ArrayList<String>();
-        
+
         // Step through each variable path
         for (int index = 0; index < structureAndVariablePaths.size(); index++) {
             // Check if the variable path is a valid variable. The structureAndVariablePaths
             // list includes non-root structures and their children; these are not valid
-            // variables (they are in the list for size and offset purposes), so are not 
+            // variables (they are in the list for size and offset purposes), so are not
             // included in the list
             if (isVariable.get(index)) {
                 // Add the variable path to the list
                 allVariableNames.add(structureAndVariablePaths.get(index));
             }
         }
-        
+
         return;
     }
 
@@ -303,7 +303,7 @@ public class CcddVariableHandler {
                 result = true;
             }
         }
-        
+
         return result;
     }
 
@@ -506,12 +506,12 @@ public class CcddVariableHandler {
                     } else if (allVariableTree.getTableMemberByName(dataType) != null &&
                             allVariableTree.getTableMemberByName(dataType).getTableType().contentEquals(TYPE_ENUM)) {
                         String size = "0";
-                        
+
                         // Add the last variable's byte size to the offset total
                         offset += lastByteSize;
                         // Then add the size of the enum table to the offset total
                         FieldInformation sizeField = ccddMain.getFieldHandler().getFieldInformationByName(varPath, "Size (Bytes):");
-                        
+
                         // If the value of the field is blank then set it to 0
                         if (sizeField != null) {
                             size = sizeField.getValue();
@@ -519,7 +519,7 @@ public class CcddVariableHandler {
                                 size = "0";
                             }
                         }
-                        
+
                         // set the offset
                         offset += Integer.parseInt(size);
 
@@ -540,8 +540,8 @@ public class CcddVariableHandler {
                         lastDataType = "";
                         lastBitLength = 0;
                     }
-                    
-                    
+
+
                     // Check if this is the first member of an array
                     if (varPath.contains("[0]")) {
                         if (varPath.matches(".+(?:\\[0\\])+")) {
@@ -551,7 +551,7 @@ public class CcddVariableHandler {
                             structureAndVariablePaths.add(varPath.substring(0, position));
                             structureAndVariableOffsets.add(offset);
                             isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
-    
+
                             // Update the index pointing to the last member of the structure processed
                             lastIndex++;
                         }
@@ -574,14 +574,14 @@ public class CcddVariableHandler {
 
                     // Grab the table member
                     TableMembers tableMember = allVariableTree.getTableMemberByName(varPath);
-                    
+
                     // Check to see if we are working with an ENUM table
                     if (tableMember.getTableType().contentEquals(TYPE_ENUM)) {
                         String size = "0";
-                        
+
                         // add the size of the enum table to the offset total
                         FieldInformation sizeField = ccddMain.getFieldHandler().getFieldInformationByName(varPath, "Size (Bytes):");
-                        
+
                         // If the value of the field is blank then set it to 0
                         if (sizeField != null) {
                             size = sizeField.getValue();
@@ -589,7 +589,7 @@ public class CcddVariableHandler {
                                 size = "0";
                             }
                         }
-                        
+
                         // set the offset
                         offset = Integer.parseInt(size);
                     } else {
@@ -641,7 +641,7 @@ public class CcddVariableHandler {
         // Add the structure paths and variables to the variable references input type and refresh any open editors
         ccddMain.getInputTypeHandler().updateVariableReferences();
         ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
-        
+
         // Update the hash map containing all variable names
         updateAllVariableNames();
     }
@@ -1051,7 +1051,7 @@ public class CcddVariableHandler {
      *********************************************************************************************/
     protected String removeDataTypeFromVariablePath(String fullName) {
         StringBuilder result = new StringBuilder();
-        
+
         // Check if the path contains a '.' indicating it has at least one datatype included
         if (fullName.contains(".")) {
             // Split the string at each ','
@@ -1059,7 +1059,7 @@ public class CcddVariableHandler {
             for (int index = 0; index < values.length; index++) {
                 // Check each string for a '.'
                 if (values[index].contains(".")) {
-                    // If the string contains a '.' then remove all chars up to and including the 
+                    // If the string contains a '.' then remove all chars up to and including the
                     // '.' before appending it to the result
                     int location = values[index].indexOf(".")+1;
                     result.append(values[index].substring(location));
@@ -1076,7 +1076,7 @@ public class CcddVariableHandler {
             // The path does not contain a '.' for just append the whole path to the result and return
             result.append(fullName);
         }
-        
+
         return result.toString();
     }
 

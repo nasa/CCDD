@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -157,7 +157,7 @@ public class CcddDbControlHandler {
 
     // Temporary data storage table
     private static final String TEMP_TABLE_NAME = INTERNAL_TABLE_PREFIX + "temp_table";
-    
+
     private boolean addDefaultDataTypes;
 
     /**********************************************************************************************
@@ -797,11 +797,11 @@ public class CcddDbControlHandler {
         return dbCommand.getList(DatabaseListCommand.DATABASES_BY_USER, new String[][] { { "_user_", userName } },
                 parent);
     }
-    
+
     /**
      * Query the list of all databases and determine if one exists with
      * the given name
-     * 
+     *
      * @param queryDatabaseName the Database name to find
      * @return a database with that name exists or does not
      */
@@ -1150,7 +1150,7 @@ public class CcddDbControlHandler {
 
         // The comment could not be obtained from the pg_shdescription field
         // of the DB. This means that somehow the field has not been updated
-        // or the DB otherwise failed. So, try to get it with another 
+        // or the DB otherwise failed. So, try to get it with another
         // mechanism as a last ditch effort.
         if(comment == null)
         {
@@ -1180,7 +1180,7 @@ public class CcddDbControlHandler {
     }
 
     /**********************************************************************************************
-     * Build the command to create the database comment and updated the internal table _dub_info. 
+     * Build the command to create the database comment and updated the internal table _dub_info.
      * Delimit the text so that special characters (e.g., single quotes) can be placed in the description
      *
      * @param projectName   project name (with case and special characters
@@ -1197,22 +1197,22 @@ public class CcddDbControlHandler {
      *********************************************************************************************/
     protected String buildDatabaseCommentCommandAndUpdateInternalTable(String projectName, String administrator,
             boolean lockStatus, String description) {
-        
+
         if (activeOwner != "") {
-            /* Update the internal table */
+            // Update the internal table
             try {
                 StringBuilder command = new StringBuilder("DELETE FROM ").append(InternalTable.DBU_INFO.getTableName())
                         .append(";");
-                
-                /* Delete the current contents of the __dbu_info_ internal table */
+
+                // Delete the current contents of the __dbu_info_ internal table
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
-                
-                command.append("INSERT INTO ").append(InternalTable.DBU_INFO.getTableName()).append(" VALUES ('") 
+
+                command.append("INSERT INTO ").append(InternalTable.DBU_INFO.getTableName()).append(" VALUES ('")
                        .append((CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0"))).append("', '")
                        .append(getQuotedName(convertProjectNameToDatabase(projectName))).append("', '").append(administrator)
                        .append("', '").append(description).append("');");
-                
-                /* Update the __dbu_info_ internal table */
+
+                // Update the __dbu_info_ internal table
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             } catch (SQLException e) {
                 try {
@@ -1221,7 +1221,7 @@ public class CcddDbControlHandler {
                     command = command.replace(LOCK, (CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0"))).replace(NAME, getQuotedName(
                             convertProjectNameToDatabase(projectName)));
                     command = command.replace(ADMINS, administrator).replace(DESC, description);
-                    /* Create the default internal table */
+                    // Create the default internal table
                     dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
                 } catch (SQLException se) {
                     // Inform the user that creating the database functions failed
@@ -1232,8 +1232,8 @@ public class CcddDbControlHandler {
                 }
             }
         }
-        
-        /* return the command */
+
+        // return the command
         return "COMMENT ON DATABASE " + getQuotedName(convertProjectNameToDatabase(projectName)) + " IS "
                 + CcddDbTableCommandHandler.delimitText(
                         CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0") + DATABASE_COMMENT_SEPARATOR + projectName
@@ -1313,27 +1313,27 @@ public class CcddDbControlHandler {
      *********************************************************************************************/
     protected boolean createDatabase(final String projectName, String ownerName, String administrator,
             String description) {
-        /* Init local variables */
+        // Init local variables
         boolean successFlag = true;
         String databaseName = null;
         StringBuilder command = new StringBuilder();
         try {
-            /* Convert the project name into its database form */
+            // Convert the project name into its database form
             databaseName = convertProjectNameToDatabase(projectName);
 
-            /* Enable auto-commit for database changes */
+            // Enable auto-commit for database changes
             connection.setAutoCommit(true);
 
-            /* Execute the command to create the project database */
+            // Execute the command to create the project database
             command.append("CREATE DATABASE ").append(getQuotedName(databaseName)).append(" ENCODING 'UTF8'; ")
                    .append(buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false, description))
                    .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, databaseName))
                    .append(dbCommand.executeDbUpdate(command, ccddMain.getMainFrame()));
 
-            /* Inform the user that the update succeeded */
+            // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' created"));
         } catch (SQLException se) {
-            /* Inform the user that the database command failed */
+            // Inform the user that the database command failed
             eventLog.logFailEvent(
                     ccddMain.getMainFrame(), "Cannot create project database '" + getServerAndDatabase(databaseName)
                             + "'; cause '" + se.getMessage() + "'",
@@ -1343,7 +1343,7 @@ public class CcddDbControlHandler {
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
             successFlag = false;
         } finally {
-            /* Disable auto-commit for database changes */
+            // Disable auto-commit for database changes
             resetAutoCommit();
         }
 
@@ -1396,7 +1396,7 @@ public class CcddDbControlHandler {
                    .append("SELECT CASE WHEN EXISTS(SELECT 1 FROM pg_catalog.pg_language WHERE lanname = 'plpgsql') ")
                    .append("THEN NULL ELSE make_plpgsql() END; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()"))
                    .append("DROP FUNCTION make_plpgsql();");
-            /* Send command to create the procedural language in the database if it does not already exists */
+            // Send command to create the procedural language in the database if it does not already exists
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
 
@@ -1404,35 +1404,34 @@ public class CcddDbControlHandler {
                    .append("(SELECT 'DROP FUNCTION ' || oid::regproc || '(' || pg_get_function_identity_arguments(oid) ")
                    .append("|| ');' || E'\n' FROM pg_proc WHERE proname = function_name AND pg_function_is_visible(oid)); ")
                    .append("END $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "delete_function(function_name text)"));
-            /* Create function to delete functions whether or not the input parameters match */
+            // Create function to delete functions whether or not the input parameters match
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
 
-            /* Create a temporary table for storing the results returned by the database functions */
+            // Create a temporary table for storing the results returned by the database functions
             createTemporaryTable();
 
-            /* Step through each internal table type */
+            // Step through each internal table type
             for (InternalTable intTable : InternalTable.values()) {
                 // Reset the command
                 command.setLength(0);
-                
-                /* Check that this isn't the script table type. The script table is a special type
-                 * for storing specific scripts
-                 */
+
+                // Check that this isn't the script table type. The script table is a special type
+                // for storing specific scripts
                 if (intTable != InternalTable.SCRIPT) {
-                    /* Check if the internal table doesn't exist */
+                    // Check if the internal table doesn't exist
                     if (!ccddMain.getDbTableCommandHandler().isTableExists(intTable.getTableName(), ccddMain.getMainFrame())) {
                         if (intTable != InternalTable.DBU_INFO) {
-                            /* Create the default internal table */
+                            // Create the default internal table
                             command.append(buildInformationTableCommand(intTable));
                             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
                         } else {
-                            command.setLength(0); 
+                            command.setLength(0);
                             String[] comment = getDatabaseComment(activeDatabase);
-                            
+
                             command.append((buildInformationTableCommand(intTable).replace(LOCK, CCDD_PROJECT_IDENTIFIER + comment[0]).replace(NAME, comment[1]))
                                    .replace(ADMINS, comment[2]).replace(DESC, comment[3]));
-                            /* Create the default internal table */
+                            // Create the default internal table
                             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
                         }
                     }
@@ -1473,7 +1472,7 @@ public class CcddDbControlHandler {
                    .append("AND cast(' || quote_ident(column_name) || ' AS text) ~* E''' || search_text || ''') OR (' || quote_nullable(no_case) ")
                    .append("|| ' = ''false'' AND cast(' || quote_ident(column_name) || ' AS text) ~ E''' || search_text || ''')))' LOOP ")
                    .append("SELECT * FROM regexp_replace(the_row::text, E'^\\\\(|(\\\\)$)', '', 'g') INTO column_value; RETURN NEXT; END LOOP; END; ")
-                   .append("END LOOP; END; $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "search_tables(search_text " + 
+                   .append("END LOOP; END; $$ LANGUAGE plpgsql; ").append(buildOwnerCommand(DatabaseObject.FUNCTION, "search_tables(search_text " +
                    "text, no_case boolean, " + "allow_regex boolean, " + "selected_tables text, " + "columns name[]," + "all_schema name[])"));
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
@@ -1752,17 +1751,17 @@ public class CcddDbControlHandler {
      * @return Command to build the specified internal table
      *********************************************************************************************/
     protected String buildInformationTableCommand(InternalTable intTable) {
-        /* Get the internal table's column build command */
+        // Get the internal table's column build command
         String columnCommand = intTable.getColumnCommand(true);
 
-        /* Check if this is the user authorization table */
+        // Check if this is the user authorization table
         if (intTable == InternalTable.USERS) {
-            /* Get the project creator's user name */
+            // Get the project creator's user name
             String creator = getDatabaseAdmins(activeDatabase);
 
-            /* Check if the creator name is present in the database comment */
+            // Check if the creator name is present in the database comment
             if (creator != null) {
-                /* Update the column build command with the creator name */
+                // Update the column build command with the creator name
                 columnCommand = columnCommand.replaceFirst("_admin_user_", creator);
             }
         }
@@ -2010,7 +2009,7 @@ public class CcddDbControlHandler {
      *
      * @param createFunctions true to create the database functions; false if
      *                        reopening a database (so the functions already exist)
-     *                        
+     *
      * @param addDefaultDataTypes Should the default data type be added to the database? This is normally
      *                            false only when restoring a database from JSON or CSV
      *
@@ -2020,7 +2019,7 @@ public class CcddDbControlHandler {
     protected boolean openDatabase(String projectName, boolean createFunctions) {
         return openDatabase(projectName, serverHost, serverPort, isSSL, createFunctions);
     }
-    
+
     /**********************************************************************************************
      * Open a database using the current host, port, and SSL settings
      *
@@ -2028,9 +2027,9 @@ public class CcddDbControlHandler {
      *
      * @param createFunctions true to create the database functions; false if
      *                        reopening a database (so the functions already exist)
-     *                        
+     *
      * @param addDefaultDataTypes Should the default data type be added to the database? This is normally
-     *                            false only when restoring a database from JSON or CSV
+     *                            false only when restoring a database from JSON or CSV //TODO
      *
      * @return true if an error occurred opening the database; false if the database
      *         successfully opened
@@ -2113,7 +2112,7 @@ public class CcddDbControlHandler {
                         // Perform any patches to update this project database to the latest schema
                         // that must be implemented after initializing the handler classes
                         patchHandler.applyPatches(false);
-                        
+
                         // Create and set the project-specific handlers that must be created after
                         // creating the project-specific PostgreSQL functions
                         ccddMain.setPostFunctionDbSpecificHandlers();
@@ -2130,8 +2129,8 @@ public class CcddDbControlHandler {
                             if (dbTableCommand == null) {
                                 dbTableCommand = ccddMain.getDbTableCommandHandler();
                             }
-                            
-                            // Build the table tree and update the pre-loaded table members. This is done in the background 
+
+                            // Build the table tree and update the pre-loaded table members. This is done in the background
                             // as soon as a database is opened so that when a user performs an action that loads the table
                             // tree they do not have to wait for it to be built.
                             ccddMain.buildTableTreeHandler();
@@ -2184,7 +2183,7 @@ public class CcddDbControlHandler {
                                         + e.getMessage() + "<b>'",
                                 "File Warning", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
                     }
-                    
+
                     // Check if an automatic backup was scheduled via the command line argument
                     boolean isBackupOperation = !backupFileName.isEmpty();
                     if (isBackupOperation) {
@@ -2293,7 +2292,7 @@ public class CcddDbControlHandler {
             }
         });
     }
-    
+
     /**********************************************************************************************
      * Rename a project and/or add/update the database description.
      *
@@ -2305,8 +2304,8 @@ public class CcddDbControlHandler {
      *********************************************************************************************/
     protected void renameDatabase(final String oldProject, final String newProject,
             final String description){
-    	
-    	String currentDatabase = activeDatabase;
+
+        String currentDatabase = activeDatabase;
 
         // Convert the project names to their database equivalents
         String oldDatabase = convertProjectNameToDatabase(oldProject);
@@ -2382,7 +2381,7 @@ public class CcddDbControlHandler {
              *************************************************************************************/
             @Override
             protected void execute() {
-            	renameDatabase(oldProject,newProject,description);
+                renameDatabase(oldProject,newProject,description);
             }
         });
     }
@@ -2623,7 +2622,7 @@ public class CcddDbControlHandler {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        
+
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
             /**************************************************************************************
@@ -2633,54 +2632,54 @@ public class CcddDbControlHandler {
             protected void execute() {
                 // Perform the backup operation
                 backupDatabase(projectName, backupFile);
-                
+
                 // Release the semaphore indicating that this thread's work is finished
                 ccddMain.getSemMap().get(CcddMain.BACKUP_KEY).left.release();
 
             }
         });
     }
-    
-    
+
+
     /**********************************************************************************************
-     * Rename a project database, back it up and revert the rename. This can be used during a 
+     * Rename a project database, back it up and revert the rename. This can be used during a
      * backup operation to change the name of the backed up database to match the backup
      * file name (for instance).
-     *  
+     *
      * This will perform the following sequence of operations:
      * 1: Rename an existing database to the new name
      * 2: Backup the newly renamed database (database name and backup file name will match now)
      * 3: Rename the database to its original name
      *
      * @param projectName current project name
-     * 
+     *
      * @param newProjectName new project name
      *
      * @param backupFile  file to which to backup the database
      *********************************************************************************************/
     protected void backupAndRenameDatabase(final String projectName, final String newProjectName, final FileEnvVar backupFile) {
-    	// Get the description (and pass in the database name to get the correct value)
-    	String description = getDatabaseDescription(convertProjectNameToDatabase(projectName));
+        // Get the description (and pass in the database name to get the correct value)
+        String description = getDatabaseDescription(convertProjectNameToDatabase(projectName));
 
-    	// If the description is incorrect, then throw an error in the log and fail
-    	if(description == null){
+        // If the description is incorrect, then throw an error in the log and fail
+        if(description == null){
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
                         "Database description is not valid '",
-                        "<html><b>Cannot rename project '</b>" + projectName + "<b>'");            
+                        "<html><b>Cannot rename project '</b>" + projectName + "<b>'");
                 return;
-    	}
+        }
 
-    	// Rename the database to get the new name
-    	renameDatabase(projectName, newProjectName, description);
+        // Rename the database to get the new name
+        renameDatabase(projectName, newProjectName, description);
 
         // Perform the backup operation
         backupDatabase(newProjectName, backupFile);
-        
+
         // Rename the database to its original name
-    	renameDatabase(newProjectName, projectName, description);
-    	
+        renameDatabase(newProjectName, projectName, description);
+
     }
-    
+
     /**********************************************************************************************
      * Backup a project database. This command is executed in a separate thread
      * since it can take a noticeable amount time to complete, and by using a
@@ -2689,7 +2688,7 @@ public class CcddDbControlHandler {
      * execution
      *
      * @param projectName current project name
-     * 
+     *
      * @param newProjectName new project name
      *
      * @param backupFile  file to which to backup the database
@@ -2702,22 +2701,22 @@ public class CcddDbControlHandler {
              *************************************************************************************/
             @Override
             protected void execute() {
-            	// This will be coming from the GUI which will require that the only database that can be
-            	// backed up is the open one so close it first
+                // This will be coming from the GUI which will require that the only database that can be
+                // backed up is the open one so close it first
                 if (ccddMain.ignoreUncommittedChanges("Close Project", "Discard changes?", true, null, null)) {
                     openDatabase(DEFAULT_DATABASE);
                 } else {
-                	// The user has chosen not to close the database so exit
-                	return;
+                    // The user has chosen not to close the database so exit
+                    return;
                 }
-            	
-            	// Perform the sequence of operations here
-            	backupAndRenameDatabase(projectName, newProjectName, backupFile);
-            	
-                
-            	// Open the original database again
-            	openDatabase(projectName);
-            	
+
+                // Perform the sequence of operations here
+                backupAndRenameDatabase(projectName, newProjectName, backupFile);
+
+
+                // Open the original database again
+                openDatabase(projectName);
+
             }
         });
     }
@@ -2899,10 +2898,10 @@ public class CcddDbControlHandler {
 
             // Execute the restore command
             errorType = executeProcess(command, numArgs);
-            
+
             // If the overwriteExisting is true, then the database won't be
-            // created and the internal table won't have been added already.  
-            // This probably means that the database has already been created 
+            // created and the internal table won't have been added already.
+            // This probably means that the database has already been created
             // and is probably coming from the command line functionality. So,
             // do it here
             if(overwriteExisting) {

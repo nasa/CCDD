@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -72,7 +72,7 @@ public class ConvertCStructureToCSV
         CcddMacroHandler macroHandler = ccddMain.getMacroHandler();
         CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
 
-        /* Create a list to hold all file */
+        // Create a list to hold all file
         List<FileEnvVar> newDataFile = new ArrayList<FileEnvVar>();
         String message = "Macro values or formulae for a variable's array size or bit length are \n"
                 + "converted to CCDD macros. However, the value of these macros is set to \n"
@@ -80,7 +80,7 @@ public class ConvertCStructureToCSV
                 + "(or edit them in CCDD after importing).  Note that the default macro \n"
                 + "value can lead to import errors if a macro formula used as an array \n"
                 + "size evaluates to less than 2 (array size must be >= 2).";
-        
+
         if (!ccddMain.isGUIHidden()) {
             if (!(new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), message,
                     "Notice", JOptionPane.QUESTION_MESSAGE,
@@ -90,7 +90,7 @@ public class ConvertCStructureToCSV
         } else {
             System.out.print(message + "\n");
         }
-        
+
         try {
             structDataIn = new ArrayList<String>();
             structDataOut = new ArrayList<String>();
@@ -134,9 +134,9 @@ public class ConvertCStructureToCSV
                 // Close the input file
                 br.close();
             }
-            
+
             structDataOut.add("c_struct_to_csv_conversion");
-            
+
             boolean firstMacro = true;
 
             // Step through each row of the input file data
@@ -148,7 +148,7 @@ public class ConvertCStructureToCSV
                 if (structDataIn.get(row).matches("\\s*typedef\\s+struct\\s*\\{?\\s*(?:$||/\\*.*|//.*)")) {
                     // Set the flag indicating this is a type definition
                     isTypeDef = true;
-                    
+
                     if (!firstMacro) {
                         structDataOut.add("\n");
                         firstMacro = true;
@@ -156,7 +156,7 @@ public class ConvertCStructureToCSV
                 } else if (structDataIn.get(row).startsWith("struct")) {
                     // Get the structure's name
                     structName = structDataIn.get(row).replaceAll("struct\\s*([a-zA-Z_][a-zA-Z0-9_]*).*", "$1");
-                    
+
                     if (!firstMacro) {
                         structDataOut.add("\n");
                         firstMacro = true;
@@ -165,20 +165,20 @@ public class ConvertCStructureToCSV
                     String[] macroData = structDataIn.get(row).split(" ");
                     String name = "";
                     String value = "";
-                    
+
                     if (macroData.length == 3) {
                         name = macroData[1];
                         value = macroData[2];
-                        
+
                         if (firstMacro) {
                             structDataOut.add("\n_macro_");
                             firstMacro = false;
                         }
-                        structDataOut.add("\"" + name + "\",\"" + value + "\"");  
+                        structDataOut.add("\"" + name + "\",\"" + value + "\"");
                         macrosFoundInHeaderFiles.add(name);
                     }
-                    
-                    continue;                    
+
+                    continue;
                 } else {
                     if (!firstMacro) {
                         structDataOut.add("\n");
@@ -349,10 +349,10 @@ public class ConvertCStructureToCSV
 
                                         // Evaluate and adjust the array size for macros
                                         arraySize = getMacros(arraySize);
-                                        
+
                                         if (arraySize.contains("##")) {
                                             String macroName = arraySize.replace("#", "");
-                                            
+
                                             // Was the macro defined within the file?
                                             if (!macrosFoundInHeaderFiles.contains(macroName)) {
                                                 // If not was the macro already defined within the database?
@@ -410,7 +410,7 @@ public class ConvertCStructureToCSV
                 while (structDataOut.get(structDataOut.size() - 1).isEmpty()) {
                     structDataOut.remove(structDataOut.size() - 1);
                 }
-                
+
                 String filePath = SNAP_SHOT_FILE_PATH_2 + "/C_Header_Conversion_Data.csv";
 
                 // Open the output file
@@ -435,24 +435,24 @@ public class ConvertCStructureToCSV
                     // Close the output file
                     pw.close();
                 }
-                
+
                 newDataFile.add(outFile);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        // Update the macros 
+
+        // Update the macros
         macroHandler.initializeMacroUpdates();
-        macroHandler.updateMacros(newMacros, true);
+        macroHandler.updateMacros(newMacros, true, false);
         macroHandler.setMacroData();
-        
+
          // Store the macros in the database
         dbTable.storeInformationTable(InternalTable.MACROS,
                 CcddUtilities.removeArrayListColumn(macroHandler.getMacroData(), MacrosColumn.OID.ordinal()), null,
                 ccddMain.getMainFrame());
 
-        
+
         return newDataFile.toArray(new FileEnvVar[0]);
     }
 

@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -232,7 +232,7 @@ public class CcddDialogHandler extends JDialog {
                     closeDialog(button);
                 }
             }
-            
+
             /**************************************************************************************
              * Override the window closing method and exit without checking the value
              *
@@ -833,7 +833,7 @@ public class CcddDialogHandler extends JDialog {
             FileNameExtensionFilter[] fileExtensions, boolean folderOnly, boolean multipleFiles, String dialogTitle,
             String folder, DialogOption optionType, JPanel lowerPanel) {
         FileEnvVar[] file = new FileEnvVar[1];
-        
+
         if (fileName != null) {
             fileName = fileName.split("/")[fileName.split("/").length-1];
         }
@@ -1019,16 +1019,16 @@ public class CcddDialogHandler extends JDialog {
             // then
             // split the string at the commas, which now delineate the separate file names
             String[] fileNames = names.replaceAll(",,+", ",").replaceAll("\"+", "").split(",");
-            
+
             // Wildcard only available when looking for files (not folders)
             // Wildcard only possible if there is something entered in the file names
             // Wildcard only possible if multiple files are being allowed
             boolean isSearchForWildCard = !folderOnly && fileNames.length > 0 && multipleFiles == true;
-            
+
             if(isSearchForWildCard){
                 // Check for a wildcard of type mean *.[type]
                 final String ext = "." + fileExtensions[0].getExtensions()[0].toString();
-                
+
                 file = searchForWildCard(envVars, chooser, fileNames, ext);
                 // If matches were found, return them, otherwise continue
                 if(file != null){
@@ -1080,7 +1080,7 @@ public class CcddDialogHandler extends JDialog {
         String wildcard = "*" + ext;
         boolean isWildCard = fileNames.length == 1
                 && fileNames[0].contains(wildcard);
-        
+
         if (isWildCard) {
             String relativePathToFirst = chooser.getCurrentDirectory()
                     .getAbsolutePath() + File.separator + fileNames[0];
@@ -1090,7 +1090,7 @@ public class CcddDialogHandler extends JDialog {
                     relativePathToFirst, envVars);
             return getAllFilesContaining(absolutePath, ext);
         }
-        
+
         return null;
     }
 
@@ -1117,7 +1117,7 @@ public class CcddDialogHandler extends JDialog {
 
         // Find all of the files that match the filter
         File[] foundFiles = baseFolder.toFile().listFiles(filt);
-        
+
         // The directory either does not exist or is invalid for some reason
         if(foundFiles == null)
             return null;

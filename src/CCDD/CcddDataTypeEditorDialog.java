@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -647,9 +647,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                         // Check if the data type user name or C type has been changed
                         if (column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
                                 || column == DataTypeEditorColumnInfo.C_NAME.ordinal()) {
-                            
+
                             boolean isUserNameChange = column == DataTypeEditorColumnInfo.USER_NAME.ordinal();
-                            
+
                             // For the user type only, compare against existing entries
                             if(isUserNameChange){
                                 // Compare this data type name to the others in the table in order to
@@ -666,12 +666,12 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                                         throw new CCDDException("Type Name \"" + newValueS + "\" already in use. Please use a unique Type Name");
                                     }
                                 }
-                                
+
                                 // Must also check that there are no tables with this name in the database
                                 if (dbTable.isTableExists(newValueS, ccddMain.getMainFrame())) {
                                     throw new CCDDException("Type Name \"" + newValueS + "\" already in use. Please use a unique Type Name");
                                 }
-                                
+
                             }
 
                             // Check if the data type user name has been changed
@@ -720,7 +720,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
                         else if (column == DataTypeEditorColumnInfo.SIZE.ordinal()) {
                             // Get the size. If this is a macro it will need to be expanded
                             String result = macroHandler.getMacroExpansion(newValueS, new ArrayList<String>());
-                            
+
                             // Check if the data type size is not a positive integer
                             if (!result.matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
                                 throw new CCDDException("Data type size must be a positive integer");
@@ -760,7 +760,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler {
 
                         // Expand the old value if it is a macro
                         oldValueS = macroHandler.getMacroExpansion(oldValueS, new ArrayList<String>());
-                        
+
                         // Check if the size was reduced for an integer (signed or unsigned) type
                         // or if the base data type changed from an integer (signed or unsigned) to
                         // a non-integer

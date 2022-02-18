@@ -12,11 +12,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -2701,10 +2701,8 @@ public abstract class CcddJTableHandler extends JTable {
      *                         replace the cell contents with one or more special
      *                         replacement characters
      *********************************************************************************************/
-    /*
-     * Suppress warnings is used because when this code is compiled some of it is
-     * not legal, but it will be at runtime
-     */
+    // Suppress warnings is used because when this code is compiled some of it is
+    // not legal, but it will be at runtime
     @SuppressWarnings("unchecked")
     protected void deleteCell(boolean isReplaceSpecial) {
         // Check if any cells are currently selected
@@ -2877,7 +2875,7 @@ public abstract class CcddJTableHandler extends JTable {
 
                     // Replace the tabs with a tab+space so that empty cells at the end of a line
                     // aren't discarded by the split commands. The extra space is removed later
-                    data = data.replaceAll("\t", "\t ");
+                    data = data.replaceAll("    ", "     ");
 
                     // Count the number of rows and columns in the pasted data. The remaining new
                     // line characters indicate the end of a row of cells, so the number of new
@@ -2886,12 +2884,12 @@ public abstract class CcddJTableHandler extends JTable {
                     // of columns is determined by counting the number of tab characters (which
                     // separate the cells in a row) for the first row of the data
                     int numRows = (data + " ").split("\n").length;
-                    int numColumns = data.split("\n")[0].split("\t").length;
+                    int numColumns = data.split("\n")[0].split("    ").length;
 
                     // Replace the new line characters that terminate each row with a tab
                     // character; the string can be split into cell values based on the tabs (cells
                     // in a row are already tab-separated)
-                    data = data.replaceAll("\n", "\t ");
+                    data = data.replaceAll("\n", "     ");
 
                     // Restore the double quotes that are part of the cell contents by replacing
                     // each place holder with a double quote
@@ -2900,7 +2898,7 @@ public abstract class CcddJTableHandler extends JTable {
                     // Break the data string into the individual cells. The size of the array is
                     // specified to prevent the split command from discarding any empty trailing
                     // cells
-                    String[] cellData = data.split("\t ", numRows * numColumns);
+                    String[] cellData = data.split("     ", numRows * numColumns);
 
                     // Step through each cell
                     for (int index = 0; index < cellData.length; index++) {
@@ -4047,9 +4045,8 @@ public abstract class CcddJTableHandler extends JTable {
             PrintService defaultService = printerJob.getPrintService();
             PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
 
-            /* If no printer is setup a dialog will spawn informing the user that the log
-             * can not be printed
-             */
+            // If no printer is setup a dialog will spawn informing the user that the log
+            // can not be printed
             if (defaultService != null) {
 
                 // Create a dummy dialog in order to obtain the print dialog's dimensions
@@ -4065,7 +4062,7 @@ public abstract class CcddJTableHandler extends JTable {
                 // Create a book object for the table and data fields (if applicable)
                 PrintableBook book = new PrintableBook();
 
-                
+
                 // Add the table to the book object
                 book.add(getPrintable(JTable.PrintMode.FIT_WIDTH, new MessageFormat(tableName),
                         new MessageFormat("page {0}")), pageFormat);
@@ -4086,11 +4083,11 @@ public abstract class CcddJTableHandler extends JTable {
                     // Get the printable object for the text area
                     Printable fldPrintable = fldTxtArea.getPrintable(new MessageFormat("Data Fields for " + tableName),
                             new MessageFormat("page " + Integer.toString(book.getNumberOfPages()+1) ));
-                    
+
                     // Add the fields to the book object
                     book.add(fldPrintable, pageFormat);
                 }
-                
+
                 System.out.print(book.getNumberOfPages());
                 if (printerJob.printDialog()) {
                     try {
@@ -4125,12 +4122,12 @@ public abstract class CcddJTableHandler extends JTable {
             super();
             pages = new Vector<Printable>();
         }
-    
+
         public void add(Printable pp, PageFormat pageFormat) {
             append(pp, pageFormat);
             pages.add(pp);
         }
-        
+
         public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
             if (pageIndex >= pages.size())
                 return NO_SUCH_PAGE;

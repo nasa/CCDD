@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -181,7 +181,7 @@ public class CcddClassesDataTable {
             errorFlag = false;
             tableData = Arrays.asList(data);
         }
-        
+
         /******************************************************************************************
          * Table information class constructor
          *
@@ -216,7 +216,7 @@ public class CcddClassesDataTable {
             errorFlag = false;
             tableData = data;
         }
-        
+
         /******************************************************************************************
          * Table information class constructor
          *
@@ -287,7 +287,7 @@ public class CcddClassesDataTable {
                 this.fieldInformation = fieldInformation;
             }
         }
-        
+
         /******************************************************************************************
          * Table information class constructor. Used when the array of field definitions
          * are retrieved from the database. These are converted to a list of
@@ -539,7 +539,7 @@ public class CcddClassesDataTable {
         protected void setRootTable(String rootTable) {
             tablePath = tablePath.replaceFirst("^.*?(,|$)", rootTable + "$1");
         }
-        
+
         /******************************************************************************************
          * Get the table data as a list of String[]
          *
@@ -548,7 +548,7 @@ public class CcddClassesDataTable {
         protected List<Object[]> getData() {
             return tableData;
         }
-        
+
         /******************************************************************************************
          * Get the table data as a 2d object array
          *
@@ -567,7 +567,7 @@ public class CcddClassesDataTable {
         protected void setData(Object[][] data) {
             tableData = Arrays.asList(data);
         }
-        
+
         /******************************************************************************************
          * Set the table data
          *
@@ -1062,7 +1062,7 @@ public class CcddClassesDataTable {
         protected void addDataField(String[] fieldDefn) {
             dataFields.add(fieldDefn);
         }
-        
+
         /******************************************************************************************
          * Add a data field definition to the list of table data fields
          *
@@ -1070,21 +1070,21 @@ public class CcddClassesDataTable {
          *****************************************************************************************/
         protected void addDataField(FieldInformation fieldDefn) {
             String[] fieldData = fieldDefn.toStringArray();
-            
+
             addDataField(fieldData);
         }
-        
+
         /******************************************************************************************
          * Add a data field definition to the list of table data fields in the given index
          *
          * @param fieldDefn data field definition
-         * 
+         *
          * @param index location to add the definition
          *****************************************************************************************/
         protected void addDataFieldToIndex(String[] fieldDefn, int index) {
             dataFields.add(index, fieldDefn);
         }
-        
+
         /******************************************************************************************
          * Remove a data field definition from the list of table data fields located at the given index
          *
@@ -1093,7 +1093,7 @@ public class CcddClassesDataTable {
         protected void removeDataFieldByIndex(int index) {
             dataFields.remove(index);
         }
-        
+
         /******************************************************************************************
          * Remove all data field definitions from the list of table data fields
          *
@@ -1102,10 +1102,10 @@ public class CcddClassesDataTable {
         protected void removeDataFields() {
             dataFields.clear();
         }
-        
+
         /******************************************************************************************
          * Replace a data field definition located at the given index
-         * 
+         *
          * @param fieldDefn data field definition
          *
          * @param index location to replace the field
@@ -1114,31 +1114,31 @@ public class CcddClassesDataTable {
             dataFields.remove(index);
             dataFields.add(index, fieldDefn);
         }
-        
+
         /******************************************************************************************
          * Replace a data field definition located at the given index
-         * 
+         *
          * @param fieldDefn data field definition
          *
          * @param index location to replace the field
          *****************************************************************************************/
         protected void replaceDataFieldByIndex(FieldInformation fieldDefn, int index) {
             String[] fieldData = fieldDefn.toStringArray();
-            
+
             replaceDataFieldByIndex(fieldData, index);
         }
-        
+
         /******************************************************************************************
          * Does a field with the current name already exist? if so return the index of the field.
          * If not return -1
          *
          * @param fieldDefn data field definition
-         * 
+         *
          * @param index location to add the definition
          *****************************************************************************************/
         protected int contains(String fieldName) {
             int result = -1;
-            
+
             for (int index = 0; index < dataFields.size(); index++) {
                 // Check that the name is not null
                 if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()] != null) {
@@ -1147,7 +1147,7 @@ public class CcddClassesDataTable {
                     }
                 }
             }
-            
+
             return result;
         }
 
@@ -1902,7 +1902,7 @@ public class CcddClassesDataTable {
         protected void setID(int id) {
             this.id = id;
         }
-        
+
         /******************************************************************************************
          * Store the field information in an array of strings
          *
@@ -1912,7 +1912,7 @@ public class CcddClassesDataTable {
             String[] fieldData = {ownerName, fieldName, description, Integer.toString(charSize),
                     inputType.getInputName(), String.valueOf(isRequired), applicability.getApplicabilityName(),
                     value, String.valueOf(isInherited)};
-            
+
             return fieldData;
         }
     }
@@ -2294,12 +2294,12 @@ public class CcddClassesDataTable {
         protected static String getVariableArrayIndex(String variableName) {
             // Get the index of the array index
             int index = variableName.indexOf('[');
-            
+
             // Check if an array index exists
             if (index != -1) {
                 // Get the index portion of the array variable name
                 variableName = variableName.substring(index);
-                
+
                 // Check if two indexes are included
                 if (StringUtils.countMatches(variableName, "[") >= 2) {
                     // Check if any letter of the alphabet is included
@@ -2313,7 +2313,7 @@ public class CcddClassesDataTable {
 
             return variableName;
         }
-        
+
         /******************************************************************************************
          * Get the array variable index, if present, from the supplied variable name
          *
@@ -2336,21 +2336,21 @@ public class CcddClassesDataTable {
 
             return result;
         }
-        
+
         /******************************************************************************************
          * Get the array size of 1d, 2d or 3d arrays
          *
          * @param arrayInfo string representing the dimensions of the array. Example = "4" or "2,2"
          *
-         * @return An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d array. The 
+         * @return An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d array. The
          *         second represents the number of indexes in the internal 1d arrays. The third represents
          *         the total number of 1d arrays. The fourth represents the number of 2d arrays.
-         *         
+         *
          *         Examples:
          *         If we have a single array with size 6 this function will return [1, 6, -1, -1]
-         *         
+         *
          *         If we have a 2d array of size 3 with each 1d array having a size of 6 the function will return [2, 6, 3, -1]
-         *         
+         *
          *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with each 1d array having
          *         a size of 6 then the function will return [3, 6, 3, 2]
          *****************************************************************************************/
@@ -2361,10 +2361,10 @@ public class CcddClassesDataTable {
             if (arrayInfo.contains("##")) {
                 arrayInfo = newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>());
             }
-            
+
             // Get rid of any whitespace
             arrayInfo = arrayInfo.replaceAll(" ", "");
-            
+
             // Check that the String is not null or empty
             if (arrayInfo != null && !arrayInfo.isEmpty()) {
                 // First check to see if this is a 1d or 2d array. We do not support 3d or above
@@ -2372,42 +2372,42 @@ public class CcddClassesDataTable {
                 if (count == 0) {
                     // This is a 1d array
                     result[0] = 1;
-                    
+
                     // Get the size. If this is a macro it will need to be expanded
                     result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>()));
                 } else if (count == 1) {
                     // This is a 2d array
                     String info[] = arrayInfo.split(",");
-                    
+
                     if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty())) {
                         result[0] = 2;
-                        
+
                         // Get the size of each internal array ,If this is a macro it will need to be expanded
                         result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
-                        
+
                         // Get the total number of 2d arrays. If this is a macro it will need to be expanded
                         result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
                     }
                 } else if (count == 2) {
                     // This is a 3d array
                     String info[] = arrayInfo.split(",");
-                    
+
                     if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty()) &&
                             (info[2] != null && !info[2].isEmpty())) {
                         result[0] = 3;
-                        
+
                         // Get the size of each internal array. If this is a macro it will need to be expanded
                         result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[2], new ArrayList<String>()));
-                        
+
                         // Get the total number of 2d arrays. If this is a macro it will need to be expanded
                         result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
-                        
+
                         // Get the total number of 3d arrays. If this is a macro it will need to be expanded
                         result[3] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
-                        
+
                     }
                 }
-                // If it did not fall into the if or the else statement then the input was invalid 
+                // If it did not fall into the if or the else statement then the input was invalid
                 // and [-1,-1,-1] will be returned
             }
 
@@ -3886,8 +3886,8 @@ public class CcddClassesDataTable {
                     if (isApplicable(tableName)) {
                         // Clean up the table name, if needed
                         tableName = cleanUpTableName(tableName, row);
-                        
-                        // The table name will sometimes have a variable name appended to the end. This 
+
+                        // The table name will sometimes have a variable name appended to the end. This
                         // needs to be trimmed off before attempting to open the table.
                         if (StringUtils.countMatches(tableName, ",") >= 2) {
                             tableName = tableName.substring(0, tableName.indexOf(",", tableName.indexOf(",") + 1));

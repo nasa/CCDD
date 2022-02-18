@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -66,7 +66,7 @@ public class CcddDataTypeHandler {
 
     // List containing the data type names and associated data type definitions
     private List<String[]> dataTypes;
-    
+
     // Contains a HashMap of the list variable "dataTypes". Used for faster lookups
     private HashMap<String, String[]> dataTypesMap;
 
@@ -79,7 +79,7 @@ public class CcddDataTypeHandler {
      *********************************************************************************************/
     CcddDataTypeHandler(List<String[]> dataTypes) {
         this.dataTypes = dataTypes;
-        // There is a new list of datatypes, generate the equivalent map
+        // There is a new list of data types, generate the equivalent map
         buildDataTypesMap();
     }
 
@@ -92,6 +92,7 @@ public class CcddDataTypeHandler {
         // Load the data types table from the project database
         this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.DATA_TYPES, true,
                 ccddMain.getMainFrame()));
+
         // Get references to make subsequent calls shorter
         dbTable = ccddMain.getDbTableCommandHandler();
         dbCommand = ccddMain.getDbCommandHandler();
@@ -99,28 +100,29 @@ public class CcddDataTypeHandler {
         macroHandler = ccddMain.getMacroHandler();
         dataTypesMap = null;
     }
-    
+
     /**********************************************************************************************
      * Generate the data types map from the variable "dataTypes" list
-     *
      *********************************************************************************************/
-    private void buildDataTypesMap(){
+    private void buildDataTypesMap() {
         dataTypesMap = new HashMap<>(dataTypes.size());
-        for(String[] type:dataTypes){
+
+        for(String[] type:dataTypes) {
             dataTypesMap.put(getDataTypeName(type), type);
         }
     }
-    
+
     /**********************************************************************************************
      * Accessor function for the dataTypesMap variable
      *
-     * @return HashMap<String, String[]> 
+     * @return HashMap<String, String[]>
      *********************************************************************************************/
-    private HashMap<String, String[]> getDataTypesAsMap(){
+    private HashMap<String, String[]> getDataTypesAsMap() {
         // Build the set if necessary
-        if(dataTypesMap == null || dataTypesMap.size() != dataTypes.size()){
+        if(dataTypesMap == null || dataTypesMap.size() != dataTypes.size()) {
             buildDataTypesMap();
         }
+
         return dataTypesMap;
     }
 
@@ -132,7 +134,7 @@ public class CcddDataTypeHandler {
     protected List<String[]> getDataTypeData() {
         return dataTypes;
     }
-    
+
     /**********************************************************************************************
      * Set/Replace the MacroHandler
      *
@@ -275,7 +277,8 @@ public class CcddDataTypeHandler {
         // This is a much faster implementation than going through the
         // list and doing a string compare on each item in the list
         String[] dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
-        
+
+        // TODO DON'T LIKE THIS!
         if (dataTypeInfo == null && getDataTypeData().size() > 0) {
             // Some databases do not have uint8-uint64 and int8-int64 defined. If they
             // are needed then add them
@@ -283,9 +286,9 @@ public class CcddDataTypeHandler {
             String[] newDataType = new String[currentDataTypes.get(0).length];
             String baseType = "signed integer";
             boolean newType = true;
-            
+
             newDataType[DataTypesColumn.USER_NAME.ordinal()] = dataTypeName;
-            
+
             if (dataTypeName.equals("uint8")) {
                 newDataType[DataTypesColumn.C_NAME.ordinal()] = "unsigned char";
                 newDataType[DataTypesColumn.SIZE.ordinal()] = "1";
@@ -321,18 +324,18 @@ public class CcddDataTypeHandler {
             } else {
                 newType = false;
             }
-            
+
             if (newType) {
                 currentDataTypes.add(newDataType);
                 try {
-                    updateDataTypes(currentDataTypes, true);
+                    updateDataTypes(currentDataTypes, true, false);
                     dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
                 } catch (CCDDException e) {
                     e.printStackTrace();
                 }
             }
         }
-        
+
         return dataTypeInfo;
     }
 
@@ -379,7 +382,7 @@ public class CcddDataTypeHandler {
             if (dataType[DataTypesColumn.SIZE.ordinal()].contains("##")) {
                 dataTypeSize = Integer.valueOf(macroHandler.getMacroExpansion(
                         dataType[DataTypesColumn.SIZE.ordinal()], new ArrayList<String>()));
-                
+
             } else {
                 // Get the associated data type size
                 dataTypeSize = Integer.valueOf(dataType[DataTypesColumn.SIZE.ordinal()]);
@@ -644,17 +647,24 @@ public class CcddDataTypeHandler {
      * Add new data types and check for matches with existing ones
      *
      * @param dataTypeDefinitions list of data type definitions
-     * 
+     *
      * @param replaceExistingDataTypes True if any existing data types that share a name with an
      *                                 imported one should be replaced
+     *
+     * @param removeExistingTypes true to replace existing data types
      *
      * @throws CCDDException If an data type with the same same already exists and
      *                       the imported type doesn't match
      *********************************************************************************************/
-    protected void updateDataTypes(List<String[]> dataTypeDefinitions, boolean replaceExistingDataTypes)
-            throws CCDDException {
+    protected void updateDataTypes(List<String[]> dataTypeDefinitions, boolean replaceExistingDataTypes,
+            boolean removeExistingTypes) throws CCDDException {
         boolean update = false;
-        
+
+        // Replace all existing data types if the flag is set
+        if (removeExistingTypes) {
+            dataTypes.clear();
+        }
+
         // Step through each imported data type definition
         for (String[] typeDefn : dataTypeDefinitions) {
             // Get the data type information associated with this data type name
@@ -673,7 +683,7 @@ public class CcddDataTypeHandler {
                     && dataType[DataTypesColumn.SIZE.ordinal()].equals(typeDefn[DataTypesColumn.SIZE.ordinal()])
                     && dataType[DataTypesColumn.BASE_TYPE.ordinal()]
                             .equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()]))) {
-                
+
                 // If it does not match then check if we should replace the existing data type
                 if (replaceExistingDataTypes) {
                     dataTypes.set(dataTypes.indexOf(dataType), typeDefn);
@@ -684,7 +694,7 @@ public class CcddDataTypeHandler {
                 }
             }
         }
-        
+
         // Update the data types if any were replaced
         if (update) {
             setDataTypeData(dataTypes);

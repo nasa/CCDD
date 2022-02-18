@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -605,10 +605,10 @@ public abstract class CcddInputFieldPanelHandler {
      * @param ownerFieldInfo list of field information to use to build the data
      *                       fields null if no data field is associated with the
      *                       owner
-     *                       
+     *
      * @param ignoreApplicability Should the applicability of the fields be ignored?
      *********************************************************************************************/
-    protected void createDataFieldPanel(boolean undoable, List<FieldInformation> ownerFieldInfo, 
+    protected void createDataFieldPanel(boolean undoable, List<FieldInformation> ownerFieldInfo,
             boolean ignoreApplicability) {
         maxFieldWidth = 0;
 
@@ -660,7 +660,7 @@ public abstract class CcddInputFieldPanelHandler {
             for (final FieldInformation fieldInfo : fieldInformation) {
                 // Check if this field is applicable or if applicability should be ignored
                 if (fieldHandler.isFieldApplicable(fieldInfo.getOwnerName(),
-                        fieldInfo.getApplicabilityType().getApplicabilityName(), null) || 
+                        fieldInfo.getApplicabilityType().getApplicabilityName(), null) ||
                         ignoreApplicability) {
                     FieldInformation fldInfo;
 

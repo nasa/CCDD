@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -584,13 +584,13 @@ public class CcddDbVerificationHandler {
 
                                                 // Check for inconsistencies within the data tables
                                                 verifyDataTables();
-                                                
+
                                                 // Check if verification isn't canceled
                                                 if (!haltDlg.isHalted()) {
                                                     // Update the progress bar
                                                     haltDlg.updateProgressBar("Verify data tables",
                                                             haltDlg.getNumDivisionPerStep() * 8);
-                                                    
+
                                                     // Check for inconsistencies within the Message IDs
                                                     verifyMessageIDs();
                                                 }
@@ -990,7 +990,7 @@ public class CcddDbVerificationHandler {
             CcddTableTreeHandler allTableAndVariableTree = new CcddTableTreeHandler(ccddMain,
                     TableTreeType.TABLES_WITH_PRIMITIVES, ccddMain.getMainFrame());
             List<String> allTableAndVariableList = allTableAndVariableTree.getTableTreePathList(null);
-            
+
             // List to contain invalid table or variable references. This is used to prevent
             // logging multiple issues for the same table/variable in the same internal table
             List<String> badRefs = new ArrayList<String>();
@@ -1218,9 +1218,9 @@ public class CcddDbVerificationHandler {
 
                     // Step through each variable in the list
                     // TODO: Currently we add all variables without trimming anything if there are more than 750k due
-                    // to massive performance hits. This code needs to be visited again at a later time so that this 
+                    // to massive performance hits. This code needs to be visited again at a later time so that this
                     // band-aid can be removed and a proper fix added.
-                    if (allTableAndVariableList.size() < 750000) { 
+                    if (allTableAndVariableList.size() < 750000) {
                         for (String variablePath : allTableAndVariableList) {
                             // Remove the bit length, if present, and store the variable in the new list
                             String path = "";
@@ -1230,40 +1230,38 @@ public class CcddDbVerificationHandler {
                                 path = variablePath;
                             }
                             cleanName.add(path);
-                            
-                            /* Check if the path represents an array member */
+
+                            // Check if the path represents an array member
                             if (path.endsWith("]")) {
-                                /* Pull the array dimensions out of the path */
+                                // Pull the array dimensions out of the path
                                 String arraySize = CcddClassesDataTable.ArrayVariable.getVariableArrayIndex(path);
                                 int[] arrayDims = CcddClassesDataTable.ArrayVariable.getArrayIndexFromSize(arraySize);
                                 boolean isFirst = true;
-                                
-                                /* If this is a 2 dimensional array ensure that this path represents the first index */
+
+                                // If this is a 2 dimensional array ensure that this path represents the first index
                                 for (int dim = 0; dim < arrayDims.length; dim++) {
                                     if (arrayDims[dim] != 0) {
                                         isFirst = false;
-    
+
                                         break;
                                     }
                                 }
-    
+
                                 if (isFirst) {
-                                    /* Add the path with no indexes */
+                                    // Add the path with no indexes
                                     cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
                                 }
-                                
+
                                 if (arrayDims.length >= 2) {
-                                    /* Add the path with one/two indexes. The path with both indexes was already added above at the start
-                                     * of this for loop. Ensure that it is only added once
-                                     */
+                                    // Add the path with one/two indexes. The path with both indexes was already added above at the start
+                                    // of this for loop. Ensure that it is only added once
                                     String modifiedPath = path.substring(0, path.lastIndexOf("["));
                                     if (!cleanName.contains(modifiedPath)) {
                                         cleanName.add(modifiedPath);
                                     }
-                                    
+
                                     if (arrayDims.length == 3) {
-                                        /* Add the path with one index. Ensure that it is only added once
-                                         */
+                                        // Add the path with one index. Ensure that it is only added once
                                         if (!cleanName.contains(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")))) {
                                             cleanName.add(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")));
                                         }
@@ -1695,7 +1693,7 @@ public class CcddDbVerificationHandler {
                         if (haltDlg.isHalted()) {
                             continue;
                         }
-                        
+
                         // Check if the data type exists
                         if (dataTypeIndex != -1) {
                             if (dataTypeHandler.getBaseDataType(tableInfo.getData().get(row)[dataTypeIndex].toString()) == null) {
@@ -1819,7 +1817,7 @@ public class CcddDbVerificationHandler {
             haltDlg.updateProgressBar(null, -1);
         }
     }
-    
+
     /**********************************************************************************************
      * Verify that duplicate message IDs do not exist
      *********************************************************************************************/
@@ -1827,7 +1825,7 @@ public class CcddDbVerificationHandler {
         List<String[]> messageIDInfo = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
                 false, ccddMain.getMainFrame());
         boolean issueFound = false;
-        
+
         for (int index = 0; index < messageIDInfo.size(); index++) {
             for (int index2 = 0; index2 < messageIDInfo.size(); index2++) {
                 if (messageIDInfo.get(index)[2].contentEquals(messageIDInfo.get(index2)[2]) &&
@@ -1835,12 +1833,12 @@ public class CcddDbVerificationHandler {
                     // Duplicate message ids found
                     issues.add(new TableIssue("Duplicate message IDs exist.",
                             MANUAL_FIX, 0, 0, "", null));
-                    
+
                     issueFound = true;
                     break;
                 }
             }
-            
+
             if (issueFound == true) {
                 break;
             }
@@ -2291,7 +2289,7 @@ public class CcddDbVerificationHandler {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     boolean result;
-                    
+
                     // If the issue is related to a non-existent data type than CCDD can not fix it.
                     // The user will need to manually address this issue.
                     if (issues.get(row).getAction().contentEquals(MANUAL_FIX)) {
@@ -2300,7 +2298,7 @@ public class CcddDbVerificationHandler {
                         result = (column == VerificationColumnInfo.FIX.ordinal()
                             && (issues.get(row).getCommand() != null || issues.get(row).getRow() != -1));
                     }
-                    
+
                     return result;
                 }
 

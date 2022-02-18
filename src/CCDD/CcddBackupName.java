@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -43,7 +43,7 @@ public final class CcddBackupName {
      * Take the user selected file name and append this a the initial path.
      * Note: This is to handle cases where there are spaces entered into the
      * filename
-     * 
+     *
      * @param selectedPaths
      *            Array containing file paths
      * @param chosenBackupFileName
@@ -84,7 +84,7 @@ public final class CcddBackupName {
      * return the [ID] Note: If an error in the chosenBackupFileName is
      * detected, a failsafe result will be returned. If a null string is
      * entered, an exception will be thrown
-     * 
+     *
      * @param extension
      *            Extension type (typically .dbu)
      * @param dateTimeFormat

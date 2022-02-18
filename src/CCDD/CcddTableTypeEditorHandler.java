@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -831,7 +831,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler {
         cmdArgStructureCbx.setToolTipText(
                 CcddUtilities.wrapText("Structures based on this type contain refernces to command arguments",
                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        
+
         // Tables of type 'Structure' can be command argument structures, but the actual 'Structure'
         // table type can not.
         if (tableTypeName.contentEquals(TYPE_STRUCTURE)) {

@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -281,7 +281,7 @@ public class CcddMain {
     // project-specific command line commands
     private String orgTableExportPath;
     private String orgScriptOutPath;
-    
+
     public static final String BACKUP_KEY = "BACKUP";
     // Contains a hashmap of semaphores and timeouts. These are used for various synchronization purposes
     private HashMap<String, ImmutablePair<Semaphore, Integer>> semMap;
@@ -290,7 +290,7 @@ public class CcddMain {
     /**
      * @return the semMap
      */
-    
+
     protected HashMap<String, ImmutablePair<Semaphore, Integer>> getSemMap() {
         return semMap;
     }
@@ -309,7 +309,7 @@ public class CcddMain {
         isHideGUI = false;
         webServer = null;
         isAutoPatch = false;
-        
+
         semMap = new HashMap<>();
         semMap.put(BACKUP_KEY, new ImmutablePair<>(new Semaphore(1), 10));
 
@@ -431,7 +431,7 @@ public class CcddMain {
                 cmdLnHandler.postCommandCleanUp(errorFlag ? 1 : 0);
             }
         }
-        
+
         tableTreeHandler = null;
     }
 
@@ -455,7 +455,7 @@ public class CcddMain {
             }
         });
     }
-    
+
     /**********************************************************************************************
      * Build a table tree handler once a database has been opened successfully
      *********************************************************************************************/
@@ -503,7 +503,7 @@ public class CcddMain {
     protected boolean isGUIHidden() {
         return isHideGUI;
     }
-    
+
     /**********************************************************************************************
      * Start the web server
      *
@@ -621,7 +621,7 @@ public class CcddMain {
     protected CcddDbTableCommandHandler getDbTableCommandHandler() {
         return dbTable;
     }
-    
+
     /**********************************************************************************************
      * Get the table tree handler
      *
@@ -810,8 +810,7 @@ public class CcddMain {
      *********************************************************************************************/
     protected void setPreFunctionDbSpecificHandlers() {
         // Read the custom input types from the project database and combine these with
-        // the
-        // hard-coded types
+        // the hard-coded types
         inputTypeHandler = new CcddInputTypeHandler(CcddMain.this);
 
         // read the data field definitions from the database
@@ -856,12 +855,12 @@ public class CcddMain {
     protected void setPostFunctionDbSpecificHandlers() {
         // Create a variable handler for the project database
         variableHandler = new CcddVariableHandler(CcddMain.this);
-        
+
         // Now that the variable handler exists, build most of the required handlers
         dbTable.setHandlers();
         macroHandler.setHandlers(variableHandler, dataTypeHandler);
         scriptHandler.setHandlers();
-        
+
         // Build the variables list and determine the variable offsets (note that the variables class must
         // be fully instantiated and the macro handler updated with the variable handler reference before
         // calling the path and offset list build method)
@@ -869,7 +868,7 @@ public class CcddMain {
 
         // Create a command handler for the project database
         commandHandler = new CcddCommandHandler(CcddMain.this);
-        
+
         // Build the command information list
         commandHandler.buildCommandList();
 
@@ -877,7 +876,7 @@ public class CcddMain {
         messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
 
         // Initialize the root structures
-        dbTable.initRootStructures();        
+        dbTable.initRootStructures();
 
         // Create the list for the message ID name and ID selection input type (note that the message
         // ID class must be fully instantiated before calling the name and ID list build method)
@@ -898,8 +897,7 @@ public class CcddMain {
         if (cmdLnHandler != null) {
             // Store the table export and script output paths, in case these are modified by
             // command line execution. The program start-up paths are restored following
-            // completion
-            // of the command line commands
+            // completion of the command line commands
             orgTableExportPath = getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), "");
             orgScriptOutPath = getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
 
@@ -907,8 +905,7 @@ public class CcddMain {
             cmdLnHandler.parseCommand(CommandLinePriority.DB_DEPENDENT);
 
             // Set the handler reference to null so that the command line commands are not
-            // executed
-            // again (i.e., if another database is opened during the same session)
+            // executed again (i.e., if another database is opened during the same session)
             cmdLnHandler = null;
         }
     }
@@ -1391,7 +1388,7 @@ public class CcddMain {
                 jarFileName = new File(ClassLoader.getSystemClassLoader().getResource(".").getPath()).getAbsolutePath();
                 jarFileName = jarFileName + "/CCDD.jar";
             }
-            
+
             // Check if the .jar file name exists. This is false if the application is executed from within the IDE
             if (jarFileName != null && jarFileName.endsWith(".jar")) {
                 // Get the manifest in the .jar file
@@ -2074,7 +2071,7 @@ public class CcddMain {
                 }
             }
         });
-        
+
         // Add a listener for the Restore Project from JSON menu item
         mntmRestoreDbJSON.addActionListener(new ActionListener() {
             /**************************************************************************************
@@ -2089,7 +2086,7 @@ public class CcddMain {
                 }
             }
         });
-        
+
         // Add a listener for the Restore Project from CSV menu item
         mntmRestoreDbCSV.addActionListener(new ActionListener() {
             /**************************************************************************************
@@ -2214,7 +2211,7 @@ public class CcddMain {
                 new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_CSV);
             }
         });
-        
+
         // Add a listener for the Import Data menu item
         mntmImportEDS.addActionListener(new ActionListener() {
             /**************************************************************************************
@@ -2225,7 +2222,7 @@ public class CcddMain {
                 new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_EDS);
             }
         });
-        
+
         // Add a listener for the Import Data menu item
         mntmImportXTCE.addActionListener(new ActionListener() {
             /**************************************************************************************
@@ -2236,7 +2233,7 @@ public class CcddMain {
                 new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT_XTCE);
             }
         });
-        
+
         // Add a listener for the Import Data menu item
         mntmImportCHeader.addActionListener(new ActionListener() {
             /**************************************************************************************
@@ -2799,7 +2796,7 @@ public class CcddMain {
         if (!withConfirm || (new CcddDialogHandler().showMessageDialog(frameCCDD, "<html><b>Exit application?",
                 "Exit CCDD", JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
                 && ignoreUncommittedChanges("Exit application", "Discard changes?", true, null, frameCCDD))) {
-            
+
             // Try to acquire all of the semaphores in the map before exiting
             // This is a generic way to ensure that all sub-tasks (which have acquired a semaphore)
             // will be complete before exiting.
@@ -2817,7 +2814,7 @@ public class CcddMain {
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
-            
+
             // Exit the program
             System.exit(status);
         }

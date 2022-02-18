@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -95,10 +95,10 @@ public class CcddMacroHandler {
 
     // List containing the macro definitions following an import operation
     private List<String[]> updatedMacros;
-    
+
     // Should we search for all macro references?
     private boolean skipSearchingReferences;
-    
+
     // All macro references found during search
     List<String> allMacroReferences;
 
@@ -623,13 +623,13 @@ public class CcddMacroHandler {
      *********************************************************************************************/
     protected static boolean hasMacro(String text) {
         boolean result = false;
-        
+
         if (text.contains(MACRO_IDENTIFIER)) {
             if (text != null && text.matches(".*" + MACRO_IDENTIFIER + ".+" + MACRO_IDENTIFIER + ".*")) {
                 result = true;
             }
         }
-        
+
         return result;
     }
 
@@ -816,7 +816,7 @@ public class CcddMacroHandler {
 
         return array;
     }
-    
+
     /**********************************************************************************************
      * Replace any macro names embedded in the supplied string array with the
      * associated macro values
@@ -881,20 +881,24 @@ public class CcddMacroHandler {
     protected List<String> getStructureReferences(String macroName) {
         List<String> structureReferences = new ArrayList<String>();
 
-        // Step through each macro
-        for (String[] macroDefn : macros) {
-            // Check if the macro name matches the target macro
-            if (macroName.equalsIgnoreCase(macroDefn[MacrosColumn.MACRO_NAME.ordinal()])) {
-                // Parse each data type referenced in a sizeof() call in the macro
-                for (String dataType : macroDefn[MacrosColumn.VALUE.ordinal()]
-                        .replaceAll(".*?" + SIZEOF_DATATYPE + ".*?", "$1 ").split(" ")) {
-                    // Check if the data type is a structure and the structure name isn't already
-                    // in the list
-                    if (!dataTypeHandler.isPrimitive(dataType) && !structureReferences.contains(dataType)) {
+        if (macroName.contains("sizeof") && macroName.matches(".*?" + SIZEOF_DATATYPE + ".*")) {
+            // Step through each macro
+            for (String[] macroDefn : macros) {
+                // Check if the macro name matches the target macro
+                if (macroName.equalsIgnoreCase(macroDefn[MacrosColumn.MACRO_NAME.ordinal()])) {
+                    // Parse each data type referenced in a sizeof() call in the macro
+                    for (String dataType : macroDefn[MacrosColumn.VALUE.ordinal()]
+                            .replaceAll(".*?" + SIZEOF_DATATYPE + ".*?", "$1 ").split(" ")) {
+                        // Check if the data type is a structure and the structure name isn't already
+                        // in the list
+                        if (!dataTypeHandler.isPrimitive(dataType) && !structureReferences.contains(dataType)) {
 
-                        // Add the structure name to the list
-                        structureReferences.add(dataType);
+                            // Add the structure name to the list
+                            structureReferences.add(dataType);
+                        }
                     }
+
+                    break;
                 }
             }
         }
@@ -976,7 +980,7 @@ public class CcddMacroHandler {
      *********************************************************************************************/
     protected String[] searchMacroReferences(String macroName, Component parent) {
         List<String> matches = new ArrayList<String>();
-        
+
         if (skipSearchingReferences == false) {
             // Get the references in the prototype tables that match the specified macro name
             allMacroReferences = new ArrayList<String>(Arrays.asList(ccddMain.getDbCommandHandler().getList(
@@ -984,7 +988,7 @@ public class CcddMacroHandler {
                         { "_case_insensitive_", "true" }, { "_allow_regex_", "true" },
                         { "_selected_tables_", SearchType.DATA.toString() }, { "_columns_", "" } }, parent)));
         }
-        
+
         for (String row : allMacroReferences) {
             if (row.contains(macroName)) {
                 matches.add(row);
@@ -1015,11 +1019,22 @@ public class CcddMacroHandler {
      *
      * @param replaceExisting  true to replace the value for an existing macro
      *
+     * @param removeExistingMacros true to remove any existing macros
+     *
      * @return List of macro names for macros with values that differ between the
      *         existing macro and the supplied definitions
      *********************************************************************************************/
-    protected List<String> updateMacros(List<String[]> macroDefinitions, boolean replaceExisting) {
+    protected List<String> updateMacros(List<String[]> macroDefinitions, boolean replaceExisting, boolean removeExistingMacros) {
         List<String> mismatchedMacros = new ArrayList<String>();
+
+        // Replace all existing input types if the flag is set
+        if (removeExistingMacros) {
+            macros.clear();
+            updatedMacros.clear();
+
+            // Reinitialize the expanded macro value array
+            clearStoredValues();
+        }
 
         // Step through each imported macro definition
         for (String[] macroDefn : macroDefinitions) {
@@ -1179,12 +1194,12 @@ public class CcddMacroHandler {
             // Verify the macro's usage
             validateMacroUsage(CcddMacroHandler.getFullMacroName(macro[MacrosColumn.MACRO_NAME.ordinal()]),
                     newMacroHandler, parent);
-            
+
             // Set skipSearchingReferences to true after the first call so that it does not keep
             // searching the database for macro references repeatedly.
             skipSearchingReferences = true;
         }
-        
+
         // Set skipSearchingReferences to false after the last call so that it does
         // search the database for macro references on the next call.
         skipSearchingReferences = false;

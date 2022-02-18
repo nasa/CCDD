@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -488,25 +488,25 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
                         protected void performAction(ActionEvent ae) {
                             List<String> preUndoScriptAssocNames = new ArrayList<String>();
                             List<String> postUndoScriptAssocNames = new ArrayList<String>();
-                            
+
                             // Get the name of all associations before the undo
                             Object[][] data = assnsTable.getTableData(true);
-                            
+
                             for (int row = 0; row < data.length; row++) {
                                 preUndoScriptAssocNames.add(data[row][0].toString());
                             }
-                            
+
                             // Undo the change
                             assnsTable.getUndoManager().undo();
-                            
+
                             // Get the name of all associations after the undo
                             data = assnsTable.getTableData(true);
-                            
+
                             for (int row = 0; row < data.length; row++) {
                                 postUndoScriptAssocNames.add(data[row][0].toString());
                             }
-                            
-                            // Check to see if the command needs to be called again due to this being 
+
+                            // Check to see if the command needs to be called again due to this being
                             // a REPLACE command that is being undone
                             if (wasReplacePerformed(preUndoScriptAssocNames, postUndoScriptAssocNames)) {
                                 assnsTable.getUndoManager().undo();
@@ -532,28 +532,28 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
                          * Redo the last addition to the script association table that was undone
                          *************************************************************************/
                         @Override
-                        protected void performAction(ActionEvent ae) {                            
+                        protected void performAction(ActionEvent ae) {
                             List<String> preRedoScriptAssocNames = new ArrayList<String>();
                             List<String> postRedoScriptAssocNames = new ArrayList<String>();
-                            
+
                             // Get the name of all associations before the redo
                             Object[][] data = assnsTable.getTableData(true);
 
                             for (int row = 0; row < data.length; row++) {
                                 preRedoScriptAssocNames.add(data[row][0].toString());
                             }
-                            
+
                             // Redo the change
                             assnsTable.getUndoManager().redo();
-                            
+
                             // Get the name of all associations after the redo
                             data = assnsTable.getTableData(true);
-                            
+
                             for (int row = 0; row < data.length; row++) {
                                 postRedoScriptAssocNames.add(data[row][0].toString());
                             }
-                            
-                            // Check to see if the command needs to be called again due to this being 
+
+                            // Check to see if the command needs to be called again due to this being
                             // a REPLACE command that is being redone
                             if (wasReplacePerformed(preRedoScriptAssocNames, postRedoScriptAssocNames)) {
                                 assnsTable.getUndoManager().redo();
@@ -596,10 +596,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
                          *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae) {
-                            // Check if the script associations have changed since the last database 
+                            // Check if the script associations have changed since the last database
                             // commit and that the user confirms storing the script associations
                             if (assnsTable.isTableChanged(committedAssnsData, Arrays.asList(new Integer[] {
-                                    AssociationsTableColumnInfo.AVAILABLE.ordinal() })) && 
+                                    AssociationsTableColumnInfo.AVAILABLE.ordinal() })) &&
                                     new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
                                             "<html><b>Store script associations?", "Store Associations",
                                             JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
@@ -988,13 +988,13 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
         // Force the table to redraw so that changes to the cells are displayed
         repaint();
     }
-    
+
     /**********************************************************************************************
      * Check to see if we ar about to undo/redo a REPLACE action
      *********************************************************************************************/
     protected boolean wasReplacePerformed(List<String> preScriptAssocNames, List<String> postScriptAssocNames) {
         boolean result = false;
-        
+
         // Step though each index of the pre-list one time and if a name also appears in the post-list then remove
         // one instance from the post-list
         for (int row = 0; row < preScriptAssocNames.size(); row++) {
@@ -1005,7 +1005,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
                 }
             }
         }
-        
+
         // If there are any names left in the post list then step though each name and see if it appears in the pre-list
         // meaning it was a duplicate created by the REPLACE command
         if (postScriptAssocNames.size() > 0) {
@@ -1016,7 +1016,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler {
                 }
             }
         }
-        
+
         return result;
     }
 }

@@ -10,11 +10,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -32,6 +32,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -305,32 +306,32 @@ public class CcddConstants {
     protected static final int CANCEL_BUTTON = JOptionPane.CANCEL_OPTION;
     protected static final int UPDATE_BUTTON = 0xfd;
     protected static final int IGNORE_BUTTON = 0xfc;
-    
-    /* DBU info place holders */
+
+    // DBU info place holders
     protected static final String NAME = "_db_name_";
     protected static final String LOCK = "_db_lock_";
     protected static final String ADMINS = "_db_admins_";
     protected static final String DESC = "_db_desc_";
-    
-    /* Order in which checkboxes are added to the createTableImportPanel JPanel */
+
+    // Order in which check boxes are added to the createTableImportPanel JPanel
     protected static final int overwriteExistingCbIndex = 0;
     protected static final int appendToExistingDataCbIndex = 1;
     protected static final int ignoreErrorsCbIndex = 2;
     protected static final int keepDataFieldsCbIndex = 3;
-    
-    /* Snapshot file paths */
-    protected static final String SNAP_SHOT_FILE_PATH = "./.snapshot/";
-    protected static final String SNAP_SHOT_FILE_PATH_2 = "./.snapshot2/";
+
+    // Snapshot file paths
+    protected static final String SNAP_SHOT_FILE_PATH = "." + File.separator + ".snapshot" + File.separator;
+    protected static final String SNAP_SHOT_FILE_PATH_2 = "." + File.separator + ".snapshot2" + File.separator;
     protected static final String SNAP_SHOT_FILE = "snapshot";
-    
-    /* Exporting a single file or multiple files */
+
+    // Exporting a single file or multiple files
     protected static final String EXPORT_MULTIPLE_FILES = "Multiple";
     protected static final String EXPORT_SINGLE_FILE = "Single";
-    
-    /* Manual fix for data type verification issues */
+
+    // Manual fix for data type verification issues
     protected static final String MANUAL_FIX = "Manually correct";
-    
-    /* Default values that can be used when restoring a database */
+
+    // Default values that can be used when restoring a database
     protected static final String DEFAULT_DATABASE_NAME = "restored_db";
     protected static final String DEFAULT_DATABASE_USER = "current user";
     protected static final String DEFAULT_DATABASE_DESCRIPTION = "Recently restored database.";
@@ -825,7 +826,7 @@ public class CcddConstants {
             }
         }
     }
-    
+
     /**********************************************************************************************
      * File names
      *********************************************************************************************/
@@ -850,7 +851,7 @@ public class CcddConstants {
          * @param CSV  File name with CSV extension
          *
          * @param JSON File name with JSON extension
-         * 
+         *
          * @param No_Extension File name with no extension
          *
          *****************************************************************************************/
@@ -868,7 +869,7 @@ public class CcddConstants {
         protected String CSV() {
             return CSV;
         }
-        
+
         /******************************************************************************************
          * Get the file name with JSON extension
          *
@@ -877,7 +878,7 @@ public class CcddConstants {
         protected String JSON() {
             return JSON;
         }
-        
+
         /******************************************************************************************
          * Get the file name with no extension
          *
@@ -2084,7 +2085,7 @@ public class CcddConstants {
                 InputTypeFormat.TEXT,
                 "One or more alphanumeric entries (see Alphanumeric) "
                         + "separated by one or more white space characters"),
-        
+
         ALPHANUMERIC_INDEXES("Alphanumeric with indexes", "[a-zA-Z_][a-zA-Z0-9_]*([\\[][0-9]*[\\]])*",
                 InputTypeFormat.TEXT,
                 "Alphabetic or underscore first character followed by zero "
@@ -2160,7 +2161,7 @@ public class CcddConstants {
                 InputTypeFormat.HEXADECIMAL,
                 "Hexadecimal range; hexadecimal value followed optionally by a "
                         + "hyphen and a second hexadecimal value (see Hexadecimal)"),
-        
+
         MACRO_NAME("Macro name","[a-zA-Z][a-zA-Z0-9_]*(?:\\:\\:?:[a-zA-Z][a-zA-Z0-9_]*)?",
                 InputTypeFormat.TEXT,
                 "Macro name: [a-zA-Z][a-zA-Z0-9_]*(?:\\\\:\\\\:?:[a-zA-Z][a-zA-Z0-9_]*)?"),
@@ -2245,7 +2246,7 @@ public class CcddConstants {
                         + "constraints as for an alphanumeric (see Alphanumeric)"),
 
         BREAK("Break", "", InputTypeFormat.PAGE_FORMAT, "Line break"),
-        
+
         SEPARATOR("Separator", "", InputTypeFormat.PAGE_FORMAT, "Line separator");
 
         private final String inputName;
@@ -2448,13 +2449,13 @@ public class CcddConstants {
 
         COMMAND_ARGUMENT(TYPE_COMMAND, "Command Argument", "Command argument variable reference",
                 DefaultInputType.COMMAND_ARGUMENT, true, false, true, false, false, true),
-        
+
         ENUM_NAME(TYPE_ENUM, "ENUM Name", "ENUM name", DefaultInputType.VARIABLE, true, true, true,
                 false, true, true),
-        
+
         DESCRIPTION_ENUM(TYPE_ENUM, COL_DESCRIPTION, "ENUM description", DefaultInputType.DESCRIPTION,
                 false, false, false, true, true, true),
-        
+
         VALUE_ENUM(TYPE_ENUM, COL_VALUE, "ENUM Value", DefaultInputType.INTEGER, false, false,
                 false, false, false, false);
 
@@ -2825,7 +2826,7 @@ public class CcddConstants {
      * Database internal table definitions
      *********************************************************************************************/
     protected static enum InternalTable {
-        /* Database info - Name, databaseLock, users and description */
+        // Database info - Name, databaseLock, users and description
         DBU_INFO("dbu_info",
                 new String[][] {{DbuInfoColumn.DATABASE_LOCK.columnName, DbuInfoColumn.DATABASE_LOCK.dataType},
                     {DbuInfoColumn.DATABASE_NAME.columnName, DbuInfoColumn.DATABASE_NAME.dataType},
@@ -2836,8 +2837,8 @@ public class CcddConstants {
                 // table types
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX + "dbu_info VALUES "
                 + "('_db_lock_', '_db_name_', '_db_admins_', '_db_desc_')"),
-                
-        
+
+
         // Application scheduler
         APP_SCHEDULER("app_scheduler",
                 new String[][] { { AppSchedulerColumn.TIME_SLOT.columnName, AppSchedulerColumn.TIME_SLOT.dataType },
@@ -3022,7 +3023,7 @@ public class CcddConstants {
                 return columnName;
             }
         }
-        
+
         /******************************************************************************************
          * Application scheduler table columns
          *****************************************************************************************/
@@ -3097,7 +3098,7 @@ public class CcddConstants {
             private final String dataType;
 
             /**************************************************************************************
-             * Macro values table columns constructor
+             * Data types table columns constructor
              *
              * @param columnName data types table column name
              *
@@ -5325,7 +5326,7 @@ public class CcddConstants {
         protected String getTag() {
             return tag;
         }
-        
+
         /******************************************************************************************
          * Get the data type alternateTag
          *
@@ -5340,18 +5341,16 @@ public class CcddConstants {
      * Database list query commands
      *********************************************************************************************/
     protected static enum DatabaseListCommand {
-        /* Get the list of data tables only, extracted from the table comments to retain their
-         * original capitalization, sorted alphabetically
-         */
+        // Get the list of data tables only, extracted from the table comments to retain their
+        // original capitalization, sorted alphabetically
         DATA_TABLES(
                 "SELECT name FROM (SELECT split_part(obj_description, ',', " + (TableCommentIndex.NAME.ordinal() + 1)
                         + ") AS name FROM (SELECT obj_description(oid) " + "FROM pg_class WHERE substr(relname, 1, "
                         + INTERNAL_TABLE_PREFIX.length() + ") != '" + INTERNAL_TABLE_PREFIX + "' AND relkind = 'r' "
                         + "AND obj_description(oid) != '') AS alias1) AS alias2 " + "ORDER BY name ASC;"),
 
-        /* Get the list containing the user-viewable table name, database table name, and table
-         * type for all prototype data tables, sorted alphabetically
-         */
+        // Get the list containing the user-viewable table name, database table name, and table
+        // type for all prototype data tables, sorted alphabetically
         DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type AS visname_dbname_type "
                 + "FROM (SELECT split_part(obj_description, ',', 1) AS name, "
                 + "lower(split_part(obj_description, ',', 2)) AS type,"
@@ -5359,7 +5358,7 @@ public class CcddConstants {
                 + INTERNAL_TABLE_PREFIX.length() + ") != '" + INTERNAL_TABLE_PREFIX
                 + "' AND relkind = 'r' AND obj_description(oid) != '') " + "AS alias1) AS alias2 ORDER BY name ASC;"),
 
-        /* Check if a specific table exists in the database (case insensitive) */
+        // Check if a specific table exists in the database (case insensitive)
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
         // Get the list of CCDD databases (in the form 'database name,lock
@@ -5416,12 +5415,12 @@ public class CcddConstants {
         TABLE_TYPES("SELECT DISTINCT " + TableTypesColumn.TYPE_NAME.getColumnName() + " FROM "
                 + InternalTable.TABLE_TYPES.getTableName() + " ORDER BY " + TableTypesColumn.TYPE_NAME.getColumnName()
                 + ";"),
-        
+
         // Get all table type names and their descriptions
         TABLE_TYPE_DESCRIPTIONS("SELECT " + TableTypesColumn.TYPE_NAME.getColumnName() + ", " + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
                 + " FROM " + InternalTable.TABLE_TYPES.getTableName() + " WHERE " + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName()
                 + " LIKE '" + DefaultColumn.PRIMARY_KEY.getName() +"';"),
-        
+
         // Get table type data
         TABLE_TYPE_DATA("SELECT " + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName() + ", " + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
                 + ", " + TableTypesColumn.INPUT_TYPE.getColumnName() + ", " + TableTypesColumn.ROW_VALUE_UNIQUE.getColumnName() + ", "
@@ -5585,8 +5584,7 @@ public class CcddConstants {
      *********************************************************************************************/
     protected static enum EventLogMessageType {
         // Master filter; this creates a check box that, when selected, toggles all of
-        // the other
-        // filters below
+        // the other filters below
         SELECT_ALL("All ", "#000000"),
 
         // Database command message filter
@@ -5717,9 +5715,9 @@ public class CcddConstants {
         private final String secondaryButtonText;
         private final String buttonIcon;
         private final int numButtons;
-        private final int defaultButton;		// The default selection for this set of button -1 for no default
-        private final DialogOption optionArray[];	// A set of Dialog Options to use
-        private final int buttonType;			// The chosen button return value associated with this dialog option				
+        private final int defaultButton;        // The default selection for this set of button -1 for no default
+        private final DialogOption optionArray[];    // A set of Dialog Options to use
+        private final int buttonType;            // The chosen button return value associated with this dialog option
 
         /******************************************************************************************
          * Dialog option types constructor
@@ -5750,12 +5748,12 @@ public class CcddConstants {
             this.optionArray = null;
             this.buttonType = IGNORE_BUTTON;
         }
-        
+
         /******************************************************************************************
          * Dialog option types constructor
          *
-         * @param options[]		An array containing a set of dialog buttons to create in 
-         * 				in order. "this" dialog option will be defaulted and not used	
+         * @param options[]        An array containing a set of dialog buttons to create in
+         *                 in order. "this" dialog option will be defaulted and not used
          *****************************************************************************************/
         DialogOption(DialogOption[] options) {
             this.optionArray = options;
@@ -5768,7 +5766,7 @@ public class CcddConstants {
             this.buttonType = IGNORE_BUTTON;
             this.secondaryButtonText = "";
         }
-        
+
         /******************************************************************************************
          * Dialog option types constructor
          *
@@ -5786,9 +5784,9 @@ public class CcddConstants {
          * @param numButtons          number of buttons to display in the dialog
          *
          * @param defaultButton       index of the button selected by default
-         * 
-         * @param buttonType          chosen button associated with this option. 
-         * 			      For example[OK, CANCEL, UPDATE, IGNORE]
+         *
+         * @param buttonType          chosen button associated with this option.
+         *                   For example[OK, CANCEL, UPDATE, IGNORE]
          *****************************************************************************************/
         DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
                 int numButtons, int defaultButton, int buttonType) {
@@ -5801,7 +5799,7 @@ public class CcddConstants {
             this.optionArray = null;
             this.buttonType = buttonType;
         }
-        
+
         /******************************************************************************************
          * Dialog option types constructor
          *
@@ -5819,12 +5817,12 @@ public class CcddConstants {
          * @param numButtons          number of buttons to display in the dialog
          *
          * @param defaultButton       index of the button selected by default
-         * 
-         * @param buttonType          chosen button associated with this option. 
-         * 			      For example[OK, CANCEL, UPDATE, IGNORE]
-         * 
-         * @param options[]	      An array containing other dialog buttons to create in order			  
-         * 
+         *
+         * @param buttonType          chosen button associated with this option.
+         *                   For example[OK, CANCEL, UPDATE, IGNORE]
+         *
+         * @param options[]          An array containing other dialog buttons to create in order
+         *
          *****************************************************************************************/
         DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
                 int numButtons, int defaultButton, int buttonType, DialogOption[] options) {
@@ -5837,18 +5835,18 @@ public class CcddConstants {
             this.optionArray = options;
             this.buttonType = buttonType;
         }
-        
+
         /******************************************************************************************
          * Get the primary button type
          *
          * @return an integer representing the button type, for example[OK, CANCEL, UPDATE, IGNORE]
-         *****************************************************************************************/ 
+         *****************************************************************************************/
         protected int getButtonType(){
-        	return buttonType;
+            return buttonType;
         }
-        
+
         protected DialogOption[] getOptionArray(){
-        	return optionArray;
+            return optionArray;
         }
 
         /******************************************************************************************

@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -546,10 +546,12 @@ public class CcddEventLogDialog extends CcddFrameHandler {
                 filterPanel.add(filterCheckBox[index]);
                 index++;
             }
+            
+            // STart with the Command filter set to off
+            setFilter(EventLogMessageType.COMMAND_MSG, false);
 
             // Enable or disable the web server message filter check box based on if the web
-            // server
-            // exists or if this isn't the session log
+            // server exists or if this isn't the session log
             setServerFilterEnable(ccddMain.getWebServer() != null || !isSessionLog);
 
             // Add the filter check box panel to the log & filter panel
@@ -561,8 +563,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
         }
 
         // Create an outer log panel in which to put the log table and filter check box
-        // panel. The
-        // border doesn't appear without this
+        // panel. The border doesn't appear without this
         logPanel = new JPanel();
         logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.X_AXIS));
         logPanel.add(logAndFilterPnl);
@@ -591,7 +592,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
     }
 
     /**********************************************************************************************
-     * Create a check box with label
+     * Create a check box with label. The check box is initially selected
      *
      * @param eventType      EventLogmessageType event type
      *
@@ -606,12 +607,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
         checkBox.setHorizontalAlignment(SwingConstants.LEFT);
         checkBox.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         checkBox.setForeground(Color.decode(eventType.getTypeColor()));
-
-        /*
-         * Set all event filter checkboxes to selected except for the command filter
-         * checkbox.
-         */
-        checkBox.setSelected(eventType.equals(EventLogMessageType.COMMAND_MSG) ? false : true);
+        checkBox.setSelected(true);
         checkBox.addActionListener(filterListener);
         return checkBox;
     }
@@ -631,8 +627,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
         // Check if the 'All' events filter state is specified
         if (type == EventLogMessageType.SELECT_ALL) {
             // Set the 'All' check box state to opposite the intended state so that the step
-            // below
-            // triggers the correct update
+            // below triggers the correct update
             filterCheckBox[index].setSelected(!isFiltered);
         }
 
@@ -982,7 +977,7 @@ public class CcddEventLogDialog extends CcddFrameHandler {
                 // lengthy (StringBuilder is much faster than string concatenation using '+')
                 StringBuilder logEntry = new StringBuilder(server).append("|").append(database).append("|").append(user)
                         .append("|").append(timestamp).append("|").append(type.getTypeName()).append("|");
-                
+
                 // Remove any embedded line feed characters since these interfere with parsing when reading
                 // the log files
                 logEntry.append(logMessage.toString().replaceAll("\n", ""));

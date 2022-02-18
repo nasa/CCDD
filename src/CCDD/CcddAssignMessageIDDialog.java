@@ -11,11 +11,11 @@
 *   \copyright
 *     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
 *
-*     Copyright (c) 2016-2021 United States Government as represented by the 
+*     Copyright (c) 2016-2021 United States Government as represented by the
 *     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
 *
 *     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for 
+*     distributed and modified only pursuant to the terms of that agreement.  See the License for
 *     the specific language governing permissions and limitations under the
 *     License at https://software.nasa.gov/.
 *
@@ -347,7 +347,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
         // Get references to shorten subsequent calls
         messageIDHandler = ccddMain.getMessageIDHandler();
         eventLog = ccddMain.getSessionEventLog();
-        
+
         groupHandler = new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame());
 
         // Create the message name and ID assignment dialog
@@ -390,7 +390,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
             JButton btnOk;
             JButton btnClose;
             boolean isVisible = true;
-            
+
             /**************************************************************************************
              * Build the message ID assignment dialog
              *************************************************************************************/
@@ -400,14 +400,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                 dbTable = ccddMain.getDbTableCommandHandler();
                 inputTypeHandler = ccddMain.getInputTypeHandler();
                 fieldHandler = ccddMain.getFieldHandler();
-                
+
                 // Create an empty border
                 Border emptyBorder = BorderFactory.createEmptyBorder();
-                
+
                 // Create a panel to contain the dialog components
                 dialogPnl = new JPanel(new GridBagLayout());
                 dialogPnl.setBorder(emptyBorder);
-                
+
                 // Create borders for the dialog components
                 border = BorderFactory.createCompoundBorder(
                         BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
@@ -415,7 +415,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
-                
+
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
                         GridBagConstraints.BOTH, new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
@@ -438,11 +438,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                             closeDialog();
                         }
                     });
-                    
+
                     // Close button
                     btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
                             "Close the Assign Message ID Editor");
-                    
+
                     // Create a listener for the Close button
                     btnClose.addActionListener(new ActionListener() {
                         /******************************************************************************
@@ -453,14 +453,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                             closeDialog();
                         }
                     });
-                    
+
                     // Add buttons in the order in which they'll appear (left to right, top to bottom)
                     buttonPnl.add(btnOk);
                     buttonPnl.add(btnClose);
-                    
+
                     // Distribute the buttons across two rows
                     setButtonRows(1);
-                    
+
                     // Create a tabbed pane to contain the message name/ID parameters and add it to the dialog
                     tabbedPane = new JTabbedPane(SwingConstants.LEFT);
                     tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -469,11 +469,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     // Create the information for the message name and ID assignment
                     msgTabs = new MsgTabInfo[] { new MsgTabInfo("Msg ID", "Message ID tab", "Message ID assignment tab"),
                             new MsgTabInfo("Group", "group", "Group message ID assignment")};
-                    
+
                     // Add the Msg ID Panels
                     addMessageIDTab(msgTabs[0], false);
                     addMessageIDTab(msgTabs[1], false);
-                    
+
                     // Build the table tree showing only root tables that can be assigned a message ID
                     tableTree = new CcddTableTreeHandler(ccddMain, groupHandler, TableTreeType.INSTANCE_TABLES,
                             true, true, true, ccddMain.getMainFrame());
@@ -487,10 +487,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     tableTreePnl.add(tableTree.createTreePanel("Tables", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                             false, ccddMain.getMainFrame()), gbc);
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-                    
+
                     // Add the table tree to the dialogPnl
                     dialogPnl.add(tableTreePnl, gbc);
-                    
+
                     // Create a change listener for the tabbed pane
                     tabbedPane.addChangeListener(new ChangeListener() {
                         /******************************************************************************
@@ -511,7 +511,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                     tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     dialogPnl.add(tabbedPane, gbc);
                     dialogPnl.setBorder(etchBorder);
-                    
+
                     // Create the information for the telemetry message name and ID assignment
                     msgTabs = new MsgTabInfo[] {
                             new MsgTabInfo("Message Name", "telemetry", "Telemetry message name assignment"),
@@ -575,7 +575,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
-            
+
             // Create the telemetry message name pattern label
             tabInfo.setPatternLbl(new JLabel("Name pattern"));
             tabInfo.getPatternLbl().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -835,7 +835,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
         gbc.gridy++;
         tabPnl.add(tabInfo.getOverwriteCbx(), gbc);
 
-       
+
         // Add the tab
         tabbedPane.addTab(tabInfo.getName(), null, tabPnl, tabInfo.getToolTip());
 
@@ -916,8 +916,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
         List<String> groupsToUpdate = tableTree.getSelectedGroups();
         List<String> tablesToUpdate = tableTree.getSelectedTablesWithoutChildren();
         List<String> CFSAppGroupNames = Arrays.asList(groupHandler.getGroupNames(true));
-        
-        /* If groups were selected then get the members */
+
+        // If groups were selected then get the members
         for (int i = 0; i < groupsToUpdate.size(); i++) {
             if (!CFSAppGroupNames.contains(groupsToUpdate.get(i))) {
                 groupsToUpdate.remove(i);
@@ -927,7 +927,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
                         groupsToUpdate.get(i)).getTableMembers());
             }
         }
- 
+
         // Check if message IDs should be assigned to any tables
         if (msgTabs[0].getAssignCbx().isSelected() && tablesToUpdate.size() > 0) {
             // Assign the tables and data fields IDS, and update the flag that
@@ -1056,7 +1056,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler {
         int startID = Integer.decode(tabInfo.getStartFld().getText());
         int interval = Integer.valueOf(tabInfo.getIntervalFld().getText());
         int formatLength = tabInfo.getStartFld().getText().length() - 2;
-        
+
         for (String table : tables) {
             FieldInformation result = fieldHandler.getFieldInformationByName(table, "Message ID");
             try {
