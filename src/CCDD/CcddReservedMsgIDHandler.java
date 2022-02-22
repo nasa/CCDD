@@ -37,18 +37,20 @@ import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 /**************************************************************************************************
  * CFS Command and Data Dictionary reserved message ID handler class
  *************************************************************************************************/
-public class CcddReservedMsgIDHandler {
+public class CcddReservedMsgIDHandler
+{
     // List containing the reserved message IDs and corresponding descriptions
     private List<String[]> reservedMsgIDData;
 
     /**********************************************************************************************
-     * Reserved message ID handler class constructor used when setting the macros
-     * from a source other than those in the project database
+     * Reserved message ID handler class constructor used when setting the macros from a source other
+     * than those in the project database
      *
-     * @param reservedMsgIDs list of string arrays containing reserved message IDs
-     *                       and corresponding descriptions
+     * @param reservedMsgIDs list of string arrays containing reserved message IDs and corresponding
+     *                       descriptions
      *********************************************************************************************/
-    CcddReservedMsgIDHandler(List<String[]> reservedMsgIDs) {
+    CcddReservedMsgIDHandler(List<String[]> reservedMsgIDs)
+    {
         this.reservedMsgIDData = reservedMsgIDs;
     }
 
@@ -57,43 +59,46 @@ public class CcddReservedMsgIDHandler {
      *
      * @param ccddMain main class
      *********************************************************************************************/
-    CcddReservedMsgIDHandler(CcddMain ccddMain) {
+    CcddReservedMsgIDHandler(CcddMain ccddMain)
+    {
         // Load the reserved message ID table from the project database
         this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.RESERVED_MSG_IDS, true,
-                ccddMain.getMainFrame()));
+                                                                          ccddMain.getMainFrame()));
     }
 
     /**********************************************************************************************
      * Get the reserved message ID data
      *
-     * @return List of string arrays containing reserved message IDs and the
-     *         corresponding descriptions
+     * @return List of string arrays containing reserved message IDs and the corresponding descriptions
      *********************************************************************************************/
-    protected List<String[]> getReservedMsgIDData() {
+    protected List<String[]> getReservedMsgIDData()
+    {
         return reservedMsgIDData;
     }
 
     /**********************************************************************************************
      * Set the reserved message ID data to the supplied array
      *
-     * @param reservedMsgIDData list of string arrays containing reserved message
-     *                          IDs and the corresponding descriptions
+     * @param reservedMsgIDData list of string arrays containing reserved message IDs and the
+     *                          corresponding descriptions
      *********************************************************************************************/
-    protected void setReservedMsgIDData(List<String[]> reservedMsgIDData) {
+    protected void setReservedMsgIDData(List<String[]> reservedMsgIDData)
+    {
         this.reservedMsgIDData = CcddUtilities.copyListOfStringArrays(reservedMsgIDData);
     }
 
     /**********************************************************************************************
-     * Get a list of all reserved message ID values, converting ID ranges into
-     * individual values
+     * Get a list of all reserved message ID values, converting ID ranges into individual values
      *
      * @return List containing all of the reserved message ID values
      *********************************************************************************************/
-    protected List<Integer> getReservedMsgIDs() {
+    protected List<Integer> getReservedMsgIDs()
+    {
         List<Integer> reservedMsgIDs = new ArrayList<Integer>();
 
         // Step through each reserved message ID and ID range
-        for (String[] reservedMsgID : reservedMsgIDData) {
+        for (String[] reservedMsgID : reservedMsgIDData)
+        {
             // Convert the ID string into the lower and upper (if present) value(s)
             int[] lowHigh = parseReservedMsgIDs(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]);
 
@@ -103,7 +108,8 @@ public class CcddReservedMsgIDHandler {
             reservedMsgIDs.add(lowHigh[0]);
 
             // Step through the remaining values in the range, if applicable
-            for (int value = lowHigh[0] + 1; value <= lowHigh[1]; value++) {
+            for (int value = lowHigh[0] + 1; value <= lowHigh[1]; value++)
+            {
                 // Store the reserved message ID value
                 reservedMsgIDs.add(value);
             }
@@ -113,16 +119,17 @@ public class CcddReservedMsgIDHandler {
     }
 
     /**********************************************************************************************
-     * Parse a reserved message ID or ID range string into the single, or lower and
-     * upper (if present), value(s)
+     * Parse a reserved message ID or ID range string into the single, or lower and upper (if present),
+     * value(s)
      *
-     * @param reservedMsgIDs string showing the single, or lower and upper (if
-     *                       present), reserved message ID
+     * @param reservedMsgIDs string showing the single, or lower and upper (if present), reserved
+     *                       message ID
      *
-     * @return Integer array where the first value is the lower (or single) ID, and
-     *         the second value is the upper ID (if a range; -1 if not a range)
+     * @return Integer array where the first value is the lower (or single) ID, and the second value is
+     *         the upper ID (if a range; -1 if not a range)
      *********************************************************************************************/
-    protected int[] parseReservedMsgIDs(String reservedMsgIDs) {
+    protected int[] parseReservedMsgIDs(String reservedMsgIDs)
+    {
         int[] lowHigh = new int[2];
 
         // Convert the (lower) ID into an integer value
@@ -131,7 +138,8 @@ public class CcddReservedMsgIDHandler {
         lowHigh[1] = -1;
 
         // Check if the ID is a range
-        if (range.length == 2) {
+        if (range.length == 2)
+        {
             // Convert the upper ID into an integer value
             lowHigh[1] = Integer.decode(range[1]);
         }
@@ -148,7 +156,8 @@ public class CcddReservedMsgIDHandler {
      *
      * @return true if the IDs or ID ranges overlap
      *********************************************************************************************/
-    protected boolean isWithinRange(int[] idA, String otherID) {
+    protected boolean isWithinRange(int[] idA, String otherID)
+    {
         // Convert the other lower and upper (if present) values into integers
         int[] idB = parseReservedMsgIDs(otherID);
 
@@ -178,16 +187,19 @@ public class CcddReservedMsgIDHandler {
      *
      * @return true if the supplied message ID is already reserved
      *********************************************************************************************/
-    protected boolean isReservedMsgIDExists(String msgID) {
+    protected boolean isReservedMsgIDExists(String msgID)
+    {
         boolean isExists = false;
 
         // Convert the lower and upper (if present) values into integers
         int[] lowHigh = parseReservedMsgIDs(msgID);
 
         // Step through each defined reserved message ID
-        for (String[] reservedMsgID : reservedMsgIDData) {
+        for (String[] reservedMsgID : reservedMsgIDData)
+        {
             // Check if the message IDs or ID ranges overlap
-            if (isWithinRange(lowHigh, reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()])) {
+            if (isWithinRange(lowHigh, reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]))
+            {
                 // Set the flag that indicates the supplied ID matches or falls within the range
                 // of
                 // an existing reserved message ID, and stop searching
@@ -204,11 +216,14 @@ public class CcddReservedMsgIDHandler {
      *
      * @param reservedMsgIDDefns list of reserved message ID definitions
      *********************************************************************************************/
-    protected void updateReservedMsgIDs(List<String[]> reservedMsgIDDefns) {
+    protected void updateReservedMsgIDs(List<String[]> reservedMsgIDDefns)
+    {
         // Step through each imported reserved message ID definition
-        for (String[] reservedMsgIDDefn : reservedMsgIDDefns) {
+        for (String[] reservedMsgIDDefn : reservedMsgIDDefns)
+        {
             // Check if the reserved message ID isn't already defined
-            if (!isReservedMsgIDExists(reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()])) {
+            if (!isReservedMsgIDExists(reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()]))
+            {
                 // Add the reserved message ID
                 reservedMsgIDData.add(reservedMsgIDDefn);
             }

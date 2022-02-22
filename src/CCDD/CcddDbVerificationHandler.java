@@ -99,7 +99,8 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 /**************************************************************************************************
  * CFS Command and Data Dictionary database verification handler class
  *************************************************************************************************/
-public class CcddDbVerificationHandler {
+public class CcddDbVerificationHandler
+{
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbControlHandler dbControl;
@@ -148,29 +149,33 @@ public class CcddDbVerificationHandler {
     private int allColumnCount;
 
     /**********************************************************************************************
-     * Table data storage class. An instance is created for each data table to
-     * contain its table information and current cell values
+     * Table data storage class. An instance is created for each data table to contain its table
+     * information and current cell values
      *********************************************************************************************/
-    private class TableStorage {
+    private class TableStorage
+    {
         TableInfo tableInfo;
         Object[][] committedData;
 
         /******************************************************************************************
          * Table data storage class constructor
          *
-         * @param tableInfo reference to the table information. The table data initially
-         *                  reflects the contents as it exists in the database
+         * @param tableInfo reference to the table information. The table data initially reflects the
+         *                  contents as it exists in the database
          *****************************************************************************************/
-        TableStorage(TableInfo tableInfo) {
+        TableStorage(TableInfo tableInfo)
+        {
             this.tableInfo = tableInfo;
 
             // Create storage for the data as it exists in the database
             committedData = new Object[tableInfo.getData().size()][tableInfo.getData().get(0).length];
 
             // Step through each row in the table
-            for (int row = 0; row < tableInfo.getData().size(); row++) {
+            for (int row = 0; row < tableInfo.getData().size(); row++)
+            {
                 // Step through each column in the table
-                for (int column = 0; column < tableInfo.getData().get(row).length; column++) {
+                for (int column = 0; column < tableInfo.getData().get(row).length; column++)
+                {
                     // Store the table cell value in the committed data array
                     committedData[row][column] = tableInfo.getData().get(row)[column];
                 }
@@ -182,7 +187,8 @@ public class CcddDbVerificationHandler {
          *
          * @return table information reference
          *****************************************************************************************/
-        protected TableInfo getTableInformation() {
+        protected TableInfo getTableInformation()
+        {
             return tableInfo;
         }
 
@@ -191,17 +197,18 @@ public class CcddDbVerificationHandler {
          *
          * @return Table data as it appears in the database
          *****************************************************************************************/
-        protected Object[][] getCommittedData() {
+        protected Object[][] getCommittedData()
+        {
             return committedData;
         }
     }
 
     /**********************************************************************************************
-     * Table issue class. An instance is created for each issue found in a data or
-     * internal table, and contains the information needed to identify and correct
-     * the issue
+     * Table issue class. An instance is created for each issue found in a data or internal table, and
+     * contains the information needed to identify and correct the issue
      *********************************************************************************************/
-    private class TableIssue {
+    private class TableIssue
+    {
         private boolean fix;
         private final String issue;
         private final String action;
@@ -219,23 +226,23 @@ public class CcddDbVerificationHandler {
          *
          * @param action    action to be taken to correct the issue
          *
-         * @param command   PostgreSQL command to correct the issue; null if this is not
-         *                  a change to a table cell value
+         * @param command   PostgreSQL command to correct the issue; null if this is not a change to a table
+         *                  cell value
          *
          * @param row       row index for the update
          *
-         * @param column    column index for the update; -1 if the update does not
-         *                  affect a specific column
+         * @param column    column index for the update; -1 if the update does not affect a specific column
          *
          * @param data      cell value; null if a specific cell isn't updated
          *
-         * @param rowData   array of cell values for a table row; null if a row is to be
-         *                  deleted or the update does not affect an entire row
+         * @param rowData   array of cell values for a table row; null if a row is to be deleted or the
+         *                  update does not affect an entire row
          *
          * @param tableInfo reference to the table information
          *****************************************************************************************/
         TableIssue(String issue, String action, String command, int row, int column, String data, String[] rowData,
-                TableInfo tableInfo) {
+                   TableInfo tableInfo)
+        {
             this.issue = issue;
             this.action = action;
             this.command = command;
@@ -255,10 +262,11 @@ public class CcddDbVerificationHandler {
          *
          * @param action  action to be taken to correct the issue
          *
-         * @param command PostgreSQL command to correct the issue; null if this is not a
-         *                change to a table cell value
+         * @param command PostgreSQL command to correct the issue; null if this is not a change to a table
+         *                cell value
          *****************************************************************************************/
-        TableIssue(String issue, String action, String command) {
+        TableIssue(String issue, String action, String command)
+        {
             this(issue, action, command, -1, -1, null, null, null);
         }
 
@@ -271,14 +279,14 @@ public class CcddDbVerificationHandler {
          *
          * @param row       row index for the update
          *
-         * @param column    column index for the update; -1 if the update does not
-         *                  affect a specific column
+         * @param column    column index for the update; -1 if the update does not affect a specific column
          *
          * @param data      cell value; null if a specific cell isn't updated
          *
          * @param tableInfo reference to the table information
          *****************************************************************************************/
-        TableIssue(String issue, String action, int row, int column, String data, TableInfo tableInfo) {
+        TableIssue(String issue, String action, int row, int column, String data, TableInfo tableInfo)
+        {
             this(issue, action, null, row, column, data, null, tableInfo);
         }
 
@@ -291,12 +299,13 @@ public class CcddDbVerificationHandler {
          *
          * @param row       row index for the update
          *
-         * @param rowData   array of cell values for a table row; null if a row is to be
-         *                  deleted or the update does not affect an entire row
+         * @param rowData   array of cell values for a table row; null if a row is to be deleted or the
+         *                  update does not affect an entire row
          *
          * @param tableInfo reference to the table information
          *****************************************************************************************/
-        TableIssue(String issue, String action, int row, String[] rowData, TableInfo tableInfo) {
+        TableIssue(String issue, String action, int row, String[] rowData, TableInfo tableInfo)
+        {
             this(issue, action, null, row, -1, null, rowData, tableInfo);
         }
 
@@ -305,7 +314,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Issue text
          *****************************************************************************************/
-        protected String getIssue() {
+        protected String getIssue()
+        {
             return issue;
         }
 
@@ -314,7 +324,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Corrective action text
          *****************************************************************************************/
-        protected String getAction() {
+        protected String getAction()
+        {
             return action;
         }
 
@@ -323,7 +334,8 @@ public class CcddDbVerificationHandler {
          *
          * @return PostgreSQL command
          *****************************************************************************************/
-        protected String getCommand() {
+        protected String getCommand()
+        {
             return command;
         }
 
@@ -332,7 +344,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Table row index
          *****************************************************************************************/
-        protected int getRow() {
+        protected int getRow()
+        {
             return row;
         }
 
@@ -341,7 +354,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Table column index
          *****************************************************************************************/
-        protected int getColumn() {
+        protected int getColumn()
+        {
             return column;
         }
 
@@ -350,7 +364,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Table cell value
          *****************************************************************************************/
-        protected String getData() {
+        protected String getData()
+        {
             return data;
         }
 
@@ -359,7 +374,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Table row values
          *****************************************************************************************/
-        protected String[] getRowData() {
+        protected String[] getRowData()
+        {
             return rowData;
         }
 
@@ -368,7 +384,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Table information reference
          *****************************************************************************************/
-        protected TableInfo getTableInformation() {
+        protected TableInfo getTableInformation()
+        {
             return tableInfo;
         }
 
@@ -377,7 +394,8 @@ public class CcddDbVerificationHandler {
          *
          * @return Flag that indicates if the user elects to correct the issue
          *****************************************************************************************/
-        protected boolean isFix() {
+        protected boolean isFix()
+        {
             return fix;
         }
 
@@ -386,16 +404,18 @@ public class CcddDbVerificationHandler {
          *
          * @param fix true to correct the issue; false to ignore it
          *****************************************************************************************/
-        protected void setFix(boolean fix) {
+        protected void setFix(boolean fix)
+        {
             this.fix = fix;
         }
     }
 
     /**********************************************************************************************
-     * Table change class. An instance is created for each data table that has one
-     * or more issues that the user elects to correct
+     * Table change class. An instance is created for each data table that has one or more issues that
+     * the user elects to correct
      *********************************************************************************************/
-    private class TableChange {
+    private class TableChange
+    {
         private final TableInfo tableInformation;
         private final List<TableModification> additions;
         private final List<TableModification> modifications;
@@ -413,7 +433,8 @@ public class CcddDbVerificationHandler {
          * @param deletions        list of table deletions
          *****************************************************************************************/
         protected TableChange(TableInfo tableInformation, List<TableModification> additions,
-                List<TableModification> modifications, List<TableModification> deletions) {
+                              List<TableModification> modifications, List<TableModification> deletions)
+        {
             this.tableInformation = tableInformation;
             this.additions = additions;
             this.modifications = modifications;
@@ -425,7 +446,8 @@ public class CcddDbVerificationHandler {
          *
          * @return table information reference
          *****************************************************************************************/
-        protected TableInfo getTableInformation() {
+        protected TableInfo getTableInformation()
+        {
             return tableInformation;
         }
 
@@ -434,7 +456,8 @@ public class CcddDbVerificationHandler {
          *
          * @return List of table additions
          *****************************************************************************************/
-        protected List<TableModification> getAdditions() {
+        protected List<TableModification> getAdditions()
+        {
             return additions;
         }
 
@@ -443,7 +466,8 @@ public class CcddDbVerificationHandler {
          *
          * @return List of table modifications
          *****************************************************************************************/
-        protected List<TableModification> getModifications() {
+        protected List<TableModification> getModifications()
+        {
             return modifications;
         }
 
@@ -452,7 +476,8 @@ public class CcddDbVerificationHandler {
          *
          * @return List of table deletions
          *****************************************************************************************/
-        protected List<TableModification> getDeletions() {
+        protected List<TableModification> getDeletions()
+        {
             return deletions;
         }
     }
@@ -462,7 +487,8 @@ public class CcddDbVerificationHandler {
      *
      * @param ccddMain main class
      *********************************************************************************************/
-    CcddDbVerificationHandler(CcddMain ccddMain) {
+    CcddDbVerificationHandler(CcddMain ccddMain)
+    {
         this.ccddMain = ccddMain;
 
         // Create references to shorten subsequent calls
@@ -488,39 +514,43 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Perform a consistency check of the project database. Query the user for
-     * permission to make corrections, then apply the corrections at completion of
-     * the check. This method is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is
-     * allowed to continue to update. The GUI menu commands, however, are disabled
+     * Perform a consistency check of the project database. Query the user for permission to make
+     * corrections, then apply the corrections at completion of the check. This method is executed in a
+     * separate thread since it can take a noticeable amount time to complete, and by using a separate
+     * thread the GUI is allowed to continue to update. The GUI menu commands, however, are disabled
      * until the table data consistency check completes execution
      *********************************************************************************************/
-    private void verifyDatabase() {
-        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
+    private void verifyDatabase()
+    {
+        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        {
             /**************************************************************************************
              * Perform project database verification
              *************************************************************************************/
             @Override
-            protected void execute() {
+            protected void execute()
+            {
                 // Display the verification cancellation dialog
                 haltDlg = new CcddHaltDialog("Verifying Project", "Verification in progress", "verification", 100, 9,
-                        ccddMain.getMainFrame());
+                                             ccddMain.getMainFrame());
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and
                 // the
                 // user hasn't canceled the check
                 isChanges = false;
 
-                try {
+                try
+                {
                     // Get the comments for all data tables
                     comments = dbTable.queryDataTableComments(ccddMain.getMainFrame());
 
                     // Get metadata for all tables
                     ResultSet tableResult = dbControl.getConnection().getMetaData().getTables(null, null, null,
-                            new String[] { "TABLE" });
+                                                                                              new String[] {"TABLE"});
 
                     // Check if verification isn't canceled
-                    if (!haltDlg.isHalted()) {
+                    if (!haltDlg.isHalted())
+                    {
                         // Update the progress bar
                         haltDlg.updateProgressBar("Verify owners", haltDlg.getNumDivisionPerStep());
 
@@ -529,7 +559,8 @@ public class CcddDbVerificationHandler {
                         verifyOwners();
 
                         // Check if verification isn't canceled
-                        if (!haltDlg.isHalted()) {
+                        if (!haltDlg.isHalted())
+                        {
                             // Update the progress bar
                             haltDlg.updateProgressBar("Verify internal tables", haltDlg.getNumDivisionPerStep() * 2);
 
@@ -537,59 +568,65 @@ public class CcddDbVerificationHandler {
                             verifyInternalTables(tableResult);
 
                             // Check if verification isn't canceled
-                            if (!haltDlg.isHalted()) {
+                            if (!haltDlg.isHalted())
+                            {
                                 // Update the progress bar
                                 haltDlg.updateProgressBar("Verify path references",
-                                        haltDlg.getNumDivisionPerStep() * 3);
+                                                          haltDlg.getNumDivisionPerStep() * 3);
 
                                 // Verify the table and variable path references in the internal
                                 // tables
                                 verifyPathReferences(tableResult);
 
                                 // Check if verification isn't canceled
-                                if (!haltDlg.isHalted()) {
+                                if (!haltDlg.isHalted())
+                                {
                                     // Update the progress bar
                                     haltDlg.updateProgressBar("Verify input types",
-                                            haltDlg.getNumDivisionPerStep() * 4);
+                                                              haltDlg.getNumDivisionPerStep() * 4);
 
                                     // Verify the input types in the table types and data fields
                                     // internal tables
                                     verifyInputTypes(tableResult);
 
                                     // Check if verification isn't canceled
-                                    if (!haltDlg.isHalted()) {
+                                    if (!haltDlg.isHalted())
+                                    {
                                         // Update the progress bar
                                         haltDlg.updateProgressBar("Verify data field inheritance",
-                                                haltDlg.getNumDivisionPerStep() * 5);
+                                                                  haltDlg.getNumDivisionPerStep() * 5);
 
                                         // Verify that all default data fields are inherited by the
                                         // affected tables
                                         verifyDataFieldInheritance();
 
                                         // Check if verification isn't canceled
-                                        if (!haltDlg.isHalted()) {
+                                        if (!haltDlg.isHalted())
+                                        {
                                             // Update the progress bar
                                             haltDlg.updateProgressBar("Verify table types",
-                                                    haltDlg.getNumDivisionPerStep() * 6);
+                                                                      haltDlg.getNumDivisionPerStep() * 6);
 
                                             // Check for inconsistencies between the table type
                                             // definitions and the tables of that type
                                             verifyTableTypes(tableResult);
 
                                             // Check if verification isn't canceled
-                                            if (!haltDlg.isHalted()) {
+                                            if (!haltDlg.isHalted())
+                                            {
                                                 // Update the progress bar
                                                 haltDlg.updateProgressBar("Verify data tables",
-                                                        haltDlg.getNumDivisionPerStep() * 7);
+                                                                          haltDlg.getNumDivisionPerStep() * 7);
 
                                                 // Check for inconsistencies within the data tables
                                                 verifyDataTables();
 
                                                 // Check if verification isn't canceled
-                                                if (!haltDlg.isHalted()) {
+                                                if (!haltDlg.isHalted())
+                                                {
                                                     // Update the progress bar
                                                     haltDlg.updateProgressBar("Verify data tables",
-                                                            haltDlg.getNumDivisionPerStep() * 8);
+                                                                              haltDlg.getNumDivisionPerStep() * 8);
 
                                                     // Check for inconsistencies within the Message IDs
                                                     verifyMessageIDs();
@@ -601,14 +638,22 @@ public class CcddDbVerificationHandler {
                             }
                         }
                     }
-                } catch (SQLException se) {
+                }
+                catch (
+                    SQLException se
+                )
+                {
                     // Inform the user that obtaining the project database metadata failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
-                            "Error obtaining project database '" + dbControl.getDatabaseName() + "' metadata; cause '"
-                                    + se.getMessage() + "'",
-                            "<html><b>Error obtaining project database '</b>" + dbControl.getDatabaseName()
-                                    + "<b>' metadata");
-                } catch (Exception e) {
+                                          "Error obtaining project database '" + dbControl.getDatabaseName()
+                                                                   + "' metadata; cause '" + se.getMessage() + "'",
+                                          "<html><b>Error obtaining project database '</b>" + dbControl
+                                                  .getDatabaseName() + "<b>' metadata");
+                }
+                catch (
+                    Exception e
+                )
+                {
                     // Display a dialog providing details on the unanticipated error
                     CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
@@ -618,9 +663,11 @@ public class CcddDbVerificationHandler {
              * Project database verification command complete
              *************************************************************************************/
             @Override
-            protected void complete() {
+            protected void complete()
+            {
                 // Check if the user didn't cancel verification
-                if (!haltDlg.isHalted()) {
+                if (!haltDlg.isHalted())
+                {
                     // Close the cancellation dialog
                     haltDlg.closeDialog();
 
@@ -628,8 +675,10 @@ public class CcddDbVerificationHandler {
                     updateDatabase();
                 }
                 // Verification was canceled
-                else {
-                    eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("Verification terminated by user"));
+                else
+                {
+                    eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                                      new StringBuilder("Verification terminated by user"));
                 }
             }
         });
@@ -638,22 +687,22 @@ public class CcddDbVerificationHandler {
     /**********************************************************************************************
      * Update the verification progress bar
      *
-     * @param progText   text to display within the progress bar; null to not update
-     *                   the text
+     * @param progText   text to display within the progress bar; null to not update the text
      *
-     * @param startValue initial value at which to begin this sequence in the
-     *                   verification process; -1 to not change the initial value
+     * @param startValue initial value at which to begin this sequence in the verification process; -1
+     *                   to not change the initial value
      *********************************************************************************************/
 
     /**********************************************************************************************
-     * Check that the owner role matches for the project database and its tables,
-     * sequences, indices, and functions. A database administrator is required in
-     * order to alter the owner role(s) to match the database owner; this must be
-     * done outside the application. If any mismatch is detected then the issue is
-     * logged for information purposes only
+     * Check that the owner role matches for the project database and its tables, sequences, indices,
+     * and functions. A database administrator is required in order to alter the owner role(s) to match
+     * the database owner; this must be done outside the application. If any mismatch is detected then
+     * the issue is logged for information purposes only
      *********************************************************************************************/
-    private void verifyOwners() {
-        try {
+    private void verifyOwners()
+    {
+        try
+        {
             // Check if the owner differs for the project database and its tables,
             // sequences, or
             // indices
@@ -665,98 +714,110 @@ public class CcddDbVerificationHandler {
                     .append("'public') AS tbl WHERE db.datdba != tbl.relowner"), ccddMain.getMainFrame());
 
             // Step through each component with a mismatched owner
-            while (mismatch.next()) {
+            while (mismatch.next())
+            {
                 // Check if the user canceled verification
-                if (haltDlg.isHalted()) {
+                if (haltDlg.isHalted())
+                {
                     break;
                 }
 
                 String type;
 
                 // Get the component type
-                switch (mismatch.getString(2)) {
-                case "r":
-                    type = "table";
-                    break;
+                switch (mismatch.getString(2))
+                {
+                    case "r":
+                        type = "table";
+                        break;
 
-                case "i":
-                    type = "index";
-                    break;
+                    case "i":
+                        type = "index";
+                        break;
 
-                case "S":
-                    type = "sequence";
-                    break;
+                    case "S":
+                        type = "sequence";
+                        break;
 
-                case "v":
-                    type = "view";
-                    break;
+                    case "v":
+                        type = "view";
+                        break;
 
-                case "c":
-                    type = "composite type";
-                    break;
+                    case "c":
+                        type = "composite type";
+                        break;
 
-                default:
-                    type = "unknown component";
-                    break;
+                    default:
+                        type = "unknown component";
+                        break;
                 }
 
                 // Component owner differs from the database owner
-                issues.add(new TableIssue(
-                        "Owner for " + type + " " + mismatch.getString(1) + " (" + mismatch.getString(3)
-                                + ") does not match project database owner (" + mismatch.getString(4) + ")",
-                        "Database administrator must change " + type + " " + mismatch.getString(1)
-                                + " owner to match project database owner",
-                        null));
+                issues.add(new TableIssue("Owner for " + type + " " + mismatch.getString(1) + " ("
+                                          + mismatch.getString(3) + ") does not match project database owner ("
+                                          + mismatch.getString(4) + ")",
+                                          "Database administrator must change " + type + " " + mismatch
+                                                  .getString(1) + " owner to match project database owner",
+                                          null));
             }
 
             mismatch.close();
 
             // Check if the owner differs for the project database and its functions
-            mismatch = dbCommand.executeDbQuery(new StringBuilder("SELECT name, pg_catalog.pg_get_userbyid(func.proowner) AS ")
-                    .append("owner, pg_catalog.pg_get_userbyid(db.datdba) AS db_ownwer FROM (SELECT datdba FROM ")
-                    .append("pg_catalog.pg_database d WHERE d.datname = (SELECT current_database())) AS db, (SELECT ")
-                    .append("prc.proname || '(' || pg_get_function_identity_arguments(prc.oid) ")
-                    .append("|| ')' AS name, proowner FROM pg_proc prc JOIN pg_namespace nsp ON prc.pronamespace = ")
-                    .append("nsp.oid WHERE nsp.nspname = 'public') AS func WHERE db.datdba != func.proowner;"),
-                    ccddMain.getMainFrame());
+            mismatch = dbCommand
+                    .executeDbQuery(new StringBuilder("SELECT name, pg_catalog.pg_get_userbyid(func.proowner) AS ")
+                            .append("owner, pg_catalog.pg_get_userbyid(db.datdba) AS db_ownwer FROM (SELECT datdba FROM ")
+                            .append("pg_catalog.pg_database d WHERE d.datname = (SELECT current_database())) AS db, (SELECT ")
+                            .append("prc.proname || '(' || pg_get_function_identity_arguments(prc.oid) ")
+                            .append("|| ')' AS name, proowner FROM pg_proc prc JOIN pg_namespace nsp ON prc.pronamespace = ")
+                            .append("nsp.oid WHERE nsp.nspname = 'public') AS func WHERE db.datdba != func.proowner;"),
+                                    ccddMain.getMainFrame());
 
             // Step through each function with a mismatched owner
-            while (mismatch.next()) {
+            while (mismatch.next())
+            {
                 // Check if the user canceled verification
-                if (haltDlg.isHalted()) {
+                if (haltDlg.isHalted())
+                {
                     break;
                 }
 
                 // Function owner differs from database owner
-                issues.add(new TableIssue(
-                        "Owner for function " + mismatch.getString(1) + " (" + mismatch.getString(2)
-                                + ") does not match project database owner (" + mismatch.getString(3) + ")",
-                        "Database administrator must change function " + mismatch.getString(1)
-                                + " owner to match project database owner",
-                        null));
+                issues.add(new TableIssue("Owner for function " + mismatch.getString(1) + " (" + mismatch.getString(2)
+                                          + ") does not match project database owner (" + mismatch.getString(3) + ")",
+                                          "Database administrator must change function " + mismatch
+                                                  .getString(1) + " owner to match project database owner",
+                                          null));
             }
 
             mismatch.close();
-        } catch (SQLException se) {
+        }
+        catch (
+            SQLException se
+        )
+        {
             // Inform the user that checking the table consistency failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                    "Error verifying project database '" + dbControl.getDatabaseName() + "'consistency; cause '"
-                            + se.getMessage() + "'",
-                    "<html><b>Error verifying project database '</b>" + dbControl.getDatabaseName()
-                            + "<b>' consistency");
+                                  "Error verifying project database '"
+                                                           + dbControl.getDatabaseName() + "'consistency; cause '"
+                                                           + se.getMessage() + "'",
+                                  "<html><b>Error verifying project database '</b>" + dbControl
+                                          .getDatabaseName() + "<b>' consistency");
         }
     }
 
     /**********************************************************************************************
-     * Check that the internal tables are consistent with their definitions. If any
-     * inconsistencies are detected then get user approval to alter the table(s)
+     * Check that the internal tables are consistent with their definitions. If any inconsistencies are
+     * detected then get user approval to alter the table(s)
      *
      * @param tableResult metadata for all tables
      *********************************************************************************************/
-    private void verifyInternalTables(ResultSet tableResult) {
+    private void verifyInternalTables(ResultSet tableResult)
+    {
         String dbTableName = "";
 
-        try {
+        try
+        {
             // Initialize the progress bar within-step total to the total number of rows in
             // the
             // result set
@@ -767,9 +828,11 @@ public class CcddDbVerificationHandler {
             tableResult.beforeFirst();
 
             // Step through each database table
-            while (tableResult.next()) {
+            while (tableResult.next())
+            {
                 // Check if the user canceled verification
-                if (haltDlg.isHalted()) {
+                if (haltDlg.isHalted())
+                {
                     break;
                 }
 
@@ -778,53 +841,65 @@ public class CcddDbVerificationHandler {
 
                 // Check if this is an internal table other than a script file
                 if (dbTableName.startsWith(INTERNAL_TABLE_PREFIX)
-                        && !dbTableName.startsWith(InternalTable.SCRIPT.getTableName())) {
+                    && !dbTableName.startsWith(InternalTable.SCRIPT.getTableName()))
+                {
                     boolean isFound = false;
 
                     // Step through each internal table type
-                    for (InternalTable intTable : InternalTable.values()) {
+                    for (InternalTable intTable : InternalTable.values())
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
                         // Check if the table name matches that of a known internal table
-                        if (dbTableName.equals(intTable.getTableName())) {
+                        if (dbTableName.equals(intTable.getTableName()))
+                        {
                             // Get the table's column metadata
-                            ResultSet columnResult = dbControl.getConnection().getMetaData().getColumns(null, null,
-                                    dbTableName, null);
+                            ResultSet columnResult = dbControl.getConnection().getMetaData()
+                                    .getColumns(null, null, dbTableName, null);
 
                             columnResult.last();
 
                             // Check if the table is one or more missing columns
-                            if (columnResult.getRow() < intTable.getNumColumns()) {
+                            if (columnResult.getRow() < intTable.getNumColumns())
+                            {
                                 // Table has too few columns
-                                issues.add(new TableIssue(
-                                        "Internal table '" + dbTableName + "' is missing one or more columns",
-                                        "Delete table", "DROP TABLE " + dbTableName + "; "
-                                                + dbControl.buildInformationTableCommand(intTable) + " "));
+                                issues.add(new TableIssue("Internal table '" + dbTableName
+                                                          + "' is missing one or more columns", "Delete table",
+                                                          "DROP TABLE " + dbTableName + "; " + dbControl
+                                                                  .buildInformationTableCommand(intTable) + " "));
                             }
                             // The number of columns is correct
-                            else {
+                            else
+                            {
                                 // Reset the result set pointer
                                 columnResult.beforeFirst();
 
                                 int columnIndex = 0;
 
                                 // Step through each column in the table
-                                while (columnResult.next()) {
+                                while (columnResult.next())
+                                {
                                     // Check if the user canceled verification
-                                    if (haltDlg.isHalted()) {
+                                    if (haltDlg.isHalted())
+                                    {
                                         break;
                                     }
 
                                     // Check if the table has more columns than expected
-                                    if (columnIndex == intTable.getNumColumns()) {
+                                    if (columnIndex == intTable.getNumColumns())
+                                    {
                                         // Table has too many columns
-                                        issues.add(new TableIssue(
-                                                "Internal table '" + dbTableName + "' has too many columns",
-                                                "Delete extra column(s)", "ALTER TABLE " + dbTableName + " DROP COLUMN "
-                                                        + columnResult.getString("COLUMN_NAME") + "; "));
+                                        issues.add(new TableIssue("Internal table '"
+                                                                  + dbTableName + "' has too many columns",
+                                                                  "Delete extra column(s)", "ALTER TABLE " + dbTableName
+                                                                                            + " DROP COLUMN "
+                                                                                            + columnResult
+                                                                                                    .getString("COLUMN_NAME")
+                                                                                            + "; "));
 
                                         // Stop checking this table
                                         break;
@@ -838,31 +913,34 @@ public class CcddDbVerificationHandler {
                                     String expectedType = intTable.getColumnType(columnIndex);
 
                                     // Check if the column names don't match
-                                    if (!columnName.equals(expectedName)) {
+                                    if (!columnName.equals(expectedName))
+                                    {
                                         // Column name is unknown
-                                        issues.add(new TableIssue(
-                                                "Internal table '" + dbTableName + "' column " + columnIndex
-                                                        + " name mismatch (expected: '" + expectedName + "', actual: '"
-                                                        + columnName + "')",
-                                                "Rename column", "ALTER TABLE " + dbTableName + " RENAME COLUMN "
-                                                        + columnName + " TO " + expectedName + "; "));
+                                        issues.add(new TableIssue("Internal table '" + dbTableName + "' column "
+                                                                  + columnIndex + " name mismatch (expected: '"
+                                                                  + expectedName + "', actual: '" + columnName + "')",
+                                                                  "Rename column",
+                                                                  "ALTER TABLE " + dbTableName + " RENAME COLUMN "
+                                                                                   + columnName + " TO " + expectedName
+                                                                                   + "; "));
                                     }
 
                                     // Check if the data type of the column in the database matches
                                     // the data type in the type definition. Only the first three
                                     // letters are compared since the data type representation can
                                     // change in the database
-                                    if (!columnType.startsWith(expectedType.substring(0, 3))) {
+                                    if (!columnType.startsWith(expectedType.substring(0, 3)))
+                                    {
                                         // Column's type is incorrect
-                                        issues.add(
-                                                new TableIssue(
-                                                        "Internal table '" + dbTableName + "' column '" + columnName
-                                                                + "' data type mismatch (expected: '" + expectedType
-                                                                + "', actual: '" + columnType + "')",
-                                                        "Modify table type",
-                                                        "ALTER TABLE " + dbTableName + " ALTER COLUMN " + columnName
-                                                                + " TYPE " + expectedType + " USING " + columnName
-                                                                + "::" + expectedType + "; "));
+                                        issues.add(new TableIssue("Internal table '" + dbTableName + "' column '"
+                                                                  + columnName + "' data type mismatch (expected: '"
+                                                                  + expectedType + "', actual: '" + columnType + "')",
+                                                                  "Modify table type",
+                                                                  "ALTER TABLE " + dbTableName + " ALTER COLUMN "
+                                                                                       + columnName + " TYPE "
+                                                                                       + expectedType + " USING "
+                                                                                       + columnName + "::"
+                                                                                       + expectedType + "; "));
                                     }
 
                                     columnIndex++;
@@ -874,36 +952,42 @@ public class CcddDbVerificationHandler {
                     }
 
                     // Check if the table name doesn't match a known one
-                    if (!isFound) {
+                    if (!isFound)
+                    {
                         // Internal table name doesn't match one of the expected ones
                         issues.add(new TableIssue("Unknown internal table '" + dbTableName + "'", "Delete table",
-                                "DROP TABLE " + dbTableName + "; "));
+                                                  "DROP TABLE " + dbTableName + "; "));
                     }
                 }
 
                 // Update the within-step progress value
                 haltDlg.updateProgressBar(null, -1);
             }
-        } catch (SQLException se) {
+        }
+        catch (
+            SQLException se
+        )
+        {
             // Inform the user that obtaining the internal table metadata failed
-            eventLog.logFailEvent(
-                    ccddMain.getMainFrame(), "Error obtaining metadata for internal table '" + dbTableName
-                            + "'; cause '" + se.getMessage() + "'",
-                    "<html><b>Error obtaining metadata for internal table '</b>" + dbTableName + "<b>'");
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining metadata for internal table '" + dbTableName + "'; cause '"
+                                                           + se.getMessage() + "'",
+                                  "<html><b>Error obtaining metadata for internal table '</b>" + dbTableName + "<b>'");
         }
     }
 
     /**********************************************************************************************
-     * Check that the input types in the table types and data fields internal tables
-     * are valid. If any invalid entries are detected then get user approval to
-     * alter the table(s)
+     * Check that the input types in the table types and data fields internal tables are valid. If any
+     * invalid entries are detected then get user approval to alter the table(s)
      *
      * @param tableResult metadata for all tables
      *********************************************************************************************/
-    private void verifyInputTypes(ResultSet tableResult) {
+    private void verifyInputTypes(ResultSet tableResult)
+    {
         String dbTableName = "";
 
-        try {
+        try
+        {
             // Initialize the progress bar within-step total to the total number of rows in
             // the
             // result set
@@ -914,9 +998,11 @@ public class CcddDbVerificationHandler {
             tableResult.beforeFirst();
 
             // Step through each database table
-            while (tableResult.next()) {
+            while (tableResult.next())
+            {
                 // Check if the user canceled verification
-                if (haltDlg.isHalted()) {
+                if (haltDlg.isHalted())
+                {
                     break;
                 }
 
@@ -926,35 +1012,43 @@ public class CcddDbVerificationHandler {
                 String columnName = "";
 
                 // Check if this is the tables types internal table
-                if (dbTableName.equals(InternalTable.TABLE_TYPES.getTableName())) {
+                if (dbTableName.equals(InternalTable.TABLE_TYPES.getTableName()))
+                {
                     // Get the column name containing the input type
                     columnName = TableTypesColumn.INPUT_TYPE.getColumnName();
                 }
                 // Check if this is the data fields internal table
-                else if (dbTableName.equals(InternalTable.FIELDS.getTableName())) {
+                else if (dbTableName.equals(InternalTable.FIELDS.getTableName()))
+                {
                     // Get the column name containing the input type
                     columnName = FieldsColumn.FIELD_TYPE.getColumnName();
                 }
 
                 // Check if the table types or data fields internal table is being checked
-                if (!columnName.isEmpty()) {
+                if (!columnName.isEmpty())
+                {
                     // Step through the input types referenced in the internal table
-                    for (String[] inputType : getInternalTableMembers(dbTableName, columnName, null)) {
+                    for (String[] inputType : getInternalTableMembers(dbTableName, columnName, null))
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
                         // Check if the input type is invalid
-                        if (!inputTypeHandler.isInputTypeValid(inputType[0])) {
+                        if (!inputTypeHandler.isInputTypeValid(inputType[0]))
+                        {
                             // Invalid input type
-                            issues.add(new TableIssue(
-                                    "Internal table '" + dbTableName + "' references an invalid input type, '"
-                                            + inputType[0] + "'",
-                                    "Replace input type with '" + DefaultInputType.TEXT.getInputName() + "'",
-                                    "UPDATE " + dbTableName + " SET " + columnName + " = '"
-                                            + DefaultInputType.TEXT.getInputName() + "' WHERE " + columnName + " = '"
-                                            + inputType[0] + "';"));
+                            issues.add(new TableIssue("Internal table '" + dbTableName
+                                                      + "' references an invalid input type, '" + inputType[0] + "'",
+                                                      "Replace input type with '" + DefaultInputType.TEXT
+                                                              .getInputName() + "'",
+                                                      "UPDATE " + dbTableName + " SET " + columnName + " = '"
+                                                                                     + DefaultInputType.TEXT
+                                                                                             .getInputName()
+                                                                                     + "' WHERE " + columnName + " = '"
+                                                                                     + inputType[0] + "';"));
                         }
                     }
                 }
@@ -962,33 +1056,39 @@ public class CcddDbVerificationHandler {
                 // Update the within-step progress value
                 haltDlg.updateProgressBar(null, -1);
             }
-        } catch (SQLException se) {
+        }
+        catch (
+            SQLException se
+        )
+        {
             // Inform the user that obtaining the internal table metadata failed
-            eventLog.logFailEvent(
-                    ccddMain.getMainFrame(), "Error obtaining metadata for internal table '" + dbTableName
-                            + "'; cause '" + se.getMessage() + "'",
-                    "<html><b>Error obtaining metadata for internal table '</b>" + dbTableName + "<b>'");
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining metadata for internal table '" + dbTableName + "'; cause '"
+                                                           + se.getMessage() + "'",
+                                  "<html><b>Error obtaining metadata for internal table '</b>" + dbTableName + "<b>'");
         }
     }
 
     /**********************************************************************************************
-     * Check that the references to tables and variables in the internal tables are
-     * valid. If any invalid entries are detected then get user approval to alter
-     * the table(s)
+     * Check that the references to tables and variables in the internal tables are valid. If any
+     * invalid entries are detected then get user approval to alter the table(s)
      *
      * @param tableResult metadata for all tables
      *********************************************************************************************/
-    private void verifyPathReferences(ResultSet tableResult) {
+    private void verifyPathReferences(ResultSet tableResult)
+    {
         String dbTableName = "";
 
-        try {
+        try
+        {
             // Load the group names from the database
             List<String> groupNames = Arrays
                     .asList(new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()).getGroupNames(false, true));
 
             // Get the list of table and variable paths and names, retaining any macros and bit lengths
             CcddTableTreeHandler allTableAndVariableTree = new CcddTableTreeHandler(ccddMain,
-                    TableTreeType.TABLES_WITH_PRIMITIVES, ccddMain.getMainFrame());
+                                                                                    TableTreeType.TABLES_WITH_PRIMITIVES,
+                                                                                    ccddMain.getMainFrame());
             List<String> allTableAndVariableList = allTableAndVariableTree.getTableTreePathList(null);
 
             // List to contain invalid table or variable references. This is used to prevent
@@ -1003,9 +1103,11 @@ public class CcddDbVerificationHandler {
             tableResult.beforeFirst();
 
             // Step through each database table
-            while (tableResult.next()) {
+            while (tableResult.next())
+            {
                 // Check if the user canceled verification
-                if (haltDlg.isHalted()) {
+                if (haltDlg.isHalted())
+                {
                     break;
                 }
 
@@ -1013,39 +1115,42 @@ public class CcddDbVerificationHandler {
                 dbTableName = tableResult.getString("TABLE_NAME");
 
                 // Check if this is the script associations table
-                if (dbTableName.equals(InternalTable.ASSOCIATIONS.getTableName())) {
+                if (dbTableName.equals(InternalTable.ASSOCIATIONS.getTableName()))
+                {
                     // Step through the associated tables
                     for (String[] member : getInternalTableMembers(dbTableName,
-                            AssociationsColumn.MEMBERS.getColumnName(),
-                            AssociationsColumn.SCRIPT_FILE.getColumnName())) {
+                                                                   AssociationsColumn.MEMBERS.getColumnName(),
+                                                                   AssociationsColumn.SCRIPT_FILE.getColumnName()))
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
                         // Check if a this association references a table. If no table is
                         // associated the member column contains a space
-                        if (!member[0].trim().isEmpty()) {
+                        if (!member[0].trim().isEmpty())
+                        {
                             // Step through each table in the association
-                            for (String table : member[0].split(Pattern.quote(ASSN_TABLE_SEPARATOR))) {
+                            for (String table : member[0].split(Pattern.quote(ASSN_TABLE_SEPARATOR)))
+                            {
                                 // Check if this is a reference to a group
-                                if (table.startsWith(GROUP_DATA_FIELD_IDENT)) {
+                                if (table.startsWith(GROUP_DATA_FIELD_IDENT))
+                                {
                                     // Extract the group name
                                     String groupName = table.substring(GROUP_DATA_FIELD_IDENT.length());
 
                                     // Check if the group name is invalid
-                                    if (!groupNames.contains(groupName)) {
+                                    if (!groupNames.contains(groupName))
+                                    {
                                         // Association table reference is invalid
-                                        issues.add(new TableIssue(
-                                                "Internal table '" + dbTableName
-                                                        + "' references a non-existent group, '" + groupName
-                                                        + "', associated with script '" + member[1] + "'",
-                                                "Delete script association",
-                                                "DELETE FROM " + dbTableName + " WHERE "
-                                                        + AssociationsColumn.SCRIPT_FILE.getColumnName() + " = "
-                                                        + CcddDbTableCommandHandler.delimitText(member[1]) + " AND "
-                                                        + AssociationsColumn.MEMBERS.getColumnName() + " = "
-                                                        + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                                        issues.add(new TableIssue("Internal table '"
+                                                                  + dbTableName + "' references a non-existent group, '"
+                                                                  + groupName + "', associated with script '"
+                                                                  + member[1] + "'", "Delete script association",
+                                                                  "DELETE FROM " + dbTableName + " WHERE " + AssociationsColumn.SCRIPT_FILE
+                                                                          .getColumnName() + " = " + CcddDbTableCommandHandler.delimitText(member[1]) + " AND " + AssociationsColumn.MEMBERS.getColumnName() + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                                         // Skip any other invalid references in this association;
                                         // this prevents allowing the user to select removal of the
@@ -1054,17 +1159,26 @@ public class CcddDbVerificationHandler {
                                     }
                                 }
                                 // Check if the table doesn't exist
-                                else if (!allTableAndVariableList.contains(table)) {
+                                else if (!allTableAndVariableList.contains(table))
+                                {
                                     // Association table reference is invalid
-                                    issues.add(new TableIssue(
-                                            "Internal table '" + dbTableName + "' references a non-existent table, '"
-                                                    + table + "', associated with script '" + member[1] + "'",
-                                            "Delete script association",
-                                            "DELETE FROM " + dbTableName + " WHERE "
-                                                    + AssociationsColumn.SCRIPT_FILE.getColumnName() + " = "
-                                                    + CcddDbTableCommandHandler.delimitText(member[1]) + " AND "
-                                                    + AssociationsColumn.MEMBERS.getColumnName() + " = "
-                                                    + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                                    issues.add(new TableIssue("Internal table '" + dbTableName
+                                                              + "' references a non-existent table, '" + table
+                                                              + "', associated with script '" + member[1] + "'",
+                                                              "Delete script association",
+                                                              "DELETE FROM " + dbTableName + " WHERE "
+                                                                                           + AssociationsColumn.SCRIPT_FILE
+                                                                                                   .getColumnName()
+                                                                                           + " = "
+                                                                                           + CcddDbTableCommandHandler
+                                                                                                   .delimitText(member[1])
+                                                                                           + " AND "
+                                                                                           + AssociationsColumn.MEMBERS
+                                                                                                   .getColumnName()
+                                                                                           + " = "
+                                                                                           + CcddDbTableCommandHandler
+                                                                                                   .delimitText(member[0])
+                                                                                           + "; "));
 
                                     // Skip any other invalid references in this association; this
                                     // prevents allowing the user to select removal of the same
@@ -1076,15 +1190,18 @@ public class CcddDbVerificationHandler {
                     }
                 }
                 // Check if this is the data fields table
-                else if (dbTableName.equals(InternalTable.FIELDS.getTableName())) {
+                else if (dbTableName.equals(InternalTable.FIELDS.getTableName()))
+                {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through the field owners
                     for (String[] member : getInternalTableMembers(dbTableName, FieldsColumn.OWNER_NAME.getColumnName(),
-                            null)) {
+                                                                   null))
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
@@ -1092,14 +1209,19 @@ public class CcddDbVerificationHandler {
                         // table hasn't already been detected, and if the table isn't in the list
                         // of valid names
                         if (!member[0].matches("^.*:.*") && !badRefs.contains(member[0])
-                                && !allTableAndVariableList.contains(member[0])) {
+                            && !allTableAndVariableList.contains(member[0]))
+                        {
                             // Data field table owner reference is invalid
-                            issues.add(new TableIssue(
-                                    "Internal table '" + dbTableName + "' references a non-existent table, '"
-                                            + member[0] + "'",
-                                    "Delete table's data field(s)",
-                                    "DELETE FROM " + dbTableName + " WHERE " + FieldsColumn.OWNER_NAME.getColumnName()
-                                            + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                            issues.add(new TableIssue("Internal table '" + dbTableName
+                                                      + "' references a non-existent table, '" + member[0] + "'",
+                                                      "Delete table's data field(s)",
+                                                      "DELETE FROM " + dbTableName + " WHERE "
+                                                                                      + FieldsColumn.OWNER_NAME
+                                                                                              .getColumnName()
+                                                                                      + " = "
+                                                                                      + CcddDbTableCommandHandler
+                                                                                              .delimitText(member[0])
+                                                                                      + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
                             // references to it (for other columns) aren't logged as duplicate
@@ -1109,29 +1231,36 @@ public class CcddDbVerificationHandler {
                     }
                 }
                 // Check if this is the groups table
-                else if (dbTableName.equals(InternalTable.GROUPS.getTableName())) {
+                else if (dbTableName.equals(InternalTable.GROUPS.getTableName()))
+                {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through the group tables
                     for (String[] member : getInternalTableMembers(dbTableName, GroupsColumn.MEMBERS.getColumnName(),
-                            null)) {
+                                                                   null))
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
                         // Check if this isn't a group definition entry, the table hasn't already
                         // been detected, and if the table isn't in the list of valid names
                         if (!member[0].matches("^\\d+.*") && !badRefs.contains(member[0])
-                                && !allTableAndVariableList.contains(member[0])) {
+                            && !allTableAndVariableList.contains(member[0]))
+                        {
                             // Group table member reference is invalid
-                            issues.add(new TableIssue(
-                                    "Internal table '" + dbTableName + "' references a non-existent table, '"
-                                            + member[0] + "'",
-                                    "Delete table from group",
-                                    "DELETE FROM " + dbTableName + " WHERE " + GroupsColumn.MEMBERS.getColumnName()
-                                            + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                            issues.add(new TableIssue("Internal table '" + dbTableName
+                                                      + "' references a non-existent table, '" + member[0] + "'",
+                                                      "Delete table from group",
+                                                      "DELETE FROM " + dbTableName + " WHERE "
+                                                                                 + GroupsColumn.MEMBERS.getColumnName()
+                                                                                 + " = "
+                                                                                 + CcddDbTableCommandHandler
+                                                                                         .delimitText(member[0])
+                                                                                 + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
                             // references to it (for other columns) aren't logged as duplicate issues
@@ -1140,29 +1269,32 @@ public class CcddDbVerificationHandler {
                     }
                 }
                 // Check if this is the links table
-                else if (dbTableName.equals(InternalTable.LINKS.getTableName())) {
+                else if (dbTableName.equals(InternalTable.LINKS.getTableName()))
+                {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through the link variables
                     for (String[] member : getInternalTableMembers(dbTableName, LinksColumn.MEMBER.getColumnName(),
-                            null)) {
+                                                                   null))
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
                         // Check if this isn't a link definition entry, hasn't already been
                         // detected, and if it isn't in the list of valid names
                         if (!member[0].matches("^\\d+.*") && !badRefs.contains(member[0])
-                                && !allTableAndVariableList.contains(member[0])) {
+                            && !allTableAndVariableList.contains(member[0]))
+                        {
                             // Link variable member reference is invalid
-                            issues.add(new TableIssue(
-                                    "Internal table '" + dbTableName + "' references a non-existent variable, '"
-                                            + member[0] + "'",
-                                    "Delete variable from link",
-                                    "DELETE FROM " + dbTableName + " WHERE " + LinksColumn.MEMBER.getColumnName()
-                                            + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                            issues.add(new TableIssue("Internal table '" + dbTableName
+                                                      + "' references a non-existent variable, '" + member[0] + "'",
+                                                      "Delete variable from link",
+                                                      "DELETE FROM " + dbTableName + " WHERE " + LinksColumn.MEMBER
+                                                              .getColumnName() + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
                             // references to it (for other columns) aren't logged as duplicate issues
@@ -1171,35 +1303,36 @@ public class CcddDbVerificationHandler {
                     }
                 }
                 // Check if this is the telemetry scheduler table
-                else if (dbTableName.equals(InternalTable.TLM_SCHEDULER.getTableName())) {
+                else if (dbTableName.equals(InternalTable.TLM_SCHEDULER.getTableName()))
+                {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through each variable in the telemetry table
                     for (String[] member : getInternalTableMembers(dbTableName,
-                            TlmSchedulerColumn.MEMBER.getColumnName(), null)) {
+                                                                   TlmSchedulerColumn.MEMBER.getColumnName(), null))
+                    {
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             break;
                         }
 
                         // Check if the variable isn't blank (i.e., an empty message), hasn't
                         // already been detected, and if it isn't in the list of valid names
                         if (!member[0].isEmpty() && !badRefs.contains(member[0])
-                                && !allTableAndVariableList
-                                        .contains(member[0].replaceFirst(DefaultInputType.FLOAT_POSITIVE.getInputMatch()
-                                                + Pattern.quote(TLM_SCH_SEPARATOR), ""))) {
+                            && !allTableAndVariableList
+                                    .contains(member[0].replaceFirst(DefaultInputType.FLOAT_POSITIVE.getInputMatch()
+                                                                     + Pattern.quote(TLM_SCH_SEPARATOR), "")))
+                        {
                             // Telemetry scheduler message variable member reference is invalid
-                            issues.add(
-                                    new TableIssue(
-                                            "Internal table '" + dbTableName + "' references a non-existent variable, '"
-                                                    + member[0].replaceFirst(
-                                                            ".*" + Pattern.quote(TLM_SCH_SEPARATOR), "")
-                                                    + "'",
-                                            "Delete variable from message(s)",
-                                            "DELETE FROM " + dbTableName + " WHERE "
-                                                    + TlmSchedulerColumn.MEMBER.getColumnName() + " = "
-                                                    + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                            issues.add(new TableIssue("Internal table '" + dbTableName
+                                                      + "' references a non-existent variable, '"
+                                                      + member[0].replaceFirst(".*" + Pattern.quote(TLM_SCH_SEPARATOR),
+                                                                               "")
+                                                      + "'", "Delete variable from message(s)",
+                                                      "DELETE FROM " + dbTableName + " WHERE " + TlmSchedulerColumn.MEMBER
+                                                              .getColumnName() + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
                             // references to it (for other columns) aren't logged as duplicate issues
@@ -1208,7 +1341,8 @@ public class CcddDbVerificationHandler {
                     }
                 }
                 // Check if this is the custom values table
-                else if (dbTableName.equals(InternalTable.VALUES.getTableName())) {
+                else if (dbTableName.equals(InternalTable.VALUES.getTableName()))
+                {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
@@ -1220,81 +1354,99 @@ public class CcddDbVerificationHandler {
                     // TODO: Currently we add all variables without trimming anything if there are more than 750k due
                     // to massive performance hits. This code needs to be visited again at a later time so that this
                     // band-aid can be removed and a proper fix added.
-                    if (allTableAndVariableList.size() < 750000) {
-                        for (String variablePath : allTableAndVariableList) {
+                    if (allTableAndVariableList.size() < 750000)
+                    {
+                        for (String variablePath : allTableAndVariableList)
+                        {
                             // Remove the bit length, if present, and store the variable in the new list
                             String path = "";
-                            if (variablePath.contains(":")) {
+                            if (variablePath.contains(":"))
+                            {
                                 path = variablePath.replaceFirst("\\:\\d+$", "");
-                            } else {
+                            }
+                            else
+                            {
                                 path = variablePath;
                             }
                             cleanName.add(path);
 
                             // Check if the path represents an array member
-                            if (path.endsWith("]")) {
+                            if (path.endsWith("]"))
+                            {
                                 // Pull the array dimensions out of the path
                                 String arraySize = CcddClassesDataTable.ArrayVariable.getVariableArrayIndex(path);
                                 int[] arrayDims = CcddClassesDataTable.ArrayVariable.getArrayIndexFromSize(arraySize);
                                 boolean isFirst = true;
 
                                 // If this is a 2 dimensional array ensure that this path represents the first index
-                                for (int dim = 0; dim < arrayDims.length; dim++) {
-                                    if (arrayDims[dim] != 0) {
+                                for (int dim = 0; dim < arrayDims.length; dim++)
+                                {
+                                    if (arrayDims[dim] != 0)
+                                    {
                                         isFirst = false;
 
                                         break;
                                     }
                                 }
 
-                                if (isFirst) {
+                                if (isFirst)
+                                {
                                     // Add the path with no indexes
                                     cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
                                 }
 
-                                if (arrayDims.length >= 2) {
-                                    // Add the path with one/two indexes. The path with both indexes was already added above at the start
+                                if (arrayDims.length >= 2)
+                                {
+                                    // Add the path with one/two indexes. The path with both indexes was already added
+                                    // above at the start
                                     // of this for loop. Ensure that it is only added once
                                     String modifiedPath = path.substring(0, path.lastIndexOf("["));
-                                    if (!cleanName.contains(modifiedPath)) {
+                                    if (!cleanName.contains(modifiedPath))
+                                    {
                                         cleanName.add(modifiedPath);
                                     }
 
-                                    if (arrayDims.length == 3) {
+                                    if (arrayDims.length == 3)
+                                    {
                                         // Add the path with one index. Ensure that it is only added once
-                                        if (!cleanName.contains(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")))) {
+                                        if (!cleanName
+                                                .contains(modifiedPath.substring(0, modifiedPath.lastIndexOf("["))))
+                                        {
                                             cleanName.add(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")));
                                         }
                                     }
                                 }
                             }
                         }
-                    } else {
+                    }
+                    else
+                    {
                         cleanName.addAll(allTableAndVariableList);
                     }
 
                     // Check if the user hasn't canceled verification
-                    if (!haltDlg.isHalted()) {
+                    if (!haltDlg.isHalted())
+                    {
                         // Step through the custom values variables
                         for (String[] member : getInternalTableMembers(dbTableName,
-                                ValuesColumn.TABLE_PATH.getColumnName(), null)) {
+                                                                       ValuesColumn.TABLE_PATH.getColumnName(), null))
+                        {
                             // Check if the user canceled verification
-                            if (haltDlg.isHalted()) {
+                            if (haltDlg.isHalted())
+                            {
                                 break;
                             }
 
                             // Check if the variable hasn't already been detected and if it isn't
                             // in the list of valid names
-                            if (!badRefs.contains(member[0]) && !cleanName.contains(member[0])) {
+                            if (!badRefs.contains(member[0]) && !cleanName.contains(member[0]))
+                            {
                                 // Custom values variable member reference is invalid
-                                issues.add(
-                                        new TableIssue(
-                                                "Internal table '" + dbTableName
-                                                        + "' references a non-existent variable, '" + member[0] + "'",
-                                                "Delete variable reference",
-                                                "DELETE FROM " + dbTableName + " WHERE "
-                                                        + ValuesColumn.TABLE_PATH.getColumnName() + " = "
-                                                        + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
+                                issues.add(new TableIssue("Internal table '" + dbTableName
+                                                          + "' references a non-existent variable, '" + member[0] + "'",
+                                                          "Delete variable reference",
+                                                          "DELETE FROM " + dbTableName + " WHERE " + ValuesColumn.TABLE_PATH
+                                                                  .getColumnName() + " = " + CcddDbTableCommandHandler.delimitText(member[0]) + "; "));
 
                                 // Add the invalid entry to the bad reference list so that any
                                 // other references to it (for other columns) aren't logged as
@@ -1308,43 +1460,51 @@ public class CcddDbVerificationHandler {
                 // Update the within-step progress value
                 haltDlg.updateProgressBar(null, -1);
             }
-        } catch (SQLException se) {
+        }
+        catch (
+            SQLException se
+        )
+        {
             // Inform the user that obtaining the internal table metadata failed
-            eventLog.logFailEvent(
-                    ccddMain.getMainFrame(), "Error obtaining metadata for internal table '" + dbTableName
-                            + "'; cause '" + se.getMessage() + "'",
-                    "<html><b>Error obtaining metadata for internal table '</b>" + dbTableName + "<b>'");
-        } catch (Exception e) {
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining metadata for internal table '" + dbTableName + "'; cause '"
+                                                           + se.getMessage() + "'",
+                                  "<html><b>Error obtaining metadata for internal table '</b>" + dbTableName + "<b>'");
+        }
+        catch (
+            Exception e
+        )
+        {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
     }
 
     /**********************************************************************************************
-     * Query the specified internal table in the database for the specified column
-     * entries that reference tables or variables
+     * Query the specified internal table in the database for the specified column entries that
+     * reference tables or variables
      *
      * @param intTableName    internal table name to query
      *
-     * @param intTableColumnA name of the column in the internal table column name
-     *                        from which to obtain the entries
+     * @param intTableColumnA name of the column in the internal table column name from which to obtain
+     *                        the entries
      *
-     * @param intTableColumnB name of the second column in the internal table column
-     *                        name from which to obtain the entries; null if no
-     *                        second column is requested
+     * @param intTableColumnB name of the second column in the internal table column name from which to
+     *                        obtain the entries; null if no second column is requested
      *
-     * @return List of table or variable entries from the specified column in the
-     *         specified internal table
+     * @return List of table or variable entries from the specified column in the specified internal
+     *         table
      *********************************************************************************************/
-    private List<String[]> getInternalTableMembers(String intTableName, String intTableColumnA,
-            String intTableColumnB) {
+    private List<String[]> getInternalTableMembers(String intTableName, String intTableColumnA, String intTableColumnB)
+    {
         // Get the entries from the specified column in the specified table
         List<String[]> members = dbTable.queryDatabase(new StringBuilder("SELECT ").append(intTableColumnA)
-                .append((intTableColumnB != null ? ", " + intTableColumnB : "")).append(" FROM ").append(
-                        intTableName), ccddMain.getMainFrame());
+                .append((intTableColumnB != null ? ", " + intTableColumnB : "")).append(" FROM ").append(intTableName),
+                                                       ccddMain.getMainFrame());
 
         // Check if an error occurred obtaining the entries
-        if (members == null) {
+        if (members == null)
+        {
             // Return an empty list; the error is logged by the query method
             members = new ArrayList<String[]>();
         }
@@ -1353,96 +1513,77 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Check that the table type data fields are inherited by all tables of that
-     * type. If any inconsistencies are detected then get user approval to update
-     * the field(s)
+     * Check that the table type data fields are inherited by all tables of that type. If any
+     * inconsistencies are detected then get user approval to update the field(s)
      *********************************************************************************************/
-    private void verifyDataFieldInheritance() {
+    private void verifyDataFieldInheritance()
+    {
         // Get the reference to the data field handler
         CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
 
         // Step through each table type
-        for (String tableType : tableTypeHandler.getTableTypeNames()) {
+        for (String tableType : tableTypeHandler.getTableTypeNames())
+        {
             // Get the list of all tables of this type
             List<String> tableOfType = dbTable.getAllTablesOfType(tableType, null, ccddMain.getMainFrame());
 
             // Step through each of this table type's data fields
             for (FieldInformation typeFld : fieldHandler
-                    .getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType))) {
+                    .getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType)))
+            {
                 // Step through all tables of this type
-                for (String tablePath : tableOfType) {
+                for (String tablePath : tableOfType)
+                {
                     // Get the table's field of the same name as the table type's field
                     FieldInformation inheritedFld = fieldHandler.getFieldInformationByName(tablePath,
-                            typeFld.getFieldName());
+                                                                                           typeFld.getFieldName());
 
                     // Check if the field belongs to the current table and the field name
                     // matches the default field's name
-                    if (inheritedFld != null) {
+                    if (inheritedFld != null)
+                    {
                         // Check if the input types match.
-                        if (inheritedFld.getInputType().equals(typeFld.getInputType())) {
+                        if (inheritedFld.getInputType().equals(typeFld.getInputType()))
+                        {
                             // Check if any of the other field parameters (except value) differ
                             if (!inheritedFld.getDescription().equals(typeFld.getDescription())
-                                    || !inheritedFld.getApplicabilityType().getApplicabilityName()
-                                            .equals(typeFld.getApplicabilityType().getApplicabilityName())
-                                    || inheritedFld.isRequired() != typeFld.isRequired()
-                                    || inheritedFld.getSize() != typeFld.getSize()
-                                    || inheritedFld.isInherited() != true) {
+                                || !inheritedFld.getApplicabilityType().getApplicabilityName()
+                                        .equals(typeFld.getApplicabilityType().getApplicabilityName())
+                                || inheritedFld.isRequired() != typeFld.isRequired()
+                                || inheritedFld.getSize() != typeFld.getSize() || inheritedFld.isInherited() != true)
+                            {
                                 // Inherited field parameter(s) differ from the default
-                                issues.add(new TableIssue(
-                                        "Table '" + tablePath + "' inherited data field '" + inheritedFld.getFieldName()
-                                                + "' parameters differ from the table type's default field",
-                                        "Update table's field parameters to match table type's",
-                                        "UPDATE " + InternalTable.FIELDS.getTableName() + " SET "
-                                                + FieldsColumn.FIELD_DESC.getColumnName() + " = "
-                                                + CcddDbTableCommandHandler.delimitText(typeFld.getDescription()) + ", "
-                                                + FieldsColumn.FIELD_APPLICABILITY.getColumnName() + " = '"
-                                                + typeFld.getApplicabilityType().getApplicabilityName() + "', "
-                                                + FieldsColumn.FIELD_REQUIRED.getColumnName() + " = '"
-                                                + String.valueOf(typeFld.isRequired()) + "', "
-                                                + FieldsColumn.FIELD_SIZE.getColumnName() + " = '"
-                                                + String.valueOf(typeFld.getSize()) + "', "
-                                                + FieldsColumn.FIELD_INHERITED.getColumnName() + " = 'true' WHERE "
-                                                + FieldsColumn.OWNER_NAME.getColumnName() + " = '" + tablePath
-                                                + "' AND " + FieldsColumn.FIELD_NAME.getColumnName() + " = '"
-                                                + typeFld.getFieldName() + "'; "));
+                                issues.add(new TableIssue("Table '" + tablePath + "' inherited data field '"
+                                                          + inheritedFld.getFieldName()
+                                                          + "' parameters differ from the table type's default field",
+                                                          "Update table's field parameters to match table type's",
+                                                          "UPDATE " + InternalTable.FIELDS
+                                                                  .getTableName() + " SET " + FieldsColumn.FIELD_DESC.getColumnName() + " = " + CcddDbTableCommandHandler.delimitText(typeFld.getDescription()) + ", " + FieldsColumn.FIELD_APPLICABILITY.getColumnName() + " = '" + typeFld.getApplicabilityType().getApplicabilityName() + "', " + FieldsColumn.FIELD_REQUIRED.getColumnName() + " = '" + String.valueOf(typeFld.isRequired()) + "', " + FieldsColumn.FIELD_SIZE.getColumnName() + " = '" + String.valueOf(typeFld.getSize()) + "', " + FieldsColumn.FIELD_INHERITED.getColumnName() + " = 'true' WHERE " + FieldsColumn.OWNER_NAME.getColumnName() + " = '" + tablePath + "' AND " + FieldsColumn.FIELD_NAME.getColumnName() + " = '" + typeFld.getFieldName() + "'; "));
                             }
                         }
                         // The input types don't match. The table's field is considered to be a
                         // different field and must be renamed to prevent a conflict
-                        else {
+                        else
+                        {
                             // Rename existing table field
-                            issues.add(new TableIssue(
-                                    "Table '" + tablePath + "' data field '" + inheritedFld.getFieldName()
-                                            + "' name conflicts with a table type's default field",
-                                    "Rename the table's data field",
-                                    "UPDATE " + InternalTable.FIELDS.getTableName() + " SET "
-                                            + FieldsColumn.FIELD_NAME.getColumnName() + " = '"
-                                            + CcddFieldHandler.alterFieldName(fieldHandler.getFieldInformationCopy(),
-                                                    tablePath, inheritedFld.getFieldName())
-                                            + "' WHERE " + FieldsColumn.OWNER_NAME.getColumnName() + " = '" + tablePath
-                                            + "' AND " + FieldsColumn.FIELD_NAME.getColumnName() + " = '"
-                                            + typeFld.getFieldName() + "'; "));
+                            issues.add(new TableIssue("Table '" + tablePath + "' data field '"
+                                                      + inheritedFld.getFieldName()
+                                                      + "' name conflicts with a table type's default field",
+                                                      "Rename the table's data field", "UPDATE " + InternalTable.FIELDS
+                                                              .getTableName() + " SET " + FieldsColumn.FIELD_NAME.getColumnName() + " = '" + CcddFieldHandler.alterFieldName(fieldHandler.getFieldInformationCopy(), tablePath, inheritedFld.getFieldName()) + "' WHERE " + FieldsColumn.OWNER_NAME.getColumnName() + " = '" + tablePath + "' AND " + FieldsColumn.FIELD_NAME.getColumnName() + " = '" + typeFld.getFieldName() + "'; "));
                         }
                     }
                     // Check if the table isn't a child structure (all fields are stored for
                     // prototypes, even if not displayed) or the field is applicable to this child
                     // table
-                    else if (!tablePath.contains(".") || fieldHandler.isFieldApplicable(tablePath,
-                            typeFld.getApplicabilityType().getApplicabilityName(), null)) {
+                    else if (!tablePath.contains(".") || fieldHandler
+                            .isFieldApplicable(tablePath, typeFld.getApplicabilityType().getApplicabilityName(), null))
+                    {
                         // Inherited field missing
-                        issues.add(new TableIssue("Table '"
-                                + tablePath + "' is missing inherited data field '" + typeFld.getFieldName() + "'",
-                                "Create missing inherited field",
-                                "INSERT INTO " + InternalTable.FIELDS.getTableName() + " VALUES " + "('" + tablePath
-                                        + "', " + CcddDbTableCommandHandler.delimitText(typeFld.getFieldName()) + ", "
-                                        + CcddDbTableCommandHandler.delimitText(typeFld.getDescription()) + ", "
-                                        + typeFld.getSize() + ", "
-                                        + CcddDbTableCommandHandler.delimitText(typeFld.getInputType().getInputName())
-                                        + ", " + String.valueOf(typeFld.isRequired()) + ", "
-                                        + CcddDbTableCommandHandler.delimitText(
-                                                typeFld.getApplicabilityType().getApplicabilityName())
-                                        + ", " + CcddDbTableCommandHandler.delimitText(typeFld.getValue())
-                                        + ", 'true'); "));
+                        issues.add(new TableIssue("Table '" + tablePath + "' is missing inherited data field '"
+                                                  + typeFld.getFieldName() + "'", "Create missing inherited field",
+                                                  "INSERT INTO " + InternalTable.FIELDS
+                                                          .getTableName() + " VALUES " + "('" + tablePath + "', " + CcddDbTableCommandHandler.delimitText(typeFld.getFieldName()) + ", " + CcddDbTableCommandHandler.delimitText(typeFld.getDescription()) + ", " + typeFld.getSize() + ", " + CcddDbTableCommandHandler.delimitText(typeFld.getInputType().getInputName()) + ", " + String.valueOf(typeFld.isRequired()) + ", " + CcddDbTableCommandHandler.delimitText(typeFld.getApplicabilityType().getApplicabilityName()) + ", " + CcddDbTableCommandHandler.delimitText(typeFld.getValue()) + ", 'true'); "));
                     }
                 }
             }
@@ -1450,18 +1591,20 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Check that the tables are consistent with their type definitions. If any
-     * inconsistencies are detected then get user approval to alter the table(s)
+     * Check that the tables are consistent with their type definitions. If any inconsistencies are
+     * detected then get user approval to alter the table(s)
      *
      * @param tableResult metadata for all tables
      *********************************************************************************************/
-    private void verifyTableTypes(ResultSet tableResult) {
+    private void verifyTableTypes(ResultSet tableResult)
+    {
         String dbTableName = "";
 
-        try {
+        try
+        {
             // Get the column order information from the column order table
             List<String[]> orders = dbTable.retrieveInformationTable(InternalTable.ORDERS, false,
-                    ccddMain.getMainFrame());
+                                                                     ccddMain.getMainFrame());
 
             // Initialize the progress bar within-step total to the total number of rows in
             // the
@@ -1473,9 +1616,11 @@ public class CcddDbVerificationHandler {
             tableResult.beforeFirst();
 
             // Step through each database table
-            while (tableResult.next()) {
+            while (tableResult.next())
+            {
                 // Check if the user canceled verification
-                if (haltDlg.isHalted()) {
+                if (haltDlg.isHalted())
+                {
                     break;
                 }
 
@@ -1483,7 +1628,8 @@ public class CcddDbVerificationHandler {
                 dbTableName = tableResult.getString("TABLE_NAME");
 
                 // Check if this is a data table
-                if (!dbTableName.startsWith(INTERNAL_TABLE_PREFIX)) {
+                if (!dbTableName.startsWith(INTERNAL_TABLE_PREFIX))
+                {
                     String tableName = "";
 
                     // Get the comment array for this table
@@ -1497,42 +1643,40 @@ public class CcddDbVerificationHandler {
                             .getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
                     // Check if the type definition is defined in the table type definitions
-                    if (typeDefinition != null) {
+                    if (typeDefinition != null)
+                    {
                         // Step through each table in the column order table
-                        for (int index = 0; index < orders.size() && !haltDlg.isHalted(); index++) {
+                        for (int index = 0; index < orders.size() && !haltDlg.isHalted(); index++)
+                        {
                             // Check if the number of columns indicated in the column order table
                             // doesn't match the number of columns for this table's type
                             if (orders.get(index)[OrdersColumn.TABLE_PATH.ordinal()].matches("^" + tableName + "(,|$)")
-                                    && orders.get(index)[OrdersColumn.COLUMN_ORDER.ordinal()]
-                                            .split(":").length != typeDefinition.getColumnCountDatabase()) {
+                                && orders.get(index)[OrdersColumn.COLUMN_ORDER.ordinal()]
+                                        .split(":").length != typeDefinition.getColumnCountDatabase())
+                            {
                                 // Column order table has an invalid entry for this table
-                                issues.add(new TableIssue(
-                                        "Incorrect number of columns indicated for table '"
-                                                + orders.get(index)[OrdersColumn.TABLE_PATH.ordinal()]
-                                                + "' in the column order table for user '"
-                                                + orders.get(index)[OrdersColumn.USER_NAME.ordinal()] + "'",
-                                        "Modify column order table",
-                                        "UPDATE " + InternalTable.ORDERS.getTableName() + " SET "
-                                                + OrdersColumn.COLUMN_ORDER.getColumnName() + " = '"
-                                                + tableTypeHandler.getDefaultColumnOrder(typeDefinition.getName())
-                                                + "' WHERE " + OrdersColumn.USER_NAME.getColumnName() + " = '"
-                                                + orders.get(index)[OrdersColumn.USER_NAME.ordinal()] + "' AND "
-                                                + OrdersColumn.TABLE_PATH.getColumnName() + " = '"
-                                                + orders.get(index)[OrdersColumn.TABLE_PATH.ordinal()] + "'; "));
+                                issues.add(new TableIssue("Incorrect number of columns indicated for table '"
+                                                          + orders.get(index)[OrdersColumn.TABLE_PATH.ordinal()]
+                                                          + "' in the column order table for user '"
+                                                          + orders.get(index)[OrdersColumn.USER_NAME.ordinal()] + "'",
+                                                          "Modify column order table", "UPDATE " + InternalTable.ORDERS
+                                                                  .getTableName() + " SET " + OrdersColumn.COLUMN_ORDER.getColumnName() + " = '" + tableTypeHandler.getDefaultColumnOrder(typeDefinition.getName()) + "' WHERE " + OrdersColumn.USER_NAME.getColumnName() + " = '" + orders.get(index)[OrdersColumn.USER_NAME.ordinal()] + "' AND " + OrdersColumn.TABLE_PATH.getColumnName() + " = '" + orders.get(index)[OrdersColumn.TABLE_PATH.ordinal()] + "'; "));
                             }
                         }
 
                         // Get the table's column metadata
                         ResultSet columnResult = dbControl.getConnection().getMetaData().getColumns(null, null,
-                                dbTableName, null);
+                                                                                                    dbTableName, null);
 
                         // Create storage for flags indicating which columns have been matched
                         boolean[] isFound = new boolean[typeDefinition.getColumnCountDatabase()];
 
                         // Step through each column in the table
-                        while (columnResult.next()) {
+                        while (columnResult.next())
+                        {
                             // Check if the user canceled verification
-                            if (haltDlg.isHalted()) {
+                            if (haltDlg.isHalted())
+                            {
                                 break;
                             }
 
@@ -1544,21 +1688,25 @@ public class CcddDbVerificationHandler {
                             int columnIndex = typeDefinition.getColumnIndexByDbName(columnName);
 
                             // Check if the column name is defined in the type definition
-                            if (columnIndex != -1) {
+                            if (columnIndex != -1)
+                            {
                                 // Check if the data type of the column in the database matches the
                                 // data type in the type definition. Only the first three letters
                                 // are compared since the data type representation can change in
                                 // the database
-                                if (!columnType
-                                        .startsWith(DefaultColumn.getColumnDbType(columnIndex).substring(0, 3))) {
+                                if (!columnType.startsWith(DefaultColumn.getColumnDbType(columnIndex).substring(0, 3)))
+                                {
                                     // Column's data type is incorrect
-                                    issues.add(new TableIssue(
-                                            "Table '" + tableName + "' column '" + columnName
-                                                    + "' data type is invalid (" + columnType + ")",
-                                            "Modify data type",
-                                            "ALTER TABLE " + dbControl.getQuotedName(dbTableName) + " ALTER COLUMN "
-                                                    + dbControl.getQuotedName(columnName) + " TYPE "
-                                                    + DefaultColumn.getColumnDbType(columnIndex) + "; "));
+                                    issues.add(new TableIssue("Table '" + tableName + "' column '" + columnName
+                                                              + "' data type is invalid (" + columnType + ")",
+                                                              "Modify data type",
+                                                              "ALTER TABLE " + dbControl.getQuotedName(dbTableName)
+                                                                                  + " ALTER COLUMN "
+                                                                                  + dbControl.getQuotedName(columnName)
+                                                                                  + " TYPE "
+                                                                                  + DefaultColumn
+                                                                                          .getColumnDbType(columnIndex)
+                                                                                  + "; "));
                                 }
 
                                 // Set the flag to indicate the column exists for this table
@@ -1566,39 +1714,48 @@ public class CcddDbVerificationHandler {
                             }
                             // The column in the database table is not defined in the type
                             // definition
-                            else {
+                            else
+                            {
                                 // Column name is unknown
-                                issues.add(new TableIssue(
-                                        "Table '" + tableName + "' has an unknown column (" + columnName + ")",
-                                        "Delete column", "ALTER TABLE " + dbControl.getQuotedName(dbTableName)
-                                                + " DROP COLUMN " + dbControl.getQuotedName(columnName) + "; "));
+                                issues.add(new TableIssue("Table '"
+                                                          + tableName + "' has an unknown column (" + columnName + ")",
+                                                          "Delete column",
+                                                          "ALTER TABLE " + dbControl.getQuotedName(dbTableName)
+                                                                           + " DROP COLUMN "
+                                                                           + dbControl.getQuotedName(columnName)
+                                                                           + "; "));
                             }
                         }
 
                         columnResult.close();
 
                         // Step through the column found flags
-                        for (int index = 0; index < isFound.length && !haltDlg.isHalted(); index++) {
+                        for (int index = 0; index < isFound.length && !haltDlg.isHalted(); index++)
+                        {
                             // Check if the column wasn't located in the table
-                            if (!isFound[index]) {
+                            if (!isFound[index])
+                            {
                                 // Column is missing
-                                issues.add(new TableIssue(
-                                        "Table '" + tableName + "' is missing column '"
-                                                + typeDefinition.getColumnNamesUser()[index] + "'",
-                                        "Add missing column",
-                                        "ALTER TABLE " + dbControl.getQuotedName(dbTableName) + " ADD COLUMN "
-                                                + typeDefinition.getColumnNamesDatabaseQuoted()[index] + " "
-                                                + DefaultColumn.getColumnDbType(index) + " DEFAULT ''; "));
+                                issues.add(new TableIssue("Table '" + tableName + "' is missing column '"
+                                                          + typeDefinition.getColumnNamesUser()[index] + "'",
+                                                          "Add missing column",
+                                                          "ALTER TABLE " + dbControl.getQuotedName(dbTableName)
+                                                                                + " ADD COLUMN "
+                                                                                + typeDefinition
+                                                                                        .getColumnNamesDatabaseQuoted()[index]
+                                                                                + " "
+                                                                                + DefaultColumn.getColumnDbType(index)
+                                                                                + " DEFAULT ''; "));
                             }
                         }
                     }
                     // The table type definition is unknown
-                    else {
+                    else
+                    {
                         // Table type is unknown
-                        issues.add(new TableIssue(
-                                "Table '" + tableName + "' is an unknown type ("
-                                        + comment[TableCommentIndex.TYPE.ordinal()] + ")",
-                                "Delete table", "DROP TABLE " + dbControl.getQuotedName(dbTableName) + "; "));
+                        issues.add(new TableIssue("Table '" + tableName + "' is an unknown type ("
+                                                  + comment[TableCommentIndex.TYPE.ordinal()] + ")", "Delete table",
+                                                  "DROP TABLE " + dbControl.getQuotedName(dbTableName) + "; "));
                     }
                 }
 
@@ -1607,25 +1764,35 @@ public class CcddDbVerificationHandler {
             }
 
             tableResult.close();
-        } catch (SQLException se) {
+        }
+        catch (
+            SQLException se
+        )
+        {
             // Inform the user that obtaining the table metadata failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                    "Error obtaining metadata for table '" + dbTableName + "'; cause '" + se.getMessage() + "'",
-                    "<html><b>Error obtaining metadata for table '</b>" + dbTableName + "<b>'");
-        } catch (Exception e) {
+                                  "Error obtaining metadata for table '" + dbTableName + "'; cause '" + se.getMessage()
+                                                           + "'",
+                                  "<html><b>Error obtaining metadata for table '</b>" + dbTableName + "<b>'");
+        }
+        catch (
+            Exception e
+        )
+        {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
     }
 
     /**********************************************************************************************
-     * Check that the tables' data are consistent with their type definitions. If
-     * any inconsistencies are detected then get user approval to alter the table(s)
+     * Check that the tables' data are consistent with their type definitions. If any inconsistencies
+     * are detected then get user approval to alter the table(s)
      *********************************************************************************************/
-    private void verifyDataTables() {
+    private void verifyDataTables()
+    {
         // Build the table tree
         CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.PROTOTYPE_TABLES,
-                ccddMain.getMainFrame());
+                                                                  ccddMain.getMainFrame());
 
         // Initialize the storage for each table's information and committed data
         tableStorage = new ArrayList<TableStorage>();
@@ -1636,9 +1803,11 @@ public class CcddDbVerificationHandler {
         haltDlg.setItemsPerStep(tableTree.getNodeCount(tableTree.getRootNode()));
 
         // Step through the root node's children
-        for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();) {
+        for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
+        {
             // Check if the user canceled verification
-            if (haltDlg.isHalted()) {
+            if (haltDlg.isHalted())
+            {
                 break;
             }
 
@@ -1647,13 +1816,15 @@ public class CcddDbVerificationHandler {
             TreePath path = new TreePath(tableNode.getPath());
 
             // Check if the path references a table
-            if (path.getPathCount() > tableTree.getHeaderNodeLevel()) {
+            if (path.getPathCount() > tableTree.getHeaderNodeLevel())
+            {
                 // Get the information from the database for the specified table
-                TableInfo tableInfo = dbTable.loadTableData(tableTree.getFullVariablePath(path.getPath()), false,
-                        false, false, ccddMain.getMainFrame());
+                TableInfo tableInfo = dbTable.loadTableData(tableTree.getFullVariablePath(path.getPath()), false, false,
+                                                            false, ccddMain.getMainFrame());
 
                 // Check if the table loaded successfully and that the table has data
-                if (!tableInfo.isErrorFlag() && tableInfo.getData().size() > 0) {
+                if (!tableInfo.isErrorFlag() && tableInfo.getData().size() > 0)
+                {
                     // Add the table information and data to the list. This stores a copy of the
                     // data (as it appears in the database) so that any changes made can be
                     // detected
@@ -1681,39 +1852,53 @@ public class CcddDbVerificationHandler {
                     int lastMissingRow = 0;
 
                     // Step through each row in the table
-                    for (int row = 0; row < tableInfo.getData().size() && !haltDlg.isHalted(); row++) {
+                    for (int row = 0; row < tableInfo.getData().size() && !haltDlg.isHalted(); row++)
+                    {
                         // Step through each column in the table
                         for (int column = 0; column < tableInfo.getData().get(row).length
-                                && !haltDlg.isHalted(); column++) {
+                                             && !haltDlg.isHalted(); column++)
+                        {
                             // Check if the cell value doesn't match the cell's input type
                             checkInputType(tableInfo, row, column);
                         }
 
                         // Check if the user canceled verification
-                        if (haltDlg.isHalted()) {
+                        if (haltDlg.isHalted())
+                        {
                             continue;
                         }
 
                         // Check if the data type exists
-                        if (dataTypeIndex != -1) {
-                            if (dataTypeHandler.getBaseDataType(tableInfo.getData().get(row)[dataTypeIndex].toString()) == null) {
-                                if (!dbTable.isTableExists(tableInfo.getData().get(row)[dataTypeIndex].toString(), ccddMain.getMainFrame())) {
+                        if (dataTypeIndex != -1)
+                        {
+                            if (dataTypeHandler
+                                    .getBaseDataType(tableInfo.getData().get(row)[dataTypeIndex].toString()) == null)
+                            {
+                                if (!dbTable.isTableExists(tableInfo.getData().get(row)[dataTypeIndex].toString(),
+                                                           ccddMain.getMainFrame()))
+                                {
                                     // Data type doesn't exist
-                                    issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" +
-                                        tableInfo.getData().get(row)[variableNameIndex].toString() + "' data type does not exist",
-                                        MANUAL_FIX, row, dataTypeIndex, dataType, tableInfo));
+                                    issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName()
+                                                              + "' variable '"
+                                                              + tableInfo.getData().get(row)[variableNameIndex]
+                                                                      .toString()
+                                                              + "' data type does not exist", MANUAL_FIX, row,
+                                                              dataTypeIndex, dataType, tableInfo));
                                 }
                             }
                         }
 
                         // Check if this is a structure table
-                        if (typeDefn.isStructure()) {
+                        if (typeDefn.isStructure())
+                        {
                             // Check if the array size isn't blank
                             if (tableInfo.getData().get(row)[arraySizeIndex] != null
-                                    && !tableInfo.getData().get(row)[arraySizeIndex].toString().isEmpty()) {
+                                && !tableInfo.getData().get(row)[arraySizeIndex].toString().isEmpty())
+                            {
                                 // Check if this is the first pass through the array; an array
                                 // definition is expected
-                                if (membersRemaining == 0) {
+                                if (membersRemaining == 0)
+                                {
                                     // Get the variable name for this row
                                     arrayName = tableInfo.getData().get(row)[variableNameIndex].toString();
 
@@ -1725,12 +1910,13 @@ public class CcddDbVerificationHandler {
                                     lastMissingRow = row;
 
                                     // Check that no extra array member exists
-                                    if (!checkExcessArrayMember(tableInfo, row, arrayName)) {
+                                    if (!checkExcessArrayMember(tableInfo, row, arrayName))
+                                    {
                                         // Get the number of array members remaining and data type
                                         // for this row and initialize the array index
-                                        totalArraySize = ArrayVariable
-                                                .getArrayIndexFromSize(macroHandler.getMacroExpansion(
-                                                        tableInfo.getData().get(row)[arraySizeIndex].toString()));
+                                        totalArraySize = ArrayVariable.getArrayIndexFromSize(macroHandler
+                                                .getMacroExpansion(tableInfo.getData().get(row)[arraySizeIndex]
+                                                        .toString()));
 
                                         // Get the total number of members for this array
                                         membersRemaining = ArrayVariable
@@ -1743,7 +1929,8 @@ public class CcddDbVerificationHandler {
                                         dataType = tableInfo.getData().get(row)[dataTypeIndex].toString();
 
                                         // Check if the expected array definition is missing
-                                        if (checkForArrayDefinition(tableInfo, row, arrayName)) {
+                                        if (checkForArrayDefinition(tableInfo, row, arrayName))
+                                        {
                                             // Remove the array index from the array variable name
                                             // and back up a row so that the array members can be
                                             // checked
@@ -1754,20 +1941,23 @@ public class CcddDbVerificationHandler {
                                 }
                                 // This is not the first pass through this array; i.e., an array
                                 // member is expected
-                                else {
+                                else
+                                {
                                     // Check if the array definition and all of its members don't
                                     // have the same variable name
-                                    if (checkArrayNamesMatch(tableInfo, row, arrayName)) {
+                                    if (checkArrayNamesMatch(tableInfo, row, arrayName))
+                                    {
                                         // Back up a row so that it can be checked as a separate
                                         // variable
                                         row--;
                                     }
                                     // The array names match
-                                    else {
+                                    else
+                                    {
                                         // Check if the array definition and all of its members
                                         // have the same array size
                                         checkArraySizesMatch(tableInfo, row, arrayName,
-                                                tableInfo.getData().get(row)[arraySizeIndex].toString());
+                                                             tableInfo.getData().get(row)[arraySizeIndex].toString());
 
                                         // Check if the array definition and all of its members
                                         // have the same data type
@@ -1786,7 +1976,8 @@ public class CcddDbVerificationHandler {
                                 }
                             }
                             // Check if there are remaining array members that don't exist
-                            else {
+                            else
+                            {
                                 // Check if an array member is expected but not present
                                 checkForMissingArrayMember(tableInfo, row, arrayName);
                             }
@@ -1794,16 +1985,19 @@ public class CcddDbVerificationHandler {
                     }
 
                     // Check if this is a structure table
-                    if (typeDefn.isStructure()) {
+                    if (typeDefn.isStructure())
+                    {
                         // Perform for each remaining missing array member
-                        while (membersRemaining != 0) {
+                        while (membersRemaining != 0)
+                        {
                             // Check if there are remaining array members that don't exist
                             checkForMissingArrayMember(tableInfo, lastMissingRow + 1, arrayName);
                         }
                     }
 
                     // Check if the flag to make changes is not already set
-                    if (!isChanges) {
+                    if (!isChanges)
+                    {
                         // Check if a row is missing based on the row indices
                         checkForRowIndexMismatch(tableInfo);
                     }
@@ -1821,25 +2015,28 @@ public class CcddDbVerificationHandler {
     /**********************************************************************************************
      * Verify that duplicate message IDs do not exist
      *********************************************************************************************/
-    private void verifyMessageIDs() {
-        List<String[]> messageIDInfo = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
-                false, ccddMain.getMainFrame());
+    private void verifyMessageIDs()
+    {
+        List<String[]> messageIDInfo = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER, false,
+                                                                                    ccddMain.getMainFrame());
         boolean issueFound = false;
 
-        for (int index = 0; index < messageIDInfo.size(); index++) {
-            for (int index2 = 0; index2 < messageIDInfo.size(); index2++) {
-                if (messageIDInfo.get(index)[2].contentEquals(messageIDInfo.get(index2)[2]) &&
-                        (index != index2)) {
+        for (int index = 0; index < messageIDInfo.size(); index++)
+        {
+            for (int index2 = 0; index2 < messageIDInfo.size(); index2++)
+            {
+                if (messageIDInfo.get(index)[2].contentEquals(messageIDInfo.get(index2)[2]) && (index != index2))
+                {
                     // Duplicate message ids found
-                    issues.add(new TableIssue("Duplicate message IDs exist.",
-                            MANUAL_FIX, 0, 0, "", null));
+                    issues.add(new TableIssue("Duplicate message IDs exist.", MANUAL_FIX, 0, 0, "", null));
 
                     issueFound = true;
                     break;
                 }
             }
 
-            if (issueFound == true) {
+            if (issueFound == true)
+            {
                 break;
             }
         }
@@ -1848,15 +2045,18 @@ public class CcddDbVerificationHandler {
     /**********************************************************************************************
      * Increment the current array index value(s) to the next array member
      *********************************************************************************************/
-    private void goToNextArrayMember() {
+    private void goToNextArrayMember()
+    {
         // Step through the array index values, starting with the last and working
         // backward
-        for (int index = currentArrayIndex.length - 1; index >= 0; index--) {
+        for (int index = currentArrayIndex.length - 1; index >= 0; index--)
+        {
             // Increment the array index
             currentArrayIndex[index]++;
 
             // Check if the array index hasn't reached its limit
-            if (currentArrayIndex[index] < totalArraySize[index]) {
+            if (currentArrayIndex[index] < totalArraySize[index])
+            {
                 // Stop adjusting the array index values
                 break;
             }
@@ -1877,20 +2077,21 @@ public class CcddDbVerificationHandler {
      *
      * @param column    column index
      *********************************************************************************************/
-    private void checkInputType(TableInfo tableInfo, int row, int column) {
+    private void checkInputType(TableInfo tableInfo, int row, int column)
+    {
         // Get the cell value
         String data = macroHandler.getMacroExpansion(tableInfo.getData().get(row)[column].toString());
 
         // Check if the cell is not an array member variable name and if the value
         // doesn't match the input type expected for this column
         if (data != null && !data.isEmpty() && !(column == variableNameIndex && ArrayVariable.isArrayMember(data))
-                && typeDefn.getInputTypes()[column] != null
-                && !data.matches(typeDefn.getInputTypes()[column].getInputMatch())) {
+            && typeDefn.getInputTypes()[column] != null
+            && !data.matches(typeDefn.getInputTypes()[column].getInputMatch()))
+        {
             // Value doesn't match the input type specified in the type definition
-            issues.add(new TableIssue(
-                    "Table '" + tableInfo.getProtoVariableName() + "' row " + row + " column '"
-                            + typeDefn.getColumnNamesUser()[column] + "' input type mismatch",
-                    "Replace with a blank", row, column, "", tableInfo));
+            issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' row " + row + " column '"
+                                      + typeDefn.getColumnNamesUser()[column] + "' input type mismatch",
+                                      "Replace with a blank", row, column, "", tableInfo));
         }
     }
 
@@ -1905,25 +2106,30 @@ public class CcddDbVerificationHandler {
      *
      * @return true if an extra array member is detected
      *********************************************************************************************/
-    private boolean checkExcessArrayMember(TableInfo tableInfo, int row, String arrayName) {
+    private boolean checkExcessArrayMember(TableInfo tableInfo, int row, String arrayName)
+    {
         boolean isGoToNextRow = false;
 
         // Check if this isn't the first row
-        if (row != 0) {
+        if (row != 0)
+        {
             // Get the variable name from the preceding row
             String previousName = tableInfo.getData().get(row - 1)[variableNameIndex].toString();
 
             // Check if the current and previous rows contain array members
-            if (ArrayVariable.isArrayMember(arrayName) && ArrayVariable.isArrayMember(previousName)) {
+            if (ArrayVariable.isArrayMember(arrayName) && ArrayVariable.isArrayMember(previousName))
+            {
                 // Remove the array index from the variable names
                 arrayName = ArrayVariable.removeArrayIndex(arrayName);
                 previousName = ArrayVariable.removeArrayIndex(previousName);
 
                 // Check if the variable names match
-                if (arrayName.equals(previousName)) {
+                if (arrayName.equals(previousName))
+                {
                     // Array has an extra member
                     issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
-                            + "' has an extra array member", "Remove extra member", row, null, tableInfo));
+                                              + "' has an extra array member", "Remove extra member", row, null,
+                                              tableInfo));
 
                     // Set the flag indicating that no further checks are to be made for this row
                     isGoToNextRow = true;
@@ -1945,20 +2151,20 @@ public class CcddDbVerificationHandler {
      *
      * @return true if the array definition is missing
      *********************************************************************************************/
-    private boolean checkForArrayDefinition(TableInfo tableInfo, int row, String arrayName) {
+    private boolean checkForArrayDefinition(TableInfo tableInfo, int row, String arrayName)
+    {
         boolean isMissing = false;
 
         // Check if an array member is found instead of the expected array definition
-        if (ArrayVariable.isArrayMember(arrayName)) {
+        if (ArrayVariable.isArrayMember(arrayName))
+        {
             // Get the expected variable name for the array definition
             arrayName = ArrayVariable.removeArrayIndex(arrayName);
 
             // Array definition is missing
-            issues.add(new TableIssue(
-                    "Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
-                            + "' is missing the array definition",
-                    "Add missing array definition", row, addMissingArrayRow(tableInfo, arrayName, new int[0]),
-                    tableInfo));
+            issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
+                                      + "' is missing the array definition", "Add missing array definition", row,
+                                      addMissingArrayRow(tableInfo, arrayName, new int[0]), tableInfo));
 
             // Set the flag indicating the array definition is missing
             isMissing = true;
@@ -1968,10 +2174,9 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Check if the variable name is an array member, but it doesn't match the array
-     * definition and its members or is not the next array member in sequence. This
-     * implies that one or more array members are missing as well as the next array
-     * variable's definition
+     * Check if the variable name is an array member, but it doesn't match the array definition and its
+     * members or is not the next array member in sequence. This implies that one or more array members
+     * are missing as well as the next array variable's definition
      *
      * @param tableInfo reference to the table information
      *
@@ -1981,7 +2186,8 @@ public class CcddDbVerificationHandler {
      *
      * @return true if an an array name mismatch is detected
      *********************************************************************************************/
-    private boolean checkArrayNamesMatch(TableInfo tableInfo, int row, String arrayName) {
+    private boolean checkArrayNamesMatch(TableInfo tableInfo, int row, String arrayName)
+    {
         boolean isMismatch = false;
 
         // Build the array index string for the expected array member
@@ -1989,13 +2195,12 @@ public class CcddDbVerificationHandler {
 
         // Check if the variable name doesn't match the expected array member name
         if (!tableInfo.getData().get(row)[variableNameIndex].toString()
-                .matches(Pattern.quote(arrayName + expectedArrayIndex))) {
+                .matches(Pattern.quote(arrayName + expectedArrayIndex)))
+        {
             // Expected array member is missing
-            issues.add(new TableIssue(
-                    "Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
-                            + "' is missing array member " + expectedArrayIndex,
-                    "Add missing array member", row, addMissingArrayRow(tableInfo, arrayName, currentArrayIndex),
-                    tableInfo));
+            issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
+                                      + "' is missing array member " + expectedArrayIndex, "Add missing array member",
+                                      row, addMissingArrayRow(tableInfo, arrayName, currentArrayIndex), tableInfo));
 
             isMismatch = true;
         }
@@ -2004,8 +2209,7 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Check if the array size is the same for the array definition and all of it
-     * members
+     * Check if the array size is the same for the array definition and all of it members
      *
      * @param tableInfo reference to the table information
      *
@@ -2015,20 +2219,22 @@ public class CcddDbVerificationHandler {
      *
      * @param arraySize number of members in the array
      *********************************************************************************************/
-    private void checkArraySizesMatch(TableInfo tableInfo, int row, String arrayName, String arraySize) {
+    private void checkArraySizesMatch(TableInfo tableInfo, int row, String arrayName, String arraySize)
+    {
         // Check if the member's array size doesn't match the array definition
-        if (!arraySize.equals(tableInfo.getData().get(row)[arraySizeIndex])) {
+        if (!arraySize.equals(tableInfo.getData().get(row)[arraySizeIndex]))
+        {
             // Array size doesn't match the array definition
             issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
-                    + "' array member " + ArrayVariable.formatArrayIndex(currentArrayIndex)
-                    + " array size doesn't match the array definition " + tableInfo.getData().get(row)[arraySizeIndex],
-                    "Change array size", row, arraySizeIndex, arraySize, tableInfo));
+                                      + "' array member " + ArrayVariable.formatArrayIndex(currentArrayIndex)
+                                      + " array size doesn't match the array definition "
+                                      + tableInfo.getData().get(row)[arraySizeIndex], "Change array size", row,
+                                      arraySizeIndex, arraySize, tableInfo));
         }
     }
 
     /**********************************************************************************************
-     * Check if the data type is the same for the array definition and all of it
-     * members
+     * Check if the data type is the same for the array definition and all of it members
      *
      * @param tableInfo reference to the table information
      *
@@ -2038,15 +2244,16 @@ public class CcddDbVerificationHandler {
      *
      * @param dataType  type array data type
      *********************************************************************************************/
-    private void checkDataTypesMatch(TableInfo tableInfo, int row, String arrayName, String dataType) {
+    private void checkDataTypesMatch(TableInfo tableInfo, int row, String arrayName, String dataType)
+    {
         // Check if the member's array size doesn't match the array definition
-        if (!dataType.equals(tableInfo.getData().get(row)[dataTypeIndex])) {
+        if (!dataType.equals(tableInfo.getData().get(row)[dataTypeIndex]))
+        {
             // Data type doesn't match the array definition
-            issues.add(new TableIssue(
-                    "Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName + "' array member "
-                            + ArrayVariable.formatArrayIndex(currentArrayIndex)
-                            + " data type doesn't match the array definition",
-                    "Change data type", row, dataTypeIndex, dataType, tableInfo));
+            issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '" + arrayName
+                                      + "' array member " + ArrayVariable.formatArrayIndex(currentArrayIndex)
+                                      + " data type doesn't match the array definition", "Change data type", row,
+                                      dataTypeIndex, dataType, tableInfo));
         }
     }
 
@@ -2059,17 +2266,20 @@ public class CcddDbVerificationHandler {
      *
      * @param arrayName array variable name
      *********************************************************************************************/
-    private void checkForMissingArrayMember(TableInfo tableInfo, int row, String arrayName) {
+    private void checkForMissingArrayMember(TableInfo tableInfo, int row, String arrayName)
+    {
         // Check if there are remaining array members that don't exist
-        if (membersRemaining != 0) {
+        if (membersRemaining != 0)
+        {
             // Expected array member is missing
-            issues.add(new TableIssue(
-                    "Table '" + tableInfo.getProtoVariableName() + "' variable '"
-                            + (ArrayVariable.isArrayMember(arrayName) ? ArrayVariable.removeArrayIndex(arrayName)
-                                    : arrayName)
-                            + "' is missing array member " + ArrayVariable.formatArrayIndex(currentArrayIndex),
-                    "Add missing array member", row, addMissingArrayRow(tableInfo, arrayName, currentArrayIndex),
-                    tableInfo));
+            issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' variable '"
+                                      + (ArrayVariable.isArrayMember(arrayName)
+                                                                                ? ArrayVariable
+                                                                                        .removeArrayIndex(arrayName)
+                                                                                : arrayName)
+                                      + "' is missing array member "
+                                      + ArrayVariable.formatArrayIndex(currentArrayIndex), "Add missing array member",
+                                      row, addMissingArrayRow(tableInfo, arrayName, currentArrayIndex), tableInfo));
 
             // Update the array member counter
             membersRemaining--;
@@ -2084,15 +2294,18 @@ public class CcddDbVerificationHandler {
      *
      * @param tableInfo reference to the table information
      *********************************************************************************************/
-    private void checkForRowIndexMismatch(TableInfo tableInfo) {
+    private void checkForRowIndexMismatch(TableInfo tableInfo)
+    {
         // Step through each row in the table
-        for (int row = 0; row < tableInfo.getData().size() && !haltDlg.isHalted(); row++) {
+        for (int row = 0; row < tableInfo.getData().size() && !haltDlg.isHalted(); row++)
+        {
             // Check if the row index doesn't match the next consecutive row number
-            if (!tableInfo.getData().get(row)[rowIndex].equals(String.valueOf(row + 1))) {
+            if (!tableInfo.getData().get(row)[rowIndex].equals(String.valueOf(row + 1)))
+            {
                 // Row index mismatch
-                issues.add(new TableIssue(
-                        "Table '" + tableInfo.getProtoVariableName() + "' row " + (row + 1) + " index mismatch",
-                        "Update row index", row, rowIndex, String.valueOf(row + 1), tableInfo));
+                issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' row " + (row + 1)
+                                          + " index mismatch", "Update row index", row, rowIndex,
+                                          String.valueOf(row + 1), tableInfo));
 
                 // Stop checking the row indices
                 break;
@@ -2101,12 +2314,12 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Check if a column marked as unique for this table type has duplicate values
-     * in one or more rows
+     * Check if a column marked as unique for this table type has duplicate values in one or more rows
      *
      * @param tableInfo reference to the table information
      *********************************************************************************************/
-    private void checkForDuplicates(TableInfo tableInfo) {
+    private void checkForDuplicates(TableInfo tableInfo)
+    {
         String[] columnValues = new String[tableInfo.getData().size()];
 
         // Get the comment array for this table
@@ -2116,33 +2329,37 @@ public class CcddDbVerificationHandler {
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
         // Step through each column in the table
-        for (int column = 0; column < tableInfo.getData().get(0).length && !haltDlg.isHalted(); column++) {
+        for (int column = 0; column < tableInfo.getData().get(0).length && !haltDlg.isHalted(); column++)
+        {
             // Check if the values in this column must be unique
-            if (typeDefn != null && typeDefn.isRowValueUnique()[column]) {
+            if (typeDefn != null && typeDefn.isRowValueUnique()[column])
+            {
                 // Step through each row in the table
-                for (int row = 0; row < tableInfo.getData().size() - 1 && !haltDlg.isHalted(); row++) {
+                for (int row = 0; row < tableInfo.getData().size() - 1 && !haltDlg.isHalted(); row++)
+                {
                     // Store the column value in the temporary column value array, expanding any macros
                     // in the value. The temporary column values are stored so that macro expansion need
                     // only be done once per table cell, which speeds the comparison below
-                    columnValues[row] = !tableInfo.getData().get(row)[column].toString().isEmpty()
-                            ? macroHandler.getMacroExpansion(tableInfo.getData().get(row)[column].toString())
-                            : "";
+                    columnValues[row] = !tableInfo.getData().get(row)[column].toString().isEmpty() ? macroHandler
+                            .getMacroExpansion(tableInfo.getData().get(row)[column].toString()) : "";
                 }
 
                 // Step through each row in the table
-                for (int row = 0; row < tableInfo.getData().size() - 1 && !haltDlg.isHalted(); row++) {
+                for (int row = 0; row < tableInfo.getData().size() - 1 && !haltDlg.isHalted(); row++)
+                {
                     // Step through the remaining rows in the table
                     for (int otherRow = row + 1; otherRow < tableInfo.getData().size()
-                            && !haltDlg.isHalted(); otherRow++) {
+                                                 && !haltDlg.isHalted(); otherRow++)
+                    {
                         // Check if the values in the columns for these two rows match and that the
                         // values aren't blank
-                        if (!columnValues[row].isEmpty() && columnValues[row].equals(columnValues[otherRow])) {
+                        if (!columnValues[row].isEmpty() && columnValues[row].equals(columnValues[otherRow]))
+                        {
                             // Duplicate item exists in a column designated as having unique values
-                            issues.add(new TableIssue(
-                                    "Table '" + tableInfo.getProtoVariableName() + "' column '"
-                                            + typeDefn.getColumnNamesUser()[column] + "' rows " + (row + 1) + " and "
-                                            + (otherRow + 1) + " have duplicate values",
-                                    "Replace with a blank", otherRow, column, "", tableInfo));
+                            issues.add(new TableIssue("Table '" + tableInfo.getProtoVariableName() + "' column '"
+                                                      + typeDefn.getColumnNamesUser()[column] + "' rows " + (row + 1)
+                                                      + " and " + (otherRow + 1) + " have duplicate values",
+                                                      "Replace with a blank", otherRow, column, "", tableInfo));
                         }
                     }
                 }
@@ -2161,9 +2378,11 @@ public class CcddDbVerificationHandler {
      *
      * @return Array containing the new array row data
      *********************************************************************************************/
-    private String[] addMissingArrayRow(TableInfo tableInfo, String arrayName, int[] arrayMemberIndex) {
+    private String[] addMissingArrayRow(TableInfo tableInfo, String arrayName, int[] arrayMemberIndex)
+    {
         // Check if this row represents an array member
-        if (arrayMemberIndex.length != 0) {
+        if (arrayMemberIndex.length != 0)
+        {
             // Build the variable name for the expected array member
             arrayName = arrayName + ArrayVariable.formatArrayIndex(arrayMemberIndex);
         }
@@ -2187,13 +2406,13 @@ public class CcddDbVerificationHandler {
     }
 
     /**********************************************************************************************
-     * Compare the current table data to the committed table data and create lists
-     * of the changed values necessary to update the table in the database to match
-     * the current values
+     * Compare the current table data to the committed table data and create lists of the changed values
+     * necessary to update the table in the database to match the current values
      *
      * @param tblStrg reference to the table information and committed data
      *********************************************************************************************/
-    private void buildUpdates(TableStorage tblStrg) {
+    private void buildUpdates(TableStorage tblStrg)
+    {
         // Get a copy of the table data. This copy has changes applied due to any errors
         // detected
         List<Object[]> updatedData = tblStrg.getTableInformation().getData();
@@ -2214,10 +2433,11 @@ public class CcddDbVerificationHandler {
 
         // Check if any updates need to be made
         if (!editor.getAdditions().isEmpty() || !editor.getModifications().isEmpty()
-                || !editor.getDeletions().isEmpty()) {
+            || !editor.getDeletions().isEmpty())
+        {
             // Store the updates to the change list
             tableChanges.add(new TableChange(editor.getTableInformation(), editor.getAdditions(),
-                    editor.getModifications(), editor.getDeletions()));
+                                             editor.getModifications(), editor.getDeletions()));
         }
     }
 
@@ -2225,17 +2445,21 @@ public class CcddDbVerificationHandler {
      * Perform the corrections to the database authorized by the user
      *********************************************************************************************/
     @SuppressWarnings("serial")
-    private void updateDatabase() {
+    private void updateDatabase()
+    {
         // Initialize the event log status message
         String message = "No project database inconsistencies detected";
 
         // Check if any issues exist
-        if (!issues.isEmpty()) {
+        if (!issues.isEmpty())
+        {
             // Set the initial layout manager characteristics
             GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
-                    GridBagConstraints.BOTH,
-                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(), 0, 0, 0),
-                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(), 0);
+                                                            GridBagConstraints.BOTH,
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                    .getSpacing(), 0, 0, 0),
+                                                            ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                            0);
 
             // Create the confirmation dialog
             final CcddDialogHandler dialog = new CcddDialogHandler();
@@ -2254,49 +2478,56 @@ public class CcddDbVerificationHandler {
             dialogPnl.add(correctLbl, gbc);
 
             // Create the table to display the database inconsistencies
-            updateTable = new CcddJTableHandler() {
+            updateTable = new CcddJTableHandler()
+            {
                 /**********************************************************************************
                  * Allows resizing of the issue and corrective action columns
                  *********************************************************************************/
                 @Override
-                protected boolean isColumnResizable(int column) {
+                protected boolean isColumnResizable(int column)
+                {
                     return column == VerificationColumnInfo.ISSUE.ordinal()
-                            || column == VerificationColumnInfo.ACTION.ordinal();
+                           || column == VerificationColumnInfo.ACTION.ordinal();
                 }
 
                 /**********************************************************************************
                  * Allow multiple line display in the issue and corrective action columns
                  *********************************************************************************/
                 @Override
-                protected boolean isColumnMultiLine(int column) {
+                protected boolean isColumnMultiLine(int column)
+                {
                     return column == VerificationColumnInfo.ISSUE.ordinal()
-                            || column == VerificationColumnInfo.ACTION.ordinal();
+                           || column == VerificationColumnInfo.ACTION.ordinal();
                 }
 
                 /**********************************************************************************
                  * Display the specified column(s) as check boxes
                  *********************************************************************************/
                 @Override
-                protected boolean isColumnBoolean(int column) {
+                protected boolean isColumnBoolean(int column)
+                {
                     return column == VerificationColumnInfo.FIX.ordinal();
                 }
 
                 /**********************************************************************************
-                 * Allow the fix column to be edited (enables toggling of the check box via the
-                 * mouse) unless there is no command to correct to the issue (i.e., the issue
-                 * must be corrected outside the application)
+                 * Allow the fix column to be edited (enables toggling of the check box via the mouse) unless there
+                 * is no command to correct to the issue (i.e., the issue must be corrected outside the application)
                  *********************************************************************************/
                 @Override
-                public boolean isCellEditable(int row, int column) {
+                public boolean isCellEditable(int row, int column)
+                {
                     boolean result;
 
                     // If the issue is related to a non-existent data type than CCDD can not fix it.
                     // The user will need to manually address this issue.
-                    if (issues.get(row).getAction().contentEquals(MANUAL_FIX)) {
+                    if (issues.get(row).getAction().contentEquals(MANUAL_FIX))
+                    {
                         result = false;
-                    } else {
+                    }
+                    else
+                    {
                         result = (column == VerificationColumnInfo.FIX.ordinal()
-                            && (issues.get(row).getCommand() != null || issues.get(row).getRow() != -1));
+                                  && (issues.get(row).getCommand() != null || issues.get(row).getRow() != -1));
                     }
 
                     return result;
@@ -2306,13 +2537,15 @@ public class CcddDbVerificationHandler {
                  * Load the verification data into the table and format the table cells
                  *********************************************************************************/
                 @Override
-                protected void loadAndFormatData() {
+                protected void loadAndFormatData()
+                {
                     // Create an array to store the database issues
                     Object[][] tableData = new Object[issues.size()][VerificationColumnInfo.values().length];
                     int row = 0;
 
                     // Step through each detected issue
-                    for (TableIssue issue : issues) {
+                    for (TableIssue issue : issues)
+                    {
                         // Add the issue data to the array
                         tableData[row][VerificationColumnInfo.FIX.ordinal()] = issue.isFix();
                         tableData[row][VerificationColumnInfo.ISSUE.ordinal()] = issue.getIssue();
@@ -2324,7 +2557,7 @@ public class CcddDbVerificationHandler {
                     // editors and renderers for the table cells, set up the table grid lines, and
                     // calculate the minimum width required to display the table information
                     setUpdatableCharacteristics(tableData, VerificationColumnInfo.getColumnNames(), null,
-                            VerificationColumnInfo.getToolTips(), true, true, true);
+                                                VerificationColumnInfo.getToolTips(), true, true, true);
                 }
             };
 
@@ -2333,8 +2566,9 @@ public class CcddDbVerificationHandler {
 
             // Set up the field table parameters
             updateTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                    TableSelectionMode.SELECT_BY_CELL, true, ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
-                    ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
+                                                TableSelectionMode.SELECT_BY_CELL, true,
+                                                ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
+                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
 
             // Define the panel to contain the table
             JPanel updateTblPnl = new JPanel();
@@ -2356,17 +2590,21 @@ public class CcddDbVerificationHandler {
             selectAllCb.setBorder(emptyBorder);
 
             // Create a listener for changes in selection of 'select all' check box
-            selectAllCb.addActionListener(new ActionListener() {
+            selectAllCb.addActionListener(new ActionListener()
+            {
                 /**********************************************************************************
                  * Handle a change to the 'select all' check box selection
                  *********************************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae) {
+                public void actionPerformed(ActionEvent ae)
+                {
                     // Step through each row in the updates table
-                    for (int row = 0; row < updateTable.getRowCount(); row++) {
+                    for (int row = 0; row < updateTable.getRowCount(); row++)
+                    {
                         // Check if the check box column's cell is editable; i.e., the application
                         // can fix the issue described on this row
-                        if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal())) {
+                        if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal()))
+                        {
                             // Enable/disable the update based on the 'select all' check box state
                             updateTable.setValueAt(selectAllCb.isSelected(), row, VerificationColumnInfo.FIX.ordinal());
                         }
@@ -2383,11 +2621,13 @@ public class CcddDbVerificationHandler {
             allColumnCount = 0;
 
             // Step through each row in the updates table
-            for (int row = 0; row < updateTable.getRowCount(); row++) {
+            for (int row = 0; row < updateTable.getRowCount(); row++)
+            {
                 // Check if the check box column's cell is editable; i.e., the application can
                 // fix
                 // the issue described on this row
-                if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal())) {
+                if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal()))
+                {
                     // Increment the counter that tracks the total number of selectable issues
                     allColumnCount++;
                 }
@@ -2400,29 +2640,35 @@ public class CcddDbVerificationHandler {
                     .getTableCellEditorComponent(updateTable, false, false, 0, VerificationColumnInfo.FIX.ordinal()));
 
             // Create a listener for changes to the fix issue check box selection status
-            tableCb.addActionListener(new ActionListener() {
+            tableCb.addActionListener(new ActionListener()
+            {
                 /**********************************************************************************
                  * Handle a change to the fix issue check box selection status
                  *********************************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae) {
+                public void actionPerformed(ActionEvent ae)
+                {
                     // Create a runnable object to be executed
-                    SwingUtilities.invokeLater(new Runnable() {
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
                         /**********************************************************************************
-                         * Since the log addition involves a GUI update use invokeLater to execute the
-                         * call on the event dispatch thread
+                         * Since the log addition involves a GUI update use invokeLater to execute the call on the event
+                         * dispatch thread
                          *********************************************************************************/
                         @Override
-                        public void run() {
+                        public void run()
+                        {
                             selectedColumnCount = 0;
 
                             // Step through each row in the updates table
-                            for (int row = 0; row < updateTable.getRowCount(); row++) {
+                            for (int row = 0; row < updateTable.getRowCount(); row++)
+                            {
                                 // Check if the check box column's cell is editable (i.e., the
                                 // application can fix the issue described on this row) and the
                                 // check box is selected
-                                if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal()) && updateTable
-                                        .getValueAt(row, VerificationColumnInfo.FIX.ordinal()).equals(true)) {
+                                if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal())
+                                    && updateTable.getValueAt(row, VerificationColumnInfo.FIX.ordinal()).equals(true))
+                                {
                                     // Increment the counter to track the number of selected fix
                                     // issue check boxes
                                     selectedColumnCount++;
@@ -2439,48 +2685,54 @@ public class CcddDbVerificationHandler {
 
             // Update the selected inconsistencies button
             JButton btnOk = CcddButtonPanelHandler.createButton("Okay", OK_ICON, KeyEvent.VK_O,
-                    "Correct the inconsistencies");
+                                                                "Correct the inconsistencies");
             btnOk.setEnabled(dbControl.isAccessAdmin());
 
             // Add a listener for the Okay button
-            btnOk.addActionListener(new ActionListener() {
+            btnOk.addActionListener(new ActionListener()
+            {
 
                 /**********************************************************************************
                  * Update the inconsistencies
                  *********************************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae) {
+                public void actionPerformed(ActionEvent ae)
+                {
                     dialog.closeDialog(OK_BUTTON);
                 }
             });
 
             // Print inconsistencies button
             JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
-                    "Print the inconsistency list");
+                                                                   "Print the inconsistency list");
 
             // Add a listener for the Print button
-            btnPrint.addActionListener(new ActionListener() {
+            btnPrint.addActionListener(new ActionListener()
+            {
                 /**********************************************************************************
                  * Print the inconsistency table
                  *********************************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae) {
+                public void actionPerformed(ActionEvent ae)
+                {
                     updateTable.printTable("Project '" + dbControl.getDatabaseName() + " Inconsistencies", null, dialog,
-                            PageFormat.LANDSCAPE);
+                                           PageFormat.LANDSCAPE);
                 }
             });
 
             // Cancel inconsistency update button
             JButton btnCancel = CcddButtonPanelHandler.createButton("Cancel", CANCEL_ICON, KeyEvent.VK_C,
-                    "Cancel inconsistency corrections");
+                                                                    "Cancel inconsistency corrections");
 
             // Add a listener for the Cancel button
-            btnCancel.addActionListener(new ActionListener() {
+            btnCancel.addActionListener(new ActionListener()
+            {
                 /**********************************************************************************
                  * Cancel updating the inconsistencies
                  *********************************************************************************/
                 @Override
-                public void actionPerformed(ActionEvent ae) {
+                public void actionPerformed(ActionEvent ae)
+                {
                     dialog.closeDialog(CANCEL_BUTTON);
                 }
             });
@@ -2497,8 +2749,10 @@ public class CcddDbVerificationHandler {
             // Check if any changes are queued and that the user confirms performing the
             // updates
             if (dialog.showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnOk, "Perform Corrections",
-                    true) == OK_BUTTON) {
-                try {
+                                         true) == OK_BUTTON)
+            {
+                try
+                {
                     String command = "";
                     int row = 0;
                     boolean isSomeIgnored = false;
@@ -2507,17 +2761,21 @@ public class CcddDbVerificationHandler {
                     dbCommand.createSavePoint(ccddMain.getMainFrame());
 
                     // Step through each issue detected
-                    for (TableIssue issue : issues) {
+                    for (TableIssue issue : issues)
+                    {
                         // Update the issue's flag indicating if it should be fixed
-                        issue.setFix(Boolean.valueOf(
-                                updateTable.getTableData(false)[row][VerificationColumnInfo.FIX.ordinal()].toString()));
+                        issue.setFix(Boolean
+                                .valueOf(updateTable.getTableData(false)[row][VerificationColumnInfo.FIX.ordinal()]
+                                        .toString()));
 
                         // Check if the issue is not flagged to be fixed
-                        if (!issue.isFix()) {
+                        if (!issue.isFix())
+                        {
                             isSomeIgnored = true;
                         }
                         // Check if the PostgreSQL command has been assigned
-                        else if (issue.getCommand() != null) {
+                        else if (issue.getCommand() != null)
+                        {
                             // Add the command to fix the issue to the command string
                             command += issue.getCommand();
                         }
@@ -2526,7 +2784,8 @@ public class CcddDbVerificationHandler {
                     }
 
                     // Check if any updates are approved by the user
-                    if (!command.isEmpty()) {
+                    if (!command.isEmpty())
+                    {
                         isAllIgnored = false;
 
                         // Make the changes to the table(s) in the database
@@ -2543,13 +2802,16 @@ public class CcddDbVerificationHandler {
                     String previousTable = "";
 
                     // Step through each issue detected
-                    for (TableIssue issue : issues) {
+                    for (TableIssue issue : issues)
+                    {
                         // Check if the issue is flagged to be fixed and that a row is set. This
                         // indicates that the change affects the data value(s) within a table
-                        if (issue.isFix() && issue.getRow() != -1) {
+                        if (issue.isFix() && issue.getRow() != -1)
+                        {
                             // Check if the name of the table to be updated differs from the
                             // previously updated table
-                            if (!previousTable.equals(issue.getTableInformation().getProtoVariableName())) {
+                            if (!previousTable.equals(issue.getTableInformation().getProtoVariableName()))
+                            {
                                 // Reset the row index adjustment
                                 rowAdjust = 0;
                             }
@@ -2559,14 +2821,16 @@ public class CcddDbVerificationHandler {
 
                             // Check if a column is specified. This indicates a specific row and
                             // column value is changed
-                            if (issue.getColumn() != -1) {
+                            if (issue.getColumn() != -1)
+                            {
                                 // Update the cell value
                                 issue.getTableInformation().getData().get(issue.getRow())[issue.getColumn()] = issue
                                         .getData();
                             }
                             // Check if the row data is specified. This indicates an entire row is
                             // added
-                            else if (issue.getRowData() != null) {
+                            else if (issue.getRowData() != null)
+                            {
                                 // Insert the row into the existing table data
                                 List<Object[]> tableData = issue.getTableInformation().getData();
                                 tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
@@ -2574,7 +2838,8 @@ public class CcddDbVerificationHandler {
                                 rowAdjust++;
                             }
                             // An entire row is deleted
-                            else {
+                            else
+                            {
                                 // Remove the row from the existing table data
                                 List<Object[]> tableData = issue.getTableInformation().getData();
                                 tableData.remove(issue.getRow() + rowAdjust);
@@ -2588,22 +2853,27 @@ public class CcddDbVerificationHandler {
                     tableChanges = new ArrayList<TableChange>();
 
                     // Step through each table's information
-                    for (TableStorage tblStrg : tableStorage) {
+                    for (TableStorage tblStrg : tableStorage)
+                    {
                         // Build the updates, if any, for the table and add the updates to the
                         // table changes list
                         buildUpdates(tblStrg);
                     }
 
                     // Check if there are any changes
-                    if (!tableChanges.isEmpty()) {
+                    if (!tableChanges.isEmpty())
+                    {
                         isAllIgnored = false;
 
                         // Step through each table's changes
-                        for (TableChange tableChange : tableChanges) {
+                        for (TableChange tableChange : tableChanges)
+                        {
                             // Modify the table
                             if (dbTable.modifyTableData(tableChange.getTableInformation(), tableChange.getAdditions(),
-                                    tableChange.getModifications(), tableChange.getDeletions(), true, false, false,
-                                    false, false, null, true, true, false, ccddMain.getMainFrame())) {
+                                                        tableChange.getModifications(), tableChange.getDeletions(),
+                                                        true, false, false, false, false, null, true, true, false,
+                                                        ccddMain.getMainFrame()))
+                            {
                                 // Set the flag indicating an error occurred updating one or more
                                 // tables, and stop modifying
                                 isErrors = true;
@@ -2613,7 +2883,8 @@ public class CcddDbVerificationHandler {
                     }
 
                     // Check if an errors occurred when making the updates
-                    if (!isErrors) {
+                    if (!isErrors)
+                    {
                         // Release the save point. This must be done within a transaction block, so
                         // it must be done prior to the commit below
                         dbCommand.releaseSavePoint(ccddMain.getMainFrame());
@@ -2629,17 +2900,20 @@ public class CcddDbVerificationHandler {
                         // Log that the table update(s) succeeded
                         message = "One or more project database inconsistencies were detected and corrected";
 
-                        if (isSomeIgnored) {
+                        if (isSomeIgnored)
+                        {
                             message += "; some issues ignored";
                         }
                     }
                     // An error occurred
-                    else {
+                    else
+                    {
                         // Log that the table update(s) did not succeed
                         message = "One or more project database inconsistencies were "
-                                + "detected, but an error occurred while updating";
+                                  + "detected, but an error occurred while updating";
 
-                        if (isSomeIgnored) {
+                        if (isSomeIgnored)
+                        {
                             message += "; some issues ignored";
                         }
 
@@ -2647,25 +2921,34 @@ public class CcddDbVerificationHandler {
                         // prior to making any changes
                         throw new SQLException(message);
                     }
-                } catch (SQLException se) {
+                }
+                catch (
+                    SQLException se
+                )
+                {
                     // Inform the user that checking the table consistency failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
-                            "Error verifying project database '" + dbControl.getDatabaseName()
-                                    + "' consistency; cause '" + se.getMessage() + "'",
-                            "<html><b>Error verifying project database '</b>" + dbControl.getDatabaseName()
-                                    + "<b>' consistency");
+                                          "Error verifying project database '" + dbControl.getDatabaseName()
+                                                                   + "' consistency; cause '" + se.getMessage() + "'",
+                                          "<html><b>Error verifying project database '</b>" + dbControl
+                                                  .getDatabaseName() + "<b>' consistency");
 
                     // Log that the table update(s) did not succeed
                     message = "One or more project database inconsistencies were "
-                            + "detected, but an error occurred while updating";
-                } catch (Exception e) {
+                              + "detected, but an error occurred while updating";
+                }
+                catch (
+                    Exception e
+                )
+                {
                     // Display a dialog providing details on the unanticipated error
                     CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
             }
 
             // Unresolved inconsistencies exist
-            if (isAllIgnored) {
+            if (isAllIgnored)
+            {
                 // Create the log message indicating that inconsistencies were detected, but
                 // none
                 // were corrected

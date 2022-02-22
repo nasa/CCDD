@@ -52,7 +52,8 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * CFS Command and Data Dictionary script executive dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddScriptExecutiveDialog extends CcddFrameHandler {
+public class CcddScriptExecutiveDialog extends CcddFrameHandler
+{
     // Class references
     private final CcddMain ccddMain;
     private final CcddScriptHandler scriptHandler;
@@ -67,7 +68,8 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
      *
      * @param ccddMain main class
      *********************************************************************************************/
-    CcddScriptExecutiveDialog(CcddMain ccddMain) {
+    CcddScriptExecutiveDialog(CcddMain ccddMain)
+    {
         this.ccddMain = ccddMain;
 
         // Create reference to shorten subsequent calls
@@ -81,20 +83,22 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
     }
 
     /**********************************************************************************************
-     * Create the script executive dialog. This is executed in a separate thread
-     * since it can take a noticeable amount time to complete, and by using a
-     * separate thread the GUI is allowed to continue to update. The GUI menu
-     * commands, however, are disabled until the telemetry scheduler initialization
-     * completes execution
+     * Create the script executive dialog. This is executed in a separate thread since it can take a
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
+     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
+     * initialization completes execution
      *********************************************************************************************/
-    private void initialize() {
+    private void initialize()
+    {
         // Check if there are any open editors with uncommitted changes and if so check
         // that the
         // user confirms ignoring the changes
         if (ccddMain.ignoreUncommittedChanges("Script Executive", "Ignore changes?", false, null,
-                ccddMain.getMainFrame())) {
+                                              ccddMain.getMainFrame()))
+        {
             // Build the script executive dialog in the background
-            CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand() {
+            CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+            {
                 // Create panels to hold the components of the dialog
                 JPanel dialogPnl = new JPanel(new GridBagLayout());
                 JPanel buttonPnl = new JPanel();
@@ -103,14 +107,19 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
                  * Build the script executive dialog
                  *********************************************************************************/
                 @Override
-                protected void execute() {
+                protected void execute()
+                {
                     // Set the initial layout manager characteristics
                     GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
-                            GridBagConstraints.BOTH,
-                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(), 0,
-                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                            0, 0);
+                                                                    GridBagConstraints.BOTH,
+                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                            .getSpacing() / 2,
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                                       .getSpacing(),
+                                                                               0,
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                                       .getSpacing()),
+                                                                    0, 0);
 
                     dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
@@ -128,15 +137,17 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
 
                     // Execute selected script association(s) button
                     btnExecute = CcddButtonPanelHandler.createButton("Execute", EXECUTE_ICON, KeyEvent.VK_E,
-                            "Execute the selected script association(s)");
+                                                                     "Execute the selected script association(s)");
 
                     // Add a listener for the Execute button
-                    btnExecute.addActionListener(new ActionListener() {
+                    btnExecute.addActionListener(new ActionListener()
+                    {
                         /**************************************************************************
                          * Execute the selected script association(s)
                          *************************************************************************/
                         @Override
-                        public void actionPerformed(ActionEvent ae) {
+                        public void actionPerformed(ActionEvent ae)
+                        {
                             // Execute the selected associations
                             scriptHandler.executeScriptAssociations(tableTree, CcddScriptExecutiveDialog.this);
                         }
@@ -144,15 +155,17 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
 
                     // Close button
                     btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
-                            "Close the script executive");
+                                                                   "Close the script executive");
 
                     // Add a listener for the Close button
-                    btnClose.addActionListener(new ActionListener() {
+                    btnClose.addActionListener(new ActionListener()
+                    {
                         /**************************************************************************
                          * Close the script execution dialog
                          *************************************************************************/
                         @Override
-                        public void actionPerformed(ActionEvent ae) {
+                        public void actionPerformed(ActionEvent ae)
+                        {
                             // Reset the reference to the script associations executive in the
                             // script handler since the handler remains active)
                             scriptHandler.setScriptDialog(null);
@@ -170,10 +183,11 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
                  * Script executive dialog creation complete
                  *********************************************************************************/
                 @Override
-                protected void complete() {
+                protected void complete()
+                {
                     // Display the script execution dialog
                     createFrame(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnExecute,
-                            "Execute Script Association(s)", null);
+                                "Execute Script Association(s)", null);
                 }
             });
         }
@@ -182,7 +196,8 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler {
     /**********************************************************************************************
      * Update the associations table with the latest script associations information
      *********************************************************************************************/
-    protected void reloadAssociationsTable() {
+    protected void reloadAssociationsTable()
+    {
         scriptHandler.getAssociationsTable().loadAndFormatData();
     }
 }

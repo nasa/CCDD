@@ -31,7 +31,8 @@ package CCDD;
 /**************************************************************************************************
  * CFS Command and Data Dictionary scheduler dialog interface
  *************************************************************************************************/
-public interface CcddSchedulerDialogInterface {
+public interface CcddSchedulerDialogInterface
+{
     /**********************************************************************************************
      * Get the scheduler dialog
      *
@@ -68,8 +69,7 @@ public interface CcddSchedulerDialogInterface {
     abstract void updateChangeIndicator();
 
     /**********************************************************************************************
-     * Steps to perform following storing of the scheduler data in the project
-     * database
+     * Steps to perform following storing of the scheduler data in the project database
      *
      * @param errorFlag true if an error occurred updating the project database
      *********************************************************************************************/

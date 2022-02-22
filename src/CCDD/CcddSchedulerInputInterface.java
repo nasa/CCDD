@@ -37,25 +37,25 @@ import CCDD.CcddClassesDataTable.Variable;
 /**************************************************************************************************
  * CFS Command and Data Dictionary scheduler input interface
  *************************************************************************************************/
-public interface CcddSchedulerInputInterface {
+public interface CcddSchedulerInputInterface
+{
     /**********************************************************************************************
-     * Get the index at which the specified variable should be inserted in the list
-     * of variables provided
+     * Get the index at which the specified variable should be inserted in the list of variables
+     * provided
      *
      * @param variable  variable for which to determine the insertion index
      *
      * @param variables list of variables into which the variable is to be inserted
      *
-     * @return Index at which to insert the target variable; -1 if the provided list
-     *         is empty and -2 if the variable is already in the list
+     * @return Index at which to insert the target variable; -1 if the provided list is empty and -2 if
+     *         the variable is already in the list
      *********************************************************************************************/
     abstract int getVariableRelativeIndex(Variable variable, List<Variable> variables);
 
     /**********************************************************************************************
      * Get the size of the variable or link that is selected
      *
-     * @param variables list of variables; null to use the currently selected
-     *                  variables
+     * @param variables list of variables; null to use the currently selected variables
      *
      * @return Size in bytes of the variable or link
      *********************************************************************************************/
@@ -66,8 +66,7 @@ public interface CcddSchedulerInputInterface {
      *
      * @param rate rate column name
      *
-     * @return List of variable objects representing the variables/applications at
-     *         the specified rate
+     * @return List of variable objects representing the variables/applications at the specified rate
      *********************************************************************************************/
     abstract List<Variable> getVariablesAtRate(String rate);
 
@@ -102,8 +101,7 @@ public interface CcddSchedulerInputInterface {
     /**********************************************************************************************
      * Remove the variable(s) from the excluded variable list
      *
-     * @param includeVariable list of variables to be removed from the excluded
-     *                        variable list
+     * @param includeVariable list of variables to be removed from the excluded variable list
      *********************************************************************************************/
     abstract void includeVariable(List<String> includeVariable);
 

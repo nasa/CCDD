@@ -71,7 +71,8 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
  * CFS Command and Data Dictionary rate parameter assignment dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddRateParameterDialog extends CcddDialogHandler {
+public class CcddRateParameterDialog extends CcddDialogHandler
+{
     // Class references
     private final CcddMain ccddMain;
     private final CcddRateParameterHandler rateHandler;
@@ -91,7 +92,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
     /**********************************************************************************************
      * Input field verification result class
      *********************************************************************************************/
-    private class InputVerificationResult {
+    private class InputVerificationResult
+    {
         String lastValid;
         boolean isValid;
 
@@ -102,7 +104,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
          *
          * @param isValid   true if the input value is valid
          *****************************************************************************************/
-        InputVerificationResult(String lastValid, boolean isValid) {
+        InputVerificationResult(String lastValid, boolean isValid)
+        {
             this.lastValid = lastValid;
             this.isValid = isValid;
         }
@@ -112,7 +115,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
          *
          * @return Last valid field value
          *****************************************************************************************/
-        protected String getLastValid() {
+        protected String getLastValid()
+        {
             return lastValid;
         }
 
@@ -121,7 +125,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
          *
          * @param lastValid last valid field value
          *****************************************************************************************/
-        protected void setLastValid(String lastValid) {
+        protected void setLastValid(String lastValid)
+        {
             this.lastValid = lastValid;
         }
 
@@ -130,7 +135,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
          *
          * @return true if the input value is valid
          *****************************************************************************************/
-        protected boolean isValid() {
+        protected boolean isValid()
+        {
             return isValid;
         }
 
@@ -139,7 +145,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
          *
          * @param isValid true if the input value is valid
          *****************************************************************************************/
-        protected void setValid(boolean isValid) {
+        protected void setValid(boolean isValid)
+        {
             this.isValid = isValid;
         }
     }
@@ -149,7 +156,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
      *
      * @param ccddMain main class
      *********************************************************************************************/
-    CcddRateParameterDialog(CcddMain ccddMain) {
+    CcddRateParameterDialog(CcddMain ccddMain)
+    {
         this.ccddMain = ccddMain;
         rateHandler = ccddMain.getRateParameterHandler();
 
@@ -164,21 +172,23 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
      *
      * @param lastValid last valid field value
      *
-     * @return input verification results containing the last valid value and the
-     *         valid status
+     * @return input verification results containing the last valid value and the valid status
      *********************************************************************************************/
-    private InputVerificationResult verifyInputField(JTextField field, String lastValid) {
+    private InputVerificationResult verifyInputField(JTextField field, String lastValid)
+    {
         InputVerificationResult verifyResult = new InputVerificationResult(lastValid, true);
 
         // Remove any leading and trailing white space characters
         field.setText(field.getText().trim());
 
         // Check if the any rate parameter is not a positive integer value
-        if (!field.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())) {
+        if (!field.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
+        {
             // Inform the user that a rate is invalid
             new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
-                    "<html><b>Rate parameter values must be positive integers", "Missing/Invalid Input",
-                    JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                                                      "<html><b>Rate parameter values must be positive integers",
+                                                      "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
 
             // Restore the previous value in the field
             field.setText(verifyResult.getLastValid());
@@ -191,7 +201,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
             CcddRateParameterDialog.this.setControlsEnabled(true);
         }
         // The input is valid
-        else {
+        else
+        {
             // Format the rate parameter field
             field.setText(Integer.valueOf(field.getText()).toString());
 
@@ -208,23 +219,31 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
     /**********************************************************************************************
      * Create the rate parameter assignment dialog
      *********************************************************************************************/
-    private void initialize() {
+    private void initialize()
+    {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
-                GridBagConstraints.HORIZONTAL,
-                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                0, 0);
+                                                        GridBagConstraints.HORIZONTAL,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                .getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                           .getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                           .getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                           .getSpacing() / 2),
+                                                        0, 0);
 
         // Create borders for the input fields
-        border = BorderFactory.createCompoundBorder(
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
-                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        border = BorderFactory
+                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+                                                                      Color.GRAY),
+                                      BorderFactory
+                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
+                                                                         .getSpacing()));
         emptyBorder = BorderFactory.createEmptyBorder();
 
         // Create a panel to contain the dialog components
@@ -245,7 +264,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
         maxSecPerMsgFld.setBorder(border);
 
         // Set the field's input verifier
-        maxSecPerMsgFld.setInputVerifier(new InputVerifier() {
+        maxSecPerMsgFld.setInputVerifier(new InputVerifier()
+        {
             // Storage for the last valid value entered; used to restore the input field
             // value if
             // an invalid value is entered. Initialize to the value at the time the field is
@@ -256,7 +276,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
              * Verify the contents of the input field
              *************************************************************************************/
             @Override
-            public boolean verify(JComponent input) {
+            public boolean verify(JComponent input)
+            {
                 // Verify the field contents
                 InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
 
@@ -286,7 +307,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
         maxMsgsPerSecFld.setBorder(border);
 
         // Set the field's input verifier
-        maxMsgsPerSecFld.setInputVerifier(new InputVerifier() {
+        maxMsgsPerSecFld.setInputVerifier(new InputVerifier()
+        {
             // Storage for the last valid value entered; used to restore the input field
             // value if
             // an invalid value is entered. Initialize to the value at the time the field is
@@ -297,7 +319,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
              * Verify the contents of the input field
              *************************************************************************************/
             @Override
-            public boolean verify(JComponent input) {
+            public boolean verify(JComponent input)
+            {
                 // Verify the field contents
                 InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
 
@@ -321,28 +344,30 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
         availRatesFld = new JTextArea[rateInformation.size()];
 
         // Create a tabbed pane to contain the rate parameters that are stream-specific
-        tabbedPane = new DnDTabbedPane(SwingConstants.TOP) {
+        tabbedPane = new DnDTabbedPane(SwingConstants.TOP)
+        {
             /**************************************************************************************
              * Update the rate arrays order following a tab move
              *************************************************************************************/
             @Override
-            protected Object tabMoveCleanup(int oldTabIndex, int newTabIndex, Object tabContents) {
+            protected Object tabMoveCleanup(int oldTabIndex, int newTabIndex, Object tabContents)
+            {
                 // Adjust the new tab index if moving the tab to a higher index
                 newTabIndex -= newTabIndex > oldTabIndex ? 1 : 0;
 
                 // Re-order the rate information based on the new tab order
                 RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
                 rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex,
-                        newTabIndex);
+                                                                                  newTabIndex);
                 List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
                 rateInfoList.addAll(Arrays.asList(rateInfoArray));
                 rateHandler.setRateInformation(rateInfoList);
 
                 // Re-order the fields based on the new tab order
                 maxMsgsPerCycleFld = (JTextField[]) CcddUtilities.moveArrayMember(maxMsgsPerCycleFld, oldTabIndex,
-                        newTabIndex);
+                                                                                  newTabIndex);
                 maxBytesPerSecFld = (JTextField[]) CcddUtilities.moveArrayMember(maxBytesPerSecFld, oldTabIndex,
-                        newTabIndex);
+                                                                                 newTabIndex);
                 streamNameFld = (JTextField[]) CcddUtilities.moveArrayMember(streamNameFld, oldTabIndex, newTabIndex);
                 availRatesFld = (JTextArea[]) CcddUtilities.moveArrayMember(availRatesFld, oldTabIndex, newTabIndex);
 
@@ -364,8 +389,9 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
         dialogPnl.add(tabbedPane, gbc);
 
         // Create a panel for the uneven check box
-        JPanel unevenPnl = new JPanel(
-                new FlowLayout(FlowLayout.LEFT, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0));
+        JPanel unevenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT,
+                                                     ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                     0));
         unevenPnl.setBorder(emptyBorder);
 
         // Create a check box for including/excluding unevenly time-spaced sample rates
@@ -373,12 +399,14 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
         unevenCb.setBorder(emptyBorder);
         unevenCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         unevenCb.setSelected(rateHandler.isIncludeUneven() ? true : false);
-        unevenCb.addActionListener(new ActionListener() {
+        unevenCb.addActionListener(new ActionListener()
+        {
             /**************************************************************************************
              * Handle a change in the include uneven rates check box status
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 updateAvailableRates();
             }
         });
@@ -391,12 +419,14 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
         dialogPnl.add(unevenPnl, gbc);
 
         // Listen for tab selection changes
-        tabbedPane.addChangeListener(new ChangeListener() {
+        tabbedPane.addChangeListener(new ChangeListener()
+        {
             /**************************************************************************************
              * Update the available rates using the values in the selected tab
              *************************************************************************************/
             @Override
-            public void stateChanged(ChangeEvent ce) {
+            public void stateChanged(ChangeEvent ce)
+            {
                 // Display the available rates for the currently selected rate column
                 updateAvailableRates();
             }
@@ -407,7 +437,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
 
         // Get the user's input
         if (showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, "Rate Parameters",
-                DialogOption.OK_CANCEL_OPTION) == OK_BUTTON) {
+                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+        {
             // Convert the common rate parameters to integers
             int maxSecPerMsg = Integer.valueOf(maxSecPerMsgFld.getText());
             int maxMsgsPerSec = Integer.valueOf(maxMsgsPerSecFld.getText());
@@ -418,7 +449,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
             int[] maxBytesPerSec = new int[tabbedPane.getTabCount()];
 
             // Step through each stream
-            for (int index = 0; index < tabbedPane.getTabCount(); index++) {
+            for (int index = 0; index < tabbedPane.getTabCount(); index++)
+            {
                 // Store the stream name, convert the rate parameters to numeric form, and
                 // calculate the available rates
                 streamNames[index] = streamNameFld[index].getText();
@@ -428,25 +460,27 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
 
             // Check if any rate parameter changed
             if (isRateChanges(maxSecPerMsg, maxMsgsPerSec, streamNames, maxMsgsPerCycle, maxBytesPerSec,
-                    unevenCb.isSelected())) {
+                              unevenCb.isSelected()))
+            {
                 // Store the rate parameters and update the sample rates
                 rateHandler.setRateParameters(maxSecPerMsg, maxMsgsPerSec, streamNames, maxMsgsPerCycle, maxBytesPerSec,
-                        unevenCb.isSelected(), CcddRateParameterDialog.this);
+                                              unevenCb.isSelected(), CcddRateParameterDialog.this);
             }
         }
     }
 
     /**********************************************************************************************
-     * Calculate and display the available rates for the currently selected rate
-     * column
+     * Calculate and display the available rates for the currently selected rate column
      *********************************************************************************************/
-    private void updateAvailableRates() {
+    private void updateAvailableRates()
+    {
         // Get the rate column to calculate and display its valid rates
         int index = tabbedPane.getSelectedIndex();
         availRatesFld[index].setText(Arrays
                 .toString(rateHandler.calculateSampleRates(Integer.valueOf(maxSecPerMsgFld.getText()),
-                        Integer.valueOf(maxMsgsPerSecFld.getText()),
-                        Integer.valueOf(maxMsgsPerCycleFld[index].getText()), unevenCb.isSelected()))
+                                                           Integer.valueOf(maxMsgsPerSecFld.getText()),
+                                                           Integer.valueOf(maxMsgsPerCycleFld[index].getText()),
+                                                           unevenCb.isSelected()))
                 .replaceAll("\\[|\\]", ""));
         availRatesFld[index].setCaretPosition(0);
     }
@@ -456,17 +490,23 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
      *
      * @param rateInfo list containing the rate information
      *********************************************************************************************/
-    private void addStreamTabs(List<RateInformation> rateInfo) {
+    private void addStreamTabs(List<RateInformation> rateInfo)
+    {
         // Step through each stream
-        for (int index = 0; index < rateInfo.size(); index++) {
+        for (int index = 0; index < rateInfo.size(); index++)
+        {
             // Set the initial layout manager characteristics
             GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
-                    GridBagConstraints.HORIZONTAL,
-                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                            ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                            ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                            ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                    0, 0);
+                                                            GridBagConstraints.HORIZONTAL,
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                    .getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                               .getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                               .getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                               .getSpacing() / 2),
+                                                            0, 0);
 
             // Create a panel for the rate calculation button and results
             JPanel availRatesPnl = new JPanel(new GridBagLayout());
@@ -516,7 +556,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
             final String initStreamName = streamNameFld[index].getText();
 
             // Set the field's input verifier
-            streamNameFld[index].setInputVerifier(new InputVerifier() {
+            streamNameFld[index].setInputVerifier(new InputVerifier()
+            {
                 // Storage for the last valid value entered; used to restore the input field
                 // value
                 // if an invalid value is entered. Initialize to the value at the time the field
@@ -528,7 +569,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
                  * Verify the contents of the input field
                  *********************************************************************************/
                 @Override
-                public boolean verify(JComponent input) {
+                public boolean verify(JComponent input)
+                {
                     JTextField field = (JTextField) input;
 
                     // Remove any leading and trailing white space characters
@@ -539,11 +581,13 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
 
                     // Check if a matching stream name is found for a rate other than this one
                     if (rateHandler.getRateInformationIndexByStreamName(field.getText()) != tabbedPane
-                            .getSelectedIndex()) {
+                            .getSelectedIndex())
+                    {
                         // Inform the user that a stream name is duplicated
                         new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
-                                "<html><b>Duplicate stream name", "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
-                                DialogOption.OK_OPTION);
+                                                                  "<html><b>Duplicate stream name",
+                                                                  "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
 
                         // Restore the previous value in the field
                         field.setText(lastValid);
@@ -557,7 +601,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
                         CcddRateParameterDialog.this.setControlsEnabled(true);
                     }
                     // The stream name is unique to this rate
-                    else {
+                    else
+                    {
                         // Update the last valid input
                         lastValid = field.getText();
                     }
@@ -588,7 +633,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
             final String initMaxMsgsPerCycle = maxMsgsPerCycleFld[index].getText();
 
             // Set the field's input verifier
-            maxMsgsPerCycleFld[index].setInputVerifier(new InputVerifier() {
+            maxMsgsPerCycleFld[index].setInputVerifier(new InputVerifier()
+            {
                 // Storage for the last valid value entered; used to restore the input field
                 // value
                 // if an invalid value is entered. Initialize to the value at the time the field
@@ -600,7 +646,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
                  * Verify the contents of the input field
                  *********************************************************************************/
                 @Override
-                public boolean verify(JComponent input) {
+                public boolean verify(JComponent input)
+                {
                     // Verify the field contents
                     InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
 
@@ -633,7 +680,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
             final String initMaxBytesPerSec = maxBytesPerSecFld[index].getText();
 
             // Set the field's input verifier
-            maxBytesPerSecFld[index].setInputVerifier(new InputVerifier() {
+            maxBytesPerSecFld[index].setInputVerifier(new InputVerifier()
+            {
                 // Storage for the last valid value entered; used to restore the input field
                 // value
                 // if an invalid value is entered. Initialize to the value at the time the field
@@ -645,7 +693,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
                  * Verify the contents of the input field
                  *********************************************************************************/
                 @Override
-                public boolean verify(JComponent input) {
+                public boolean verify(JComponent input)
+                {
                     // Verify the field contents
                     InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
 
@@ -673,47 +722,49 @@ public class CcddRateParameterDialog extends CcddDialogHandler {
     /**********************************************************************************************
      * Check if any rate parameter changed
      *
-     * @param maxSecPerMsg    maximum number of seconds allowed between downlinking
-     *                        two of the same message
+     * @param maxSecPerMsg    maximum number of seconds allowed between downlinking two of the same
+     *                        message
      *
-     * @param maxMsgsPerSec   maximum number of messages that can be downlinked in
-     *                        one second
+     * @param maxMsgsPerSec   maximum number of messages that can be downlinked in one second
      *
      * @param streamName      array containing the stream name per stream
      *
-     * @param maxMsgsPerCycle array containing the maximum number of messages that
-     *                        can be downlinked before repeating the message list
-     *                        per stream
+     * @param maxMsgsPerCycle array containing the maximum number of messages that can be downlinked
+     *                        before repeating the message list per stream
      *
-     * @param maxBytesPerSec  array containing the maximum number of bytes that can
-     *                        be downlinked in one second per stream
+     * @param maxBytesPerSec  array containing the maximum number of bytes that can be downlinked in one
+     *                        second per stream
      *
-     * @param includeUneven   true to include unevenly time-spaced sample rate
-     *                        values; false to only include sample rates that are
-     *                        evenly time-spaced
+     * @param includeUneven   true to include unevenly time-spaced sample rate values; false to only
+     *                        include sample rates that are evenly time-spaced
      *
      * @return true if any of the rate parameters changed
      *********************************************************************************************/
     private boolean isRateChanges(int maxSecPerMsg, int maxMsgsPerSec, String[] streamName, int[] maxMsgsPerCycle,
-            int[] maxBytesPerSec, boolean includeUneven) {
+                                  int[] maxBytesPerSec, boolean includeUneven)
+    {
         boolean isChanges = false;
 
         // Check if any of the common rate parameters changed
         if (rateHandler.getMaxSecondsPerMsg() != maxSecPerMsg || rateHandler.getMaxMsgsPerSecond() != maxMsgsPerSec
-                || rateHandler.isIncludeUneven() != includeUneven) {
+            || rateHandler.isIncludeUneven() != includeUneven)
+        {
             // Set the flag indicating a change
             isChanges = true;
         }
         // The common rate parameters didn't change
-        else {
+        else
+        {
             int index = 0;
 
             // Step through each data stream
-            for (RateInformation rateInfo : rateHandler.getRateInformation()) {
+            for (RateInformation rateInfo : rateHandler.getRateInformation())
+            {
                 // Check if any of the stream-specific rate parameters changed
                 if (!rateInfo.getStreamName().equals(streamName[index])
-                        || rateInfo.getMaxMsgsPerCycle() != maxMsgsPerCycle[index]
-                        || rateInfo.getMaxBytesPerSec() != maxBytesPerSec[index]) {
+                    || rateInfo.getMaxMsgsPerCycle() != maxMsgsPerCycle[index]
+                    || rateInfo.getMaxBytesPerSec() != maxBytesPerSec[index])
+                {
                     // Set the flag indicating a change and stop searching
                     isChanges = true;
                     break;

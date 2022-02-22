@@ -52,7 +52,8 @@ import CCDD.CcddConstants.InternalTable.FieldsColumn;
 /**************************************************************************************************
  * CFS Command and Data Dictionary common classes class
  *************************************************************************************************/
-public class CcddClassesDataTable {
+public class CcddClassesDataTable
+{
     // Main class reference
     private static CcddMain ccddMain;
 
@@ -61,7 +62,8 @@ public class CcddClassesDataTable {
      *
      * @param main main class reference
      *********************************************************************************************/
-    protected static void setHandlers(CcddMain main) {
+    protected static void setHandlers(CcddMain main)
+    {
         ccddMain = main;
     }
 
@@ -69,7 +71,8 @@ public class CcddClassesDataTable {
      * CCDD exception class
      *********************************************************************************************/
     @SuppressWarnings("serial")
-    protected static class CCDDException extends Exception {
+    protected static class CCDDException extends Exception
+    {
         private final String message;
         private final int messageType;
 
@@ -80,7 +83,8 @@ public class CcddClassesDataTable {
          *
          * @param messageType JOptionPane message type
          *****************************************************************************************/
-        protected CCDDException(String message, int messageType) {
+        protected CCDDException(String message, int messageType)
+        {
             this.message = message;
             this.messageType = messageType;
         }
@@ -90,14 +94,16 @@ public class CcddClassesDataTable {
          *
          * @param message exception message
          *****************************************************************************************/
-        protected CCDDException(String message) {
+        protected CCDDException(String message)
+        {
             this(message, JOptionPane.ERROR_MESSAGE);
         }
 
         /******************************************************************************************
          * CCDD exception class constructor for empty error message
          *****************************************************************************************/
-        protected CCDDException() {
+        protected CCDDException()
+        {
             this("", JOptionPane.ERROR_MESSAGE);
         }
 
@@ -107,7 +113,8 @@ public class CcddClassesDataTable {
          * @return Exception message
          *****************************************************************************************/
         @Override
-        public String getMessage() {
+        public String getMessage()
+        {
             return message;
         }
 
@@ -116,7 +123,8 @@ public class CcddClassesDataTable {
          *
          * @return Exception message type
          *****************************************************************************************/
-        public int getMessageType() {
+        public int getMessageType()
+        {
             return messageType;
         }
     }
@@ -124,20 +132,19 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Table information class
      *
-     * A table can be one (or possibly more) of the following: prototype, root,
-     * parent, and child. A prototype table is produced whenever the Data | New
-     * table(s) menu command is used to create a table. The prototype becomes a
-     * 'rubber stamp' for creating other table instances that initially contain the
-     * same information as the prototype. A root table is a prototype that is not
-     * referenced from within another table (making it a top level table). Therefore
-     * a root table is always a prototype table, but the reverse isn't necessarily
-     * true. Other tables may be referenced within the root table - these referenced
-     * tables are known as child tables. A table's parent table is the table in
-     * which the child table is directly referenced. The parent table can itself be
-     * a child table, or the parent and root tables are the same in the case where
-     * the child is referenced directly in the root table
+     * A table can be one (or possibly more) of the following: prototype, root, parent, and child. A
+     * prototype table is produced whenever the Data | New table(s) menu command is used to create a
+     * table. The prototype becomes a 'rubber stamp' for creating other table instances that initially
+     * contain the same information as the prototype. A root table is a prototype that is not referenced
+     * from within another table (making it a top level table). Therefore a root table is always a
+     * prototype table, but the reverse isn't necessarily true. Other tables may be referenced within
+     * the root table - these referenced tables are known as child tables. A table's parent table is the
+     * table in which the child table is directly referenced. The parent table can itself be a child
+     * table, or the parent and root tables are the same in the case where the child is referenced
+     * directly in the root table
      *********************************************************************************************/
-    protected static class TableInfo {
+    protected static class TableInfo
+    {
         private String tableType;
         private String tablePath;
         private List<Object[]> tableData;
@@ -152,27 +159,23 @@ public class CcddClassesDataTable {
          *
          * @param tableType   table type
          *
-         * @param tablePath   table path in the format
-         *                    rootTable[,dataType1.variable1[,dataType2
-         *                    .variable2[,...]]]. The table path for a non-structure
-         *                    table is simply the root table name. For a structure table
-         *                    the root table is the top level structure table from which
-         *                    this table descends. The first data type/variable name
-         *                    pair is from the root table, with each succeeding pair
-         *                    coming from the next level down in the structure's
-         *                    hierarchy
+         * @param tablePath   table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                    .variable2[,...]]]. The table path for a non-structure table is simply the
+         *                    root table name. For a structure table the root table is the top level
+         *                    structure table from which this table descends. The first data type/variable
+         *                    name pair is from the root table, with each succeeding pair coming from the
+         *                    next level down in the structure's hierarchy
          *
-         * @param data   two-dimensional table data array (rows x columns)
+         * @param data        two-dimensional table data array (rows x columns)
          *
-         * @param columnOrder table column display order in the format
-         *                    column#0[:column#1[:...[:column#N]]]. The column numbers
-         *                    are based on the position of the column's definition in
-         *                    the table's type definition
+         * @param columnOrder table column display order in the format column#0[:column#1[:...[:column#N]]].
+         *                    The column numbers are based on the position of the column's definition in the
+         *                    table's type definition
          *
          * @param description table description
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, Object[][] data, String columnOrder,
-                String description) {
+        TableInfo(String tableType, String tablePath, Object[][] data, String columnOrder, String description)
+        {
             this.tableType = tableType;
             this.tablePath = tablePath;
             this.columnOrder = columnOrder;
@@ -187,27 +190,23 @@ public class CcddClassesDataTable {
          *
          * @param tableType   table type
          *
-         * @param tablePath   table path in the format
-         *                    rootTable[,dataType1.variable1[,dataType2
-         *                    .variable2[,...]]]. The table path for a non-structure
-         *                    table is simply the root table name. For a structure table
-         *                    the root table is the top level structure table from which
-         *                    this table descends. The first data type/variable name
-         *                    pair is from the root table, with each succeeding pair
-         *                    coming from the next level down in the structure's
-         *                    hierarchy
+         * @param tablePath   table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                    .variable2[,...]]]. The table path for a non-structure table is simply the
+         *                    root table name. For a structure table the root table is the top level
+         *                    structure table from which this table descends. The first data type/variable
+         *                    name pair is from the root table, with each succeeding pair coming from the
+         *                    next level down in the structure's hierarchy
          *
-         * @param data   two-dimensional table data array (rows x columns)
+         * @param data        two-dimensional table data array (rows x columns)
          *
-         * @param columnOrder table column display order in the format
-         *                    column#0[:column#1[:...[:column#N]]]. The column numbers
-         *                    are based on the position of the column's definition in
-         *                    the table's type definition
+         * @param columnOrder table column display order in the format column#0[:column#1[:...[:column#N]]].
+         *                    The column numbers are based on the position of the column's definition in the
+         *                    table's type definition
          *
          * @param description table description
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, List<Object[]> data, String columnOrder,
-                String description) {
+        TableInfo(String tableType, String tablePath, List<Object[]> data, String columnOrder, String description)
+        {
             this.tableType = tableType;
             this.tablePath = tablePath;
             this.columnOrder = columnOrder;
@@ -222,26 +221,23 @@ public class CcddClassesDataTable {
          *
          * @param tableType   table type
          *
-         * @param tablePath   table path in the format
-         *                    rootTable[,dataType1.variable1[,dataType2
-         *                    .variable2[,...]]]. The table path for a non-structure
-         *                    table is simply the root table name. For a structure table
-         *                    the root table is the top level structure table from which
-         *                    this table descends. The first data type/variable name
-         *                    pair is from the root table, with each succeeding pair
-         *                    coming from the next level down in the structure's
-         *                    hierarchy
+         * @param tablePath   table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                    .variable2[,...]]]. The table path for a non-structure table is simply the
+         *                    root table name. For a structure table the root table is the top level
+         *                    structure table from which this table descends. The first data type/variable
+         *                    name pair is from the root table, with each succeeding pair coming from the
+         *                    next level down in the structure's hierarchy
          *
          * @param data        List of String[] containing the table data
          *
-         * @param columnOrder table column display order in the format
-         *                    column#0[:column#1[:...[:column#N]]]. The column numbers
-         *                    are based on the position of the column's definition in
-         *                    the table's type definition
+         * @param columnOrder table column display order in the format column#0[:column#1[:...[:column#N]]].
+         *                    The column numbers are based on the position of the column's definition in the
+         *                    table's type definition
          *
          * @param description table description
          *****************************************************************************************/
-        TableInfo(String tablePath, String tableType, String description, List<Object[]> data) {
+        TableInfo(String tablePath, String tableType, String description, List<Object[]> data)
+        {
             this.tableType = tableType;
             this.tablePath = tablePath;
             this.description = description;
@@ -251,95 +247,87 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Table information class constructor. Used when the array of field definitions
-         * are retrieved from the database. These are converted to a list of
-         * FieldInformation references
+         * Table information class constructor. Used when the array of field definitions are retrieved from
+         * the database. These are converted to a list of FieldInformation references
          *
          * @param tableType        table type
          *
-         * @param tablePath        table path in the format
-         *                         rootTable[,dataType1.variable1[,dataType2
-         *                         .variable2[,...]]]. The table path for a
-         *                         non-structure table is simply the root table name.
-         *                         For a structure table the root table is the top level
-         *                         structure table from which this table descends. The
-         *                         first data type/variable name pair is from the root
-         *                         table, with each succeeding pair coming from the next
-         *                         level down in the structure's hierarchy
+         * @param tablePath        table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                         .variable2[,...]]]. The table path for a non-structure table is simply
+         *                         the root table name. For a structure table the root table is the top
+         *                         level structure table from which this table descends. The first data
+         *                         type/variable name pair is from the root table, with each succeeding pair
+         *                         coming from the next level down in the structure's hierarchy
          *
          * @param tableData        two-dimensional table data array (rows x columns)
          *
          * @param columnOrder      table column display order in the format
-         *                         column#0[:column#1[:...[:column#N]]]. The column
-         *                         numbers are based on the position of the column's
-         *                         definition in the table's type definition
+         *                         column#0[:column#1[:...[:column#N]]]. The column numbers are based on the
+         *                         position of the column's definition in the table's type definition
          *
          * @param description      table description
          *
          * @param fieldInformation list of field information
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, Object[][] tableData, String columnOrder,
-                String description, List<FieldInformation> fieldInformation) {
+        TableInfo(String tableType, String tablePath, Object[][] tableData, String columnOrder, String description,
+                  List<FieldInformation> fieldInformation)
+        {
             this(tableType, tablePath, tableData, columnOrder, description);
             // Check if the data field information is provided
-            if (fieldInformation != null) {
+            if (fieldInformation != null)
+            {
                 // Store the field information
                 this.fieldInformation = fieldInformation;
             }
         }
 
         /******************************************************************************************
-         * Table information class constructor. Used when the array of field definitions
-         * are retrieved from the database. These are converted to a list of
-         * FieldInformation references
+         * Table information class constructor. Used when the array of field definitions are retrieved from
+         * the database. These are converted to a list of FieldInformation references
          *
          * @param tableType        table type
          *
-         * @param tablePath        table path in the format
-         *                         rootTable[,dataType1.variable1[,dataType2
-         *                         .variable2[,...]]]. The table path for a
-         *                         non-structure table is simply the root table name.
-         *                         For a structure table the root table is the top level
-         *                         structure table from which this table descends. The
-         *                         first data type/variable name pair is from the root
-         *                         table, with each succeeding pair coming from the next
-         *                         level down in the structure's hierarchy
+         * @param tablePath        table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                         .variable2[,...]]]. The table path for a non-structure table is simply
+         *                         the root table name. For a structure table the root table is the top
+         *                         level structure table from which this table descends. The first data
+         *                         type/variable name pair is from the root table, with each succeeding pair
+         *                         coming from the next level down in the structure's hierarchy
          *
          * @param tableData        two-dimensional table data array (rows x columns)
          *
          * @param columnOrder      table column display order in the format
-         *                         column#0[:column#1[:...[:column#N]]]. The column
-         *                         numbers are based on the position of the column's
-         *                         definition in the table's type definition
+         *                         column#0[:column#1[:...[:column#N]]]. The column numbers are based on the
+         *                         position of the column's definition in the table's type definition
          *
          * @param description      table description
          *
          * @param fieldInformation list of field information
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, List<Object[]> tableData, String columnOrder,
-                String description, List<FieldInformation> fieldInformation) {
+        TableInfo(String tableType, String tablePath, List<Object[]> tableData, String columnOrder, String description,
+                  List<FieldInformation> fieldInformation)
+        {
             this(tableType, tablePath, tableData, columnOrder, description);
             // Check if the data field information is provided
-            if (fieldInformation != null) {
+            if (fieldInformation != null)
+            {
                 // Store the field information
                 this.fieldInformation = fieldInformation;
             }
         }
 
         /******************************************************************************************
-         * Table information class constructor for a table that couldn't be loaded from
-         * the database
+         * Table information class constructor for a table that couldn't be loaded from the database
          *
-         * @param tablePath table path in the format
-         *                  rootTable[,dataType1.variable1[,dataType2
-         *                  .variable2[,...]]]. The table path for a non-structure table
-         *                  is simply the root table name. For a structure table the
-         *                  root table is the top level structure table from which this
-         *                  table descends. The first data type/variable name pair is
-         *                  from the root table, with each succeeding pair coming from
-         *                  the next level down in the structure's hierarchy
+         * @param tablePath table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                  .variable2[,...]]]. The table path for a non-structure table is simply the root
+         *                  table name. For a structure table the root table is the top level structure
+         *                  table from which this table descends. The first data type/variable name pair is
+         *                  from the root table, with each succeeding pair coming from the next level down
+         *                  in the structure's hierarchy
          *****************************************************************************************/
-        TableInfo(String tablePath) {
+        TableInfo(String tablePath)
+        {
             this.tablePath = tablePath;
             errorFlag = true;
         }
@@ -349,7 +337,8 @@ public class CcddClassesDataTable {
          *
          * @return Table type
          *****************************************************************************************/
-        protected String getType() {
+        protected String getType()
+        {
             return tableType;
         }
 
@@ -358,35 +347,35 @@ public class CcddClassesDataTable {
          *
          * @param tableType table type
          *****************************************************************************************/
-        protected void setType(String tableType) {
+        protected void setType(String tableType)
+        {
             this.tableType = tableType;
         }
 
         /******************************************************************************************
-         * Get the table name in the form prototypeName.variableName, where
-         * prototypeName is the name of the prototype structure for this table, and
-         * variableName is the name of this particular instantiation of the prototype
-         * table. variableName is blank for a top level structure or non-structure table
+         * Get the table name in the form prototypeName.variableName, where prototypeName is the name of the
+         * prototype structure for this table, and variableName is the name of this particular instantiation
+         * of the prototype table. variableName is blank for a top level structure or non-structure table
          *
          * @return Table prototype name + variable name
          *****************************************************************************************/
-        protected String getProtoVariableName() {
+        protected String getProtoVariableName()
+        {
             return getProtoVariableName(getTablePath());
         }
 
         /******************************************************************************************
-         * Get the table name from the supplied table path in the form
-         * prototypeName.variableName, where prototypeName is the name of the prototype
-         * structure for this table, and variableName is the name of this particular
-         * instantiation of the prototype table. variableName is blank for a top level
+         * Get the table name from the supplied table path in the form prototypeName.variableName, where
+         * prototypeName is the name of the prototype structure for this table, and variableName is the name
+         * of this particular instantiation of the prototype table. variableName is blank for a top level
          * structure or non-structure table
          *
-         * @param path table path in the format
-         *             rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]
+         * @param path table path in the format rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]
          *
          * @return Table prototype name + variable name
          *****************************************************************************************/
-        protected static String getProtoVariableName(String path) {
+        protected static String getProtoVariableName(String path)
+        {
             return path.substring(path.lastIndexOf(',') + 1);
         }
 
@@ -395,19 +384,20 @@ public class CcddClassesDataTable {
          *
          * @return Table's prototype table name
          *****************************************************************************************/
-        protected String getPrototypeName() {
+        protected String getPrototypeName()
+        {
             return getPrototypeName(getTablePath());
         }
 
         /******************************************************************************************
          * Get the table's prototype table name from the supplied path
          *
-         * @param path table path in the format
-         *             rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]
+         * @param path table path in the format rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]
          *
          * @return Table's prototype table name
          *****************************************************************************************/
-        protected static String getPrototypeName(String path) {
+        protected static String getPrototypeName(String path)
+        {
             // Remove any path prior to the last data type and variable name
             String prototype = getProtoVariableName(path);
 
@@ -415,7 +405,8 @@ public class CcddClassesDataTable {
             int index = prototype.indexOf(".");
 
             // Check if the name contains a variable name
-            if (index != -1) {
+            if (index != -1)
+            {
                 // Remove the variable name portion
                 prototype = prototype.substring(0, index);
             }
@@ -424,73 +415,71 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Get the table's path in the format rootTable[,dataType1.variable1[,dataType2
-         * .variable2[,...]]]. The table path for a non-structure table is simply the
-         * root table name. For a structure table the root table is the top level
-         * structure table from which this table descends. The first data type/variable
-         * name pair is from the root table, with each succeeding pair coming from the
-         * next level down in the structure's hierarchy
+         * Get the table's path in the format rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]].
+         * The table path for a non-structure table is simply the root table name. For a structure table the
+         * root table is the top level structure table from which this table descends. The first data
+         * type/variable name pair is from the root table, with each succeeding pair coming from the next
+         * level down in the structure's hierarchy
          *
          * @return Table path
          *****************************************************************************************/
-        protected String getTablePath() {
+        protected String getTablePath()
+        {
             return tablePath;
         }
 
         /******************************************************************************************
          * Set the table path
          *
-         * @param tablePath table path in the format
-         *                  rootTable[,dataType1.variable1[,dataType2
-         *                  .variable2[,...]]]. The table path for a non-structure table
-         *                  is simply the root table name. For a structure table the
-         *                  root table is the top level structure table from which this
-         *                  table descends. The first data type/variable name pair is
-         *                  from the root table, with each succeeding pair coming from
-         *                  the next level down in the structure's hierarchy
+         * @param tablePath table path in the format rootTable[,dataType1.variable1[,dataType2
+         *                  .variable2[,...]]]. The table path for a non-structure table is simply the root
+         *                  table name. For a structure table the root table is the top level structure
+         *                  table from which this table descends. The first data type/variable name pair is
+         *                  from the root table, with each succeeding pair coming from the next level down
+         *                  in the structure's hierarchy
          *****************************************************************************************/
-        protected void setTablePath(String tablePath) {
+        protected void setTablePath(String tablePath)
+        {
             this.tablePath = tablePath;
             isPrototype = !tablePath.contains(".");
         }
 
         /******************************************************************************************
-         * Get the table's parent table name. The parent table is the structure table
-         * for which the table represented by this class instance is a direct member.
-         * The parent and root tables are the same if this table is a direct child of
-         * the root table
+         * Get the table's parent table name. The parent table is the structure table for which the table
+         * represented by this class instance is a direct member. The parent and root tables are the same if
+         * this table is a direct child of the root table
          *
          * @return Table's parent table name; blank if this is a prototype or root table
          *****************************************************************************************/
-        protected String getParentTable() {
+        protected String getParentTable()
+        {
             return getParentTable(getTablePath());
         }
 
         /******************************************************************************************
-         * Get the table's parent table name. The parent table is the structure table
-         * for which the table represented by this class instance is an immediate
-         * descendant (child). The parent and root tables are the same if this table is
-         * a child of a root table
+         * Get the table's parent table name. The parent table is the structure table for which the table
+         * represented by this class instance is an immediate descendant (child). The parent and root tables
+         * are the same if this table is a child of a root table
          *
-         * @param path table path in the format
-         *             rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]. The
-         *             table path for a non-structure table is simply the root table
-         *             name. For a structure table the root table is the top level
-         *             structure table from which this table descends. The first data
-         *             type/variable name pair is from the root table, with each
-         *             succeeding pair coming from the next level down in the
-         *             structure's hierarchy
+         * @param path table path in the format rootTable[,dataType1.variable1[,dataType2
+         *             .variable2[,...]]]. The table path for a non-structure table is simply the root table
+         *             name. For a structure table the root table is the top level structure table from
+         *             which this table descends. The first data type/variable name pair is from the root
+         *             table, with each succeeding pair coming from the next level down in the structure's
+         *             hierarchy
          *
          * @return Table's parent table name; blank if this is a prototype or root table
          *****************************************************************************************/
-        protected static String getParentTable(String path) {
+        protected static String getParentTable(String path)
+        {
             String parent = "";
 
             // Get the last variable in the table path
             int index = path.lastIndexOf(",");
 
             // Check that a variable exists
-            if (index != -1) {
+            if (index != -1)
+            {
                 // Get the name of the table immediately above this table in the path hierarchy
                 parent = getPrototypeName(path.substring(0, index));
             }
@@ -499,44 +488,45 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Get the table's root table name. For a structure table the root table is the
-         * top level table from which the table represented by this class instance
-         * descends. For a non-structure table the root table is the table name
+         * Get the table's root table name. For a structure table the root table is the top level table from
+         * which the table represented by this class instance descends. For a non-structure table the root
+         * table is the table name
          *
          * @return Table's root table name
          *****************************************************************************************/
-        protected String getRootTable() {
+        protected String getRootTable()
+        {
             return getRootTable(tablePath);
         }
 
         /******************************************************************************************
-         * Get the table's root table name. For a structure table the root table is the
-         * top level table from which the table represented by this class instance
-         * descends. For a non-structure table the root table is the table name
+         * Get the table's root table name. For a structure table the root table is the top level table from
+         * which the table represented by this class instance descends. For a non-structure table the root
+         * table is the table name
          *
-         * @param path table path in the format
-         *             rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]. The
-         *             table path for a non-structure table is simply the root table
-         *             name. For a structure table the root table is the top level
-         *             structure table from which this table descends. The first data
-         *             type/variable name pair is from the root table, with each
-         *             succeeding pair coming from the next level down in the
-         *             structure's hierarchy
+         * @param path table path in the format rootTable[,dataType1.variable1[,dataType2
+         *             .variable2[,...]]]. The table path for a non-structure table is simply the root table
+         *             name. For a structure table the root table is the top level structure table from
+         *             which this table descends. The first data type/variable name pair is from the root
+         *             table, with each succeeding pair coming from the next level down in the structure's
+         *             hierarchy
          *
          * @return Table's root table name
          *****************************************************************************************/
-        protected static String getRootTable(String path) {
+        protected static String getRootTable(String path)
+        {
             return path.replaceFirst(",.*$", "");
         }
 
         /******************************************************************************************
-         * Set the table's root table name. For a structure table the root table is the
-         * top level table from which the table represented by this class instance
-         * descends. For a non-structure table the root table is the table name
+         * Set the table's root table name. For a structure table the root table is the top level table from
+         * which the table represented by this class instance descends. For a non-structure table the root
+         * table is the table name
          *
          * @param rootTable root table name
          *****************************************************************************************/
-        protected void setRootTable(String rootTable) {
+        protected void setRootTable(String rootTable)
+        {
             tablePath = tablePath.replaceFirst("^.*?(,|$)", rootTable + "$1");
         }
 
@@ -545,7 +535,8 @@ public class CcddClassesDataTable {
          *
          * @return Table data array
          *****************************************************************************************/
-        protected List<Object[]> getData() {
+        protected List<Object[]> getData()
+        {
             return tableData;
         }
 
@@ -554,7 +545,8 @@ public class CcddClassesDataTable {
          *
          * @return Table data as a 2d object array
          *****************************************************************************************/
-        protected Object[][] getDataArray() {
+        protected Object[][] getDataArray()
+        {
             Object[][] data = tableData.toArray(new Object[tableData.size()][]);
             return data;
         }
@@ -564,7 +556,8 @@ public class CcddClassesDataTable {
          *
          * @param data table data array
          *****************************************************************************************/
-        protected void setData(Object[][] data) {
+        protected void setData(Object[][] data)
+        {
             tableData = Arrays.asList(data);
         }
 
@@ -573,7 +566,8 @@ public class CcddClassesDataTable {
          *
          * @param data table data array
          *****************************************************************************************/
-        protected void setData(List<Object[]> data) {
+        protected void setData(List<Object[]> data)
+        {
             tableData = data;
         }
 
@@ -582,7 +576,8 @@ public class CcddClassesDataTable {
          *
          * @return Table column order
          *****************************************************************************************/
-        protected String getColumnOrder() {
+        protected String getColumnOrder()
+        {
             return columnOrder;
         }
 
@@ -591,7 +586,8 @@ public class CcddClassesDataTable {
          *
          * @param columnOrder table column order
          *****************************************************************************************/
-        protected void setColumnOrder(String columnOrder) {
+        protected void setColumnOrder(String columnOrder)
+        {
             this.columnOrder = columnOrder;
         }
 
@@ -600,7 +596,8 @@ public class CcddClassesDataTable {
          *
          * @return Table description
          *****************************************************************************************/
-        protected String getDescription() {
+        protected String getDescription()
+        {
             return description;
         }
 
@@ -609,7 +606,8 @@ public class CcddClassesDataTable {
          *
          * @param description table description
          *****************************************************************************************/
-        protected void setDescription(String description) {
+        protected void setDescription(String description)
+        {
             this.description = description.trim();
         }
 
@@ -618,7 +616,8 @@ public class CcddClassesDataTable {
          *
          * @return true if the table is a prototype
          *****************************************************************************************/
-        protected boolean isPrototype() {
+        protected boolean isPrototype()
+        {
             return isPrototype;
         }
 
@@ -627,14 +626,16 @@ public class CcddClassesDataTable {
          *
          * @return true if an error occurred obtaining the table data from the database
          *****************************************************************************************/
-        protected boolean isErrorFlag() {
+        protected boolean isErrorFlag()
+        {
             return errorFlag;
         }
 
         /******************************************************************************************
          * Set the error flag to true
          *****************************************************************************************/
-        protected void setErrorFlag() {
+        protected void setErrorFlag()
+        {
             errorFlag = true;
         }
 
@@ -643,7 +644,8 @@ public class CcddClassesDataTable {
          *
          * @return Table data field information
          *****************************************************************************************/
-        protected List<FieldInformation> getFieldInformation() {
+        protected List<FieldInformation> getFieldInformation()
+        {
             return fieldInformation;
         }
 
@@ -652,7 +654,8 @@ public class CcddClassesDataTable {
          *
          * @param fieldInformation table data field information
          *****************************************************************************************/
-        protected void setFieldInformation(List<FieldInformation> fieldInformation) {
+        protected void setFieldInformation(List<FieldInformation> fieldInformation)
+        {
             this.fieldInformation = fieldInformation;
         }
     }
@@ -660,7 +663,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Table members class
      *********************************************************************************************/
-    protected static class TableMembers {
+    protected static class TableMembers
+    {
         private final String name;
         private final String type;
         private final List<String> dataTypes;
@@ -675,18 +679,17 @@ public class CcddClassesDataTable {
          *
          * @param type          table type
          *
-         * @param dataTypes     list of non-primitive data types that are referenced by
-         *                      this table
+         * @param dataTypes     list of non-primitive data types that are referenced by this table
          *
-         * @param variableNames list of the variable names associated with the data
-         *                      types
+         * @param variableNames list of the variable names associated with the data types
          *
          * @param bitLengths    list of bit lengths associated with the variables
          *
          * @param rates         list of the rates associated with the variables
          *****************************************************************************************/
         TableMembers(String name, String type, List<String> dataTypes, List<String> variableNames,
-                List<String> bitLengths, List<String[]> rates) {
+                     List<String> bitLengths, List<String[]> rates)
+        {
             this.name = name;
             this.type = type;
             this.dataTypes = dataTypes;
@@ -700,7 +703,8 @@ public class CcddClassesDataTable {
          *
          * @return Table name
          *****************************************************************************************/
-        protected String getTableName() {
+        protected String getTableName()
+        {
             return name;
         }
 
@@ -709,27 +713,28 @@ public class CcddClassesDataTable {
          *
          * @return Table type
          *****************************************************************************************/
-        protected String getTableType() {
+        protected String getTableType()
+        {
             return type;
         }
 
         /******************************************************************************************
-         * Get the list of this table's non-primitive data types (i.e., references to
-         * other tables)
+         * Get the list of this table's non-primitive data types (i.e., references to other tables)
          *
          * @return List of this table's data types
          *****************************************************************************************/
-        protected List<String> getDataTypes() {
+        protected List<String> getDataTypes()
+        {
             return dataTypes;
         }
 
         /******************************************************************************************
-         * Get the list of this table's non-primitive variable names associated with the
-         * data types
+         * Get the list of this table's non-primitive variable names associated with the data types
          *
          * @return List of this table's variable names
          *****************************************************************************************/
-        protected List<String> getVariableNames() {
+        protected List<String> getVariableNames()
+        {
             return variableNames;
         }
 
@@ -738,38 +743,41 @@ public class CcddClassesDataTable {
          *
          * @return List of this table's rates
          *****************************************************************************************/
-        protected List<String[]> getRates() {
+        protected List<String[]> getRates()
+        {
             return rates;
         }
 
         /******************************************************************************************
-         * Get the full variable name (in the format dataType.variableName) at the
-         * specified index
+         * Get the full variable name (in the format dataType.variableName) at the specified index
          *
          * @param index index into this member's variable information lists
          *
          * @return Full variable name at the specified index
          *****************************************************************************************/
-        protected String getFullVariableName(int index) {
+        protected String getFullVariableName(int index)
+        {
             String varName = dataTypes.get(index) + "." + variableNames.get(index);
 
             return varName;
         }
 
         /******************************************************************************************
-         * Get the full variable name (in the format dataType.variableName:bitLength) at
-         * the specified index, including the bit length, if present
+         * Get the full variable name (in the format dataType.variableName:bitLength) at the specified
+         * index, including the bit length, if present
          *
          * @param index index into this member's variable information lists
          *
          * @return Full variable name, including bit length, at the specified index
          *****************************************************************************************/
-        protected String getFullVariableNameWithBits(int index) {
+        protected String getFullVariableNameWithBits(int index)
+        {
             // Get the full variable name
             StringBuilder varName = new StringBuilder(getFullVariableName(index));
 
             // Check if the variable has a bit length
-            if (!bitLengths.get(index).isEmpty()) {
+            if (!bitLengths.get(index).isEmpty())
+            {
                 // Append the bit length to the variable name
                 varName.append(":" + bitLengths.get(index));
             }
@@ -781,7 +789,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Table modification data class
      *********************************************************************************************/
-    protected static class TableModification {
+    protected static class TableModification
+    {
         private final Object[] rowData;
         private final Object[] originalRowData;
         private final int variableColumn;
@@ -795,26 +804,26 @@ public class CcddClassesDataTable {
          *
          * @param rowData         row of data from the table containing the changes
          *
-         * @param originalRowData original contents of the row of data from the table
-         *                        containing the changes
+         * @param originalRowData original contents of the row of data from the table containing the changes
          *
-         * @param variableColumn  index of the column containing the variable name; -1
-         *                        if no variable name column exists
+         * @param variableColumn  index of the column containing the variable name; -1 if no variable name
+         *                        column exists
          *
-         * @param dataTypeColumn  index of the column containing the data type name; -1
-         *                        if no data type column exists
+         * @param dataTypeColumn  index of the column containing the data type name; -1 if no data type
+         *                        column exists
          *
-         * @param arraySizeColumn index of the column containing the array size; -1 if
-         *                        no array size column exists
+         * @param arraySizeColumn index of the column containing the array size; -1 if no array size column
+         *                        exists
          *
-         * @param bitLengthColumn index of the column containing the bit length; -1 if
-         *                        no bit length column exists
+         * @param bitLengthColumn index of the column containing the bit length; -1 if no bit length column
+         *                        exists
          *
-         * @param rateColumn      indices of the columns containing the sample rates;
-         *                        null if no rate column exists
+         * @param rateColumn      indices of the columns containing the sample rates; null if no rate column
+         *                        exists
          *****************************************************************************************/
         protected TableModification(Object[] rowData, Object[] originalRowData, int variableColumn, int dataTypeColumn,
-                int arraySizeColumn, int bitLengthColumn, List<Integer> rateColumn) {
+                                    int arraySizeColumn, int bitLengthColumn, List<Integer> rateColumn)
+        {
             this.rowData = rowData;
             this.originalRowData = originalRowData;
             this.variableColumn = variableColumn;
@@ -829,10 +838,10 @@ public class CcddClassesDataTable {
          *
          * @param rowData         row of data from the macro table
          *
-         * @param originalRowData original contents of the row of data from the macro
-         *                        table
+         * @param originalRowData original contents of the row of data from the macro table
          *****************************************************************************************/
-        protected TableModification(Object[] rowData, Object[] originalRowData) {
+        protected TableModification(Object[] rowData, Object[] originalRowData)
+        {
             this(rowData, originalRowData, -1, -1, -1, -1, null);
         }
 
@@ -841,20 +850,21 @@ public class CcddClassesDataTable {
          *
          * @param rowData         row of data from the macro table
          *
-         * @param variableColumn  index of the column containing the variable name; -1
-         *                        if no variable name column exists
+         * @param variableColumn  index of the column containing the variable name; -1 if no variable name
+         *                        column exists
          *
-         * @param dataTypeColumn  index of the column containing the data type name; -1
-         *                        if no data type column exists
+         * @param dataTypeColumn  index of the column containing the data type name; -1 if no data type
+         *                        column exists
          *
-         * @param arraySizeColumn index of the column containing the array size; -1 if
-         *                        no array size column exists
+         * @param arraySizeColumn index of the column containing the array size; -1 if no array size column
+         *                        exists
          *
-         * @param bitLengthColumn index of the column containing the bit length; -1 if
-         *                        no bit length column exists
+         * @param bitLengthColumn index of the column containing the bit length; -1 if no bit length column
+         *                        exists
          *****************************************************************************************/
         protected TableModification(Object[] rowData, int variableColumn, int dataTypeColumn, int arraySizeColumn,
-                int bitLengthColumn) {
+                                    int bitLengthColumn)
+        {
             this(rowData, null, variableColumn, dataTypeColumn, arraySizeColumn, bitLengthColumn, null);
         }
 
@@ -863,7 +873,8 @@ public class CcddClassesDataTable {
          *
          * @return Array of column values for the updated row
          *****************************************************************************************/
-        protected Object[] getRowData() {
+        protected Object[] getRowData()
+        {
             return rowData;
         }
 
@@ -872,7 +883,8 @@ public class CcddClassesDataTable {
          *
          * @return Array of column values for the updated row's original content
          *****************************************************************************************/
-        protected Object[] getOriginalRowData() {
+        protected Object[] getOriginalRowData()
+        {
             return originalRowData;
         }
 
@@ -881,7 +893,8 @@ public class CcddClassesDataTable {
          *
          * @return Variable name column index; -1 if the column doesn't exist
          *****************************************************************************************/
-        protected int getVariableColumn() {
+        protected int getVariableColumn()
+        {
             return variableColumn;
         }
 
@@ -890,7 +903,8 @@ public class CcddClassesDataTable {
          *
          * @return Data type column index; -1 if the column doesn't exist
          *****************************************************************************************/
-        protected int getDataTypeColumn() {
+        protected int getDataTypeColumn()
+        {
             return dataTypeColumn;
         }
 
@@ -899,7 +913,8 @@ public class CcddClassesDataTable {
          *
          * @return Array size column index; -1 if the column doesn't exist
          *****************************************************************************************/
-        protected int getArraySizeColumn() {
+        protected int getArraySizeColumn()
+        {
             return arraySizeColumn;
         }
 
@@ -908,28 +923,29 @@ public class CcddClassesDataTable {
          *
          * @return Bit length column index; -1 if the column doesn't exist
          *****************************************************************************************/
-        protected int getBitLengthColumn() {
+        protected int getBitLengthColumn()
+        {
             return bitLengthColumn;
         }
 
         /******************************************************************************************
          * Get the rate column index
          *
-         * @return List containing the rate column indices; null for an addition or
-         *         deletion, and an empty list if no rate column exists for a
-         *         modification
+         * @return List containing the rate column indices; null for an addition or deletion, and an empty
+         *         list if no rate column exists for a modification
          *****************************************************************************************/
-        protected List<Integer> getRateColumn() {
+        protected List<Integer> getRateColumn()
+        {
             return rateColumn;
         }
     }
 
     /**********************************************************************************************
-     * Table definition class. Contains the information necessary to construct a
-     * data table from information derived from a CSV, EDS, JSON, or XTCE import
-     * file
+     * Table definition class. Contains the information necessary to construct a data table from
+     * information derived from a CSV, EDS, JSON, or XTCE import file
      *********************************************************************************************/
-    protected static class TableDefinition {
+    protected static class TableDefinition
+    {
         private String tableName;
         private String typeName;
         private String description;
@@ -939,7 +955,8 @@ public class CcddClassesDataTable {
         /******************************************************************************************
          * Table definition class constructor
          *****************************************************************************************/
-        TableDefinition() {
+        TableDefinition()
+        {
             typeName = "";
 
             // Initialize storage for the table information
@@ -950,14 +967,14 @@ public class CcddClassesDataTable {
         /******************************************************************************************
          * Table definition class constructor
          *
-         * @param tableName   table name, including the path (for a structure child
-         *                    table)
+         * @param tableName   table name, including the path (for a structure child table)
          *
          * @param description table description
          *
          * @throws CCDDException If the table name/path is not in the expected format
          *****************************************************************************************/
-        TableDefinition(String tableName, String description) throws CCDDException {
+        TableDefinition(String tableName, String description) throws CCDDException
+        {
             this();
 
             // Store the table name (including path, if applicable) and description
@@ -973,7 +990,8 @@ public class CcddClassesDataTable {
          *
          * @return Table name (including path, if applicable)
          *****************************************************************************************/
-        protected String getName() {
+        protected String getName()
+        {
             return tableName;
         }
 
@@ -984,7 +1002,8 @@ public class CcddClassesDataTable {
          *
          * @throws CCDDException If the table name/path is not in the expected format
          *****************************************************************************************/
-        protected void setName(String tableName) throws CCDDException {
+        protected void setName(String tableName) throws CCDDException
+        {
             this.tableName = tableName;
 
             // Validate the table name/path
@@ -996,7 +1015,8 @@ public class CcddClassesDataTable {
          *
          * @return Table type name
          *****************************************************************************************/
-        protected String getTypeName() {
+        protected String getTypeName()
+        {
             return typeName;
         }
 
@@ -1005,7 +1025,8 @@ public class CcddClassesDataTable {
          *
          * @param typeName table type name
          *****************************************************************************************/
-        protected void setTypeName(String typeName) {
+        protected void setTypeName(String typeName)
+        {
             this.typeName = typeName;
         }
 
@@ -1014,7 +1035,8 @@ public class CcddClassesDataTable {
          *
          * @return Table description; return a blank if the description is null
          *****************************************************************************************/
-        protected String getDescription() {
+        protected String getDescription()
+        {
             return description == null ? "" : description;
         }
 
@@ -1023,7 +1045,8 @@ public class CcddClassesDataTable {
          *
          * @param description table description
          *****************************************************************************************/
-        protected void setDescription(String description) {
+        protected void setDescription(String description)
+        {
             this.description = description;
         }
 
@@ -1032,7 +1055,8 @@ public class CcddClassesDataTable {
          *
          * @return Table data
          *****************************************************************************************/
-        protected List<String> getData() {
+        protected List<String> getData()
+        {
             return data;
         }
 
@@ -1041,7 +1065,8 @@ public class CcddClassesDataTable {
          *
          * @param rowData row of table data to add to the table's data
          *****************************************************************************************/
-        protected void addData(String[] rowData) {
+        protected void addData(String[] rowData)
+        {
             data.addAll(Arrays.asList(rowData));
         }
 
@@ -1050,7 +1075,8 @@ public class CcddClassesDataTable {
          *
          * @return List containing the table data field definition
          *****************************************************************************************/
-        protected List<String[]> getDataFields() {
+        protected List<String[]> getDataFields()
+        {
             return dataFields;
         }
 
@@ -1059,7 +1085,8 @@ public class CcddClassesDataTable {
          *
          * @param fieldDefn data field definition
          *****************************************************************************************/
-        protected void addDataField(String[] fieldDefn) {
+        protected void addDataField(String[] fieldDefn)
+        {
             dataFields.add(fieldDefn);
         }
 
@@ -1068,7 +1095,8 @@ public class CcddClassesDataTable {
          *
          * @param fieldDefn data field definition
          *****************************************************************************************/
-        protected void addDataField(FieldInformation fieldDefn) {
+        protected void addDataField(FieldInformation fieldDefn)
+        {
             String[] fieldData = fieldDefn.toStringArray();
 
             addDataField(fieldData);
@@ -1079,9 +1107,10 @@ public class CcddClassesDataTable {
          *
          * @param fieldDefn data field definition
          *
-         * @param index location to add the definition
+         * @param index     location to add the definition
          *****************************************************************************************/
-        protected void addDataFieldToIndex(String[] fieldDefn, int index) {
+        protected void addDataFieldToIndex(String[] fieldDefn, int index)
+        {
             dataFields.add(index, fieldDefn);
         }
 
@@ -1090,7 +1119,8 @@ public class CcddClassesDataTable {
          *
          * @param index location to remove the field from
          *****************************************************************************************/
-        protected void removeDataFieldByIndex(int index) {
+        protected void removeDataFieldByIndex(int index)
+        {
             dataFields.remove(index);
         }
 
@@ -1099,7 +1129,8 @@ public class CcddClassesDataTable {
          *
          * @param index location to remove the field from
          *****************************************************************************************/
-        protected void removeDataFields() {
+        protected void removeDataFields()
+        {
             dataFields.clear();
         }
 
@@ -1108,9 +1139,10 @@ public class CcddClassesDataTable {
          *
          * @param fieldDefn data field definition
          *
-         * @param index location to replace the field
+         * @param index     location to replace the field
          *****************************************************************************************/
-        protected void replaceDataFieldByIndex(String[] fieldDefn, int index) {
+        protected void replaceDataFieldByIndex(String[] fieldDefn, int index)
+        {
             dataFields.remove(index);
             dataFields.add(index, fieldDefn);
         }
@@ -1120,29 +1152,34 @@ public class CcddClassesDataTable {
          *
          * @param fieldDefn data field definition
          *
-         * @param index location to replace the field
+         * @param index     location to replace the field
          *****************************************************************************************/
-        protected void replaceDataFieldByIndex(FieldInformation fieldDefn, int index) {
+        protected void replaceDataFieldByIndex(FieldInformation fieldDefn, int index)
+        {
             String[] fieldData = fieldDefn.toStringArray();
 
             replaceDataFieldByIndex(fieldData, index);
         }
 
         /******************************************************************************************
-         * Does a field with the current name already exist? if so return the index of the field.
-         * If not return -1
+         * Does a field with the current name already exist? if so return the index of the field. If not
+         * return -1
          *
          * @param fieldDefn data field definition
          *
-         * @param index location to add the definition
+         * @param index     location to add the definition
          *****************************************************************************************/
-        protected int contains(String fieldName) {
+        protected int contains(String fieldName)
+        {
             int result = -1;
 
-            for (int index = 0; index < dataFields.size(); index++) {
+            for (int index = 0; index < dataFields.size(); index++)
+            {
                 // Check that the name is not null
-                if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()] != null) {
-                    if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()].contentEquals(fieldName)) {
+                if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()] != null)
+                {
+                    if (dataFields.get(index)[FieldsColumn.FIELD_NAME.ordinal()].contentEquals(fieldName))
+                    {
                         result = index;
                     }
                 }
@@ -1152,20 +1189,21 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Check if the table name/path is in the expected format. Macros aren't
-         * expanded; the delimiters are simply removed
+         * Check if the table name/path is in the expected format. Macros aren't expanded; the delimiters
+         * are simply removed
          *
-         * @param tablePath table path in the format
-         *                  {@literal rootName<,childStructure.childName<,...>>}
+         * @param tablePath table path in the format {@literal rootName<,childStructure.childName<,...>>}
          *
          * @return true if the table name/path is not in the expected format
          *****************************************************************************************/
-        protected static boolean isPathFormatValid(String tablePath) {
+        protected static boolean isPathFormatValid(String tablePath)
+        {
             boolean isValid = true;
             boolean isChild = false;
 
             // Split the path into the root and children (if present) and step through each
-            for (String child : tablePath.split(",")) {
+            for (String child : tablePath.split(","))
+            {
                 // Split the table into the data type and variable name. The root table only has
                 // the data type portion
                 String[] dataTypeAndVariable = child.split("\\.");
@@ -1175,9 +1213,11 @@ public class CcddClassesDataTable {
                 // Embedded macros are accounted for by simply removing the associated macro
                 // identifiers prior to checking the name
                 if (!dataTypeAndVariable[0].matches(DefaultInputType.VARIABLE.getInputMatch())
-                        || (isChild && !(dataTypeAndVariable.length == 2 && dataTypeAndVariable[1]
-                                .replaceAll(MACRO_IDENTIFIER + "(.+?)" + MACRO_IDENTIFIER, "$1")
-                                .matches(DefaultInputType.VARIABLE.getInputMatch() + "(?:\\[[0-9]+\\])*?")))) {
+                    || (isChild
+                        && !(dataTypeAndVariable.length == 2
+                             && dataTypeAndVariable[1].replaceAll(MACRO_IDENTIFIER + "(.+?)" + MACRO_IDENTIFIER, "$1")
+                                     .matches(DefaultInputType.VARIABLE.getInputMatch() + "(?:\\[[0-9]+\\])*?"))))
+                {
                     // Set the flag to indicate the path isn't valid and stop searching
                     isValid = false;
                     break;
@@ -1192,14 +1232,15 @@ public class CcddClassesDataTable {
         /******************************************************************************************
          * Check if the table name/path is in the expected format
          *
-         * @param tablePath table path in the format
-         *                  {@literal rootName<,childStructure.childName<,...>>}
+         * @param tablePath table path in the format {@literal rootName<,childStructure.childName<,...>>}
          *
          * @throws CCDDException If the table name/path is not in the expected format
          *****************************************************************************************/
-        protected static void validatePathFormat(String tablePath) throws CCDDException {
+        protected static void validatePathFormat(String tablePath) throws CCDDException
+        {
             // Check if the table path is valid
-            if (!isPathFormatValid(tablePath)) {
+            if (!isPathFormatValid(tablePath))
+            {
                 // Indicate that the table name/path doesn't match the valid pattern
                 throw new CCDDException("Invalid table path '</b>" + tablePath + "<b>' format");
             }
@@ -1207,11 +1248,11 @@ public class CcddClassesDataTable {
     }
 
     /**********************************************************************************************
-     * Table type definition class. Contains the information necessary to construct
-     * a table type from information derived from a CSV, EDS, JSON, or XTCE import
-     * file
+     * Table type definition class. Contains the information necessary to construct a table type from
+     * information derived from a CSV, EDS, JSON, or XTCE import file
      *********************************************************************************************/
-    protected static class TableTypeDefinition {
+    protected static class TableTypeDefinition
+    {
         private String typeName;
         private final String description;
         private final List<Object[]> columns;
@@ -1224,7 +1265,8 @@ public class CcddClassesDataTable {
          *
          * @param description table type description
          *****************************************************************************************/
-        TableTypeDefinition(String typeName, String description) {
+        TableTypeDefinition(String typeName, String description)
+        {
             this.typeName = typeName;
             this.description = description;
 
@@ -1238,7 +1280,8 @@ public class CcddClassesDataTable {
          *
          * @return Table type name
          *****************************************************************************************/
-        protected String getTypeName() {
+        protected String getTypeName()
+        {
             return typeName;
         }
 
@@ -1247,7 +1290,8 @@ public class CcddClassesDataTable {
          *
          * @param typeName table type name
          *****************************************************************************************/
-        protected void setTypeName(String typeName) {
+        protected void setTypeName(String typeName)
+        {
             this.typeName = typeName;
         }
 
@@ -1256,7 +1300,8 @@ public class CcddClassesDataTable {
          *
          * @return Table type description
          *****************************************************************************************/
-        protected String getDescription() {
+        protected String getDescription()
+        {
             return description;
         }
 
@@ -1265,7 +1310,8 @@ public class CcddClassesDataTable {
          *
          * @return List containing the table type column information
          *****************************************************************************************/
-        protected List<Object[]> getColumns() {
+        protected List<Object[]> getColumns()
+        {
             return columns;
         }
 
@@ -1274,7 +1320,8 @@ public class CcddClassesDataTable {
          *
          * @param column array of table type column information
          *****************************************************************************************/
-        protected void addColumn(Object[] column) {
+        protected void addColumn(Object[] column)
+        {
             columns.add(column);
         }
 
@@ -1283,7 +1330,8 @@ public class CcddClassesDataTable {
          *
          * @return List containing the table type data field information
          *****************************************************************************************/
-        protected List<String[]> getDataFields() {
+        protected List<String[]> getDataFields()
+        {
             return dataFields;
         }
 
@@ -1292,7 +1340,8 @@ public class CcddClassesDataTable {
          *
          * @param dataField array of table type data field information
          *****************************************************************************************/
-        protected void addDataField(String[] dataField) {
+        protected void addDataField(String[] dataField)
+        {
             dataFields.add(dataField);
         }
     }
@@ -1300,7 +1349,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Input type class
      *********************************************************************************************/
-    protected static class InputType {
+    protected static class InputType
+    {
         private final String inputName;
         private final String inputDescription;
         private final String inputMatch;
@@ -1317,19 +1367,19 @@ public class CcddClassesDataTable {
          *
          * @param inputMatch       regular expression match for the input type
          *
-         * @param inputItems       string containing the acceptable values for this
-         *                         input type, separated by the selection item list
-         *                         separator; null or blank if the input type doesn't
-         *                         constrain the inputs to items from a list. The list
-         *                         is used to create the contents of the combo box in
-         *                         the table column with this input type
+         * @param inputItems       string containing the acceptable values for this input type, separated by
+         *                         the selection item list separator; null or blank if the input type
+         *                         doesn't constrain the inputs to items from a list. The list is used to
+         *                         create the contents of the combo box in the table column with this input
+         *                         type
          *
          * @param inputFormat      input type format
          *
          * @param isInputCustom    true if the input type is user-defined
          *****************************************************************************************/
         InputType(String inputName, String inputDescription, String inputMatch, String inputItems,
-                InputTypeFormat inputFormat, boolean isInputCustom) {
+                  InputTypeFormat inputFormat, boolean isInputCustom)
+        {
             this.inputName = inputName;
             this.inputDescription = inputDescription;
             this.inputMatch = inputMatch;
@@ -1343,7 +1393,8 @@ public class CcddClassesDataTable {
          *
          * @return Input type name
          *****************************************************************************************/
-        protected String getInputName() {
+        protected String getInputName()
+        {
             return inputName;
         }
 
@@ -1352,7 +1403,8 @@ public class CcddClassesDataTable {
          *
          * @return Input type description
          *****************************************************************************************/
-        protected String getInputDescription() {
+        protected String getInputDescription()
+        {
             return inputDescription;
         }
 
@@ -1361,30 +1413,33 @@ public class CcddClassesDataTable {
          *
          * @return Input type matching regular expression
          *****************************************************************************************/
-        protected String getInputMatch() {
+        protected String getInputMatch()
+        {
             return inputMatch;
         }
 
         /******************************************************************************************
          * Get the input type selection items
          *
-         * @return List of input type selection items; null if the input type has no
-         *         selection items
+         * @return List of input type selection items; null if the input type has no selection items
          *****************************************************************************************/
-        protected List<String> getInputItems() {
+        protected List<String> getInputItems()
+        {
             return inputItems;
         }
 
         /******************************************************************************************
          * Set the input type selection items
          *
-         * @param inputItems list of input type selection items (an empty item is
-         *                   automatically prepended to the list to allow blanking the
-         *                   selection); null if the input type has no selection items
+         * @param inputItems list of input type selection items (an empty item is automatically prepended to
+         *                   the list to allow blanking the selection); null if the input type has no
+         *                   selection items
          *****************************************************************************************/
-        protected void setInputItems(List<String> inputItems) {
+        protected void setInputItems(List<String> inputItems)
+        {
             // Check if any items are in the list
-            if (inputItems != null) {
+            if (inputItems != null)
+            {
                 this.inputItems = new ArrayList<String>();
 
                 // Add a blank item as the first in the list
@@ -1394,7 +1449,8 @@ public class CcddClassesDataTable {
                 this.inputItems.addAll(inputItems);
             }
             // The list is null or empty
-            else {
+            else
+            {
                 this.inputItems = null;
             }
         }
@@ -1404,7 +1460,8 @@ public class CcddClassesDataTable {
          *
          * @return Input type format
          *****************************************************************************************/
-        protected InputTypeFormat getInputFormat() {
+        protected InputTypeFormat getInputFormat()
+        {
             return inputFormat;
         }
 
@@ -1413,7 +1470,8 @@ public class CcddClassesDataTable {
          *
          * @return true if the input type is defined by the user
          *****************************************************************************************/
-        protected boolean isCustomInput() {
+        protected boolean isCustomInput()
+        {
             return isInputCustom;
         }
 
@@ -1422,17 +1480,20 @@ public class CcddClassesDataTable {
          *
          * @param formatName input format name
          *
-         * @return Input type format associated with the supplied input format name;
-         *         'Text' format if the name supplied is invalid
+         * @return Input type format associated with the supplied input format name; 'Text' format if the
+         *         name supplied is invalid
          *****************************************************************************************/
-        protected static InputTypeFormat getInputFormatByName(String formatName) {
+        protected static InputTypeFormat getInputFormatByName(String formatName)
+        {
             // Set the default input type format
             InputTypeFormat inputFormat = InputTypeFormat.TEXT;
 
             // Step through each input type format
-            for (InputTypeFormat format : InputTypeFormat.values()) {
+            for (InputTypeFormat format : InputTypeFormat.values())
+            {
                 // Check if the format names match (case insensitive)
-                if (formatName.equals(format.getFormatName())) {
+                if (formatName.equals(format.getFormatName()))
+                {
                     // Store the input type format and stop searching
                     inputFormat = format;
                     break;
@@ -1443,73 +1504,76 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to
-         * floating point values if the first character is a decimal, and removes '+'
-         * signs and unneeded leading zeroes from integer and floating point values.
-         * Leading zeroes are preserved for hexadecimal values
+         * Reformat the input value for numeric types. This adds a leading zero to floating point values if
+         * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
+         * and floating point values. Leading zeroes are preserved for hexadecimal values
          *
          * @param valueS value, represented as a string, to reformat
          *
          * @return Input value reformatted based on its input type
          *****************************************************************************************/
-        protected String formatInput(String valueS) {
+        protected String formatInput(String valueS)
+        {
             return CcddInputTypeHandler.formatInput(valueS, inputFormat, true);
         }
 
         /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to
-         * floating point values if the first character is a decimal, and removes '+'
-         * signs and unneeded leading zeroes from integer and floating point values
+         * Reformat the input value for numeric types. This adds a leading zero to floating point values if
+         * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
+         * and floating point values
          *
          * @param valueS         value, represented as a string, to reformat
          *
-         * @param preserveZeroes true to preserve leading zeroes in hexadecimal values;
-         *                       false to eliminate the extra zeroes (this is useful
-         *                       when comparing the text representation of two
-         *                       hexadecimal values)
+         * @param preserveZeroes true to preserve leading zeroes in hexadecimal values; false to eliminate
+         *                       the extra zeroes (this is useful when comparing the text representation of
+         *                       two hexadecimal values)
          *
          * @return Input value reformatted based on its input type
          *****************************************************************************************/
-        protected String formatInput(String valueS, boolean preserveZeroes) {
+        protected String formatInput(String valueS, boolean preserveZeroes)
+        {
             return CcddInputTypeHandler.formatInput(valueS, inputFormat, preserveZeroes);
         }
 
         /******************************************************************************************
          * Convert the input selection items from a single string to a list
          *
-         * @param inputItemsString string containing the acceptable values for this
-         *                         input type, separated by the selection item list
-         *                         separator (a blank item is automatically prepended to
-         *                         the list); null or blank if the input type doesn't
-         *                         constrain the inputs to items from a list
+         * @param inputItemsString string containing the acceptable values for this input type, separated by
+         *                         the selection item list separator (a blank item is automatically
+         *                         prepended to the list); null or blank if the input type doesn't constrain
+         *                         the inputs to items from a list
          *
          * @return Input items, converted to a list; null if the input type has no items
          *****************************************************************************************/
-        protected static List<String> convertItemStringToList(String inputItemsString) {
-            return inputItemsString == null || inputItemsString.isEmpty() ? null
-                    : Arrays.asList(inputItemsString.split(SELECTION_ITEM_LIST_SEPARATOR));
+        protected static List<String> convertItemStringToList(String inputItemsString)
+        {
+            return inputItemsString == null
+                   || inputItemsString.isEmpty() ? null
+                                                 : Arrays.asList(inputItemsString.split(SELECTION_ITEM_LIST_SEPARATOR));
         }
 
         /******************************************************************************************
          * Convert the input selection items from a list to a single string
          *
-         * @param inputItemsList list containing the acceptable values for this input
-         *                       type; null or blank if the input type doesn't constrain
-         *                       the inputs to items from a list
+         * @param inputItemsList list containing the acceptable values for this input type; null or blank if
+         *                       the input type doesn't constrain the inputs to items from a list
          *
-         * @return Input items, converted to a string, separated by the selection item
-         *         list separator; blank if the input type has no items
+         * @return Input items, converted to a string, separated by the selection item list separator; blank
+         *         if the input type has no items
          *****************************************************************************************/
-        protected static String convertItemListToString(List<String> inputItemsList) {
+        protected static String convertItemListToString(List<String> inputItemsList)
+        {
             String inputItemsString = "";
 
             // Check if any items are supplied
-            if (inputItemsList != null && !inputItemsList.isEmpty()) {
+            if (inputItemsList != null && !inputItemsList.isEmpty())
+            {
                 inputItemsString = "";
 
                 // Step through each item. Skip the first, empty item that's automatically
                 // prepended to every non-empty list
-                for (int index = 1; index < inputItemsList.size(); index++) {
+                for (int index = 1; index < inputItemsList.size(); index++)
+                {
                     // Add the item to the string, followed by the separator
                     inputItemsString += inputItemsList.get(index) + SELECTION_ITEM_LIST_SEPARATOR;
                 }
@@ -1523,17 +1587,19 @@ public class CcddClassesDataTable {
     }
 
     /**********************************************************************************************
-     * Project definition class. Contains the information necessary to construct the
-     * project-level data fields derived from a CSV, EDS, JSON, or XTCE import file,
-     * or group data fields derived from a CSV or JSON import file
+     * Project definition class. Contains the information necessary to construct the project-level data
+     * fields derived from a CSV, EDS, JSON, or XTCE import file, or group data fields derived from a
+     * CSV or JSON import file
      *********************************************************************************************/
-    protected static class ProjectDefinition {
+    protected static class ProjectDefinition
+    {
         private final List<String[]> dataFields;
 
         /******************************************************************************************
          * Project definition class constructor
          *****************************************************************************************/
-        ProjectDefinition() {
+        ProjectDefinition()
+        {
             // Initialize storage for the data field information
             dataFields = new ArrayList<String[]>();
         }
@@ -1543,7 +1609,8 @@ public class CcddClassesDataTable {
          *
          * @return List containing the project-level data field information
          *****************************************************************************************/
-        protected List<String[]> getDataFields() {
+        protected List<String[]> getDataFields()
+        {
             return dataFields;
         }
 
@@ -1552,16 +1619,18 @@ public class CcddClassesDataTable {
          *
          * @param fieldInfo data field information
          *****************************************************************************************/
-        protected void addDataField(String[] fieldInfo) {
+        protected void addDataField(String[] fieldInfo)
+        {
             dataFields.add(fieldInfo);
         }
     }
 
     /**********************************************************************************************
-     * Data type and enumeration column pairing class. Contains associated data type
-     * and enumeration column indices
+     * Data type and enumeration column pairing class. Contains associated data type and enumeration
+     * column indices
      *********************************************************************************************/
-    public static class DataTypeEnumPair {
+    public static class DataTypeEnumPair
+    {
         private final int dataType;
         private final int enumeration;
 
@@ -1572,7 +1641,8 @@ public class CcddClassesDataTable {
          *
          * @param enumeration enumeration column index, model coordinates
          *****************************************************************************************/
-        protected DataTypeEnumPair(int dataType, int enumeration) {
+        protected DataTypeEnumPair(int dataType, int enumeration)
+        {
             this.dataType = dataType;
             this.enumeration = enumeration;
         }
@@ -1582,7 +1652,8 @@ public class CcddClassesDataTable {
          *
          * @return Command argument data type column index
          *****************************************************************************************/
-        public int getDataType() {
+        public int getDataType()
+        {
             return dataType;
         }
 
@@ -1591,16 +1662,18 @@ public class CcddClassesDataTable {
          *
          * @return Command argument enumeration column index
          *****************************************************************************************/
-        public int getEnumeration() {
+        public int getEnumeration()
+        {
             return enumeration;
         }
     }
 
     /**********************************************************************************************
-     * Minimum and maximum column pairing class. Contains associated minimum value
-     * and maximum value column indices
+     * Minimum and maximum column pairing class. Contains associated minimum value and maximum value
+     * column indices
      *********************************************************************************************/
-    protected static class MinMaxPair {
+    protected static class MinMaxPair
+    {
         private final int minColumn;
         private final int maxColumn;
 
@@ -1611,7 +1684,8 @@ public class CcddClassesDataTable {
          *
          * @param maxColumn maximum value column index, model coordinates
          *****************************************************************************************/
-        MinMaxPair(int minColumn, int maxColumn) {
+        MinMaxPair(int minColumn, int maxColumn)
+        {
             this.minColumn = minColumn;
             this.maxColumn = maxColumn;
         }
@@ -1621,7 +1695,8 @@ public class CcddClassesDataTable {
          *
          * @return Minimum column index
          *****************************************************************************************/
-        protected int getMinimum() {
+        protected int getMinimum()
+        {
             return minColumn;
         }
 
@@ -1630,7 +1705,8 @@ public class CcddClassesDataTable {
          *
          * @return Maximum column index
          *****************************************************************************************/
-        protected int getMaximum() {
+        protected int getMaximum()
+        {
             return maxColumn;
         }
     }
@@ -1638,7 +1714,8 @@ public class CcddClassesDataTable {
     /******************************************************************************************
      * Data field information class
      *****************************************************************************************/
-    protected static class FieldInformation {
+    protected static class FieldInformation
+    {
         private String ownerName;
         private String fieldName;
         private String description;
@@ -1654,14 +1731,12 @@ public class CcddClassesDataTable {
         /******************************************************************************************
          * Data field information class constructor
          *
-         * @param ownerName     name of the table, including the path if this table
-         *                      represents a structure, or group for which the field is
-         *                      a member
+         * @param ownerName     name of the table, including the path if this table represents a structure,
+         *                      or group for which the field is a member
          *
          * @param fieldName     field name
          *
-         * @param description   data field description; used as the tool tip for this
-         *                      field
+         * @param description   data field description; used as the tool tip for this field
          *
          * @param charSize      field display size in characters
          *
@@ -1669,24 +1744,23 @@ public class CcddClassesDataTable {
          *
          * @param isRequired    true if a value is required for this field
          *
-         * @param applicability field applicability type; all tables, parent tables
-         *                      only, or child tables only
+         * @param applicability field applicability type; all tables, parent tables only, or child tables
+         *                      only
          *
          * @param value         field value
          *
-         * @param isInherited   true if the field is inherited from its owner table's
-         *                      type definition (ignored if the field does not belong to
-         *                      a table)
+         * @param isInherited   true if the field is inherited from its owner table's type definition
+         *                      (ignored if the field does not belong to a table)
          *
-         * @param inputFld      reference to the field's UndoableTextField or
-         *                      UndoableCheckBox; null if creating the data field
-         *                      without specifying the input field
+         * @param inputFld      reference to the field's UndoableTextField or UndoableCheckBox; null if
+         *                      creating the data field without specifying the input field
          *
          * @param id            ID for the row defining the field; -1 for a new field
          *****************************************************************************************/
         FieldInformation(String ownerName, String fieldName, String description, InputType inputType, int charSize,
-                boolean isRequired, ApplicabilityType applicability, String value, boolean isInherited,
-                Component inputFld, int id) {
+                         boolean isRequired, ApplicabilityType applicability, String value, boolean isInherited,
+                         Component inputFld, int id)
+        {
             this.ownerName = ownerName;
             this.fieldName = fieldName;
             this.description = description;
@@ -1705,7 +1779,8 @@ public class CcddClassesDataTable {
          *
          * @return Name of the owning table/group to which the field belongs
          *****************************************************************************************/
-        protected String getOwnerName() {
+        protected String getOwnerName()
+        {
             return ownerName;
         }
 
@@ -1714,7 +1789,8 @@ public class CcddClassesDataTable {
          *
          * @param ownerName name of the table/group to which the field belongs
          *****************************************************************************************/
-        protected void setOwnerName(String ownerName) {
+        protected void setOwnerName(String ownerName)
+        {
             this.ownerName = ownerName;
         }
 
@@ -1723,7 +1799,8 @@ public class CcddClassesDataTable {
          *
          * @return Field name
          *****************************************************************************************/
-        protected String getFieldName() {
+        protected String getFieldName()
+        {
             return fieldName;
         }
 
@@ -1732,7 +1809,8 @@ public class CcddClassesDataTable {
          *
          * @param fieldName field name
          *****************************************************************************************/
-        protected void setFieldName(String fieldName) {
+        protected void setFieldName(String fieldName)
+        {
             this.fieldName = fieldName;
         }
 
@@ -1741,7 +1819,8 @@ public class CcddClassesDataTable {
          *
          * @return Field comment
          *****************************************************************************************/
-        protected String getDescription() {
+        protected String getDescription()
+        {
             return description;
         }
 
@@ -1750,7 +1829,8 @@ public class CcddClassesDataTable {
          *
          * @param description field comment
          *****************************************************************************************/
-        protected void setDescription(String description) {
+        protected void setDescription(String description)
+        {
             this.description = description;
         }
 
@@ -1759,7 +1839,8 @@ public class CcddClassesDataTable {
          *
          * @return Field display size in characters
          *****************************************************************************************/
-        protected int getSize() {
+        protected int getSize()
+        {
             return charSize;
         }
 
@@ -1768,7 +1849,8 @@ public class CcddClassesDataTable {
          *
          * @param charSize field display size in characters
          *****************************************************************************************/
-        protected void setSize(int charSize) {
+        protected void setSize(int charSize)
+        {
             this.charSize = charSize;
         }
 
@@ -1777,7 +1859,8 @@ public class CcddClassesDataTable {
          *
          * @return true if a value is required for this field
          *****************************************************************************************/
-        protected boolean isRequired() {
+        protected boolean isRequired()
+        {
             return isRequired;
         }
 
@@ -1786,7 +1869,8 @@ public class CcddClassesDataTable {
          *
          * @param isRequired true if a value is required for this field
          *****************************************************************************************/
-        protected void setRequired(boolean isRequired) {
+        protected void setRequired(boolean isRequired)
+        {
             this.isRequired = isRequired;
         }
 
@@ -1795,7 +1879,8 @@ public class CcddClassesDataTable {
          *
          * @return Field applicability type
          *****************************************************************************************/
-        protected ApplicabilityType getApplicabilityType() {
+        protected ApplicabilityType getApplicabilityType()
+        {
             return applicability;
         }
 
@@ -1804,7 +1889,8 @@ public class CcddClassesDataTable {
          *
          * @param applicability field applicability type
          *****************************************************************************************/
-        protected void setApplicabilityType(ApplicabilityType applicability) {
+        protected void setApplicabilityType(ApplicabilityType applicability)
+        {
             this.applicability = applicability;
         }
 
@@ -1813,7 +1899,8 @@ public class CcddClassesDataTable {
          *
          * @return Field value
          *****************************************************************************************/
-        protected String getValue() {
+        protected String getValue()
+        {
             return value;
         }
 
@@ -1822,29 +1909,30 @@ public class CcddClassesDataTable {
          *
          * @param value field value
          *****************************************************************************************/
-        protected void setValue(String value) {
+        protected void setValue(String value)
+        {
             this.value = value;
         }
 
         /******************************************************************************************
          * Check if the field is inherited from the owner table's type definition
          *
-         * @return true if the field is inherited from the owner table's type definition
-         *         (ignored if the field does not belong to a table)
+         * @return true if the field is inherited from the owner table's type definition (ignored if the
+         *         field does not belong to a table)
          *****************************************************************************************/
-        protected boolean isInherited() {
+        protected boolean isInherited()
+        {
             return isInherited;
         }
 
         /******************************************************************************************
-         * Set the flag that indicates if the field is inherited from the owner table's
-         * type definition
+         * Set the flag that indicates if the field is inherited from the owner table's type definition
          *
-         * @param isInherited true if the field is inherited from the owner table's type
-         *                    definition (ignored if the field does not belong to a
-         *                    table)
+         * @param isInherited true if the field is inherited from the owner table's type definition (ignored
+         *                    if the field does not belong to a table)
          *****************************************************************************************/
-        protected void setInherited(boolean isInherited) {
+        protected void setInherited(boolean isInherited)
+        {
             this.isInherited = isInherited;
         }
 
@@ -1853,17 +1941,18 @@ public class CcddClassesDataTable {
          *
          * @return Field's input component reference
          *****************************************************************************************/
-        protected Component getInputFld() {
+        protected Component getInputFld()
+        {
             return inputFld;
         }
 
         /******************************************************************************************
          * Set the field's UndoableTextField, UndoableComboBox, or UndoableCheckBox
          *
-         * @param inputFld field's UndoableTextField, UndoableComboBox, or
-         *                 UndoableCheckBox
+         * @param inputFld field's UndoableTextField, UndoableComboBox, or UndoableCheckBox
          ****************************************************************************************/
-        protected void setInputFld(Component inputFld) {
+        protected void setInputFld(Component inputFld)
+        {
             this.inputFld = inputFld;
         }
 
@@ -1872,7 +1961,8 @@ public class CcddClassesDataTable {
          *
          * @return Field input type
          *****************************************************************************************/
-        protected InputType getInputType() {
+        protected InputType getInputType()
+        {
             return inputType;
         }
 
@@ -1881,7 +1971,8 @@ public class CcddClassesDataTable {
          *
          * @param inputType field input type (InputType)
          *****************************************************************************************/
-        protected void setInputType(InputType inputType) {
+        protected void setInputType(InputType inputType)
+        {
             this.inputType = inputType;
         }
 
@@ -1890,7 +1981,8 @@ public class CcddClassesDataTable {
          *
          * @return Field ID
          *****************************************************************************************/
-        protected int getID() {
+        protected int getID()
+        {
             return id;
         }
 
@@ -1899,7 +1991,8 @@ public class CcddClassesDataTable {
          *
          * @param id field ID
          *****************************************************************************************/
-        protected void setID(int id) {
+        protected void setID(int id)
+        {
             this.id = id;
         }
 
@@ -1908,20 +2001,22 @@ public class CcddClassesDataTable {
          *
          * @return an array of Strings representing the field information
          *****************************************************************************************/
-        protected String[] toStringArray() {
+        protected String[] toStringArray()
+        {
             String[] fieldData = {ownerName, fieldName, description, Integer.toString(charSize),
-                    inputType.getInputName(), String.valueOf(isRequired), applicability.getApplicabilityName(),
-                    value, String.valueOf(isInherited)};
+                                  inputType.getInputName(), String.valueOf(isRequired),
+                                  applicability.getApplicabilityName(), value, String.valueOf(isInherited)};
 
             return fieldData;
         }
     }
 
     /**********************************************************************************************
-     * Group information class. Associates group names in the database with their
-     * respective tables and data fields
+     * Group information class. Associates group names in the database with their respective tables and
+     * data fields
      *********************************************************************************************/
-    protected static class GroupInformation {
+    protected static class GroupInformation
+    {
         private String name;
         private String description;
         private Boolean isApplication;
@@ -1936,13 +2031,13 @@ public class CcddClassesDataTable {
          *
          * @param description      group description
          *
-         * @param isApplication    flag indicating if the group represents a CFS
-         *                         application
+         * @param isApplication    flag indicating if the group represents a CFS application
          *
          * @param fieldInformation data field information
          *****************************************************************************************/
         GroupInformation(String name, String description, Boolean isApplication,
-                List<FieldInformation> fieldInformation) {
+                         List<FieldInformation> fieldInformation)
+        {
             this(name, description, isApplication, null, fieldInformation);
         }
 
@@ -1953,16 +2048,16 @@ public class CcddClassesDataTable {
          *
          * @param description      group description
          *
-         * @param isApplication    flag indicating if the group represents a CFS
-         *                         application
+         * @param isApplication    flag indicating if the group represents a CFS application
          *
-         * @param tables           list of tables (with full paths( belonging to this
-         *                         group; null if creating a new, empty group
+         * @param tables           list of tables (with full paths( belonging to this group; null if
+         *                         creating a new, empty group
          *
          * @param fieldInformation data field information
          *****************************************************************************************/
         GroupInformation(String name, String description, Boolean isApplication, List<String> tables,
-                List<FieldInformation> fieldInformation) {
+                         List<FieldInformation> fieldInformation)
+        {
             tablesAndAncestors = new ArrayList<String>();
             tableMembers = new ArrayList<String>();
 
@@ -1972,19 +2067,22 @@ public class CcddClassesDataTable {
             this.fieldInformation = new ArrayList<FieldInformation>();
 
             // Check if field information is provided
-            if (fieldInformation != null) {
+            if (fieldInformation != null)
+            {
                 // Add the field information to the list
                 this.fieldInformation.addAll(fieldInformation);
             }
 
             // Check if the tables aren't supplied
-            if (tables == null) {
+            if (tables == null)
+            {
                 // Create an empty list for the tables
                 tables = new ArrayList<String>();
             }
 
             // Step through each table path in the group
-            for (String table : tables) {
+            for (String table : tables)
+            {
                 // Add the table to the lists
                 addTable(table);
             }
@@ -1995,7 +2093,8 @@ public class CcddClassesDataTable {
          *
          * @return Group name
          *****************************************************************************************/
-        protected String getName() {
+        protected String getName()
+        {
             return name;
         }
 
@@ -2004,7 +2103,8 @@ public class CcddClassesDataTable {
          *
          * @param name group name
          *****************************************************************************************/
-        protected void setName(String name) {
+        protected void setName(String name)
+        {
             this.name = name;
         }
 
@@ -2013,7 +2113,8 @@ public class CcddClassesDataTable {
          *
          * @return Group description
          *****************************************************************************************/
-        protected String getDescription() {
+        protected String getDescription()
+        {
             return description;
         }
 
@@ -2022,7 +2123,8 @@ public class CcddClassesDataTable {
          *
          * @param description group description
          *****************************************************************************************/
-        protected void setDescription(String description) {
+        protected void setDescription(String description)
+        {
             this.description = description;
         }
 
@@ -2031,7 +2133,8 @@ public class CcddClassesDataTable {
          *
          * @return true if the group represents a CFS application
          *****************************************************************************************/
-        protected Boolean isApplication() {
+        protected Boolean isApplication()
+        {
             return isApplication;
         }
 
@@ -2040,43 +2143,46 @@ public class CcddClassesDataTable {
          *
          * @param isApplication true if the group represents a CFS application
          *****************************************************************************************/
-        protected void setIsApplication(boolean isApplication) {
+        protected void setIsApplication(boolean isApplication)
+        {
             this.isApplication = isApplication;
         }
 
         /******************************************************************************************
-         * Get the group table list that includes the member tables and all of their
-         * ancestor tables
+         * Get the group table list that includes the member tables and all of their ancestor tables
          *
-         * @return Group table list that includes the member tables and all of their
-         *         ancestor tables
+         * @return Group table list that includes the member tables and all of their ancestor tables
          *****************************************************************************************/
-        protected List<String> getTablesAndAncestors() {
+        protected List<String> getTablesAndAncestors()
+        {
             return tablesAndAncestors;
         }
 
         /******************************************************************************************
-         * Get the list of table members (root tables and parent.child table table
-         * pairs) belonging to this group
+         * Get the list of table members (root tables and parent.child table table pairs) belonging to this
+         * group
          *
-         * @return List of table members (parent.child table table pairs) belonging to
-         *         this group
+         * @return List of table members (parent.child table table pairs) belonging to this group
          *****************************************************************************************/
-        protected List<String> getTableMembers() {
+        protected List<String> getTableMembers()
+        {
             return tableMembers;
         }
 
         /******************************************************************************************
-         * Add the specified group table to the lists that include each parent.child
-         * table pair and the member table along with its ancestor tables
+         * Add the specified group table to the lists that include each parent.child table pair and the
+         * member table along with its ancestor tables
          *
          * @param table group table member (full table path)
          *****************************************************************************************/
-        protected void addTable(String table) {
+        protected void addTable(String table)
+        {
             // Separate the root and parent.child tables in the path
-            for (String member : table.split(",")) {
+            for (String member : table.split(","))
+            {
                 // Check if the table isn't in the list
-                if (!tableMembers.contains(member)) {
+                if (!tableMembers.contains(member))
+                {
                     // Add the table to the group's table member list
                     tableMembers.add(member);
                 }
@@ -2086,9 +2192,11 @@ public class CcddClassesDataTable {
             int index = tablesAndAncestors.size();
 
             // Check if this isn't a root table
-            while (table.contains(",")) {
+            while (table.contains(","))
+            {
                 // Check if the table isn't already added to the list
-                if (!tablesAndAncestors.contains(table)) {
+                if (!tablesAndAncestors.contains(table))
+                {
                     // Add the member/ancestor table to the list. Since the members are extracted
                     // from the end of the path and working up to its root, insert the ancestor
                     // ahead of the previously inserted child so that the table appear in the
@@ -2101,7 +2209,8 @@ public class CcddClassesDataTable {
             }
 
             // Check if the root table isn't already added to the list
-            if (!tablesAndAncestors.contains(table)) {
+            if (!tablesAndAncestors.contains(table))
+            {
                 // Add the root table to the list. Since the members are extracted from the end
                 // of
                 // the path and working up the path, insert the root ahead of the previously
@@ -2116,7 +2225,8 @@ public class CcddClassesDataTable {
          *
          * @return Group data field information
          *****************************************************************************************/
-        protected List<FieldInformation> getFieldInformation() {
+        protected List<FieldInformation> getFieldInformation()
+        {
             return fieldInformation;
         }
 
@@ -2125,7 +2235,8 @@ public class CcddClassesDataTable {
          *
          * @param fieldInformation group data field information
          *****************************************************************************************/
-        protected void setFieldInformation(List<FieldInformation> fieldInformation) {
+        protected void setFieldInformation(List<FieldInformation> fieldInformation)
+        {
             this.fieldInformation = fieldInformation;
         }
     }
@@ -2133,7 +2244,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Link information class
      *********************************************************************************************/
-    protected static class LinkInformation {
+    protected static class LinkInformation
+    {
         private final String rateName;
         private String linkName;
         private String sampleRate;
@@ -2148,15 +2260,15 @@ public class CcddClassesDataTable {
          *
          * @param description link description
          *****************************************************************************************/
-        LinkInformation(String rateName, String linkName, String description) {
+        LinkInformation(String rateName, String linkName, String description)
+        {
             this(rateName, linkName, "0", description);
         }
 
         /******************************************************************************************
          * Link information class constructor
          *
-         * @param rateName    name of the data stream rate column associated with this
-         *                    link
+         * @param rateName    name of the data stream rate column associated with this link
          *
          * @param linkName    link name
          *
@@ -2164,7 +2276,8 @@ public class CcddClassesDataTable {
          *
          * @param description link description
          *****************************************************************************************/
-        LinkInformation(String rateName, String linkName, String sampleRate, String description) {
+        LinkInformation(String rateName, String linkName, String sampleRate, String description)
+        {
             this.rateName = rateName;
             this.linkName = linkName;
             this.sampleRate = sampleRate;
@@ -2176,7 +2289,8 @@ public class CcddClassesDataTable {
          *
          * @return Data stream rate name
          *****************************************************************************************/
-        protected String getRateName() {
+        protected String getRateName()
+        {
             return rateName;
         }
 
@@ -2185,7 +2299,8 @@ public class CcddClassesDataTable {
          *
          * @return Link name
          *****************************************************************************************/
-        protected String getName() {
+        protected String getName()
+        {
             return linkName;
         }
 
@@ -2194,27 +2309,28 @@ public class CcddClassesDataTable {
          *
          * @param linkName link name
          *****************************************************************************************/
-        protected void setName(String linkName) {
+        protected void setName(String linkName)
+        {
             this.linkName = linkName;
         }
 
         /******************************************************************************************
          * Get the link rate in samples per second
          *
-         * @return Link rate in samples per second; return "0" if no rate is assigned to
-         *         this link
+         * @return Link rate in samples per second; return "0" if no rate is assigned to this link
          *****************************************************************************************/
-        protected String getSampleRate() {
+        protected String getSampleRate()
+        {
             return sampleRate;
         }
 
         /******************************************************************************************
          * Set the link rate in samples per second
          *
-         * @param sampleRate link rate in samples per second; "0" if no rate is assigned
-         *                   to this link
+         * @param sampleRate link rate in samples per second; "0" if no rate is assigned to this link
          *****************************************************************************************/
-        protected void setSampleRate(String sampleRate) {
+        protected void setSampleRate(String sampleRate)
+        {
             this.sampleRate = sampleRate;
         }
 
@@ -2223,7 +2339,8 @@ public class CcddClassesDataTable {
          *
          * @return Link description
          *****************************************************************************************/
-        protected String getDescription() {
+        protected String getDescription()
+        {
             return description;
         }
 
@@ -2232,7 +2349,8 @@ public class CcddClassesDataTable {
          *
          * @param description link description
          *****************************************************************************************/
-        protected void setDescription(String description) {
+        protected void setDescription(String description)
+        {
             this.description = description;
         }
     }
@@ -2240,7 +2358,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Array variable utility method class
      *********************************************************************************************/
-    protected static class ArrayVariable {
+    protected static class ArrayVariable
+    {
         /******************************************************************************************
          * Remove the array variable index, if present, from the supplied variable name
          *
@@ -2248,12 +2367,14 @@ public class CcddClassesDataTable {
          *
          * @return The variable name, with the array index removed
          *****************************************************************************************/
-        protected static String removeArrayIndex(String variableName) {
+        protected static String removeArrayIndex(String variableName)
+        {
             // Get the index of the array index
             int index = variableName.indexOf('[');
 
             // Check if an array index exists
-            if (index != -1) {
+            if (index != -1)
+            {
                 // Remove the array index from the variable name
                 variableName = variableName.substring(0, index);
             }
@@ -2262,21 +2383,22 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Remove the string size array variable index, if present, from the supplied
-         * variable name
+         * Remove the string size array variable index, if present, from the supplied variable name
          *
          * @param variableName variable name
          *
          * @return The variable name, with the string size array index removed
          *****************************************************************************************/
-        protected static String removeStringSize(String variableName) {
+        protected static String removeStringSize(String variableName)
+        {
             // Get the index of the last array index, which represents the string size for a
             // string
             // variable
             int index = variableName.lastIndexOf('[');
 
             // Check if an array index exists
-            if (index != -1) {
+            if (index != -1)
+            {
                 // Remove the string size array index from the variable name
                 variableName = variableName.substring(0, index);
             }
@@ -2291,19 +2413,23 @@ public class CcddClassesDataTable {
          *
          * @return The array index, with the variable name removed
          *****************************************************************************************/
-        protected static String getVariableArrayIndex(String variableName) {
+        protected static String getVariableArrayIndex(String variableName)
+        {
             // Get the index of the array index
             int index = variableName.indexOf('[');
 
             // Check if an array index exists
-            if (index != -1) {
+            if (index != -1)
+            {
                 // Get the index portion of the array variable name
                 variableName = variableName.substring(index);
 
                 // Check if two indexes are included
-                if (StringUtils.countMatches(variableName, "[") >= 2) {
+                if (StringUtils.countMatches(variableName, "[") >= 2)
+                {
                     // Check if any letter of the alphabet is included
-                    if (Pattern.compile("[a-zA-Z]").matcher(variableName).find()) {
+                    if (Pattern.compile("[a-zA-Z]").matcher(variableName).find())
+                    {
                         index = variableName.lastIndexOf("[");
                         // Get the last index portion of the array variable name
                         variableName = variableName.substring(index);
@@ -2321,14 +2447,16 @@ public class CcddClassesDataTable {
          *
          * @return The array index, with the variable name removed
          *****************************************************************************************/
-        protected static int getVariableArrayIndexAsInt(String variableName) {
+        protected static int getVariableArrayIndexAsInt(String variableName)
+        {
             int result = -1;
             // Get the index of the array index
-            int index = variableName.indexOf('[')+1;
+            int index = variableName.indexOf('[') + 1;
             int index2 = variableName.indexOf(']');
 
             // Check if an array index exists
-            if ((index != -1) && (index2 != -1)) {
+            if ((index != -1) && (index2 != -1))
+            {
                 // Get the index portion of the array variable name
                 variableName = variableName.substring(index, index2);
                 result = Integer.parseInt(variableName);
@@ -2346,19 +2474,21 @@ public class CcddClassesDataTable {
          *         second represents the number of indexes in the internal 1d arrays. The third represents
          *         the total number of 1d arrays. The fourth represents the number of 2d arrays.
          *
-         *         Examples:
-         *         If we have a single array with size 6 this function will return [1, 6, -1, -1]
+         *         Examples: If we have a single array with size 6 this function will return [1, 6, -1, -1]
          *
-         *         If we have a 2d array of size 3 with each 1d array having a size of 6 the function will return [2, 6, 3, -1]
+         *         If we have a 2d array of size 3 with each 1d array having a size of 6 the function will
+         *         return [2, 6, 3, -1]
          *
-         *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with each 1d array having
-         *         a size of 6 then the function will return [3, 6, 3, 2]
+         *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with each 1d
+         *         array having a size of 6 then the function will return [3, 6, 3, 2]
          *****************************************************************************************/
-        protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo) {
+        protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo)
+        {
             int[] result = {-1, -1, -1, -1};
 
             // If a macro is being used then retrieve the value
-            if (arrayInfo.contains("##")) {
+            if (arrayInfo.contains("##"))
+            {
                 arrayInfo = newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>());
             }
 
@@ -2366,44 +2496,57 @@ public class CcddClassesDataTable {
             arrayInfo = arrayInfo.replaceAll(" ", "");
 
             // Check that the String is not null or empty
-            if (arrayInfo != null && !arrayInfo.isEmpty()) {
+            if (arrayInfo != null && !arrayInfo.isEmpty())
+            {
                 // First check to see if this is a 1d or 2d array. We do not support 3d or above
                 int count = StringUtils.countMatches(arrayInfo, ",");
-                if (count == 0) {
+                if (count == 0)
+                {
                     // This is a 1d array
                     result[0] = 1;
 
                     // Get the size. If this is a macro it will need to be expanded
                     result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>()));
-                } else if (count == 1) {
+                }
+                else if (count == 1)
+                {
                     // This is a 2d array
                     String info[] = arrayInfo.split(",");
 
-                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty())) {
+                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty()))
+                    {
                         result[0] = 2;
 
                         // Get the size of each internal array ,If this is a macro it will need to be expanded
-                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        result[1] = Integer
+                                .parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
 
                         // Get the total number of 2d arrays. If this is a macro it will need to be expanded
-                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
+                        result[2] = Integer
+                                .parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
                     }
-                } else if (count == 2) {
+                }
+                else if (count == 2)
+                {
                     // This is a 3d array
                     String info[] = arrayInfo.split(",");
 
-                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty()) &&
-                            (info[2] != null && !info[2].isEmpty())) {
+                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty())
+                        && (info[2] != null && !info[2].isEmpty()))
+                    {
                         result[0] = 3;
 
                         // Get the size of each internal array. If this is a macro it will need to be expanded
-                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[2], new ArrayList<String>()));
+                        result[1] = Integer
+                                .parseInt(newMacroHandler.getMacroExpansion(info[2], new ArrayList<String>()));
 
                         // Get the total number of 2d arrays. If this is a macro it will need to be expanded
-                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        result[2] = Integer
+                                .parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
 
                         // Get the total number of 3d arrays. If this is a macro it will need to be expanded
-                        result[3] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
+                        result[3] = Integer
+                                .parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
 
                     }
                 }
@@ -2421,7 +2564,8 @@ public class CcddClassesDataTable {
          *
          * @return true if the variable is an array member
          *****************************************************************************************/
-        protected static boolean isArrayMember(Object variableName) {
+        protected static boolean isArrayMember(Object variableName)
+        {
             return variableName.toString().endsWith("]");
         }
 
@@ -2432,11 +2576,13 @@ public class CcddClassesDataTable {
          *
          * @return Array index value(s), surrounded by brackets
          *****************************************************************************************/
-        protected static String formatArrayIndex(int[] arrayIndex) {
+        protected static String formatArrayIndex(int[] arrayIndex)
+        {
             String arrayIndexS = "";
 
             // Step through each array dimension
-            for (int index = 0; index < arrayIndex.length; index++) {
+            for (int index = 0; index < arrayIndex.length; index++)
+            {
                 // Surround the array index with brackets and add it to the array string
                 arrayIndexS += "[" + arrayIndex[index] + "]";
             }
@@ -2447,17 +2593,18 @@ public class CcddClassesDataTable {
         /******************************************************************************************
          * Parse an array size into an array of integers representing each array index
          *
-         * @param arrayString array size value in the format
-         *                    {@literal [#]<[#]<...>> or #<,#<,...>>}
+         * @param arrayString array size value in the format {@literal [#]<[#]<...>> or #<,#<,...>>}
          *
-         * @return Array of integers representing each array index. An empty array is
-         *         returned if the array size cell is blank
+         * @return Array of integers representing each array index. An empty array is returned if the array
+         *         size cell is blank
          *****************************************************************************************/
-        protected static int[] getArrayIndexFromSize(String arrayString) {
+        protected static int[] getArrayIndexFromSize(String arrayString)
+        {
             int[] arrayIndex = new int[0];
 
             // Check if the array size is in the format containing brackets
-            if (arrayString.contains("[")) {
+            if (arrayString.contains("["))
+            {
                 // Reformat the array size string without the brackets, replacing internal
                 // bracket
                 // pairs (][) with commas and removing the outermost brackets
@@ -2465,13 +2612,15 @@ public class CcddClassesDataTable {
             }
 
             // Check if the array size value isn't blank
-            if (!arrayString.isEmpty()) {
+            if (!arrayString.isEmpty())
+            {
                 // Split the array size into the separate array index values
                 String[] indices = arrayString.split(",");
                 arrayIndex = new int[indices.length];
 
                 // Step through each array index value
-                for (int index = 0; index < indices.length; index++) {
+                for (int index = 0; index < indices.length; index++)
+                {
                     // Convert the index value to a number and store it in the index array
                     arrayIndex[index] = Integer.parseInt(indices[index].trim());
                 }
@@ -2481,14 +2630,14 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Get the total number of array members using the data tables array size cell
-         * text
+         * Get the total number of array members using the data tables array size cell text
          *
          * @param arraySizeS string representing the array variable dimension sizes
          *
          * @return Total number of members in the array; 0 if not an array variable
          *****************************************************************************************/
-        protected static int getNumMembersFromArraySize(String arraySizeS) {
+        protected static int getNumMembersFromArraySize(String arraySizeS)
+        {
             return getNumMembersFromArrayDimension(getArrayIndexFromSize(arraySizeS));
         }
 
@@ -2499,16 +2648,19 @@ public class CcddClassesDataTable {
          *
          * @return Total number of members in the array; 0 if not an array variable
          *****************************************************************************************/
-        protected static int getNumMembersFromArrayDimension(int[] arraySize) {
+        protected static int getNumMembersFromArrayDimension(int[] arraySize)
+        {
             int totalSize = 0;
 
             // Check if the variable is an array
-            if (arraySize.length != 0) {
+            if (arraySize.length != 0)
+            {
                 // Set the total to the first dimension size
                 totalSize = arraySize[0];
 
                 // Step through each remaining array dimension, if any
-                for (int index = 1; index < arraySize.length; index++) {
+                for (int index = 1; index < arraySize.length; index++)
+                {
                     // Multiply the total size by the dimension size
                     totalSize *= arraySize[index];
                 }
@@ -2524,12 +2676,12 @@ public class CcddClassesDataTable {
          *
          * @param arrayVariable2 second array variable member to compare
          *
-         * @return 0 if the array members are the same, -1 if the first array member
-         *         occurs prior to the second array member (based the their array
-         *         dimension value(s), and 1 if the first array member occurs after the
-         *         second array member
+         * @return 0 if the array members are the same, -1 if the first array member occurs prior to the
+         *         second array member (based the their array dimension value(s), and 1 if the first array
+         *         member occurs after the second array member
          *****************************************************************************************/
-        protected static int compareTo(String arrayVariable1, String arrayVariable2) {
+        protected static int compareTo(String arrayVariable1, String arrayVariable2)
+        {
             int result = 0;
 
             // Get the array index value(s) for the array members
@@ -2539,10 +2691,12 @@ public class CcddClassesDataTable {
             // Step through each array dimension, beginning with the leftmost one (this
             // accounts
             // for arrays with any number of dimensions)
-            for (int index = 0; index < varIndex1.length; index++) {
+            for (int index = 0; index < varIndex1.length; index++)
+            {
                 // Check if the value of the array dimension of the first variable is less than
                 // that of the same dimension in the second variable
-                if (varIndex1[index] < varIndex2[index]) {
+                if (varIndex1[index] < varIndex2[index])
+                {
                     // Set the comparison result to indicate that the first variable should be
                     // placed prior to the second variable, and stop comparing array indices
                     result = -1;
@@ -2551,7 +2705,8 @@ public class CcddClassesDataTable {
                 // Check if the value of the array dimension of the first variable is greater
                 // than
                 // that of the same dimension in the second variable
-                else if (varIndex1[index] > varIndex2[index]) {
+                else if (varIndex1[index] > varIndex2[index])
+                {
                     // Set the comparison result to indicate that the first variable should be
                     // placed after to the second variable, and stop comparing array indices
                     result = 1;
@@ -2566,7 +2721,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Data stream rate parameter information class
      *********************************************************************************************/
-    protected static class RateInformation {
+    protected static class RateInformation
+    {
         private String rateName;
         private String streamName;
         private int maxMsgsPerCycle;
@@ -2579,7 +2735,8 @@ public class CcddClassesDataTable {
          *
          * @param rateName rate column name (viewable) for this data stream
          *****************************************************************************************/
-        RateInformation(String rateName) {
+        RateInformation(String rateName)
+        {
             this.rateName = rateName;
 
             // Initialize the number of table types reference by this rate column
@@ -2594,29 +2751,31 @@ public class CcddClassesDataTable {
          *
          * @return Number of table types referencing this rate column name
          *****************************************************************************************/
-        protected int getNumSharedTableTypes() {
+        protected int getNumSharedTableTypes()
+        {
             return numSharedTableTypes;
         }
 
         /******************************************************************************************
          * Set the number of table types referencing this rate column name
          *
-         * @param numSharedTableTypes number of table types referencing this rate column
-         *                            name
+         * @param numSharedTableTypes number of table types referencing this rate column name
          *****************************************************************************************/
-        protected void setNumSharedTableTypes(int numSharedTableTypes) {
+        protected void setNumSharedTableTypes(int numSharedTableTypes)
+        {
             this.numSharedTableTypes = numSharedTableTypes;
         }
 
         /******************************************************************************************
-         * Set default values for the stream name, maximum messages per cycle, and
-         * maximum bytes per second rate parameters
+         * Set default values for the stream name, maximum messages per cycle, and maximum bytes per second
+         * rate parameters
          *****************************************************************************************/
-        protected void setDefaultValues() {
+        protected void setDefaultValues()
+        {
             streamName = rateName;
             maxMsgsPerCycle = 1;
             maxBytesPerSec = 56000;
-            sampleRates = new String[] { "1" };
+            sampleRates = new String[] {"1"};
         }
 
         /******************************************************************************************
@@ -2624,7 +2783,8 @@ public class CcddClassesDataTable {
          *
          * @return Rate column name
          *****************************************************************************************/
-        protected String getRateName() {
+        protected String getRateName()
+        {
             return rateName;
         }
 
@@ -2633,7 +2793,8 @@ public class CcddClassesDataTable {
          *
          * @param rateName rate column name
          *****************************************************************************************/
-        protected void setRateName(String rateName) {
+        protected void setRateName(String rateName)
+        {
             this.rateName = rateName;
         }
 
@@ -2642,7 +2803,8 @@ public class CcddClassesDataTable {
          *
          * @return Data stream name
          *****************************************************************************************/
-        protected String getStreamName() {
+        protected String getStreamName()
+        {
             return streamName;
         }
 
@@ -2651,7 +2813,8 @@ public class CcddClassesDataTable {
          *
          * @param streamName data stream name
          *****************************************************************************************/
-        protected void setStreamName(String streamName) {
+        protected void setStreamName(String streamName)
+        {
             this.streamName = streamName;
         }
 
@@ -2660,7 +2823,8 @@ public class CcddClassesDataTable {
          *
          * @return Stream maximum messages per cycle
          *****************************************************************************************/
-        protected int getMaxMsgsPerCycle() {
+        protected int getMaxMsgsPerCycle()
+        {
             return maxMsgsPerCycle;
         }
 
@@ -2669,7 +2833,8 @@ public class CcddClassesDataTable {
          *
          * @param maxMsgsPerCycle stream maximum messages per cycle
          *****************************************************************************************/
-        protected void setMaxMsgsPerCycle(int maxMsgsPerCycle) {
+        protected void setMaxMsgsPerCycle(int maxMsgsPerCycle)
+        {
             this.maxMsgsPerCycle = maxMsgsPerCycle;
         }
 
@@ -2678,7 +2843,8 @@ public class CcddClassesDataTable {
          *
          * @return Stream maximum bytes per second
          *****************************************************************************************/
-        protected int getMaxBytesPerSec() {
+        protected int getMaxBytesPerSec()
+        {
             return maxBytesPerSec;
         }
 
@@ -2687,7 +2853,8 @@ public class CcddClassesDataTable {
          *
          * @param maxBytesPerSec stream maximum bytes per second
          *****************************************************************************************/
-        protected void setMaxBytesPerSec(int maxBytesPerSec) {
+        protected void setMaxBytesPerSec(int maxBytesPerSec)
+        {
             this.maxBytesPerSec = maxBytesPerSec;
         }
 
@@ -2696,7 +2863,8 @@ public class CcddClassesDataTable {
          *
          * @return Stream sample rate array
          *****************************************************************************************/
-        protected String[] getSampleRates() {
+        protected String[] getSampleRates()
+        {
             return sampleRates;
         }
 
@@ -2705,7 +2873,8 @@ public class CcddClassesDataTable {
          *
          * @param sampleRates stream sample rate array
          *****************************************************************************************/
-        protected void setSampleRates(String[] sampleRates) {
+        protected void setSampleRates(String[] sampleRates)
+        {
             this.sampleRates = sampleRates;
         }
     }
@@ -2713,42 +2882,43 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Table row indices for bit-packed variables class
      *********************************************************************************************/
-    protected static class BitPackRowIndex {
+    protected static class BitPackRowIndex
+    {
         private final int firstIndex;
         private final int lastIndex;
 
         /******************************************************************************************
          * Table row indices for bit-packed variables class constructor
          *
-         * @param firstIndex table row index for the first member in a group of
-         *                   bit-packed variables, model coordinates
+         * @param firstIndex table row index for the first member in a group of bit-packed variables, model
+         *                   coordinates
          *
-         * @param lastIndex  table row index for the last member in a group of
-         *                   bit-packed variables, model coordinates
+         * @param lastIndex  table row index for the last member in a group of bit-packed variables, model
+         *                   coordinates
          *****************************************************************************************/
-        BitPackRowIndex(int firstIndex, int lastIndex) {
+        BitPackRowIndex(int firstIndex, int lastIndex)
+        {
             this.firstIndex = firstIndex;
             this.lastIndex = lastIndex;
         }
 
         /******************************************************************************************
-         * Get the table row index for the first member in a group of bit-packed
-         * variable
+         * Get the table row index for the first member in a group of bit-packed variable
          *
-         * @return Table row index for the first member in a group of bit-packed
-         *         variable, model coordinates
+         * @return Table row index for the first member in a group of bit-packed variable, model coordinates
          *****************************************************************************************/
-        protected int getFirstIndex() {
+        protected int getFirstIndex()
+        {
             return firstIndex;
         }
 
         /******************************************************************************************
          * Get the table row index for the last member in a group of bit-packed variable
          *
-         * @return Table row index for the last member in a group of bit-packed
-         *         variable, model coordinates
+         * @return Table row index for the last member in a group of bit-packed variable, model coordinates
          *****************************************************************************************/
-        protected int getLastIndex() {
+        protected int getLastIndex()
+        {
             return lastIndex;
         }
     }
@@ -2756,7 +2926,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Table tree node indices for bit-packed variables class
      *********************************************************************************************/
-    protected static class BitPackNodeIndex {
+    protected static class BitPackNodeIndex
+    {
         private final int firstIndex;
         private final int lastIndex;
         private final int tableIndex;
@@ -2764,16 +2935,14 @@ public class CcddClassesDataTable {
         /******************************************************************************************
          * Table tree node indices for bit-packed variables class constructor
          *
-         * @param firstIndex tree node index for the first member in a group of
-         *                   bit-packed variables
+         * @param firstIndex tree node index for the first member in a group of bit-packed variables
          *
-         * @param lastIndex  tree node index for the last member in a group of
-         *                   bit-packed variables
+         * @param lastIndex  tree node index for the last member in a group of bit-packed variables
          *
-         * @param tableIndex tree node index for the selected member in a group of
-         *                   bit-packed variables
+         * @param tableIndex tree node index for the selected member in a group of bit-packed variables
          *****************************************************************************************/
-        BitPackNodeIndex(int firstIndex, int lastIndex, int tableIndex) {
+        BitPackNodeIndex(int firstIndex, int lastIndex, int tableIndex)
+        {
             this.firstIndex = firstIndex;
             this.lastIndex = lastIndex;
             this.tableIndex = tableIndex;
@@ -2784,7 +2953,8 @@ public class CcddClassesDataTable {
          *
          * @return Node index for the first member in a group of bit-packed variable
          *****************************************************************************************/
-        protected int getFirstIndex() {
+        protected int getFirstIndex()
+        {
             return firstIndex;
         }
 
@@ -2793,7 +2963,8 @@ public class CcddClassesDataTable {
          *
          * @return Node index for the last member in a group of bit-packed variable
          *****************************************************************************************/
-        protected int getLastIndex() {
+        protected int getLastIndex()
+        {
             return lastIndex;
         }
 
@@ -2802,7 +2973,8 @@ public class CcddClassesDataTable {
          *
          * @return Node index for the selected member in a group of bit-packed variable
          *****************************************************************************************/
-        protected int getTableIndex() {
+        protected int getTableIndex()
+        {
             return tableIndex;
         }
     }
@@ -2810,21 +2982,21 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Associated variables class
      *********************************************************************************************/
-    protected static class AssociatedVariable {
+    protected static class AssociatedVariable
+    {
         private final int totalSize;
         private final List<Variable> associates;
 
         /******************************************************************************************
-         * Associated variables class constructor. Variables are considered 'associated'
-         * if they are bit-wise variables that are packed together or are members of a
-         * string
+         * Associated variables class constructor. Variables are considered 'associated' if they are
+         * bit-wise variables that are packed together or are members of a string
          *
-         * @param totalSize  node index for the first member in a group of bit-packed
-         *                   variable
+         * @param totalSize  node index for the first member in a group of bit-packed variable
          *
          * @param associates list of associated variables
          *****************************************************************************************/
-        AssociatedVariable(int totalSize, List<Variable> associates) {
+        AssociatedVariable(int totalSize, List<Variable> associates)
+        {
             this.totalSize = totalSize;
             this.associates = associates;
         }
@@ -2834,7 +3006,8 @@ public class CcddClassesDataTable {
          *
          * @return Total size in bytes of the associated variables
          *****************************************************************************************/
-        protected int getTotalSize() {
+        protected int getTotalSize()
+        {
             return totalSize;
         }
 
@@ -2843,7 +3016,8 @@ public class CcddClassesDataTable {
          *
          * @return List of associated variables
          *****************************************************************************************/
-        protected List<Variable> getAssociates() {
+        protected List<Variable> getAssociates()
+        {
             return associates;
         }
     }
@@ -2851,7 +3025,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Variable generator class
      *********************************************************************************************/
-    protected static class VariableGenerator {
+    protected static class VariableGenerator
+    {
         /******************************************************************************************
          * Generate a telemetry data object
          *
@@ -2859,7 +3034,8 @@ public class CcddClassesDataTable {
          *
          * @return Telemetry data object based on the supplied data
          *****************************************************************************************/
-        static Variable generateTelemetryData(String data) {
+        static Variable generateTelemetryData(String data)
+        {
             String[] varData = data.split("\\" + TLM_SCH_SEPARATOR, 2);
             String name = varData[1];
             Float rate = Float.valueOf(varData[0]);
@@ -2870,9 +3046,8 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Create list of variables based on the path and rate passed in. If the path is
-         * a unlinked variable it will return a list of one, else it will return a list
-         * of the link's variables
+         * Create list of variables based on the path and rate passed in. If the path is a unlinked variable
+         * it will return a list of one, else it will return a list of the link's variables
          *
          * @param path tree path to the variable
          *
@@ -2880,11 +3055,13 @@ public class CcddClassesDataTable {
          *
          * @return Telemetry data object
          *****************************************************************************************/
-        static TelemetryData generateTelemetryData(Object[] path, float rate) {
+        static TelemetryData generateTelemetryData(Object[] path, float rate)
+        {
             String name = "";
 
             // Step through the node path
-            for (int index = 0; index < path.length; index++) {
+            for (int index = 0; index < path.length; index++)
+            {
                 // Add each level to the name separated by commas
                 name += path[index].toString() + ",";
             }
@@ -2906,25 +3083,27 @@ public class CcddClassesDataTable {
          *
          * @return Application data object based on the supplied data
          *****************************************************************************************/
-        static Variable generateApplicationData(String data) {
+        static Variable generateApplicationData(String data)
+        {
             String[] varData = data.split(",", DefaultApplicationField.values().length + 1);
 
             return new ApplicationData(varData[0],
-                    Float.valueOf(varData[DefaultApplicationField.SCHEDULE_RATE.ordinal() + 1]),
-                    Integer.valueOf(varData[DefaultApplicationField.EXECUTION_TIME.ordinal() + 1]),
-                    Integer.valueOf(varData[DefaultApplicationField.PRIORITY.ordinal() + 1]),
-                    Integer.valueOf(varData[DefaultApplicationField.MESSAGE_RATE.ordinal() + 1]),
-                    varData[DefaultApplicationField.WAKE_UP_MESSAGE.ordinal() + 1],
-                    Integer.valueOf(varData[DefaultApplicationField.HK_SEND_RATE.ordinal() + 1]),
-                    varData[DefaultApplicationField.HK_WAKE_UP_MESSAGE.ordinal() + 1],
-                    varData[DefaultApplicationField.SCH_GROUP.ordinal() + 1]);
+                                       Float.valueOf(varData[DefaultApplicationField.SCHEDULE_RATE.ordinal() + 1]),
+                                       Integer.valueOf(varData[DefaultApplicationField.EXECUTION_TIME.ordinal() + 1]),
+                                       Integer.valueOf(varData[DefaultApplicationField.PRIORITY.ordinal() + 1]),
+                                       Integer.valueOf(varData[DefaultApplicationField.MESSAGE_RATE.ordinal() + 1]),
+                                       varData[DefaultApplicationField.WAKE_UP_MESSAGE.ordinal() + 1],
+                                       Integer.valueOf(varData[DefaultApplicationField.HK_SEND_RATE.ordinal() + 1]),
+                                       varData[DefaultApplicationField.HK_WAKE_UP_MESSAGE.ordinal() + 1],
+                                       varData[DefaultApplicationField.SCH_GROUP.ordinal() + 1]);
         }
     }
 
     /**********************************************************************************************
      * Variable class. Used to denote a variable that is downlinked
      *********************************************************************************************/
-    protected static class Variable implements Comparable<Variable> {
+    protected static class Variable implements Comparable<Variable>
+    {
         private int size;
         private final String pathName;
         private final float rate;
@@ -2941,7 +3120,8 @@ public class CcddClassesDataTable {
          *
          * @param rate     variable rate, Hertz
          *****************************************************************************************/
-        Variable(int size, String pathName, float rate) {
+        Variable(int size, String pathName, float rate)
+        {
             this.size = size;
             this.pathName = pathName;
             this.rate = rate;
@@ -2953,7 +3133,8 @@ public class CcddClassesDataTable {
          *
          * @return Size of the variable in bytes
          *****************************************************************************************/
-        protected int getSize() {
+        protected int getSize()
+        {
             return size;
         }
 
@@ -2962,17 +3143,19 @@ public class CcddClassesDataTable {
          *
          * @param size size of the variable
          *****************************************************************************************/
-        protected void setSize(int size) {
+        protected void setSize(int size)
+        {
             this.size = size;
         }
 
         /******************************************************************************************
-         * Get the full path and name of the variable. This includes the root structure
-         * and all of the variables in this variable's path
+         * Get the full path and name of the variable. This includes the root structure and all of the
+         * variables in this variable's path
          *
          * @return Variable's full path and name
          *****************************************************************************************/
-        protected String getFullName() {
+        protected String getFullName()
+        {
             return pathName;
         }
 
@@ -2981,17 +3164,18 @@ public class CcddClassesDataTable {
          *
          * @return Rate of the variable, Hertz
          *****************************************************************************************/
-        protected float getRate() {
+        protected float getRate()
+        {
             return rate;
         }
 
         /******************************************************************************************
          * Get the indices of the messages in which the variable is contained
          *
-         * @return List containing the indices of the messages in which the variable is
-         *         contained
+         * @return List containing the indices of the messages in which the variable is contained
          *****************************************************************************************/
-        protected List<Integer> getMessageIndices() {
+        protected List<Integer> getMessageIndices()
+        {
             return messageIndices;
         }
 
@@ -3000,9 +3184,11 @@ public class CcddClassesDataTable {
          *
          * @param msgIndices array of indices in which the variable is contained
          *****************************************************************************************/
-        protected void setMessageIndices(Integer msgIndices[]) {
+        protected void setMessageIndices(Integer msgIndices[])
+        {
             // Step through each index
-            for (int index = 0; index < msgIndices.length; index++) {
+            for (int index = 0; index < msgIndices.length; index++)
+            {
                 // Add the message index
                 addMessageIndex(msgIndices[index]);
             }
@@ -3013,9 +3199,11 @@ public class CcddClassesDataTable {
          *
          * @param index index to add
          *****************************************************************************************/
-        protected void addMessageIndex(int index) {
+        protected void addMessageIndex(int index)
+        {
             // Check if the message index hasn't already been added
-            if (!(messageIndices.contains(index))) {
+            if (!(messageIndices.contains(index)))
+            {
                 // Add the index to the list
                 messageIndices.add(index);
             }
@@ -3026,17 +3214,21 @@ public class CcddClassesDataTable {
          *
          * @param compVar variable to be compared
          *
-         * @return 0 if the sizes are the same; -1 if the comparison variable's size if
-         *         greater than this variable's size; 1 if this variable's size is
-         *         greater than the comparison variable's size *
+         * @return 0 if the sizes are the same; -1 if the comparison variable's size if greater than this
+         *         variable's size; 1 if this variable's size is greater than the comparison variable's size
+         *         *
          *****************************************************************************************/
         @Override
-        public int compareTo(Variable compVar) {
+        public int compareTo(Variable compVar)
+        {
             int result = 0;
 
-            if (compVar.getSize() > getSize()) {
+            if (compVar.getSize() > getSize())
+            {
                 result = 1;
-            } else if (compVar.getSize() < getSize()) {
+            }
+            else if (compVar.getSize() < getSize())
+            {
                 result = -1;
             }
 
@@ -3044,12 +3236,13 @@ public class CcddClassesDataTable {
         }
 
         /******************************************************************************************
-         * Get the name of the link to which the item belongs. Override this function if
-         * the sub-class can have linked data
+         * Get the name of the link to which the item belongs. Override this function if the sub-class can
+         * have linked data
          *
          * @return Link name; null if the item is not a link member
          *****************************************************************************************/
-        protected String getLink() {
+        protected String getLink()
+        {
             return null;
         }
     }
@@ -3057,7 +3250,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Telemetry data class. Used for the telemetry scheduler
      *********************************************************************************************/
-    protected static class TelemetryData extends Variable {
+    protected static class TelemetryData extends Variable
+    {
         private final String dataType;
         private String link;
 
@@ -3070,7 +3264,8 @@ public class CcddClassesDataTable {
          *
          * @param rate     variable rate, Hertz
          *****************************************************************************************/
-        TelemetryData(String dataType, String pathName, float rate) {
+        TelemetryData(String dataType, String pathName, float rate)
+        {
             super(ccddMain.getDataTypeHandler().getSizeInBytes(dataType), pathName, rate);
             this.dataType = dataType;
 
@@ -3084,28 +3279,31 @@ public class CcddClassesDataTable {
          *
          * @return Variable data type
          *****************************************************************************************/
-        protected String getDataType() {
+        protected String getDataType()
+        {
             return dataType;
         }
 
         /******************************************************************************************
          * Get the name of the link for which this variable is a member
          *
-         * @return Name of the link for which this variable is a member; null if the
-         *         variable is not a member of a link
+         * @return Name of the link for which this variable is a member; null if the variable is not a
+         *         member of a link
          *****************************************************************************************/
         @Override
-        protected String getLink() {
+        protected String getLink()
+        {
             return link;
         }
 
         /******************************************************************************************
          * Set the name of the link for which this variable is a member
          *
-         * @param link name of the link for which this variable is a member; null if the
-         *             variable is not a member of a link
+         * @param link name of the link for which this variable is a member; null if the variable is not a
+         *             member of a link
          *****************************************************************************************/
-        protected void setLink(String link) {
+        protected void setLink(String link)
+        {
             this.link = link;
         }
     }
@@ -3113,7 +3311,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Application data class
      *********************************************************************************************/
-    protected static class ApplicationData extends Variable {
+    protected static class ApplicationData extends Variable
+    {
         private int priority;
         private int messageRate;
         private String wakeUpMessage;
@@ -3143,7 +3342,8 @@ public class CcddClassesDataTable {
          * @param schGroup        application schedule group
          *****************************************************************************************/
         ApplicationData(String name, float rate, int runTime, int priority, int messageRate, String wakeUpMessage,
-                int hkSendRate, String hkWakeUpMessage, String schGroup) {
+                        int hkSendRate, String hkWakeUpMessage, String schGroup)
+        {
             // Call the variable constructor
             super(runTime, name, rate);
 
@@ -3160,7 +3360,8 @@ public class CcddClassesDataTable {
          *
          * @return Application priority
          *****************************************************************************************/
-        protected int getPriority() {
+        protected int getPriority()
+        {
             return priority;
         }
 
@@ -3169,7 +3370,8 @@ public class CcddClassesDataTable {
          *
          * @param priority new application priority
          *****************************************************************************************/
-        protected void setPriority(int priority) {
+        protected void setPriority(int priority)
+        {
             this.priority = priority;
         }
 
@@ -3178,7 +3380,8 @@ public class CcddClassesDataTable {
          *
          * @return Message rate
          *****************************************************************************************/
-        protected int getMessageRate() {
+        protected int getMessageRate()
+        {
             return messageRate;
         }
 
@@ -3187,7 +3390,8 @@ public class CcddClassesDataTable {
          *
          * @param messageRate message rate
          *****************************************************************************************/
-        protected void setMessageRate(int messageRate) {
+        protected void setMessageRate(int messageRate)
+        {
             this.messageRate = messageRate;
         }
 
@@ -3196,7 +3400,8 @@ public class CcddClassesDataTable {
          *
          * @return Application wake-up message name and ID
          *****************************************************************************************/
-        protected String getWakeUpMessage() {
+        protected String getWakeUpMessage()
+        {
             return wakeUpMessage;
         }
 
@@ -3205,7 +3410,8 @@ public class CcddClassesDataTable {
          *
          * @param wakeUpMessage new application wake-up message name and ID
          *****************************************************************************************/
-        protected void setWakeUpMessage(String wakeUpMessage) {
+        protected void setWakeUpMessage(String wakeUpMessage)
+        {
             this.wakeUpMessage = wakeUpMessage;
         }
 
@@ -3214,7 +3420,8 @@ public class CcddClassesDataTable {
          *
          * @return Application wake-up message ID
          *****************************************************************************************/
-        protected String getWakeUpID() {
+        protected String getWakeUpID()
+        {
             return CcddMessageIDHandler.getMessageID(wakeUpMessage);
         }
 
@@ -3223,7 +3430,8 @@ public class CcddClassesDataTable {
          *
          * @return Application housekeeping send rate
          *****************************************************************************************/
-        protected int getHkSendRate() {
+        protected int getHkSendRate()
+        {
             return hkSendRate;
         }
 
@@ -3232,7 +3440,8 @@ public class CcddClassesDataTable {
          *
          * @param hkSendRate new application housekeeping send rate
          *****************************************************************************************/
-        protected void setHkSendRate(int hkSendRate) {
+        protected void setHkSendRate(int hkSendRate)
+        {
             this.hkSendRate = hkSendRate;
         }
 
@@ -3241,17 +3450,18 @@ public class CcddClassesDataTable {
          *
          * @return Application housekeeping wake-up message name and ID
          *****************************************************************************************/
-        protected String getHkWakeUpMessage() {
+        protected String getHkWakeUpMessage()
+        {
             return hkWakeUpMessage;
         }
 
         /******************************************************************************************
          * Set the application housekeeping wake-up message name and ID
          *
-         * @param hkWakeUpMessage new application housekeeping wake-up message name and
-         *                        ID
+         * @param hkWakeUpMessage new application housekeeping wake-up message name and ID
          *****************************************************************************************/
-        protected void setHkWakeUpMessage(String hkWakeUpMessage) {
+        protected void setHkWakeUpMessage(String hkWakeUpMessage)
+        {
             this.hkWakeUpMessage = hkWakeUpMessage;
         }
 
@@ -3260,7 +3470,8 @@ public class CcddClassesDataTable {
          *
          * @return Application schedule group
          *****************************************************************************************/
-        protected String getSchGroup() {
+        protected String getSchGroup()
+        {
             return schGroup;
         }
 
@@ -3269,7 +3480,8 @@ public class CcddClassesDataTable {
          *
          * @param schGroup new application schedule group
          *****************************************************************************************/
-        protected void setSchGroup(String schGroup) {
+        protected void setSchGroup(String schGroup)
+        {
             this.schGroup = schGroup;
         }
     }
@@ -3277,7 +3489,8 @@ public class CcddClassesDataTable {
     /**********************************************************************************************
      * Message class store variable data
      *********************************************************************************************/
-    protected static class Message {
+    protected static class Message
+    {
         private String name;
         private String id;
         private int bytesRemaining;
@@ -3294,14 +3507,12 @@ public class CcddClassesDataTable {
          *
          * @param totalBytes    size of the initial number of bytes in the message
          *
-         * @param parentMessage parent of the sub-message; null if this is not a
-         *                      sub-message
+         * @param parentMessage parent of the sub-message; null if this is not a sub-message
          *
-         * @param subMessages   sub-message initialization; null if this is not a parent
-         *                      message
+         * @param subMessages   sub-message initialization; null if this is not a parent message
          *****************************************************************************************/
-        Message(String messageName, String messageID, int totalBytes, Message parentMessage,
-                List<Message> subMessages) {
+        Message(String messageName, String messageID, int totalBytes, Message parentMessage, List<Message> subMessages)
+        {
             name = messageName;
             id = messageID;
             bytesRemaining = totalBytes;
@@ -3319,7 +3530,8 @@ public class CcddClassesDataTable {
          *
          * @param bytes       size of the initial amount of bytes in the message
          *****************************************************************************************/
-        Message(String messageName, String messageID, int bytes) {
+        Message(String messageName, String messageID, int bytes)
+        {
             this(messageName, messageID, bytes, null, new ArrayList<Message>());
 
             // Add a new sub-message. This will only happen if the message is a parent
@@ -3337,7 +3549,8 @@ public class CcddClassesDataTable {
          *
          * @param msg            parent of the sub-message
          *****************************************************************************************/
-        Message(String subMessageName, String subMsgID, int bytes, Message msg) {
+        Message(String subMessageName, String subMsgID, int bytes, Message msg)
+        {
             this(subMessageName, subMsgID, bytes, msg, null);
         }
 
@@ -3346,7 +3559,8 @@ public class CcddClassesDataTable {
          *
          * @return Message name
          *****************************************************************************************/
-        protected String getName() {
+        protected String getName()
+        {
             String messageName = name;
 
             return messageName;
@@ -3357,11 +3571,14 @@ public class CcddClassesDataTable {
          *
          * @param name message name
          *****************************************************************************************/
-        protected void setName(String name) {
+        protected void setName(String name)
+        {
             // Check if this is a parent message
-            if (subMessages != null) {
+            if (subMessages != null)
+            {
                 // Step through the sub-messages
-                for (Message subMsg : subMessages) {
+                for (Message subMsg : subMessages)
+                {
                     // Update the sub-message name to match the parent name change
                     subMsg.setName(subMsg.getName().replaceFirst(this.name, name));
                 }
@@ -3375,7 +3592,8 @@ public class CcddClassesDataTable {
          *
          * @return Message ID
          *****************************************************************************************/
-        protected String getID() {
+        protected String getID()
+        {
             return id;
         }
 
@@ -3384,16 +3602,19 @@ public class CcddClassesDataTable {
          *
          * @param messageID message ID
          *****************************************************************************************/
-        protected void setID(String messageID) {
+        protected void setID(String messageID)
+        {
             id = messageID;
 
             // Check if this is a parent message
-            if (parentMessage == null) {
+            if (parentMessage == null)
+            {
                 // Set the default sub-message ID to match
                 getSubMessage(0).id = messageID;
             }
             // Check if this is the default sub-message
-            else if (this.equals(parentMessage.getSubMessage(0))) {
+            else if (this.equals(parentMessage.getSubMessage(0)))
+            {
                 // Set the parent message ID to match
                 parentMessage.id = messageID;
             }
@@ -3404,7 +3625,8 @@ public class CcddClassesDataTable {
          *
          * @return List of sub-messages
          *****************************************************************************************/
-        protected List<Message> getSubMessages() {
+        protected List<Message> getSubMessages()
+        {
             return subMessages;
         }
 
@@ -3413,7 +3635,8 @@ public class CcddClassesDataTable {
          *
          * @return Parent message
          *****************************************************************************************/
-        protected Message getParentMessage() {
+        protected Message getParentMessage()
+        {
             return parentMessage;
         }
 
@@ -3422,9 +3645,11 @@ public class CcddClassesDataTable {
          *
          * @param subMsgID sub-message ID
          *****************************************************************************************/
-        protected void addNewSubMessage(String subMsgID) {
+        protected void addNewSubMessage(String subMsgID)
+        {
             // Check if the sub-messages doesn't exist
-            if (subMessages == null) {
+            if (subMessages == null)
+            {
                 subMessages = new ArrayList<Message>();
             }
 
@@ -3440,9 +3665,11 @@ public class CcddClassesDataTable {
          *
          * @param index sub-message index
          *****************************************************************************************/
-        protected void removeSubMessage(int index) {
+        protected void removeSubMessage(int index)
+        {
             // Check if the index is allowed
-            if (subMessages.size() > index) {
+            if (subMessages.size() > index)
+            {
                 // Remove the message at the index
                 subMessages.remove(index);
             }
@@ -3455,22 +3682,24 @@ public class CcddClassesDataTable {
          *
          * @return The sub-message at the specified index
          *****************************************************************************************/
-        protected Message getSubMessage(int index) {
+        protected Message getSubMessage(int index)
+        {
             return subMessages.get(index);
         }
 
         /******************************************************************************************
          * Get the number of sub-messages
          *
-         * @return Number of sub-messages; 0 if there are no sub-messages (i.e., this
-         *         isn't a parent message; parent messages always have at least one
-         *         sub-message)
+         * @return Number of sub-messages; 0 if there are no sub-messages (i.e., this isn't a parent
+         *         message; parent messages always have at least one sub-message)
          *****************************************************************************************/
-        protected int getNumberOfSubMessages() {
+        protected int getNumberOfSubMessages()
+        {
             int numMsgs = 0;
 
             // Check if sub-messages exist
-            if (subMessages != null) {
+            if (subMessages != null)
+            {
                 // Store the number of sub-messages
                 numMsgs = subMessages.size();
             }
@@ -3485,7 +3714,8 @@ public class CcddClassesDataTable {
          *
          * @return Specified variable object
          *****************************************************************************************/
-        protected Variable getVariable(int index) {
+        protected Variable getVariable(int index)
+        {
             return variables.get(index);
         }
 
@@ -3494,16 +3724,18 @@ public class CcddClassesDataTable {
          *
          * @param name name of the variable
          *
-         * @return Index of the variable with the specified name; -1 if the variable
-         *         doesn't exist
+         * @return Index of the variable with the specified name; -1 if the variable doesn't exist
          *****************************************************************************************/
-        private int getVariableIndex(String name) {
+        private int getVariableIndex(String name)
+        {
             int varIndex = -1;
 
             // Step through each variable in the message
-            for (int index = 0; index < variables.size(); index++) {
+            for (int index = 0; index < variables.size(); index++)
+            {
                 // Check if the specified name matches the variable name
-                if (name.equals(variables.get(index).getFullName())) {
+                if (name.equals(variables.get(index).getFullName()))
+                {
                     // Store the variable's index and stop searching
                     varIndex = index;
                     break;
@@ -3518,22 +3750,28 @@ public class CcddClassesDataTable {
          *
          * @param name name of the variable
          *
-         * @return Variable object with the specified name; null if the variable is not
-         *         a member of the message or any of its sub-messages
+         * @return Variable object with the specified name; null if the variable is not a member of the
+         *         message or any of its sub-messages
          *****************************************************************************************/
-        protected Variable getVariable(String name) {
+        protected Variable getVariable(String name)
+        {
             Variable variable = null;
 
             // Check if the variable is in the message
-            if (isVariableInMessage(name)) {
+            if (isVariableInMessage(name))
+            {
                 // Store the variable reference
                 variable = variables.get(getVariableIndex(name));
-            } else if (subMessages != null) {
+            }
+            else if (subMessages != null)
+            {
                 // Step through all the sub-messages to check if the variable is stored in a
                 // sub-message
-                for (Message subMsg : subMessages) {
+                for (Message subMsg : subMessages)
+                {
                     // Check if the variable is in the sub-message
-                    if (subMsg.isVariableInMessage(name)) {
+                    if (subMsg.isVariableInMessage(name))
+                    {
                         // Store the variable reference
                         variable = subMsg.getVariables().get(subMsg.getVariableIndex(name));
                     }
@@ -3548,31 +3786,36 @@ public class CcddClassesDataTable {
          *
          * @return List of message's variables
          *****************************************************************************************/
-        protected List<Variable> getVariables() {
+        protected List<Variable> getVariables()
+        {
             return variables;
         }
 
         /******************************************************************************************
-         * Get the list of all the variables including those within the sub-messages (if
-         * applicable)
+         * Get the list of all the variables including those within the sub-messages (if applicable)
          *
          * @return All variables including sub-message variables
          *****************************************************************************************/
-        protected List<Variable> getAllVariables() {
+        protected List<Variable> getAllVariables()
+        {
             List<Variable> allVar = new ArrayList<Variable>();
 
             // Add the message's variables
             allVar.addAll(variables);
 
             // Check if the message has sub-messages
-            if (subMessages != null) {
+            if (subMessages != null)
+            {
                 // Step through each sub-message
-                for (Message subMessage : subMessages) {
+                for (Message subMessage : subMessages)
+                {
                     // Step through each message for the sub-message
-                    for (Variable var : subMessage.getAllVariables()) {
+                    for (Variable var : subMessage.getAllVariables())
+                    {
                         // Check if the variable has already been added to the list. This can
                         // happen if a variable is assigned to two sub-messages
-                        if (!(allVar.contains(var))) {
+                        if (!(allVar.contains(var)))
+                        {
                             // Add the variable to the list
                             allVar.add(var);
                         }
@@ -3588,11 +3831,13 @@ public class CcddClassesDataTable {
          *
          * @return All variables for the message its parent
          *****************************************************************************************/
-        protected List<Variable> getVariablesWithParent() {
+        protected List<Variable> getVariablesWithParent()
+        {
             List<Variable> fullPacket = new ArrayList<Variable>();
 
             // Check if the message has a parent
-            if (parentMessage != null) {
+            if (parentMessage != null)
+            {
                 // Add the parent's variables to the list
                 fullPacket.addAll(parentMessage.getVariables());
             }
@@ -3608,7 +3853,8 @@ public class CcddClassesDataTable {
          *
          * @return Number of variables in the message
          *****************************************************************************************/
-        protected int getNumberOfVariables() {
+        protected int getNumberOfVariables()
+        {
             return variables.size();
         }
 
@@ -3617,24 +3863,26 @@ public class CcddClassesDataTable {
          *
          * @param variable variable to add
          *****************************************************************************************/
-        protected void addVariable(Variable variable) {
+        protected void addVariable(Variable variable)
+        {
             addVariable(variable, -1);
         }
 
         /******************************************************************************************
-         * Add a variable to the message. Insert the variable into the list at the
-         * specified index
+         * Add a variable to the message. Insert the variable into the list at the specified index
          *
          * @param variable variable to add
          *
-         * @param index    position in the variable list to insert the variable; -1 to
-         *                 append the variable to the end of the list
+         * @param index    position in the variable list to insert the variable; -1 to append the variable
+         *                 to the end of the list
          *****************************************************************************************/
-        protected void addVariable(Variable variable, int index) {
+        protected void addVariable(Variable variable, int index)
+        {
             // Check if the index indicates that the variable should be added to the end of
             // the
             // list
-            if (index == -1) {
+            if (index == -1)
+            {
                 // Set the index to the end of the list
                 index = variables.size();
             }
@@ -3650,20 +3898,25 @@ public class CcddClassesDataTable {
          *
          * @return Variable object that is removed
          *****************************************************************************************/
-        protected Variable removeVariable(String varName) {
+        protected Variable removeVariable(String varName)
+        {
             Variable variable = null;
 
             // Check if the variable is in the message
-            if (isVariableInMessage(varName)) {
+            if (isVariableInMessage(varName))
+            {
                 // Remove the variable
                 variable = variables.remove(getVariableIndex(varName));
             }
             // Check if the message has a sub-message
-            else if (subMessages != null) {
+            else if (subMessages != null)
+            {
                 // Step through each message
-                for (Message subMsg : subMessages) {
+                for (Message subMsg : subMessages)
+                {
                     // Check if the variable is in the message
-                    if (subMsg.isVariableInMessage(varName)) {
+                    if (subMsg.isVariableInMessage(varName))
+                    {
                         // Remove the variable
                         subMsg.removeVariable(varName);
                     }
@@ -3678,12 +3931,14 @@ public class CcddClassesDataTable {
          *
          * @return Number of bytes remaining
          *****************************************************************************************/
-        protected int getBytesRemaining() {
+        protected int getBytesRemaining()
+        {
             // Set the bytes number to the message's bytes
             int numBytes = bytesRemaining;
 
             // Check if the message has sub-messages
-            if (subMessages != null) {
+            if (subMessages != null)
+            {
                 // Get the smallest byte count from the sub-messages
                 numBytes = getSmallestSubMessageBytesRemaining();
             }
@@ -3696,26 +3951,29 @@ public class CcddClassesDataTable {
          *
          * @param bytesRemaining number of bytes remaining
          *****************************************************************************************/
-        protected void setBytesRemaining(int bytesRemaining) {
+        protected void setBytesRemaining(int bytesRemaining)
+        {
             this.bytesRemaining = bytesRemaining;
         }
 
         /******************************************************************************************
-         * Get the byte count for the sub-message with the least number of bytes
-         * remaining
+         * Get the byte count for the sub-message with the least number of bytes remaining
          *
          * @return Number of bytes remaining
          *****************************************************************************************/
-        private int getSmallestSubMessageBytesRemaining() {
+        private int getSmallestSubMessageBytesRemaining()
+        {
             // Initialize the smallest value to the parent's bytes remaining - a
             // sub-message's byte
             // count can't be greater than the parent's, only the same or smaller
             int smallest = bytesRemaining;
 
             // Step through each sub-message
-            for (Message msg : subMessages) {
+            for (Message msg : subMessages)
+            {
                 // Check if the byte count is smaller than the smallest thus far
-                if (msg.getBytesRemaining() < smallest) {
+                if (msg.getBytesRemaining() < smallest)
+                {
                     // Store the new smallest byte count
                     smallest = msg.getBytesRemaining();
                 }
@@ -3731,13 +3989,16 @@ public class CcddClassesDataTable {
          *
          * @return true if the message contains the specified variable
          *****************************************************************************************/
-        protected boolean isVariableInMessage(String varName) {
+        protected boolean isVariableInMessage(String varName)
+        {
             boolean isInMsg = false;
 
             // Step through each variable in the message
-            for (Variable variable : variables) {
+            for (Variable variable : variables)
+            {
                 // Check if the variable name matches the specified name
-                if (variable.getFullName().equals(varName)) {
+                if (variable.getFullName().equals(varName))
+                {
                     // Set the flag indicating the variable is in the message and stop searching
                     isInMsg = true;
                     break;
@@ -3749,10 +4010,10 @@ public class CcddClassesDataTable {
     }
 
     /**********************************************************************************************
-     * Data stream class. Used to store and retrieve the data from the scheduler
-     * handler
+     * Data stream class. Used to store and retrieve the data from the scheduler handler
      *********************************************************************************************/
-    protected static class DataStream {
+    protected static class DataStream
+    {
         private final List<Message> messages;
         private final List<Variable> varList;
         private final String rateName;
@@ -3766,7 +4027,8 @@ public class CcddClassesDataTable {
          *
          * @param rateName rate column name
          *****************************************************************************************/
-        DataStream(List<Message> messages, List<Variable> varList, String rateName) {
+        DataStream(List<Message> messages, List<Variable> varList, String rateName)
+        {
             this.messages = messages;
             this.varList = varList;
             this.rateName = rateName;
@@ -3779,7 +4041,8 @@ public class CcddClassesDataTable {
          *
          * @param varList  list of variables in the data stream
          *****************************************************************************************/
-        DataStream(List<Message> messages, List<Variable> varList) {
+        DataStream(List<Message> messages, List<Variable> varList)
+        {
             this(messages, varList, "");
         }
 
@@ -3788,7 +4051,8 @@ public class CcddClassesDataTable {
          *
          * @param rateName rate column name
          *****************************************************************************************/
-        DataStream(String rateName) {
+        DataStream(String rateName)
+        {
             this(new ArrayList<Message>(), new ArrayList<Variable>(), rateName);
         }
 
@@ -3799,7 +4063,8 @@ public class CcddClassesDataTable {
          *
          * @param rateName rate column name
          *****************************************************************************************/
-        DataStream(List<Message> messages, String rateName) {
+        DataStream(List<Message> messages, String rateName)
+        {
             this(messages, new ArrayList<Variable>(), rateName);
         }
 
@@ -3808,7 +4073,8 @@ public class CcddClassesDataTable {
          *
          * @return List of variables in the data stream
          *****************************************************************************************/
-        protected List<Variable> getVariableList() {
+        protected List<Variable> getVariableList()
+        {
             return varList;
         }
 
@@ -3817,7 +4083,8 @@ public class CcddClassesDataTable {
          *
          * @return List of messages in the data stream
          *****************************************************************************************/
-        protected List<Message> getMessages() {
+        protected List<Message> getMessages()
+        {
             return messages;
         }
 
@@ -3826,41 +4093,44 @@ public class CcddClassesDataTable {
          *
          * @return Rate column name
          *****************************************************************************************/
-        protected String getRateName() {
+        protected String getRateName()
+        {
             return rateName;
         }
     }
 
     /**********************************************************************************************
-     * Table opener class. Used by dialogs with a table open button to open the
-     * selected table(s) into a table editor
+     * Table opener class. Used by dialogs with a table open button to open the selected table(s) into a
+     * table editor
      *********************************************************************************************/
-    protected static class TableOpener {
+    protected static class TableOpener
+    {
         /******************************************************************************************
-         * Check if the table is applicable for opening. Override this method to include
-         * criteria that the table must meet or to alter the specified table name
+         * Check if the table is applicable for opening. Override this method to include criteria that the
+         * table must meet or to alter the specified table name
          *
-         * @param tableName the raw value from the table cell specified as the table
-         *                  name column in the openTables() method
+         * @param tableName the raw value from the table cell specified as the table name column in the
+         *                  openTables() method
          *
          * @return true if the table should be added to the list of ones to open
          *****************************************************************************************/
-        protected boolean isApplicable(String tableName) {
+        protected boolean isApplicable(String tableName)
+        {
             return true;
         }
 
         /******************************************************************************************
-         * Override this method to perform any clean up actions on the raw table name
-         * value
+         * Override this method to perform any clean up actions on the raw table name value
          *
-         * @param tableName the raw value from the table cell specified as the table
-         *                  name column in the openTables() method
+         * @param tableName the raw value from the table cell specified as the table name column in the
+         *                  openTables() method
          *
          * @param row       table row index containing the raw table name value
          *
          * @return true if the table should be added to the list of ones to open
          *****************************************************************************************/
-        protected String cleanUpTableName(String tableName, int row) {
+        protected String cleanUpTableName(String tableName, int row)
+        {
             return tableName;
         }
 
@@ -3871,30 +4141,36 @@ public class CcddClassesDataTable {
          *
          * @param tableNameColumn table column index containing the raw table name value
          *****************************************************************************************/
-        protected void openTables(CcddJTableHandler table, int tableNameColumn) {
+        protected void openTables(CcddJTableHandler table, int tableNameColumn)
+        {
             List<String> tablePaths = new ArrayList<String>();
 
             // Step through each row in the table
-            for (int row = 0; row < table.getRowCount(); row++) {
+            for (int row = 0; row < table.getRowCount(); row++)
+            {
                 // Check if the row is selected
-                if (table.isRowSelected(row)) {
+                if (table.isRowSelected(row))
+                {
                     // Get the variable path for this row with the HTML tag removed
                     String tableName = table.getValueAt(row, tableNameColumn).toString();
 
                     // Check if the table meets the criteria for inclusion in the list of tables to
                     // open
-                    if (isApplicable(tableName)) {
+                    if (isApplicable(tableName))
+                    {
                         // Clean up the table name, if needed
                         tableName = cleanUpTableName(tableName, row);
 
                         // The table name will sometimes have a variable name appended to the end. This
                         // needs to be trimmed off before attempting to open the table.
-                        if (StringUtils.countMatches(tableName, ",") >= 2) {
+                        if (StringUtils.countMatches(tableName, ",") >= 2)
+                        {
                             tableName = tableName.substring(0, tableName.indexOf(",", tableName.indexOf(",") + 1));
                         }
 
                         // Check if the table isn't already in the list of those to be opened
-                        if (!tablePaths.contains(tableName)) {
+                        if (!tablePaths.contains(tableName))
+                        {
                             // Add the table path to the list
                             tablePaths.add(tableName);
                         }
@@ -3903,7 +4179,8 @@ public class CcddClassesDataTable {
             }
 
             // Check if any table is selected
-            if (!tablePaths.isEmpty()) {
+            if (!tablePaths.isEmpty())
+            {
                 // Load the selected table's data into a table editor
                 ccddMain.getDbTableCommandHandler().loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
             }

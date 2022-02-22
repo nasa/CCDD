@@ -81,7 +81,8 @@ import CCDD.CcddUndoHandler.UndoableTreePathSelection;
  * CFS Command and Data Dictionary link manager handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
-public class CcddLinkManagerHandler {
+public class CcddLinkManagerHandler
+{
     // Class references
     private final CcddMain ccddMain;
     private final CcddLinkManagerDialog linkDialog;
@@ -132,15 +133,15 @@ public class CcddLinkManagerHandler {
      *
      * @param ccddMain       main class
      *
-     * @param linkDialog     reference to the link manager dialog that created this
-     *                       link manager handler
+     * @param linkDialog     reference to the link manager dialog that created this link manager handler
      *
      * @param rateName       data stream rate column name
      *
      * @param availableRates array of sample rates available to this stream
      *********************************************************************************************/
     CcddLinkManagerHandler(CcddMain ccddMain, CcddLinkManagerDialog linkDialog, String rateName,
-            String[] availableRates) {
+                           String[] availableRates)
+    {
         this.ccddMain = ccddMain;
         this.linkDialog = linkDialog;
         this.rateName = rateName;
@@ -150,12 +151,13 @@ public class CcddLinkManagerHandler {
     }
 
     /**********************************************************************************************
-     * Set the link manager initialization flag. When true this prevents the link
-     * manager dialog's update indicator from being updated
+     * Set the link manager initialization flag. When true this prevents the link manager dialog's
+     * update indicator from being updated
      *
      * @param enable true is the link manager is initializing
      *********************************************************************************************/
-    protected void setInitializing(boolean enable) {
+    protected void setInitializing(boolean enable)
+    {
         isInitializing = enable;
     }
 
@@ -164,7 +166,8 @@ public class CcddLinkManagerHandler {
      *
      * @param rate rate filter
      *********************************************************************************************/
-    protected void setRateFilter(String rate) {
+    protected void setRateFilter(String rate)
+    {
         rateFilter.setSelectedItem(rate);
     }
 
@@ -173,7 +176,8 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the variable tree
      *********************************************************************************************/
-    protected CcddTableTreeHandler getVariableTree() {
+    protected CcddTableTreeHandler getVariableTree()
+    {
         return variableTree;
     }
 
@@ -182,7 +186,8 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the link tree
      *********************************************************************************************/
-    protected CcddLinkTreeHandler getLinkTree() {
+    protected CcddLinkTreeHandler getLinkTree()
+    {
         return linkTree;
     }
 
@@ -191,7 +196,8 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the link handler panel
      *********************************************************************************************/
-    protected JPanel getHandlerPanel() {
+    protected JPanel getHandlerPanel()
+    {
         return managerPnl;
     }
 
@@ -200,7 +206,8 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the current links
      *********************************************************************************************/
-    protected List<String[]> getCurrentLinks() {
+    protected List<String[]> getCurrentLinks()
+    {
         return currentLinks;
     }
 
@@ -209,14 +216,16 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the data stream rate column
      *********************************************************************************************/
-    protected String getRateName() {
+    protected String getRateName()
+    {
         return rateName;
     }
 
     /**********************************************************************************************
      * Update the committed links to the current links tree
      *********************************************************************************************/
-    protected void updateCommittedLinks() {
+    protected void updateCommittedLinks()
+    {
         // Store the links in the committed links list
         committedLinks = linkTree.createDefinitionsFromTree();
     }
@@ -226,7 +235,8 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the link manager's undo manager
      *********************************************************************************************/
-    protected CcddUndoManager getUndoManager() {
+    protected CcddUndoManager getUndoManager()
+    {
         return undoManager;
     }
 
@@ -235,7 +245,8 @@ public class CcddLinkManagerHandler {
      *
      * @return Reference to the link manager's undo handler
      *********************************************************************************************/
-    protected CcddUndoHandler getUndoHandler() {
+    protected CcddUndoHandler getUndoHandler()
+    {
         return undoHandler;
     }
 
@@ -244,19 +255,23 @@ public class CcddLinkManagerHandler {
      *
      * @param availableRates array of sample rates available to this stream
      *********************************************************************************************/
-    private void initialize(String[] availableRates) {
+    private void initialize(String[] availableRates)
+    {
         isNodeSelectionChanging = false;
 
         // Set the flag to indicate the link manager dialog is being initialized
         isInitializing = true;
 
         // Create borders for the dialog components
-        border = BorderFactory.createCompoundBorder(
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.GRAY),
-                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                        ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        border = BorderFactory
+                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+                                                                      Color.GRAY),
+                                      BorderFactory
+                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
+                                                                         .getSpacing()));
 
         emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -265,19 +280,26 @@ public class CcddLinkManagerHandler {
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
-                GridBagConstraints.BOTH, new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0, 0),
-                0, 0);
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
+                                                                .getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
+                                                                           .getSpacing() / 2,
+                                                                   0, 0),
+                                                        0, 0);
 
         // Add an undo edit manager
-        undoManager = new CcddUndoManager() {
+        undoManager = new CcddUndoManager()
+        {
             /**************************************************************************************
              * Update the change indicator if the link manager has changed
              *************************************************************************************/
             @Override
-            protected void ownerHasChanged() {
+            protected void ownerHasChanged()
+            {
                 // Check if the update indicator should be refreshed
-                if (!isInitializing) {
+                if (!isInitializing)
+                {
                     linkDialog.updateChangeIndicator();
                 }
             }
@@ -291,14 +313,17 @@ public class CcddLinkManagerHandler {
         undoHandler.setAllowUndo(false);
 
         // Build the link tree
-        linkTree = new CcddLinkTreeHandler(ccddMain, undoHandler, rateName, ccddMain.getMainFrame()) {
+        linkTree = new CcddLinkTreeHandler(ccddMain, undoHandler, rateName, ccddMain.getMainFrame())
+        {
             /**************************************************************************************
              * Respond to changes in selection of a node in the link tree
              *************************************************************************************/
             @Override
-            protected void updateTableSelection() {
+            protected void updateTableSelection()
+            {
                 // Check that a node selection change is not in progress
-                if (!isNodeSelectionChanging) {
+                if (!isNodeSelectionChanging)
+                {
                     // Set the flag to inhibit registering the node selection as a link change
                     isInitializing = true;
 
@@ -309,7 +334,8 @@ public class CcddLinkManagerHandler {
                     clearDisabledNodes();
 
                     // Check if a link was selected
-                    if (selectedLink != null) {
+                    if (selectedLink != null)
+                    {
                         // Store the description with the previous link
                         selectedLink.setDescription(descriptionFld.getText().trim());
                     }
@@ -331,7 +357,8 @@ public class CcddLinkManagerHandler {
                     // Check if the node change isn't set to be ignored for undo/redo purposes. The
                     // undo handler sets the flag so that the undo/redo operation isn't recorded on
                     // the undo/redo stack
-                    if (undoHandler.isAllowUndo()) {
+                    if (undoHandler.isAllowUndo())
+                    {
                         // Add the node path selection change to the undo/redo stack
                         pathSelect.selectTreePath(getSelectedPaths());
                     }
@@ -350,13 +377,15 @@ public class CcddLinkManagerHandler {
              * @param isValue  link name after the undo/redo operation
              *****************************************************************************/
             @Override
-            protected void nodeRenameCleanup(Object wasValue, Object isValue) {
+            protected void nodeRenameCleanup(Object wasValue, Object isValue)
+            {
                 // Get the link names by removing any extra text (rate) from the node names
                 String wasValueS = removeExtraText(wasValue.toString());
                 String isValueS = removeExtraText(isValue.toString());
 
                 // Step through the link's definitions
-                for (String[] linkDefn : getLinkHandler().getLinkDefinitionsByName(wasValueS, getRateName())) {
+                for (String[] linkDefn : getLinkHandler().getLinkDefinitionsByName(wasValueS, getRateName()))
+                {
                     // Update the link definition's link name
                     linkDefn[LinksColumn.LINK_NAME.ordinal()] = isValueS;
                 }
@@ -404,8 +433,9 @@ public class CcddLinkManagerHandler {
         // rates; otherwise choose the first rate if any rates exist, and if none exist
         // set the
         // rate to a dummy value
-        selectedRate = Arrays.asList(availableRates).contains("1") ? "1"
-                : (availableRates.length != 0 ? CcddUtilities.removeHTMLTags(availableRates[0]) : "0");
+        selectedRate = Arrays.asList(availableRates)
+                .contains("1") ? "1"
+                               : (availableRates.length != 0 ? CcddUtilities.removeHTMLTags(availableRates[0]) : "0");
 
         // Build the variable tree that shows tables and their variables for the
         // selected rate. Use
@@ -413,17 +443,21 @@ public class CcddLinkManagerHandler {
         // display in
         // the tree, or, if none, create the tree showing no variables
         variableTree = new CcddTableTreeHandler(ccddMain,
-                new CcddGroupHandler(ccddMain, undoHandler, ccddMain.getMainFrame()),
-                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES, rateName, selectedRate,
-                linkTree.getLinkVariables(null), null, // Unused in link manager
-                null, ccddMain.getMainFrame()) {
+                                                new CcddGroupHandler(ccddMain, undoHandler, ccddMain.getMainFrame()),
+                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES, rateName,
+                                                selectedRate, linkTree.getLinkVariables(null), null, // Unused in link
+                                                                                                     // manager
+                                                null, ccddMain.getMainFrame())
+        {
             /**************************************************************************************
              * Respond to changes in selection of a node in the variable tree
              *************************************************************************************/
             @Override
-            protected void updateTableSelection() {
+            protected void updateTableSelection()
+            {
                 // Check that a node selection change is not in progress
-                if (!isNodeSelectionChanging) {
+                if (!isNodeSelectionChanging)
+                {
                     // Select the associated link in the link tree if a linked variable is selected
                     // in the variable tree. Note that below any linked variables are deselected,
                     // so this call must occur first
@@ -441,12 +475,13 @@ public class CcddLinkManagerHandler {
             }
 
             /**************************************************************************************
-             * Override building the table tree in order to apply the rate filter and change
-             * the instances node name
+             * Override building the table tree in order to apply the rate filter and change the instances node
+             * name
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged,
-                    Component parent) {
+            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter,
+                                          boolean isByGroupChanged, Component parent)
+            {
                 // Set the flag to inhibit registering a link change due to the tree is being
                 // built
                 isInitializing = true;
@@ -459,11 +494,11 @@ public class CcddLinkManagerHandler {
             }
 
             /**************************************************************************************
-             * Override to account for the tree having no header node between the root and
-             * table nodes
+             * Override to account for the tree having no header node between the root and table nodes
              *************************************************************************************/
             @Override
-            protected int getHeaderNodeLevel() {
+            protected int getHeaderNodeLevel()
+            {
                 return super.getHeaderNodeLevel() - 1;
             }
         };
@@ -477,7 +512,9 @@ public class CcddLinkManagerHandler {
         gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 1.0;
         treePnl.add(variableTree.createTreePanel("Structures & Variables",
-                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false, ccddMain.getMainFrame()), gbc);
+                                                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
+                                                 ccddMain.getMainFrame()),
+                    gbc);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = 0;
 
@@ -490,8 +527,10 @@ public class CcddLinkManagerHandler {
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         managerPnl.add(new CustomSplitPane(treePnl,
-                linkTree.createTreePanel("Links", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
-                createArrowButtonPanel(), JSplitPane.HORIZONTAL_SPLIT), gbc);
+                                           linkTree.createTreePanel("Links",
+                                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                                           createArrowButtonPanel(), JSplitPane.HORIZONTAL_SPLIT),
+                       gbc);
 
         // Create the link description label
         JLabel descriptionLbl = new JLabel("Description");
@@ -517,12 +556,14 @@ public class CcddLinkManagerHandler {
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
 
         // Add a listener to detect addition or deletion of text in the input field
-        descriptionFld.getDocument().addDocumentListener(new DocumentListener() {
+        descriptionFld.getDocument().addDocumentListener(new DocumentListener()
+        {
             /**************************************************************************************
              * Update the change indicator when text is added
              *************************************************************************************/
             @Override
-            public void insertUpdate(DocumentEvent de) {
+            public void insertUpdate(DocumentEvent de)
+            {
                 undoManager.ownerHasChanged();
             }
 
@@ -530,7 +571,8 @@ public class CcddLinkManagerHandler {
              * Update the change indicator when text is removed
              *************************************************************************************/
             @Override
-            public void removeUpdate(DocumentEvent de) {
+            public void removeUpdate(DocumentEvent de)
+            {
                 undoManager.ownerHasChanged();
             }
 
@@ -538,7 +580,8 @@ public class CcddLinkManagerHandler {
              * Handle updates to a attribute change (unused)
              *************************************************************************************/
             @Override
-            public void changedUpdate(DocumentEvent de) {
+            public void changedUpdate(DocumentEvent de)
+            {
             }
         });
 
@@ -603,14 +646,17 @@ public class CcddLinkManagerHandler {
 
         // Create the combo box that displays the variable rates and add it to the
         // dialog panel
-        rateFilter = new PaddedComboBox(availableRates, ModifiableFontInfo.INPUT_TEXT.getFont()) {
+        rateFilter = new PaddedComboBox(availableRates, ModifiableFontInfo.INPUT_TEXT.getFont())
+        {
             /**************************************************************************************
              * Override so that items flagged as disabled (grayed out) can't be selected
              *************************************************************************************/
             @Override
-            public void setSelectedItem(Object anObject) {
+            public void setSelectedItem(Object anObject)
+            {
                 // Check if the item isn't flagged as disabled
-                if (!anObject.toString().startsWith(DISABLED_TEXT_COLOR)) {
+                if (!anObject.toString().startsWith(DISABLED_TEXT_COLOR))
+                {
                     // Set the selected item to the specified item, if it exists in the list
                     super.setSelectedItem(anObject);
                 }
@@ -622,17 +668,20 @@ public class CcddLinkManagerHandler {
         rateSelectPnl.add(rateFilter, gbc);
 
         // Add a listener for rate filter selection changes
-        rateFilter.addActionListener(new ActionListener() {
+        rateFilter.addActionListener(new ActionListener()
+        {
             /**************************************************************************************
              * Rebuild the table tree using the selected rate filter
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 // Get the rate selected in the combo box
                 String newRate = ((JComboBox<?>) ae.getSource()).getSelectedItem().toString();
 
                 // Check if the rate changed
-                if (!selectedRate.equals(newRate)) {
+                if (!selectedRate.equals(newRate))
+                {
                     // Set the new rate as the selected rate
                     selectedRate = newRate;
 
@@ -647,7 +696,8 @@ public class CcddLinkManagerHandler {
                 linkTree.setTreePathOrder(variableTree.getTableTreePathList(null, variableTree.getRootNode(), -1));
 
                 // Check if this is the first time the rate selection occurs
-                if (firstRateChange) {
+                if (firstRateChange)
+                {
                     // Force the link tree to be rebuilt now that the tree path order is
                     // established (via setting the rate filter). This forces the link variables to
                     // appear in the same order as they are listed in their prototype tables
@@ -698,23 +748,23 @@ public class CcddLinkManagerHandler {
     }
 
     /**********************************************************************************************
-     * Set/clear the selected link, enable/disable the description, rate, and size
-     * in bytes fields, and enable/disable the dialog's buttons that apply only if a
-     * single link is selected based on if a valid link name is provided
+     * Set/clear the selected link, enable/disable the description, rate, and size in bytes fields, and
+     * enable/disable the dialog's buttons that apply only if a single link is selected based on if a
+     * valid link name is provided
      *
-     * @param linkName name of the selected link; null if no link or more than one
-     *                 link is selected
+     * @param linkName name of the selected link; null if no link or more than one link is selected
      *
-     * @param canCopy  true if the copy operation is allowed (i.e., one or more
-     *                 links is selected)
+     * @param canCopy  true if the copy operation is allowed (i.e., one or more links is selected)
      *********************************************************************************************/
-    private void setLinkAndFields(String linkName, boolean canCopy) {
+    private void setLinkAndFields(String linkName, boolean canCopy)
+    {
         // Check if the edit sequence is set to be automatically terminated. During an
         // undo or redo
         // operation the edit sequence termination is handled manually in order to group
         // the tree
         // and link information updates into a single compound edit
-        if (undoHandler.isAutoEndEditSequence()) {
+        if (undoHandler.isAutoEndEditSequence())
+        {
             // End any active edit sequence
             undoManager.endEditSequence();
         }
@@ -730,7 +780,8 @@ public class CcddLinkManagerHandler {
         String size = "";
 
         // Check if a single link is selected
-        if (linkName != null) {
+        if (linkName != null)
+        {
             // Get the link's information
             selectedLink = linkTree.getLinkInformation(linkName);
         }
@@ -738,15 +789,16 @@ public class CcddLinkManagerHandler {
         // Check that the link exists. The selected link can be null if multiple links
         // are deleted
         // at the same time
-        if (selectedLink != null) {
+        if (selectedLink != null)
+        {
             enable = true;
             fieldColor = ModifiableColorInfo.INPUT_BACK.getColor();
 
             // Get the link size in bytes, rate, and description. The rate is set to a blank
             // if the
             // link contains no variables
-            size = String.valueOf(
-                    linkTree.getLinkHandler().getLinkSizeInBytes(rateName, linkTree.removeExtraText(linkName)));
+            size = String.valueOf(linkTree.getLinkHandler().getLinkSizeInBytes(rateName,
+                                                                               linkTree.removeExtraText(linkName)));
             rate = selectedLink.getSampleRate().equals("0") || size.equals("0") ? "" : selectedLink.getSampleRate();
             description = selectedLink.getDescription();
         }
@@ -770,12 +822,12 @@ public class CcddLinkManagerHandler {
     }
 
     /**********************************************************************************************
-     * Create a panel to contain a pair of arrow buttons. Make all but the button
-     * icons transparent
+     * Create a panel to contain a pair of arrow buttons. Make all but the button icons transparent
      *
      * @return JPanel containing the arrow buttons in a vertical layout
      *********************************************************************************************/
-    private JPanel createArrowButtonPanel() {
+    private JPanel createArrowButtonPanel()
+    {
         // Create the left and right arrow buttons
         JButton leftArrowBtn = new JButton();
         JButton rightArrowBtn = new JButton();
@@ -785,17 +837,20 @@ public class CcddLinkManagerHandler {
         leftArrowBtn.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
         // Create a listener for the remove item button
-        leftArrowBtn.addActionListener(new ActionListener() {
+        leftArrowBtn.addActionListener(new ActionListener()
+        {
             /**************************************************************************************
              * Remove the selected variable(s) from the link
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 // Get the selected node(s) in the tree
                 String[] selected = linkTree.getTopLevelSelectedNodeNames();
 
                 // Check that a node is selected
-                if (selected.length != 0) {
+                if (selected.length != 0)
+                {
                     // Disable automatically ending the edit sequence. This allows all of the added
                     // link members to be grouped into a single sequence so that if undone, all
                     // members are removed together
@@ -822,19 +877,22 @@ public class CcddLinkManagerHandler {
         rightArrowBtn.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
         // Create a listener for the add item button
-        rightArrowBtn.addActionListener(new ActionListener() {
+        rightArrowBtn.addActionListener(new ActionListener()
+        {
             /**************************************************************************************
              * Add the the selected variable(s) to the selected link
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(ActionEvent ae)
+            {
                 // Get the selected node(s) in the tree (can only be one)
                 String[] selected = linkTree.getTopLevelSelectedNodeNames();
 
                 // Check that a single node is selected. Only valid link nodes (ones with the
                 // same
                 // rate or empty ones) can be selected; invalid link nodes are grayed out
-                if (selected.length == 1) {
+                if (selected.length == 1)
+                {
                     // Set the flag to prevent calls to update the dialog change indicator while
                     // adding variables to the link
                     isInitializing = true;
@@ -868,7 +926,7 @@ public class CcddLinkManagerHandler {
 
         // Set the layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+                                                        GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         // Create a panel to contain the buttons. Arrange the buttons vertically
         JPanel buttonPnl = new JPanel(new GridBagLayout());
@@ -892,17 +950,18 @@ public class CcddLinkManagerHandler {
     }
 
     /**********************************************************************************************
-     * Add the selected variable(s) in the variable tree to the selected link
-     * definition(s) in the link tree
+     * Add the selected variable(s) in the variable tree to the selected link definition(s) in the link
+     * tree
      *
      * @param linkName name of the link to which to add the variable(s)
      *********************************************************************************************/
-    private void addVariableToLink(String linkName) {
+    private void addVariableToLink(String linkName)
+    {
         // Add the selected variable(s) to the link tree. The start node is decremented
         // to account
         // for there not being an instance node in the tree
         linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true), variableTree.getHeaderNodeLevel(),
-                true);
+                                            true);
 
         // Set the link's sample rate to the currently selected rate. This only makes a
         // change if
@@ -910,21 +969,21 @@ public class CcddLinkManagerHandler {
         linkTree.getLinkInformation(linkName).setSampleRate(selectedRate);
 
         // Clean up the links following addition of the variable
-        cleanUpLinks(new String[] { linkName });
+        cleanUpLinks(new String[] {linkName});
     }
 
     /**********************************************************************************************
-     * Remove the selected variable(s) from the link and reenable them in the
-     * variable tree
+     * Remove the selected variable(s) from the link and reenable them in the variable tree
      *
-     * @param linkNames array containing the name(s) of the link(s) from which to
-     *                  remove the variable(s)
+     * @param linkNames array containing the name(s) of the link(s) from which to remove the variable(s)
      *********************************************************************************************/
-    private void removeVariableFromLink(String[] linkNames) {
+    private void removeVariableFromLink(String[] linkNames)
+    {
         ToolTipTreeNode node = null;
 
         // Check if a single link is selected
-        if (selectedLink != null) {
+        if (selectedLink != null)
+        {
             // Store the selected group's node
             node = (ToolTipTreeNode) linkTree.getSelectionPath().getPathComponent(1);
         }
@@ -933,9 +992,11 @@ public class CcddLinkManagerHandler {
         linkTree.removeSelectedNodes();
 
         // Step through each on the links
-        for (String linkName : linkNames) {
+        for (String linkName : linkNames)
+        {
             // Check if the link has no member variables
-            if (linkTree.getLinkVariables(linkName).size() == 0) {
+            if (linkTree.getLinkVariables(linkName).size() == 0)
+            {
                 // Set the link's sample rate to zero (indicating it has no rate since it has no
                 // members)
                 linkTree.getLinkInformation(linkName).setSampleRate("0");
@@ -947,7 +1008,8 @@ public class CcddLinkManagerHandler {
 
         // Check if a single link was selected prior to removing the selected
         // variable(s)
-        if (node != null) {
+        if (node != null)
+        {
             // Select the node for the group that had the table(s) removed
             linkTree.setSelectionPath(new TreePath(node.getPath()));
         }
@@ -956,10 +1018,11 @@ public class CcddLinkManagerHandler {
     /**********************************************************************************************
      * Clean up the links following the addition or deletion of a variable
      *
-     * @param linkNames array containing the name of the link(s) to be updated; null
-     *                  to perform the cleaning but without updating the link fields
+     * @param linkNames array containing the name of the link(s) to be updated; null to perform the
+     *                  cleaning but without updating the link fields
      *********************************************************************************************/
-    private void cleanUpLinks(String[] linkNames) {
+    private void cleanUpLinks(String[] linkNames)
+    {
         // Update the link definitions to account for the changes
         linkTree.updateLinkDefinitions();
 
@@ -977,7 +1040,8 @@ public class CcddLinkManagerHandler {
         variableTree.setExcludedVariables(linkedVars);
 
         // Check if the link names are provided
-        if (linkNames != null) {
+        if (linkNames != null)
+        {
             // If a single link is selected then set the selected link, enable and populate
             // the
             // description, rate, and size in bytes fields; otherwise clear the selected
@@ -993,7 +1057,8 @@ public class CcddLinkManagerHandler {
     /**********************************************************************************************
      * Clean up the links following an undo/redo operation
      *********************************************************************************************/
-    protected void cleanUpLinks() {
+    protected void cleanUpLinks()
+    {
         cleanUpLinks(linkTree.getTopLevelSelectedNodeNames());
     }
 
@@ -1002,9 +1067,11 @@ public class CcddLinkManagerHandler {
      *
      * @return true if the link definitions have changed
      *********************************************************************************************/
-    protected boolean isLinksChanged() {
+    protected boolean isLinksChanged()
+    {
         // Check if a link is selected
-        if (selectedLink != null) {
+        if (selectedLink != null)
+        {
             // Store the description is case it has changed
             selectedLink.setDescription(descriptionFld.getText().trim());
         }
@@ -1018,15 +1085,19 @@ public class CcddLinkManagerHandler {
         boolean hasChanges = currentLinks.size() != committedLinks.size();
 
         // Check if the number of links is the same
-        if (!hasChanges) {
+        if (!hasChanges)
+        {
             // Step through the current link list
-            for (String[] curLink : currentLinks) {
+            for (String[] curLink : currentLinks)
+            {
                 boolean isFound = false;
 
                 // Step through the committed link list
-                for (String[] comLink : committedLinks) {
+                for (String[] comLink : committedLinks)
+                {
                     // Check if the current link entry matches the committed link entry
-                    if (Arrays.equals(curLink, comLink)) {
+                    if (Arrays.equals(curLink, comLink))
+                    {
                         // Set the flag indicating a match and stop searching
                         isFound = true;
                         break;
@@ -1034,7 +1105,8 @@ public class CcddLinkManagerHandler {
                 }
 
                 // Check if no matching entry was found
-                if (!isFound) {
+                if (!isFound)
+                {
                     // Set the flag indicating a link has changed and stop searching
                     hasChanges = true;
                     break;
@@ -1046,20 +1118,20 @@ public class CcddLinkManagerHandler {
     }
 
     /**********************************************************************************************
-     * Get a list of link member variables that are no longer valid for the
-     * telemetry scheduler table due to the addition of one or more new member
-     * variables. If a telemetry message references a linked variable, and a new
-     * variable is added to the link definition, then the message no longer
-     * references all of the variables that are linked. Since the additional
-     * variable(s) may not fit within the message's maximum size, all of the
-     * variable in the link are removed from the message(s). The user must add the
-     * linked variables back to the messages using the telemetry scheduler
+     * Get a list of link member variables that are no longer valid for the telemetry scheduler table
+     * due to the addition of one or more new member variables. If a telemetry message references a
+     * linked variable, and a new variable is added to the link definition, then the message no longer
+     * references all of the variables that are linked. Since the additional variable(s) may not fit
+     * within the message's maximum size, all of the variable in the link are removed from the
+     * message(s). The user must add the linked variables back to the messages using the telemetry
+     * scheduler
      *
-     * @return List of link member variables that are no longer valid for the
-     *         telemetry scheduler table due to the addition of one or more new
-     *         member variables; and empty list if no links are invalid
+     * @return List of link member variables that are no longer valid for the telemetry scheduler table
+     *         due to the addition of one or more new member variables; and empty list if no links are
+     *         invalid
      *********************************************************************************************/
-    protected List<String> getInvalidatedLinkMembers() {
+    protected List<String> getInvalidatedLinkMembers()
+    {
         List<String> checkedLinks = new ArrayList<String>();
         List<String> invalidatedLinks = new ArrayList<String>();
 
@@ -1067,11 +1139,13 @@ public class CcddLinkManagerHandler {
         CcddLinkHandler newLinkHndlr = linkTree.getLinkHandler();
 
         // Step through each link by name
-        for (String linkName : oldLinkHndlr.getLinkNamesByRate(rateName)) {
+        for (String linkName : oldLinkHndlr.getLinkNamesByRate(rateName))
+        {
             // Check if this link has already been processed. Two links can be checked
             // during one
             // pass when a variable is transferred from one link to another
-            if (!checkedLinks.contains(linkName)) {
+            if (!checkedLinks.contains(linkName))
+            {
                 boolean isLinkInvalid = false;
 
                 // Add the link to the list of those checked so that is isn't checked again
@@ -1082,17 +1156,20 @@ public class CcddLinkManagerHandler {
                 oldDefns.addAll(oldLinkHndlr.getLinkDefinitionsByName(linkName, rateName));
 
                 // Check if the link had any variables assigned to it
-                if (!oldDefns.isEmpty()) {
+                if (!oldDefns.isEmpty())
+                {
                     // Get the name of the link to which the variable now belongs (this may be
                     // another link)
                     String newLinkName = newLinkHndlr.getVariableLink(oldDefns.get(0)[LinksColumn.MEMBER.ordinal()],
-                            rateName);
+                                                                      rateName);
 
                     // Check if the variable is still a member of a link
-                    if (newLinkName != null) {
+                    if (newLinkName != null)
+                    {
                         // Check if this link hasn't already been added to the list of those
                         // processed (e.g., the variable is not within the original link)
-                        if (!checkedLinks.contains(newLinkName)) {
+                        if (!checkedLinks.contains(newLinkName))
+                        {
                             // Add the link to the list of those checked so that is isn't checked
                             // again
                             checkedLinks.add(newLinkName);
@@ -1104,12 +1181,15 @@ public class CcddLinkManagerHandler {
 
                         // Check if link to which the variable belongs has the same or fewer
                         // members than before
-                        if (newDefns.size() <= oldDefns.size()) {
+                        if (newDefns.size() <= oldDefns.size())
+                        {
                             // Step through each of the link's original definitions
-                            for (String[] newDefn : newDefns) {
+                            for (String[] newDefn : newDefns)
+                            {
                                 // Check if the link to which the variable belongs doesn't contain
                                 // all of the same members it had before
-                                if (!oldDefns.contains((Object)newDefn[LinksColumn.MEMBER.ordinal()])) {
+                                if (!oldDefns.contains((Object) newDefn[LinksColumn.MEMBER.ordinal()]))
+                                {
                                     // Set the flag to indicate the link has new members and stop
                                     // searching
                                     isLinkInvalid = true;
@@ -1118,15 +1198,18 @@ public class CcddLinkManagerHandler {
                             }
                         }
                         // The link containing the variable has more members than before
-                        else {
+                        else
+                        {
                             // Set the flag to indicate the link has new members
                             isLinkInvalid = true;
                         }
 
                         // Check if the link has new members
-                        if (isLinkInvalid) {
+                        if (isLinkInvalid)
+                        {
                             // Step through the new link definitions
-                            for (String[] newDefn : newDefns) {
+                            for (String[] newDefn : newDefns)
+                            {
                                 // Add the variable to the invalidated links list
                                 invalidatedLinks.add(newDefn[LinksColumn.MEMBER.ordinal()]);
                             }
@@ -1140,15 +1223,16 @@ public class CcddLinkManagerHandler {
     }
 
     /**********************************************************************************************
-     * Select the link in the link tree for which the selected variable in the
-     * variable tree is a member
+     * Select the link in the link tree for which the selected variable in the variable tree is a member
      *********************************************************************************************/
-    private void selectLinkByVariable() {
+    private void selectLinkByVariable()
+    {
         // Get the array of selected paths in the variable tree
         TreePath[] selectedPaths = variableTree.getSelectionPaths();
 
         // Check if only a single node is selected
-        if (selectedPaths != null && selectedPaths.length == 1) {
+        if (selectedPaths != null && selectedPaths.length == 1)
+        {
             // Clear any currently selected link(s)
             linkTree.clearSelection();
 
@@ -1158,20 +1242,25 @@ public class CcddLinkManagerHandler {
             // Check if the variable contains the HTML flags indicating it is in use; i.e.,
             // belongs
             // to a link
-            if (variablePath.contains(DISABLED_TEXT_COLOR)) {
+            if (variablePath.contains(DISABLED_TEXT_COLOR))
+            {
                 // Remove the HTML flags from the variable path
                 variablePath = variableTree.removeExtraText(variablePath);
 
                 // Step through the link tree nodes that show the link names
-                for (int linkIndex = 0; linkIndex < linkTree.getRootNode().getChildCount(); linkIndex++) {
+                for (int linkIndex = 0; linkIndex < linkTree.getRootNode().getChildCount(); linkIndex++)
+                {
                     // Get the link name node from the link tree
                     ToolTipTreeNode linkNode = ((ToolTipTreeNode) linkTree.getRootNode().getChildAt(linkIndex));
 
                     // Step through the variables belonging to the link
-                    for (String[] linkDefn : linkTree.getLinkHandler().getLinkDefinitionsByName(
-                            linkTree.removeExtraText(linkNode.getUserObject().toString()), rateName)) {
+                    for (String[] linkDefn : linkTree.getLinkHandler()
+                            .getLinkDefinitionsByName(linkTree.removeExtraText(linkNode.getUserObject().toString()),
+                                                      rateName))
+                    {
                         // Check if the selected variable matches the link variable
-                        if (variablePath.equals(linkDefn[LinksColumn.MEMBER.ordinal()])) {
+                        if (variablePath.equals(linkDefn[LinksColumn.MEMBER.ordinal()]))
+                        {
                             // Select the link to which the variable belongs
                             linkTree.setSelectionPath(CcddCommonTreeHandler.getPathFromNode(linkNode));
 
