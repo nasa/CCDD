@@ -228,27 +228,27 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         /**********************************************************************************************
          * Parameter information class constructor for telemetry and argument references
          *
-         * @param parameterName   parameter name
+         * @param parameterName   Parameter name
          *
-         * @param dataType        data type
+         * @param dataType        Data type
          *
-         * @param arraySize       parameter array size
+         * @param arraySize       Parameter array size
          *
-         * @param bitLength       parameter bit length
+         * @param bitLength       Parameter bit length
          *
-         * @param enumeration     enumeration in the format {@literal <enum label>|<enum value>[|...][,...]}
+         * @param enumeration     Enumeration in the format {@literal <enum label>|<enum value>[|...][,...]}
          *
-         * @param units           parameter units
+         * @param units           Parameter units
          *
-         * @param minimum         minimum parameter value
+         * @param minimum         Minimum parameter value
          *
-         * @param maximum         maximum parameter value
+         * @param maximum         Maximum parameter value
          *
-         * @param description     parameter description
+         * @param description     Parameter description
          *
-         * @param numArrayMembers number of array members; 0 if not an array parameter
+         * @param numArrayMembers Number of array members; 0 if not an array parameter
          *
-         * @param seqIndex        index of the next sequence entry list item to process
+         * @param seqIndex        Index of the next sequence entry list item to process
          *********************************************************************************************/
         ParameterInformation(String parameterName, String dataType, String arraySize, String bitLength,
                              String enumeration, String units, String minimum, String maximum, String description,
@@ -270,17 +270,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         /******************************************************************************************
          * Parameter information class constructor for container references
          *
-         * @param parameterName   variable or argument name
+         * @param parameterName   Variable or argument name
          *
-         * @param dataType        parameter data type
+         * @param dataType        Parameter data type
          *
-         * @param arraySize       parameter array size
+         * @param arraySize       Parameter array size
          *
-         * @param description     parameter description
+         * @param description     Parameter description
          *
-         * @param numArrayMembers number of array members; 0 if not an array parameter
+         * @param numArrayMembers Number of array members; 0 if not an array parameter
          *
-         * @param seqIndex        index of the next sequence entry list item to process
+         * @param seqIndex        Index of the next sequence entry list item to process
          *****************************************************************************************/
         ParameterInformation(String parameterName, String dataType, String arraySize, String description,
                              int numArrayMembers, int seqIndex)
@@ -404,9 +404,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * XTCE handler class constructor
      *
-     * @param ccddMain     main class
+     * @param ccddMain     Main class
      *
-     * @param scriptEngine reference to the script engine so that the export methods can be overridden
+     * @param scriptEngine Reference to the script engine so that the export methods can be overridden
      *                     by the script methods; null if the internal methods are to be used
      *
      * @param parent       GUI component over which to center any error dialog
@@ -478,7 +478,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * XTCE handler class constructor when importing
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
      * @param parent   GUI component instantiating this class
      *
@@ -539,16 +539,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the internal table in the current file
      *
-     * @param importFile                  import file reference
+     * @param importFile                  Import file reference
      *
      * @param importType                  ImportType.IMPORT_ALL to import the table type, data type, and
      *                                    macro definitions, and the data from all the table
      *                                    definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *                                    for the first table defined
      *
-     * @param ignoreErrors                true to ignore all errors in the import file
+     * @param ignoreErrors                True to ignore all errors in the import file
      *
-     * @param replaceExistingAssociations true to overwrite internal associations with those from the
+     * @param replaceExistingAssociations True to overwrite internal associations with those from the
      *                                    import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
@@ -567,13 +567,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Import the input types, table types, table type data fields and data types from the given file
      *
-     * @param importFile            import file reference
+     * @param importFile            Import file reference
      *
-     * @param ignoreErrors          true to ignore all errors in the import file
+     * @param ignoreErrors          True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros true to replace existing macros
+     * @param replaceExistingMacros True to replace existing macros
      *
-     * @param replaceExistingTables true to replace existing tables or table fields
+     * @param replaceExistingTables True to replace existing tables or table fields
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -592,14 +592,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the input and data type definition(s) in the current file
      *
-     * @param importFile               import file reference
+     * @param importFile               Import file reference
      *
-     * @param ignoreErrors             true to ignore all errors in the import file
+     * @param ignoreErrors             True to ignore all errors in the import file
      *
-     * @param replaceExistingDataTypes true to replace existing data types that share a name with an
+     * @param replaceExistingDataTypes True to replace existing data types that share a name with an
      *                                 imported data type
      *
-     * @param importingEntireDatabase  true to replace existing database internal tables
+     * @param importingEntireDatabase  True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -618,23 +618,23 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile            import file reference
+     * @param importFile            Import file reference
      *
      * @param importType            ImportType.IMPORT_ALL to import the table type, data type, and macro
      *                              definitions, and the data from all the table definitions;
      *                              ImportType.FIRST_DATA_ONLY to load only the data for the first table
      *                              defined
      *
-     * @param targetTypeDefn        table type definition of the table in which to import the data;
+     * @param targetTypeDefn        Table type definition of the table in which to import the data;
      *                              ignored if importing all tables
      *
-     * @param ignoreErrors          true to ignore all errors in the import file
+     * @param ignoreErrors          True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros true to replace the values for existing macros
+     * @param replaceExistingMacros True to replace the values for existing macros
      *
-     * @param replaceExistingGroups true to replace existing group definitions
+     * @param replaceExistingGroups True to replace existing group definitions
      *
-     * @param replaceExistingTables true to replace existing tables or table fields
+     * @param replaceExistingTables True to replace existing tables or table fields
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -754,16 +754,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Extract the telemetry and/or command information from the space system. This is a recursive
      * method
      *
-     * @param system          space system to which the new system belongs
+     * @param system          Space system to which the new system belongs
      *
-     * @param systemPath      full path name for this space system (based on its nesting within other
+     * @param systemPath      Full path name for this space system (based on its nesting within other
      *                        space systems)
      *
-     * @param importType      import type: ImportType.ALL to import all information in the import file;
+     * @param importType      Import type: ImportType.ALL to import all information in the import file;
      *                        ImportType.FIRST_DATA_ONLY to import data from the first table defined in
      *                        the import file
      *
-     * @param onlyCmdToStruct true to only allow a command header, converted to a structure, to be
+     * @param onlyCmdToStruct True to only allow a command header, converted to a structure, to be
      *                        stored; false to store (non-header) command tables
      *
      * @throws CCDDException If an input error is detected
@@ -820,13 +820,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build a structure table from the specified telemetry metadata
      *
-     * @param system      space system
+     * @param system      Space system
      *
-     * @param tlmMetaData reference to the telemetry metadata from which to build the structure table
+     * @param tlmMetaData Reference to the telemetry metadata from which to build the structure table
      *
-     * @param tableName   name table name, including the full system path
+     * @param tableName   Name table name, including the full system path
      *
-     * @param systemPath  system path
+     * @param systemPath  System path
      *
      * @throws CCDDException If an input error is detected
      *********************************************************************************************/
@@ -1008,15 +1008,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build a command table from the specified command metadata
      *
-     * @param system          space system
+     * @param system          Space system
      *
-     * @param cmdMetaData     reference to the command metadata from which to build the command table
+     * @param cmdMetaData     Reference to the command metadata from which to build the command table
      *
-     * @param tableName       name table name, including the full system path
+     * @param tableName       Name table name, including the full system path
      *
-     * @param systemPath      system path
+     * @param systemPath      System path
      *
-     * @param onlyCmdToStruct true to only allow a command header, converted to a structure, to be
+     * @param onlyCmdToStruct True to only allow a command header, converted to a structure, to be
      *                        stored; false to store (non-header) command tables
      *
      * @throws CCDDException If an input error is detected
@@ -1387,29 +1387,29 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add a variable definition's column values to a structure table
      *
-     * @param tableDefn       table definition reference
+     * @param tableDefn       Table definition reference
      *
-     * @param rowIndex        index of the row in which to insert the data
+     * @param rowIndex        Index of the row in which to insert the data
      *
-     * @param numArrayMembers number of array members; 0 if not an array parameter
+     * @param numArrayMembers Number of array members; 0 if not an array parameter
      *
-     * @param variableName    variable name; null to not specify
+     * @param variableName    Variable name; null to not specify
      *
-     * @param dataType        parameter data type; null to not specify
+     * @param dataType        Parameter data type; null to not specify
      *
-     * @param arraySize       parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize       Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength       parameter bit length; null or blank if not a bit-wise parameter
+     * @param bitLength       Parameter bit length; null or blank if not a bit-wise parameter
      *
-     * @param description     parameter description; null to not specify
+     * @param description     Parameter description; null to not specify
      *
-     * @param units           parameter units; null to not specify
+     * @param units           Parameter units; null to not specify
      *
      * @param enumeration     {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param minimum         minimum parameter value
+     * @param minimum         Minimum parameter value
      *
-     * @param maximum         maximum parameter value
+     * @param maximum         Maximum parameter value
      *
      * @return Updated row index
      *********************************************************************************************/
@@ -1529,11 +1529,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Process the contents of telemetry sequence or command container entry list parameter or array
      * parameter reference to extract the parameter attributes
      *
-     * @param parameter   reference to the parameter in the parameter set
+     * @param parameter   Reference to the parameter in the parameter set
      *
-     * @param parmTypeSet reference to the parameter type set list
+     * @param parmTypeSet Reference to the parameter type set list
      *
-     * @param seqEntry    reference to the sequence container's entry list item to process
+     * @param seqEntry    Reference to the sequence container's entry list item to process
      *
      * @param seqIndex    Index of the sequence container's entry list item to process
      *
@@ -1824,11 +1824,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Process the contents of telemetry sequence or command container entry list parameter or array
      * parameter reference to extract the parameter attributes
      *
-     * @param argument   reference to the argument in the argument list
+     * @param argument   Reference to the argument in the argument list
      *
-     * @param argTypeSet reference to the argument type set list
+     * @param argTypeSet Reference to the argument type set list
      *
-     * @param seqEntry   reference to the sequence container's entry list item to process
+     * @param seqEntry   Reference to the sequence container's entry list item to process
      *
      * @param seqIndex   Index of the sequence container's entry list item to process
      *
@@ -2113,15 +2113,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Process the contents of telemetry sequence or command container entry list container reference to
      * extract the parameter name, data type, array size, and description
      *
-     * @param system             space system to which the container reference belongs
+     * @param system             Space system to which the container reference belongs
      *
-     * @param tlmSequenceEntries reference to the list of telemetry sequence container entries; null if
+     * @param tlmSequenceEntries Reference to the list of telemetry sequence container entries; null if
      *                           processing a command container reference
      *
-     * @param cmdSequenceEntries reference to the list of command container entries; null if processing
+     * @param cmdSequenceEntries Reference to the list of command container entries; null if processing
      *                           a telemetry sequence container reference
      *
-     * @param seqEntry           reference to the sequence container's entry list item to process
+     * @param seqEntry           Reference to the sequence container's entry list item to process
      *
      * @param seqIndex           Index of the sequence container's entry list item to process
      *
@@ -2271,11 +2271,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Export the specified tables in XTCE XML format to the specified file
      *
-     * @param exportFile              reference to the user-specified output file
+     * @param exportFile              Reference to the user-specified output file
      *
-     * @param tableDefs               list of table definitions to convert
+     * @param tableDefs               List of table definitions to convert
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
      * @param replaceMacros           * Not used for XTCE export (all macros are expanded) * true to
@@ -2337,26 +2337,26 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Convert the project database contents to XTCE XML format
      *
-     * @param tableDefs               list of table definitions to convert
+     * @param tableDefs               List of table definitions to convert
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
      * @param endianess               EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for
      *                                little endian
      *
-     * @param isHeaderBigEndian       true if the telemetry and command headers are always big endian
+     * @param isHeaderBigEndian       True if the telemetry and command headers are always big endian
      *                                (e.g., as with CCSDS)
      *
-     * @param version                 version attribute
+     * @param version                 Version attribute
      *
-     * @param validationStatus        validation status attribute
+     * @param validationStatus        Validation status attribute
      *
-     * @param classification1         first level classification attribute
+     * @param classification1         First level classification attribute
      *
-     * @param classification2         second level classification attribute
+     * @param classification2         Second level classification attribute
      *
-     * @param classification3         third level classification attribute
+     * @param classification3         Third level classification attribute
      *
      * @throws CCDDException error occurs executing an external (script) method
      *********************************************************************************************/
@@ -2473,7 +2473,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the space systems
      *
-     * @param tableDefs list containing the definitions of the tables to export
+     * @param tableDefs List containing the definitions of the tables to export
      *
      * @throws CCDDException error occurred executing an external (script) method
      *********************************************************************************************/
@@ -2784,13 +2784,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * attributes to update the system. If the specified system is null then this is the root space
      * system
      *
-     * @param parentSystem     parent space system for the new system; null for the root space system
+     * @param parentSystem     Parent space system for the new system; null for the root space system
      *
-     * @param systemName       name for the new space system
+     * @param systemName       Name for the new space system
      *
-     * @param description      space system description
+     * @param description      Space system description
      *
-     * @param fullPath         full table path; null or blank if this space system doesn't describe a
+     * @param fullPath         Full table path; null or blank if this space system doesn't describe a
      *                         table
      *
      * @param classification   XML document classification
@@ -2860,9 +2860,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Get the reference to the space system with the specified name, starting at the specified space
      * system
      *
-     * @param systemName     name to search for within the space system hierarchy
+     * @param systemName     Name to search for within the space system hierarchy
      *
-     * @param startingSystem space system in which to start the search
+     * @param startingSystem Space system in which to start the search
      *
      * @return Reference to the space system with the same name as the search name; null if no space
      *         system name matches the search name
@@ -2877,11 +2877,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Recursively search through the space system tree for the space system with the same name as the
      * search name
      *
-     * @param systemName  name to search for within the space system hierarchy
+     * @param systemName  Name to search for within the space system hierarchy
      *
-     * @param spaceSystem current space system to check
+     * @param spaceSystem Current space system to check
      *
-     * @param foundSystem space system that matches the search name; null if no match has been found
+     * @param foundSystem Space system that matches the search name; null if no match has been found
      *
      * @return Reference to the space system with the same name as the search name; null if no space
      *         system name matches the search name
@@ -2923,15 +2923,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Set the space system header attributes
      *
-     * @param spaceSystem      space system reference
+     * @param spaceSystem      Space system reference
      *
-     * @param classification   classification attribute
+     * @param classification   Classification attribute
      *
-     * @param validationStatus validation status attribute
+     * @param validationStatus Validation status attribute
      *
-     * @param version          version attribute
+     * @param version          Version attribute
      *
-     * @param date             export creation time and date
+     * @param date             Export creation time and date
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -2985,7 +2985,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Create the space system telemetry metadata
      *
-     * @param spaceSystem space system reference
+     * @param spaceSystem Space system reference
      *********************************************************************************************/
     protected void createTelemetryMetadata(SpaceSystemType spaceSystem)
     {
@@ -2995,42 +2995,42 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add a structure table's parameters to the telemetry meta data
      *
-     * @param spaceSystem     space system to which the table belongs
+     * @param spaceSystem     Space system to which the table belongs
      *
-     * @param tableName       table name
+     * @param tableName       Table name
      *
-     * @param tableData       array containing the table's data
+     * @param tableData       Array containing the table's data
      *
-     * @param varColumn       variable (parameter) name column index
+     * @param varColumn       Variable (parameter) name column index
      *
-     * @param typeColumn      parameter data type column index
+     * @param typeColumn      Parameter data type column index
      *
-     * @param sizeColumn      parameter array size column index
+     * @param sizeColumn      Parameter array size column index
      *
-     * @param bitColumn       parameter bit length column index
+     * @param bitColumn       Parameter bit length column index
      *
-     * @param enumColumn      parameter enumeration column index; -1 if no the table has no enumeration
+     * @param enumColumn      Parameter enumeration column index; -1 if no the table has no enumeration
      *                        column
      *
-     * @param descColumn      parameter description column index; -1 if no the table has no description
+     * @param descColumn      Parameter description column index; -1 if no the table has no description
      *                        column
      *
-     * @param unitsColumn     parameter units column index; -1 if no the table has no units column
+     * @param unitsColumn     Parameter units column index; -1 if no the table has no units column
      *
-     * @param minColumn       minimum parameter value column index; -1 if no the table has no minimum
+     * @param minColumn       Minimum parameter value column index; -1 if no the table has no minimum
      *                        column
      *
-     * @param maxColumn       maximum parameter value column index; -1 if no the table has no maximum
+     * @param maxColumn       Maximum parameter value column index; -1 if no the table has no maximum
      *                        column
      *
-     * @param isTlmHdrTable   true if this table represents the telemetry header or one of its
+     * @param isTlmHdrTable   True if this table represents the telemetry header or one of its
      *                        descendants
      *
-     * @param tlmHdrSysPath   telemetry header table system path; null or blank is none
+     * @param tlmHdrSysPath   Telemetry header table system path; null or blank is none
      *
-     * @param isRootStructure true if the table is a root structure table
+     * @param isRootStructure True if the table is a root structure table
      *
-     * @param applicationID   telemetry header application ID
+     * @param applicationID   Telemetry header application ID
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -3170,27 +3170,27 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add a parameter with a primitive data type to the parameter set and parameter type set
      *
-     * @param spaceSystem   space system reference
+     * @param spaceSystem   Space system reference
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      parameter primitive data type
+     * @param dataType      Parameter primitive data type
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength     parameter bit length; null or blank if not a bit-wise parameter
+     * @param bitLength     Parameter bit length; null or blank if not a bit-wise parameter
      *
      * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param units         parameter units
+     * @param units         Parameter units
      *
-     * @param minimum       minimum parameter value
+     * @param minimum       Minimum parameter value
      *
-     * @param maximum       maximum parameter value
+     * @param maximum       Maximum parameter value
      *
-     * @param description   parameter description
+     * @param description   Parameter description
      *
-     * @param stringSize    size, in characters, of a string parameter; ignored if not a string or
+     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
      * @throws CCDDException If an error occurs executing an external (script) method
@@ -3282,18 +3282,18 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add the parameter to the sequence container entry list
      *
-     * @param spaceSystem   reference to the space system to which the parameter belongs
+     * @param spaceSystem   Reference to the space system to which the parameter belongs
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      data type
+     * @param dataType      Data type
      *
-     * @param arraySize     array size
+     * @param arraySize     Array size
      *
-     * @param entryList     reference to the entry list into which to place the parameter (for a
+     * @param entryList     Reference to the entry list into which to place the parameter (for a
      *                      primitive data type) or container (for a structure data type) reference
      *
-     * @param isTlmHdrRef   true if this table represents the telemetry header or one of its descendants
+     * @param isTlmHdrRef   True if this table represents the telemetry header or one of its descendants
      *
      * @return true if the parameter's data type references the telemetry header or one of its
      *         descendants; otherwise return the flag status unchanged
@@ -3436,27 +3436,27 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Create the telemetry parameter data type and set the specified attributes
      *
-     * @param spaceSystem   space system reference
+     * @param spaceSystem   Space system reference
      *
-     * @param parameterName parameter name; null to not specify
+     * @param parameterName Parameter name; null to not specify
      *
-     * @param dataType      data type; null to not specify
+     * @param dataType      Data type; null to not specify
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength     parameter bit length; null or empty if not a bit-wise parameter
+     * @param bitLength     Parameter bit length; null or empty if not a bit-wise parameter
      *
      * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param units         parameter units; null to not specify
+     * @param units         Parameter units; null to not specify
      *
-     * @param minimum       minimum parameter value; null to not specify
+     * @param minimum       Minimum parameter value; null to not specify
      *
-     * @param maximum       maximum parameter value; null to not specify
+     * @param maximum       Maximum parameter value; null to not specify
      *
-     * @param description   parameter description; null to not specify
+     * @param description   Parameter description; null to not specify
      *
-     * @param stringSize    size, in characters, of a string parameter; ignored if not a string or
+     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
      * @throws CCDDException If an error occurs executing an external (script) method
@@ -3761,7 +3761,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Create the space system command metadata
      *
-     * @param spaceSystem space system reference
+     * @param spaceSystem Space system reference
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -3808,23 +3808,23 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add the command(s) from a table to the specified space system
      *
-     * @param spaceSystem       space system reference
+     * @param spaceSystem       Space system reference
      *
-     * @param tableData         table data array
+     * @param tableData         Table data array
      *
-     * @param cmdNameColumn     command name column index
+     * @param cmdNameColumn     Command name column index
      *
-     * @param cmdCodeColumn     command code column index
+     * @param cmdCodeColumn     Command code column index
      *
-     * @param cmdArgumentColumn command argument column index
+     * @param cmdArgumentColumn Command argument column index
      *
-     * @param cmdDescColumn     command description column index
+     * @param cmdDescColumn     Command description column index
      *
-     * @param isCmdHeader       true if this table represents the command header
+     * @param isCmdHeader       True if this table represents the command header
      *
-     * @param cmdHdrSysPath     command header table system path
+     * @param cmdHdrSysPath     Command header table system path
      *
-     * @param applicationID     application ID
+     * @param applicationID     Application ID
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -4107,28 +4107,28 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add a command to the command metadata set
      *
-     * @param spaceSystem   space system reference
+     * @param spaceSystem   Space system reference
      *
-     * @param commandName   command name
+     * @param commandName   Command name
      *
-     * @param cmdFuncCode   command code
+     * @param cmdFuncCode   Command code
      *
-     * @param cmdArgument   command argument name
+     * @param cmdArgument   Command argument name
      *
-     * @param applicationID application ID
+     * @param applicationID Application ID
      *
-     * @param isCmdHeader   true if this table represents the command header
+     * @param isCmdHeader   True if this table represents the command header
      *
-     * @param cmdHdrSysPath command header table system path
+     * @param cmdHdrSysPath Command header table system path
      *
-     * @param argumentNames array of command argument names
+     * @param argumentNames Array of command argument names
      *
-     * @param argDataTypes  array of of command argument data types
+     * @param argDataTypes  Array of of command argument data types
      *
-     * @param argArraySizes array of of command argument array sizes; the array item is null or blank if
+     * @param argArraySizes Array of of command argument array sizes; the array item is null or blank if
      *                      the corresponding argument isn't an array
      *
-     * @param description   description of the command
+     * @param description   Description of the command
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -4351,31 +4351,31 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Set the command argument data type and set the specified attributes
      *
-     * @param spaceSystem  space system reference
+     * @param spaceSystem  Space system reference
      *
-     * @param argumentName command argument name; null to not specify
+     * @param argumentName Command argument name; null to not specify
      *
-     * @param dataType     command argument data type; null to not specify
+     * @param dataType     Command argument data type; null to not specify
      *
-     * @param arraySize    command argument array size; null or blank if the argument isn't an array
+     * @param arraySize    Command argument array size; null or blank if the argument isn't an array
      *
-     * @param bitLength    command argument bit length
+     * @param bitLength    Command argument bit length
      *
-     * @param enumeration  command argument enumeration in the format
+     * @param enumeration  Command argument enumeration in the format
      *                     {@literal <enum label>|<enum value>[|...][,...];} null to not specify
      *
-     * @param units        command argument units; null to not specify
+     * @param units        Command argument units; null to not specify
      *
-     * @param minimum      minimum parameter value; null to not specify
+     * @param minimum      Minimum parameter value; null to not specify
      *
-     * @param maximum      maximum parameter value; null to not specify
+     * @param maximum      Maximum parameter value; null to not specify
      *
-     * @param description  command argument description ; null to not specify
+     * @param description  Command argument description ; null to not specify
      *
-     * @param stringSize   string size in bytes; ignored if the command argument does not have a string
+     * @param stringSize   String size in bytes; ignored if the command argument does not have a string
      *                     data type
      *
-     * @param uniqueID     text used to uniquely identify data types with the same name; blank if the
+     * @param uniqueID     Text used to uniquely identify data types with the same name; blank if the
      *                     data type has no name conflict
      *
      * @return Command description of the type corresponding to the primitive data type with the
@@ -4664,14 +4664,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Add a container reference(s) for the telemetry or command parameter or parameter array to the
      * specified entry list
      *
-     * @param entryList     reference to the telemetry or command entry list into which to place the
+     * @param entryList     Reference to the telemetry or command entry list into which to place the
      *                      parameter or parameter array container reference(s)
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      data type
+     * @param dataType      Data type
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -4831,7 +4831,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build a unit set from the supplied units string
      *
-     * @param units parameter or command argument units; null to not specify
+     * @param units Parameter or command argument units; null to not specify
      *
      * @return Unit set for the supplied units string; an empty unit set if no units are supplied
      *********************************************************************************************/
@@ -4854,7 +4854,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build an enumeration list from the supplied enumeration string
      *
-     * @param spaceSystem space system reference
+     * @param spaceSystem Space system reference
      *
      * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
@@ -4923,7 +4923,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Export table type definitions to the specified folder
      *
-     * @param exportFile        reference to the user-specified output file
+     * @param exportFile        Reference to the user-specified output file
      *
      * @param includeTableTypes Boolean representing if the table types should be included
      *
@@ -4953,9 +4953,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Export script association data, group data, macro data, telemetry scheduler data or application
      * scheduler data to the specified folder
      *
-     * @param dataType   the data type that is about to be exported
+     * @param dataType   The data type that is about to be exported
      *
-     * @param exportFile reference to the user-specified output file
+     * @param exportFile Reference to the user-specified output file
      *
      * @param outputType String representing rather the output is going to a single file or multiple
      *                   files. Should be "Single" or "Multiple"

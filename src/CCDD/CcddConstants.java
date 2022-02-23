@@ -593,10 +593,10 @@ public class CcddConstants
         /******************************************************************************************
          * Command line priority range constructor
          *
-         * @param startPriority starting priority range value; execute only those commands with a priority
+         * @param startPriority Starting priority range value; execute only those commands with a priority
          *                      &gt;= to the start value (-1 starts with the lowest priority command)
          *
-         * @param endPriority   ending priority range value; execute only those commands with a priority
+         * @param endPriority   Ending priority range value; execute only those commands with a priority
          *                      &lt;= to the end value (-1 ends with the highest priority command)
          *****************************************************************************************/
         CommandLinePriority(int startPriority, int endPriority)
@@ -656,17 +656,17 @@ public class CcddConstants
         /******************************************************************************************
          * Modifiable font information constructor
          *
-         * @param name          font name (for display)
+         * @param name          Font name (for display)
          *
-         * @param description   font description (for tool tip)
+         * @param description   Font description (for tool tip)
          *
-         * @param preferenceKey font program preferences key
+         * @param preferenceKey Font program preferences key
          *
-         * @param defaultFamily default font family
+         * @param defaultFamily Default font family
          *
-         * @param defaultStyle  default font style
+         * @param defaultStyle  Default font style
          *
-         * @param defaultSize   default font size
+         * @param defaultSize   Default font size
          *****************************************************************************************/
         ModifiableFontInfo(String name, String description, String preferenceKey, String defaultFamily,
                            int defaultStyle, int defaultSize)
@@ -755,7 +755,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the modifiable font information reference with the specified program preferences key
          *
-         * @param prefKey modifiable font program preferences key
+         * @param prefKey Modifiable font program preferences key
          *
          * @return Modifiable font information reference that has a program preferences key matching the one
          *         specified; null if no modifiable font's key matches
@@ -782,13 +782,13 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable font to the new font values and store the changes in the program preferences
          *
-         * @param family    font family
+         * @param family    Font family
          *
-         * @param style     font style
+         * @param style     Font style
          *
-         * @param size      font size
+         * @param size      Font size
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected void setFont(String family, int style, int size, Preferences progPrefs)
         {
@@ -799,7 +799,7 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable fonts to the values stored in the program preferences
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected static void setModifiableFonts(Preferences progPrefs)
         {
@@ -820,7 +820,7 @@ public class CcddConstants
         /******************************************************************************************
          * Update the components of the specified container that use a modifiable font to the updated font
          *
-         * @param container container in which to check the fonts of the components
+         * @param container Container in which to check the fonts of the components
          *****************************************************************************************/
         protected static void updateFonts(Container container)
         {
@@ -866,7 +866,7 @@ public class CcddConstants
          * Compare the font for the component to the modifiable fonts. If a match is found set the
          * component's font to the current preferred font setting
          *
-         * @param comp component for which to check the font
+         * @param comp Component for which to check the font
          *****************************************************************************************/
         private static void setModifiableFont(Component comp)
         {
@@ -1022,17 +1022,17 @@ public class CcddConstants
         /******************************************************************************************
          * Modifiable color information constructor
          *
-         * @param name          color name (for display)
+         * @param name          Color name (for display)
          *
-         * @param description   color description (for tool tip)
+         * @param description   Color description (for tool tip)
          *
-         * @param preferenceKey color program preferences key
+         * @param preferenceKey Color program preferences key
          *
-         * @param defaultRed    default red color component
+         * @param defaultRed    Default red color component
          *
-         * @param defaultGreen  default green color component
+         * @param defaultGreen  Default green color component
          *
-         * @param defaultBlue   default blue color component
+         * @param defaultBlue   Default blue color component
          *****************************************************************************************/
         ModifiableColorInfo(String name, String description, String preferenceKey, int defaultRed, int defaultGreen,
                             int defaultBlue)
@@ -1121,7 +1121,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the modifiable color information reference with the specified program preferences key
          *
-         * @param prefKey modifiable color program preferences key
+         * @param prefKey Modifiable color program preferences key
          *
          * @return Modifiable color information reference that has a program preferences key matching the
          *         one specified; null if no modifiable color's key matches
@@ -1148,13 +1148,13 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable color to the new color values and store the changes in the program preferences
          *
-         * @param red       red color component
+         * @param red       Red color component
          *
-         * @param green     green color component
+         * @param green     Green color component
          *
-         * @param blue      blue color component
+         * @param blue      Blue color component
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected void setModifiableColor(int red, int green, int blue, Preferences progPrefs)
         {
@@ -1165,7 +1165,7 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable colors to the values stored in the program preferences
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected static void setModifiableColors(Preferences progPrefs)
         {
@@ -1186,7 +1186,7 @@ public class CcddConstants
         /******************************************************************************************
          * Update the components of the specified container that use a modifiable color to the updated color
          *
-         * @param container container in which to check the colors of the components
+         * @param container Container in which to check the colors of the components
          *****************************************************************************************/
         protected static void updateColors(Container container)
         {
@@ -1227,7 +1227,7 @@ public class CcddConstants
          * Compare the color for the component to the modifiable colors. If a match is found set the
          * component's color to the current preferred color setting
          *
-         * @param comp component for which to check the color
+         * @param comp Component for which to check the color
          *****************************************************************************************/
         private static void setModifiableColor(Component comp)
         {
@@ -1337,17 +1337,17 @@ public class CcddConstants
         /******************************************************************************************
          * Modifiable size information constructor
          *
-         * @param name          size value name (for display)
+         * @param name          Size value name (for display)
          *
-         * @param description   size value description (for tool tip)
+         * @param description   Size value description (for tool tip)
          *
-         * @param preferenceKey size value program preferences key
+         * @param preferenceKey Size value program preferences key
          *
-         * @param defaultValue  default size value
+         * @param defaultValue  Default size value
          *
-         * @param minimumValue  minimum size value
+         * @param minimumValue  Minimum size value
          *
-         * @param maximumValue  maximum size value
+         * @param maximumValue  Maximum size value
          *****************************************************************************************/
         ModifiableSizeInfo(String name, String description, String preferenceKey, int defaultValue, int minimumValue,
                            int maximumValue)
@@ -1434,9 +1434,9 @@ public class CcddConstants
         /******************************************************************************************
          * Set the size value
          *
-         * @param size      new size value
+         * @param size      New size value
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected void setSize(int size, Preferences progPrefs)
         {
@@ -1447,7 +1447,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the modifiable size information reference with the specified program preferences key
          *
-         * @param prefKey modifiable size program preferences key
+         * @param prefKey Modifiable size program preferences key
          *
          * @return Modifiable size information reference that has a program preferences key matching the one
          *         specified; null if no modifiable size's key matches
@@ -1474,7 +1474,7 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable sizes to the values stored in the program preferences
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected static void setSizes(Preferences progPrefs)
         {
@@ -1533,17 +1533,17 @@ public class CcddConstants
         /******************************************************************************************
          * Modifiable spacing information constructor
          *
-         * @param name          spacing value name (for display)
+         * @param name          Spacing value name (for display)
          *
-         * @param description   spacing value description (for tool tip)
+         * @param description   Spacing value description (for tool tip)
          *
-         * @param preferenceKey spacing value program preferences key
+         * @param preferenceKey Spacing value program preferences key
          *
-         * @param defaultValue  default spacing value
+         * @param defaultValue  Default spacing value
          *
-         * @param minimumValue  minimum spacing value
+         * @param minimumValue  Minimum spacing value
          *
-         * @param maximumValue  maximum spacing value
+         * @param maximumValue  Maximum spacing value
          *****************************************************************************************/
         ModifiableSpacingInfo(String name, String description, String preferenceKey, int defaultValue, int minimumValue,
                               int maximumValue)
@@ -1630,9 +1630,9 @@ public class CcddConstants
         /******************************************************************************************
          * Set the spacing value
          *
-         * @param spacing   new spacing value
+         * @param spacing   New spacing value
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected void setSpacing(int spacing, Preferences progPrefs)
         {
@@ -1643,7 +1643,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the modifiable spacing information reference with the specified program preferences key
          *
-         * @param prefKey modifiable spacing program preferences key
+         * @param prefKey Modifiable spacing program preferences key
          *
          * @return Modifiable spacing information reference that has a program preferences key matching the
          *         one specified; null if no modifiable spacing's key matches
@@ -1670,7 +1670,7 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable spacings to the values stored in the program preferences
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected static void setSpacings(Preferences progPrefs)
         {
@@ -1706,11 +1706,11 @@ public class CcddConstants
         /******************************************************************************************
          * Modifiable path information constructor
          *
-         * @param name          path name (for display)
+         * @param name          Path name (for display)
          *
-         * @param description   path description (for tool tip)
+         * @param description   Path description (for tool tip)
          *
-         * @param preferenceKey path program preferences key
+         * @param preferenceKey Path program preferences key
          *****************************************************************************************/
         ModifiablePathInfo(String name, String description, String preferenceKey)
         {
@@ -1763,9 +1763,9 @@ public class CcddConstants
         /******************************************************************************************
          * Set the path
          *
-         * @param ccddMain main class reference
+         * @param ccddMain Main class reference
          *
-         * @param path     new path
+         * @param path     New path
          *****************************************************************************************/
         protected void setPath(CcddMain ccddMain, String path)
         {
@@ -1778,7 +1778,7 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable paths to the values stored in the program preferences
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected static void setPaths(Preferences progPrefs)
         {
@@ -1814,13 +1814,13 @@ public class CcddConstants
         /******************************************************************************************
          * Modifiable other setting information constructor
          *
-         * @param name          other setting name (for display)
+         * @param name          Other setting name (for display)
          *
-         * @param description   other setting description (for tool tip)
+         * @param description   Other setting description (for tool tip)
          *
-         * @param preferenceKey other setting program preferences key
+         * @param preferenceKey Other setting program preferences key
          *
-         * @param defaultValue  other setting default value
+         * @param defaultValue  Other setting default value
          *****************************************************************************************/
         ModifiableOtherSettingInfo(String name, String description, String preferenceKey, String defaultValue)
         {
@@ -1884,9 +1884,9 @@ public class CcddConstants
         /******************************************************************************************
          * Set the other setting value
          *
-         * @param value     new setting value
+         * @param value     New setting value
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected void setValue(String value, Preferences progPrefs)
         {
@@ -1897,7 +1897,7 @@ public class CcddConstants
         /******************************************************************************************
          * Set the modifiable other settings to the values stored in the program preferences
          *
-         * @param progPrefs reference to the program preferences
+         * @param progPrefs Reference to the program preferences
          *****************************************************************************************/
         protected static void setValues(Preferences progPrefs)
         {
@@ -1924,7 +1924,7 @@ public class CcddConstants
         /******************************************************************************************
          * User access levels constructor
          *
-         * @param displayName name used in the drop down menu in the user access level manager
+         * @param displayName Name used in the drop down menu in the user access level manager
          *****************************************************************************************/
         AccessLevel(String displayName)
         {
@@ -1959,9 +1959,9 @@ public class CcddConstants
         /******************************************************************************************
          * File extensions constructor
          *
-         * @param extensionName file extension name
+         * @param extensionName File extension name
          *
-         * @param description   file extension description
+         * @param description   File extension description
          *****************************************************************************************/
         FileExtension(String extensionName, String description)
         {
@@ -2013,7 +2013,7 @@ public class CcddConstants
         /******************************************************************************************
          * Base data type information constructor
          *
-         * @param name base data type name
+         * @param name Base data type name
          *****************************************************************************************/
         BaseDataTypeInfo(String name)
         {
@@ -2033,7 +2033,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the base data type with the specified name
          *
-         * @param baseTypeName base data type name
+         * @param baseTypeName Base data type name
          *
          * @return Base data type with the specified name; null if the name provided isn't a valid base type
          *****************************************************************************************/
@@ -2091,13 +2091,13 @@ public class CcddConstants
         /******************************************************************************************
          * Default primitive data type information constructor
          *
-         * @param bytes    number of bytes for this data type
+         * @param bytes    Number of bytes for this data type
          *
          * @param cType    C language data type name
          *
-         * @param userName user-defined data type name
+         * @param userName User-defined data type name
          *
-         * @param baseType base data type
+         * @param baseType Base data type
          *****************************************************************************************/
         DefaultPrimitiveTypeInfo(String userName, String cType, int bytes, BaseDataTypeInfo baseType)
         {
@@ -2186,9 +2186,9 @@ public class CcddConstants
         /******************************************************************************************
          * Default input type formats constructor
          *
-         * @param isUserSelectable true if the format can be selected by the user
+         * @param isUserSelectable True if the format can be selected by the user
          *
-         * @param isValidWithItems true if the format can be selected when the input type has selection
+         * @param isValidWithItems True if the format can be selected when the input type has selection
          *                         items
          *****************************************************************************************/
         InputTypeFormat(boolean isUserSelectable, boolean isValidWithItems)
@@ -2415,13 +2415,13 @@ public class CcddConstants
         /******************************************************************************************
          * Default input types constructor
          *
-         * @param inputName        input type name
+         * @param inputName        Input type name
          *
-         * @param inputMatch       regular expression match for the input type
+         * @param inputMatch       Regular expression match for the input type
          *
-         * @param inputFormat      input type format
+         * @param inputFormat      Input type format
          *
-         * @param inputDescription input type description
+         * @param inputDescription Input type description
          *****************************************************************************************/
         DefaultInputType(String inputName, String inputMatch, InputTypeFormat inputFormat, String inputDescription)
         {
@@ -2476,7 +2476,7 @@ public class CcddConstants
          * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
          * and floating point values. Leading zeroes are preserved for hexadecimal values
          *
-         * @param valueS value, represented as a string, to reformat
+         * @param valueS Value, represented as a string, to reformat
          *
          * @return Input value reformatted based on its input type
          *****************************************************************************************/
@@ -2498,7 +2498,7 @@ public class CcddConstants
         /******************************************************************************************
          * Applicability types constructor
          *
-         * @param applicabilityName applicability type name
+         * @param applicabilityName Applicability type name
          *****************************************************************************************/
         ApplicabilityType(String applicabilityName)
         {
@@ -2518,7 +2518,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the ApplicabilityType with the same name as the one specified, ignoring case
          *
-         * @param name applicability type name
+         * @param name Applicability type name
          *
          * @return ApplicabilityType with the name matching the one specified; null if the name isn't
          *         recognized
@@ -2642,33 +2642,33 @@ public class CcddConstants
         /******************************************************************************************
          * Default table types and column names constructor
          *
-         * @param tableType          table type to which this column belongs
+         * @param tableType          Table type to which this column belongs
          *
-         * @param columnName         table column name
+         * @param columnName         Table column name
          *
-         * @param description        column description; this is used as the column's tool tip text
+         * @param description        Column description; this is used as the column's tool tip text
          *
-         * @param inputType          column input type (DefaultInputType)
+         * @param inputType          Column input type (DefaultInputType)
          *
-         * @param isRequiredForType  true if this column is required in order to define a table type. Tables
+         * @param isRequiredForType  True if this column is required in order to define a table type. Tables
          *                           that include all of the required columns for a table type are
          *                           considered a table of this type
          *
-         * @param isRowValueUnique   true if this parameter must be unique in this column of this table. The
+         * @param isRowValueUnique   True if this parameter must be unique in this column of this table. The
          *                           user can change this flag in the type editor
          *
-         * @param isInputRequired    true if this parameter requires a data value. This flag is used to
+         * @param isInputRequired    True if this parameter requires a data value. This flag is used to
          *                           determine if the cell in the table is highlighted when empty; it does
          *                           not enforce entering a value. The user can change this flag in the type
          *                           editor
          *
-         * @param isStructureAllowed true if the the column applies to structure data types. The user can
+         * @param isStructureAllowed True if the the column applies to structure data types. The user can
          *                           change this flag in the type editor
          *
-         * @param isPointerAllowed   true if the the column applies to pointer data types. The user can
+         * @param isPointerAllowed   True if the the column applies to pointer data types. The user can
          *                           change this flag in the type editor
          *
-         * @param isInputTypeUnique  true if this parameter's input type must be unique in its table type
+         * @param isInputTypeUnique  True if this parameter's input type must be unique in its table type
          *****************************************************************************************/
         DefaultColumn(String tableType, String columnName, String description, DefaultInputType inputType,
                       boolean isRequiredForType, boolean isRowValueUnique, boolean isInputRequired,
@@ -2790,7 +2790,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the number of columns that are required to define the specified table type
          *
-         * @param type default table type
+         * @param type Default table type
          *
          * @return Number of the columns that are required to define the specified table type
          *****************************************************************************************/
@@ -2817,11 +2817,11 @@ public class CcddConstants
          * Check if the supplied table type and column input type match that for a column required to define
          * the specified type
          *
-         * @param compareTableType table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER
+         * @param compareTableType Table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER
          *
-         * @param inputTypeHandler input type handler reference
+         * @param inputTypeHandler Input type handler reference
          *
-         * @param compareInputType column input type (InputType)
+         * @param compareInputType Column input type (InputType)
          *
          * @return true if the supplied table type and column input type match that for a column required to
          *         define the specified type
@@ -2852,9 +2852,9 @@ public class CcddConstants
          * Check if the supplied table type and input type match one of the default table type and input
          * type pairs
          *
-         * @param compareTableType table type
+         * @param compareTableType Table type
          *
-         * @param compareInputType input type name
+         * @param compareInputType Input type name
          *
          * @return true if the supplied table type and input type match a protected table type and input
          *         type combination, and if this pair is flagged as protected
@@ -2958,7 +2958,7 @@ public class CcddConstants
          *
          * @param type        Default table type name
          *
-         * @param includeRate true to include the Rate column (ignored if the type is not a structure)
+         * @param includeRate True to include the Rate column (ignored if the type is not a structure)
          *
          * @return Default column definitions array for the specified table type; and empty array if the
          *         type is not one of the default types
@@ -2988,7 +2988,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the column database data type based on the column index
          *
-         * @param column column index
+         * @param column Column index
          *
          * @return Column database data type
          *****************************************************************************************/
@@ -3207,9 +3207,9 @@ public class CcddConstants
             /**************************************************************************************
              * Scheduler table columns constructor
              *
-             * @param columnName scheduler table column name
+             * @param columnName Scheduler table column name
              *
-             * @param dataType   scheduler table column data type
+             * @param dataType   Scheduler table column data type
              *************************************************************************************/
             DbuInfoColumn(String columnName, String dataType)
             {
@@ -3241,9 +3241,9 @@ public class CcddConstants
             /**************************************************************************************
              * Scheduler table columns constructor
              *
-             * @param columnName scheduler table column name
+             * @param columnName Scheduler table column name
              *
-             * @param dataType   scheduler table column data type
+             * @param dataType   Scheduler table column data type
              *************************************************************************************/
             AppSchedulerColumn(String columnName, String dataType)
             {
@@ -3276,9 +3276,9 @@ public class CcddConstants
             /**************************************************************************************
              * Scripts associations table columns constructor
              *
-             * @param columnName scripts table column name
+             * @param columnName Scripts table column name
              *
-             * @param dataType   scripts table column data type
+             * @param dataType   Scripts table column data type
              *************************************************************************************/
             AssociationsColumn(String columnName, String dataType)
             {
@@ -3311,9 +3311,9 @@ public class CcddConstants
             /**************************************************************************************
              * Data types table columns constructor
              *
-             * @param columnName data types table column name
+             * @param columnName Data types table column name
              *
-             * @param dataType   data types table column data type
+             * @param dataType   Data types table column data type
              *************************************************************************************/
             DataTypesColumn(String columnName, String dataType)
             {
@@ -3348,9 +3348,9 @@ public class CcddConstants
             /**************************************************************************************
              * Data fields table columns constructor
              *
-             * @param columnName data fields table column name
+             * @param columnName Data fields table column name
              *
-             * @param dataType   data fields table column data type
+             * @param dataType   Data fields table column data type
              *************************************************************************************/
             FieldsColumn(String columnName, String dataType)
             {
@@ -3401,9 +3401,9 @@ public class CcddConstants
             /**************************************************************************************
              * Groups table columns constructor
              *
-             * @param columnName groups table column name
+             * @param columnName Groups table column name
              *
-             * @param dataType   groups table column data type
+             * @param dataType   Groups table column data type
              *************************************************************************************/
             GroupsColumn(String columnName, String dataType)
             {
@@ -3435,9 +3435,9 @@ public class CcddConstants
             /**************************************************************************************
              * Links table columns constructor
              *
-             * @param columnName links table column name
+             * @param columnName Links table column name
              *
-             * @param dataType   links table column data type
+             * @param dataType   Links table column data type
              *************************************************************************************/
             LinksColumn(String columnName, String dataType)
             {
@@ -3469,9 +3469,9 @@ public class CcddConstants
             /**************************************************************************************
              * Macro values table columns constructor
              *
-             * @param columnName macros table column name
+             * @param columnName Macros table column name
              *
-             * @param dataType   macros table column data type
+             * @param dataType   Macros table column data type
              *************************************************************************************/
             MacrosColumn(String columnName, String dataType)
             {
@@ -3503,9 +3503,9 @@ public class CcddConstants
             /**************************************************************************************
              * Column order table columns constructor
              *
-             * @param columnName orders table column name
+             * @param columnName Orders table column name
              *
-             * @param dataType   orders table column data type
+             * @param dataType   Orders table column data type
              *************************************************************************************/
             OrdersColumn(String columnName, String dataType)
             {
@@ -3537,9 +3537,9 @@ public class CcddConstants
             /**************************************************************************************
              * Reserved message IDs table columns constructor
              *
-             * @param columnName reserved message IDs table column name
+             * @param columnName Reserved message IDs table column name
              *
-             * @param dataType   reserved message IDs table column data type
+             * @param dataType   Reserved message IDs table column data type
              *************************************************************************************/
             ReservedMsgIDsColumn(String columnName, String dataType)
             {
@@ -3561,9 +3561,9 @@ public class CcddConstants
             /**************************************************************************************
              * Script table columns constructor
              *
-             * @param columnName scripts table column name
+             * @param columnName Scripts table column name
              *
-             * @param dataType   scripts table column data type
+             * @param dataType   Scripts table column data type
              *************************************************************************************/
             ScriptColumn(String columnName, String dataType)
             {
@@ -3586,9 +3586,9 @@ public class CcddConstants
             /**************************************************************************************
              * Input types table columns constructor
              *
-             * @param columnName input types table column name
+             * @param columnName Input types table column name
              *
-             * @param dataType   input types table column data type
+             * @param dataType   Input types table column data type
              *************************************************************************************/
             InputTypesColumn(String columnName, String dataType)
             {
@@ -3614,9 +3614,9 @@ public class CcddConstants
             /**************************************************************************************
              * Table type definitions table columns constructor
              *
-             * @param columnName table types table column name
+             * @param columnName Table types table column name
              *
-             * @param dataType   table types table column data type
+             * @param dataType   Table types table column data type
              *************************************************************************************/
             TableTypesColumn(String columnName, String dataType)
             {
@@ -3649,9 +3649,9 @@ public class CcddConstants
             /**************************************************************************************
              * Messages table columns constructor
              *
-             * @param columnName messages table column name
+             * @param columnName Messages table column name
              *
-             * @param dataType   messages table column data type
+             * @param dataType   Messages table column data type
              *************************************************************************************/
             TlmSchedulerColumn(String columnName, String dataType)
             {
@@ -3683,9 +3683,9 @@ public class CcddConstants
             /**************************************************************************************
              * User authorization table columns constructor
              *
-             * @param columnName user authorization table column name
+             * @param columnName User authorization table column name
              *
-             * @param dataType   user authorization table column data type
+             * @param dataType   User authorization table column data type
              *************************************************************************************/
             UsersColumn(String columnName, String dataType)
             {
@@ -3717,9 +3717,9 @@ public class CcddConstants
             /**************************************************************************************
              * Custom values table columns constructor
              *
-             * @param columnName custom values table column name
+             * @param columnName Custom values table column name
              *
-             * @param dataType   custom values table column data type
+             * @param dataType   Custom values table column data type
              *************************************************************************************/
             ValuesColumn(String columnName, String dataType)
             {
@@ -3746,13 +3746,13 @@ public class CcddConstants
         /******************************************************************************************
          * Database internal table names constructor
          *
-         * @param tableName     internal table name
+         * @param tableName     Internal table name
          *
-         * @param columns       array of internal table column names and data types
+         * @param columns       Array of internal table column names and data types
          *
-         * @param createCommand any special database command(s) required when creating this internal table
+         * @param createCommand Any special database command(s) required when creating this internal table
          *
-         * @param initCommand   table initialization command(s) when creating this internal table, if any
+         * @param initCommand   Table initialization command(s) when creating this internal table, if any
          *****************************************************************************************/
         InternalTable(String tableName, String[][] columns, String createCommand, String initCommand)
         {
@@ -3790,7 +3790,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the internal table name
          *
-         * @param scriptComment script file comment from which to extract the script's original name (only
+         * @param scriptComment Script file comment from which to extract the script's original name (only
          *                      applicable to script file tables)
          *
          * @return Internal table name
@@ -3823,7 +3823,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the internal table column name by index
          *
-         * @param index column index
+         * @param index Column index
          *
          * @return Internal table column name for the specified index; null if the index is invalid
          *****************************************************************************************/
@@ -3866,7 +3866,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the internal table column data type by index
          *
-         * @param index column index
+         * @param index Column index
          *
          * @return Internal table column data type for the specified index; null if the index is invalid
          *****************************************************************************************/
@@ -3888,7 +3888,7 @@ public class CcddConstants
          * Get the command substring the defines the table columns and any special command(s) required to
          * build this internal table
          *
-         * @param includeInitCmd true to include the table initialization command(s); false to only include
+         * @param includeInitCmd True to include the table initialization command(s); false to only include
          *                       the column definition and create commands
          *
          * @return Table columns command substring and special command(s)
@@ -3923,13 +3923,13 @@ public class CcddConstants
         /******************************************************************************************
          * Table type editor column information constructor
          *
-         * @param columnName   text to display for the type editor column name
+         * @param columnName   Text to display for the type editor column name
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         TableTypeEditorColumnInfo(String columnName, String toolTip, Object initialValue, boolean isRequired)
         {
@@ -4038,11 +4038,11 @@ public class CcddConstants
         /******************************************************************************************
          * Scheduler table columns constructor
          *
-         * @param tlmColumn   telemetry scheduler column name
+         * @param tlmColumn   Telemetry scheduler column name
          *
-         * @param appColumn   application scheduler column name
+         * @param appColumn   Application scheduler column name
          *
-         * @param otherColumn unknown scheduler type column name
+         * @param otherColumn Unknown scheduler type column name
          *****************************************************************************************/
         SchedulerColumn(String tlmColumn, String appColumn, String otherColumn)
         {
@@ -4054,7 +4054,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the scheduler column name based on the scheduler type
          *
-         * @param schType scheduler type
+         * @param schType Scheduler type
          *
          * @return Scheduler column name for the specified scheduler type
          *****************************************************************************************/
@@ -4122,19 +4122,19 @@ public class CcddConstants
         /******************************************************************************************
          * Default application data fields constructor
          *
-         * @param fieldName     data field name
+         * @param fieldName     Data field name
          *
-         * @param description   data field description
+         * @param description   Data field description
          *
-         * @param inputType     data field input type
+         * @param inputType     Data field input type
          *
-         * @param size          data field size in characters
+         * @param size          Data field size in characters
          *
-         * @param isRequired    true if a value is required in the data field
+         * @param isRequired    True if a value is required in the data field
          *
-         * @param applicability data field applicability type
+         * @param applicability Data field applicability type
          *
-         * @param initialValue  initial value for the data field
+         * @param initialValue  Initial value for the data field
          *****************************************************************************************/
         DefaultApplicationField(String fieldName, String description, DefaultInputType inputType, int size,
                                 boolean isRequired, ApplicabilityType applicability, String initialValue)
@@ -4171,9 +4171,9 @@ public class CcddConstants
         /******************************************************************************************
          * Create the default data field's information for the specified owner
          *
-         * @param ownerName        table or group name to which the field belongs
+         * @param ownerName        Table or group name to which the field belongs
          *
-         * @param inputTypeHandler input type handler reference
+         * @param inputTypeHandler Input type handler reference
          *
          * @return FieldInformation for the default data field
          *****************************************************************************************/
@@ -4201,13 +4201,13 @@ public class CcddConstants
         /******************************************************************************************
          * Macro editor column information constructor
          *
-         * @param columnName   text to display for the macro editor column header
+         * @param columnName   Text to display for the macro editor column header
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         MacroEditorColumnInfo(String columnName, String toolTip, String initialValue, boolean isRequired)
         {
@@ -4318,13 +4318,13 @@ public class CcddConstants
         /******************************************************************************************
          * Data type editor column information constructor
          *
-         * @param columnName   text to display for the data type editor column header
+         * @param columnName   Text to display for the data type editor column header
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         DataTypeEditorColumnInfo(String columnName, String toolTip, String initialValue, boolean isRequired)
         {
@@ -4438,13 +4438,13 @@ public class CcddConstants
         /******************************************************************************************
          * Input type editor column information constructor
          *
-         * @param columnName   text to display for the input type editor column header
+         * @param columnName   Text to display for the input type editor column header
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         InputTypeEditorColumnInfo(String columnName, String toolTip, String initialValue, boolean isRequired)
         {
@@ -4560,13 +4560,13 @@ public class CcddConstants
         /******************************************************************************************
          * Data field editor column information constructor
          *
-         * @param columnName   text to display for the field editor column header
+         * @param columnName   Text to display for the field editor column header
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         FieldEditorColumnInfo(String columnName, String toolTip, Object initialValue, boolean isRequired)
         {
@@ -4673,9 +4673,9 @@ public class CcddConstants
         /******************************************************************************************
          * Data field table editor column information constructor
          *
-         * @param columnName text to display for the data field editor column name
+         * @param columnName Text to display for the data field editor column name
          *
-         * @param toolTip    tool tip text to display for the column
+         * @param toolTip    Tool tip text to display for the column
          *****************************************************************************************/
         FieldTableEditorColumnInfo(String columnName, String toolTip)
         {
@@ -4720,13 +4720,13 @@ public class CcddConstants
         /******************************************************************************************
          * Reserved message ID editor column information constructor
          *
-         * @param columnName   text to display for the reserved message ID editor column header
+         * @param columnName   Text to display for the reserved message ID editor column header
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         ReservedMsgIDEditorColumnInfo(String columnName, String toolTip, String initialValue, boolean isRequired)
         {
@@ -4834,9 +4834,9 @@ public class CcddConstants
         /******************************************************************************************
          * Variable path table column information constructor
          *
-         * @param columnName text to display for the table verification column name
+         * @param columnName Text to display for the table verification column name
          *
-         * @param toolTip    tool tip text to display for the table verification column
+         * @param toolTip    Tool tip text to display for the table verification column
          *****************************************************************************************/
         VariablePathTableColumnInfo(String columnName, String toolTip)
         {
@@ -4902,9 +4902,9 @@ public class CcddConstants
         /******************************************************************************************
          * Command information table column information constructor
          *
-         * @param columnName text to display for the table verification column name
+         * @param columnName Text to display for the table verification column name
          *
-         * @param toolTip    tool tip text to display for the table verification column
+         * @param toolTip    Tool tip text to display for the table verification column
          *****************************************************************************************/
         CommandInformationTableColumnInfo(String columnName, String toolTip)
         {
@@ -4970,9 +4970,9 @@ public class CcddConstants
         /******************************************************************************************
          * Script association table column information constructor
          *
-         * @param columnName text to display for the script association column name
+         * @param columnName Text to display for the script association column name
          *
-         * @param toolTip    tool tip text to display for the script association column
+         * @param toolTip    Tool tip text to display for the script association column
          *****************************************************************************************/
         AssociationsTableColumnInfo(String columnName, String toolTip)
         {
@@ -5050,13 +5050,13 @@ public class CcddConstants
         /******************************************************************************************
          * User access level editor column information constructor
          *
-         * @param columnName   text to display for the user access level editor column header
+         * @param columnName   Text to display for the user access level editor column header
          *
-         * @param toolTip      tool tip text to display for the column
+         * @param toolTip      Tool tip text to display for the column
          *
-         * @param initialValue initial column value
+         * @param initialValue Initial column value
          *
-         * @param isRequired   true if a value is required in this column
+         * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
         AccessLevelEditorColumnInfo(String columnName, String toolTip, String initialValue, boolean isRequired)
         {
@@ -5173,17 +5173,17 @@ public class CcddConstants
         /******************************************************************************************
          * Search results table column information constructor
          *
-         * @param tableColumnName  text to display for the table search results column name
+         * @param tableColumnName  Text to display for the table search results column name
          *
-         * @param tableToolTip     tool tip text to display for the table search results column
+         * @param tableToolTip     Tool tip text to display for the table search results column
          *
-         * @param scriptColumnName text to display for the script search results column name
+         * @param scriptColumnName Text to display for the script search results column name
          *
-         * @param scriptToolTip    tool tip text to display for the script search results column
+         * @param scriptToolTip    Tool tip text to display for the script search results column
          *
-         * @param logColumnName    text to display for the event log search results column name
+         * @param logColumnName    Text to display for the event log search results column name
          *
-         * @param logToolTip       tool tip text to display for the event log search results column
+         * @param logToolTip       Tool tip text to display for the event log search results column
          *****************************************************************************************/
         SearchResultsColumnInfo(String tableColumnName, String tableToolTip, String scriptColumnName,
                                 String scriptToolTip, String logColumnName, String logToolTip)
@@ -5199,7 +5199,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the search results table column header for the specified search dialog type
          *
-         * @param searchType search dialog type: TABLES, SCRIPTS, or LOG
+         * @param searchType Search dialog type: TABLES, SCRIPTS, or LOG
          *
          * @return Search results table column name
          *****************************************************************************************/
@@ -5228,7 +5228,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the search results table column names for the specified search dialog type
          *
-         * @param searchType search dialog type: TABLES, SCRIPTS, or LOG
+         * @param searchType Search dialog type: TABLES, SCRIPTS, or LOG
          *
          * @return Array containing the search results table column names
          *****************************************************************************************/
@@ -5264,7 +5264,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the search results column tool tips for the specified search dialog type
          *
-         * @param searchType search dialog type: TABLES, SCRIPTS, or LOG
+         * @param searchType Search dialog type: TABLES, SCRIPTS, or LOG
          *
          * @return Array containing the search results column tool tips
          *****************************************************************************************/
@@ -5311,9 +5311,9 @@ public class CcddConstants
         /******************************************************************************************
          * Duplicate message ID table column information constructor
          *
-         * @param columnName text to display for the duplicate message ID table column
+         * @param columnName Text to display for the duplicate message ID table column
          *
-         * @param toolTip    tool tip text to display for the duplicate message ID table column
+         * @param toolTip    Tool tip text to display for the duplicate message ID table column
          *****************************************************************************************/
         DuplicateMsgIDColumnInfo(String columnName, String toolTip)
         {
@@ -5387,9 +5387,9 @@ public class CcddConstants
         /******************************************************************************************
          * Message table ID owner, name, and ID table column information constructor
          *
-         * @param columnName text to display for the message ID owner, name, and ID table column
+         * @param columnName Text to display for the message ID owner, name, and ID table column
          *
-         * @param toolTip    tool tip text to display for the message ID owner, name, and ID table column
+         * @param toolTip    Tool tip text to display for the message ID owner, name, and ID table column
          *****************************************************************************************/
         MsgIDTableColumnInfo(String columnName, String toolTip)
         {
@@ -5464,9 +5464,9 @@ public class CcddConstants
         /******************************************************************************************
          * Link copy error table column information constructor
          *
-         * @param columnName text to display for the link copy error table column
+         * @param columnName Text to display for the link copy error table column
          *
-         * @param toolTip    tool tip text to display for the link copy error table column
+         * @param toolTip    Tool tip text to display for the link copy error table column
          *****************************************************************************************/
         LinkCopyErrorColumnInfo(String columnName, String toolTip)
         {
@@ -5532,9 +5532,9 @@ public class CcddConstants
         /******************************************************************************************
          * Verification table column information constructor
          *
-         * @param columnName text to display for the table verification column name
+         * @param columnName Text to display for the table verification column name
          *
-         * @param toolTip    tool tip text to display for the table verification column
+         * @param toolTip    Tool tip text to display for the table verification column
          *****************************************************************************************/
         VerificationColumnInfo(String columnName, String toolTip)
         {
@@ -5595,9 +5595,9 @@ public class CcddConstants
         /******************************************************************************************
          * Build the comment by arranging the comment parameters in the correct order
          *
-         * @param tableName table name
+         * @param tableName Table name
          *
-         * @param tableType table type
+         * @param tableType Table type
          *
          * @return Table comment parameters, separated by commas
          *****************************************************************************************/
@@ -5643,7 +5643,7 @@ public class CcddConstants
         /******************************************************************************************
          * Copy table entries constructor
          *
-         * @param columnName copy table column name
+         * @param columnName Copy table column name
          *****************************************************************************************/
         CopyTableEntry(String columnName)
         {
@@ -5701,7 +5701,7 @@ public class CcddConstants
         /******************************************************************************************
          * JSON data type tags constructor
          *
-         * @param tag text describing the data
+         * @param tag Text describing the data
          *****************************************************************************************/
         JSONTags(String tag, String alternateTag)
         {
@@ -5915,7 +5915,7 @@ public class CcddConstants
         /******************************************************************************************
          * Database list query commands constructor
          *
-         * @param listCommand postgreSQL query command
+         * @param listCommand PostgreSQL query command
          *****************************************************************************************/
         DatabaseListCommand(String listCommand)
         {
@@ -5925,7 +5925,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the list command
          *
-         * @param listOptions array containing replacement text for those commands that must be tailored
+         * @param listOptions Array containing replacement text for those commands that must be tailored
          *
          * @return List command string
          *****************************************************************************************/
@@ -5962,7 +5962,7 @@ public class CcddConstants
         /******************************************************************************************
          * Event log table columns constructor
          *
-         * @param name column name
+         * @param name Column name
          *****************************************************************************************/
         EventColumns(String name)
         {
@@ -6021,9 +6021,9 @@ public class CcddConstants
         /******************************************************************************************
          * Event log message type constructor
          *
-         * @param typeName  filter name for display beside the check box and in the event log Type column
+         * @param typeName  Filter name for display beside the check box and in the event log Type column
          *
-         * @param typeColor color in which to display the filter name
+         * @param typeColor Color in which to display the filter name
          *****************************************************************************************/
         EventLogMessageType(String typeName, String typeColor)
         {
@@ -6077,7 +6077,7 @@ public class CcddConstants
         /******************************************************************************************
          * Search target names constructor
          *
-         * @param tgtName target name
+         * @param tgtName Target name
          *****************************************************************************************/
         SearchTarget(String tgtName)
         {
@@ -6087,7 +6087,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get search target name
          *
-         * @param isFormat true to format the target name
+         * @param isFormat True to format the target name
          *
          * @return Target name
          *****************************************************************************************/
@@ -6142,17 +6142,17 @@ public class CcddConstants
         /******************************************************************************************
          * Dialog option types constructor
          *
-         * @param buttonText          text to display on the primary button
+         * @param buttonText          Text to display on the primary button
          *
-         * @param buttonMnemonic      character for actuating the primary button via the keyboard
+         * @param buttonMnemonic      Character for actuating the primary button via the keyboard
          *
-         * @param secondaryButtonText text to display on the secondary button (if present)
+         * @param secondaryButtonText Text to display on the secondary button (if present)
          *
-         * @param buttonIcon          identifier for the icon to display on the primary button
+         * @param buttonIcon          Identifier for the icon to display on the primary button
          *
-         * @param numButtons          number of buttons to display in the dialog
+         * @param numButtons          Number of buttons to display in the dialog
          *
-         * @param defaultButton       index of the button selected by default
+         * @param defaultButton       Index of the button selected by default
          *****************************************************************************************/
         DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
                      int numButtons, int defaultButton)
@@ -6189,19 +6189,19 @@ public class CcddConstants
         /******************************************************************************************
          * Dialog option types constructor
          *
-         * @param buttonText          text to display on the primary button
+         * @param buttonText          Text to display on the primary button
          *
-         * @param buttonMnemonic      character for actuating the primary button via the keyboard
+         * @param buttonMnemonic      Character for actuating the primary button via the keyboard
          *
-         * @param secondaryButtonText text to display on the secondary button (if present)
+         * @param secondaryButtonText Text to display on the secondary button (if present)
          *
-         * @param buttonIcon          identifier for the icon to display on the primary button
+         * @param buttonIcon          Identifier for the icon to display on the primary button
          *
-         * @param numButtons          number of buttons to display in the dialog
+         * @param numButtons          Number of buttons to display in the dialog
          *
-         * @param defaultButton       index of the button selected by default
+         * @param defaultButton       Index of the button selected by default
          *
-         * @param buttonType          chosen button associated with this option. For example[OK, CANCEL,
+         * @param buttonType          Chosen button associated with this option. For example[OK, CANCEL,
          *                            UPDATE, IGNORE]
          *****************************************************************************************/
         DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
@@ -6220,19 +6220,19 @@ public class CcddConstants
         /******************************************************************************************
          * Dialog option types constructor
          *
-         * @param buttonText          text to display on the primary button
+         * @param buttonText          Text to display on the primary button
          *
-         * @param buttonMnemonic      character for actuating the primary button via the keyboard
+         * @param buttonMnemonic      Character for actuating the primary button via the keyboard
          *
-         * @param secondaryButtonText text to display on the secondary button (if present)
+         * @param secondaryButtonText Text to display on the secondary button (if present)
          *
-         * @param buttonIcon          identifier for the icon to display on the primary button
+         * @param buttonIcon          Identifier for the icon to display on the primary button
          *
-         * @param numButtons          number of buttons to display in the dialog
+         * @param numButtons          Number of buttons to display in the dialog
          *
-         * @param defaultButton       index of the button selected by default
+         * @param defaultButton       Index of the button selected by default
          *
-         * @param buttonType          chosen button associated with this option. For example[OK, CANCEL,
+         * @param buttonType          Chosen button associated with this option. For example[OK, CANCEL,
          *                            UPDATE, IGNORE]
          *
          * @param options[]           An array containing other dialog buttons to create in order

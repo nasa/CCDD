@@ -98,7 +98,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Web data access handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddWebDataAccessHandler(CcddMain ccddMain)
     {
@@ -191,15 +191,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * separation character(s) and removing any leading and trailing white space characters from each
      * part
      *
-     * @param text         text string to separate
+     * @param text         Text string to separate
      *
-     * @param separator    separation character(s). This is padded with a check for white space
+     * @param separator    Separation character(s). This is padded with a check for white space
      *                     characters in order to remove them
      *
-     * @param limit        maximum number of parts to separate the text into. This is the number of
+     * @param limit        Maximum number of parts to separate the text into. This is the number of
      *                     parts returned, with any missing parts returned as blanks
      *
-     * @param removeQuotes true to remove excess double quotes from the individual array members
+     * @param removeQuotes True to remove excess double quotes from the individual array members
      *
      * @return Array containing the specified number of parts of the text string. A part is returned as
      *         blank if the supplied text does not contain the number of parts specified by the limit
@@ -224,7 +224,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the separator characters used to convert an application variable path to a user-defined
      * variable path
      *
-     * @param parameters comma-separated string containing the variable path separator character(s),
+     * @param parameters Comma-separated string containing the variable path separator character(s),
      *                   show/hide data types flag ('true' or 'false'), and data type/variable name
      *                   separator character(s)
      *
@@ -273,9 +273,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Process the web query and return the results encoded as a JSON string. The query is in the form
      * [server]:[port]/[component]?[attribute][=name]
      *
-     * @param component component for which to request data
+     * @param component Component for which to request data
      *
-     * @param item      item in the component
+     * @param item      Item in the component
      *
      * @return Query results encoded as a JSON string
      *********************************************************************************************/
@@ -566,9 +566,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Authenticate the specified user credentials
      *
-     * @param userName user name
+     * @param userName User name
      *
-     * @param password user password
+     * @param password User password
      *
      * @return The string "true" if the user name and password are valid for the currently open
      *         database; otherwise returns "false"
@@ -590,7 +590,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Perform a search for the specified text in the data and internal tables
      *
-     * @param searchCriteria attribute containing the search constraints in the format &lt;search
+     * @param searchCriteria Attribute containing the search constraints in the format &lt;search
      *                       text&gt;,&lt;ignore case (true or false)&gt;,&lt;allow regular expression
      *                       (true or false)&gt;,&lt;data table cells only (true or
      *                       false)&gt;&lt;,search table column names&gt;. The 'ignore case' and 'data
@@ -764,12 +764,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the data for the specified data table, or for all data tables if no table name is provided
      *
-     * @param tableName      table name and path in the format rootTable[,dataType1.variable1[,...]].
+     * @param tableName      Table name and path in the format rootTable[,dataType1.variable1[,...]].
      *                       Blank to return the data for all tables
      *
-     * @param getDescription true to get the table description when loading the table data
+     * @param getDescription True to get the table description when loading the table data
      *
-     * @param separators     string array containing the variable path separator character(s), show/hide
+     * @param separators     String array containing the variable path separator character(s), show/hide
      *                       data types flag ('true' or 'false'), and data type/variable name separator
      *                       character(s)
      *
@@ -846,7 +846,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the description for the specified table, or all tables with a description if no table name is
      * provided
      *
-     * @param tableName table name and path in the format rootTable[,dataType1.variable1[,...]]. If
+     * @param tableName Table name and path in the format rootTable[,dataType1.variable1[,...]]. If
      *                  blank then the description for every data table with a description is returned
      *
      * @return JSON encoded string containing the specified table's description; null if the specified
@@ -923,10 +923,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the data field information for the specified table, or for all tables if no table name is
      * provided
      *
-     * @param tableName   table name and path in the format rootTable[,dataType1.variable1[,...]]. If
+     * @param tableName   Table name and path in the format rootTable[,dataType1.variable1[,...]]. If
      *                    blank then every data table's data fields are returned
      *
-     * @param checkExists true to check if the specified table exists in the project database
+     * @param checkExists True to check if the specified table exists in the project database
      *
      * @return JSON encoded string containing the specified table's data fields; null if the table
      *         doesn't exist or if the project database contains no data tables
@@ -1007,7 +1007,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the names of all tables of the specified table type, or all tables names and their types if
      * no table type is provided
      *
-     * @param tableType table type. The type is case insensitive. If blank then every data table and its
+     * @param tableType Table type. The type is case insensitive. If blank then every data table and its
      *                  type is returned
      *
      * @return JSON encoded string containing all table names of the specified table type; blank if the
@@ -1102,7 +1102,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the number of bytes for the prototype of the specified structure table, or for all prototype
      * structure tables if no table is specified
      *
-     * @param tableName structure table name or path
+     * @param tableName Structure table name or path
      *
      * @return JSON encoded string containing the structure table name(s) and corresponding size(s) in
      *         bytes; null if a table name is specified and the table doesn't exist or isn't a
@@ -1176,10 +1176,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the type, description, size, data, and data fields for the specified data table
      *
-     * @param tableName  table name and path in the format rootTable[,dataType1.variable1[,...]]. Blank
+     * @param tableName  Table name and path in the format rootTable[,dataType1.variable1[,...]]. Blank
      *                   to return the data for all tables
      *
-     * @param separators string array containing the variable path separator character(s), show/hide
+     * @param separators String array containing the variable path separator character(s), show/hide
      *                   data types flag ('true' or 'false'), and data type/variable name separator
      *                   character(s)
      *
@@ -1250,7 +1250,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the names of all groups or applications
      *
-     * @param applicationOnly true if only groups that represent applications should be processed
+     * @param applicationOnly True if only groups that represent applications should be processed
      *
      * @return JSON encoded string containing the all group/application names; null if no
      *         groups/applications exist in the project database
@@ -1291,7 +1291,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the telemetry scheduler's copy table entries
      *
-     * @param parameters comma-separated string containing the data stream name, header size (in bytes),
+     * @param parameters Comma-separated string containing the data stream name, header size (in bytes),
      *                   message ID name data field name, and the optimize result flag ('true' or
      *                   'false')
      *
@@ -1382,7 +1382,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * Get the application scheduler's schedule or message definition table entries
      *
-     * @param appTableType application scheduler table entry type: schedule or message
+     * @param appTableType Application scheduler table entry type: schedule or message
      *
      * @return JSON encoded string containing the schedule or message definition table entries; null if
      *         the table type is unrecognized
@@ -1487,10 +1487,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the variable names, both in application format and altered based on the user-provided
      * parameters
      *
-     * @param variablePath variable path + name for which to return the converted path; blank to provide
+     * @param variablePath Variable path + name for which to return the converted path; blank to provide
      *                     the paths for all variables
      *
-     * @param parameters   comma-separated string containing the variable path separator character(s),
+     * @param parameters   Comma-separated string containing the variable path separator character(s),
      *                     show/hide data types flag ('true' or 'false'), and data type/variable name
      *                     separator character(s); blank to use the default separators
      *
@@ -1556,7 +1556,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the path, data type, bit length, description, units, data stream information, and enumeration
      * information for each telemetered variable matching the specified filters
      *
-     * @param telemetryFilter group (or application) name, data stream name, and/or rate value
+     * @param telemetryFilter Group (or application) name, data stream name, and/or rate value
      *                        filter(s). A table must belong to the specified group in order for its
      *                        telemetered variables to be returned; blank to get all telemetered
      *                        variables (regardless of group). A variable must have a rate assigned for
@@ -1832,7 +1832,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the information for each command matching the specified filters
      *
-     * @param groupFilter group (or application) name. A table must belong to the specified group in
+     * @param groupFilter Group (or application) name. A table must belong to the specified group in
      *                    order for its telemetered variables to be returned; blank to get all
      *                    telemetered variables (regardless of group)
      *

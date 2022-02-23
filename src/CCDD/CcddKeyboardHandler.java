@@ -89,7 +89,7 @@ public class CcddKeyboardHandler
     /**********************************************************************************************
      * Keyboard handler class constructor
      *
-     * @param ccddMain reference to main class
+     * @param ccddMain Reference to main class
      *********************************************************************************************/
     CcddKeyboardHandler(CcddMain ccddMain)
     {
@@ -117,9 +117,9 @@ public class CcddKeyboardHandler
      * must be set to null after the dialog closes so that the non-modal dialogs (e.g., table and table
      * type editors) undo managers can handle undo/redo operations
      *
-     * @param undoManager modal dialog undo manager; null to disable
+     * @param undoManager Modal dialog undo manager; null to disable
      *
-     * @param table       modal dialog table reference; null if the modal dialog has no table
+     * @param table       Modal dialog table reference; null if the modal dialog has no table
      *********************************************************************************************/
     protected void setModalDialogReference(CcddUndoManager undoManager, CcddJTableHandler table)
     {
@@ -999,7 +999,7 @@ public class CcddKeyboardHandler
      * included in order to eliminate the cell background color 'flash' that occurs when a check box is
      * toggled
      *
-     * @param comp reference to the component where the key press event occurred
+     * @param comp Reference to the component where the key press event occurred
      *
      * @return true if the key press event is handled by this method; false otherwise
      *********************************************************************************************/

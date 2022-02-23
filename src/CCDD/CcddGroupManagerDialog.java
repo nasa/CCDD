@@ -158,7 +158,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Group manager dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddGroupManagerDialog(CcddMain ccddMain)
     {
@@ -191,7 +191,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of group updates to the database
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doGroupUpdatesComplete(boolean commandError)
@@ -420,9 +420,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     /******************************************************************************
                      * Update the group name following a node name change undo or redo operation
                      *
-                     * @param wasValue group name prior to the undo/redo operation
+                     * @param wasValue Group name prior to the undo/redo operation
                      *
-                     * @param isValue  group name after the undo/redo operation
+                     * @param isValue  Group name after the undo/redo operation
                      *****************************************************************************/
                     @Override
                     protected void nodeRenameCleanup(Object wasValue, Object isValue)
@@ -905,7 +905,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      * and enable/disable the dialog's buttons that apply only if a single group is selected based on if
      * a valid group name is provided
      *
-     * @param groupName name of the selected group; null if no group or more than one group is selected
+     * @param groupName Name of the selected group; null if no group or more than one group is selected
      *********************************************************************************************/
     private void setGroupAndFields(String groupName)
     {
@@ -968,7 +968,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the group manager dialog's size following additions or deletions to the data field panel
      *
-     * @param undoable true if the update can be undone/redone
+     * @param undoable True if the update can be undone/redone
      *********************************************************************************************/
     private void recreateDataFieldPanel(boolean undoable)
     {
@@ -982,9 +982,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Set the enable status of the CFS application indicator check box
      *
-     * @param enable        true to enable the check box, false to disable
+     * @param enable        True to enable the check box, false to disable
      *
-     * @param isApplication true if the group represents a CFS application
+     * @param isApplication True if the group represents a CFS application
      *********************************************************************************************/
     private void enableApplicationCheckBox(boolean enable, boolean isApplication)
     {
@@ -999,7 +999,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Set the enable status of the buttons that apply only when one group is selected
      *
-     * @param enable true to enable the buttons, false to disable
+     * @param enable True to enable the buttons, false to disable
      *********************************************************************************************/
     private void setGroupButtonsEnabled(boolean enable)
     {
@@ -1470,11 +1470,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add a group name field to the dialog
      *
-     * @param fieldText   text to display beside the input field
+     * @param fieldText   Text to display beside the input field
      *
-     * @param currentName name of the selected group
+     * @param currentName Name of the selected group
      *
-     * @param dialogPnl   panel to which to add the input field
+     * @param dialogPnl   Panel to which to add the input field
      *
      * @return The GridBagConstraints used to arrange the dialog
      *********************************************************************************************/
@@ -1518,7 +1518,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify that the contents of the group name field is valid
      *
-     * @param caller reference to the dialog that is being verified
+     * @param caller Reference to the dialog that is being verified
      *
      * @return true if the group name is valid; false otherwise
      *********************************************************************************************/

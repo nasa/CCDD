@@ -103,7 +103,7 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Structure padding handler class constructor
          *
-         * @param structureName prototype structure table name
+         * @param structureName Prototype structure table name
          *****************************************************************************************/
         StructurePaddingHandler(String structureName)
         {
@@ -185,7 +185,7 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Get the variable name for the specified structure table row
          *
-         * @param row structure table row index
+         * @param row Structure table row index
          *
          * @return Variable name for the specified structure table row
          *****************************************************************************************/
@@ -197,7 +197,7 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Get the data type for the specified structure table row
          *
-         * @param row structure table row index
+         * @param row Structure table row index
          *
          * @return Data type for the specified structure table row
          *****************************************************************************************/
@@ -209,7 +209,7 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Get the array size for the specified structure table row
          *
-         * @param row structure table row index
+         * @param row Structure table row index
          *
          * @return Array size for the specified structure table row
          *****************************************************************************************/
@@ -221,7 +221,7 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Get the bit length for the specified structure table row
          *
-         * @param row structure table row index
+         * @param row Structure table row index
          *
          * @return Bit length for the specified structure table row
          *****************************************************************************************/
@@ -233,9 +233,9 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Get the rate for the specified structure table row and rate column
          *
-         * @param row    structure table row index
+         * @param row    Structure table row index
          *
-         * @param column structure table rate column index
+         * @param column Structure table rate column index
          *
          * @return Rate for the specified structure table row and rate column
          *****************************************************************************************/
@@ -247,11 +247,11 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Set the rate for the specified structure table row and rate column
          *
-         * @param rate   rate for the specified structure table row and rate column
+         * @param rate   Rate for the specified structure table row and rate column
          *
-         * @param row    structure table row index
+         * @param row    Structure table row index
          *
-         * @param column structure table rate column index
+         * @param column Structure table rate column index
          *****************************************************************************************/
         protected void setRate(String rate, int row, int column)
         {
@@ -462,11 +462,11 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Add a padding variable at the specified row index
          *
-         * @param row        structure table row index at which to insert the padding variable(s)
+         * @param row        Structure table row index at which to insert the padding variable(s)
          *
-         * @param padSize    number of padding variables to insert
+         * @param padSize    Number of padding variables to insert
          *
-         * @param numPadBits number of bits to assign to the padding variable to fill in a sequence of
+         * @param numPadBits Number of bits to assign to the padding variable to fill in a sequence of
          *                   bit-packed variables. 0 if the padding variable isn't associated with
          *                   bit-packed variables
          *
@@ -563,15 +563,15 @@ public class CcddPaddingVariableHandler
     /**********************************************************************************************
      * Padding variable handler class constructor
      *
-     * @param ccddMain                    main class reference
+     * @param ccddMain                    Main class reference
      *
      * @param padOperation                PadOperationType: ADD_UPDATE to add or update the variable
      *                                    padding; REMOVE to remove the padding variables
      *
-     * @param selectedProtoStructTables   list of the prototype table names that will have the padding
+     * @param selectedProtoStructTables   List of the prototype table names that will have the padding
      *                                    altered
      *
-     * @param referencedProtoStructTables list of the prototype table names that are referenced by the
+     * @param referencedProtoStructTables List of the prototype table names that are referenced by the
      *                                    selected tables
      *
      * @param parent                      GUI component on which to center the Halt dialog
@@ -781,7 +781,7 @@ public class CcddPaddingVariableHandler
     /**********************************************************************************************
      * Determine the total size of a structure and the largest data type within it
      *
-     * @param padInfo list containing the padding variable information for every structure table
+     * @param padInfo List containing the padding variable information for every structure table
      *********************************************************************************************/
     private void setStructureSizes(StructurePaddingHandler padInfo)
     {

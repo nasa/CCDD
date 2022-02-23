@@ -110,7 +110,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Macro editor dialog class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     CcddMacroEditorDialog(CcddMain ccddMain)
     {
@@ -127,7 +127,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of macro updates to the database
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doMacroUpdatesComplete(boolean commandError)
@@ -457,15 +457,15 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             /**************************************************************************************
              * Highlight any macros in the macro values column
              *
-             * @param component  reference to the table cell renderer component
+             * @param component  Reference to the table cell renderer component
              *
-             * @param text       cell text
+             * @param text       Cell text
              *
-             * @param isSelected true if the cell is to be rendered with the selection highlighted
+             * @param isSelected True if the cell is to be rendered with the selection highlighted
              *
-             * @param int        row cell row, view coordinates
+             * @param int        Row cell row, view coordinates
              *
-             * @param column     cell column, view coordinates
+             * @param column     Cell column, view coordinates
              *************************************************************************************/
             @Override
             protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)
@@ -549,19 +549,19 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false
@@ -788,7 +788,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Based on the input flag, display the macro values (names) in place of the macro names (values)
      *
-     * @param isExpand true to replace the macro names with the corresponding macro values; false to
+     * @param isExpand True to replace the macro names with the corresponding macro values; false to
      *                 restore the macro names
      *********************************************************************************************/
     protected void expandMacros(boolean isExpand)

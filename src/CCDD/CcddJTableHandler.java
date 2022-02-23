@@ -222,7 +222,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Custom Swing table handler constructor
      *
-     * @param initialViewableRows initial number of rows to size the table
+     * @param initialViewableRows Initial number of rows to size the table
      *********************************************************************************************/
     CcddJTableHandler(int initialViewableRows)
     {
@@ -485,13 +485,13 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Select all of the cells in the specified range
      *
-     * @param startRow    row index in view coordinates at which to begin selection (inclusive)
+     * @param startRow    Row index in view coordinates at which to begin selection (inclusive)
      *
-     * @param endRow      row index in view coordinates at which to end selection (inclusive)
+     * @param endRow      Row index in view coordinates at which to end selection (inclusive)
      *
-     * @param startColumn column index in view coordinates at which to begin selection (inclusive)
+     * @param startColumn Column index in view coordinates at which to begin selection (inclusive)
      *
-     * @param endColumn   column index in view coordinates at which to end selection (inclusive)
+     * @param endColumn   Column index in view coordinates at which to end selection (inclusive)
      *********************************************************************************************/
     protected void setSelectedCells(int startRow, int endRow, int startColumn, int endColumn)
     {
@@ -555,9 +555,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Set the cell with the focus
      *
-     * @param row    cell row in view coordinates
+     * @param row    Cell row in view coordinates
      *
-     * @param column cell column in view coordinates
+     * @param column Cell column in view coordinates
      *********************************************************************************************/
     private void setFocusCell(int row, int column)
     {
@@ -573,9 +573,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Determine if the cell specified by the supplied coordinates has the focus
      *
-     * @param row    cell row in view coordinates
+     * @param row    Cell row in view coordinates
      *
-     * @param column cell column in view coordinates
+     * @param column Cell column in view coordinates
      *
      * @return true if the cell has the focus
      *********************************************************************************************/
@@ -619,7 +619,7 @@ public abstract class CcddJTableHandler extends JTable
      * instead of the view, repositioning a column doesn't result in a change to the returned array.
      * Empty rows are included or excluded depending on the input flag
      *
-     * @param excludeEmptyRows true if rows containing only empty cells are to be ignored
+     * @param excludeEmptyRows True if rows containing only empty cells are to be ignored
      *
      * @return List containing the table model data
      *********************************************************************************************/
@@ -663,7 +663,7 @@ public abstract class CcddJTableHandler extends JTable
      * instead of the view, repositioning a column doesn't result in a change to the returned array.
      * Empty rows are ignored
      *
-     * @param excludeEmptyRows true if rows containing only empty cells are to be ignored
+     * @param excludeEmptyRows True if rows containing only empty cells are to be ignored
      *
      * @return Array containing the table model data
      *********************************************************************************************/
@@ -676,7 +676,7 @@ public abstract class CcddJTableHandler extends JTable
      * Get the next non-empty table row number starting at the supplied index. Rows are empty if the
      * cell values match that returned by the getEmptyRow() method. Hidden columns are ignored
      *
-     * @param tableRow next table row to check for data, model coordinates
+     * @param tableRow Next table row to check for data, model coordinates
      *
      * @return The next row number containing data
      *********************************************************************************************/
@@ -727,7 +727,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param tempOID   Starting number for the temporary OID. This should be negative so as not to
      *                  duplicate an actual OIDs in another table row
      *
-     * @param oidColumn table column containing the OID, model coordinates
+     * @param oidColumn Table column containing the OID, model coordinates
      *
      * @return The updated temporary OID value
      *********************************************************************************************/
@@ -757,7 +757,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Determine if any changes have been made compared to the most recently committed table data
      *
-     * @param previousData current database values for the table
+     * @param previousData Current database values for the table
      *
      * @return true if any cell in the table has been changed
      *********************************************************************************************/
@@ -770,9 +770,9 @@ public abstract class CcddJTableHandler extends JTable
      * Determine if any changes have been made compared to the most recently committed table data,
      * ignoring the specified columns
      *
-     * @param previousData  current database values for the table
+     * @param previousData  Current database values for the table
      *
-     * @param ignoreColumns list containing indices of columns to ignore when checking for changes; null
+     * @param ignoreColumns List containing indices of columns to ignore when checking for changes; null
      *                      or an empty list if no columns are to be ignored
      *
      * @return true if any cell in the table has been changed
@@ -815,7 +815,7 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to allow resizing of the table columns. Override this method to prevent
      * resizing one or more columns
      *
-     * @param column column index; model coordinate
+     * @param column Column index; model coordinate
      *
      * @return true to allow resizing of the specified column; false otherwise
      *********************************************************************************************/
@@ -828,7 +828,7 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a column's cells can be displayed as multiple lines.
      * Override this method to allow multiple line display of one or more columns
      *
-     * @param column column index; model coordinate
+     * @param column Column index; model coordinate
      *
      * @return true to allow display of multiple lines in the specified column's cells; false otherwise
      *********************************************************************************************/
@@ -842,7 +842,7 @@ public abstract class CcddJTableHandler extends JTable
      * multiple lines. Override this method to allow HTML-formatted, multiple line display of one or
      * more columns
      *
-     * @param column column index; model coordinate
+     * @param column Column index; model coordinate
      *
      * @return true to allow display of HTML-formatted, multiple lines in the specified column's cells;
      *         false otherwise
@@ -856,7 +856,7 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a column's cells can be displayed with the text
      * highlighted. Override this method to allow highlighting of the text in one or more columns
      *
-     * @param column column index; model coordinate
+     * @param column Column index; model coordinate
      *
      * @return true to allow display of highlighted text in the specified column's cells; false
      *         otherwise
@@ -870,7 +870,7 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a column should be hidden. Override this method to allow
      * hiding one or more columns
      *
-     * @param column column index; model coordinate
+     * @param column Column index; model coordinate
      *
      * @return true to hide the specified column; false otherwise
      *********************************************************************************************/
@@ -883,7 +883,7 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a column should be displayed as a check box. Override this
      * method to allow boolean input for one or more columns
      *
-     * @param column column index; model coordinate
+     * @param column Column index; model coordinate
      *
      * @return true to display the specified column as a check box; false otherwise
      *********************************************************************************************/
@@ -896,9 +896,9 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a table cell can be edited. Override this method to allow
      * editing the contents of the cell at the specified row and column
      *
-     * @param row    table row index in view coordinates
+     * @param row    Table row index in view coordinates
      *
-     * @param column table column index in view coordinates
+     * @param column Table column index in view coordinates
      *
      * @return true if the cell contents can be edited; false otherwise
      *********************************************************************************************/
@@ -912,11 +912,11 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a table cell can be changed. Override this method to allow
      * changing the contents of the cell at the specified row and column
      *
-     * @param rowData array containing the table row data
+     * @param rowData Array containing the table row data
      *
-     * @param row     table row index in model coordinates
+     * @param row     Table row index in model coordinates
      *
-     * @param column  table column index in model coordinates
+     * @param column  Table column index in model coordinates
      *
      * @return true if the cell contents can be changed; false otherwise
      *********************************************************************************************/
@@ -929,9 +929,9 @@ public abstract class CcddJTableHandler extends JTable
      * Placeholder for method to determine if a table cell can be blanked. Override this method to allow
      * deleting the contents of the cell at the specified row and column
      *
-     * @param row    table row index in view coordinates
+     * @param row    Table row index in view coordinates
      *
-     * @param column table column index in view coordinates
+     * @param column Table column index in view coordinates
      *
      * @return true if the cell contents can be deleted; false otherwise
      *********************************************************************************************/
@@ -943,19 +943,19 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Placeholder for method to validate changes to the editable table cells
      *
-     * @param tableData   list containing the table data row arrays
+     * @param tableData   List containing the table data row arrays
      *
-     * @param row         table model row index
+     * @param row         Table model row index
      *
-     * @param column      table model column index
+     * @param column      Table model column index
      *
-     * @param oldValue    original cell contents
+     * @param oldValue    Original cell contents
      *
-     * @param newValue    new cell contents
+     * @param newValue    New cell contents
      *
-     * @param showMessage true to display the invalid input dialog, if applicable
+     * @param showMessage True to display the invalid input dialog, if applicable
      *
-     * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+     * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
      *                    a single input is being entered
      *
      * @return true to indicate that subsequent errors should be displayed; false if subsequent errors
@@ -989,7 +989,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Set the status of the flag that indicates if the contents of the last cell edited is valid
      *
-     * @param isValid true to reset the flag; false to indicate the last cell's contents is invalid
+     * @param isValid True to reset the flag; false to indicate the last cell's contents is invalid
      *********************************************************************************************/
     protected void setLastCellValid(boolean isValid)
     {
@@ -1089,34 +1089,34 @@ public abstract class CcddJTableHandler extends JTable
      * Set common table parameters and characteristics. These only need to be set when the table is
      * initially created and do not require to be updated if the table is changed while it is visible
      *
-     * @param scrollPane         the scroll pane in which the table resides. Set to null if the table
+     * @param scrollPane         The scroll pane in which the table resides. Set to null if the table
      *                           isn't in a scroll pane
      *
-     * @param isRowsAlterable    true if the table's rows are allowed to be changed (e.g., inserted,
+     * @param isRowsAlterable    True if the table's rows are allowed to be changed (e.g., inserted,
      *                           deleted, moved) via keyboard commands from the user
      *
      * @param intervalSelection  ListSelectionModel selection mode used by the row and column selection
      *                           models
      *
-     * @param cellSelection      table cell selection mode that determines the cell or cells selected
+     * @param cellSelection      Table cell selection mode that determines the cell or cells selected
      *                           when a cell has focus: SELECT_BY_ROW to select the entire row occupied
      *                           the cell with focus; SELECT_BY_COLUMN to select the entire column
      *                           containing the cell with focus; SELECT_BY_CELL to select only the cell
      *                           with focus
      *
-     * @param columnDragAllowed  true if a column can be positioned by selecting the header via the
+     * @param columnDragAllowed  True if a column can be positioned by selecting the header via the
      *                           mouse and dragging the column
      *
-     * @param background         table background color (when row not selected)
+     * @param background         Table background color (when row not selected)
      *
-     * @param selectWithoutFocus true to ignore if the table has focus when determining the row colors
+     * @param selectWithoutFocus True to ignore if the table has focus when determining the row colors
      *                           for selected rows
      *
-     * @param allowUndo          true to allow changes to the table to be undone and redone
+     * @param allowUndo          True to allow changes to the table to be undone and redone
      *
-     * @param cellFont           font to use for displaying the cell contents
+     * @param cellFont           Font to use for displaying the cell contents
      *
-     * @param allowSort          true to enable the rows to be sorted by selecting a column header;
+     * @param allowSort          True to enable the rows to be sorted by selecting a column header;
      *                           false to disable sorting
      ********************************************************************************************/
     protected void setFixedCharacteristics(final JScrollPane scrollPane, boolean isRowsAlterable, int intervalSelection,
@@ -1282,11 +1282,11 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Clean-up of the cell value by removing any leading and trailing white space characters
      *
-     * @param value  new cell value
+     * @param value  New cell value
      *
-     * @param row    table row, model coordinates
+     * @param row    Table row, model coordinates
      *
-     * @param column table column, model coordinates
+     * @param column Table column, model coordinates
      *
      * @return Cell value following removal of any leading and trailing white space characters
      *********************************************************************************************/
@@ -1315,20 +1315,20 @@ public abstract class CcddJTableHandler extends JTable
      * Set common table characteristics. This must be called again if the table changes while it is
      * visible; e.g., the look and feel is changed or new table data is loaded
      *
-     * @param tableData      two-dimensional array of data to be placed into the table
+     * @param tableData      Two-dimensional array of data to be placed into the table
      *
-     * @param columnNames    array of HTML-formatted names for the table columns
+     * @param columnNames    Array of HTML-formatted names for the table columns
      *
-     * @param columnOrder    string of colon-separated column indices
+     * @param columnOrder    String of colon-separated column indices
      *
-     * @param toolTips       tool tip text to display when hovering over the column headers; null if no
+     * @param toolTips       Tool tip text to display when hovering over the column headers; null if no
      *                       column has tool tip text
      *
-     * @param centerText     true to center the text within the cells
+     * @param centerText     True to center the text within the cells
      *
-     * @param calcTotalWidth true to calculate the total width of the table
+     * @param calcTotalWidth True to calculate the total width of the table
      *
-     * @param showGrid       true to show the table grid
+     * @param showGrid       True to show the table grid
      *
      * @return Combined width of all columns in pixels
      *********************************************************************************************/
@@ -1453,9 +1453,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Load an array of data into the table
      *
-     * @param tableData two-dimensional array of data to be placed into the table
+     * @param tableData Two-dimensional array of data to be placed into the table
      *
-     * @param undoable  true if the data update can be undone
+     * @param undoable  True if the data update can be undone
      *********************************************************************************************/
     protected void loadDataArrayIntoTable(Object[][] tableData, boolean undoable)
     {
@@ -1668,7 +1668,7 @@ public abstract class CcddJTableHandler extends JTable
         /******************************************************************************************
          * Table cell renderer constructor
          *
-         * @param centerText true to center the text within the cells
+         * @param centerText True to center the text within the cells
          *****************************************************************************************/
         SingleLineCellRenderer(boolean centerText)
         {
@@ -1949,7 +1949,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Set the table cell renderers
      *
-     * @param centerText true to center the text within the cells
+     * @param centerText True to center the text within the cells
      *********************************************************************************************/
     private void setCellRenderers(boolean centerText)
     {
@@ -1993,7 +1993,7 @@ public abstract class CcddJTableHandler extends JTable
         /******************************************************************************************
          * Multi-line table cell editor constructor
          *
-         * @param textArea reference to the JTextArea to be used as the cell editor
+         * @param textArea Reference to the JTextArea to be used as the cell editor
          *****************************************************************************************/
         MultiLineCellEditor(final JTextArea textArea)
         {
@@ -2186,7 +2186,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Calculate and then set the minimum width for the specified column
      *
-     * @param column index of the column to size, view coordinates
+     * @param column Index of the column to size, view coordinates
      *********************************************************************************************/
     private void calcAndSetColumnWidth(int column)
     {
@@ -2291,7 +2291,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Arrange the column order based on a colon-separated string of column indices
      *
-     * @param columnOrder string of colon-separated column indices
+     * @param columnOrder String of colon-separated column indices
      *********************************************************************************************/
     protected void arrangeColumns(String columnOrder)
     {
@@ -2336,7 +2336,7 @@ public abstract class CcddJTableHandler extends JTable
      * Update the flags indicating the state of the control and shift modifier keys. The modifier's flag
      * is set to true if the key is pressed while no other modifier keys are pressed
      *
-     * @param ke key event
+     * @param ke Key event
      *********************************************************************************************/
     private void updateModifierKeyStates(KeyEvent ke)
     {
@@ -2355,7 +2355,7 @@ public abstract class CcddJTableHandler extends JTable
      * Set the keys that initiate editing the cell with the focus and which keys do not. Handle keyboard
      * commands
      *
-     * @param isRowsAlterable true if the table's rows can be altered by the user via key presses (e.g.,
+     * @param isRowsAlterable True if the table's rows can be altered by the user via key presses (e.g.,
      *                        row insertion)
      *********************************************************************************************/
     private void setEditorKeys(final boolean isRowsAlterable)
@@ -2663,7 +2663,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Insert an empty row into the table at the selection point
      *
-     * @param endEdit true to end the editing sequence at the end of the insert for undo/redo purposes
+     * @param endEdit True to end the editing sequence at the end of the insert for undo/redo purposes
      *********************************************************************************************/
     protected void insertEmptyRow(boolean endEdit)
     {
@@ -2673,14 +2673,14 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Insert a row of data into the table at the selection point
      *
-     * @param endEdit        true to end the editing sequence at the end of the insert for undo/redo
+     * @param endEdit        True to end the editing sequence at the end of the insert for undo/redo
      *                       purposes
      *
      * @param insertionPoint START to insert the data as the new first row in the table; END to force
      *                       insertion of the new data at the end of the table; SELECTION to insert the
      *                       data below the currently selected row(s)
      *
-     * @param data           data with which to populate the inserted row; null to insert an empty row
+     * @param data           Data with which to populate the inserted row; null to insert an empty row
      *********************************************************************************************/
     protected void insertRow(boolean endEdit, TableInsertionPoint insertionPoint, Object[] data)
     {
@@ -2735,7 +2735,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Select the specified row and scroll the table so that it is visible
      *
-     * @param viewRow row index to select and scroll to, view coordinates
+     * @param viewRow Row index to select and scroll to, view coordinates
      *********************************************************************************************/
     protected void setSelectedRow(int viewRow)
     {
@@ -2759,7 +2759,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Scroll the table so that the specified row is visible
      *
-     * @param row row index to which to scroll, view coordinates
+     * @param row Row index to which to scroll, view coordinates
      *********************************************************************************************/
     protected void scrollToRow(final int row)
     {
@@ -2769,9 +2769,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Scroll the table so that the specified cell is visible
      *
-     * @param row    row index to which to scroll, view coordinates
+     * @param row    Row index to which to scroll, view coordinates
      *
-     * @param column column index to which to scroll, view coordinates
+     * @param column Column index to which to scroll, view coordinates
      *********************************************************************************************/
     protected void scrollToCell(final int row, final int column)
     {
@@ -2802,9 +2802,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Insert data into a new row inserted below the specified row
      *
-     * @param targetRow index of the row in model coordinates below which to insert the new row
+     * @param targetRow Index of the row in model coordinates below which to insert the new row
      *
-     * @param data      data to place in the inserted row; null to insert an empty row
+     * @param data      Data to place in the inserted row; null to insert an empty row
      *
      * @return The index of the newly inserted row in view coordinates; -1 if the specified row isn't
      *         visible
@@ -2836,7 +2836,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Delete the selected row(s) from the table
      *
-     * @param endEdit true to end the editing sequence at the end of the delete for undo/redo purposes
+     * @param endEdit True to end the editing sequence at the end of the delete for undo/redo purposes
      *********************************************************************************************/
     protected void deleteRow(boolean endEdit)
     {
@@ -2866,9 +2866,9 @@ public abstract class CcddJTableHandler extends JTable
      * Get the character(s) used to replace a cell's contents when deleting the cell. Override to
      * substitute character(s) in place of the default blank
      *
-     * @param row    cell row index in model coordinates
+     * @param row    Cell row index in model coordinates
      *
-     * @param column cell column index in model coordinates
+     * @param column Cell column index in model coordinates
      *
      * @return Cell replacement character(s) (default is a blank)
      *********************************************************************************************/
@@ -2880,7 +2880,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Delete the contents of the selected cell(s)
      *
-     * @param isReplaceSpecial false to replace the cell value with a blank; true to replace the cell
+     * @param isReplaceSpecial False to replace the cell value with a blank; true to replace the cell
      *                         contents with one or more special replacement characters
      *********************************************************************************************/
     // Suppress warnings is used because when this code is compiled some of it is
@@ -3028,10 +3028,10 @@ public abstract class CcddJTableHandler extends JTable
      * Paste the contents of the clipboard into the table. The expected format is cell values in a row
      * are separated by tab characters and rows are terminated by new line characters
      *
-     * @param isInsert      true to add new rows to contain the pasted data; false to overwrite existing
+     * @param isInsert      True to add new rows to contain the pasted data; false to overwrite existing
      *                      cells in the paste range and only add rows if needed
      *
-     * @param isAddIfNeeded true to add new rows if the pasted data doesn't fit; false to discard excess
+     * @param isAddIfNeeded True to add new rows if the pasted data doesn't fit; false to discard excess
      *                      rows
      *********************************************************************************************/
     private void pasteClipboardData(boolean isInsert, boolean isAddIfNeeded)
@@ -3141,25 +3141,25 @@ public abstract class CcddJTableHandler extends JTable
      * determines the column alignment for the pasted data. Pasted column data beyond the table
      * boundaries are discarded
      *
-     * @param cellData            array of cell values to be inserted
+     * @param cellData            Array of cell values to be inserted
      *
-     * @param numColumns          number of columns represented by the cell data array
+     * @param numColumns          Number of columns represented by the cell data array
      *
-     * @param isInsert            true to add new rows to contain the pasted data; false to overwrite
+     * @param isInsert            True to add new rows to contain the pasted data; false to overwrite
      *                            existing cells in the paste range and only add rows if needed
      *
-     * @param isAddIfNeeded       true to add new rows if the pasted data doesn't fit; false to discard
+     * @param isAddIfNeeded       True to add new rows if the pasted data doesn't fit; false to discard
      *                            excess rows
      *
-     * @param startFirstColumn    true is pasting of the data begins in the first column; false to begin
+     * @param startFirstColumn    True is pasting of the data begins in the first column; false to begin
      *                            pasting at the currently cell with the focus
      *
-     * @param combineAsSingleEdit true to combine the pasted data as a single edit; false to not alter
+     * @param combineAsSingleEdit True to combine the pasted data as a single edit; false to not alter
      *                            the undo manager's handling of the edit sequence (this allows handling
      *                            externally so that other edits may be grouped with the paste
      *                            operation)
      *
-     * @param highlightPastedData true to highlight the cells containing the pasted data
+     * @param highlightPastedData True to highlight the cells containing the pasted data
      *
      * @return true if the user elected to cancel pasting the data following a cell validation error
      *********************************************************************************************/
@@ -3400,15 +3400,15 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Move the rows in the specified direction and update the cell selection
      *
-     * @param startRow selected starting row, in model coordinates
+     * @param startRow Selected starting row, in model coordinates
      *
-     * @param endRow   selected ending row, in model coordinates
+     * @param endRow   Selected ending row, in model coordinates
      *
-     * @param toRow    target row to move the selected row(s) to, in model coordinates
+     * @param toRow    Target row to move the selected row(s) to, in model coordinates
      *
-     * @param selected cell selection class
+     * @param selected Cell selection class
      *
-     * @param rowDelta row move direction and magnitude
+     * @param rowDelta Row move direction and magnitude
      *********************************************************************************************/
     protected void performRowMove(int startRow, int endRow, int toRow, MoveCellSelection selected, int rowDelta)
     {
@@ -3465,7 +3465,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Remove one or more rows from the table
      *
-     * @param rows array of indices of the rows to remove, view coordinates
+     * @param rows Array of indices of the rows to remove, view coordinates
      *********************************************************************************************/
     protected void removeRows(int[] rows)
     {
@@ -3493,9 +3493,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Remove a row from the table
      *
-     * @param tableData list containing the table data row arrays
+     * @param tableData List containing the table data row arrays
      *
-     * @param modelRow  row to remove (model coordinates)
+     * @param modelRow  Row to remove (model coordinates)
      *
      * @return The index of the row prior to the deleted row's index
      *********************************************************************************************/
@@ -3567,9 +3567,9 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Set the text color for the specified row
      *
-     * @param row   row index
+     * @param row   Row index
      *
-     * @param color row color; null to reset this row to the normal color scheme
+     * @param color Row color; null to reset this row to the normal color scheme
      *********************************************************************************************/
     protected void setRowTextColor(int row, Color color)
     {
@@ -3674,15 +3674,15 @@ public abstract class CcddJTableHandler extends JTable
      * Performing any special cell text rendering in the table cells. The default highlights the text in
      * cells matching the search criteria
      *
-     * @param component  reference to the table cell renderer component
+     * @param component  Reference to the table cell renderer component
      *
-     * @param text       cell text
+     * @param text       Cell text
      *
-     * @param isSelected true if the cell is to be rendered with the selection highlighted
+     * @param isSelected True if the cell is to be rendered with the selection highlighted
      *
-     * @param row        cell row, view coordinates
+     * @param row        Cell row, view coordinates
      *
-     * @param column     cell column, view coordinates
+     * @param column     Cell column, view coordinates
      *********************************************************************************************/
     protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)
     {
@@ -3700,7 +3700,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Highlight text in the table cells matching the supplied pattern
      *
-     * @param pattern pattern based on the search criteria; null to remove matching search text
+     * @param pattern Pattern based on the search criteria; null to remove matching search text
      *                highlighting
      *********************************************************************************************/
     protected void highlightSearchText(Pattern pattern)
@@ -3831,9 +3831,9 @@ public abstract class CcddJTableHandler extends JTable
      * Update the table's row heights. Each row's height is based on the contents of the cells in that
      * row; the cell with the greatest height determines the height for the entire row
      *
-     * @param first row with which to begin height check
+     * @param first Row with which to begin height check
      *
-     * @param last  row with which to end height check
+     * @param last  Row with which to end height check
      *********************************************************************************************/
     private void updateRowHeights(int first, int last)
     {
@@ -4004,13 +4004,13 @@ public abstract class CcddJTableHandler extends JTable
          * Create a TableCellListener with a copy of all the data relevant to the change of data for a given
          * cell
          *
-         * @param row      cell row index, model coordinates
+         * @param row      Cell row index, model coordinates
          *
-         * @param column   cell column index, model coordinates
+         * @param column   Cell column index, model coordinates
          *
-         * @param oldValue previous contents of the cell
+         * @param oldValue Previous contents of the cell
          *
-         * @param newValue new contents for the cell
+         * @param newValue New contents for the cell
          *****************************************************************************************/
         TableCellListener(int row, int column, Object oldValue, Object newValue)
         {
@@ -4324,14 +4324,14 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Output the table to the user-selected printer (or file)
      *
-     * @param tableName        table name; displayed at the top of each printed page
+     * @param tableName        Table name; displayed at the top of each printed page
      *
-     * @param fieldInformation data field information for the fields associated with this table; null if
+     * @param fieldInformation Data field information for the fields associated with this table; null if
      *                         no data fields are associated with the table
      *
-     * @param parent           parent window for this table
+     * @param parent           Parent window for this table
      *
-     * @param orientation      page orientation; e.g., PageFormat.LANDSCAPE or PageFormat.PORTRAIT
+     * @param orientation      Page orientation; e.g., PageFormat.LANDSCAPE or PageFormat.PORTRAIT
      *********************************************************************************************/
     protected void printTable(String tableName, List<FieldInformation> fieldInformation, Component parent,
                               int orientation)

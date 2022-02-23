@@ -92,14 +92,14 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Search database tables, scripts, and event log handler class constructor
      *
-     * @param ccddMain      main class
+     * @param ccddMain      Main class
      *
-     * @param searchDlgType search dialog type: TABLES, SCRIPTS, or LOG
+     * @param searchDlgType Search dialog type: TABLES, SCRIPTS, or LOG
      *
-     * @param targetRow     row index to match if this is an event log entry search on a table that
+     * @param targetRow     Row index to match if this is an event log entry search on a table that
      *                      displays only a single log entry; null otherwise
      *
-     * @param eventLog      event log to search; null if not searching a log
+     * @param eventLog      Event log to search; null if not searching a log
      *********************************************************************************************/
     CcddSearchHandler(CcddMain ccddMain, SearchDialogType searchDlgType, Long targetRow, CcddEventLogDialog eventLog)
     {
@@ -114,9 +114,9 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Search database tables and scripts class constructor
      *
-     * @param ccddMain   main class
+     * @param ccddMain   Main class
      *
-     * @param searchType search dialog type: TABLES or SCRIPTS
+     * @param searchType Search dialog type: TABLES or SCRIPTS
      *********************************************************************************************/
     CcddSearchHandler(CcddMain ccddMain, SearchDialogType searchType)
     {
@@ -126,7 +126,7 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Set the reference to the event log to search
      *
-     * @param eventLog reference to the event log to search
+     * @param eventLog Reference to the event log to search
      *********************************************************************************************/
     protected void setEventLog(CcddEventLogDialog eventLog)
     {
@@ -136,14 +136,14 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Search for occurrences of a string in the tables or scripts
      *
-     * @param searchText     text string to search for in the database
+     * @param searchText     Text string to search for in the database
      *
-     * @param ignoreCase     true to ignore case when looking for matching text
+     * @param ignoreCase     True to ignore case when looking for matching text
      *
-     * @param dataTablesOnly true if only the data tables, and not references in the internal tables,
+     * @param dataTablesOnly True if only the data tables, and not references in the internal tables,
      *                       are to be searched
      *
-     * @param searchColumns  string containing the names of columns, separated by commas, to which to
+     * @param searchColumns  String containing the names of columns, separated by commas, to which to
      *                       constrain a table search
      *
      * @return Search results list containing object arrays providing each match's location in the
@@ -660,9 +660,9 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Search for occurrences of a string in the event log file (session log or other log file)
      *
-     * @param searchPattern regular expression search pattern
+     * @param searchPattern Regular expression search pattern
      *
-     * @param targetRow     row index to match if this is an event log entry search on a table that
+     * @param targetRow     Row index to match if this is an event log entry search on a table that
      *                      displays only a single log entry; null otherwise
      *
      * @return Search results list containing object arrays providing each match's location in the
@@ -762,7 +762,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      * column. Array variable member references in the location column are arranged by array dimension
      * value
      *
-     * @param resultsDataList list containing the sorted search results
+     * @param resultsDataList List containing the sorted search results
      *
      * @return Search results sorted by the first (target) column, and if the same then by second
      *         (location) column. Array variable member references in the location column are arranged
@@ -846,9 +846,9 @@ public class CcddSearchHandler extends CcddDialogHandler
      * Remove data type or macro search references where the match occurs in an array size column of an
      * array member (the reference in the array's definition is all that's needed)
      *
-     * @param matches      list containing the search results for the data type or macro reference
+     * @param matches      List containing the search results for the data type or macro reference
      *
-     * @param tblTypeHndlr reference to the table type handler
+     * @param tblTypeHndlr Reference to the table type handler
      *********************************************************************************************/
     protected static void removeArrayMemberReferences(List<String> matches, CcddTableTypeHandler tblTypeHndlr)
     {
@@ -912,14 +912,14 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * Get the regular expression search pattern based on the input criteria
      *
-     * @param searchText reference to the table cell renderer component
+     * @param searchText Reference to the table cell renderer component
      *
-     * @param ignoreCase true if the search is case insensitive and the search pattern is not used by
+     * @param ignoreCase True if the search is case insensitive and the search pattern is not used by
      *                   the PostgreSQL search_atables() function (must be false for this case; the case
      *                   insensitive flag is provided directly to the function instead of being included
      *                   in the matching string)
      *
-     * @param allowRegEx true if the search text can contain a regular expression
+     * @param allowRegEx True if the search text can contain a regular expression
      *
      * @param parent     GUI component over which to center any error dialog; null to not display an
      *                   error dialog if the search pattern is invalid

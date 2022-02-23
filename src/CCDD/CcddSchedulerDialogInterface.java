@@ -50,7 +50,7 @@ public interface CcddSchedulerDialogInterface
     /**********************************************************************************************
      * Get the scheduler input object
      *
-     * @param value value to pass to the scheduler input
+     * @param value Value to pass to the scheduler input
      *
      * @return Scheduler input object
      *********************************************************************************************/
@@ -71,7 +71,7 @@ public interface CcddSchedulerDialogInterface
     /**********************************************************************************************
      * Steps to perform following storing of the scheduler data in the project database
      *
-     * @param errorFlag true if an error occurred updating the project database
+     * @param errorFlag True if an error occurred updating the project database
      *********************************************************************************************/
     abstract void doSchedulerUpdatesComplete(boolean errorFlag);
 }

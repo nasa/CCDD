@@ -157,14 +157,14 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Search database tables, scripts, and event log dialog class constructor
      *
-     * @param ccddMain      main class
+     * @param ccddMain      Main class
      *
-     * @param searchDlgType search dialog type: TABLES, SCRIPTS, or LOG
+     * @param searchDlgType Search dialog type: TABLES, SCRIPTS, or LOG
      *
-     * @param targetRow     row index to match if this is an event log entry search on a table that
+     * @param targetRow     Row index to match if this is an event log entry search on a table that
      *                      displays only a single log entry; null otherwise
      *
-     * @param eventLog      event log to search; null if not searching a log
+     * @param eventLog      Event log to search; null if not searching a log
      *
      * @param parent        GUI component over which to center the dialog
      *********************************************************************************************/
@@ -189,9 +189,9 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Search database tables and scripts class constructor
      *
-     * @param ccddMain   main class
+     * @param ccddMain   Main class
      *
-     * @param searchType search dialog type: TABLES or SCRIPTS
+     * @param searchType Search dialog type: TABLES or SCRIPTS
      *
      * @param parent     GUI component over which to center the dialog
      *********************************************************************************************/
@@ -203,7 +203,7 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Set the reference to the event log to search and update the search dialog title
      *
-     * @param eventLog reference to the event log to search
+     * @param eventLog Reference to the event log to search
      *********************************************************************************************/
     protected void setEventLog(CcddEventLogDialog eventLog)
     {
@@ -781,15 +781,15 @@ public class CcddSearchDialog extends CcddFrameHandler
             /**************************************************************************************
              * Highlight the matching search text in the context column cells
              *
-             * @param component  reference to the table cell renderer component
+             * @param component  Reference to the table cell renderer component
              *
-             * @param value      cell value
+             * @param value      Cell value
              *
-             * @param isSelected true if the cell is to be rendered with the selection highlighted
+             * @param isSelected True if the cell is to be rendered with the selection highlighted
              *
-             * @param int        row cell row, view coordinates
+             * @param int        Row cell row, view coordinates
              *
-             * @param column     cell column, view coordinates
+             * @param column     Cell column, view coordinates
              *************************************************************************************/
             @Override
             protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)

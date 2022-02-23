@@ -84,7 +84,7 @@ public class CcddVariableDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Variable paths and names dialog class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     CcddVariableDialog(CcddMain ccddMain)
     {

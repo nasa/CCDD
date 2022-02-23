@@ -167,9 +167,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Table manager dialog class constructor (for all tables)
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
-     * @param type     table manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
+     * @param type     Table manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
      *********************************************************************************************/
     protected CcddTableManagerDialog(CcddMain ccddMain, ManagerDialogType type)
     {
@@ -179,12 +179,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Table manager dialog class constructor
      *
-     * @param ccddMain            main class
+     * @param ccddMain            Main class
      *
-     * @param dialogType          table manager dialog type: NEW, EDIT, RENAME, COPY, DELETE, IMPORT,
+     * @param dialogType          Table manager dialog type: NEW, EDIT, RENAME, COPY, DELETE, IMPORT,
      *                            EXPORT_CSV, EXPORT_XTCE, EXPORT_EDS, EXPORT_JSON
      *
-     * @param callingEditorDialog reference to the table editor dialog that instantiated this table
+     * @param callingEditorDialog Reference to the table editor dialog that instantiated this table
      *                            manager. Only used when called to open a table in, import into, or
      *                            export from an existing editor; null otherwise
      *********************************************************************************************/
@@ -216,8 +216,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // Update the lists and references since the tables changed
         dbTable.updateListsAndReferences(caller);
 
-        // Update the field handler's data field information from the field definitions
-        // stored in
+        // Update the field handler's data field information from the field definitions stored in
         // the database
         ccddMain.getFieldHandler().buildFieldInformation(caller);
 
@@ -289,12 +288,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             FileExtension fileExtn;
 
             // Set the initial layout manager characteristics
-            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
+                                                            GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                    .getSpacing() / 2,
-                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                               .getSpacing() / 2,
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                        0, 0),
                                                             0, 0);
 
@@ -310,18 +308,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 emptyBorder = BorderFactory.createEmptyBorder();
 
                 // Create a border for the input fields
-                border = BorderFactory
-                        .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                              Color.GRAY),
-                                              BorderFactory.createEmptyBorder(
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing()));
+                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                            Color.LIGHT_GRAY,
+                                                                                            Color.GRAY),
+                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                            ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
                 // Create dialog based on supplied dialog type
                 switch (dialogType)
@@ -339,20 +332,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // Create the table creation dialog label and field, and add them to
                             // the dialog panel
                             addTableInputFields("Table name(s)", dialogPnl, true, gbc);
-                            nameFld.setToolTipText(CcddUtilities
-                                    .wrapText("Delimit multiple names using commas",
-                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                            nameFld.setToolTipText(CcddUtilities.wrapText("Delimit multiple names using commas",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
                         // There are no table types available from which to choose
                         else
                         {
                             // Inform the user that no table type exists in the database
-                            new CcddDialogHandler()
-                                    .showMessageDialog(caller,
-                                                       "<html><b>Project '</b>" + dbControl.getDatabaseName()
-                                                               + "<b>' has no table type defined",
-                                                       "New Table", JOptionPane.WARNING_MESSAGE,
-                                                       DialogOption.OK_OPTION);
+                            new CcddDialogHandler().showMessageDialog(caller,
+                                                                      "<html><b>Project '</b>"
+                                                                       + dbControl.getDatabaseName()
+                                                                       + "<b>' has no table type defined",
+                                                                       "New Table", JOptionPane.WARNING_MESSAGE,
+                                                                       DialogOption.OK_OPTION);
                             errorFlag = true;
                         }
 
@@ -360,7 +352,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                     case EDIT:
                         // Create a panel to contain the dialog components
-                        dialogPnl = createSelectionPanel("Select table(s) to edit", gbc,
+                        dialogPnl = createSelectionPanel("Select table(s) to edit",
+                                                         gbc,
                                                          TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                          TableTreeType.TABLES);
 
@@ -583,12 +576,15 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                         case COPY:
                             // Display the table copying dialog
-                            if (showOptionsDialog(caller, dialogPnl, "Copy Table", DialogOption.COPY_OPTION,
+                            if (showOptionsDialog(caller, dialogPnl,
+                                                  "Copy Table",
+                                                  DialogOption.COPY_OPTION,
                                                   true) == OK_BUTTON)
                             {
                                 // Copy the table
                                 dbTable.copyTable(tableTree.getSelectionPath().getLastPathComponent().toString(),
-                                                  nameFld.getText(), descriptionFld.getText(),
+                                                  nameFld.getText(),
+                                                  descriptionFld.getText(),
                                                   CcddTableManagerDialog.this);
                             }
 
@@ -597,7 +593,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         case DELETE:
                             // Create a panel to contain the dialog components Display the table
                             // deletion dialog
-                            if (showOptionsDialog(caller, dialogPnl, "Delete Table", DialogOption.DELETE_OPTION,
+                            if (showOptionsDialog(caller, dialogPnl,
+                                                  "Delete Table",
+                                                  DialogOption.DELETE_OPTION,
                                                   true) == OK_BUTTON)
                             {
                                 // Create storage for the list of table names
@@ -619,24 +617,25 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 if (!tableNames.isEmpty())
                                 {
                                     // Convert the array of names into a single string
-                                    final String names = CcddUtilities
-                                            .convertArrayToStringTruncate(tableNames.toArray(new String[0]));
+                                    final String names = CcddUtilities.convertArrayToStringTruncate(tableNames.toArray(new String[0]));
 
                                     // Have the user confirm deleting the selected table(s)
-                                    if (new CcddDialogHandler()
-                                            .showMessageDialog(caller,
-                                                               "<html><b>Delete table(s) '</b>" + names
-                                                                       + "<b>'?<br><br><i>Warning: This action cannot be undone!",
-                                                               "Delete Table(s)", JOptionPane.QUESTION_MESSAGE,
-                                                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                    if (new CcddDialogHandler().showMessageDialog(caller,
+                                                                                  "<html><b>Delete table(s) '</b>"
+                                                                                  + names
+                                                                                  + "<b>'?<br><br><i>Warning: This action cannot be undone!",
+                                                                                  "Delete Table(s)",
+                                                                                  JOptionPane.QUESTION_MESSAGE,
+                                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                                     {
 
                                         // Delete the table(s)
                                         errorFlag = dbTable.deleteTable(tableNames.toArray(new String[0]),
-                                                                        CcddTableManagerDialog.this, caller);
+                                                                        CcddTableManagerDialog.this,
+                                                                        caller);
 
-                                        // Check if no error occurred deleting the table and if the table manager
-                                        // called this method
+                                        // Check if no error occurred deleting the table and if the
+                                        // table manager called this method
                                         if (!errorFlag && CcddTableManagerDialog.this != null)
                                         {
                                             CcddTableManagerDialog.this.doTableOperationComplete();
@@ -678,9 +677,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         case EXPORT_JSON:
                             // Check if the export panel exists; if so display the dialog
                             if (showOptionsDialog(caller, dialogPnl,
-                                                  "Export Data in " + fileExtn.getExtensionName().toUpperCase()
-                                                                     + " Format",
-                                                  DialogOption.EXPORT_OPTION, true) == OK_BUTTON)
+                                                  "Export Data in "
+                                                          + fileExtn.getExtensionName().toUpperCase()
+                                                          + " Format",
+                                                  DialogOption.EXPORT_OPTION,
+                                                  true) == OK_BUTTON)
                             {
                                 // Create storage for the list of table paths
                                 List<String> tablePaths = new ArrayList<String>();
@@ -707,75 +708,56 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 else
                                 {
                                     // Add the table editor's table variable path to the list
-                                    tablePaths.add(callingEditorDlg.getTableEditor().getTableInformation()
-                                            .getTablePath());
+                                    tablePaths.add(callingEditorDlg.getTableEditor().getTableInformation().getTablePath());
                                 }
 
+                                // Store the export file path in the backing store
+                                CcddFileIOHandler.storePath(ccddMain, pathFld.getText(), false, ModifiablePathInfo.TABLE_EXPORT_PATH);
+
                                 // Export the contents of the selected table(s) in the specified format
-                                fileIOHandler
-                                        .exportSelectedTablesInBackground(pathFld.getText(),
-                                                                          tablePaths.toArray(new String[0]),
-                                                                          overwriteFileCb.isSelected(),
-                                                                          (singleFileRBtn != null ? singleFileRBtn
-                                                                                  .isSelected() : true),
-                                                                          (includeBuildInfoCb != null ? includeBuildInfoCb
-                                                                                  .isSelected() : true),
-                                                                          (replaceMacrosCb != null ? replaceMacrosCb
-                                                                                  .isSelected() : true),
-                                                                          (deleteTargetDirectoryCb != null ? deleteTargetDirectoryCb
-                                                                                  .isSelected() : false),
-                                                                          (includeAllTableTypesCb != null ? includeAllTableTypesCb
-                                                                                  .isSelected() : false),
-                                                                          (includeAllDataTypesCb != null ? includeAllDataTypesCb
-                                                                                  .isSelected() : false),
-                                                                          (includeAllInputTypesCb != null ? includeAllInputTypesCb
-                                                                                  .isSelected() : false),
-                                                                          (includeAllMacrosCb != null ? includeAllMacrosCb
-                                                                                  .isSelected() : false),
-                                                                          (includeReservedMsgIDsCb != null ? includeReservedMsgIDsCb
-                                                                                  .isSelected() : false),
-                                                                          (includeProjectFieldsCb != null ? includeProjectFieldsCb
-                                                                                  .isSelected() : false),
-                                                                          (includeGroupsCb != null ? includeGroupsCb
-                                                                                  .isSelected() : false),
-                                                                          (includeAssociationsCb != null ? includeAssociationsCb
-                                                                                  .isSelected() : false),
-                                                                          (includeTlmSchedCB != null ? includeTlmSchedCB
-                                                                                  .isSelected() : false),
-                                                                          (includeAppSchedCB != null ? includeAppSchedCB
-                                                                                  .isSelected() : false),
-                                                                          (includeVariablePaths != null ? includeVariablePaths
-                                                                                  .isSelected() : false),
-                                                                          (includeVariablePaths != null
-                                                                           && includeVariablePaths.isSelected()
-                                                                                                                ? ccddMain
-                                                                                                                        .getVariableHandler()
-                                                                                                                : null),
-                                                                          (varPathSepFld != null ? new String[] {varPathSepFld
-                                                                                  .getText(), Boolean.toString(hideDataTypeCb.isSelected()), typeNameSepFld.getText()} : null),
-                                                                          fileExtn,
-                                                                          (bigRBtn != null ? (bigRBtn
-                                                                                  .isSelected() ? EndianType.BIG_ENDIAN
-                                                                                                : EndianType.LITTLE_ENDIAN)
-                                                                                           : null),
-                                                                          (bigRBtn != null
-                                                                           && headerBigCBox != null ? (bigRBtn.isSelected() || headerBigCBox.isSelected()) : false),
-                                                                          (versionFld != null ? versionFld.getText()
-                                                                                              : null),
-                                                                          (validStatFld != null ? validStatFld.getText()
+                                fileIOHandler.exportSelectedTablesInBackground(pathFld.getText(),
+                                                                               tablePaths.toArray(new String[0]),
+                                                                               overwriteFileCb.isSelected(),
+                                                                               (singleFileRBtn != null ? singleFileRBtn.isSelected() : true),
+                                                                               (includeBuildInfoCb != null ? includeBuildInfoCb.isSelected() : true),
+                                                                               (replaceMacrosCb != null ? replaceMacrosCb.isSelected() : true),
+                                                                               (deleteTargetDirectoryCb != null ? deleteTargetDirectoryCb.isSelected() : false),
+                                                                               (includeAllTableTypesCb != null ? includeAllTableTypesCb.isSelected() : false),
+                                                                               (includeAllDataTypesCb != null ? includeAllDataTypesCb.isSelected() : false),
+                                                                               (includeAllInputTypesCb != null ? includeAllInputTypesCb.isSelected() : false),
+                                                                               (includeAllMacrosCb != null ? includeAllMacrosCb.isSelected() : false),
+                                                                               (includeReservedMsgIDsCb != null ? includeReservedMsgIDsCb.isSelected() : false),
+                                                                               (includeProjectFieldsCb != null ? includeProjectFieldsCb.isSelected() : false),
+                                                                               (includeGroupsCb != null ? includeGroupsCb.isSelected() : false),
+                                                                               (includeAssociationsCb != null ? includeAssociationsCb.isSelected() : false),
+                                                                               (includeTlmSchedCB != null ? includeTlmSchedCB.isSelected() : false),
+                                                                               (includeAppSchedCB != null ? includeAppSchedCB.isSelected() : false),
+                                                                               (includeVariablePaths != null ? includeVariablePaths.isSelected() : false),
+                                                                               (includeVariablePaths != null
+                                                                                && includeVariablePaths.isSelected() ? ccddMain.getVariableHandler()
+                                                                                                                     : null),
+                                                                               (varPathSepFld != null ? new String[] {varPathSepFld.getText(), Boolean.toString(hideDataTypeCb.isSelected()), typeNameSepFld.getText()} : null),
+                                                                               fileExtn,
+                                                                               (bigRBtn != null ? (bigRBtn.isSelected() ? EndianType.BIG_ENDIAN
+                                                                                                                        : EndianType.LITTLE_ENDIAN)
                                                                                                 : null),
-                                                                          (class1Fld != null ? class1Fld.getText()
-                                                                                             : null),
-                                                                          (class2Fld != null ? class2Fld.getText()
-                                                                                             : null),
-                                                                          (class3Fld != null ? class3Fld.getText()
-                                                                                             : null),
-                                                                          (useExternalCBox != null ? useExternalCBox
-                                                                                  .isSelected() : false),
-                                                                          (scriptNameFld != null ? scriptNameFld
-                                                                                  .getText() : null),
-                                                                          CcddTableManagerDialog.this);
+                                                                               (bigRBtn != null
+                                                                                && headerBigCBox != null ? (bigRBtn.isSelected() || headerBigCBox.isSelected()) : false),
+                                                                               (versionFld != null ? versionFld.getText()
+                                                                                                   : null),
+                                                                               (validStatFld != null ? validStatFld.getText()
+                                                                                                     : null),
+                                                                               (class1Fld != null ? class1Fld.getText()
+                                                                                                  : null),
+                                                                               (class2Fld != null ? class2Fld.getText()
+                                                                                                  : null),
+                                                                               (class3Fld != null ? class3Fld.getText()
+                                                                                                  : null),
+                                                                               (useExternalCBox != null ? useExternalCBox.isSelected() : false),
+                                                                               (scriptNameFld != null ? scriptNameFld.getText() : null),
+                                                                               CcddTableManagerDialog.this);
                             }
+
                             break;
 
                         default:
@@ -794,21 +776,29 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         {
                             // Allow the user to select the data file path + name(s) from which to
                             // import, and the import options
-                            filePath = choosePathFile(ccddMain, caller, null, "export",
-                                                      new FileNameExtensionFilter[] {new FileNameExtensionFilter(fileExt
-                                                              .getDescription(), fileExt.getExtensionName())},
-                                                      false, true, "Import Data",
-                                                      ccddMain.getProgPrefs()
-                                                              .get(ModifiablePathInfo.TABLE_EXPORT_PATH
-                                                                      .getPreferenceKey(),
-                                                                   null),
-                                                      DialogOption.IMPORT_OPTION, createImportPanel(gbc, dialogType));
+                            filePath = choosePathFile(ccddMain,
+                                                      caller,
+                                                      null,
+                                                      "export",
+                                                      new FileNameExtensionFilter[] {new FileNameExtensionFilter(fileExt.getDescription(),
+                                                                                                                 fileExt.getExtensionName())},
+                                                      false,
+                                                      true,
+                                                      "Import Data",
+                                                      ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(),
+                                                                                  null),
+                                                      DialogOption.IMPORT_OPTION,
+                                                      createImportPanel(gbc, dialogType));
 
                             // Check if a file was chosen
                             if (filePath != null)
                             {
-                                // Export the contents of the selected table(s) in the specified format
-                                fileIOHandler.importFileInBackground(filePath, importEntireDatabaseCb.isSelected(),
+                                // Store the import file path in the backing store
+                                CcddFileIOHandler.storePath(ccddMain, filePath[0].getAbsolutePath(), true, ModifiablePathInfo.TABLE_EXPORT_PATH);
+
+                               // Export the contents of the selected table(s) in the specified format
+                                fileIOHandler.importFileInBackground(filePath,
+                                                                     importEntireDatabaseCb.isSelected(),
                                                                      backupFirstCb.isSelected(),
                                                                      replaceExistingTablesCb.isSelected(),
                                                                      appendExistingFieldsCb.isSelected(),
@@ -819,15 +809,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      replaceExistingGroupsCb.isSelected(),
                                                                      replaceExistingAssociationsCb.isSelected(),
                                                                      deleteNonExistingFilesCb.isSelected(),
-                                                                     replaceExistingDataTypesCb.isSelected(), fileExt,
-                                                                     dialogType, null, CcddTableManagerDialog.this);
+                                                                     replaceExistingDataTypesCb.isSelected(),
+                                                                     fileExt,
+                                                                     dialogType,
+                                                                     null,
+                                                                     CcddTableManagerDialog.this);
                             }
                         }
                         else
                         {
                             // Importing into an open table editor
                             JPanel dialogPanel = createTableEditorImportPanel(dialogType);
-                            fileIOHandler.importSelectedFileIntoTable(dialogType, dialogPanel,
+                            fileIOHandler.importSelectedFileIntoTable(dialogType,
+                                                                      dialogPanel,
                                                                       callingEditorDlg.getTableEditor());
                         }
                     }
@@ -839,13 +833,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the table tree selection panel
      *
-     * @param labelText   label to display above the table tree
+     * @param labelText   Label to display above the table tree
      *
      * @param gbc         GridBagLayout layout constraints
      *
-     * @param tableSelect table tree item selection model
+     * @param tableSelect Table tree item selection model
      *
-     * @param treeType    table tree type: PROTOTYPE_ONLY to show only the prototype tables,
+     * @param treeType    Table tree type: PROTOTYPE_ONLY to show only the prototype tables,
      *                    INSTANCE_ONLY to show only the table instances (parent tables with child
      *                    tables), or BOTH to show the prototypes and instances
      *
@@ -858,8 +852,15 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         JPanel allPnl = null;
 
         // Build the table tree
-        tableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                                             treeType, true, false, false, ccddMain.getMainFrame())
+        tableTree = new CcddTableTreeHandler(ccddMain,
+                                             new CcddGroupHandler(ccddMain,
+                                                                  null,
+                                                                  ccddMain.getMainFrame()),
+                                             treeType,
+                                             true,
+                                             false,
+                                             false,
+                                             ccddMain.getMainFrame())
         {
             /**************************************************************************************
              * Respond to changes in selection of a table in the table tree
@@ -966,7 +967,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the import option dialog panel
      *
-     * @param gbc reference to the panel's GridBagConstraints
+     * @param gbc Reference to the panel's GridBagConstraints
      *
      * @return Import option dialog panel
      *********************************************************************************************/
@@ -1228,7 +1229,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the import via table editor option dialog panel
      *
-     * @param gbc reference to the panel's GridBagConstraints
+     * @param gbc Reference to the panel's GridBagConstraints
      *
      * @return Import option dialog panel
      *********************************************************************************************/
@@ -1336,7 +1337,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the export dialog panel
      *
-     * @param fileExtn file extension type
+     * @param fileExtn File extension type
      *
      * @param gbc      GridBagLayout layout constraints
      *
@@ -2164,13 +2165,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add a table name field to the dialog
      *
-     * @param fieldText text to display beside the input field
+     * @param fieldText Text to display beside the input field
      *
-     * @param dialogPnl panel to which to add the input field
+     * @param dialogPnl Panel to which to add the input field
      *
-     * @param enabled   true if the fields are initially enabled, false if disabled
+     * @param enabled   True if the fields are initially enabled, false if disabled
      *
-     * @param dialogGbc dialog panel GridBagLayout layout constraints
+     * @param dialogGbc Dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
     private void addTableInputFields(String fieldText, JPanel dialogPnl, boolean enabled, GridBagConstraints dialogGbc)
     {
@@ -2243,11 +2244,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Set the path/file selection field contents
      *
-     * @param isAddFileName true to add the file name to the path (if not already present); false to
+     * @param isAddFileName True to add the file name to the path (if not already present); false to
      *                      remove the file name (if present). The presence of a file name is determined
      *                      by checking if the field contents ends with a file extension
      *
-     * @param fileExtn      file extension type
+     * @param fileExtn      File extension type
      *********************************************************************************************/
     private void setFilePath(boolean isAddFileName, FileExtension fileExtn)
     {
@@ -2296,7 +2297,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the path/file selection panel
      *
-     * @param fileExtn file extension type
+     * @param fileExtn File extension type
      *
      * @return JPanel containing the path/file selection panel
      *********************************************************************************************/
@@ -2332,7 +2333,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         pathFld.setBorder(border);
 
         // EDS and XTCE can only export to a single file so add the file path by default.
-        // JSON and CSV export to multiple files by default. Do not add the file path.
+        // JSON and CSV export to multiple files by default. Do not add the file path
         if (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE)
         {
             setFilePath(true, fileExtn);
@@ -2407,7 +2408,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify that the supplied table name is valid
      *
-     * @param tableName table name
+     * @param tableName Table name
      *
      * @throws CCDDException If the table name is invalid
      *********************************************************************************************/

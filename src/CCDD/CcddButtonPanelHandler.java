@@ -84,7 +84,7 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Set the number of rows occupied by the window's buttons
      *
-     * @param rows number of button rows
+     * @param rows Number of button rows
      *********************************************************************************************/
     protected void setButtonRows(int rows)
     {
@@ -115,7 +115,7 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Placeholder for method to close the window
      *
-     * @param buttonSelected button selected when closing the window
+     * @param buttonSelected Button selected when closing the window
      *********************************************************************************************/
     protected void closeWindow(int buttonSelected)
     {
@@ -124,7 +124,7 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Placeholder for method to close the window without any checks
      *
-     * @param buttonSelected button selected when closing the window
+     * @param buttonSelected Button selected when closing the window
      *********************************************************************************************/
     protected void closeWindowDirect(int buttonSelected)
     {
@@ -143,7 +143,7 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Enable/disable the button panel buttons
      *
-     * @param enable true to enable the buttons; false to disable
+     * @param enable True to enable the buttons; false to disable
      *********************************************************************************************/
     protected void setButtonsEnabled(boolean enable)
     {
@@ -264,13 +264,13 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Create a button
      *
-     * @param buttonText text to display on the button
+     * @param buttonText Text to display on the button
      *
-     * @param iconName   icon file name
+     * @param iconName   Icon file name
      *
-     * @param key        key mnemonic for the menu item
+     * @param key        Key mnemonic for the menu item
      *
-     * @param toolTip    tool tip text to display when the pointer hovers over this button; null to not
+     * @param toolTip    Tool tip text to display when the pointer hovers over this button; null to not
      *                   display a tool tip
      *
      * @return Button created
@@ -292,7 +292,7 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Change the button padding between the button's icon/text and the perimeter of the button
      *
-     * @param button button to adjust
+     * @param button Button to adjust
      *********************************************************************************************/
     private static void setButtonMargins(JButton button)
     {
@@ -413,22 +413,22 @@ public class CcddButtonPanelHandler
      * management, and determine the window's exit button. If no button panel is provided then create
      * the buttons and button listeners needed based on the option type
      *
-     * @param btnPanel       panel containing the window's buttons; null if a defined option type is
+     * @param btnPanel       Panel containing the window's buttons; null if a defined option type is
      *                       used
      *
-     * @param defaultBtn     reference to the JButton that is actuated if the Enter key is pressed; null
+     * @param defaultBtn     Reference to the JButton that is actuated if the Enter key is pressed; null
      *                       to have no default button (unless btnPanel is null as well, in which case
      *                       the first button is set as the default)
      *
-     * @param upperComponent upper window components
+     * @param upperComponent Upper window components
      *
-     * @param optionType     dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION,
+     * @param optionType     Dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION,
      *                       PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION. Ignored if
      *                       btnPanel isn't null
      *
-     * @param contentPane    the content pane for the calling container
+     * @param contentPane    The content pane for the calling container
      *
-     * @param rootPane       the root pane for the calling container
+     * @param rootPane       The root pane for the calling container
      *
      * @return JPanel containing the window's buttons
      *********************************************************************************************/

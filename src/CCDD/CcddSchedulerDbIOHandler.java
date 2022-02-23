@@ -67,11 +67,11 @@ public class CcddSchedulerDbIOHandler
     /**********************************************************************************************
      * Scheduler database I/O handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
-     * @param option   scheduler option for the database handler
+     * @param option   Scheduler option for the database handler
      *
-     * @param dialog   reference to the scheduler dialog
+     * @param dialog   Reference to the scheduler dialog
      *********************************************************************************************/
     CcddSchedulerDbIOHandler(CcddMain ccddMain, SchedulerType option, CcddDialogHandler dialog)
     {
@@ -88,7 +88,7 @@ public class CcddSchedulerDbIOHandler
     /**********************************************************************************************
      * Format and store the current messages into the current project database
      *
-     * @param streams list of the current data streams
+     * @param streams List of the current data streams
      *********************************************************************************************/
     protected void storeData(List<DataStream> streams)
     {
@@ -130,7 +130,7 @@ public class CcddSchedulerDbIOHandler
     /**********************************************************************************************
      * Get the list of stored messages for the specified data stream
      *
-     * @param streamIndex data stream index
+     * @param streamIndex Data stream index
      *
      * @return List of current messages for the specified data stream
      *********************************************************************************************/
@@ -151,7 +151,7 @@ public class CcddSchedulerDbIOHandler
     /**********************************************************************************************
      * Get the list of variables for the specified data stream
      *
-     * @param streamIndex data stream index
+     * @param streamIndex Data stream index
      *
      * @return List of variables for the specified data stream
      **********************************************************************************************/
@@ -174,7 +174,7 @@ public class CcddSchedulerDbIOHandler
      * containing the rate name, message name, message ID, and a space-separated list of variables in
      * that message
      *
-     * @param streams list of data streams
+     * @param streams List of data streams
      *
      * @return List of message definitions
      *********************************************************************************************/
@@ -208,7 +208,7 @@ public class CcddSchedulerDbIOHandler
      * string array containing the rate name, message name, message ID, and a space-separated list of
      * variables in that message
      *
-     * @param stream  data stream
+     * @param stream  Data stream
      *
      * @param message (sub-)message reference
      *
@@ -456,7 +456,7 @@ public class CcddSchedulerDbIOHandler
      * Get the list of the current messages. Each list item is a string arrays containing the message
      * name and a space-separated list of applications in that message
      *
-     * @param messages list of messages
+     * @param messages List of messages
      *
      * @return List of current messages
      *********************************************************************************************/

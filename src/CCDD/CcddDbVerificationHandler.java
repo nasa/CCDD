@@ -160,7 +160,7 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Table data storage class constructor
          *
-         * @param tableInfo reference to the table information. The table data initially reflects the
+         * @param tableInfo Reference to the table information. The table data initially reflects the
          *                  contents as it exists in the database
          *****************************************************************************************/
         TableStorage(TableInfo tableInfo)
@@ -222,23 +222,23 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Table issue class constructor
          *
-         * @param issue     description of the issue
+         * @param issue     Description of the issue
          *
-         * @param action    action to be taken to correct the issue
+         * @param action    Action to be taken to correct the issue
          *
          * @param command   PostgreSQL command to correct the issue; null if this is not a change to a table
          *                  cell value
          *
-         * @param row       row index for the update
+         * @param row       Row index for the update
          *
-         * @param column    column index for the update; -1 if the update does not affect a specific column
+         * @param column    Column index for the update; -1 if the update does not affect a specific column
          *
-         * @param data      cell value; null if a specific cell isn't updated
+         * @param data      Cell value; null if a specific cell isn't updated
          *
-         * @param rowData   array of cell values for a table row; null if a row is to be deleted or the
+         * @param rowData   Array of cell values for a table row; null if a row is to be deleted or the
          *                  update does not affect an entire row
          *
-         * @param tableInfo reference to the table information
+         * @param tableInfo Reference to the table information
          *****************************************************************************************/
         TableIssue(String issue, String action, String command, int row, int column, String data, String[] rowData,
                    TableInfo tableInfo)
@@ -258,9 +258,9 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Table issue class constructor to issue a PostgreSQL command
          *
-         * @param issue   description of the issue
+         * @param issue   Description of the issue
          *
-         * @param action  action to be taken to correct the issue
+         * @param action  Action to be taken to correct the issue
          *
          * @param command PostgreSQL command to correct the issue; null if this is not a change to a table
          *                cell value
@@ -273,17 +273,17 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Table issue class constructor to update a specific table cell value
          *
-         * @param issue     description of the issue
+         * @param issue     Description of the issue
          *
-         * @param action    action to be taken to correct the issue
+         * @param action    Action to be taken to correct the issue
          *
-         * @param row       row index for the update
+         * @param row       Row index for the update
          *
-         * @param column    column index for the update; -1 if the update does not affect a specific column
+         * @param column    Column index for the update; -1 if the update does not affect a specific column
          *
-         * @param data      cell value; null if a specific cell isn't updated
+         * @param data      Cell value; null if a specific cell isn't updated
          *
-         * @param tableInfo reference to the table information
+         * @param tableInfo Reference to the table information
          *****************************************************************************************/
         TableIssue(String issue, String action, int row, int column, String data, TableInfo tableInfo)
         {
@@ -293,16 +293,16 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Table issue class constructor to update a table row of data
          *
-         * @param issue     description of the issue
+         * @param issue     Description of the issue
          *
-         * @param action    action to be taken to correct the issue
+         * @param action    Action to be taken to correct the issue
          *
-         * @param row       row index for the update
+         * @param row       Row index for the update
          *
-         * @param rowData   array of cell values for a table row; null if a row is to be deleted or the
+         * @param rowData   Array of cell values for a table row; null if a row is to be deleted or the
          *                  update does not affect an entire row
          *
-         * @param tableInfo reference to the table information
+         * @param tableInfo Reference to the table information
          *****************************************************************************************/
         TableIssue(String issue, String action, int row, String[] rowData, TableInfo tableInfo)
         {
@@ -402,7 +402,7 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Set the flag that indicates if the user elects to correct the issue
          *
-         * @param fix true to correct the issue; false to ignore it
+         * @param fix True to correct the issue; false to ignore it
          *****************************************************************************************/
         protected void setFix(boolean fix)
         {
@@ -424,13 +424,13 @@ public class CcddDbVerificationHandler
         /******************************************************************************************
          * Table change class constructor
          *
-         * @param tableInformation table information reference
+         * @param tableInformation Table information reference
          *
-         * @param additions        list of table additions
+         * @param additions        List of table additions
          *
-         * @param modifications    list of table modifications
+         * @param modifications    List of table modifications
          *
-         * @param deletions        list of table deletions
+         * @param deletions        List of table deletions
          *****************************************************************************************/
         protected TableChange(TableInfo tableInformation, List<TableModification> additions,
                               List<TableModification> modifications, List<TableModification> deletions)
@@ -485,7 +485,7 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Database verification handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddDbVerificationHandler(CcddMain ccddMain)
     {
@@ -687,9 +687,9 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Update the verification progress bar
      *
-     * @param progText   text to display within the progress bar; null to not update the text
+     * @param progText   Text to display within the progress bar; null to not update the text
      *
-     * @param startValue initial value at which to begin this sequence in the verification process; -1
+     * @param startValue Initial value at which to begin this sequence in the verification process; -1
      *                   to not change the initial value
      *********************************************************************************************/
 
@@ -810,7 +810,7 @@ public class CcddDbVerificationHandler
      * Check that the internal tables are consistent with their definitions. If any inconsistencies are
      * detected then get user approval to alter the table(s)
      *
-     * @param tableResult metadata for all tables
+     * @param tableResult Metadata for all tables
      *********************************************************************************************/
     private void verifyInternalTables(ResultSet tableResult)
     {
@@ -980,7 +980,7 @@ public class CcddDbVerificationHandler
      * Check that the input types in the table types and data fields internal tables are valid. If any
      * invalid entries are detected then get user approval to alter the table(s)
      *
-     * @param tableResult metadata for all tables
+     * @param tableResult Metadata for all tables
      *********************************************************************************************/
     private void verifyInputTypes(ResultSet tableResult)
     {
@@ -1073,7 +1073,7 @@ public class CcddDbVerificationHandler
      * Check that the references to tables and variables in the internal tables are valid. If any
      * invalid entries are detected then get user approval to alter the table(s)
      *
-     * @param tableResult metadata for all tables
+     * @param tableResult Metadata for all tables
      *********************************************************************************************/
     private void verifyPathReferences(ResultSet tableResult)
     {
@@ -1484,12 +1484,12 @@ public class CcddDbVerificationHandler
      * Query the specified internal table in the database for the specified column entries that
      * reference tables or variables
      *
-     * @param intTableName    internal table name to query
+     * @param intTableName    Internal table name to query
      *
-     * @param intTableColumnA name of the column in the internal table column name from which to obtain
+     * @param intTableColumnA Name of the column in the internal table column name from which to obtain
      *                        the entries
      *
-     * @param intTableColumnB name of the second column in the internal table column name from which to
+     * @param intTableColumnB Name of the second column in the internal table column name from which to
      *                        obtain the entries; null if no second column is requested
      *
      * @return List of table or variable entries from the specified column in the specified internal
@@ -1594,7 +1594,7 @@ public class CcddDbVerificationHandler
      * Check that the tables are consistent with their type definitions. If any inconsistencies are
      * detected then get user approval to alter the table(s)
      *
-     * @param tableResult metadata for all tables
+     * @param tableResult Metadata for all tables
      *********************************************************************************************/
     private void verifyTableTypes(ResultSet tableResult)
     {
@@ -2071,11 +2071,11 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if the cell value matches the expected input type
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param column    column index
+     * @param column    Column index
      *********************************************************************************************/
     private void checkInputType(TableInfo tableInfo, int row, int column)
     {
@@ -2098,11 +2098,11 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if an extra array member exists
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param arrayName array variable name
+     * @param arrayName Array variable name
      *
      * @return true if an extra array member is detected
      *********************************************************************************************/
@@ -2143,11 +2143,11 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if the expected array definition exists
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param arrayName array variable name
+     * @param arrayName Array variable name
      *
      * @return true if the array definition is missing
      *********************************************************************************************/
@@ -2178,11 +2178,11 @@ public class CcddDbVerificationHandler
      * members or is not the next array member in sequence. This implies that one or more array members
      * are missing as well as the next array variable's definition
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param arrayName array variable name
+     * @param arrayName Array variable name
      *
      * @return true if an an array name mismatch is detected
      *********************************************************************************************/
@@ -2211,13 +2211,13 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if the array size is the same for the array definition and all of it members
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param arrayName array variable name
+     * @param arrayName Array variable name
      *
-     * @param arraySize number of members in the array
+     * @param arraySize Number of members in the array
      *********************************************************************************************/
     private void checkArraySizesMatch(TableInfo tableInfo, int row, String arrayName, String arraySize)
     {
@@ -2236,13 +2236,13 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if the data type is the same for the array definition and all of it members
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param arrayName array variable name
+     * @param arrayName Array variable name
      *
-     * @param dataType  type array data type
+     * @param dataType  Type array data type
      *********************************************************************************************/
     private void checkDataTypesMatch(TableInfo tableInfo, int row, String arrayName, String dataType)
     {
@@ -2260,11 +2260,11 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if the array doesn't have an expected member
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *
-     * @param row       row index
+     * @param row       Row index
      *
-     * @param arrayName array variable name
+     * @param arrayName Array variable name
      *********************************************************************************************/
     private void checkForMissingArrayMember(TableInfo tableInfo, int row, String arrayName)
     {
@@ -2292,7 +2292,7 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if a row index doesn't match the expected value
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *********************************************************************************************/
     private void checkForRowIndexMismatch(TableInfo tableInfo)
     {
@@ -2316,7 +2316,7 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Check if a column marked as unique for this table type has duplicate values in one or more rows
      *
-     * @param tableInfo reference to the table information
+     * @param tableInfo Reference to the table information
      *********************************************************************************************/
     private void checkForDuplicates(TableInfo tableInfo)
     {
@@ -2370,11 +2370,11 @@ public class CcddDbVerificationHandler
     /**********************************************************************************************
      * Add a missing array definition or member
      *
-     * @param tableInfo        reference to the table information
+     * @param tableInfo        Reference to the table information
      *
-     * @param arrayName        array variable name
+     * @param arrayName        Array variable name
      *
-     * @param arrayMemberIndex current array member index
+     * @param arrayMemberIndex Current array member index
      *
      * @return Array containing the new array row data
      *********************************************************************************************/
@@ -2409,7 +2409,7 @@ public class CcddDbVerificationHandler
      * Compare the current table data to the committed table data and create lists of the changed values
      * necessary to update the table in the database to match the current values
      *
-     * @param tblStrg reference to the table information and committed data
+     * @param tblStrg Reference to the table information and committed data
      *********************************************************************************************/
     private void buildUpdates(TableStorage tblStrg)
     {

@@ -167,7 +167,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Data field table editor dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddFieldTableEditorDialog(CcddMain ccddMain)
     {
@@ -230,7 +230,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of database table changes
      *
-     * @param commandError false if the database commands successfully completed; true
+     * @param commandError False if the database commands successfully completed; true
      *********************************************************************************************/
     protected void doDataFieldUpdatesComplete(boolean commandError)
     {
@@ -1091,19 +1091,19 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
              * Validate changes to the data field value cells; e.g., verify cell content and, if found invalid,
              * revert to the original value
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage unused
+             * @param showMessage Unused
              *
-             * @param isMultiple  unused
+             * @param isMultiple  Unused
              *
              * @return Value of ShowMessage
              ************************************************************************************/
@@ -1760,9 +1760,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Get the owner name with path, if applicable (child tables of a structure table have a path)
      *
-     * @param ownerName table or group owner name
+     * @param ownerName Table or group owner name
      *
-     * @param path      table path; blank if none
+     * @param path      Table path; blank if none
      *
      * @return Table or group name with path, if applicable
      *********************************************************************************************/
@@ -1793,7 +1793,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      * Determine if the data field owner isn't a table. This is the case for project, group, and table
      * type fields
      *
-     * @param ownerName name of the data field's owner
+     * @param ownerName Name of the data field's owner
      *
      * @return true if the field owner isn't a table
      *********************************************************************************************/
@@ -1832,9 +1832,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      * Highlight the data field owner's indicator text (the indicator determines if the field belongs to
      * the project, a group, or a table type)
      *
-     * @param ownerName name of the data field's owner
+     * @param ownerName Name of the data field's owner
      *
-     * @param enable    true to highlight the data field indicator; false to remove any highlighting
+     * @param enable    True to highlight the data field indicator; false to remove any highlighting
      *
      * @return The data field owner with the indicator highlighted or not highlighted
      *********************************************************************************************/

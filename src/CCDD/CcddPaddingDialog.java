@@ -65,7 +65,7 @@ public class CcddPaddingDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Variable padding selection dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddPaddingDialog(CcddMain ccddMain)
     {
@@ -76,7 +76,7 @@ public class CcddPaddingDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the variable padding selection dialog
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     private void initialize(final CcddMain ccddMain)
     {
@@ -190,7 +190,7 @@ public class CcddPaddingDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if at least one table is selected
      *
-     * @param prototypeTree reference to the prototype table tree
+     * @param prototypeTree Reference to the prototype table tree
      *
      * @return true if at least one table is selected
      *********************************************************************************************/
@@ -216,13 +216,13 @@ public class CcddPaddingDialog extends CcddDialogHandler
      * prototype for a child table, then include the prototype name for every table in the child's path
      * in the tables to be altered
      *
-     * @param ccddMain      main class reference
+     * @param ccddMain      Main class reference
      *
-     * @param padOpType     padding operation type: REMOVE to remove padding from the selected and
+     * @param padOpType     Padding operation type: REMOVE to remove padding from the selected and
      *                      affected tabled; ADD_UPDATE to add or update the padding for the selected
      *                      and affected tables (PadOperationType)
      *
-     * @param prototypeTree reference to the prototype table tree
+     * @param prototypeTree Reference to the prototype table tree
      *********************************************************************************************/
     private void addUpdatePadding(CcddMain ccddMain, PadOperationType padOpType, CcddTableTreeHandler prototypeTree)
     {

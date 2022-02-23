@@ -96,7 +96,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Reserved message ID editor dialog class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     CcddReservedMsgIDEditorDialog(CcddMain ccddMain)
     {
@@ -113,7 +113,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of reserved message ID updates to the database
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doMsgIDUpdatesComplete(boolean commandError)
@@ -420,19 +420,19 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false

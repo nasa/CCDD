@@ -133,13 +133,13 @@ public class CcddVariableHandler
         /******************************************************************************************
          * Conversion list storage class constructor
          *
-         * @param varPathSeparator      character(s) to place between variables path members
+         * @param varPathSeparator      Character(s) to place between variables path members
          *
-         * @param excludeDataTypes      true to remove the data types from the variable path + name
+         * @param excludeDataTypes      True to remove the data types from the variable path + name
          *
-         * @param typeNameSeparator     character(s) to place between data types and variable names
+         * @param typeNameSeparator     Character(s) to place between data types and variable names
          *
-         * @param convertedVariableName converted variable name list built using the specified separators
+         * @param convertedVariableName Converted variable name list built using the specified separators
          *****************************************************************************************/
         ConversionListStorage(String varPathSeparator, boolean excludeDataTypes, String typeNameSeparator,
                               List<String> convertedVariableName)
@@ -163,11 +163,11 @@ public class CcddVariableHandler
         /******************************************************************************************
          * Get the converted variable name list built using the associated separators
          *
-         * @param varPathSeparator  character(s) to place between variables path members
+         * @param varPathSeparator  Character(s) to place between variables path members
          *
-         * @param excludeDataTypes  true to remove the data types from the variable path + name
+         * @param excludeDataTypes  True to remove the data types from the variable path + name
          *
-         * @param typeNameSeparator character(s) to place between data types and variable names
+         * @param typeNameSeparator Character(s) to place between data types and variable names
          *
          * @return true if the separators provided match those used to create the associated converted
          *         variable name list
@@ -182,11 +182,11 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Variable handler class constructor
      *
-     * @param ccddMain        main class
+     * @param ccddMain        Main class
      *
-     * @param dataTypeHandler reference to a data type handler; null to use the one in the main class
+     * @param dataTypeHandler Reference to a data type handler; null to use the one in the main class
      *
-     * @param macroHandler    reference to a macro handler; null to use the one in the main class
+     * @param macroHandler    Reference to a macro handler; null to use the one in the main class
      *********************************************************************************************/
     CcddVariableHandler(CcddMain ccddMain, CcddDataTypeHandler dataTypeHandler, CcddMacroHandler macroHandler)
     {
@@ -202,7 +202,7 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Variable handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddVariableHandler(CcddMain ccddMain)
     {
@@ -281,9 +281,9 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Get the regular expression for matching a sizeof() call for the specified data type
      *
-     * @param dataType   data type
+     * @param dataType   Data type
      *
-     * @param macroHndlr macro handler reference
+     * @param macroHndlr Macro handler reference
      *
      * @return Regular expression for matching a sizeof() call for the specified data type
      *********************************************************************************************/
@@ -295,7 +295,7 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Check if the supplied text contains a sizeof() call
      *
-     * @param text string in which to search for the sizeof() call
+     * @param text String in which to search for the sizeof() call
      *
      * @return true if the supplied text contains a sizeof() call
      *********************************************************************************************/
@@ -316,11 +316,11 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Check if the supplied text contains a sizeof() call for the specified data type
      *
-     * @param text       string in which to search for the sizeof() call
+     * @param text       String in which to search for the sizeof() call
      *
-     * @param dataType   data type
+     * @param dataType   Data type
      *
-     * @param macroHndlr macro handler reference
+     * @param macroHndlr Macro handler reference
      *
      * @return true if the supplied text contains a sizeof() call
      *********************************************************************************************/
@@ -332,7 +332,7 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Replace each instance of sizeof(data type) in the specified string with its numeric value
      *
-     * @param expression       text in which to replace any sizeof() calls
+     * @param expression       Text in which to replace any sizeof() calls
      *
      * @param invalidDataTypes List containing the invalid data types when evaluating sizeof() calls;
      *                         null if there are no data type constraints for a sizeof() call
@@ -379,7 +379,7 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Get the size in bytes of the specified primitive or structure data type
      *
-     * @param dataType structure name or primitive data type
+     * @param dataType Structure name or primitive data type
      *
      * @return Size in bytes required to store the data type; returns 0 if the data type doesn't exist
      *********************************************************************************************/
@@ -415,7 +415,7 @@ public class CcddVariableHandler
      * path, including data type and variable name, is used to verify that the specified target has been
      * located; i.e., not another variable with the same name
      *
-     * @param targetVariable a comma separated string of the root structure and each data type and
+     * @param targetVariable A comma separated string of the root structure and each data type and
      *                       variable name of each variable in the current search path. The bit length
      *                       may be omitted for bit-wise variables
      *
@@ -689,12 +689,12 @@ public class CcddVariableHandler
      * Adjust the offset to the current variable based on the last variable's byte size and any bit
      * packing
      *
-     * @param dataType  variable's data type
+     * @param dataType  Variable's data type
      *
-     * @param bitLength string representing the number of bits used by variable; blank if this is a
+     * @param bitLength String representing the number of bits used by variable; blank if this is a
      *                  non-bit variable
      *
-     * @param offset    offset to the previous variable
+     * @param offset    Offset to the previous variable
      *
      * @return The adjusted byte offset to the target variable
      *********************************************************************************************/
@@ -733,9 +733,9 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Determine if the supplied variable path is already in use in a structure
      *
-     * @param progDefinedPath variable path + name in the application's internal format
+     * @param progDefinedPath Variable path + name in the application's internal format
      *
-     * @param alternateName   variable path converted using the separator characters, or a user-defined
+     * @param alternateName   Variable path converted using the separator characters, or a user-defined
      *                        name
      *
      * @return true if the supplied variable path is already in use in a structure
@@ -787,19 +787,19 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Get the variable path for the specified table path, variable name, and data type
      *
-     * @param tablePath         path for the table contai9ning the variable
+     * @param tablePath         Path for the table contai9ning the variable
      *
-     * @param variableName      variable name
+     * @param variableName      Variable name
      *
-     * @param dataType          data type
+     * @param dataType          Data type
      *
-     * @param varPathSeparator  character(s) to place between variables path members
+     * @param varPathSeparator  Character(s) to place between variables path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *
-     * @param includeCustom     true to substitute the user-defined variable path (if present); false to
+     * @param includeCustom     True to substitute the user-defined variable path (if present); false to
      *                          ignore the user-defined path and use the auto-generated one based on the
      *                          conversion flags
      *
@@ -832,15 +832,15 @@ public class CcddVariableHandler
      * name, replace left square brackets with # underscores and remove right square brackets (example:
      * a[0],b[2] becomes a_0separatorb_2)
      *
-     * @param fullName          variable path + name in the format
+     * @param fullName          Variable path + name in the format
      *                          rootTable[,structureDataType1.variable1 [,structureDataType2.variable2
      *                          [,...]]],primitiveDataType.variable
      *
-     * @param varPathSeparator  character(s) to place between variables path members
+     * @param varPathSeparator  Character(s) to place between variables path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s); if a user-defined path exists then it is returned in
@@ -858,17 +858,17 @@ public class CcddVariableHandler
      * name, replace left square brackets with # underscores and remove right square brackets (example:
      * a[0],b[2] becomes a_0separatorb_2)
      *
-     * @param fullName              variable path + name in the format
+     * @param fullName              Variable path + name in the format
      *                              rootTable[,structureDataType1.variable1
      *                              [,structureDataType2.variable2 [,...]]],primitiveDataType.variable
      *
-     * @param varPathSeparator      character(s) to place between variables path members
+     * @param varPathSeparator      Character(s) to place between variables path members
      *
-     * @param excludeDataTypes      true to remove the data types from the variable path + name
+     * @param excludeDataTypes      True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator     character(s) to place between data types and variable names
+     * @param typeNameSeparator     Character(s) to place between data types and variable names
      *
-     * @param substituteUserDefined true to substitute the user-defined variable name (if present);
+     * @param substituteUserDefined True to substitute the user-defined variable name (if present);
      *                              false to ignore the user-defined name and use the auto-generated one
      *                              based on the conversion flags
      *
@@ -954,11 +954,11 @@ public class CcddVariableHandler
      * processed trim the list to include only those variables that are modified to prevent a duplicate.
      * These lists are used by getFullVariableName() so that it always returns a unique name
      *
-     * @param varPathSeparator  character(s) to place between variables path members
+     * @param varPathSeparator  Character(s) to place between variables path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *********************************************************************************************/
     private void createVariableNameList(String varPathSeparator, boolean excludeDataTypes, String typeNameSeparator)
     {
@@ -1097,7 +1097,7 @@ public class CcddVariableHandler
     /**********************************************************************************************
      * Remove the data type(s) from the supplied variable path + name
      *
-     * @param fullName variable path + name in the normal application format
+     * @param fullName Variable path + name in the normal application format
      *
      * @return The supplied variable path + name with the data type(s) removed
      *********************************************************************************************/
@@ -1149,13 +1149,13 @@ public class CcddVariableHandler
      * array members in the path), and remove the bit length (if one is present). Underscores are
      * appended if the resulting name matches an existing one
      *
-     * @param fullName          variable path + name in the normal application format
+     * @param fullName          Variable path + name in the normal application format
      *
-     * @param varPathSeparator  character(s) to place between variables path members
+     * @param varPathSeparator  Character(s) to place between variables path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *
      * @return Variable path + name with the data types retained or removed, commas replaced by the
      *         separator character(s), left brackets replaced by underscores, right brackets removed,

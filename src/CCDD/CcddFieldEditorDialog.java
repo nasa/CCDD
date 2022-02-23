@@ -131,18 +131,18 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Data field editor dialog class constructor
      *
-     * @param ccddMain             main class reference
+     * @param ccddMain             Main class reference
      *
-     * @param fieldPnlHandler      description and data field panel reference
+     * @param fieldPnlHandler      Description and data field panel reference
      *
-     * @param ownerName            table name, including the path if this is a structure type table, or
+     * @param ownerName            Table name, including the path if this is a structure type table, or
      *                             group name
      *
-     * @param fieldInformation     list of the owner's current field information
+     * @param fieldInformation     List of the owner's current field information
      *
-     * @param includeApplicability true to include the applicability column
+     * @param includeApplicability True to include the applicability column
      *
-     * @param minimumWidth         minimum pixel width of the caller
+     * @param minimumWidth         Minimum pixel width of the caller
      *********************************************************************************************/
     CcddFieldEditorDialog(CcddMain ccddMain, CcddInputFieldPanelHandler fieldPnlHandler, String ownerName,
                           List<FieldInformation> fieldInformation, boolean includeApplicability, int minimumWidth)
@@ -167,7 +167,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the data field editor dialog
      *
-     * @param minimumWidth minimum pixel width of the caller
+     * @param minimumWidth Minimum pixel width of the caller
      *********************************************************************************************/
     private void initialize(final int minimumWidth)
     {
@@ -268,9 +268,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              * Override the CcddJTableHandler method to prevent deleting the contents of the cell at the
              * specified row and column
              *
-             * @param row    table row index in view coordinates
+             * @param row    Table row index in view coordinates
              *
-             * @param column table column index in view coordinates
+             * @param column Table column index in view coordinates
              *
              * @return false if the cell contains a combo box; true otherwise
              *************************************************************************************/
@@ -287,19 +287,19 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false
@@ -745,7 +745,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Recreate the data fields for display below the table
      *
-     * @param minDialogWidth minimum pixel width of the caller
+     * @param minDialogWidth Minimum pixel width of the caller
      *********************************************************************************************/
     private void recreateDataFieldPanel(int minDialogWidth)
     {

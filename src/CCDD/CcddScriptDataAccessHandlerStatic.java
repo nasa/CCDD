@@ -52,7 +52,7 @@ public class CcddScriptDataAccessHandlerStatic
     /**********************************************************************************************
      * Static script data access class constructor
      *
-     * @param accessHandler reference to the script data access handler (non-static)
+     * @param accessHandler Reference to the script data access handler (non-static)
      *********************************************************************************************/
     CcddScriptDataAccessHandlerStatic(CcddScriptDataAccessHandler accessHandler)
     {

@@ -105,11 +105,11 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Link tree handler class constructor
      *
-     * @param ccddMain    main class
+     * @param ccddMain    Main class
      *
-     * @param undoHandler reference to the undo handler
+     * @param undoHandler Reference to the undo handler
      *
-     * @param rateName    data stream rate column name associated with the tree; used to filter the
+     * @param rateName    Data stream rate column name associated with the tree; used to filter the
      *                    links added to the link tree
      *
      * @param parent      GUI component over which to center any error dialog
@@ -136,7 +136,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Set the currently selected sample rate and force the link tree to redraw
      *
-     * @param rate sample rate in samples per second
+     * @param rate Sample rate in samples per second
      *********************************************************************************************/
     protected void setSelectedRate(String rate)
     {
@@ -147,11 +147,11 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Perform initialization steps prior to building the link tree
      *
-     * @param ccddMain        main class
+     * @param ccddMain        Main class
      *
-     * @param undoHandler     reference to the undo handler
+     * @param undoHandler     Reference to the undo handler
      *
-     * @param linkDefinitions list containing the link definitions
+     * @param linkDefinitions List containing the link definitions
      *********************************************************************************************/
     @Override
     protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> linkDefinitions)
@@ -194,7 +194,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Create a list of variables, including their paths, that are referenced by the specified link, or
      * of any link if no link name is provided
      *
-     * @param name link name; null to include all links
+     * @param name Link name; null to include all links
      *
      * @return List of variables, including their paths, that are referenced by the specified link, of
      *         any link if no link name is provided
@@ -222,7 +222,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Get the reference to a specified link's information
      *
-     * @param name link name
+     * @param name Link name
      *
      * @return Reference to the link's information; null if the link doesn't exist
      *********************************************************************************************/
@@ -251,13 +251,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Add a new link to the link information class
      *
-     * @param rateName    rate column name
+     * @param rateName    Rate column name
      *
-     * @param linkName    link name
+     * @param linkName    Link name
      *
-     * @param sampleRate  link rate in samples per second
+     * @param sampleRate  Link rate in samples per second
      *
-     * @param description link description
+     * @param description Link description
      *********************************************************************************************/
     protected void addLinkInformation(String rateName, String linkName, String sampleRate, String description)
     {
@@ -324,13 +324,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the link tree from the database
      *
-     * @param filterByApp true if the tree is filtered by application. This is not applicable to the
+     * @param filterByApp True if the tree is filtered by application. This is not applicable to the
      *                    link tree, which can only contain structure references
      *
-     * @param filterValue string value that may be used to modify the tree building method; null or
+     * @param filterValue String value that may be used to modify the tree building method; null or
      *                    blank if not filtering
      *
-     * @param filterFlag  flag used to filter the tree content. Not used for the link tree
+     * @param filterFlag  Flag used to filter the tree content. Not used for the link tree
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -407,9 +407,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Add a copy of the specified link information object to the link information list
      *
-     * @param linkToCopy link information object to copy
+     * @param linkToCopy Link information object to copy
      *
-     * @param nameOfCopy name of the copy of the link
+     * @param nameOfCopy Name of the copy of the link
      *********************************************************************************************/
     @Override
     protected void addInformation(Object linkToCopy, String nameOfCopy)
@@ -445,11 +445,11 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Add the specified leaf definition to the tree definition list. Override this method to insert the
      * data stream rate column name into the leaf definition
      *
-     * @param treeDefns   list to which to add the leaf definition
+     * @param treeDefns   List to which to add the leaf definition
      *
-     * @param leafDefn    leaf definition to add to the list
+     * @param leafDefn    Leaf definition to add to the list
      *
-     * @param filterValue data stream rate name
+     * @param filterValue Data stream rate name
      *********************************************************************************************/
     @Override
     protected void addLeafDefinition(List<String[]> treeDefns, String[] leafDefn, String filterValue)
@@ -464,7 +464,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Override so that HTML tag(s) and text within parentheses (inclusive) preceded by a space (the
      * rate and size) is removed
      *
-     * @param text string from which to remove the extra text
+     * @param text String from which to remove the extra text
      *
      * @return Input string minus any HTML tag(s) and text within parentheses (inclusive) preceded by a
      *         space
@@ -480,7 +480,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * color based on the currently selected sample rate and the rate of the link to which the node
      * belongs: black for a match and gray for a mismatch
      *
-     * @param startNode starting node for which to adjust the text and color
+     * @param startNode Starting node for which to adjust the text and color
      *********************************************************************************************/
     protected void adjustNodeText(ToolTipTreeNode startNode)
     {
@@ -600,9 +600,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Create a subtree with only the links that contain variables with sample rates matching the
      * selected rate
      *
-     * @param rootNodeName        name of the root node for the matching links
+     * @param rootNodeName        Name of the root node for the matching links
      *
-     * @param rootNodeDescription tool tip text for the root node
+     * @param rootNodeDescription Tool tip text for the root node
      *
      * @return Node with only the links that contain variables with sample rates matching the selected
      *         rate
@@ -639,9 +639,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Create a link tree panel. The table tree is placed in a scroll pane. A check box is added that
      * allows tree expansion/collapse
      *
-     * @param label         link tree title
+     * @param label         Link tree title
      *
-     * @param selectionMode tree item selection mode (single versus multiple)
+     * @param selectionMode Tree item selection mode (single versus multiple)
      *
      * @return JPanel containing the link tree components
      *********************************************************************************************/

@@ -266,7 +266,7 @@ public class CcddMain
     }
 
     /**
-     * @param isAutoPatch the isAutoPatch to set
+     * @param isAutoPatch The isAutoPatch to set
      */
     protected void setAutoPatch(boolean isAutoPatch)
     {
@@ -302,7 +302,7 @@ public class CcddMain
     /**********************************************************************************************
      * Create the application
      *
-     * @param args array containing the command line arguments
+     * @param args Array containing the command line arguments
      *********************************************************************************************/
     protected CcddMain(String[] args)
     {
@@ -452,7 +452,7 @@ public class CcddMain
     /**********************************************************************************************
      * Launch the application
      *
-     * @param args array of command line arguments
+     * @param args Array of command line arguments
      *********************************************************************************************/
     public static void main(final String[] args)
     {
@@ -483,8 +483,15 @@ public class CcddMain
      *********************************************************************************************/
     protected void buildTableTreeHandler()
     {
-        tableTreeHandler = new CcddTableTreeHandler(this, new CcddGroupHandler(this, null, getMainFrame()),
-                                                    TableTreeType.TABLES, true, false, false, getMainFrame());
+        tableTreeHandler = new CcddTableTreeHandler(this,
+                                                    new CcddGroupHandler(this,
+                                                                         null,
+                                                                         getMainFrame()),
+                                                    TableTreeType.TABLES,
+                                                    true,
+                                                    false,
+                                                    false,
+                                                    getMainFrame());
         tableTreeHandler.updatePreLoadedGroupRoot();
     }
 
@@ -513,7 +520,7 @@ public class CcddMain
      * line or a dialog box. Any dialogs requiring user input, including question message dialogs, are
      * displayed in dialog boxes
      *
-     * @param isHideGUI true if dialog messages should appear on the command line; false to display the
+     * @param isHideGUI True if dialog messages should appear on the command line; false to display the
      *                  message in a dialog box
      *********************************************************************************************/
     protected void setGUIHidden(boolean isHideGUI)
@@ -584,7 +591,7 @@ public class CcddMain
     /**********************************************************************************************
      * Set the web server port
      *
-     * @param port web server port
+     * @param port Web server port
      *********************************************************************************************/
     protected void setWebServerPort(String port)
     {
@@ -854,7 +861,7 @@ public class CcddMain
     /**********************************************************************************************
      * Set the reference to the group manager dialog
      *
-     * @param groupManagerDialog reference to the group manager dialog
+     * @param groupManagerDialog Reference to the group manager dialog
      *********************************************************************************************/
     protected void setGroupManager(CcddGroupManagerDialog groupManagerDialog)
     {
@@ -1000,7 +1007,7 @@ public class CcddMain
     /**********************************************************************************************
      * Display the search dialog for searching database tables or scripts
      *
-     * @param searchType search dialog type: TABLES or SCRIPTS
+     * @param searchType Search dialog type: TABLES or SCRIPTS
      *
      * @param parent     GUI component over which to center the dialog
      *********************************************************************************************/
@@ -1012,12 +1019,12 @@ public class CcddMain
     /**********************************************************************************************
      * Display the search dialog for searching database tables, scripts, and event logs
      *
-     * @param searchType       search dialog type: TABLES, SCRIPTS, or LOG
+     * @param searchType       Search dialog type: TABLES, SCRIPTS, or LOG
      *
-     * @param targetRow        row index to match if this is an event log entry search on a table that
+     * @param targetRow        Row index to match if this is an event log entry search on a table that
      *                         displays only a single log entry; null otherwise
      *
-     * @param eventLogToSearch event log to search; null if not searching a log
+     * @param eventLogToSearch Event log to search; null if not searching a log
      *
      * @param parent           GUI component over which to center the dialog
      *********************************************************************************************/
@@ -1115,7 +1122,7 @@ public class CcddMain
      * Activate/deactivate the main menu by setting the component enable flags appropriately. While
      * disabled these components are grayed out and do not respond to inputs
      *
-     * @param activate true to enable the GUI components, false to disable
+     * @param activate True to enable the GUI components, false to disable
      *********************************************************************************************/
     protected void setGUIActivated(boolean activate)
     {
@@ -1270,16 +1277,16 @@ public class CcddMain
     /**********************************************************************************************
      * Create a menu and add it to a menu bar
      *
-     * @param menuBar    menu bar to add the menu to
+     * @param menuBar    Menu bar to add the menu to
      *
-     * @param name       menu name
+     * @param name       Menu name
      *
-     * @param key        key mnemonic for the menu
+     * @param key        Key mnemonic for the menu
      *
-     * @param occurrence specifies which occurrence of the character in the item name to highlight; set
+     * @param occurrence Specifies which occurrence of the character in the item name to highlight; set
      *                   to &lt; 2 to use the first occurrence
      *
-     * @param toolTip    tool tip text
+     * @param toolTip    Tool tip text
      *
      * @return Menu created
      *********************************************************************************************/
@@ -1296,16 +1303,16 @@ public class CcddMain
     /**********************************************************************************************
      * Create a sub-menu and add it to another menu
      *
-     * @param menu       menu to add the sub-menu to
+     * @param menu       Menu to add the sub-menu to
      *
-     * @param name       sub-menu name
+     * @param name       Sub-menu name
      *
-     * @param key        key mnemonic for the sub-menu
+     * @param key        Key mnemonic for the sub-menu
      *
-     * @param occurrence specifies which occurrence of the character in the item name to highlight; set
+     * @param occurrence Specifies which occurrence of the character in the item name to highlight; set
      *                   to &lt; 2 to use the first occurrence
      *
-     * @param toolTip    tool tip text
+     * @param toolTip    Tool tip text
      *
      * @return Sub-menu created
      *********************************************************************************************/
@@ -1323,16 +1330,16 @@ public class CcddMain
      * Create a menu item and add it to a menu. Specify the occurrence of the key character in the menu
      * item name to highlight
      *
-     * @param menu       menu to add the item to
+     * @param menu       Menu to add the item to
      *
-     * @param name       menu item name
+     * @param name       Menu item name
      *
-     * @param key        key mnemonic for the menu item
+     * @param key        Key mnemonic for the menu item
      *
-     * @param occurrence specifies which occurrence of the character in the item name to highlight; set
+     * @param occurrence Specifies which occurrence of the character in the item name to highlight; set
      *                   to &lt; 2 to use the first occurrence
      *
-     * @param toolTip    tool tip text
+     * @param toolTip    Tool tip text
      *
      * @return Menu item created
      *********************************************************************************************/
@@ -1350,18 +1357,18 @@ public class CcddMain
      * Create a check box menu item and add it to a menu. Specify the occurrence of the key character in
      * the menu item name to highlight
      *
-     * @param menu       menu to add the item to
+     * @param menu       Menu to add the item to
      *
-     * @param name       menu item name
+     * @param name       Menu item name
      *
-     * @param key        key mnemonic for the menu item
+     * @param key        Key mnemonic for the menu item
      *
-     * @param occurrence specifies which occurrence of the character in the item name to highlight; set
+     * @param occurrence Specifies which occurrence of the character in the item name to highlight; set
      *                   to &lt; 2 to use the first occurrence
      *
-     * @param toolTip    tool tip text
+     * @param toolTip    Tool tip text
      *
-     * @param isSelected true to have the check box selected initially
+     * @param isSelected True to have the check box selected initially
      *
      * @return Check box menu item created
      *********************************************************************************************/
@@ -1381,18 +1388,18 @@ public class CcddMain
      * Create a radio button menu item and add it to a menu. Specify the occurrence of the key character
      * in the menu item name to highlight
      *
-     * @param menu       menu to add the item to
+     * @param menu       Menu to add the item to
      *
-     * @param name       menu item name
+     * @param name       Menu item name
      *
-     * @param key        key mnemonic for the menu item
+     * @param key        Key mnemonic for the menu item
      *
-     * @param occurrence specifies which occurrence of the character in the item name to highlight; set
+     * @param occurrence Specifies which occurrence of the character in the item name to highlight; set
      *                   to &lt; 2 to use the first occurrence
      *
-     * @param toolTip    tool tip text
+     * @param toolTip    Tool tip text
      *
-     * @param isSelected true to have the radio button selected initially
+     * @param isSelected True to have the radio button selected initially
      *
      * @return Radio button menu item created
      *********************************************************************************************/
@@ -1412,13 +1419,13 @@ public class CcddMain
      * Set the key mnemonic for the supplied menu item. Specify the occurrence of the key character in
      * the menu item name to highlight
      *
-     * @param menuItem   menu item for which to set the mnemonic
+     * @param menuItem   Menu item for which to set the mnemonic
      *
-     * @param name       menu item name
+     * @param name       Menu item name
      *
-     * @param key        key mnemonic for the menu item
+     * @param key        Key mnemonic for the menu item
      *
-     * @param occurrence specifies which occurrence of the character in the item name to highlight; set
+     * @param occurrence Specifies which occurrence of the character in the item name to highlight; set
      *                   to &lt; 2 to use the first occurrence
      *********************************************************************************************/
     private void setMnemonic(AbstractButton menuItem, String name, int key, int occurrence)
@@ -1780,9 +1787,9 @@ public class CcddMain
     /**********************************************************************************************
      * Open a table from the specified recently opened tables menu item
      *
-     * @param mnItem           recently opened menu item reference
+     * @param mnItem           Recently opened menu item reference
      *
-     * @param callingEditorDlg reference to the table editor calling this method (used to open the table
+     * @param callingEditorDlg Reference to the table editor calling this method (used to open the table
      *                         editor in the existing editor dialog); null if the table is opened from
      *                         the main window
      *********************************************************************************************/
@@ -3106,9 +3113,9 @@ public class CcddMain
     /**********************************************************************************************
      * Exit the CCDD application
      *
-     * @param withConfirm true to ask for confirmation to exit; false to exit without confirmation
+     * @param withConfirm True to ask for confirmation to exit; false to exit without confirmation
      *
-     * @param status      exit status value: 0 for normal exit, non-zero for abnormal
+     * @param status      Exit status value: 0 for normal exit, non-zero for abnormal
      *********************************************************************************************/
     protected void exitApplication(boolean withConfirm, int status)
     {
@@ -3165,7 +3172,7 @@ public class CcddMain
     /**********************************************************************************************
      * Set the application's look and feel
      *
-     * @param laf name of the selected look and feel; null to use the look and feel stored in the
+     * @param laf Name of the selected look and feel; null to use the look and feel stored in the
      *            program preferences
      *
      * @return true if an error occurred loading the look and feel
@@ -3224,9 +3231,9 @@ public class CcddMain
      * Update the visible graphical user interface (GUI) components for a change in the specified GUI
      * update type
      *
-     * @param updateType type of GUI update - LAF for look and feel; FONT for font; COLOR for color
+     * @param updateType Type of GUI update - LAF for look and feel; FONT for font; COLOR for color
      *
-     * @param dialogs    array of other dialogs to update. This is used to update the Preferences dialog
+     * @param dialogs    Array of other dialogs to update. This is used to update the Preferences dialog
      *                   and its associated selection dialog (if applicable)
      *********************************************************************************************/
     protected void updateGUI(GUIUpdateType updateType, CcddDialogHandler[] dialogs)
@@ -3320,11 +3327,11 @@ public class CcddMain
      * Update the visible graphical user interface (GUI) components of the specified container for a
      * change in the specified GUI update type
      *
-     * @param updateType type of GUI update - LAF for look and feel; FONT for font; COLOR for color
+     * @param updateType Type of GUI update - LAF for look and feel; FONT for font; COLOR for color
      *
-     * @param container  reference to the Container object to update
+     * @param container  Reference to the Container object to update
      *
-     * @param table      reference to the container's table; null if the container has no table
+     * @param table      Reference to the container's table; null if the container has no table
      *********************************************************************************************/
     private void updateContainerGUI(GUIUpdateType updateType, Container container, CcddJTableHandler table)
     {
@@ -3431,13 +3438,13 @@ public class CcddMain
      * Check if any of the open editors has uncommitted changes, and if so, ask the user if the
      * operation should continue
      *
-     * @param dialogType    text to display in the dialog's header
+     * @param dialogType    Text to display in the dialog's header
      *
-     * @param dialogMessage message to display in the dialog box
+     * @param dialogMessage Message to display in the dialog box
      *
-     * @param closeEditors  true to close any open table editors
+     * @param closeEditors  True to close any open table editors
      *
-     * @param tableTypes    list of tables types that are being changed; null or an empty list if the
+     * @param tableTypes    List of tables types that are being changed; null or an empty list if the
      *                      caller is not the table type editor
      *
      * @param parent        GUI component over which to center the confirmation dialog

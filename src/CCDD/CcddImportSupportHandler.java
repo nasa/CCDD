@@ -98,7 +98,7 @@ public class CcddImportSupportHandler
         /******************************************************************************************
          * Default application ID and command function code header table variable names constructor
          *
-         * @param defaultVariableName default variable name
+         * @param defaultVariableName Default variable name
          *****************************************************************************************/
         DefaultHeaderVariableName(String defaultVariableName)
         {
@@ -129,17 +129,17 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Add a table type column definition after verifying the input parameters
      *
-     * @param continueOnError  current state of the flag that indicates if all table type errors should
+     * @param continueOnError  Current state of the flag that indicates if all table type errors should
      *                         be ignored
      *
-     * @param tableTypeDefn    reference to the TableTypeDefinition to which this column definition
+     * @param tableTypeDefn    Reference to the TableTypeDefinition to which this column definition
      *                         applies
      *
-     * @param columnDefn       array containing the table type column definition
+     * @param columnDefn       Array containing the table type column definition
      *
-     * @param fileName         import file name
+     * @param fileName         Import file name
      *
-     * @param inputTypeHandler input type handler reference
+     * @param inputTypeHandler Input type handler reference
      *
      * @param parent           GUI component over which to center any error dialog
      *
@@ -210,7 +210,7 @@ public class CcddImportSupportHandler
      * the user to determine how to proceed (this check is unnecessary for table fields since the new
      * ones either replace existing ones or are ignored, based on the import flags)
      *
-     * @param continueOnError  current state of the flag that indicates if all data field errors should
+     * @param continueOnError  Current state of the flag that indicates if all data field errors should
      *                         be ignored
      *
      * @param replaceExisting  Replace any existing fields
@@ -218,13 +218,13 @@ public class CcddImportSupportHandler
      * @param defnContainer    TableDefinition, TableTypeDefinition, or projectDefinition object to
      *                         which this data field applies
      *
-     * @param fieldDefn        array containing the data field definition
+     * @param fieldDefn        Array containing the data field definition
      *
-     * @param fileName         import file name
+     * @param fileName         Import file name
      *
-     * @param inputTypeHandler input type handler reference
+     * @param inputTypeHandler Input type handler reference
      *
-     * @param fieldHandler     data field handler reference
+     * @param fieldHandler     Data field handler reference
      *
      * @param parent           GUI component over which to center any error dialog
      *
@@ -233,8 +233,11 @@ public class CcddImportSupportHandler
      * @throws CCDDException If the data field name is missing or the user elects to stop the import
      *                       operation due to an invalid input type
      *********************************************************************************************/
-    protected boolean addImportedDataFieldDefinition(boolean continueOnError, boolean replaceExisting,
-                                                     Object defnContainer, String[] fieldDefn, String fileName,
+    protected boolean addImportedDataFieldDefinition(boolean continueOnError,
+                                                     boolean replaceExisting,
+                                                     Object defnContainer,
+                                                     String[] fieldDefn,
+                                                     String fileName,
                                                      CcddInputTypeHandler inputTypeHandler,
                                                      CcddFieldHandler fieldHandler,
                                                      Component parent) throws CCDDException
@@ -408,9 +411,9 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Build the project-level and group data fields
      *
-     * @param fieldHandler data field handler reference
+     * @param fieldHandler Data field handler reference
      *
-     * @param dataFields   list containing the data field definitions from the import file
+     * @param dataFields   List containing the data field definitions from the import file
      *********************************************************************************************/
     protected void buildProjectAndGroupDataFields(CcddFieldHandler fieldHandler, List<String[]> dataFields)
     {
@@ -444,13 +447,13 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Add a group's information from the supplied group definition after verifying the input parameters
      *
-     * @param groupDefn             array containing the group definition
+     * @param groupDefn             Array containing the group definition
      *
-     * @param fileName              import file name
+     * @param fileName              Import file name
      *
-     * @param replaceExistingGroups true to replace existing group definitions
+     * @param replaceExistingGroups True to replace existing group definitions
      *
-     * @param groupHandler          group handler reference
+     * @param groupHandler          Group handler reference
      *
      * @throws CCDDException If the group name or member table list is missing
      *********************************************************************************************/
@@ -540,19 +543,19 @@ public class CcddImportSupportHandler
      * provided and the association doesn't already exist). If an association with the same name but
      * different script file or members exists allow the user to determine how to proceed
      *
-     * @param continueOnError             current state of the flag that indicates if all script
+     * @param continueOnError             Current state of the flag that indicates if all script
      *                                    association errors should be ignored
      *
-     * @param replaceExistingAssociations true to overwrite internal associations with those from the
+     * @param replaceExistingAssociations True to overwrite internal associations with those from the
      *                                    import file
      *
-     * @param associations                list of the current script associations
+     * @param associations                List of the current script associations
      *
-     * @param assnDefn                    array containing the script association
+     * @param assnDefn                    Array containing the script association
      *
-     * @param fileName                    import file name
+     * @param fileName                    Import file name
      *
-     * @param scriptHandler               script handler reference
+     * @param scriptHandler               Script handler reference
      *
      * @param parent                      GUI component over which to center any error dialog
      *
@@ -678,20 +681,20 @@ public class CcddImportSupportHandler
      * present in the import file. Based on the input flag build the project-level data fields for these
      * names
      *
-     * @param fieldHandler  data field handler reference
+     * @param fieldHandler  Data field handler reference
      *
-     * @param isCreateField true is the project-level data fields are to be created
+     * @param isCreateField True is the project-level data fields are to be created
      *
-     * @param tlmHdrTable   name of the structure table that represents the common header for all
+     * @param tlmHdrTable   Name of the structure table that represents the common header for all
      *                      telemetry tables; null if not present in the import file
      *
-     * @param cmdHdrTable   name of the structure table that represents the common header for all
+     * @param cmdHdrTable   Name of the structure table that represents the common header for all
      *                      command tables; null if not present in the import file
      *
-     * @param appIDName     telemetry and command header variable names for the application ID; null if
+     * @param appIDName     Telemetry and command header variable names for the application ID; null if
      *                      not present in the import file
      *
-     * @param funcCodeName  command header variable name for the command function code; null if not
+     * @param funcCodeName  Command header variable name for the command function code; null if not
      *                      present in the import file
      *********************************************************************************************/
     protected void setProjectHeaderTablesAndVariables(CcddFieldHandler fieldHandler, boolean isCreateField,
@@ -832,12 +835,12 @@ public class CcddImportSupportHandler
      * The user may elect to ignore the one instance of this type of error, all instances of this type
      * of error, or cancel the operation
      *
-     * @param continueOnError  current state of the flag that indicates if all errors of this type
+     * @param continueOnError  Current state of the flag that indicates if all errors of this type
      *                         should be ignored
      *
-     * @param message          text message to display
+     * @param message          Text message to display
      *
-     * @param title            title to display in the dialog window frame
+     * @param title            Title to display in the dialog window frame
      *
      * @param ignoreToolTip    Ignore button tool tip text; null if no tool tip is to be displayed
      *
@@ -864,12 +867,12 @@ public class CcddImportSupportHandler
      * an error condition. The user may elect to ignore the one instance of this type of error, all
      * instances of this type of error, or cancel the operation
      *
-     * @param continueOnError  current state of the flag that indicates if all errors of this type
+     * @param continueOnError  Current state of the flag that indicates if all errors of this type
      *                         should be ignored
      *
-     * @param message          text message to display
+     * @param message          Text message to display
      *
-     * @param title            title to display in the dialog window frame
+     * @param title            Title to display in the dialog window frame
      *
      * @param ignoreToolTip    Ignore button tool tip text; null if no tool tip is to be displayed
      *
@@ -877,7 +880,7 @@ public class CcddImportSupportHandler
      *
      * @param cancelToolTip    Cancel button tool tip text; null if no tool tip is to be displayed
      *
-     * @param noIgnore         true to not display the Ignore button
+     * @param noIgnore         True to not display the Ignore button
      *
      * @param parent           GUI component over which to center any error dialog
      *
@@ -917,7 +920,7 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Check input type definition parameters for validity
      *
-     * @param inputTypeDefn array containing the input type definition
+     * @param inputTypeDefn Array containing the input type definition
      *
      * @return The input type definition, with the regular expression built if the definition contains a
      *         selection item list
@@ -1007,7 +1010,7 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Check the supplied macro definition parameters for validity
      *
-     * @param macroDefn array containing the macro definition
+     * @param macroDefn Array containing the macro definition
      *
      * @return result Should macro be imported?
      *
@@ -1041,7 +1044,7 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Check the supplied data type definition parameters for validity
      *
-     * @param dataTypeDefn array containing the data type definition
+     * @param dataTypeDefn Array containing the data type definition
      *
      * @throws CCDDException If an invalid data type parameter is detected
      *********************************************************************************************/
@@ -1087,9 +1090,9 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Convert the primitive data type into the base equivalent
      *
-     * @param dataType        data type
+     * @param dataType        Data type
      *
-     * @param dataTypeHandler reference to the data type handler
+     * @param dataTypeHandler Reference to the data type handler
      *
      * @return Base primitive data type corresponding to the specified primitive data type; null if no
      *         match
@@ -1120,17 +1123,17 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Get the data type name determined by the specified data type size and match criteria
      *
-     * @param sizeInBytes     data type size in bytes
+     * @param sizeInBytes     Data type size in bytes
      *
-     * @param isInteger       true if the data type to match is an integer
+     * @param isInteger       True if the data type to match is an integer
      *
-     * @param isUnsigned      true if the data type to match is an unsigned integer
+     * @param isUnsigned      True if the data type to match is an unsigned integer
      *
-     * @param isFloat         true if the data type to match is a floating point
+     * @param isFloat         True if the data type to match is a floating point
      *
-     * @param isString        true if the data type to match is a character or string
+     * @param isString        True if the data type to match is a character or string
      *
-     * @param dataTypeHandler reference to the data type handler
+     * @param dataTypeHandler Reference to the data type handler
      *
      * @return The name of the data type from the existing data type definitions that matches the input
      *         criteria; null if there is no match
@@ -1176,7 +1179,7 @@ public class CcddImportSupportHandler
      * Replace each invalid character with an underscore and move any leading underscores to the end of
      * each path segment
      *
-     * @param path system path in the form {@literal <</>path1</path2<...>>}
+     * @param path System path in the form {@literal <</>path1</path2<...>>}
      *
      * @return Path with each invalid character replaced with an underscore and any leading underscores
      *         moved to the end of each path segment

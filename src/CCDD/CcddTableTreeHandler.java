@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddTableTreeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing the methods for creating and manipulating a data table tree. This class is
-*     an extension of the CcddCommonTreeHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTableTreeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing the methods for creating and manipulating a data table tree. This class
+ * is an extension of the CcddCommonTreeHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
@@ -195,50 +191,46 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     private final int GROUP_HEADER_LEVEL = 2;
-
     private boolean buildGroupTree;
-
-    private boolean updatingPreLoadedGroupRoot;
-
     private int allTablesNodeIndex;
 
     /**********************************************************************************************
      * Table tree handler class constructor
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param groupHandler      group handler
+     * @param groupHandler      Group handler
      *
-     * @param treeType          table tree type (TableTreeType)
+     * @param treeType          Table tree type (TableTreeType)
      *
-     * @param getDescriptions   true if the node descriptions are to be added as tool tips
+     * @param getDescriptions   True if the node descriptions are to be added as tool tips
      *
-     * @param sortByName        true to sort the child structures by variable name; false to show in the
-     *                          order defined in the structure
+     * @param sortByName        True to sort the child structures by variable name; false to show
+     *                          in the order defined in the structure
      *
-     * @param showGroupFilter   true to display the group filter check box
+     * @param showGroupFilter   True to display the group filter check box
      *
-     * @param showTypeFilter    true to display the type filter check box
+     * @param showTypeFilter    True to display the type filter check box
      *
-     * @param addHiddenCheckbox true to add a hidden check box under the filter check boxes for
+     * @param addHiddenCheckbox True to add a hidden check box under the filter check boxes for
      *                          alignment purposes
      *
-     * @param rateName          data stream rate column name used to filter the table tree for variables
-     *                          with rates
+     * @param rateName          Data stream rate column name used to filter the table tree for
+     *                          variables with rates
      *
-     * @param rateFilter        data rate used to filter the table tree for variables with rates
+     * @param rateFilter        Data rate used to filter the table tree for variables with rates
      *
-     * @param excludedVariables list of node paths to be excluded from the table; null or empty list if
-     *                          no exclusions
+     * @param excludedVariables List of node paths to be excluded from the table; null or empty
+     *                          list if no exclusions
      *
-     * @param isSilent          true if any errors when building the tree are not annunciated via a
+     * @param isSilent          True if any errors when building the tree are not annunciated via a
      *                          warning dialog
      *
-     * @param prototypeNodeName name of the prototype node; null to set the node to which the prototype
-     *                          node would normally belong as the prototype node
+     * @param prototypeNodeName Name of the prototype node; null to set the node to which the
+     *                          prototype node would normally belong as the prototype node
      *
-     * @param instanceNodeName  name of the instance node; null to set node to which the instance node
-     *                          would normally belong as the instance node
+     * @param instanceNodeName  Name of the instance node; null to set node to which the instance
+     *                          node would normally belong as the instance node
      *
      * @param skipMemberTables  Do not include the members of any root tables
      *
@@ -285,9 +277,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         isByGroup = false;
         isByType = false;
 
-        // This value is only used by the TableTreeHandler instantiated by CcddMain.java and NO ONE ELSE
+        // This value is only used by the TableTreeHandler instantiated by CcddMain.java and NO ONE
+        // ELSE
         buildGroupTree = false;
-        updatingPreLoadedGroupRoot = false;
 
         removeNodes = new ArrayList<ToolTipTreeNode>();
 
@@ -299,15 +291,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Table tree handler class constructor
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param groupHandler      group handler
+     * @param groupHandler      Group handler
      *
-     * @param treeType          table tree type (TableTreeType)
+     * @param treeType          Table tree type (TableTreeType)
      *
-     * @param showGroupFilter   true to display the group filter check box
+     * @param showGroupFilter   True to display the group filter check box
      *
-     * @param addHiddenCheckbox true to add a hidden check box under the filter check boxes for
+     * @param addHiddenCheckbox True to add a hidden check box under the filter check boxes for
      *                          alignment purposes
      *
      * @param parent            GUI component over which to center any error dialog
@@ -323,24 +315,25 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Table tree handler class constructor. Get just the tree information of the specified type
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param groupHandler      group handler
+     * @param groupHandler      Group handler
      *
-     * @param treeType          table tree type (TableTreeType)
+     * @param treeType          Table tree type (TableTreeType)
      *
-     * @param rateName          rate column name used to filter the table tree for variables with rates
+     * @param rateName          Rate column name used to filter the table tree for variables with
+     *                          rates
      *
-     * @param rateFilter        data rate used to filter the table tree for variables with rates
+     * @param rateFilter        Data rate used to filter the table tree for variables with rates
      *
-     * @param excludedVariables list of node paths to be excluded from the table; null or empty list if
-     *                          no exclusions
+     * @param excludedVariables List of node paths to be excluded from the table; null or empty
+     *                          list if no exclusions
      *
-     * @param prototypeNodeName name of the prototype node; null to set the node to which the prototype
-     *                          node would normally belong as the prototype node
+     * @param prototypeNodeName Name of the prototype node; null to set the node to which the
+     *                          prototype node would normally belong as the prototype node
      *
-     * @param instanceNodeName  name of the instance node; null to set node to which the instance node
-     *                          would normally belong as the instance node
+     * @param instanceNodeName  Name of the instance node; null to set node to which the instance
+     *                          node would normally belong as the instance node
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -356,17 +349,17 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Table tree handler class constructor
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param groupHandler      group handler
+     * @param groupHandler      Group handler
      *
-     * @param treeType          table tree type (TableTreeType)
+     * @param treeType          Table tree type (TableTreeType)
      *
-     * @param prototypeNodeName name of the prototype node; null to set the node to which the prototype
-     *                          node would normally belong as the prototype node
+     * @param prototypeNodeName Name of the prototype node; null to set the node to which the
+     *                          prototype node would normally belong as the prototype node
      *
-     * @param instanceNodeName  name of the instance node; null to set node to which the instance node
-     *                          would normally belong as the instance node
+     * @param instanceNodeName  Name of the instance node; null to set node to which the instance
+     *                          node would normally belong as the instance node
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -383,11 +376,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Structure variable tables and primitives retain their order of appearance in the table's
      * definition
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
-     * @param treeType table tree type (TableTreeType)
+     * @param treeType Table tree type (TableTreeType)
      *
-     * @param isSilent true if any errors when building the tree are not annunciated via a warning
+     * @param isSilent True if any errors when building the tree are not annunciated via a warning
      *                 dialog
      *
      * @param parent   GUI component over which to center any error dialog
@@ -404,9 +397,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Structure variable tables and primitives retain their order of appearance in the table's
      * definition
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
-     * @param treeType table tree type (TableTreeType)
+     * @param treeType Table tree type (TableTreeType)
      *
      * @param parent   GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -482,7 +475,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Replace the list of linked variables with the list provided
      *
-     * @param linkedVars list of linked variables
+     * @param linkedVars List of linked variables
      *********************************************************************************************/
     protected void setLinkedVariables(List<String> linkedVars)
     {
@@ -493,7 +486,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Set the list of excluded variables and update the node enable states
      *
-     * @param excludedVariables list of variables to be excluded from the tree
+     * @param excludedVariables List of variables to be excluded from the tree
      *********************************************************************************************/
     protected void setExcludedVariables(List<String> excludedVariables)
     {
@@ -539,7 +532,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Set the group handler reference
      *
-     * @param groupHandler reference to the group handler
+     * @param groupHandler Reference to the group handler
      *********************************************************************************************/
     protected void setGroupHandler(CcddGroupHandler groupHandler)
     {
@@ -549,7 +542,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Load the table information from the database and (re)build the table tree
      *
-     * @param parent component building this table tree
+     * @param parent Component building this table tree
      *********************************************************************************************/
     protected void buildTableTreeFromDatabase(Component parent)
     {
@@ -581,7 +574,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                       sortByName, parent);
         }
 
-        // Register the tool tip manager for the table tree (otherwise the tool tips aren't displayed)
+        // Register the tool tip manager for the table tree (otherwise the tool tips aren't
+        // displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 
         // Check that the table members loaded successfully
@@ -603,31 +597,23 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * (Re)build the table tree from the currently table information
      *
-     * @param isExpanded true if all tree nodes should be expanded, false to collapse all nodes, and
-     *                   null to use the current status of the expansion check box (if present; if not
-     *                   present then use false)
+     * @param isExpanded True if all tree nodes should be expanded, false to collapse all nodes,
+     *                   and null to use the current status of the expansion check box (if present;
+     *                   if not present then use false)
      *
-     * @param rateName   rate column name used to filter the table tree for variables with rates; null
-     *                   if the tree is not filtered by data rate
+     * @param rateName   Rate column name used to filter the table tree for variables with rates;
+     *                   null if the tree is not filtered by data rate
      *
-     * @param rateFilter data rate used to filter the table tree for variables with rates; null if the
-     *                   tree is not filtered by data rate
+     * @param rateFilter Data rate used to filter the table tree for variables with rates; null if
+     *                   the tree is not filtered by data rate
      *
-     * @param parent     component building this table tree
+     * @param parent     Component building this table tree
      *********************************************************************************************/
     protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged,
                                   Component parent)
     {
         if ((buildGroupTree == false) && (isByGroupChanged) && (isByGroup))
         {
-            // If we made it into this if statement then that means that updatePreLoadedGroupRoot() was
-            // called while the group root was already updating so this function should wait till it finishes
-            boolean updating = ccddMain.getTableTreeHandler().preLoadedGroupRootUpdating();
-            while (updating)
-            {
-                updating = ccddMain.getTableTreeHandler().preLoadedGroupRootUpdating();
-            }
-
             // Grab the pre-loaded group root
             root = ccddMain.getTableTreeHandler().getPreLoadedGroupRoot();
 
@@ -644,7 +630,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             this.rateFilter = rateFilter;
             boolean overRiddenIsByGroup = false;
 
-            // If we are building the group tree then override isByGroup for now. Will be restored later
+            // If we are building the group tree then override isByGroup for now. Will be restored
+            // later
             if (buildGroupTree)
             {
                 overRiddenIsByGroup = isByGroup;
@@ -732,7 +719,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // No prototype node name is provided
                         else
                         {
-                            // Assign the nodes that normally go in the prototype node to the group node
+                            // Assign the nodes that normally go in the prototype node to the group
+                            // node
                             prototype = groupNode;
                         }
                     }
@@ -752,7 +740,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // No instance node name is provided
                         else
                         {
-                            // Assign the nodes that normally go in the instance node to the group node
+                            // Assign the nodes that normally go in the instance node to the group
+                            // node
                             instance = groupNode;
                         }
                     }
@@ -866,14 +855,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                             .getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName()))
                             .size() != 0)
                     {
-                        // The node is disabled due to having no children. Re-enable the node since it
+                        // The node is disabled due to having no children. Re-enable the node since
+                        // it
                         // does have data fields
                         getNodeByNodeName(groupInfo.getName()).setUserObject(groupInfo.getName());
                     }
                 }
             }
 
-            // If we just finished building the group tree then we need to set the preLoadedGroupRoot
+            // If we just finished building the group tree then we need to set the
+            // preLoadedGroupRoot
             // and restore the original value of isByGroup.
             if (buildGroupTree == true)
             {
@@ -971,9 +962,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Add tables to the specified prototype and instance nodes based on table type
      *
-     * @param groupNode group node if filtering by group; null if not filtering by group
+     * @param groupNode Group node if filtering by group; null if not filtering by group
      *
-     * @param groupInfo reference to the group information is filtering also by group; null if not
+     * @param groupInfo Reference to the group information is filtering also by group; null if not
      *                  filtering by group
      *
      * @param parent    GUI component over which to center any error dialog
@@ -1092,14 +1083,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Starting with the specified node, traverse down its branch and flag as invalid any node where the
-     * name doesn't match one in the supplied list of tables. The match criteria accounts for filtering
-     * by type, by group, or by both type and group. A list of nodes to remove is created, based on the
-     * match criteria and the filter(s). This is a recursive method
+     * Starting with the specified node, traverse down its branch and flag as invalid any node
+     * where the name doesn't match one in the supplied list of tables. The match criteria accounts
+     * for filtering by type, by group, or by both type and group. A list of nodes to remove is
+     * created, based on the match criteria and the filter(s). This is a recursive method
      *
-     * @param validTables list of table names belonging to the filtered selection; null if no filtering
+     * @param validTables List of table names belonging to the filtered selection; null if no
+     *                    filtering
      *
-     * @param node        node to test for validity
+     * @param node        Node to test for validity
      *
      * @return true if the supplied node has a descendant that's in the valid tables list
      *********************************************************************************************/
@@ -1169,15 +1161,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Build the top-level nodes for the table tree (based on the selected filters). Remove any nodes
-     * that are flagged for removal based on the valid tables criteria and the type/group filters (if
-     * these are enabled)
+     * Build the top-level nodes for the table tree (based on the selected filters). Remove any
+     * nodes that are flagged for removal based on the valid tables criteria and the type/group
+     * filters (if these are enabled)
      *
-     * @param validTables list of table names belonging to the filtered selection; null if no filtering
+     * @param validTables List of table names belonging to the filtered selection; null if no
+     *                    filtering
      *
-     * @param instNode    parent node for the top-level nodes
+     * @param instNode    Parent node for the top-level nodes
      *
-     * @param protoNode   parent node for the prototype nodes
+     * @param protoNode   Parent node for the prototype nodes
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -1193,7 +1186,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             tableDescriptions = dbTable.queryTableDescriptions(parent);
         }
 
-        // if (otherMember.getDataTypes().contains(member.getTableName()) && !member.equals(otherMember))
+        // if (otherMember.getDataTypes().contains(member.getTableName()) &&
+        // !member.equals(otherMember))
         HashMap<TableMembers, HashSet<String>> tableMap = new HashMap<>();
 
         boolean isOptEngaged = true;
@@ -1222,8 +1216,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 // Set the flag if the member represents a ENUM
                 boolean isENUM = typeDefn.isENUM();
 
-                // Check if the member meets the criteria for inclusion in the tree: (1) structures-
-                // only or structures-with-primitives-only is specified and the member is a structure,
+                // Check if the member meets the criteria for inclusion in the tree: (1)
+                // structures-
+                // only or structures-with-primitives-only is specified and the member is a
+                // structure,
                 // or (2) commands-only is specified and the member is a command
                 if (((treeType != STRUCTURE_TABLES && treeType != STRUCTURES_WITH_PRIMITIVES
                       && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
@@ -1231,10 +1227,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                      || (isStructure || isENUM))
                     && (treeType != COMMAND_TABLES || isCommand))
                 {
-                    // Check if the member meets the criteria for inclusion in the prototypes node: (1) this
-                    // isn't the special structures with primitives tree type (normal prototype nodes are
-                    // excluded if it is), (2) prototype-structures-only or structures-only is specified
-                    // and the member is a structure, or (3) commands-only is specified and the member is a command
+                    // Check if the member meets the criteria for inclusion in the prototypes node:
+                    // (1) this
+                    // isn't the special structures with primitives tree type (normal prototype
+                    // nodes are
+                    // excluded if it is), (2) prototype-structures-only or structures-only is
+                    // specified
+                    // and the member is a structure, or (3) commands-only is specified and the
+                    // member is a command
                     if (treeType != STRUCTURES_WITH_PRIMITIVES && nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY
                         && ((treeType != PROTOTYPE_STRUCTURES && treeType != STRUCTURE_TABLES) || isStructure)
                         && (treeType != COMMAND_TABLES || isCommand))
@@ -1246,7 +1246,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                           : null));
                     }
 
-                    // Check if the member meets the criteria for inclusion in the instances tree: the
+                    // Check if the member meets the criteria for inclusion in the instances tree:
+                    // the
                     // tree type isn't only for prototype tables, only for prototype structures, or
                     // only for commands
                     if (treeType != PROTOTYPE_TABLES && treeType != PROTOTYPE_STRUCTURES && treeType != COMMAND_TABLES)
@@ -1260,8 +1261,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Step through each table
                         for (TableMembers otherMember : tableMembers)
                         {
-                            // Check if the current table has this table as a member, that the table
-                            // isn't referencing itself, and, if the tree is filtered by group, that
+                            // Check if the current table has this table as a member, that the
+                            // table
+                            // isn't referencing itself, and, if the tree is filtered by group,
+                            // that
                             // this table is a member of the group
                             if (isOptEngaged)
                             {
@@ -1272,7 +1275,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                     {
                                         if (memberDatatypes.contains(member.getTableName()))
                                         {
-                                            // Clear the flag indicating this is a root table and stop searching
+                                            // Clear the flag indicating this is a root table and
+                                            // stop searching
                                             isRoot = false;
                                             break;
                                         }
@@ -1284,15 +1288,18 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                 if (otherMember.getDataTypes().contains(member.getTableName())
                                     && !member.equals(otherMember))
                                 {
-                                    // Clear the flag indicating this is a root table and stop searching
+                                    // Clear the flag indicating this is a root table and stop
+                                    // searching
                                     isRoot = false;
                                     break;
                                 }
                             }
                         }
 
-                        // Check if this is a root table or the special structures with primitives tree
-                        // type. For the latter child nodes are created for non-root tables and placed
+                        // Check if this is a root table or the special structures with primitives
+                        // tree
+                        // type. For the latter child nodes are created for non-root tables and
+                        // placed
                         // in the prototype node
                         if (isRoot || treeType == STRUCTURES_WITH_PRIMITIVES)
                         {
@@ -1346,15 +1353,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Build the table tree nodes. This is a recursive method. In order to prevent an infinite loop, a
-     * check is made for a child node that exists in its own path; if found the recursion is terminated
-     * for that node
+     * Build the table tree nodes. This is a recursive method. In order to prevent an infinite
+     * loop, a check is made for a child node that exists in its own path; if found the recursion
+     * is terminated for that node
      *
      * @param thisMember TableMember class
      *
-     * @param parentNode current working node for the table tree
+     * @param parentNode Current working node for the table tree
      *
-     * @param childNode  new child node to add to the working node
+     * @param childNode  New child node to add to the working node
      *********************************************************************************************/
     long recursionCounter = 0;
     long recursionAccumulator = 0;
@@ -1389,7 +1396,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Add the child node to its parent
         parentNode.add(childNode);
 
-        // If we are skipping member tables than the function should only be called once and this will
+        // If we are skipping member tables than the function should only be called once and this
+        // will
         // end the recursion process
         if (skipMemberTables || thisMember.getTableType().contentEquals(TYPE_ENUM))
         {
@@ -1501,13 +1509,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the description for the specified table
      *
-     * @param tablePath root table and variable path for the table
+     * @param tablePath Root table and variable path for the table
      *
-     * @param dataType  table data type
+     * @param dataType  Table data type
      *
      * @return The description for this table. If this is an instance of a table and no specific
-     *         description exists for it then use the prototype table's description. If the prototype
-     *         table has no description then return null
+     *         description exists for it then use the prototype table's description. If the
+     *         prototype table has no description then return null
      *********************************************************************************************/
     protected String getTableDescription(String tablePath, String dataType)
     {
@@ -1543,15 +1551,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Search the entire table tree and get the list of paths where the node contains the search table's
-     * name. If no search name is provided then a list of all nodes is returned. The paths are in the
-     * form of comma-separated node names, with any HTML tags removed
+     * Search the entire table tree and get the list of paths where the node contains the search
+     * table's name. If no search name is provided then a list of all nodes is returned. The paths
+     * are in the form of comma-separated node names, with any HTML tags removed
      *
-     * @param searchName name of table to search for in the node names; null to get all paths for the
-     *                   parent node
+     * @param searchName Name of table to search for in the node names; null to get all paths for
+     *                   the parent node
      *
-     * @return List of paths to the nodes matching the search table's name, or all nodes if the search
-     *         name is null
+     * @return List of paths to the nodes matching the search table's name, or all nodes if the
+     *         search name is null
      *********************************************************************************************/
     protected List<String> getTableTreePathList(String searchName)
     {
@@ -1559,20 +1567,21 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Search the table tree starting at the specified node and get the list of paths where the node
-     * contains the search table's name. If no search name is provided then a list of all nodes is
-     * returned. The paths are in the form of comma-separated node names, with any HTML tags removed
+     * Search the table tree starting at the specified node and get the list of paths where the
+     * node contains the search table's name. If no search name is provided then a list of all
+     * nodes is returned. The paths are in the form of comma-separated node names, with any HTML
+     * tags removed
      *
-     * @param searchName name of table to search for in the node names; null to get all paths for the
-     *                   parent node
+     * @param searchName Name of table to search for in the node names; null to get all paths for
+     *                   the parent node
      *
-     * @param startNode  starting node
+     * @param startNode  Starting node
      *
-     * @param maxLevel   only paths that are at a level less than or equal to this value can be added to
-     *                   the list; -1 to to ignore the path level
+     * @param maxLevel   Only paths that are at a level less than or equal to this value can be
+     *                   added to the list; -1 to to ignore the path level
      *
-     * @return List of paths to the nodes matching the search table's name, or all nodes if the search
-     *         name is null
+     * @return List of paths to the nodes matching the search table's name, or all nodes if the
+     *         search name is null
      *********************************************************************************************/
     protected List<String> getTableTreePathList(String searchName, ToolTipTreeNode startNode, int maxLevel)
     {
@@ -1581,15 +1590,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
         List<String> variablePaths = new ArrayList<String>();
 
-        // Step through each path. If more than 1000 than do not even check if the current path is already
-        // in the list.
+        // Step through each path. If more than 1000 than do not even check if the current path is
+        // already in the list
         // Kills performance. TODO: Maybe turn this into a hashMap to avoid this issue?
         if (tablePathList.size() > 1000)
         {
             for (Object[] path : tablePathList)
             {
-                // Convert the path array to a string, stripping off the nodes names prior to the start index and
-                // the HTML tags
+                // Convert the path array to a string, stripping off the nodes names prior to the
+                // start index and the HTML tags
                 variablePaths.add(removeExtraText(createNameFromPath(path, getHeaderNodeLevel())));
             }
         }
@@ -1612,20 +1621,20 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Search the table tree starting at the specified node and get the list of path arrays where the
-     * node contains the search table's name. If no search name is provided then a list of all nodes is
-     * returned. The paths are in the form of arrays, with any HTML tags preserved
+     * Search the table tree starting at the specified node and get the list of path arrays where
+     * the node contains the search table's name. If no search name is provided then a list of all
+     * nodes is returned. The paths are in the form of arrays, with any HTML tags preserved
      *
-     * @param searchName name of table to search for in the node names; null to get all paths for the
-     *                   parent node
+     * @param searchName Name of table to search for in the node names; null to get all paths for
+     *                   the parent node
      *
-     * @param startNode  starting node
+     * @param startNode  Starting node
      *
-     * @param maxLevel   only paths that are at a level less than or equal to this value can be added to
-     *                   the list; -1 to to ignore the path level
+     * @param maxLevel   Only paths that are at a level less than or equal to this value can be
+     *                   added to the list; -1 to to ignore the path level
      *
-     * @return List of paths to the nodes matching the search table's name, or all nodes if the search
-     *         name is null
+     * @return List of paths to the nodes matching the search table's name, or all nodes if the
+     *         search name is null
      *********************************************************************************************/
     protected List<Object[]> getTableTreePathArray(String searchName, ToolTipTreeNode startNode, int maxLevel)
     {
@@ -1655,10 +1664,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Beginning with the root node, remove tree nodes that do not match the specified search text and
-     * are not an ancestor of a node that does contain a match.
+     * Beginning with the root node, remove tree nodes that do not match the specified search text
+     * and are not an ancestor of a node that does contain a match.
      *
-     * @param searchText text for which to search (regular expression is allowed)
+     * @param searchText Text for which to search (regular expression is allowed)
      *
      * @return List of paths for the nodes matching the search text; an empty list if there are no
      *         matches
@@ -1733,7 +1742,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Determine if the specified path exists in the table tree
      *
-     * @param targetPath name of the node to search for, in the form
+     * @param targetPath Name of the node to search for, in the form
      *                   rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]
      *
      * @return true if the target path exists in in the tree
@@ -1765,9 +1774,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the TreeNode for the node matching the specified node name (table name + variable name)
      *
-     * @param nodeName name of the node to search for, in the form tableName.variableName
+     * @param nodeName Name of the node to search for, in the form tableName.variableName
      *
-     * @return TreeNode for the specified node name; null if the node name doesn't exist in the tree
+     * @return TreeNode for the specified node name; null if the node name doesn't exist in the
+     *         tree
      *********************************************************************************************/
     protected ToolTipTreeNode getNodeByNodeName(String nodeName)
     {
@@ -1792,13 +1802,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get the TreeNode for the first node matching the specified node path name (table path + variable
-     * name), starting at the tree root node
+     * Get the TreeNode for the first node matching the specified node path name (table path +
+     * variable name), starting at the tree root node
      *
-     * @param nodePath path of the node to search for, in the form
+     * @param nodePath Path of the node to search for, in the form
      *                 rootTable,tableName.variableName(,...)
      *
-     * @return TreeNode for the specified node path; null if the node path doesn't exist in the tree
+     * @return TreeNode for the specified node path; null if the node path doesn't exist in the
+     *         tree
      *********************************************************************************************/
     protected ToolTipTreeNode getNodeByNodePath(String nodePath)
     {
@@ -1806,15 +1817,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get the TreeNode for the first node matching the specified node path name (table path + variable
-     * name), starting at the specified node
+     * Get the TreeNode for the first node matching the specified node path name (table path +
+     * variable name), starting at the specified node
      *
-     * @param nodePath  path of the node to search for, in the form
+     * @param nodePath  Path of the node to search for, in the form
      *                  rootTable,tableName.variableName(,...)
      *
-     * @param startNode node from which to begin
+     * @param startNode Node from which to begin
      *
-     * @return TreeNode for the specified node path; null if the node path doesn't exist in the tree
+     * @return TreeNode for the specified node path; null if the node path doesn't exist in the
+     *         tree
      *********************************************************************************************/
     protected ToolTipTreeNode getNodeByNodePath(String nodePath, ToolTipTreeNode startNode)
     {
@@ -1841,7 +1853,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the table name from the node name, removing the variable name if present
      *
-     * @param nodeName tree node name
+     * @param nodeName Tree node name
      *
      * @return Table name portion of the node name
      *********************************************************************************************/
@@ -1863,7 +1875,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the variable's root table from the specified node path
      *
-     * @param nodePath node path from which to obtain the variable's root table
+     * @param nodePath Node path from which to obtain the variable's root table
      *
      * @return The variable's root table for the specified node path
      *********************************************************************************************/
@@ -1888,13 +1900,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add the ancestor instance tables for each table path in the supplied list. Based on the input
-     * flag also add the prototype tables for every table and ancestor in the list. No duplicate table
-     * references are included in the list
+     * Add the ancestor instance tables for each table path in the supplied list. Based on the
+     * input flag also add the prototype tables for every table and ancestor in the list. No
+     * duplicate table references are included in the list
      *
-     * @param tablePaths               list containing the table paths in which to search
+     * @param tablePaths               List containing the table paths in which to search
      *
-     * @param includeAncestorPrototype true to also include the prototype for all instance tables
+     * @param includeAncestorPrototype True to also include the prototype for all instance tables
      *********************************************************************************************/
     protected void addTableAncestors(List<String> tablePaths, boolean includeAncestorPrototype)
     {
@@ -1947,9 +1959,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the tables (with their paths) represented by the selected nodes. If a header node
-     * (i.e., a non-table node, such as a group or type node) is selected then all of its child tables
-     * are added to the list. HTML tags are removed from the returned table path+names
+     * Get a list of the tables (with their paths) represented by the selected nodes. If a header
+     * node (i.e., a non-table node, such as a group or type node) is selected then all of its
+     * child tables are added to the list. HTML tags are removed from the returned table path+names
      *
      * @return List containing the table path+names of the selected node(s) with no duplicate table
      *         references and with any HTML tags removed
@@ -2021,14 +2033,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the specified table name(s), and include all descendant tables for those tables
-     * that are root structures. The node with the default instance node name is used to search for root
-     * table descendants. HTML tags are removed from the returned table path+names
+     * Get a list of the specified table name(s), and include all descendant tables for those
+     * tables that are root structures. The node with the default instance node name is used to
+     * search for root table descendants. HTML tags are removed from the returned table path+names
      *
-     * @param tables list of tables for which the descendants are required
+     * @param tables List of tables for which the descendants are required
      *
-     * @return List containing the table path+names of the specified table(s) with the descendants of
-     *         these tables (if applicable and any exist) and with any HTML tags removed
+     * @return List containing the table path+names of the specified table(s) with the descendants
+     *         of these tables (if applicable and any exist) and with any HTML tags removed
      *********************************************************************************************/
     protected List<String> getTablesWithChildren(List<String> tables)
     {
@@ -2071,13 +2083,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the tables (with their paths) represented by the selected nodes. If a header node
-     * (i.e., a non-table node one level above a table node, such as a group or type node) is selected
-     * then its descendants are checked, recursively, until the level containing tables is found; these
-     * tables are added to the list. If a selected node isn't a header node then ignore the node if it
-     * has a selected ancestor node. HTML tags are removed from the returned table path+names
+     * Get a list of the tables (with their paths) represented by the selected nodes. If a header
+     * node (i.e., a non-table node one level above a table node, such as a group or type node) is
+     * selected then its descendants are checked, recursively, until the level containing tables is
+     * found; these tables are added to the list. If a selected node isn't a header node then
+     * ignore the node if it has a selected ancestor node. HTML tags are removed from the returned
+     * table path+names
      *
-     * @return List containing the table path+names of the selected node(s) with any HTML tags removed
+     * @return List containing the table path+names of the selected node(s) with any HTML tags
+     *         removed
      *********************************************************************************************/
     protected List<String> getSelectedTablesWithoutChildren()
     {
@@ -2119,14 +2133,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the table names that are the descendants of the specified node (do not include any
-     * duplicates or children of these descendants, if any). HTML tags are removed from the returned
-     * table path+names. This is a recursive method
+     * Get a list of the table names that are the descendants of the specified node (do not include
+     * any duplicates or children of these descendants, if any). HTML tags are removed from the
+     * returned table path+names. This is a recursive method
      *
-     * @param node tree node for which to get the table names
+     * @param node Tree node for which to get the table names
      *
-     * @return List containing the table path+names of the specified node, excluding any duplicates and
-     *         children of these descendant tables, with any HTML tags removed
+     * @return List containing the table path+names of the specified node, excluding any duplicates
+     *         and children of these descendant tables, with any HTML tags removed
      *********************************************************************************************/
     protected List<String> getTablesWithoutChildren(ToolTipTreeNode node)
     {
@@ -2223,7 +2237,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the root structure and variable path for the selected node(s)
      *
-     * @param isVariable true if the tree contains variables
+     * @param isVariable True if the tree contains variables
      *
      * @return List containing the path array(s) for the selected variable(s)
      *********************************************************************************************/
@@ -2247,15 +2261,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of full node paths for all nodes that represent a primitive variable, starting at the
-     * specified node. Disabled nodes may be ignored if desired
+     * Get a list of full node paths for all nodes that represent a primitive variable, starting at
+     * the specified node. Disabled nodes may be ignored if desired
      *
-     * @param startNode      starting node from which to build the variable list
+     * @param startNode      Starting node from which to build the variable list
      *
-     * @param ignoreDisabled true to ignore nodes that are flagged as disabled (via HTML color tag)
+     * @param ignoreDisabled True to ignore nodes that are flagged as disabled (via HTML color tag)
      *
-     * @return List containing the full node paths for all nodes that represent a primitive variable,
-     *         starting with the specified node
+     * @return List containing the full node paths for all nodes that represent a primitive
+     *         variable, starting with the specified node
      *********************************************************************************************/
     protected List<String> getPrimitiveVariablePaths(DefaultMutableTreeNode startNode, boolean ignoreDisabled)
     {
@@ -2292,8 +2306,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Update the text color for the nodes that represent a primitive variable based on the variable
-     * exclusion list
+     * Update the text color for the nodes that represent a primitive variable based on the
+     * variable exclusion list
      *********************************************************************************************/
     private void setNodeEnableByExcludeList()
     {
@@ -2353,7 +2367,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Set the node text color based on the enable state of its child nodes. If all children are
      * disabled then disable the parent, otherwise enable the parent. This is a recursive method
      *
-     * @param node node for which to adjust the text and color
+     * @param node Node for which to adjust the text and color
      *
      * @return true if the node is enabled; false if disabled
      *********************************************************************************************/
@@ -2412,14 +2426,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Create a table tree panel. The table tree is placed in a scroll pane. A check box is added that
-     * allows tree expansion/collapse
+     * Create a table tree panel. The table tree is placed in a scroll pane. A check box is added
+     * that allows tree expansion/collapse
      *
-     * @param label            table tree title; null to not display a title
+     * @param label            Table tree title; null to not display a title
      *
-     * @param selectionMode    tree item selection mode (single versus multiple)
+     * @param selectionMode    Tree item selection mode (single versus multiple)
      *
-     * @param isAllowHighlight true to allow highlighting of text in the node names
+     * @param isAllowHighlight True to allow highlighting of text in the node names
      *
      * @param parent           GUI component over which to center any error dialog
      *
@@ -2715,13 +2729,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             });
         }
 
-        // In order to align the two adjacent trees a phantom check box may be needed
-        // for the table
+        // In order to align the two adjacent trees a phantom check box may be needed for the table
         // tree panel. Check if the flag is set to add this check box
         if (addHiddenCheckBox)
         {
-            // Create the hidden check box. To prevent display of the check box components
-            // an empty
+            // Create the hidden check box. To prevent display of the check box components an empty
             // panel is placed over it
             JPanel hiddenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
             hiddenPnl.setBorder(emptyBorder);
@@ -2741,9 +2753,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Returns preLoadedGroupRoot.
-     *
-     * THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler INSTANTIATED IN ccddMain.java
+     * Returns preLoadedGroupRoot. THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler
+     * INSTANTIATED IN ccddMain.java
      *********************************************************************************************/
     public ToolTipTreeNode getPreLoadedGroupRoot()
     {
@@ -2751,42 +2762,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Updates preLoadedGroupRoot.
-     *
-     * THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler INSTANTIATED IN ccddMain.java
+     * Updates preLoadedGroupRoot. THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler
+     * INSTANTIATED IN ccddMain.java
      *********************************************************************************************/
     public void updatePreLoadedGroupRoot()
     {
-        if (!updatingPreLoadedGroupRoot)
-        {
-            updatingPreLoadedGroupRoot = true;
-
-            // Update the pre-loaded table members in the background
-            CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
-            {
-                /**************************************************************************************
-                 * Import the selected data
-                 *************************************************************************************/
-                @Override
-                protected void execute()
-                {
-                    buildGroupTree = true;
-                    buildTableTree(false, rateName, rateFilter, false, ccddMain.getMainFrame());
-                    updatingPreLoadedGroupRoot = false;
-                    buildGroupTree = false;
-                }
-            });
-        }
-    }
-
-    /**********************************************************************************************
-     * Returns boolean representing if the pre-loaded group root is currently updating.
-     *
-     * THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler INSTANTIATED IN ccddMain.java
-     *********************************************************************************************/
-    public boolean preLoadedGroupRootUpdating()
-    {
-        return updatingPreLoadedGroupRoot;
+            // Update the pre-loaded table members
+            buildGroupTree = true;
+            buildTableTree(false, rateName, rateFilter, false, ccddMain.getMainFrame());
+            buildGroupTree = false;
     }
 
     /**********************************************************************************************

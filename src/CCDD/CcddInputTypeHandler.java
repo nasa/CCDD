@@ -88,13 +88,13 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Variable (command) reference class constructor
          *
-         * @param columnDb      column name (as used in the database) having the variable (command)
+         * @param columnDb      Column name (as used in the database) having the variable (command)
          *                      reference input type
          *
-         * @param columnVisible column name (as seen by the user) having the variable (command) reference
+         * @param columnVisible Column name (as seen by the user) having the variable (command) reference
          *                      input type
          *
-         * @param tables        array of prototype structure (command) tables of the table type having a
+         * @param tables        Array of prototype structure (command) tables of the table type having a
          *                      column with the variable (command) reference input type
          *****************************************************************************************/
         InputTypeReference(String columnDb, String columnVisible, String[] tables)
@@ -147,10 +147,10 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Input type reference check results class constructor
          *
-         * @param references       list of references in the table type and data field internal tables that
+         * @param references       List of references in the table type and data field internal tables that
          *                         use the input type
          *
-         * @param isRefFieldChange true to indicate that a data field is using the input type
+         * @param isRefFieldChange True to indicate that a data field is using the input type
          *****************************************************************************************/
         ReferenceCheckResults(List<InputTypeReference> references, boolean isRefFieldChange)
         {
@@ -184,7 +184,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Input type handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddInputTypeHandler(CcddMain ccddMain)
     {
@@ -205,7 +205,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Input type handler class constructor
      *
-     * @param inputTypesArray array of custom input type definitions
+     * @param inputTypesArray Array of custom input type definitions
      *********************************************************************************************/
     CcddInputTypeHandler(String[][] inputTypesArray)
     {
@@ -221,7 +221,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Check if the an input type exists with the specified name
      *
-     * @param inputTypeName input type name to match (case insensitive)
+     * @param inputTypeName Input type name to match (case insensitive)
      *
      * @return true if an input exists with the specified name
      *********************************************************************************************/
@@ -233,9 +233,9 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Check if the two input types differ
      *
-     * @param inputTypeA first input type to compare
+     * @param inputTypeA First input type to compare
      *
-     * @param inputTypeB second input type to compare
+     * @param inputTypeB Second input type to compare
      *
      * @return true if the input types differ
      *********************************************************************************************/
@@ -263,7 +263,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Set the input types by combining the default types with those in the supplied array
      *
-     * @param customInputTypes array containing the custom input type definitions
+     * @param customInputTypes Array containing the custom input type definitions
      *********************************************************************************************/
     protected void setInputTypeData(String[][] customInputTypes)
     {
@@ -454,7 +454,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Get the input type with the name that matches the one specified
      *
-     * @param inputTypeName input type name to match (case insensitive)
+     * @param inputTypeName Input type name to match (case insensitive)
      *
      * @return Input type with the name that matches the one specified; returns the input type for text
      *         if the input type doesn't exist
@@ -477,7 +477,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Get the input type with the name that matches that of the specified default input type
      *
-     * @param defaultInputType default input type to match (DefaultInputType)
+     * @param defaultInputType Default input type to match (DefaultInputType)
      *
      * @return Input type with the name that matches the one specified; returns the input type for text
      *         if the input type doesn't exist
@@ -501,7 +501,7 @@ public class CcddInputTypeHandler
      * Convert the supplied input selection item string to the corresponding input match regular
      * expression
      *
-     * @param itemString string containing the acceptable values for this input type, separated by the
+     * @param itemString String containing the acceptable values for this input type, separated by the
      *                   selection item list separator; null or blank if the input type doesn't
      *                   constrain the inputs to items from a list
      *
@@ -551,7 +551,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Get an array of the input type names (all or user-defined only), excluding separators and breaks
      *
-     * @param customOnly true to only include user-defined input types; false to include all input types
+     * @param customOnly True to only include user-defined input types; false to include all input types
      *
      * @return Array of all or only user-defined input type names, sorted alphabetically; an empty list
      *         if no user-defined input types are defined and only user-defined types are requested
@@ -620,11 +620,11 @@ public class CcddInputTypeHandler
      * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
      * and floating point values
      *
-     * @param valueS         value, represented as a string, to reformat
+     * @param valueS         Value, represented as a string, to reformat
      *
-     * @param inputFormat    input type format (InputTypeFormat)
+     * @param inputFormat    Input type format (InputTypeFormat)
      *
-     * @param preserveZeroes true to preserve leading zeroes in hexadecimal values; false to eliminate
+     * @param preserveZeroes True to preserve leading zeroes in hexadecimal values; false to eliminate
      *                       the extra zeroes (this is useful when comparing the text representation of
      *                       two hexadecimal values)
      *
@@ -738,7 +738,7 @@ public class CcddInputTypeHandler
      * input type name. Only the columns containing input types in the table type and data field
      * internal tables are searched
      *
-     * @param inputTypeName input type name for which to search
+     * @param inputTypeName Input type name for which to search
      *
      * @param parent        GUI component over which to center any error dialog
      *
@@ -761,7 +761,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Add new input types and check for matches with existing ones
      *
-     * @param inputTypeDefinitions list of input type definitions
+     * @param inputTypeDefinitions List of input type definitions
      *
      * @throws CCDDException If an input type with the same same already exists and the imported type
      *                       doesn't match
@@ -811,7 +811,7 @@ public class CcddInputTypeHandler
      * Get the results of a search for references in the table type and data field internal tables for
      * the specified default input type
      *
-     * @param inputType default input type for which to search (DefaultInputType)
+     * @param inputType Default input type for which to search (DefaultInputType)
      *
      * @param parent    GUI component over which to center any error dialog
      *

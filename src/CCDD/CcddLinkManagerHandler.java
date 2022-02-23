@@ -131,13 +131,13 @@ public class CcddLinkManagerHandler
     /**********************************************************************************************
      * Link manager handler class constructor
      *
-     * @param ccddMain       main class
+     * @param ccddMain       Main class
      *
-     * @param linkDialog     reference to the link manager dialog that created this link manager handler
+     * @param linkDialog     Reference to the link manager dialog that created this link manager handler
      *
-     * @param rateName       data stream rate column name
+     * @param rateName       Data stream rate column name
      *
-     * @param availableRates array of sample rates available to this stream
+     * @param availableRates Array of sample rates available to this stream
      *********************************************************************************************/
     CcddLinkManagerHandler(CcddMain ccddMain, CcddLinkManagerDialog linkDialog, String rateName,
                            String[] availableRates)
@@ -154,7 +154,7 @@ public class CcddLinkManagerHandler
      * Set the link manager initialization flag. When true this prevents the link manager dialog's
      * update indicator from being updated
      *
-     * @param enable true is the link manager is initializing
+     * @param enable True is the link manager is initializing
      *********************************************************************************************/
     protected void setInitializing(boolean enable)
     {
@@ -164,7 +164,7 @@ public class CcddLinkManagerHandler
     /**********************************************************************************************
      * Set the rate filter
      *
-     * @param rate rate filter
+     * @param rate Rate filter
      *********************************************************************************************/
     protected void setRateFilter(String rate)
     {
@@ -253,7 +253,7 @@ public class CcddLinkManagerHandler
     /**********************************************************************************************
      * Create the variable link manager dialog
      *
-     * @param availableRates array of sample rates available to this stream
+     * @param availableRates Array of sample rates available to this stream
      *********************************************************************************************/
     private void initialize(String[] availableRates)
     {
@@ -372,9 +372,9 @@ public class CcddLinkManagerHandler
             /******************************************************************************
              * Update the link name following a node name change undo or redo operation
              *
-             * @param wasValue link name prior to the undo/redo operation
+             * @param wasValue Link name prior to the undo/redo operation
              *
-             * @param isValue  link name after the undo/redo operation
+             * @param isValue  Link name after the undo/redo operation
              *****************************************************************************/
             @Override
             protected void nodeRenameCleanup(Object wasValue, Object isValue)
@@ -752,9 +752,9 @@ public class CcddLinkManagerHandler
      * enable/disable the dialog's buttons that apply only if a single link is selected based on if a
      * valid link name is provided
      *
-     * @param linkName name of the selected link; null if no link or more than one link is selected
+     * @param linkName Name of the selected link; null if no link or more than one link is selected
      *
-     * @param canCopy  true if the copy operation is allowed (i.e., one or more links is selected)
+     * @param canCopy  True if the copy operation is allowed (i.e., one or more links is selected)
      *********************************************************************************************/
     private void setLinkAndFields(String linkName, boolean canCopy)
     {
@@ -953,7 +953,7 @@ public class CcddLinkManagerHandler
      * Add the selected variable(s) in the variable tree to the selected link definition(s) in the link
      * tree
      *
-     * @param linkName name of the link to which to add the variable(s)
+     * @param linkName Name of the link to which to add the variable(s)
      *********************************************************************************************/
     private void addVariableToLink(String linkName)
     {
@@ -975,7 +975,7 @@ public class CcddLinkManagerHandler
     /**********************************************************************************************
      * Remove the selected variable(s) from the link and reenable them in the variable tree
      *
-     * @param linkNames array containing the name(s) of the link(s) from which to remove the variable(s)
+     * @param linkNames Array containing the name(s) of the link(s) from which to remove the variable(s)
      *********************************************************************************************/
     private void removeVariableFromLink(String[] linkNames)
     {
@@ -1018,7 +1018,7 @@ public class CcddLinkManagerHandler
     /**********************************************************************************************
      * Clean up the links following the addition or deletion of a variable
      *
-     * @param linkNames array containing the name of the link(s) to be updated; null to perform the
+     * @param linkNames Array containing the name of the link(s) to be updated; null to perform the
      *                  cleaning but without updating the link fields
      *********************************************************************************************/
     private void cleanUpLinks(String[] linkNames)

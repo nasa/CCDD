@@ -71,7 +71,7 @@ public class CcddWebServer
     /**********************************************************************************************
      * Web server class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddWebServer(CcddMain ccddMain)
     {
@@ -281,11 +281,11 @@ public class CcddWebServer
          * Create the log message from the input information and output the formatted message to the log
          * file
          *
-         * @param type message type
+         * @param type Message type
          *
-         * @param msg  message contents; may be null
+         * @param msg  Message contents; may be null
          *
-         * @param args message arguments; may be null
+         * @param args Message arguments; may be null
          *****************************************************************************************/
         private void logOutput(String type, String msg, Object... args)
         {

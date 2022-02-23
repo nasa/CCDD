@@ -83,11 +83,11 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Table type manager dialog class constructor
      *
-     * @param ccddMain     main class
+     * @param ccddMain     Main class
      *
-     * @param editorDialog reference to the type editor dialog dialog
+     * @param editorDialog Reference to the type editor dialog dialog
      *
-     * @param dialogType   type manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
+     * @param dialogType   Type manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
      *********************************************************************************************/
     CcddTableTypeManagerDialog(CcddMain ccddMain, CcddTableTypeEditorDialog editorDialog, ManagerDialogType dialogType)
     {
@@ -118,12 +118,12 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of a table type management operation
      *
-     * @param commandError     false if the database commands successfully completed; true if an error
+     * @param commandError     False if the database commands successfully completed; true if an error
      *                         occurred and the changes were not made
      *
-     * @param fieldDefinitions list of field definitions; null if this is not a copy operation
+     * @param fieldDefinitions List of field definitions; null if this is not a copy operation
      *
-     * @param tableNames       array of deleted table names; null if this is not a delete operation
+     * @param tableNames       Array of deleted table names; null if this is not a delete operation
      *********************************************************************************************/
     protected void doTypeOperationComplete(boolean commandError, List<String[]> fieldDefinitions, String[] tableNames)
     {
@@ -323,13 +323,13 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add a type name field to the dialog
      *
-     * @param labelText  text to display beside the input field
+     * @param labelText  Text to display beside the input field
      *
-     * @param intialName text to initially display in the name field
+     * @param intialName Text to initially display in the name field
      *
-     * @param dialogPnl  panel to which to add the input field
+     * @param dialogPnl  Panel to which to add the input field
      *
-     * @param dialogGbc  dialog panel GridBagLayout layout constraints
+     * @param dialogGbc  Dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
     private void addTypeNameField(String labelText, String intialName, JPanel dialogPnl, GridBagConstraints dialogGbc)
     {

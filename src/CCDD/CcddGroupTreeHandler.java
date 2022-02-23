@@ -114,14 +114,14 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Group tree handler class constructor
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param undoHandler       reference to the undo handler
+     * @param undoHandler       Reference to the undo handler
      *
-     * @param scheduleRate      string value representing a schedule rate used to filter the groups that
+     * @param scheduleRate      String value representing a schedule rate used to filter the groups that
      *                          may be selected; null or blank if not filtering
      *
-     * @param isApplicationOnly true if only groups that represent CFS applications should be displayed
+     * @param isApplicationOnly True if only groups that represent CFS applications should be displayed
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -136,9 +136,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Group tree handler class constructor
      *
-     * @param ccddMain    main class
+     * @param ccddMain    Main class
      *
-     * @param undoHandler reference to the undo handler
+     * @param undoHandler Reference to the undo handler
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -150,9 +150,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Perform initialization steps prior to building the group tree
      *
-     * @param ccddMain         main class
+     * @param ccddMain         Main class
      *
-     * @param groupDefinitions list containing the group definitions
+     * @param groupDefinitions List containing the group definitions
      *********************************************************************************************/
     @Override
     protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> groupDefinitions)
@@ -238,13 +238,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * Add a new node to the tree's root node, or the application node is filtering by application is
      * active. Add the table types as nodes to the new node depending on the supplied flag
      *
-     * @param nodeName        name of the node to add
+     * @param nodeName        Name of the node to add
      *
-     * @param toolTipText     tool tip text for the new node
+     * @param toolTipText     Tool tip text for the new node
      *
-     * @param isApp           true if the group represents a CFS application
+     * @param isApp           True if the group represents a CFS application
      *
-     * @param isAddTableTypes true if nodes with the names of the table types should be added to the new
+     * @param isAddTableTypes True if nodes with the names of the table types should be added to the new
      *                        node
      *
      * @return Array of table type nodes added to the group node; null if the table type nodes aren't
@@ -280,12 +280,12 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the group tree
      *
-     * @param filterByApp       true if the tree is filtered by application status
+     * @param filterByApp       True if the tree is filtered by application status
      *
-     * @param scheduleRate      schedule rate used to filter the groups; blank or null if not filtering
+     * @param scheduleRate      Schedule rate used to filter the groups; blank or null if not filtering
      *                          by schedule rate
      *
-     * @param isApplicationOnly true to only display groups that represent a CFS application
+     * @param isApplicationOnly True to only display groups that represent a CFS application
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -449,9 +449,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the group tree following a change in the group's application status
      *
-     * @param groupName     name of the group with the application status change
+     * @param groupName     Name of the group with the application status change
      *
-     * @param isApplication true if the group represents a CFS application
+     * @param isApplication True if the group represents a CFS application
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -531,11 +531,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Add the specified table(s) to the specified group node(s)
      *
-     * @param node       parent information node for this table
+     * @param node       Parent information node for this table
      *
-     * @param sourcePath array containing the source node path
+     * @param sourcePath Array containing the source node path
      *
-     * @param startIndex tree level at which the table names first appear in the array
+     * @param startIndex Tree level at which the table names first appear in the array
      *********************************************************************************************/
     @Override
     protected void addNodeToInfoNode(ToolTipTreeNode node, Object[] sourcePath, int startIndex)
@@ -625,9 +625,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Add a copy of the specified group information object to the group information list
      *
-     * @param groupToCopy group information object to copy
+     * @param groupToCopy Group information object to copy
      *
-     * @param nameOfCopy  name of the copy of the group
+     * @param nameOfCopy  Name of the copy of the group
      *********************************************************************************************/
     @Override
     protected void addInformation(Object groupToCopy, String nameOfCopy)
@@ -716,9 +716,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * Set the node text color based on the currently selected schedule rate and the rate of the group
      * to which the node belongs: black for a match and gray for a mismatch
      *
-     * @param startNode starting node for which to adjust the text and color
+     * @param startNode Starting node for which to adjust the text and color
      *
-     * @param excludes  list of groups names to be excluded (group name is grayed out in the tree)
+     * @param excludes  List of groups names to be excluded (group name is grayed out in the tree)
      *********************************************************************************************/
     protected void adjustNodeText(ToolTipTreeNode startNode, List<String> excludes)
     {
@@ -809,9 +809,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * Add the specified node to the list of item nodes if it represents an item. If this is a header
      * node then get the item nodes from the header's child nodes. This is a recursive method
      *
-     * @param node      node to add to the list if the node represents an item, or a header node
+     * @param node      Node to add to the list if the node represents an item, or a header node
      *
-     * @param itemNodes list containing the item nodes
+     * @param itemNodes List containing the item nodes
      *
      * @return List containing the item nodes
      *********************************************************************************************/
@@ -841,11 +841,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * Create a group tree panel. The table tree is placed in a scroll pane. A check box is added that
      * allows tree expansion/collapse
      *
-     * @param label         group tree title
+     * @param label         Group tree title
      *
-     * @param selectionMode tree item selection mode (single versus multiple)
+     * @param selectionMode Tree item selection mode (single versus multiple)
      *
-     * @param noFilters     true to not display the filter check boxes
+     * @param noFilters     True to not display the filter check boxes
      *
      * @param parent        GUI component over which to center any error dialog
      *

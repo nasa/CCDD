@@ -171,23 +171,23 @@ public class CcddCommandLineHandler
          * Individual command line argument handler class constructor for commands with a fixed set of valid
          * options
          *
-         * @param command     command name
+         * @param command     Command name
          *
-         * @param description command description
+         * @param description Command description
          *
-         * @param value       permissible values for this command
+         * @param value       Permissible values for this command
          *
-         * @param type        command type: CommandLineType.NAME, CommandLineType.MINMAX,
+         * @param type        Command type: CommandLineType.NAME, CommandLineType.MINMAX,
          *                    CommandLineType.SIZE, CommandLineType.COLOR, or CommandLineType.OPTION
          *
-         * @param priority    order in which the command line argument should be executed relative to the
+         * @param priority    Order in which the command line argument should be executed relative to the
          *                    other commands (a command with a lower priority number is executed prior to
          *                    one with a higher number; commands with the same priority are executed in the
          *                    order they appear on the command line
          *
-         * @param conditions  array of output parameters associated with each input option
+         * @param conditions  Array of output parameters associated with each input option
          *
-         * @param options     array of valid input options
+         * @param options     Array of valid input options
          *
          * @param subArgument List of this commands sub-argument definitions
          *****************************************************************************************/
@@ -208,23 +208,23 @@ public class CcddCommandLineHandler
          * Individual command line argument handler class constructor for commands with a fixed set of valid
          * options
          *
-         * @param command     command name
+         * @param command     Command name
          *
-         * @param description command description
+         * @param description Command description
          *
-         * @param value       permissible values for this command
+         * @param value       Permissible values for this command
          *
-         * @param type        command type: CommandLineType.NAME, CommandLineType.MINMAX,
+         * @param type        Command type: CommandLineType.NAME, CommandLineType.MINMAX,
          *                    CommandLineType.SIZE, CommandLineType.COLOR, or CommandLineType.OPTION
          *
-         * @param priority    order in which the command line argument should be executed relative to the
+         * @param priority    Order in which the command line argument should be executed relative to the
          *                    other commands (a command with a lower priority number is executed prior to
          *                    one with a higher number; commands with the same priority are executed in the
          *                    order they appear on the command line
          *
-         * @param conditions  array of output parameters associated with each input option
+         * @param conditions  Array of output parameters associated with each input option
          *
-         * @param options     array of valid input options
+         * @param options     Array of valid input options
          *****************************************************************************************/
         protected CommandHandler(String command, String description, String value, CommandLineType type, int priority,
                                  Object[] conditions, String[] options)
@@ -236,15 +236,15 @@ public class CcddCommandLineHandler
          * Individual command line argument handler class constructor for commands having no limit values or
          * fixed set of options
          *
-         * @param command     command name
+         * @param command     Command name
          *
-         * @param description command description
+         * @param description Command description
          *
-         * @param value       permissible values for this command
+         * @param value       Permissible values for this command
          *
-         * @param type        command type: CmdType.NAME, or CmdType.COLOR
+         * @param type        Command type: CmdType.NAME, or CmdType.COLOR
          *
-         * @param priority    order in which the command line argument should be executed relative to the
+         * @param priority    Order in which the command line argument should be executed relative to the
          *                    other commands (a command with a lower priority number is executed prior to
          *                    one with a higher number; commands with the same priority are executed in the
          *                    order they appear on the command line
@@ -258,15 +258,15 @@ public class CcddCommandLineHandler
          * Individual command line argument handler class constructor for commands having no limit values or
          * fixed set of options
          *
-         * @param command      command name
+         * @param command      Command name
          *
-         * @param description  command description
+         * @param description  Command description
          *
-         * @param value        permissible values for this command
+         * @param value        Permissible values for this command
          *
-         * @param type         command type: CmdType.NAME, or CmdType.COLOR
+         * @param type         Command type: CmdType.NAME, or CmdType.COLOR
          *
-         * @param priority     order in which the command line argument should be executed relative to the
+         * @param priority     Order in which the command line argument should be executed relative to the
          *                     other commands (a command with a lower priority number is executed prior to
          *                     one with a higher number; commands with the same priority are executed in the
          *                     order they appear on the command line
@@ -282,20 +282,20 @@ public class CcddCommandLineHandler
         /******************************************************************************************
          * Individual command line argument handler class constructor for commands with value limits
          *
-         * @param command     command name
+         * @param command     Command name
          *
-         * @param description command description
+         * @param description Command description
          *
-         * @param value       permissible values for this command
+         * @param value       Permissible values for this command
          *
-         * @param type        command type: CmdType.MINMAX or CmdType.SIZE
+         * @param type        Command type: CmdType.MINMAX or CmdType.SIZE
          *
-         * @param priority    order in which the command line argument should be executed relative to the
+         * @param priority    Order in which the command line argument should be executed relative to the
          *                    other commands (a command with a lower priority number is executed prior to
          *                    one with a higher number; commands with the same priority are executed in the
          *                    order they appear on the command line
          *
-         * @param conditions  array of limit values
+         * @param conditions  Array of limit values
          *****************************************************************************************/
         protected CommandHandler(String command, String description, String value, CommandLineType type, int priority,
                                  Object[] conditions)
@@ -326,7 +326,7 @@ public class CcddCommandLineHandler
         /******************************************************************************************
          * Command line argument handler
          *
-         * @param parm command parameter
+         * @param parm Command parameter
          *
          * @throws Exception If a command parameter is invalid
          *****************************************************************************************/
@@ -373,7 +373,7 @@ public class CcddCommandLineHandler
         /******************************************************************************************
          * Placeholder for command type specific handler
          *
-         * @param parmVal command parameter
+         * @param parmVal Command parameter
          *
          * @throws Exception If an error occurs executing a command
          *****************************************************************************************/
@@ -385,9 +385,9 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Command line argument handler class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *
-     * @param args     array of command line arguments and associated parameters
+     * @param args     Array of command line arguments and associated parameters
      *********************************************************************************************/
     CcddCommandLineHandler(final CcddMain ccddMain, String[] args)
     {
@@ -905,14 +905,10 @@ public class CcddCommandLineHandler
                     }
                 }
 
-                // Set the script output path, in case it's been changed by a command line
-                // command.
-                // If the script is executed in the background then when it completes execution
-                // the
-                // script output path is restored to the program start-up value. Therefore it's
-                // set
-                // to the value as updated via command line command prior to each execution
-                // command
+                // Set the script output path, in case it's been changed by a command line command.
+                // If the script is executed in the background then when it completes execution the
+                // script output path is restored to the program start-up value. Therefore it's set
+                // to the value as updated via command line command prior to each execution command
                 CcddFileIOHandler.storePath(ccddMain, scriptOutPath, false, ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
 
                 // Check if the GUI isn't displayed
@@ -1089,7 +1085,7 @@ public class CcddCommandLineHandler
              * Example: -fileName "/path/to/fileA+fileB+subPath/fileC" specifies files /path/to/fileA,
              * /path/to/fileB, and /path/to/subPath/fileC.
              *
-             * Multiple path groups can be specified by separating each grouping with a semi-colon (;).
+             * Multiple path groups can be specified by separating each grouping with a semicolon (;).
              *
              * Example: -fileName "/path1/to/fileA+fileB;/path2/to/fileC" specifies files /path1/to/fileA,
              * /path1/to/fileB, and /path2/to/fileC.
@@ -1205,8 +1201,8 @@ public class CcddCommandLineHandler
         // Import command - use existing fields
         importArgument.add(new CommandHandler("useExistingFields",
                                               "Use existing data field if imported\n" + "  one matches. Only used if\n"
-                                                                   + "  replaceExisting and\n"
-                                                                   + "  appendExistingFields are true",
+                                               + "  replaceExisting and\n"
+                                               + "  appendExistingFields are true",
                                               "true or false (default: false)", CommandLineType.OPTION, 0,
                                               new Object[] {true, false}, new String[] {"true", "false"})
         {
@@ -1238,7 +1234,7 @@ public class CcddCommandLineHandler
         // Import command - ignore errors
         importArgument.add(new CommandHandler("ignoreErrors",
                                               "Ignore all import file errors and\n" + "  continue processing the file\n"
-                                                              + "  (CSV, JSON)",
+                                              + "  (CSV, JSON)",
                                               "true or false (default: false)", CommandLineType.OPTION, 0,
                                               new Object[] {true, false}, new String[] {"true", "false"})
         {
@@ -1417,13 +1413,12 @@ public class CcddCommandLineHandler
                     includeAppSched = true;
                 }
 
-                if ((exportFullDatabase == true) || (tablePaths.equals("all")))
+                if ((exportFullDatabase == true) || (tablePaths[0].equals("all")))
                 {
                     // Select all current tables in the database and prepare them for export
                     CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, null);
                     tableTree.setSelectionInterval(0, tableTree.getRowCount());
                     List<String> tablePathsList = tableTree.getSelectedTablesWithChildren();
-
                     tablePaths = tablePathsList.toArray(new String[0]);
                 }
 
@@ -1452,6 +1447,9 @@ public class CcddCommandLineHandler
                 // The GUI is displayed
                 else
                 {
+                    // Store the export file path in the backing store
+                    CcddFileIOHandler.storePath(ccddMain, filePath, false, ModifiablePathInfo.TABLE_EXPORT_PATH);
+
                     // Export the specified table(s) in a background thread
                     ccddMain.getFileIOHandler()
                             .exportSelectedTablesInBackground(filePath, tablePaths, overwriteFile, singleFile,
@@ -1500,19 +1498,27 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                // Convert the table path list to the internal format used by script
-                // associations
-                String internalFormat = CcddScriptHandler.convertAssociationMembersFormat((String) parmVal, true);
+                // CHeck for the special case where all tables are to be selected
+                if (((String) parmVal).equals("all"))
+                {
+                    tablePaths = new String[] {"all"};
+                }
+                else
+                {
+                    // Convert the table path list to the internal format used by script
+                    // associations
+                    String internalFormat = CcddScriptHandler.convertAssociationMembersFormat((String) parmVal, true);
 
-                // Parse the converted table path list. The paths are handled the same as those
-                // for script associations (hence the need for the conversion above); this
-                // includes expanding group references
-                tablePaths = ccddMain.getScriptHandler()
-                        .getAssociationTablePaths(internalFormat,
-                                                  new CcddGroupHandler(ccddMain, null, (ccddMain
-                                                          .isGUIHidden() ? null : ccddMain.getMainFrame())),
-                                                  true, (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame()))
-                        .toArray(new String[0]);
+                    // Parse the converted table path list. The paths are handled the same as those
+                    // for script associations (hence the need for the conversion above); this
+                    // includes expanding group references
+                    tablePaths = ccddMain.getScriptHandler()
+                            .getAssociationTablePaths(internalFormat,
+                                                      new CcddGroupHandler(ccddMain, null, (ccddMain
+                                                              .isGUIHidden() ? null : ccddMain.getMainFrame())),
+                                                      true, (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame()))
+                            .toArray(new String[0]);
+                }
             };
         });
 
@@ -2237,7 +2243,7 @@ public class CcddCommandLineHandler
      * Parse and execute the main command line argument(s). The application exits if the shutdown
      * command is present and all command line commands have completed execution
      *
-     * @param priority command priority range - execute only those commands with a priority &gt;= to the
+     * @param priority Command priority range - execute only those commands with a priority &gt;= to the
      *                 start value (-1 to start with the lowest priority command) and &lt;= to the end
      *                 value (-1 to end with the highest priority command)
      *********************************************************************************************/
@@ -2261,15 +2267,15 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Parse and execute the command line argument(s)
      *
-     * @param startPriority   command priority boundary - ignore commands with a priority less than this
+     * @param startPriority   Command priority boundary - ignore commands with a priority less than this
      *                        value; -1 starts with the lowest priority command
      *
-     * @param endPriority     command priority boundary - ignore commands with a priority greater than
+     * @param endPriority     Command priority boundary - ignore commands with a priority greater than
      *                        this value; -1 ends with the highest priority command
      *
-     * @param cmdLnArgs       array of command line arguments to parse
+     * @param cmdLnArgs       Array of command line arguments to parse
      *
-     * @param commandArgument list of valid command line commands
+     * @param commandArgument List of valid command line commands
      *********************************************************************************************/
     private void parseCommand(int startPriority, int endPriority, String[] cmdLnArgs,
                               List<CommandHandler> commandArgument)
@@ -2584,11 +2590,11 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Get the main window size parameter
      *
-     * @param arg  window size command line argument
+     * @param arg  Window size command line argument
      *
-     * @param parm window dimensions
+     * @param parm Window dimensions
      *
-     * @param min  array containing the minimum main window width and minimum main window height
+     * @param min  Array containing the minimum main window width and minimum main window height
      *
      * @return Main window dimension value (null if an error is found)
      *
@@ -2634,11 +2640,11 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Get an integer value parameter that has minimum and maximum limits
      *
-     * @param arg   integer value command line argument
+     * @param arg   Integer value command line argument
      *
-     * @param parm  integer value
+     * @param parm  Integer value
      *
-     * @param limit array containing the lower limit value (inclusive) and the upper limit value
+     * @param limit Array containing the lower limit value (inclusive) and the upper limit value
      *              (inclusive)
      *
      * @return Integer value (null if an error is found)
@@ -2673,9 +2679,9 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Get a color parameter
      *
-     * @param arg  color command line argument
+     * @param arg  Color command line argument
      *
-     * @param parm color in hexadecimal format or a color name
+     * @param parm Color in hexadecimal format or a color name
      *
      * @return Selected color in hexadecimal format (null if an error is found)
      *
@@ -2725,13 +2731,13 @@ public class CcddCommandLineHandler
      * Get the selected option which must match one of a predefined list of options. The command
      * argument if forced to lower case when comparing to the acceptable options
      *
-     * @param arg          command line argument
+     * @param arg          Command line argument
      *
-     * @param parm         command option
+     * @param parm         Command option
      *
-     * @param inputOptions array of valid inputs
+     * @param inputOptions Array of valid inputs
      *
-     * @param outputValues array of output values associated with each input option
+     * @param outputValues Array of output values associated with each input option
      *
      * @return Output value for the option selected
      *

@@ -163,7 +163,7 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Script handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddScriptHandler(CcddMain ccddMain)
     {
@@ -193,7 +193,7 @@ public class CcddScriptHandler
      * Set the reference to the active script manager or executive dialog. This should be null when the
      * script manager or executive isn't open
      *
-     * @param scriptDialog reference to the active script manager or executive dialog
+     * @param scriptDialog Reference to the active script manager or executive dialog
      *********************************************************************************************/
     protected void setScriptDialog(CcddFrameHandler scriptDialog)
     {
@@ -218,7 +218,7 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Get a script association based on the association name
      *
-     * @param assnName script association name
+     * @param assnName Script association name
      *
      * @param parent   GUI component over which to center any error dialog
      *
@@ -327,10 +327,10 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Create the panel containing the script associations table
      *
-     * @param title               text to display above the script associations table; null or blank if
+     * @param title               Text to display above the script associations table; null or blank if
      *                            no text is to be displayed
      *
-     * @param allowSelectDisabled true if disabled associations can be selected; false if not. In the
+     * @param allowSelectDisabled True if disabled associations can be selected; false if not. In the
      *                            script manager disabled associations are selectable so that these can
      *                            be deleted if desired. Scripts that are selected and disabled are
      *                            ignored when executing scripts
@@ -448,19 +448,19 @@ public class CcddScriptHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false
@@ -554,15 +554,15 @@ public class CcddScriptHandler
             /**************************************************************************************
              * Alter the association table cell color or contents
              *
-             * @param component  reference to the table cell renderer component
+             * @param component  Reference to the table cell renderer component
              *
-             * @param value      cell value
+             * @param value      Cell value
              *
-             * @param isSelected true if the cell is to be rendered with the selection highlighted
+             * @param isSelected True if the cell is to be rendered with the selection highlighted
              *
-             * @param int        row cell row, view coordinates
+             * @param int        Row cell row, view coordinates
              *
-             * @param column     cell column, view coordinates
+             * @param column     Cell column, view coordinates
              *************************************************************************************/
             @Override
             protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)
@@ -779,7 +779,7 @@ public class CcddScriptHandler
      * Check if the script association on the specified row in the associations table is available. An
      * association is unavailable if the script or tables is not present
      *
-     * @param row table row (model coordinates)
+     * @param row Table row (model coordinates)
      *
      * @return true if the script association on the specified row is available
      *********************************************************************************************/
@@ -794,11 +794,11 @@ public class CcddScriptHandler
      * member tables are included. This method is also used to parse a string of table names when
      * exporting via the command line export command
      *
-     * @param associationMembers association members as a single string (as stored in the database)
+     * @param associationMembers Association members as a single string (as stored in the database)
      *
-     * @param groupHandler       group handler reference
+     * @param groupHandler       Group handler reference
      *
-     * @param isForExport        true when using this method to build the list of tables to export via
+     * @param isForExport        True when using this method to build the list of tables to export via
      *                           the command line export command. This flag should be set to false when
      *                           using this method for obtaining the tables for script associations
      *
@@ -1082,13 +1082,13 @@ public class CcddScriptHandler
      * Get the index from the supplied script association list for the association with the same script
      * file name and members
      *
-     * @param associations list of script associations to which to compare
+     * @param associations List of script associations to which to compare
      *
-     * @param scriptName   script file path + name
+     * @param scriptName   Script file path + name
      *
-     * @param tables       array of tables referenced by the script association
+     * @param tables       Array of tables referenced by the script association
      *
-     * @param ignoreRow    row to ignore when checking for an identical, existing association (as is
+     * @param ignoreRow    Row to ignore when checking for an identical, existing association (as is
      *                     possible when replacing an association, if no changes are made); -1 to
      *                     prevent a duplicate association (as when adding an association)
      *
@@ -1134,7 +1134,7 @@ public class CcddScriptHandler
      *
      * @param tableTree CcddTableTreeHandler reference describing the table tree
      *
-     * @param dialog    reference to the script dialog (manager or executive) calling this method
+     * @param dialog    Reference to the script dialog (manager or executive) calling this method
      *********************************************************************************************/
     protected void executeScriptAssociations(CcddTableTreeHandler tableTree, CcddFrameHandler dialog)
     {
@@ -1179,12 +1179,12 @@ public class CcddScriptHandler
      * to update. The script execution command, however, is disabled until the this command completes
      * execution
      *
-     * @param tree         table tree of the table instances (parent tables with their child tables);
+     * @param tree         Table tree of the table instances (parent tables with their child tables);
      *                     null if the tree should be loaded
      *
-     * @param associations list of script association to execute
+     * @param associations List of script association to execute
      *
-     * @param dialog       reference to the entity calling this method: the script manager or executive
+     * @param dialog       Reference to the entity calling this method: the script manager or executive
      *                     dialog, or to the main window (if invoked from the command line)
      *********************************************************************************************/
     protected void getDataAndExecuteScriptInBackground(final CcddTableTreeHandler tree,
@@ -1242,10 +1242,10 @@ public class CcddScriptHandler
      * Get the table information array from the table data used by the script script association(s),
      * then execute the script(s)
      *
-     * @param tree         table tree of the table instances (parent tables with their child tables);
+     * @param tree         Table tree of the table instances (parent tables with their child tables);
      *                     null if the tree should be loaded
      *
-     * @param associations list of script associations to execute
+     * @param associations List of script associations to execute
      *
      * @param parent       GUI component over which to center any error dialog; null if none (e.g., if
      *                     called via the command line)
@@ -1615,10 +1615,10 @@ public class CcddScriptHandler
      * Convert the supplied string containing the association members from the internal table to the
      * viewable format, or vice versa, depending on the input flag
      *
-     * @param assnMembers tables and/or groups associated with the script, in either the internal or
+     * @param assnMembers Tables and/or groups associated with the script, in either the internal or
      *                    viewable format
      *
-     * @param toInternal  true to convert the member string to the internal format; false to convert to
+     * @param toInternal  True to convert the member string to the internal format; false to convert to
      *                    the viewable format
      *
      * @return Supplied string containing the association members converted from the internal table to
@@ -1636,7 +1636,7 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Log the result of the script association execution(s)
      *
-     * @param associations list of script association executed
+     * @param associations List of script association executed
      *
      * @param isBad        Array containing flags that indicate, for each association, if the
      *                     association did not complete successfully
@@ -1700,11 +1700,11 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Log a script execution error
      *
-     * @param scriptFileName script file name
+     * @param scriptFileName Script file name
      *
-     * @param members        tables and/or groups associated with the script, in the internal format
+     * @param members        Tables and/or groups associated with the script, in the internal format
      *
-     * @param cause          cause of the execution error
+     * @param cause          Cause of the execution error
      *
      * @param parent         GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -1726,17 +1726,17 @@ public class CcddScriptHandler
      * static script data access handlers are bound to the engine so that the public access methods can
      * be utilized
      *
-     * @param scriptFileName   script file name. The file extension is used to determine the script
+     * @param scriptFileName   Script file name. The file extension is used to determine the script
      *                         engine and therefore must conform to standard extension usage
      *
-     * @param tableInformation array of table information
+     * @param tableInformation Array of table information
      *
-     * @param groupNames       list containing the names of any groups referenced in the script
+     * @param groupNames       List containing the names of any groups referenced in the script
      *                         association
      *
-     * @param linkHandler      link handler reference
+     * @param linkHandler      Link handler reference
      *
-     * @param groupHandler     group handler reference
+     * @param groupHandler     Group handler reference
      *
      * @param parent           GUI component over which to center any error dialog
      *
@@ -1833,17 +1833,17 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Execute a script
      *
-     * @param scriptFileName   script file name. The file extension is used to determine the script
+     * @param scriptFileName   Script file name. The file extension is used to determine the script
      *                         engine and therefore must conform to standard extension usage
      *
-     * @param tableInformation array of table information
+     * @param tableInformation Array of table information
      *
-     * @param groupNames       list containing the names of any groups referenced in the script
+     * @param groupNames       List containing the names of any groups referenced in the script
      *                         association
      *
-     * @param linkHandler      link handler reference
+     * @param linkHandler      Link handler reference
      *
-     * @param groupHandler     group handler reference
+     * @param groupHandler     Group handler reference
      *
      * @param parent           GUI component over which to center any error dialog
      *
@@ -1875,7 +1875,7 @@ public class CcddScriptHandler
      * Recursive method to load a table, and all the tables referenced within it and its child tables.
      * The data is combined into a single array
      *
-     * @param tablePath table path
+     * @param tablePath Table path
      *
      * @param parent    GUI component over which to center any error dialog
      *

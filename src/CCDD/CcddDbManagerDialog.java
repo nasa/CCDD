@@ -154,9 +154,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Project database manager dialog class constructor
      *
-     * @param ccddMain   main class
+     * @param ccddMain   Main class
      *
-     * @param dialogType database dialog type: LOGIN, SERVER, CREATE, OPEN, DELETE, or UNLOCK
+     * @param dialogType Database dialog type: LOGIN, SERVER, CREATE, OPEN, DELETE, or UNLOCK
      *********************************************************************************************/
     CcddDbManagerDialog(CcddMain ccddMain, DbManagerDialogType dialogType)
     {
@@ -785,7 +785,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Display the project database selection error dialog
      *
-     * @param action database operation
+     * @param action Database operation
      *********************************************************************************************/
     private void displayDatabaseError(String action)
     {
@@ -802,13 +802,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add database name and description labels and fields to the dialog
      *
-     * @param nameText  text to display beside the name input field
+     * @param nameText  Text to display beside the name input field
      *
-     * @param dialogPnl panel to which to add the labels and fields
+     * @param dialogPnl Panel to which to add the labels and fields
      *
-     * @param enabled   true if the fields are initially enabled, false if disabled
+     * @param enabled   True if the fields are initially enabled, false if disabled
      *
-     * @param dialogGbc dialog panel GridBagLayout layout constraints
+     * @param dialogGbc Dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
     private void addDatabaseInputFields(String nameText, JPanel dialogPnl, boolean enabled,
                                         GridBagConstraints dialogGbc)
@@ -1171,9 +1171,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
              * Override getCellEditor so that for a user name or access level column cell the correct combo box
              * cell editor is returned
              *
-             * @param row    table view row number
+             * @param row    Table view row number
              *
-             * @param column table view column number
+             * @param column Table view column number
              *
              * @return The cell editor for the specified row and column
              *************************************************************************************/
@@ -1208,19 +1208,19 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false
@@ -1405,7 +1405,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of user access level updates to the database
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doAccessUpdatesComplete(boolean commandError)
@@ -1610,11 +1610,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Get the project database names and descriptions
      *
-     * @param isOnlyUnlocked true if only unlocked databases are to be displayed
+     * @param isOnlyUnlocked True if only unlocked databases are to be displayed
      *
-     * @param isOnlyLocked   true if only locked databases are to be displayed
+     * @param isOnlyLocked   True if only locked databases are to be displayed
      *
-     * @param enabledItem    name of an item to be enabled; null if none
+     * @param enabledItem    Name of an item to be enabled; null if none
      *********************************************************************************************/
     private void getDatabaseInformation(boolean isOnlyUnlocked, boolean isOnlyLocked, String enabledItem)
     {

@@ -98,7 +98,7 @@ public class CcddUndoHandler
     /**********************************************************************************************
      * Undoable components handler constructor
      *
-     * @param undoManager reference to the undo manager
+     * @param undoManager Reference to the undo manager
      *********************************************************************************************/
     CcddUndoHandler(CcddUndoManager undoManager)
     {
@@ -116,7 +116,7 @@ public class CcddUndoHandler
      * that is subsequently deleted, then restored via an undo, to retain the undo capability for the
      * content changes
      *
-     * @param fieldHandler reference to the data field handler; null to not retain data field content
+     * @param fieldHandler Reference to the data field handler; null to not retain data field content
      *                     changes following deletion and restoration of the field
      *********************************************************************************************/
     protected void setFieldHandler(CcddFieldHandler fieldHandler)
@@ -127,7 +127,7 @@ public class CcddUndoHandler
     /**********************************************************************************************
      * Set the reference to the table for which node selection changes are to be tracked
      *
-     * @param table reference to the table for which node selection changes are to be tracked
+     * @param table Reference to the table for which node selection changes are to be tracked
      *********************************************************************************************/
     protected void setTable(CcddJTableHandler table)
     {
@@ -138,7 +138,7 @@ public class CcddUndoHandler
      * Set the reference to the table cell selection container for which selection changes are to be
      * tracked
      *
-     * @param selectedCells reference to the cell selection container for which selection changes are to
+     * @param selectedCells Reference to the cell selection container for which selection changes are to
      *                      be tracked
      *********************************************************************************************/
     protected void setSelectedCells(CellSelectionHandler selectedCells)
@@ -149,7 +149,7 @@ public class CcddUndoHandler
     /**********************************************************************************************
      * Set the reference to the tree for which node selection changes are to be tracked
      *
-     * @param tree reference to the tree for which node selection changes are to be tracked
+     * @param tree Reference to the tree for which node selection changes are to be tracked
      *********************************************************************************************/
     protected void setTree(CcddCommonTreeHandler tree)
     {
@@ -159,7 +159,7 @@ public class CcddUndoHandler
     /**********************************************************************************************
      * Set the flag that allows registering an edit with the undo manager
      *
-     * @param allow true to allow edits to be stored for possible undo action; false to perform the
+     * @param allow True to allow edits to be stored for possible undo action; false to perform the
      *              edit, but without storing it
      *********************************************************************************************/
     protected void setAllowUndo(boolean allow)
@@ -185,7 +185,7 @@ public class CcddUndoHandler
      * changes are restored in a single operation. This flag is not used in the undoable table model and
      * table column model classes
      *
-     * @param autoEndEdit true to automatically end an edit sequence when a new edit operation occurs
+     * @param autoEndEdit True to automatically end an edit sequence when a new edit operation occurs
      *********************************************************************************************/
     protected void setAutoEndEditSequence(boolean autoEndEdit)
     {
@@ -222,9 +222,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add an item to the list
          *
-         * @param listItem item to add to the list
+         * @param listItem Item to add to the list
          *
-         * @param undoable true if the list addition can be undone
+         * @param undoable True if the list addition can be undone
          *
          * @return true
          *****************************************************************************************/
@@ -263,11 +263,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add an item to the list at the specified index
          *
-         * @param listIndex index in the list at which to insert the list item
+         * @param listIndex Index in the list at which to insert the list item
          *
-         * @param listItem  item to add to the list
+         * @param listItem  Item to add to the list
          *
-         * @param undoable  true if the list addition can be undone
+         * @param undoable  True if the list addition can be undone
          *****************************************************************************************/
         protected void add(int listIndex, E listItem, boolean undoable)
         {
@@ -304,9 +304,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add a list of items to the list
          *
-         * @param listItems list of items to add to the list
+         * @param listItems List of items to add to the list
          *
-         * @param undoable  true if the list addition can be undone
+         * @param undoable  True if the list addition can be undone
          *
          * @return true if the list changed as a result of the call
          *****************************************************************************************/
@@ -348,9 +348,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Remove an item from the list
          *
-         * @param listItem item to remove from the list
+         * @param listItem Item to remove from the list
          *
-         * @param undoable true if the list removal can be undone
+         * @param undoable True if the list removal can be undone
          *
          * @return true if the list contained the specified element
          *****************************************************************************************/
@@ -392,9 +392,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Remove an item from the list at the specified index
          *
-         * @param index    index in the list at which to remove the list item
+         * @param index    Index in the list at which to remove the list item
          *
-         * @param undoable true if the list removal can be undone
+         * @param undoable True if the list removal can be undone
          *
          * @return The element that was removed from the list
          *****************************************************************************************/
@@ -433,9 +433,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Remove a list of items to the list
          *
-         * @param listItems list of items to remove from the list
+         * @param listItems List of items to remove from the list
          *
-         * @param undoable  true if the list removal can be undone
+         * @param undoable  True if the list removal can be undone
          *
          * @return true if the list changed as a result of the call
          *****************************************************************************************/
@@ -477,7 +477,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Remove all items from the list
          *
-         * @param undoable true if the list removal can be undone
+         * @param undoable True if the list removal can be undone
          *****************************************************************************************/
         protected void clear(boolean undoable)
         {
@@ -520,15 +520,15 @@ public class CcddUndoHandler
         /******************************************************************************************
          * List edit event handler constructor
          *
-         * @param undoableArrayList reference to the array list
+         * @param undoableArrayList Reference to the array list
          *
-         * @param listIndex         index at which to add or remove the item (ignored if not an INDEX
+         * @param listIndex         Index at which to add or remove the item (ignored if not an INDEX
          *                          operation)
          *
-         * @param listItem          item to add or remove from the list (ignored if not an item add or
+         * @param listItem          Item to add or remove from the list (ignored if not an item add or
          *                          remove operation in which case null can be used)
          *
-         * @param listItems         list of items to add or remove (ignored if not a list item add or remove
+         * @param listItems         List of items to add or remove (ignored if not a list item add or remove
          *                          operation in which case null can be used)
          *
          * @param type              ListEditType.ADD if if adding an item to the list;
@@ -674,7 +674,7 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Toggle button model undo/redo class constructor
              *
-             * @param select initial selection state of the check box
+             * @param select Initial selection state of the check box
              *************************************************************************************/
             UndoableToggleButtonModel(boolean select)
             {
@@ -700,9 +700,9 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Change the value of a check box
              *
-             * @param select   check box state; true to select
+             * @param select   Check box state; true to select
              *
-             * @param undoable true if the change can be undone
+             * @param undoable True if the change can be undone
              *************************************************************************************/
             protected void setSelected(boolean select, boolean undoable)
             {
@@ -760,9 +760,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Check box value undo/redo class constructor
          *
-         * @param text     text to display beside the check box
+         * @param text     Text to display beside the check box
          *
-         * @param selected initial check box selection state - true if selected
+         * @param selected Initial check box selection state - true if selected
          *****************************************************************************************/
         UndoableCheckBox(String text, boolean selected)
         {
@@ -776,9 +776,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the data field to which the check box belongs (only used if the check box is a data field)
          *
-         * @param fieldOwner owner of the data field to which the check box belongs
+         * @param fieldOwner Owner of the data field to which the check box belongs
          *
-         * @param fieldName  name of the data field to which the check box belongs
+         * @param fieldName  Name of the data field to which the check box belongs
          *****************************************************************************************/
         protected void setUndoFieldInformation(String fieldOwner, String fieldName)
         {
@@ -790,7 +790,7 @@ public class CcddUndoHandler
          * Add a the undo manager to the edit listener list, set the check box model to be undoable, and add
          * a focus change listener to the check box
          *
-         * @param select initial selection state of the check box
+         * @param select Initial selection state of the check box
          *****************************************************************************************/
         private void setModelAndListeners(boolean select)
         {
@@ -832,16 +832,16 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Check box edit event handler constructor
          *
-         * @param checkBox   reference to the check box being edited
+         * @param checkBox   Reference to the check box being edited
          *
-         * @param oldValue   previous check box selection state
+         * @param oldValue   Previous check box selection state
          *
-         * @param newValue   new check box selection state
+         * @param newValue   New check box selection state
          *
-         * @param fieldOwner owner of the data field to which the check box belongs; null if the check box
+         * @param fieldOwner Owner of the data field to which the check box belongs; null if the check box
          *                   is not a data field
          *
-         * @param fieldName  name of the data field to which the check box belongs; null if the check box is
+         * @param fieldName  Name of the data field to which the check box belongs; null if the check box is
          *                   not a data field
          *****************************************************************************************/
         CheckBoxEdit(UndoableCheckBox checkBox, boolean oldValue, boolean newValue, String fieldOwner, String fieldName)
@@ -884,7 +884,7 @@ public class CcddUndoHandler
          * Set the selected check box. In order for this to select the check box it must be scheduled to
          * execute after other pending events
          *
-         * @param selected check box selection state
+         * @param selected Check box selection state
          *****************************************************************************************/
         private void setSelectedCheckBox(boolean selected)
         {
@@ -942,9 +942,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Combo box constructor with an empty list
          *
-         * @param items combo box list items
+         * @param items Combo box list items
          *
-         * @param font  combo box list item font
+         * @param font  Combo box list item font
          *****************************************************************************************/
         UndoableComboBox(String[] items, Font font)
         {
@@ -957,9 +957,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the data field to which the combo box belongs (only used if the combo box is a data field)
          *
-         * @param fieldOwner owner of the data field to which the combo box belongs
+         * @param fieldOwner Owner of the data field to which the combo box belongs
          *
-         * @param fieldName  name of the data field to which the combo box belongs
+         * @param fieldName  Name of the data field to which the combo box belongs
          *****************************************************************************************/
         protected void setUndoFieldInformation(String fieldOwner, String fieldName)
         {
@@ -1014,9 +1014,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Change the combo box selected item
          *
-         * @param selection new combo box selection
+         * @param selection New combo box selection
          *
-         * @param undoable  true if the change can be undone
+         * @param undoable  True if the change can be undone
          *****************************************************************************************/
         protected void setSelectedItem(Object selection, boolean undoable)
         {
@@ -1074,16 +1074,16 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Combo box edit event handler constructor
          *
-         * @param comboBox   reference to the combo box being edited
+         * @param comboBox   Reference to the combo box being edited
          *
-         * @param oldValue   previous selected combo box item
+         * @param oldValue   Previous selected combo box item
          *
-         * @param newValue   new selected combo box item
+         * @param newValue   New selected combo box item
          *
-         * @param fieldOwner owner of the data field to which the combo box belongs; null if the combo box
+         * @param fieldOwner Owner of the data field to which the combo box belongs; null if the combo box
          *                   is not a data field
          *
-         * @param fieldName  name of the data field to which the combo box belongs; null if the combo box is
+         * @param fieldName  Name of the data field to which the combo box belongs; null if the combo box is
          *                   not a data field
          *****************************************************************************************/
         ComboBoxEdit(UndoableComboBox comboBox, Object oldValue, Object newValue, String fieldOwner, String fieldName)
@@ -1125,7 +1125,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the selected combo box item
          *
-         * @param selection combo box selection item
+         * @param selection Combo box selection item
          *****************************************************************************************/
         private void setSelectedComboBox(Object selection)
         {
@@ -1194,7 +1194,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text field value undo/redo class constructor
          *
-         * @param text text to display in the text field
+         * @param text Text to display in the text field
          *****************************************************************************************/
         UndoableTextField(String text)
         {
@@ -1208,9 +1208,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text field value undo/redo class constructor
          *
-         * @param text    text to display in the text field
+         * @param text    Text to display in the text field
          *
-         * @param columns the number of columns to use to calculate the preferred width of the text field
+         * @param columns The number of columns to use to calculate the preferred width of the text field
          *****************************************************************************************/
         UndoableTextField(String text, int columns)
         {
@@ -1224,7 +1224,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add the undo manager to the edit listeners and add a focus change listener to the text field
          *
-         * @param text text to display in the text field
+         * @param text Text to display in the text field
          *****************************************************************************************/
         private void setListeners(String text)
         {
@@ -1291,9 +1291,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the data field to which the text field belongs (only used if the text field is a data field)
          *
-         * @param fieldOwner owner of the data field to which the text field belongs
+         * @param fieldOwner Owner of the data field to which the text field belongs
          *
-         * @param fieldName  name of the data field to which the text field belongs
+         * @param fieldName  Name of the data field to which the text field belongs
          *****************************************************************************************/
         protected void setUndoFieldInformation(String fieldOwner, String fieldName)
         {
@@ -1314,9 +1314,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Change the value of a text field
          *
-         * @param text     new text field value
+         * @param text     New text field value
          *
-         * @param undoable true if the change can be undone
+         * @param undoable True if the change can be undone
          *****************************************************************************************/
         protected void setText(String text, boolean undoable)
         {
@@ -1377,16 +1377,16 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text field edit event handler constructor
          *
-         * @param textField  reference to the text field being edited
+         * @param textField  Reference to the text field being edited
          *
-         * @param oldValue   previous text field value
+         * @param oldValue   Previous text field value
          *
-         * @param newValue   new text field value
+         * @param newValue   New text field value
          *
-         * @param fieldOwner owner of the data field to which the text field belongs; null if the text field
+         * @param fieldOwner Owner of the data field to which the text field belongs; null if the text field
          *                   is not a data field
          *
-         * @param fieldName  name of the data field to which the text field belongs; null if the text field
+         * @param fieldName  Name of the data field to which the text field belongs; null if the text field
          *                   is not a data field
          *****************************************************************************************/
         TextFieldEdit(UndoableTextField textField, String oldValue, String newValue, String fieldOwner,
@@ -1430,7 +1430,7 @@ public class CcddUndoHandler
          * Set the selected text field. In order for this to select the text field it must be scheduled to
          * execute after other pending events
          *
-         * @param value text to place in the text field
+         * @param value Text to place in the text field
          *****************************************************************************************/
         private void setSelectedTextField(final String value)
         {
@@ -1498,7 +1498,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text area value undo/redo class constructor
          *
-         * @param text text to display in the text area
+         * @param text Text to display in the text area
          *****************************************************************************************/
         UndoableTextArea(String text)
         {
@@ -1512,9 +1512,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text area value undo/redo class constructor
          *
-         * @param rows    number of rows
+         * @param rows    Number of rows
          *
-         * @param columns the number of columns to use to calculate the preferred width of the text area
+         * @param columns The number of columns to use to calculate the preferred width of the text area
          *****************************************************************************************/
         UndoableTextArea(int rows, int columns)
         {
@@ -1528,11 +1528,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text area value undo/redo class constructor
          *
-         * @param text    text to display in the text area
+         * @param text    Text to display in the text area
          *
-         * @param rows    number of rows
+         * @param rows    Number of rows
          *
-         * @param columns the number of columns to use to calculate the preferred width of the text area
+         * @param columns The number of columns to use to calculate the preferred width of the text area
          *****************************************************************************************/
         UndoableTextArea(String text, int rows, int columns)
         {
@@ -1546,7 +1546,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add the undo manager to the edit listener list and add a focus change listener to the text area
          *
-         * @param text text to display in the text area
+         * @param text Text to display in the text area
          *****************************************************************************************/
         private void setListeners(String text)
         {
@@ -1633,7 +1633,7 @@ public class CcddUndoHandler
          * other criteria (the allow undo flag is set and the text has changed) must be met in order for the
          * edit to be undoable
          *
-         * @param undoable true to enable putting the edit on the undo/redo stack
+         * @param undoable True to enable putting the edit on the undo/redo stack
          *****************************************************************************************/
         protected void updateText(boolean undoable)
         {
@@ -1702,11 +1702,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text area edit event handler constructor
          *
-         * @param textArea reference to the text area being edited
+         * @param textArea Reference to the text area being edited
          *
-         * @param oldValue previous text area value
+         * @param oldValue Previous text area value
          *
-         * @param newValue new text area value
+         * @param newValue New text area value
          *****************************************************************************************/
         TextAreaEdit(UndoableTextArea textArea, String oldValue, String newValue)
         {
@@ -1745,7 +1745,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the text and focus to the text area
          *
-         * @param value text to place in the text area
+         * @param value Text to place in the text area
          *****************************************************************************************/
         private void setSelectedTextArea(String value)
         {
@@ -1828,11 +1828,11 @@ public class CcddUndoHandler
          * Placeholder for performing any clean-up of the cell value prior to setting the cell contents.
          * This can include, for example, removal of leading and trailing white space characters
          *
-         * @param value  new cell value
+         * @param value  New cell value
          *
-         * @param row    table row, model coordinates
+         * @param row    Table row, model coordinates
          *
-         * @param column table column, model coordinates
+         * @param column Table column, model coordinates
          *
          * @return Cell value following any clean-up actions
          *****************************************************************************************/
@@ -1855,13 +1855,13 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Change the value of a cell
          *
-         * @param value    new cell value
+         * @param value    New cell value
          *
-         * @param row      table row, model coordinates
+         * @param row      Table row, model coordinates
          *
-         * @param column   table column, model coordinates
+         * @param column   Table column, model coordinates
          *
-         * @param undoable true if the change can be undone
+         * @param undoable True if the change can be undone
          *****************************************************************************************/
         protected void setValueAt(Object value, int row, int column, boolean undoable)
         {
@@ -1917,11 +1917,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Change the table data array
          *
-         * @param dataVector        array of new table data
+         * @param dataVector        Array of new table data
          *
-         * @param columnIdentifiers array containing the table column names
+         * @param columnIdentifiers Array containing the table column names
          *
-         * @param undoable          true if the change can be undone
+         * @param undoable          True if the change can be undone
          *****************************************************************************************/
         protected void setDataVector(Object[][] dataVector, Object[] columnIdentifiers, boolean undoable)
         {
@@ -1963,11 +1963,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Insert a row into the table
          *
-         * @param row      row to insert
+         * @param row      Row to insert
          *
-         * @param values   array containing the column information for the row to insert into the table
+         * @param values   Array containing the column information for the row to insert into the table
          *
-         * @param undoable true if the row deletion can be undone
+         * @param undoable True if the row deletion can be undone
          *****************************************************************************************/
         protected void insertRow(int row, Object values[], boolean undoable)
         {
@@ -2013,9 +2013,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Remove a row from the table
          *
-         * @param row      row to remove
+         * @param row      Row to remove
          *
-         * @param undoable true if the row deletion can be undone
+         * @param undoable True if the row deletion can be undone
          *****************************************************************************************/
         protected void removeRow(int row, boolean undoable)
         {
@@ -2074,13 +2074,13 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Move a row or rows within the table
          *
-         * @param start    starting row index
+         * @param start    Starting row index
          *
-         * @param end      ending row index
+         * @param end      Ending row index
          *
-         * @param to       row index to which to move the rows between start and end
+         * @param to       Row index to which to move the rows between start and end
          *
-         * @param undoable true if the row movement can be undone
+         * @param undoable True if the row movement can be undone
          *****************************************************************************************/
         protected void moveRow(int start, int end, int to, boolean undoable)
         {
@@ -2128,9 +2128,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Sort the table rows
          *
-         * @param oldSortKeys sort keys prior to sorting the rows
+         * @param oldSortKeys Sort keys prior to sorting the rows
          *
-         * @param newSortKeys sort keys after sorting the rows
+         * @param newSortKeys Sort keys after sorting the rows
          *****************************************************************************************/
         protected void sortRows(List<? extends SortKey> oldSortKeys, List<? extends SortKey> newSortKeys)
         {
@@ -2169,9 +2169,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Table data array update event handler class constructor
          *
-         * @param oldDataVector table data prior to the update
+         * @param oldDataVector Table data prior to the update
          *
-         * @param newDataVector table data after the update
+         * @param newDataVector Table data after the update
          *****************************************************************************************/
         DataVectorEdit(Object[][] oldDataVector, Object[][] newDataVector)
         {
@@ -2230,9 +2230,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Row sort event handler class constructor
          *
-         * @param oldSortKeys sort keys prior to sorting the rows
+         * @param oldSortKeys Sort keys prior to sorting the rows
          *
-         * @param newSortKeys sort keys after sorting the rows
+         * @param newSortKeys Sort keys after sorting the rows
          *****************************************************************************************/
         RowSort(List<? extends SortKey> oldSortKeys, List<? extends SortKey> newSortKeys)
         {
@@ -2295,15 +2295,15 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Row edit event handler constructor
          *
-         * @param tableModel table model
+         * @param tableModel Table model
          *
-         * @param values     array of column values for the row
+         * @param values     Array of column values for the row
          *
-         * @param row        table row
+         * @param row        Table row
          *
-         * @param start      start index for a row move
+         * @param start      Start index for a row move
          *
-         * @param end        end index for a row move
+         * @param end        End index for a row move
          *
          * @param type       TableEditType.INSERT if inserting a row; TableEditType.DELETE if removing a
          *                   row; TableEditType.MOVE if moving a row or rows
@@ -2402,15 +2402,15 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Cell edit event handler constructor
          *
-         * @param tableModel table model
+         * @param tableModel Table model
          *
-         * @param oldValue   previous cell value
+         * @param oldValue   Previous cell value
          *
-         * @param newValue   new cell value
+         * @param newValue   New cell value
          *
-         * @param row        table row in model coordinates
+         * @param row        Table row in model coordinates
          *
-         * @param column     table column in model coordinates
+         * @param column     Table column in model coordinates
          *****************************************************************************************/
         CellEdit(UndoableTableModel tableModel, Object oldValue, Object newValue, int row, int column)
         {
@@ -2517,11 +2517,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Move a column within the table
          *
-         * @param columnIndex starting column index
+         * @param columnIndex Starting column index
          *
-         * @param newIndex    ending column index
+         * @param newIndex    Ending column index
          *
-         * @param undoable    true if the row deletion can be undone
+         * @param undoable    True if the row deletion can be undone
          *****************************************************************************************/
         private void moveColumn(int columnIndex, int newIndex, boolean undoable)
         {
@@ -2568,11 +2568,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Column edit event handler constructor
          *
-         * @param tableColumnModel table column model
+         * @param tableColumnModel Table column model
          *
-         * @param start            start index for a column move
+         * @param start            Start index for a column move
          *
-         * @param end              end index for a column move
+         * @param end              End index for a column move
          *
          * @param type             TableEditType.INSERT if inserting a column; TableEditType.DELETE if
          *                         removing a column; TableEditType.MOVE if moving a column
@@ -2664,9 +2664,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add or remove a table cell from the selection list
          *
-         * @param row    table row, view coordinates
+         * @param row    Table row, view coordinates
          *
-         * @param column table column, view coordinates
+         * @param column Table column, view coordinates
          *****************************************************************************************/
         protected void toggleCellSelection(int row, int column)
         {
@@ -2723,11 +2723,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Cell selection edit event handler constructor
          *
-         * @param row        select cell row index
+         * @param row        Select cell row index
          *
-         * @param column     select cell column index
+         * @param column     Select cell column index
          *
-         * @param isSelected true if the cell is selected
+         * @param isSelected True if the cell is selected
          *****************************************************************************************/
         CellSelectEdit(int row, int column, boolean isSelected)
         {
@@ -2766,7 +2766,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the selected cell
          *
-         * @param selectState state to which the cell should be set; true to show the cell selected and
+         * @param selectState State to which the cell should be set; true to show the cell selected and
          *                    false for deselected
          *****************************************************************************************/
         private void setSelectedCell(boolean selectState)
@@ -2820,7 +2820,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add the tree path selection edit to the undo/redo stack
          *
-         * @param paths array of selected tree node paths
+         * @param paths Array of selected tree node paths
          *****************************************************************************************/
         protected void selectTreePath(TreePath[] paths)
         {
@@ -2869,9 +2869,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Tree path selection edit event handler class constructor
          *
-         * @param oldPaths array of previous tree path(s) selected
+         * @param oldPaths Array of previous tree path(s) selected
          *
-         * @param newPaths array of new tree path(s) selected
+         * @param newPaths Array of new tree path(s) selected
          *****************************************************************************************/
         TreePathSelectEdit(TreePath[] oldPaths, TreePath[] newPaths)
         {
@@ -2927,7 +2927,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Change the selected tree nodes to the ones provided
          *
-         * @param paths array of tree node paths to select
+         * @param paths Array of tree node paths to select
          *****************************************************************************************/
         private void changeTreePathSelection(TreePath[] paths)
         {
@@ -2966,7 +2966,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Tree model undo/redo class constructor. Creates a tree model in which any node can have children
          *
-         * @param root tree root node
+         * @param root Tree root node
          *****************************************************************************************/
         UndoableTreeModel(TreeNode root)
         {
@@ -2980,9 +2980,9 @@ public class CcddUndoHandler
          * Tree model undo/redo class constructor. Creates a tree model specifying whether any node can have
          * children, or whether only certain nodes can have children
          *
-         * @param root               tree root node
+         * @param root               Tree root node
          *
-         * @param asksAllowsChildren false if any node can have children, true if each node is asked to see
+         * @param asksAllowsChildren False if any node can have children, true if each node is asked to see
          *                           if it can have children
          *****************************************************************************************/
         UndoableTreeModel(TreeNode root, boolean asksAllowsChildren)
@@ -2996,11 +2996,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add the specified child node to the specified parent node at the given position
          *
-         * @param child  node to add
+         * @param child  Node to add
          *
-         * @param parent node to which to add the new node
+         * @param parent Node to which to add the new node
          *
-         * @param index  position in the existing node at which to place the new node
+         * @param index  Position in the existing node at which to place the new node
          *****************************************************************************************/
         @Override
         public void insertNodeInto(MutableTreeNode child, MutableTreeNode parent, int index)
@@ -3040,9 +3040,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Change the user object value for the specified tree path
          *
-         * @param path     tree path for which to change the user object value
+         * @param path     Tree path for which to change the user object value
          *
-         * @param newValue new value for the user object
+         * @param newValue New value for the user object
          *****************************************************************************************/
         @Override
         public void valueForPathChanged(TreePath path, Object newValue)
@@ -3086,7 +3086,7 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Remove the specified node from its parent node
          *
-         * @param child node to remove
+         * @param child Node to remove
          *****************************************************************************************/
         @Override
         public void removeNodeFromParent(MutableTreeNode child)
@@ -3139,9 +3139,9 @@ public class CcddUndoHandler
          * Placeholder for performing any actions needed following an undo or redo operation that affects a
          * node's user object (name)
          *
-         * @param wasValue node user object value prior to the undo/redo operation
+         * @param wasValue Node user object value prior to the undo/redo operation
          *
-         * @param isValue  node user object value after the undo/redo operation
+         * @param isValue  Node user object value after the undo/redo operation
          *****************************************************************************************/
         protected void nodeRenameCleanup(Object wasValue, Object isValue)
         {
@@ -3160,11 +3160,11 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Tree node add edit event handler constructor
              *
-             * @param parent parent node
+             * @param parent Parent node
              *
-             * @param child  child node
+             * @param child  Child node
              *
-             * @param index  node index at which to insert the child in the parent
+             * @param index  Node index at which to insert the child in the parent
              *************************************************************************************/
             UndoableNodeAddEdit(MutableTreeNode parent, MutableTreeNode child, int index)
             {
@@ -3293,11 +3293,11 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Tree node change edit event handler constructor
              *
-             * @param path     tree path
+             * @param path     Tree path
              *
-             * @param oldValue original node user object
+             * @param oldValue Original node user object
              *
-             * @param newValue new node user object
+             * @param newValue New node user object
              *************************************************************************************/
             UndoableNodeChangeEdit(TreePath path, Object oldValue, Object newValue)
             {
@@ -3382,11 +3382,11 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Tree node remove edit event handler constructor
              *
-             * @param parent parent tree node
+             * @param parent Parent tree node
              *
-             * @param child  child tree node
+             * @param child  Child tree node
              *
-             * @param index  child index
+             * @param index  Child index
              *************************************************************************************/
             UndoableNodeRemoveEdit(MutableTreeNode parent, final MutableTreeNode child, int index)
             {
@@ -3515,7 +3515,7 @@ public class CcddUndoHandler
          * Set the current state of the data field information. This is the state the data fields revert to
          * in the event of an undo operation on a data field edit (not including edits of the field's value)
          *
-         * @param oldFieldInfo list containing the current data field information
+         * @param oldFieldInfo List containing the current data field information
          *****************************************************************************************/
         protected void setUndoFieldInformation(List<FieldInformation> oldFieldInfo)
         {
@@ -3525,9 +3525,9 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add an edit of the data field panel to the undo/redo stack
          *
-         * @param fieldPnlHandler reference to the data field panel handler in which the edit occurred
+         * @param fieldPnlHandler Reference to the data field panel handler in which the edit occurred
          *
-         * @param newFieldInfo    updated data field information list
+         * @param newFieldInfo    Updated data field information list
          *****************************************************************************************/
         protected void addDataFieldEdit(CcddInputFieldPanelHandler fieldPnlHandler, List<FieldInformation> newFieldInfo)
         {
@@ -3577,11 +3577,11 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Data field panel edit event handler constructor
          *
-         * @param fieldPnlHandler reference to the data field panel handler in which the edit occurred
+         * @param fieldPnlHandler Reference to the data field panel handler in which the edit occurred
          *
-         * @param oldFieldInfo    list containing the original state of the data field information
+         * @param oldFieldInfo    List containing the original state of the data field information
          *
-         * @param newFieldInfo    list containing the new state of the data field information
+         * @param newFieldInfo    List containing the new state of the data field information
          *****************************************************************************************/
         DataFieldPanelEdit(CcddInputFieldPanelHandler fieldPnlHandler, List<FieldInformation> oldFieldInfo,
                            List<FieldInformation> newFieldInfo)

@@ -69,7 +69,7 @@ public class CcddDbCommandHandler
     /**********************************************************************************************
      * Database command handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     protected CcddDbCommandHandler(CcddMain ccddMain)
     {
@@ -91,7 +91,7 @@ public class CcddDbCommandHandler
     /**********************************************************************************************
      * Set the database connection
      *
-     * @param connection database connection
+     * @param connection Database connection
      *********************************************************************************************/
     protected void setConnection(Connection connection)
     {
@@ -101,7 +101,7 @@ public class CcddDbCommandHandler
     /**********************************************************************************************
      * Set the connection statement
      *
-     * @param statement connection statement
+     * @param statement Connection statement
      *********************************************************************************************/
     protected void setStatement(Statement statement)
     {
@@ -160,7 +160,7 @@ public class CcddDbCommandHandler
     /**********************************************************************************************
      * Execute a database update statement and log the command to the session log
      *
-     * @param commandType command type (DbCommandType)
+     * @param commandType Command type (DbCommandType)
      *
      * @param command     SQL update command to execute
      *
@@ -300,6 +300,7 @@ public class CcddDbCommandHandler
                     {
                         System.out.println("Command that failed: " + command.toString());
                     }
+
                     throw new SQLException(se3.getMessage());
                 }
             }
@@ -519,9 +520,9 @@ public class CcddDbCommandHandler
      * Retrieve a list from the server or database. The command strings are set up to explicitly sort
      * the list alphabetically, without regard to capitalization
      *
-     * @param listType   type of list to be retrieved
+     * @param listType   Type of list to be retrieved
      *
-     * @param listOption array containing replacement text within a command; null if none is needed
+     * @param listOption Array containing replacement text within a command; null if none is needed
      *
      * @param parent     GUI component over which to center any error dialog
      *
@@ -587,9 +588,9 @@ public class CcddDbCommandHandler
      * Retrieve a 2D list from the server or database. The command strings are set up to explicitly sort
      * the list alphabetically, without regard to capitalization
      *
-     * @param listType   type of list to be retrieved
+     * @param listType   Type of list to be retrieved
      *
-     * @param listOption array containing replacement text within a command; null if none is needed
+     * @param listOption Array containing replacement text within a command; null if none is needed
      *
      * @param parent     GUI component over which to center any error dialog
      *

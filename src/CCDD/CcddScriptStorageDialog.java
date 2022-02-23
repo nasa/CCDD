@@ -86,7 +86,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Script storage dialog class constructor
      *
-     * @param ccddMain   main class
+     * @param ccddMain   Main class
      *
      * @param dialogType ScriptIOType.STORE or ScriptIOType.RETRIEVE
      *********************************************************************************************/

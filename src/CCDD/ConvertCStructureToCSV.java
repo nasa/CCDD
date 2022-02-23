@@ -520,9 +520,9 @@ public class ConvertCStructureToCSV
     /**********************************************************************************************
      * Get the variable's description from the current and subsequent line from the input file
      *
-     * @param row       input file row index
+     * @param row       Input file row index
      *
-     * @param inputText text containing the start of the description
+     * @param inputText Text containing the start of the description
      *
      * @return Row index of the end of the description
      *********************************************************************************************/
@@ -585,7 +585,7 @@ public class ConvertCStructureToCSV
      * Detect each macro in the supplied string, bound it with the macro identifier, and add the macro
      * to the macro definitions
      *
-     * @param inputString string potentially containing a macro or macro expression
+     * @param inputString String potentially containing a macro or macro expression
      *
      * @return The supplied string with every macro bounded by the macro identifier
      *********************************************************************************************/

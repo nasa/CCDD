@@ -77,7 +77,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Show all message IDs dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddMessageIDDialog(CcddMain ccddMain)
     {
@@ -88,7 +88,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Display the owner, message ID name, and message ID dialog
      *
-     * @param messageIDHandler message ID handler reference
+     * @param messageIDHandler Message ID handler reference
      *
      * @param parent           GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -327,7 +327,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Build the message ID information array
      *
-     * @param msgIDs list containing the message ID owners, names, and ID values
+     * @param msgIDs List containing the message ID owners, names, and ID values
      *
      * @return Array containing the message ID information
      *********************************************************************************************/
@@ -399,9 +399,9 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Get the owner name with path, if applicable (child tables of a structure table have a path)
      *
-     * @param ownerName table or group owner name
+     * @param ownerName Table or group owner name
      *
-     * @param path      table path; blank if none
+     * @param path      Table path; blank if none
      *
      * @return Table or group name with path, if applicable
      *********************************************************************************************/

@@ -159,9 +159,9 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the references to the description and data field undo/redo manager and handler
      *
-     * @param undoManager undo/redo manager
+     * @param undoManager Undo/redo manager
      *
-     * @param undoHandler undoable component handler
+     * @param undoHandler Undoable component handler
      *********************************************************************************************/
     protected void setEditPanelUndo(CcddUndoManager undoManager, CcddUndoHandler undoHandler)
     {
@@ -192,7 +192,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the name of the owner of this description and data field panel handler
      *
-     * @param ownerName name of the owner of this description and data field panel handler
+     * @param ownerName Name of the owner of this description and data field panel handler
      *********************************************************************************************/
     protected void setOwnerName(String ownerName)
     {
@@ -217,7 +217,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the description field text
      *
-     * @param description description field text
+     * @param description Description field text
      *********************************************************************************************/
     protected void setDescription(String description)
     {
@@ -238,9 +238,9 @@ public abstract class CcddInputFieldPanelHandler
      * Enable/disable the description field, set its background color based on the enable status, and
      * set the description text
      *
-     * @param enable      true to enable editing the description, false to disable
+     * @param enable      True to enable editing the description, false to disable
      *
-     * @param description text to place in the description field
+     * @param description Text to place in the description field
      *********************************************************************************************/
     protected void enableDescriptionField(boolean enable, String description)
     {
@@ -255,7 +255,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Update the description field text. Put the edit on the undo/redo stack based on the input flag
      *
-     * @param undoable true to enable putting the edit on the undo/redo stack
+     * @param undoable True to enable putting the edit on the undo/redo stack
      *********************************************************************************************/
     protected void updateDescriptionField(boolean undoable)
     {
@@ -285,7 +285,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Update the field information values to match the data field component values
      *
-     * @param fieldInformation data field information list
+     * @param fieldInformation Data field information list
      *********************************************************************************************/
     protected void updateFieldValueFromComponent(List<FieldInformation> fieldInformation)
     {
@@ -329,7 +329,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Update the data field component values to match the field information values
      *
-     * @param fieldInformation data field information list
+     * @param fieldInformation Data field information list
      *********************************************************************************************/
     protected void updateFieldComponentFromValue(List<FieldInformation> fieldInformation)
     {
@@ -370,20 +370,20 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Create the table input field panel
      *
-     * @param ccddMain           main class reference
+     * @param ccddMain           Main class reference
      *
-     * @param fieldPnlHndlrOwner reference to the owner of this description and data field handler
+     * @param fieldPnlHndlrOwner Reference to the owner of this description and data field handler
      *
-     * @param upperPane          component to display above the description and data fields scroll pane;
+     * @param upperPane          Component to display above the description and data fields scroll pane;
      *                           null if this field panel handler does not contain a table
      *
-     * @param ownerName          name of the owner of this field panel handler; null if no owner name is
+     * @param ownerName          Name of the owner of this field panel handler; null if no owner name is
      *                           associated with it
      *
-     * @param description        description field text; null if the description is initially blank and
+     * @param description        Description field text; null if the description is initially blank and
      *                           disabled
      *
-     * @param ownerFieldInfo     list of field information to use to build the data fields; null if no
+     * @param ownerFieldInfo     List of field information to use to build the data fields; null if no
      *                           data field is associated with owner
      *********************************************************************************************/
     protected void createDescAndDataFieldPanel(CcddMain ccddMain, final Component fieldPnlHndlrOwner,
@@ -634,10 +634,10 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Create the data fields for display in the description and data field panel
      *
-     * @param undoable            true if the change(s) to the data fields should be stored for possible
+     * @param undoable            True if the change(s) to the data fields should be stored for possible
      *                            undo/redo operations; false to not store the changes
      *
-     * @param ownerFieldInfo      list of field information to use to build the data fields null if no
+     * @param ownerFieldInfo      List of field information to use to build the data fields null if no
      *                            data field is associated with the owner
      *
      * @param ignoreApplicability Should the applicability of the fields be ignored?
@@ -1210,7 +1210,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the specified data field's background color based the field's value and required flag
      *
-     * @param fieldInfo reference to the data field's information
+     * @param fieldInfo Reference to the data field's information
      *********************************************************************************************/
     private void setFieldBackground(FieldInformation fieldInfo)
     {

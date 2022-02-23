@@ -56,7 +56,7 @@ public class CcddCopyTableHandler
     /**********************************************************************************************
      * Housekeeping copy table handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddCopyTableHandler(CcddMain ccddMain)
     {
@@ -75,22 +75,22 @@ public class CcddCopyTableHandler
     /**********************************************************************************************
      * Create a copy table based on the message definitions
      *
-     * @param linkHandler        link handler reference
+     * @param linkHandler        Link handler reference
      *
-     * @param dataStreamName     data stream name
+     * @param dataStreamName     Data stream name
      *
-     * @param headerSize         size of the packet header in bytes
+     * @param headerSize         Size of the packet header in bytes
      *
-     * @param messageIDNameField name of the structure table data field containing the message ID name.
+     * @param messageIDNameField Name of the structure table data field containing the message ID name.
      *                           If provided this is used instead of the tlmMessageIDs list
      *
-     * @param tlmMessageIDs      list containing string array entries giving the structure table
+     * @param tlmMessageIDs      List containing string array entries giving the structure table
      *                           path+name and the table's associated message ID name. Used if
      *                           messageIDNameField is null
      *
-     * @param optimize           true to create copy table with memory copies optimized
+     * @param optimize           True to create copy table with memory copies optimized
      *
-     * @param expandMacros       true to expand any macro within the variable names
+     * @param expandMacros       True to expand any macro within the variable names
      *
      * @return Array containing the copy table entries
      *********************************************************************************************/
@@ -198,7 +198,7 @@ public class CcddCopyTableHandler
     /**********************************************************************************************
      * Get the messages ID names and their corresponding ID values for the specified data stream
      *
-     * @param streamName data stream name
+     * @param streamName Data stream name
      *
      * @return String array containing the message ID names and ID values; returns blank if there are no
      *         entries for the specified data stream or if data stream name is invalid
@@ -244,7 +244,7 @@ public class CcddCopyTableHandler
     /**********************************************************************************************
      * Get messages for the specified rate from the project database
      *
-     * @param streamName data stream name
+     * @param streamName Data stream name
      *
      * @return List of messages for the specified rate
      *********************************************************************************************/
@@ -261,7 +261,7 @@ public class CcddCopyTableHandler
      * Remove bit-packed variables, other than the leading one, from the specified message's copy table
      * entries
      *
-     * @param messageTable message copy table
+     * @param messageTable Message copy table
      *********************************************************************************************/
     private void combineBitPackedVariables(List<String[]> messageTable)
     {
@@ -308,7 +308,7 @@ public class CcddCopyTableHandler
     /**********************************************************************************************
      * Optimize the copy table by combining consecutive memory copies
      *
-     * @param messageTable message copy table
+     * @param messageTable Message copy table
      *********************************************************************************************/
     private void combineMemoryCopies(List<String[]> messageTable)
     {
@@ -358,9 +358,9 @@ public class CcddCopyTableHandler
     /**********************************************************************************************
      * Add the input and output structure offsets to the specified message's copy table entries
      *
-     * @param headerSize   message header size, bytes
+     * @param headerSize   Message header size, bytes
      *
-     * @param messageTable message copy table
+     * @param messageTable Message copy table
      *********************************************************************************************/
     private void addInputAndOutputOffset(List<String[]> messageTable, int headerSize)
     {

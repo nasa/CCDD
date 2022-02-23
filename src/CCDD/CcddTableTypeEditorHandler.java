@@ -131,11 +131,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Table type editor handler class constructor
      *
-     * @param ccddMain      main class reference
+     * @param ccddMain      Main class reference
      *
-     * @param tableTypeName table type name
+     * @param tableTypeName Table type name
      *
-     * @param editorDialog  editor dialog from which this editor was created
+     * @param editorDialog  Editor dialog from which this editor was created
      *********************************************************************************************/
     protected CcddTableTypeEditorHandler(CcddMain ccddMain, String tableTypeName,
                                          CcddTableTypeEditorDialog editorDialog)
@@ -224,7 +224,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the table type name
      *
-     * @param tableTypeName table type name
+     * @param tableTypeName Table type name
      *********************************************************************************************/
     protected void setTableTypeName(String tableTypeName)
     {
@@ -343,7 +343,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of table type changes
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doTypeUpdatesComplete(boolean commandError)
@@ -376,7 +376,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Update the table type editor data fields following a change to an input type definition
      *
-     * @param inputTypeNames list of the input type names, before and after the changes
+     * @param inputTypeNames List of the input type names, before and after the changes
      *********************************************************************************************/
     protected void updateForInputTypeChange(List<String[]> inputTypeNames)
     {
@@ -394,7 +394,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Create the table type editor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     private void initialize(CcddMain ccddMain)
     {
@@ -501,11 +501,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             /**************************************************************************************
              * Override isDataAlterable to determine which table data values can be changed
              *
-             * @param rowData array containing the table row data
+             * @param rowData Array containing the table row data
              *
-             * @param row     table row index in model coordinates
+             * @param row     Table row index in model coordinates
              *
-             * @param column  table column index in model coordinates
+             * @param column  Table column index in model coordinates
              *
              * @return true if the data value can be changed
              *************************************************************************************/
@@ -550,9 +550,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              * Override the CcddJTableHandler method to prevent deleting the contents of the cell at the
              * specified row and column
              *
-             * @param row    table row index in view coordinates
+             * @param row    Table row index in view coordinates
              *
-             * @param column table column index in view coordinates
+             * @param column Table column index in view coordinates
              *
              * @return false if the cell contains a combo box; true otherwise
              *************************************************************************************/
@@ -565,19 +565,19 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row index
+             * @param row         Table model row index
              *
-             * @param column      table model column index
+             * @param column      Table model column index
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false

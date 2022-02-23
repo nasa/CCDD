@@ -56,9 +56,9 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Link handler class constructor
      *
-     * @param ccddMain        main class
+     * @param ccddMain        Main class
      *
-     * @param linkDefinitions list containing the link definitions
+     * @param linkDefinitions List containing the link definitions
      *********************************************************************************************/
     CcddLinkHandler(CcddMain ccddMain, List<String[]> linkDefinitions)
     {
@@ -79,7 +79,7 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Link handler class constructor. Load the link information from the project database
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
      * @param parent   GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -102,7 +102,7 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Set the link definitions
      *
-     * @param linkDefinitions list containing the link definitions
+     * @param linkDefinitions List containing the link definitions
      *********************************************************************************************/
     protected void setLinkDefinitions(List<String[]> linkDefinitions)
     {
@@ -113,7 +113,7 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Get the link names for the specified rate column name
      *
-     * @param rateName rate column name
+     * @param rateName Rate column name
      *
      * @return List containing the link names for the specified rate column name; an empty list if there
      *         are no links associated with the rate
@@ -141,9 +141,9 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Get the reference to a specified link's definitions
      *
-     * @param linkName link name
+     * @param linkName Link name
      *
-     * @param linkRate link rate name
+     * @param linkRate Link rate name
      *
      * @return List of a link's definitions
      *********************************************************************************************/
@@ -171,9 +171,9 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Return an array of rate and link names to which the specified variable belongs
      *
-     * @param variable      variable path and name
+     * @param variable      Variable path and name
      *
-     * @param useDataStream true to return the data stream name in place of the rate column name
+     * @param useDataStream True to return the data stream name in place of the rate column name
      *
      * @return Array containing the rates and links to which the specified variable is a member; an
      *         empty array if the variable does not belong to a link
@@ -225,9 +225,9 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Return the link name to which the specified variable belongs for the specified rate
      *
-     * @param variable variable path and name
+     * @param variable Variable path and name
      *
-     * @param rateName rate name
+     * @param rateName Rate name
      *
      * @return Name of the link if the variable and rate match; null if no match exists
      *********************************************************************************************/
@@ -262,9 +262,9 @@ public class CcddLinkHandler
      * Calculate the number of bytes represented by this link by totaling the size of each variable
      * member
      *
-     * @param rateName data stream rate column name
+     * @param rateName Data stream rate column name
      *
-     * @param name     name of the link to calculate the remaining bytes for
+     * @param name     Name of the link to calculate the remaining bytes for
      *
      * @return Number of bytes used in the link; 0 if no variables are in the link
      *********************************************************************************************/
@@ -326,9 +326,9 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Get the description for a specified link
      *
-     * @param rateName data stream rate column name
+     * @param rateName Data stream rate column name
      *
-     * @param name     link name
+     * @param name     Link name
      *
      * @return Description of the specified link; returns a blank if the link doesn't exist
      *********************************************************************************************/
@@ -370,9 +370,9 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Get the link rate
      *
-     * @param rateName data stream rate column name
+     * @param rateName Data stream rate column name
      *
-     * @param name     name of the link
+     * @param name     Name of the link
      *
      * @return Link rate; blank if the link name doesn't exist
      *********************************************************************************************/
@@ -405,7 +405,7 @@ public class CcddLinkHandler
     /**********************************************************************************************
      * Get the application name data field values associated with the specified link's variable members
      *
-     * @param applicationFieldName name of the application name data field
+     * @param applicationFieldName Name of the application name data field
      *
      * @return Array containing the application name data field values associated with the specified
      *         link's variable members. Each application name is listed only once in the array

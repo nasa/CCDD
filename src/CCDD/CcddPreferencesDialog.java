@@ -114,7 +114,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Program preferences dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddPreferencesDialog(CcddMain ccddMain)
     {
@@ -594,15 +594,15 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update a font
      *
-     * @param modFont reference to the modifiable font's information
+     * @param modFont Reference to the modifiable font's information
      *
-     * @param family  font family
+     * @param family  Font family
      *
-     * @param style   font style
+     * @param style   Font style
      *
-     * @param size    font size
+     * @param size    Font size
      *
-     * @param dialogs array of preference dialogs to update
+     * @param dialogs Array of preference dialogs to update
      *********************************************************************************************/
     private void updateFont(ModifiableFontInfo modFont, String family, int style, int size, CcddDialogHandler[] dialogs)
     {
@@ -784,17 +784,17 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update a color
      *
-     * @param modColor reference to the modifiable color's information
+     * @param modColor Reference to the modifiable color's information
      *
-     * @param red      red component
+     * @param red      Red component
      *
-     * @param green    green component
+     * @param green    Green component
      *
-     * @param blue     blue component
+     * @param blue     Blue component
      *
-     * @param dialogs  array of preference dialogs to update
+     * @param dialogs  Array of preference dialogs to update
      *
-     * @param checkBox reference to the color check box
+     * @param checkBox Reference to the color check box
      *********************************************************************************************/
     private void updateColor(ModifiableColorInfo modColor, int red, int green, int blue, CcddDialogHandler[] dialogs,
                              ColorCheckBox checkBox)
@@ -1524,11 +1524,11 @@ public class CcddPreferencesDialog extends CcddDialogHandler
      * Create the button panel for the font/color chooser dialogs containing the Okay, Default, and
      * Close buttons
      *
-     * @param okayAction    reference to the action listener to handle Okay button events
+     * @param okayAction    Reference to the action listener to handle Okay button events
      *
-     * @param defaultAction reference to the action listener to handle Default button events
+     * @param defaultAction Reference to the action listener to handle Default button events
      *
-     * @param dialog        reference to the dialog calling this method
+     * @param dialog        Reference to the dialog calling this method
      *
      * @return Reference to the font/color chooser button panel
      *********************************************************************************************/

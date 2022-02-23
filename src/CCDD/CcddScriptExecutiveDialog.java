@@ -66,7 +66,7 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Script executive dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddScriptExecutiveDialog(CcddMain ccddMain)
     {

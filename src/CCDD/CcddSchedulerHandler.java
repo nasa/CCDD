@@ -119,11 +119,11 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Scheduler handler class constructor
      *
-     * @param ccddMain     main class
+     * @param ccddMain     Main class
      *
-     * @param rateName     rate column name
+     * @param rateName     Rate column name
      *
-     * @param schedulerDlg reference to the scheduler dialog that created this class
+     * @param schedulerDlg Reference to the scheduler dialog that created this class
      *********************************************************************************************/
     CcddSchedulerHandler(CcddMain ccddMain, String rateName, CcddSchedulerDialogInterface schedulerDlg)
     {
@@ -195,7 +195,7 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Set the variable(s) (application(s)) to be unavailable in the variable (application) tree
      *
-     * @param names list of variable (application) names to exclude
+     * @param names List of variable (application) names to exclude
      *********************************************************************************************/
     protected void setVariableUnavailable(List<String> names)
     {
@@ -205,7 +205,7 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Set the variable(s) (application(s)) to be available in the variable (application) tree
      *
-     * @param names list of variable (application) names to include
+     * @param names List of variable (application) names to include
      *********************************************************************************************/
     protected void makeVariableAvailable(List<String> names)
     {
@@ -243,7 +243,7 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Select the specified option in the Options list
      *
-     * @param option option text to match in the Options list
+     * @param option Option text to match in the Options list
      *********************************************************************************************/
     protected void selectOptionByMessage(String option)
     {
@@ -756,11 +756,11 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Add one or more variables to the specified message
      *
-     * @param variables      list of variables to be added
+     * @param variables      List of variables to be added
      *
      * @param messageIndices (sub-)message indices to which the variable will be added
      *
-     * @param parentIndex    parent message index if this is a sub-message; -1 if this is not a
+     * @param parentIndex    Parent message index if this is a sub-message; -1 if this is not a
      *                       sub-message
      *
      * @return List containing the names of the variables added
@@ -814,7 +814,7 @@ public class CcddSchedulerHandler
      * Parse an option string to extract the message indices and, if a sub-message, the sub-message
      * index
      *
-     * @param option string representing the option in the format Message[s] #[, # [, ...]][ sub-msg[s]
+     * @param option String representing the option in the format Message[s] #[, # [, ...]][ sub-msg[s]
      *               #[, # [, ...]]]
      *
      * @return Two-element object array. If the option string does not contains only a message name or
@@ -872,7 +872,7 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Get the index of the specified message
      *
-     * @param msgName message name
+     * @param msgName Message name
      *
      * @return Message index; -1 if the no message of the specified name exists
      *********************************************************************************************/
@@ -898,9 +898,9 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Find the message option that has the largest message with the least amount of room
      *
-     * @param rate      rate of the options
+     * @param rate      Rate of the options
      *
-     * @param totalSize size of the variable(s) in bytes
+     * @param totalSize Size of the variable(s) in bytes
      *
      * @return Message into which the specified bytes can fit; null if no option is chosen
      *********************************************************************************************/
@@ -1270,7 +1270,7 @@ public class CcddSchedulerHandler
      *
      * @param indices     (sub-)message indices
      *
-     * @param parentIndex parent message index if this is a sub-message; -1 if this is not a sub-message
+     * @param parentIndex Parent message index if this is a sub-message; -1 if this is not a sub-message
      *
      * @return Smallest number of bytes
      *********************************************************************************************/
@@ -1459,7 +1459,7 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Enable/disable the dialog arrow buttons
      *
-     * @param enable true to enable the arrows, false to disable
+     * @param enable True to enable the arrows, false to disable
      *********************************************************************************************/
     protected void setArrowsEnabled(boolean enable)
     {
@@ -1471,9 +1471,9 @@ public class CcddSchedulerHandler
      * Check if a message has a remaining slot available for the variables. If this is not for the
      * application scheduler then always return true
      *
-     * @param indices   array of subMessge indices
+     * @param indices   Array of subMessge indices
      *
-     * @param numOfVars number of variables being added
+     * @param numOfVars Number of variables being added
      *
      * @return true if there is room for the variable(s); false if there is insufficient room
      *********************************************************************************************/

@@ -75,7 +75,7 @@ public class CcddDataTypeHandler
      * Data type handler class constructor used when setting the data types from a source other than
      * those in the project database
      *
-     * @param dataTypes list of string arrays containing data type names and the corresponding data type
+     * @param dataTypes List of string arrays containing data type names and the corresponding data type
      *                  definitions
      *********************************************************************************************/
     CcddDataTypeHandler(List<String[]> dataTypes)
@@ -88,7 +88,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Data type handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddDataTypeHandler(CcddMain ccddMain)
     {
@@ -180,7 +180,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the specified column contains integer values
      *
-     * @param column column index
+     * @param column Column index
      *
      * @return true if the specified column contains integer values; false otherwise
      *********************************************************************************************/
@@ -234,7 +234,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Set the data types to the supplied array
      *
-     * @param dataTypes list of string arrays containing data type names and the corresponding data type
+     * @param dataTypes List of string arrays containing data type names and the corresponding data type
      *                  definitions
      *********************************************************************************************/
     protected void setDataTypeData(List<String[]> dataTypes)
@@ -248,7 +248,7 @@ public class CcddDataTypeHandler
      * Get the data type name. Return the user-defined name unless it's blank, in which case return the
      * C-language name
      *
-     * @param dataType string array containing data type name and the corresponding data type definition
+     * @param dataType String array containing data type name and the corresponding data type definition
      *
      * @return User-defined data type name; if blank then the C-language name
      *********************************************************************************************/
@@ -262,7 +262,7 @@ public class CcddDataTypeHandler
      * Get the data type name. Return the user-defined name unless it's blank, in which case return the
      * C-language name
      *
-     * @param userName user-defined data type name
+     * @param userName User-defined data type name
      *
      * @param cName    C-language data type
      *
@@ -291,7 +291,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the data type information associated with the specified data type name
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Data type information associated with the specified data type name; returns null if the
      *         data type doesn't exist
@@ -392,7 +392,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the base data type for the specified data type
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Base data type for the specified data type; returns null if the data type doesn't exist
      *********************************************************************************************/
@@ -416,7 +416,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the data type size for the specified data type
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Data type size for the specified data type; returns 0 if the data type doesn't exist
      *********************************************************************************************/
@@ -450,7 +450,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the data type size in bytes for the specified data type
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Data type size in bytes for the specified data type; returns 0 if the data type doesn't
      *         exist
@@ -477,7 +477,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the data type size in bits for the specified data type
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Data type size in bits for the specified data type; returns 0 if the data type doesn't
      *         exist
@@ -490,7 +490,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the supplied data type is a primitive type
      *
-     * @param dataTypeName name of data type to test
+     * @param dataTypeName Name of data type to test
      *
      * @return true if the supplied data type is a primitive
      *********************************************************************************************/
@@ -514,7 +514,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the specified data type is a signed or unsigned integer
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if the specified data type is a signed or unsigned integer
      *********************************************************************************************/
@@ -534,7 +534,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the the specified data type is a signed integer
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if the specified data type is a signed integer
      *********************************************************************************************/
@@ -546,7 +546,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the the specified data type is an unsigned integer
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if the specified data type is an unsigned integer
      *********************************************************************************************/
@@ -558,7 +558,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the specified data type is a float or double
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if the specified data type is a float or double
      *********************************************************************************************/
@@ -570,7 +570,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the this primitive data type is a character or string
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if this data type is a character or string
      *********************************************************************************************/
@@ -582,7 +582,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the this primitive data type is a character string
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if this data type is a character string
      *********************************************************************************************/
@@ -594,7 +594,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Determine if the this primitive data type is a pointer
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return true if this data type is a pointer
      *********************************************************************************************/
@@ -606,7 +606,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the minimum possible value of the primitive type based on the data type and size in bytes
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Minimum possible value of the primitive type based on the data type and size in bytes
      *********************************************************************************************/
@@ -642,7 +642,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the maximum possible value of the primitive type based on the data type and size in bytes
      *
-     * @param dataTypeName data type name
+     * @param dataTypeName Data type name
      *
      * @return Maximum possible value of the primitive type based on the data type and size in bytes
      *********************************************************************************************/
@@ -681,7 +681,7 @@ public class CcddDataTypeHandler
      * name. Only search for references in the prototype tables (any references in the custom values
      * table are automatically updated when the prototype is changed)
      *
-     * @param dataTypeName data type name for which to search
+     * @param dataTypeName Data type name for which to search
      *
      * @param parent       GUI component over which to center any error dialog
      *
@@ -718,7 +718,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Add new data types and check for matches with existing ones
      *
-     * @param dataTypeDefinitions      list of data type definitions
+     * @param dataTypeDefinitions      List of data type definitions
      *
      * @param replaceExistingDataTypes True if any existing data types that share a name with an
      *                                 imported one should be replaced
@@ -777,11 +777,11 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Highlight any sizeof() calls in the the specified text component
      *
-     * @param component       reference to the table cell renderer component
+     * @param component       Reference to the table cell renderer component
      *
-     * @param text            cell value
+     * @param text            Cell value
      *
-     * @param hightlightColor color used for highlighting the sizeof() call
+     * @param hightlightColor Color used for highlighting the sizeof() call
      *********************************************************************************************/
     protected static void highlightSizeof(Component component, String text, Color hightlightColor)
     {
@@ -816,7 +816,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the list of items to display in the data type pop-up combo box
      *
-     * @param includePrimitives true to include primitive data types in the list; false to include only
+     * @param includePrimitives True to include primitive data types in the list; false to include only
      *                          structures
      *
      * @return List of items to display in the data type pop-up combo box

@@ -84,7 +84,7 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Message ID handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddMessageIDHandler(CcddMain ccddMain)
     {
@@ -147,7 +147,7 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Separate the message name and ID in the supplied string
      *
-     * @param nameID message name and ID in the format {@literal <}name{@literal >}
+     * @param nameID Message name and ID in the format {@literal <}name{@literal >}
      *               {@literal <}ID{@literal >}. A null, blank input, or an input containing only the
      *               name or ID is accepted
      *
@@ -195,7 +195,7 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Get the message name from the message name and ID in the supplied string
      *
-     * @param nameID message name and ID in the format {@literal <}name{@literal >}
+     * @param nameID Message name and ID in the format {@literal <}name{@literal >}
      *               {@literal <}ID{@literal >}. A blank input, or an input containing only the ID is
      *               accepted
      *
@@ -209,7 +209,7 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Get the message ID from the message name and ID in the supplied string
      *
-     * @param nameID message name and ID in the format {@literal <}name{@literal >}
+     * @param nameID Message name and ID in the format {@literal <}name{@literal >}
      *               {@literal <}ID{@literal >}. A blank input, or an input containing only the ID is
      *               accepted
      *
@@ -223,22 +223,22 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Create the list of message IDs that are reserved or are already in use
      *
-     * @param includeStructures    true to include message IDs assigned to tables that represent
+     * @param includeStructures    True to include message IDs assigned to tables that represent
      *                             structures
      *
-     * @param includeCommands      true to include message IDs assigned to tables that represent
+     * @param includeCommands      True to include message IDs assigned to tables that represent
      *                             commands
      *
-     * @param includeOthers        true to include message IDs assigned to tables that do not represent
+     * @param includeOthers        True to include message IDs assigned to tables that do not represent
      *                             structures or commands
      *
-     * @param includeGroups        true to include message IDs assigned to groups
+     * @param includeGroups        True to include message IDs assigned to groups
      *
-     * @param useTlmMsgIDsFromDb   true to include message IDs assigned to telemetry messages stored in
+     * @param useTlmMsgIDsFromDb   True to include message IDs assigned to telemetry messages stored in
      *                             the project database; false to use the IDs from the currently open
      *                             telemetry scheduler
      *
-     * @param isOverwriteTlmMsgIDs true to allow overwriting the telemetry message IDs for the currently
+     * @param isOverwriteTlmMsgIDs True to allow overwriting the telemetry message IDs for the currently
      *                             selected data stream in the open telemetry scheduler; false to not
      *                             allow overwriting. This value is only used if useTlmMsgIDsFromDb is
      *                             false
@@ -247,7 +247,7 @@ public class CcddMessageIDHandler
      *                             only used if useTlmMsgIDsFromDb is false, in which case it can be set
      *                             to null
      *
-     * @param isGetDuplicates      true to create a list of duplicate IDs. The flags for including
+     * @param isGetDuplicates      True to create a list of duplicate IDs. The flags for including
      *                             tables and for using the telemetry message IDs from the database
      *                             should be set to true when getting the list of duplicates
      *
@@ -416,7 +416,7 @@ public class CcddMessageIDHandler
      * Get the message ID, minus the auto-assign protection flag (if present), from the supplied message
      * ID
      *
-     * @param msgID message ID
+     * @param msgID Message ID
      *
      * @return Message ID, minus the auto-assign protection flag (if present)
      *********************************************************************************************/
@@ -430,10 +430,10 @@ public class CcddMessageIDHandler
      * (table or group), and telemetry message. Message names and IDs are determined by the input type
      * assigned to the table column or data field
      *
-     * @param sortOrder          order in which to sort the message ID list: BY_OWNER or BY_NAME
+     * @param sortOrder          Order in which to sort the message ID list: BY_OWNER or BY_NAME
      *                           (MessageIDSortOrder)
      *
-     * @param hideProtectionFlag true to not display the flag character that protects a message ID from
+     * @param hideProtectionFlag True to not display the flag character that protects a message ID from
      *                           being changed by the auto-update methods; false to allow the flag to
      *                           remain
      *
@@ -555,12 +555,12 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Update the list of message IDs in use and, based on the input flag, update the duplicate IDs list
      *
-     * @param ownerType       message ID owner type (Table or Message)
+     * @param ownerType       Message ID owner type (Table or Message)
      *
-     * @param ownerAndID      array where the first member is the owner (table name or telemetry message
+     * @param ownerAndID      Array where the first member is the owner (table name or telemetry message
      *                        name) and the second element is the message ID
      *
-     * @param isGetDuplicates true to create a list of duplicate IDs
+     * @param isGetDuplicates True to create a list of duplicate IDs
      *********************************************************************************************/
     private void updateUsageAndDuplicates(String ownerType, String[] ownerAndID, boolean isGetDuplicates)
     {

@@ -68,7 +68,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Rate parameter handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddRateParameterHandler(CcddMain ccddMain)
     {
@@ -141,7 +141,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Set the list of rate information
      *
-     * @param rateInformation list of rate information
+     * @param rateInformation List of rate information
      *********************************************************************************************/
     protected void setRateInformation(List<RateInformation> rateInformation)
     {
@@ -151,7 +151,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Add rate information to the list for the specified rate column name
      *
-     * @param rateName new rate's column name
+     * @param rateName New rate's column name
      *********************************************************************************************/
     protected void addRateInformation(String rateName)
     {
@@ -180,9 +180,9 @@ public class CcddRateParameterHandler
      * one. If the new rate column name matches one in another table type then merge it with the
      * existing one and delete the original
      *
-     * @param oldRateName current rate column name
+     * @param oldRateName Current rate column name
      *
-     * @param newRateName new rate column name
+     * @param newRateName New rate column name
      *********************************************************************************************/
     protected void renameRateInformation(String oldRateName, String newRateName)
     {
@@ -236,7 +236,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Remove the specified rate's information from the list
      *
-     * @param rateName rate name for the rate information object to remove
+     * @param rateName Rate name for the rate information object to remove
      *********************************************************************************************/
     protected void deleteRateInformation(String rateName)
     {
@@ -265,7 +265,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Get the rate information with the specified rate column
      *
-     * @param rateColumnName rate column name
+     * @param rateColumnName Rate column name
      *
      * @return Rate information with the specified rate column; null if the rate column doesn't exist
      *********************************************************************************************/
@@ -289,7 +289,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Get the rate information with the specified data stream name
      *
-     * @param streamName name of stream
+     * @param streamName Name of stream
      *
      * @return Rate information with the data stream name; null if the data stream doesn't exist
      *********************************************************************************************/
@@ -313,7 +313,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Get the index of the rate information with the specified rate column name
      *
-     * @param rateColumnName rate column name
+     * @param rateColumnName Rate column name
      *
      * @return Index of the rate information with the specified rate column name; -1 if no rate
      *         information has this rate column name
@@ -348,7 +348,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Get the index of the rate information with the specified stream name
      *
-     * @param streamName stream name
+     * @param streamName Stream name
      *
      * @return Index of the rate information with the specified stream name; -1 if no rate information
      *         has this stream name
@@ -567,23 +567,23 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Set the rate parameters, store them in the project database, and calculate the sample rates
      *
-     * @param maxSecPerMsg    maximum number of seconds allowed between downlinking two of the same
+     * @param maxSecPerMsg    Maximum number of seconds allowed between downlinking two of the same
      *                        message
      *
-     * @param maxMsgsPerSec   maximum number of messages that can be downlinked in one second
+     * @param maxMsgsPerSec   Maximum number of messages that can be downlinked in one second
      *
-     * @param streamName      array containing the stream name per stream
+     * @param streamName      Array containing the stream name per stream
      *
-     * @param maxMsgsPerCycle array containing the maximum number of messages that can be downlinked
+     * @param maxMsgsPerCycle Array containing the maximum number of messages that can be downlinked
      *                        before repeating the message list per stream
      *
-     * @param maxBytesPerSec  array containing the maximum number of bytes that can be downlinked in one
+     * @param maxBytesPerSec  Array containing the maximum number of bytes that can be downlinked in one
      *                        second per stream
      *
-     * @param includeUneven   true to include unevenly time-spaced sample rate values; false to only
+     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to only
      *                        include sample rates that are evenly time-spaced
      *
-     * @param parent          component calling this method, used for positioning any error dialogs
+     * @param parent          Component calling this method, used for positioning any error dialogs
      *********************************************************************************************/
     protected void setRateParameters(int maxSecPerMsg, int maxMsgsPerSec, String[] streamName, int[] maxMsgsPerCycle,
                                      int[] maxBytesPerSec, boolean includeUneven, Component parent)
@@ -639,15 +639,15 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Build the array of valid sample rates based on the specified rate parameters
      *
-     * @param maxSecPerMsg    maximum number of seconds allowed between downlinking two of the same
+     * @param maxSecPerMsg    Maximum number of seconds allowed between downlinking two of the same
      *                        message
      *
-     * @param maxMsgsPerSec   maximum number of messages that can be downlinked in one second
+     * @param maxMsgsPerSec   Maximum number of messages that can be downlinked in one second
      *
-     * @param maxMsgsPerCycle maximum number of messages that can be downlinked before repeating the
+     * @param maxMsgsPerCycle Maximum number of messages that can be downlinked before repeating the
      *                        message list per stream
      *
-     * @param includeUneven   true to include unevenly time-spaced sample rate values; false to only
+     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to only
      *                        include sample rates that are evenly time-spaced
      *
      * @return Array containing the valid sample rates
@@ -720,9 +720,9 @@ public class CcddRateParameterHandler
      * rounded to 5 decimal places. Remove any extra trailing zeroes after the decimal and the decimal
      * if no zeroes remain for both the numerator and denominator
      *
-     * @param samples number of samples
+     * @param samples Number of samples
      *
-     * @param seconds number of seconds
+     * @param seconds Number of seconds
      *
      * @return Rate, in samples per second, displaying a maximum of 5 decimal places)
      *********************************************************************************************/
@@ -769,7 +769,7 @@ public class CcddRateParameterHandler
      * Get the array of the sample rate values for the specified rate column name with those rates not
      * assigned to any telemetry parameter in the structure tables grayed out
      *
-     * @param rateName rate column name
+     * @param rateName Rate column name
      *
      * @param parent   GUI component over which to center any error dialog
      *

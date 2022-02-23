@@ -90,7 +90,7 @@ public class CcddCommandDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Command information dialog class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     CcddCommandDialog(CcddMain ccddMain)
     {

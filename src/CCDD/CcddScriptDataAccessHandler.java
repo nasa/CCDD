@@ -138,22 +138,22 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Script data access class constructor
      *
-     * @param ccddMain         main class
+     * @param ccddMain         Main class
      *
-     * @param scriptEngine     script engine reference
+     * @param scriptEngine     Script engine reference
      *
-     * @param tableInformation array of table information
+     * @param tableInformation Array of table information
      *
-     * @param linkHandler      link handler reference
+     * @param linkHandler      Link handler reference
      *
-     * @param groupHandler     group handler reference
+     * @param groupHandler     Group handler reference
      *
-     * @param scriptFileName   name of the script file being executed
+     * @param scriptFileName   Name of the script file being executed
      *
-     * @param groupNames       list containing the names of any groups referenced in the script
+     * @param groupNames       List containing the names of any groups referenced in the script
      *                         association
      *
-     * @param parent           reference to the GUI component from which this class was generated
+     * @param parent           Reference to the GUI component from which this class was generated
      *                         (script dialog if executing from within the CCDD application; main window
      *                         frame if executing from the command line)
      *********************************************************************************************/
@@ -189,7 +189,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the table information for the table type specified
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command". The table type is
      *                  converted to the generic type ("Structure" or "Command") if the specified type
@@ -302,9 +302,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the number of characters in longest string in an array of strings
      *
-     * @param strgArray array of strings
+     * @param strgArray Array of strings
      *
-     * @param minWidth  initial minimum widths; null to use zero as the minimum
+     * @param minWidth  Initial minimum widths; null to use zero as the minimum
      *
      * @return Character length of the longest string in the supplied array; null if an input is invalid
      *********************************************************************************************/
@@ -334,9 +334,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the number of characters in longest string in each column of an array of strings
      *
-     * @param strgArray array of string arrays
+     * @param strgArray Array of string arrays
      *
-     * @param minWidths array of initial minimum widths; null to use zero as the minimum for each column
+     * @param minWidths Array of initial minimum widths; null to use zero as the minimum for each column
      *
      * @return Character length of the longest string in each column of the supplied array; null if any
      *         of the inputs is invalid
@@ -418,7 +418,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the supplied data type is a primitive type
      *
-     * @param dataType name of the data type to test
+     * @param dataType Name of the data type to test
      *
      * @return true if the supplied data type is a primitive; false otherwise
      *********************************************************************************************/
@@ -430,7 +430,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the supplied data type is a signed or unsigned integer
      *
-     * @param dataType name of the data type to test
+     * @param dataType Name of the data type to test
      *
      * @return true if the supplied data type is an integer (signed or unsigned); false otherwise
      *********************************************************************************************/
@@ -442,7 +442,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the supplied data type is an unsigned integer
      *
-     * @param dataType name of the data type to test
+     * @param dataType Name of the data type to test
      *
      * @return true if the supplied data type is an unsigned integer; false otherwise
      *********************************************************************************************/
@@ -454,7 +454,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the supplied data type is a float or double
      *
-     * @param dataType name of the data type to test
+     * @param dataType Name of the data type to test
      *
      * @return true if the supplied data type is a float or double; false otherwise
      *********************************************************************************************/
@@ -466,7 +466,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the supplied data type is a character or string
      *
-     * @param dataType name of the data type to test
+     * @param dataType Name of the data type to test
      *
      * @return true if the supplied data type is a character or string; false otherwise
      *********************************************************************************************/
@@ -478,7 +478,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the supplied data type is a character string
      *
-     * @param dataType name of the data type to test
+     * @param dataType Name of the data type to test
      *
      * @return true if the supplied data type is a character string; false otherwise
      *********************************************************************************************/
@@ -490,7 +490,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the C type for the specified data type
      *
-     * @param dataType name of the primitive data type
+     * @param dataType Name of the primitive data type
      *
      * @return C type for the specified data type; returns null if the data type doesn't exist or isn't
      *         a primitive type
@@ -515,7 +515,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the base type for the specified data type
      *
-     * @param dataType name of the primitive data type
+     * @param dataType Name of the primitive data type
      *
      * @return Base type for the specified data type; returns null if the data type doesn't exist or
      *         isn't a primitive type
@@ -540,7 +540,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the number of bytes for the specified data type
      *
-     * @param dataType name of the structure or primitive data type
+     * @param dataType Name of the structure or primitive data type
      *
      * @return Number of bytes required to store the data type; returns 0 if the data type doesn't exist
      *********************************************************************************************/
@@ -552,7 +552,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the number of bits for the specified data type
      *
-     * @param dataType name of the structure or primitive data type
+     * @param dataType Name of the structure or primitive data type
      *
      * @return Number of bits required to store the data type; returns 0 if the data type doesn't exist
      *********************************************************************************************/
@@ -564,7 +564,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Convert a primitive data type into its ITOS encoded form
      *
-     * @param dataType name of the data type (e.g., "uint16" or "double")
+     * @param dataType Name of the data type (e.g., "uint16" or "double")
      *
      * @param encoding "SINGLE_CHAR" to get the single character encoding (e.g., "I" for any integer
      *                 type); "TWO_CHAR" to get the encoding character with the data type size (e.g.,
@@ -778,7 +778,7 @@ public class CcddScriptDataAccessHandler
      * tables can have child tables so using this method for non-structure tables returns the same list
      * of tables as getTableNames(typeName)
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
@@ -842,7 +842,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the number of rows of data in the table for the specified table type
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
@@ -889,7 +889,7 @@ public class CcddScriptDataAccessHandler
      * Get the prototype structure table name to which the specified row's data belongs. Convenience
      * method that assumes the table type is "structure"
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Prototype structure table name to which the current row's parameter belongs; returns a
      *         blank if an instance of the structure table type or the row doesn't exist
@@ -903,7 +903,7 @@ public class CcddScriptDataAccessHandler
      * Get the command table name to which the specified row's data belongs. Convenience method that
      * assumes the table type is "command"
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command table name to which the current row's parameter belongs; returns a blank if an
      *         instance of the command table type or the row doesn't exist
@@ -917,11 +917,11 @@ public class CcddScriptDataAccessHandler
      * Get the prototype table name for the type specified to which the specified row's parameter
      * belongs
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param row       table data row index
+     * @param row       Table data row index
      *
      * @return Prototype table name to which the current row's parameter belongs; return a blank if an
      *         instance of the table type or the row doesn't exist
@@ -971,7 +971,7 @@ public class CcddScriptDataAccessHandler
      * Get array of all table names, including paths for child structure tables, referenced in the table
      * data of the specified table type
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
@@ -986,11 +986,11 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get array of all table names referenced in the table data of the specified table type
      *
-     * @param tableType     table type (case insensitive). All structure table types are combined and
+     * @param tableType     Table type (case insensitive). All structure table types are combined and
      *                      are referenced by the type name "Structure", and all command table types are
      *                      combined and are referenced by the type name "Command"
      *
-     * @param prototypeOnly true to return only the prototype name for any child structures; false to
+     * @param prototypeOnly True to return only the prototype name for any child structures; false to
      *                      include the full path for child structures
      *
      * @return Array of all table names, with paths for child structure tables excluded based on the
@@ -1084,7 +1084,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable name at the specified row in the structure data, with any macro name replaced by
      * its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable name at the specified row in the structure data, with any macro replaced by its
      *         corresponding value; null if the row index is invalid
@@ -1098,7 +1098,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable name at the specified row in the structure data, with any embedded macro(s) left
      * in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable name at the specified row in the structure data, with any embedded macro(s) left
      *         in place; null if the row index is invalid
@@ -1112,9 +1112,9 @@ public class CcddScriptDataAccessHandler
      * Get the variable name at the specified row in the structure data. Macro expansion is controlled
      * by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Variable name at the specified row in the structure data; null if the row index is
@@ -1152,7 +1152,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the variable data type at the specified row in the structure data
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable data type at the specified row in the structure data; null if the row index is
      *         invalid
@@ -1183,7 +1183,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable array size at the specified row in the structure data, with any macro name
      * replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable array size at the specified row in the structure data, with any macro replaced
      *         by its corresponding value; null if the row index is invalid
@@ -1197,7 +1197,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable array size at the specified row in the structure data, with any embedded
      * macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable array size at the specified row in the structure data, with any embedded
      *         macro(s) left in place; null if the row index is invalid
@@ -1211,9 +1211,9 @@ public class CcddScriptDataAccessHandler
      * Get the variable array size at the specified row in the structure data. Macro expansion is
      * controlled by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Variable array size at the specified row in the structure data; null if the row index is
@@ -1252,7 +1252,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable bit length at the specified row in the structure data, with any macro name
      * replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable bit length at the specified row in the structure data, with any macro replaced
      *         by its corresponding value; null if the row index is invalid
@@ -1266,7 +1266,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable bit length at the specified row in the structure data, with any embedded
      * macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable bit length at the specified row in the structure data, with any embedded
      *         macro(s) left in place; null if the row index is invalid
@@ -1280,9 +1280,9 @@ public class CcddScriptDataAccessHandler
      * Get the variable bit length at the specified row in the structure data. Macro expansion is
      * controlled by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Variable bit length at the specified row in the structure data; null if the row index is
@@ -1321,7 +1321,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable description at the specified row in the structure data, with any macro name
      * replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable description at the specified row in the structure data, with any macro replaced
      *         by its corresponding value; null if the row index is invalid or no column has the
@@ -1336,7 +1336,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable description at the specified row in the structure data, with any embedded
      * macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable description at the specified row in the structure data, with any embedded
      *         macro(s) left in place; null if the row index is invalid or no column has the
@@ -1351,9 +1351,9 @@ public class CcddScriptDataAccessHandler
      * Get the variable description at the specified row in the structure data. Macro expansion is
      * controlled by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Variable description at the specified row in the structure data; null if the row index is
@@ -1398,7 +1398,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable units at the specified row in the structure data, with any macro name replaced
      * by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable units at the specified row in the structure data, with any macro replaced by its
      *         corresponding value; null if the row index is invalid or no column has the 'Units' input
@@ -1413,7 +1413,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable units at the specified row in the structure data, with any embedded macro(s)
      * left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Variable units at the specified row in the structure data, with any embedded macro(s)
      *         left in place; null if the row index is invalid or no column has the 'Units' input type
@@ -1427,9 +1427,9 @@ public class CcddScriptDataAccessHandler
      * Get the variable units at the specified row in the structure data. Macro expansion is controlled
      * by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Variable units at the specified row in the structure data; null if the row index is
@@ -1474,7 +1474,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable enumeration(s) at the specified row in the structure data, with any macro name
      * replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Array containing the variable enumeration(s) at the specified row in the structure data,
      *         with any macro replaced by its corresponding value; null if the row index is invalid
@@ -1488,7 +1488,7 @@ public class CcddScriptDataAccessHandler
      * Get the variable enumeration(s) at the specified row in the structure data, with any embedded
      * macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Array containing the variable enumeration(s) at the specified row in the structure data,
      *         with any embedded macro(s) left in place; null if the row index is invalid
@@ -1502,9 +1502,9 @@ public class CcddScriptDataAccessHandler
      * Get the variable enumeration(s) at the specified row in the structure data. Macro expansion is
      * controlled by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Array containing the variable enumeration(s) at the specified row in the structure data;
@@ -1547,7 +1547,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the variable rate(s) at the specified row in the telemetry structure data
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Array containing the variable rate(s) at the specified row in the telemetry structure
      *         data; an empty array if the row index is invalid
@@ -1581,7 +1581,7 @@ public class CcddScriptDataAccessHandler
      * Get the command name at the specified row in the command data, with any macro name replaced by
      * its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command name at the specified row in the command data, with any macro replaced by its
      *         corresponding value; null if the row index is invalid
@@ -1595,7 +1595,7 @@ public class CcddScriptDataAccessHandler
      * Get the command name at the specified row in the command data, with any embedded macro(s) left in
      * place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command name at the specified row in the command data, with any embedded macro(s) left in
      *         place; null if the row index is invalid
@@ -1609,9 +1609,9 @@ public class CcddScriptDataAccessHandler
      * Get the command name at the specified row in the command data. Macro expansion is controlled by
      * the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Command name at the specified row in the command data; null if the row index is invalid
@@ -1649,7 +1649,7 @@ public class CcddScriptDataAccessHandler
      * Get the command code at the specified row in the command data, with any macro name replaced by
      * its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command code at the specified row in the command data, with any macro replaced by its
      *         corresponding value; null if the row index is invalid
@@ -1663,7 +1663,7 @@ public class CcddScriptDataAccessHandler
      * Get the command code at the specified row in the command data, with any embedded macro(s) left in
      * place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command code at the specified row in the command data, with any embedded macro(s) left in
      *         place; null if the row index is invalid
@@ -1677,9 +1677,9 @@ public class CcddScriptDataAccessHandler
      * Get the command code (as a string) at the specified row in the command data. Macro expansion is
      * controlled by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Command code (as a string) at the specified row in the command data; null if the row
@@ -1718,7 +1718,7 @@ public class CcddScriptDataAccessHandler
      * Get the command argument variable path+name at the specified row in the command data, with any
      * macro name replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command argument variable path+name at the specified row in the command data, with any
      *         macro replaced by its corresponding value; null if the row index is invalid
@@ -1732,7 +1732,7 @@ public class CcddScriptDataAccessHandler
      * Get the command argument variable path+name at the specified row in the command data, with any
      * embedded macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Command argument variable path+name at the specified row in the command data, with any
      *         embedded macro(s) left in place; null if the row index is invalid
@@ -1777,9 +1777,9 @@ public class CcddScriptDataAccessHandler
      * Get the command argument variable path+name at the specified row in the command data. Macro
      * expansion is controlled by the input flag
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Command argument variable path+name at the specified row in the command data; null if the
@@ -1818,7 +1818,7 @@ public class CcddScriptDataAccessHandler
      * Get the table type name referenced in the specified row of the structure table type data.
      * Convenience method that specifies the table type as "structure"
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Type name referenced in the specified row of the structure table type data
      *********************************************************************************************/
@@ -1831,7 +1831,7 @@ public class CcddScriptDataAccessHandler
      * Get the table type name referenced in the specified row of the command table type data.
      * Convenience method that specifies the table type as "command"
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return Type name referenced in the specified row of the command table type data
      *********************************************************************************************/
@@ -1845,11 +1845,11 @@ public class CcddScriptDataAccessHandler
      * data for all structure (command) types are combined. This method provides the means to retrieve
      * the specific table type to which the row data belongs based on its "generic" type
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param row       table data row index
+     * @param row       Table data row index
      *
      * @return Type name referenced in the specified row of the specified table type data. This the
      *         table's actual type name and not the generic 'Structure' or 'Command' used to access
@@ -1876,7 +1876,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the the table type name for the specified table
      *
-     * @param tableName name of the table. For a child structure this includes the path
+     * @param tableName Name of the table. For a child structure this includes the path
      *
      * @return Type name for the specified table. This the table's actual type name and not the generic
      *         'Structure' or 'Command' used to access combined structure or command table data
@@ -1909,7 +1909,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the column names for the table referenced on the specified row of the structure table data
      *
-     * @param row structure table data row index
+     * @param row Structure table data row index
      *
      * @return Array containing the names of the columns of the structure table referenced in the
      *         specified row of the structure table data
@@ -1922,7 +1922,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the column names for the table referenced on the specified row of the command table data
      *
-     * @param row command table data row index
+     * @param row Command table data row index
      *
      * @return Array containing the names of the columns of the command table referenced in the
      *         specified row of the command table data
@@ -1936,11 +1936,11 @@ public class CcddScriptDataAccessHandler
      * Get the table column names for the table referenced on the specified row of the table data for
      * the table type specified
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param row       table data row index
+     * @param row       Table data row index
      *
      * @return Array containing the names of the columns of the table type referenced in the specified
      *         row of the type's table data
@@ -1965,7 +1965,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the table column names for the table type specified
      *
-     * @param typeName table type name. This is the table's actual type name and not the generic
+     * @param typeName Table type name. This is the table's actual type name and not the generic
      *                 'Structure' or 'Command' used to access combined structure or command table data
      *
      * @return Array containing the names of the columns of the table type specified
@@ -2121,7 +2121,7 @@ public class CcddScriptDataAccessHandler
      * native format, which includes the variables in the structure path separated by commas, and with
      * the data type and variable names separated by periods
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The variable's full path and name with each variable in the path separated by a comma,
      *         and with each data type and variable name separated by a period; returns a blank if the
@@ -2154,7 +2154,7 @@ public class CcddScriptDataAccessHandler
      * in the full name, replace left square brackets with # underscores and remove right square
      * brackets (example: a[0],b[2] becomes a_0_b_2)
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The variable's full path and name with each variable in the path separated by an
      *         underscore, and with the data types removed; returns a blank if the row is invalid
@@ -2170,9 +2170,9 @@ public class CcddScriptDataAccessHandler
      * member variable names in the full name, replace left square brackets with # underscores and
      * remove right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
      *
-     * @param row              table data row index
+     * @param row              Table data row index
      *
-     * @param varPathSeparator character(s) to place between variable path members
+     * @param varPathSeparator Character(s) to place between variable path members
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s), and with the data types removed; returns a blank if the
@@ -2190,13 +2190,13 @@ public class CcddScriptDataAccessHandler
      * a[0],b[2] becomes a_0separatorb_2). Data types may be excluded or retained, based on the input
      * flag
      *
-     * @param row               table data row index
+     * @param row               Table data row index
      *
-     * @param varPathSeparator  character(s) to place between variable path members
+     * @param varPathSeparator  Character(s) to place between variable path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s); returns a blank if the row is invalid
@@ -2232,12 +2232,12 @@ public class CcddScriptDataAccessHandler
      * member variable names in the full name, replace left square brackets with # underscores and
      * remove right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
      *
-     * @param variablePath     variable path in the format rootTable[,structureDataType1.variable1
+     * @param variablePath     Variable path in the format rootTable[,structureDataType1.variable1
      *                         [,structureDataType2.variable2[,...]]]
      *
-     * @param variableName     variable name in the format primitiveDataType.variable
+     * @param variableName     Variable name in the format primitiveDataType.variable
      *
-     * @param varPathSeparator character(s) to place between variable path members
+     * @param varPathSeparator Character(s) to place between variable path members
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s) and with the data types removed; returns a blank if the
@@ -2254,11 +2254,11 @@ public class CcddScriptDataAccessHandler
      * member variable names in the full name, replace left square brackets with # underscores and
      * remove right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
      *
-     * @param fullName         variable path + name in the format
+     * @param fullName         Variable path + name in the format
      *                         rootTable[,structureDataType1.variable1 [,structureDataType2.variable2
      *                         [,...]]],primitiveDataType.variable
      *
-     * @param varPathSeparator character(s) to place between variable path members
+     * @param varPathSeparator Character(s) to place between variable path members
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s), and with the data types removed; returns a blank if the
@@ -2276,16 +2276,16 @@ public class CcddScriptDataAccessHandler
      * a[0],b[2] becomes a_0separatorb_2). Data types may be excluded or retained, based on the input
      * flag
      *
-     * @param variablePath      variable path in the format rootTable[,structureDataType1.variable1
+     * @param variablePath      Variable path in the format rootTable[,structureDataType1.variable1
      *                          [,structureDataType2.variable2[,...]]]
      *
-     * @param variableName      variableName in the format primitiveDataType.variable
+     * @param variableName      VariableName in the format primitiveDataType.variable
      *
-     * @param varPathSeparator  character(s) to place between variable path members
+     * @param varPathSeparator  Character(s) to place between variable path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s); returns a blank if the variable path + name doesn't
@@ -2314,15 +2314,15 @@ public class CcddScriptDataAccessHandler
      * a[0],b[2] becomes a_0separatorb_2). Data types may be excluded or retained, based on the input
      * flag. Any macro embedded in the variable name is expanded
      *
-     * @param fullName          variable path + name in the format
+     * @param fullName          Variable path + name in the format
      *                          rootTable[,structureDataType1.variable1 [,structureDataType2.variable2
      *                          [,...]]],primitiveDataType.variable
      *
-     * @param varPathSeparator  character(s) to place between variable path members
+     * @param varPathSeparator  Character(s) to place between variable path members
      *
-     * @param excludeDataTypes  true to remove the data types from the variable path + name
+     * @param excludeDataTypes  True to remove the data types from the variable path + name
      *
-     * @param typeNameSeparator character(s) to place between data types and variable names
+     * @param typeNameSeparator Character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s); returns a blank if the variable path + name doesn't
@@ -2339,7 +2339,7 @@ public class CcddScriptDataAccessHandler
      * Get the structure path to which the specified row's data belongs with any embedded macro replaced
      * by its corresponding value. Convenience method that assumes the table type is "structure"
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The structure path to the current row's parameter with any embedded macro replaced by its
      *         corresponding value; returns a blank if an instance of the table type doesn't exist or
@@ -2359,7 +2359,7 @@ public class CcddScriptDataAccessHandler
      * Get the structure path to which the specified row's data belongs with any embedded macro(s) left
      * in place. Convenience method that assumes the table type is "structure"
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The structure path to the current row's parameter with any embedded macro(s) left in
      *         place; returns a blank if an instance of the table type doesn't exist or the row number
@@ -2379,11 +2379,11 @@ public class CcddScriptDataAccessHandler
      * Get the path to which the specified row's data belongs with any embedded macro replaced by its
      * corresponding value
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param row       table data row index
+     * @param row       Table data row index
      *
      * @return The path to the current row's parameter with any embedded macro replaced by its
      *         corresponding value; returns a blank if an instance of the table type doesn't exist or
@@ -2403,11 +2403,11 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the path to which the specified row's data belongs with any embedded macro(s) left in place
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param row       table data row index
+     * @param row       Table data row index
      *
      * @return The path to the current row's parameter with any embedded macro(s) left in place; returns
      *         a blank if an instance of the table type doesn't exist or the row number is invalid. The
@@ -2427,7 +2427,7 @@ public class CcddScriptDataAccessHandler
      * Get the structure path to which the specified row's data belongs, showing only the root structure
      * and variable names and with any embedded macro replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The path to the current row's parameter with any embedded macro replaced by its
      *         corresponding value; returns a blank if an instance of the table type doesn't exist or
@@ -2446,7 +2446,7 @@ public class CcddScriptDataAccessHandler
      * Get the structure path to which the specified row's data belongs, showing only the root structure
      * and variable names and with any embedded macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The path to the current row's parameter with any embedded macro(s) left in place; returns
      *         a blank if an instance of the table type doesn't exist or the row number is invalid. The
@@ -2465,7 +2465,7 @@ public class CcddScriptDataAccessHandler
      * Get the structure path to which the specified row's data belongs, formatted for use in an ITOS
      * record statement and with any embedded macro replaced by its corresponding value
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The path to the current row's parameter formatted for use in an ITOS record statement and
      *         with any embedded macro replaced by its corresponding value; returns a blank if an
@@ -2485,7 +2485,7 @@ public class CcddScriptDataAccessHandler
      * Get the structure path to which the specified row's data belongs, formatted for use in an ITOS
      * record statement, and with any embedded macro(s) left in place
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The path to the current row's parameter formatted for use in an ITOS record statement and
      *         with any embedded macro(s) left in place; returns a blank if an instance of the table
@@ -2503,20 +2503,20 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the path or prototype table name for the table on the specified row in the specified format
      *
-     * @param tableType    table type (case insensitive). All structure table types are combined and are
+     * @param tableType    Table type (case insensitive). All structure table types are combined and are
      *                     referenced by the type name "Structure", and all command table types are
      *                     combined and are referenced by the type name "Command"
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param pathType     the format of the path to return: TablePathType.VARIABLE_AND_PARENT to return
+     * @param pathType     The format of the path to return: TablePathType.VARIABLE_AND_PARENT to return
      *                     the path with the variable names and associated parent structure names,
      *                     TablePathType.PROTOTYPE to return the name of the prototype table,
      *                     TablePathType.VARIABLE_ONLY to return the path with only the variable names
      *                     (parent names removed), or TablePathType.ITOS_RECORD to return the path
      *                     formatted for use in an ITOS record file
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return The table path (or prototype name), for the structure table, to the current row's
@@ -2587,7 +2587,7 @@ public class CcddScriptDataAccessHandler
      * parent. Use getStructurePathByRow() (or variant) to determine the structure to which a specific
      * row belongs
      *
-     * @param row table data row index
+     * @param row Table data row index
      *
      * @return The row index in the structure data for the first entry associated with the parent
      *         structure of the entry on the specified row of the structure data; -1 if there is no
@@ -2639,7 +2639,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Determine if the specified structure is referenced by more than one root structure
      *
-     * @param structureName prototype name of the structure to check
+     * @param structureName Prototype name of the structure to check
      *
      * @return true if the specified structure is referenced by more than one root structure; false
      *         otherwise
@@ -2653,7 +2653,7 @@ public class CcddScriptDataAccessHandler
      * Determine if the specified structure is referenced by more than one root structure, and that at
      * least one of the structures is not associated with the script
      *
-     * @param structureName prototype name of the structure to check
+     * @param structureName Prototype name of the structure to check
      *
      * @return true if the specified structure is referenced by more than one root structure and at
      *         least one of these structures is not associated with the script; false otherwise
@@ -2667,9 +2667,9 @@ public class CcddScriptDataAccessHandler
      * Determine if the specified structure is referenced by more than one root structure. A flag is
      * used to confine the check to structures not associated with the script
      *
-     * @param structureName prototype name of the structure to check
+     * @param structureName Prototype name of the structure to check
      *
-     * @param isExternal    true to only check if the structure is shared by at least one structure not
+     * @param isExternal    True to only check if the structure is shared by at least one structure not
      *                      associated with the script
      *
      * @return true if the specified structure is referenced by more than one root structure and, if the
@@ -2770,7 +2770,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified table
      *
-     * @param tableName name of the table, including the path if this table references a structure, to
+     * @param tableName Name of the table, including the path if this table references a structure, to
      *                  which the field is a member
      *
      * @return Array of the data field names associated with the specified table; returns an empty array
@@ -2784,7 +2784,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified group
      *
-     * @param groupName name of the group to which the field is a member
+     * @param groupName Name of the group to which the field is a member
      *
      * @return Array of the data field names associated with the specified group; returns an empty array
      *         if the group name is invalid or the group has no data fields
@@ -2797,7 +2797,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified table type
      *
-     * @param typeName name of the table type to which the field is a member
+     * @param typeName Name of the table type to which the field is a member
      *
      * @return Array of the data field names associated with the specified table type; returns an empty
      *         array if the table type name is invalid or the table type has no data fields
@@ -2821,7 +2821,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified owner
      *
-     * @param ownerName name of the table type to which the field is a member
+     * @param ownerName Name of the table type to which the field is a member
      *
      * @return Array of the data field names associated with the specified owner; returns an empty array
      *         if the owner name is invalid or the owner has no data fields
@@ -2843,7 +2843,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the data field value for all tables that have the specified data field
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Array of table names and the data field value; returns an empty array if the field name
      *         is invalid (i.e., no table has the data field)
@@ -2856,7 +2856,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the data field value for all structure tables that have the specified data field
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Array of structure table names and the data field value; returns an empty array if the
      *         field name is invalid (i.e., no structure table has the data field)
@@ -2869,7 +2869,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the data field value for all command tables that have the specified data field
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Array of command table names and the data field value; returns an empty array if the
      *         field name is invalid (i.e., no command table has the data field)
@@ -2882,12 +2882,12 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the data field value for all tables of the specified type that have the specified data field
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command". null to include tables
      *                  of any type
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Array of table names of the specified type and the data field value; returns an empty
      *         array if the field name is invalid (i.e., no table has the data field)
@@ -2916,10 +2916,10 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the value for the specified table's specified data field
      *
-     * @param tableName name of the table, including the path if this table references a structure, for
+     * @param tableName Name of the table, including the path if this table references a structure, for
      *                  which the field is a member
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field value; returns a null if the table name or field name is invalid
      *********************************************************************************************/
@@ -2931,9 +2931,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the value for the specified group's specified data field
      *
-     * @param groupName name of the group for which the field is a member
+     * @param groupName Name of the group for which the field is a member
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field value; returns a null if the group name or field name is invalid
      *********************************************************************************************/
@@ -2945,9 +2945,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the value for the specified table type's specified data field
      *
-     * @param typeName  name of the table type for which the field is a member
+     * @param typeName  Name of the table type for which the field is a member
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field value; returns a null if the table type name or field name is invalid
      *********************************************************************************************/
@@ -2959,7 +2959,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the value for the specified project data field
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field value; returns a null if the project field name is invalid
      *********************************************************************************************/
@@ -2971,10 +2971,10 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the contents of the data field for the specified table's specified data field
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field value; returns a null if the owner name or field name is invalid
      *********************************************************************************************/
@@ -3007,10 +3007,10 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description for the specified table's specified data field
      *
-     * @param tableName name of the table, including the path if this table references a structure, to
+     * @param tableName Name of the table, including the path if this table references a structure, to
      *                  which the field is a member
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field description; returns a blank if the table type, table name, or field name is
      *         invalid
@@ -3023,9 +3023,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description for the specified group's specified data field
      *
-     * @param groupName name of the group to which the field is a member
+     * @param groupName Name of the group to which the field is a member
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field description; returns a blank if the group name or field name is invalid
      *********************************************************************************************/
@@ -3037,9 +3037,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description for the specified table type's specified data field
      *
-     * @param typeName  name of the table type to which the field is a member
+     * @param typeName  Name of the table type to which the field is a member
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field description; returns a blank if the table type name or field name is invalid
      *********************************************************************************************/
@@ -3051,7 +3051,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description for the specified project data field
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field description; returns a blank if the project field name is invalid
      *********************************************************************************************/
@@ -3063,10 +3063,10 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description of the data field for the specified owner's specified data field
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
-     * @param fieldName data field name
+     * @param fieldName Data field name
      *
      * @return Data field description; returns a blank if the owner name or field name is invalid
      *********************************************************************************************/
@@ -3093,9 +3093,9 @@ public class CcddScriptDataAccessHandler
      * corresponding value. The column is specified by name. Convenience method that assumes the table
      * type is "structure"
      *
-     * @param columnName column name (case insensitive)
+     * @param columnName Column name (case insensitive)
      *
-     * @param row        table data row index
+     * @param row        Table data row index
      *
      * @return Contents of the specified structure table's array at the row and column name provided,
      *         with any macro replaced by its corresponding value; returns null if an instance of the
@@ -3111,9 +3111,9 @@ public class CcddScriptDataAccessHandler
      * corresponding value. The column is specified by name. Convenience method that assumes the table
      * type is "command"
      *
-     * @param columnName column name (case insensitive)
+     * @param columnName Column name (case insensitive)
      *
-     * @param row        table data row index
+     * @param row        Table data row index
      *
      * @return Contents of the specified command table's array at the row and column name provided, with
      *         any macro replaced by its corresponding value; returns null if an instance of the command
@@ -3128,13 +3128,13 @@ public class CcddScriptDataAccessHandler
      * Get the data at the row and column indicated, with any macro replaced by its corresponding value,
      * for the table type specified. The column is specified by name
      *
-     * @param tableType  table type (case insensitive). All structure table types are combined and are
+     * @param tableType  Table type (case insensitive). All structure table types are combined and are
      *                   referenced by the type name "Structure", and all command table types are
      *                   combined and are referenced by the type name "Command"
      *
-     * @param columnName column name (case insensitive)
+     * @param columnName Column name (case insensitive)
      *
-     * @param row        table data row index
+     * @param row        Table data row index
      *
      * @return Contents of the specified table's array at the row and column name provided, with any
      *         macro replaced by its corresponding value; returns null if an instance of the table type,
@@ -3150,9 +3150,9 @@ public class CcddScriptDataAccessHandler
      * place. The column is specified by name. Convenience method that assumes the table type is
      * "structure"
      *
-     * @param columnName column name (case insensitive)
+     * @param columnName Column name (case insensitive)
      *
-     * @param row        table data row index
+     * @param row        Table data row index
      *
      * @return Contents of the specified structure table's array at the row and column name provided,
      *         with any macro name(s) left in place; returns null if an instance of the structure table
@@ -3167,9 +3167,9 @@ public class CcddScriptDataAccessHandler
      * Get the command table data at the row and column indicated, with any macro name(s) left in place.
      * The column is specified by name. Convenience method that assumes the table type is "command"
      *
-     * @param columnName column name (case insensitive)
+     * @param columnName Column name (case insensitive)
      *
-     * @param row        table data row index
+     * @param row        Table data row index
      *
      * @return Contents of the specified command table's array at the row and column name provided, with
      *         any macro name(s) left in place; returns null if an instance of the command table type,
@@ -3184,13 +3184,13 @@ public class CcddScriptDataAccessHandler
      * Get the data at the row and column indicated, with any macro name(s) left in place, for the table
      * type specified. The column is specified by name
      *
-     * @param tableType  table type (case insensitive). All structure table types are combined and are
+     * @param tableType  Table type (case insensitive). All structure table types are combined and are
      *                   referenced by the type name "Structure", and all command table types are
      *                   combined and are referenced by the type name "Command"
      *
-     * @param columnName column name (case insensitive)
+     * @param columnName Column name (case insensitive)
      *
-     * @param row        table data row index
+     * @param row        Table data row index
      *
      * @return Contents of the specified table's array at the row and column name provided, with any
      *         macro name(s) left in place; returns null if an instance of the table type, the column
@@ -3205,15 +3205,15 @@ public class CcddScriptDataAccessHandler
      * Get the data at the row and column indicated for the table type specified. The column is
      * specified by name. Macro expansion is controlled by the input flag
      *
-     * @param tableType    table type (case insensitive). All structure table types are combined and are
+     * @param tableType    Table type (case insensitive). All structure table types are combined and are
      *                     referenced by the type name "Structure", and all command table types are
      *                     combined and are referenced by the type name "Command"
      *
-     * @param columnName   column name (case insensitive)
+     * @param columnName   Column name (case insensitive)
      *
-     * @param row          table data row index
+     * @param row          Table data row index
      *
-     * @param expandMacros true to replace any macros with their corresponding value; false to return
+     * @param expandMacros True to replace any macros with their corresponding value; false to return
      *                     the data with any macro names in place
      *
      * @return Contents of the specified table's array at the row and column name provided; returns null
@@ -3265,7 +3265,7 @@ public class CcddScriptDataAccessHandler
      * Get an array of row numbers in the structure table data that belong to the specified structure
      * table. Convenience method that assumes the table type is "Structure"
      *
-     * @param tablePath full table path
+     * @param tablePath Full table path
      *
      * @return Array of the structure table data row numbers that belong to the specified structure
      *         table; returns an empty array if the structure table path doesn't exist
@@ -3279,7 +3279,7 @@ public class CcddScriptDataAccessHandler
      * Get an array of row numbers in the command table data that belong to the specified command table.
      * Convenience method that assumes the table type is "Command"
      *
-     * @param tableName table name
+     * @param tableName Table name
      *
      * @return Array of the command table data row numbers that belong to the specified command table;
      *         returns an empty array if the command table name doesn't exist
@@ -3293,11 +3293,11 @@ public class CcddScriptDataAccessHandler
      * Get an array of row numbers in the table data for the specified table type that belong to the
      * specified table
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param tablePath full table path
+     * @param tablePath Full table path
      *
      * @return Array of the specified table type's table data row numbers that belong to the specified
      *         table; returns an empty array if an instance of the table type or the table path doesn't
@@ -3334,12 +3334,12 @@ public class CcddScriptDataAccessHandler
      * specified variable name, with any macro name replaced by its corresponding value. Convenience
      * method that assumes the table type is "Structure" and the variable name column is "Variable Name"
      *
-     * @param tablePath    full table path, which includes the parent table name and the data type +
+     * @param tablePath    Full table path, which includes the parent table name and the data type +
      *                     variable name pairs
      *
-     * @param variableName variable name
+     * @param variableName Variable name
      *
-     * @param columnName   column name (case insensitive)
+     * @param columnName   Column name (case insensitive)
      *
      * @return Contents of the table defined by the table path, variable name, and column name
      *         specified, with any macro replaced by its corresponding value; returns null if an
@@ -3354,19 +3354,19 @@ public class CcddScriptDataAccessHandler
      * Get the data from the table in the specified column for the row in the matching column name that
      * contains the matching name, with any macro name replaced by its corresponding value
      *
-     * @param tableType       table type (case insensitive). All structure table types are combined and
+     * @param tableType       Table type (case insensitive). All structure table types are combined and
      *                        are referenced by the type name "Structure", and all command table types
      *                        are combined and are referenced by the type name "Command"
      *
-     * @param tablePath       full table path
+     * @param tablePath       Full table path
      *
-     * @param matchColumnName name of the column containing that matching name (case insensitive)
+     * @param matchColumnName Name of the column containing that matching name (case insensitive)
      *
-     * @param matchName       text to match in the matching column - this determines the row. The first
+     * @param matchName       Text to match in the matching column - this determines the row. The first
      *                        row in the matching column that matches the matching name determines the
      *                        row used to retrieve the data value
      *
-     * @param dataColumnName  name of the column from which to retrieve the data value (case
+     * @param dataColumnName  Name of the column from which to retrieve the data value (case
      *                        insensitive)
      *
      * @return Contents of the table defined by the table type, table path, matching column name,
@@ -3385,12 +3385,12 @@ public class CcddScriptDataAccessHandler
      * specified variable name, with any macro name(s) left in place. Convenience method that assumes
      * the table type is "Structure" and the variable name column is "Variable Name"
      *
-     * @param tablePath    full table path, which includes the parent table name and the data type +
+     * @param tablePath    Full table path, which includes the parent table name and the data type +
      *                     variable name pairs
      *
-     * @param variableName variable name
+     * @param variableName Variable name
      *
-     * @param columnName   column name (case insensitive)
+     * @param columnName   Column name (case insensitive)
      *
      * @return Contents of the table defined by the table path, variable name, and column name
      *         specified, with any macro name(s) left in place; returns null if an instance of the table
@@ -3405,19 +3405,19 @@ public class CcddScriptDataAccessHandler
      * Get the data from the table in the specified column for the row in the matching column name that
      * contains the matching name, with any macro name(s) left in place
      *
-     * @param tableType       table type (case insensitive). All structure table types are combined and
+     * @param tableType       Table type (case insensitive). All structure table types are combined and
      *                        are referenced by the type name "Structure", and all command table types
      *                        are combined and are referenced by the type name "Command"
      *
-     * @param tablePath       full table path
+     * @param tablePath       Full table path
      *
-     * @param matchColumnName name of the column containing that matching name (case insensitive)
+     * @param matchColumnName Name of the column containing that matching name (case insensitive)
      *
-     * @param matchName       text to match in the matching column - this determines the row. The first
+     * @param matchName       Text to match in the matching column - this determines the row. The first
      *                        row in the matching column that matches the matching name determines the
      *                        row used to retrieve the data value
      *
-     * @param dataColumnName  name of the column from which to retrieve the data value (case
+     * @param dataColumnName  Name of the column from which to retrieve the data value (case
      *                        insensitive)
      *
      * @return Contents of the table defined by the table type, table path, matching column name,
@@ -3435,22 +3435,22 @@ public class CcddScriptDataAccessHandler
      * Get the data from the table in the specified column for the row in the matching column name that
      * contains the matching name. Macro expansion is controlled by the input flag
      *
-     * @param tableType       table type (case insensitive). All structure table types are combined and
+     * @param tableType       Table type (case insensitive). All structure table types are combined and
      *                        are referenced by the type name "Structure", and all command table types
      *                        are combined and are referenced by the type name "Command"
      *
-     * @param tablePath       full table path
+     * @param tablePath       Full table path
      *
-     * @param matchColumnName name of the column containing that matching name (case insensitive)
+     * @param matchColumnName Name of the column containing that matching name (case insensitive)
      *
-     * @param matchName       text to match in the matching column - this determines the row. The first
+     * @param matchName       Text to match in the matching column - this determines the row. The first
      *                        row in the matching column that matches the matching name determines the
      *                        row used to retrieve the data value
      *
-     * @param dataColumnName  name of the column from which to retrieve the data value (case
+     * @param dataColumnName  Name of the column from which to retrieve the data value (case
      *                        insensitive)
      *
-     * @param expandMacros    true to replace any macros with their corresponding value; false to return
+     * @param expandMacros    True to replace any macros with their corresponding value; false to return
      *                        the data with any macro names in place
      *
      * @return Contents of the table defined by the table type, table path, matching column name,
@@ -3517,7 +3517,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description of the specified table
      *
-     * @param tableName table name, including the full path for child structure tables
+     * @param tableName Table name, including the full path for child structure tables
      *
      * @return Description of the specified table; returns a blank the table doesn't exist
      *********************************************************************************************/
@@ -3677,11 +3677,11 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description of the table at the row indicated for the table type specified
      *
-     * @param tableType table type (case insensitive). All structure table types are combined and are
+     * @param tableType Table type (case insensitive). All structure table types are combined and are
      *                  referenced by the type name "Structure", and all command table types are
      *                  combined and are referenced by the type name "Command"
      *
-     * @param row       table data row index
+     * @param row       Table data row index
      *
      * @return Description of the specified table at the row provided; returns a blank if an instance of
      *         the table type or the row doesn't exist
@@ -3717,7 +3717,7 @@ public class CcddScriptDataAccessHandler
      * that the text describes information useful to the user; e.g., script status. The Okay button must
      * be pressed before the script can continue
      *
-     * @param text text to display in the dialog
+     * @param text Text to display in the dialog
      *********************************************************************************************/
     public void showInformationDialog(String text)
     {
@@ -3731,7 +3731,7 @@ public class CcddScriptDataAccessHandler
      * the text describes an warning condition. The Okay button must be pressed before the script can
      * continue
      *
-     * @param text text to display in the dialog
+     * @param text Text to display in the dialog
      *********************************************************************************************/
     public void showWarningDialog(String text)
     {
@@ -3744,7 +3744,7 @@ public class CcddScriptDataAccessHandler
      * Display an error dialog showing the supplied text. The dialog’s header and icon indicate that the
      * text describes an error condition. The Okay button must be pressed before the script can continue
      *
-     * @param text text to display in the dialog
+     * @param text Text to display in the dialog
      *********************************************************************************************/
     public void showErrorDialog(String text)
     {
@@ -3757,7 +3757,7 @@ public class CcddScriptDataAccessHandler
      * Display a dialog for receiving text input. The user must select Okay to accept the input, or
      * Cancel to close the dialog without accepting the input
      *
-     * @param labelText text to display in the dialog
+     * @param labelText Text to display in the dialog
      *
      * @return The text entered in the dialog input field if the Okay button is pressed; returns null if
      *         no text or white space is entered, or if the Cancel button is pressed
@@ -3826,9 +3826,9 @@ public class CcddScriptDataAccessHandler
      * be selected at a time. The user must press the Okay button to accept the radio button input, or
      * Cancel to close the dialog without accepting the input
      *
-     * @param label      text to display above the radio buttons
+     * @param label      Text to display above the radio buttons
      *
-     * @param buttonInfo array containing the text and optional descriptions for the radio buttons to
+     * @param buttonInfo Array containing the text and optional descriptions for the radio buttons to
      *                   display in the dialog
      *
      * @return The text for the selected radio button if the Okay button is pressed; returns null if no
@@ -3873,9 +3873,9 @@ public class CcddScriptDataAccessHandler
      * Display a dialog containing one or more check boxes. The user must press the Okay button to
      * accept the check box input(s), or Cancel to close the dialog without accepting the input
      *
-     * @param label   text to display above the check boxes
+     * @param label   Text to display above the check boxes
      *
-     * @param boxInfo array containing the text and optional descriptions for the check boxes to display
+     * @param boxInfo Array containing the text and optional descriptions for the check boxes to display
      *                in the dialog
      *
      * @return An array containing the status for the check box(es) if the Okay button is pressed;
@@ -3946,7 +3946,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Output a 'success' message to the event log
      *
-     * @param logMessage text to output to the event log
+     * @param logMessage Text to output to the event log
      *********************************************************************************************/
     public void writeSuccessLogEntry(String logMessage)
     {
@@ -3958,7 +3958,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Output a 'fail' message to the event log
      *
-     * @param logMessage text to output to the event log
+     * @param logMessage Text to output to the event log
      *********************************************************************************************/
     public void writeFailLogEntry(String logMessage)
     {
@@ -3970,7 +3970,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Output a 'status' message to the event log
      *
-     * @param logMessage text to output to the event log
+     * @param logMessage Text to output to the event log
      *********************************************************************************************/
     public void writeStatusLogEntry(String logMessage)
     {
@@ -4018,9 +4018,9 @@ public class CcddScriptDataAccessHandler
      * Divide the supplied string into an array using the supplied separator character or string, and
      * trim any leading or trailing white space characters from each array member
      *
-     * @param text            string to separate into an array
+     * @param text            String to separate into an array
      *
-     * @param columnSeparator character string to use to delineate the separation point(s) between
+     * @param columnSeparator Character string to use to delineate the separation point(s) between
      *                        columns. The separator is eliminated from the array members
      *
      * @return Array representing the substrings in the supplied text after being parsed using the
@@ -4036,12 +4036,12 @@ public class CcddScriptDataAccessHandler
      * separator characters or strings, and trim any leading or trailing white space characters from
      * each array member
      *
-     * @param text            string to separate into an array
+     * @param text            String to separate into an array
      *
-     * @param columnSeparator character string to use to delineate the separation point(s) between
+     * @param columnSeparator Character string to use to delineate the separation point(s) between
      *                        columns. The separator is eliminated from the array members
      *
-     * @param rowSeparator    character string to use to delineate the separation point(s) between rows.
+     * @param rowSeparator    Character string to use to delineate the separation point(s) between rows.
      *                        The separator is eliminated from the array members. Use null if only one
      *                        row is supplied
      *
@@ -4090,7 +4090,7 @@ public class CcddScriptDataAccessHandler
      * Open the specified file for writing. The PrintWriter object that is returned is used by the file
      * writing methods to specify the output file
      *
-     * @param outputFileName output file path + name
+     * @param outputFileName Output file path + name
      *
      * @return PrintWriter object; returns null if the file could not be opened
      *********************************************************************************************/
@@ -4102,9 +4102,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Write the supplied text to the specified output file PrintWriter object
      *
-     * @param printWriter output file PrintWriter object obtained from the openOutputFile method
+     * @param printWriter Output file PrintWriter object obtained from the openOutputFile method
      *
-     * @param text        text to write to the output file
+     * @param text        Text to write to the output file
      *********************************************************************************************/
     public void writeToFile(PrintWriter printWriter, String text)
     {
@@ -4115,9 +4115,9 @@ public class CcddScriptDataAccessHandler
      * Write the supplied text to the specified output file PrintWriter object and append a line feed
      * character
      *
-     * @param printWriter output file PrintWriter object obtained from the openOutputFile method
+     * @param printWriter Output file PrintWriter object obtained from the openOutputFile method
      *
-     * @param text        text to write to the output file
+     * @param text        Text to write to the output file
      *********************************************************************************************/
     public void writeToFileLn(PrintWriter printWriter, String text)
     {
@@ -4128,11 +4128,11 @@ public class CcddScriptDataAccessHandler
      * Write the supplied formatted text in the indicated format to the specified output file
      * PrintWriter object
      *
-     * @param printWriter output file PrintWriter object obtained from the openOutputFile method
+     * @param printWriter Output file PrintWriter object obtained from the openOutputFile method
      *
-     * @param format      print format string to write to the output file
+     * @param format      Print format string to write to the output file
      *
-     * @param args        variable list of arguments referenced by the format specifiers in the format
+     * @param args        Variable list of arguments referenced by the format specifiers in the format
      *                    string
      *********************************************************************************************/
     public void writeToFileFormat(PrintWriter printWriter, String format, Object... args)
@@ -4143,7 +4143,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Close the specified output file
      *
-     * @param printWriter output file PrintWriter object
+     * @param printWriter Output file PrintWriter object
      *********************************************************************************************/
     public void closeFile(PrintWriter printWriter)
     {
@@ -4179,9 +4179,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description of the specified link
      *
-     * @param streamName data stream name
+     * @param streamName Data stream name
      *
-     * @param linkName   link name
+     * @param linkName   Link name
      *
      * @return Link description; returns a blank if the data stream or link don't exist, or the link has
      *         no description
@@ -4213,9 +4213,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Return the sample rate for the specified link
      *
-     * @param streamName data stream name
+     * @param streamName Data stream name
      *
-     * @param linkName   link name
+     * @param linkName   Link name
      *
      * @return Text representation of the sample rate, in samples per second, of the specified link. For
      *         rates equal to or faster than 1 sample per second the string represents a whole number;
@@ -4249,7 +4249,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the array of data stream and link names to which the specified variable belongs
      *
-     * @param variableName variable path and name
+     * @param variableName Variable path and name
      *
      * @return Array containing the data stream and link names to which the specified variable is a
      *         member; returns an empty array if the variable does not belong to a link
@@ -4271,7 +4271,7 @@ public class CcddScriptDataAccessHandler
      * path, including parent structure and variable name, is used to verify that the specified target
      * has been located; i.e., not another variable with the same name
      *
-     * @param path a comma separated string of the parent structure and each data type and variable name
+     * @param path A comma separated string of the parent structure and each data type and variable name
      *             of each variable in the current search path
      *
      * @return The byte offset to the target variable relative to its parent structure; returns -1 if
@@ -4286,7 +4286,7 @@ public class CcddScriptDataAccessHandler
      * Get the array representing the CFS application name data field values associated with the link
      * entries. Each application name appears only once in the array
      *
-     * @param dataFieldName name of the application name data field
+     * @param dataFieldName Name of the application name data field
      *
      * @return Array containing the contents of the specified CFS application name data field associated
      *         with each of the tables referenced by the link entries
@@ -4317,7 +4317,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the array of group names
      *
-     * @param applicationOnly true if only those groups that represent a CFS application should be
+     * @param applicationOnly True if only those groups that represent a CFS application should be
      *                        returned
      *
      * @return Array of group names (application groups only if the input flag is true); empty array if
@@ -4338,7 +4338,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the description for the specified group
      *
-     * @param groupName group name
+     * @param groupName Group name
      *
      * @return Description for the specified group; blank if the group has no description or the group
      *         doesn't exist
@@ -4359,7 +4359,7 @@ public class CcddScriptDataAccessHandler
      * Get an array containing the table members, including the member table ancestor tables, for the
      * specified group
      *
-     * @param groupName group name
+     * @param groupName Group name
      *
      * @return Array containing the table members for the specified group; an empty array if the group
      *         has no table members or the group doesn't exist
@@ -4391,7 +4391,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get an array containing the data field information for the specified group
      *
-     * @param groupName group name
+     * @param groupName Group name
      *
      * @return Array containing the data field information for the specified group; an empty array if
      *         the group has no data fields or the group doesn't exist, or null if the group handler
@@ -4455,14 +4455,14 @@ public class CcddScriptDataAccessHandler
      * Get the copy table for the messages of the specified data stream. Any macro embedded in a
      * variable name is replaced by its corresponding value
      *
-     * @param streamName         data stream name
+     * @param streamName         Data stream name
      *
-     * @param headerSize         size of the message header in bytes. For example, the CCSDS header size
+     * @param headerSize         Size of the message header in bytes. For example, the CCSDS header size
      *                           is 12
      *
-     * @param messageIDNameField name of the message ID name data field (e.g., 'Message ID name')
+     * @param messageIDNameField Name of the message ID name data field (e.g., 'Message ID name')
      *
-     * @param optimize           true to combine memory copy calls for consecutive variables in the copy
+     * @param optimize           True to combine memory copy calls for consecutive variables in the copy
      *                           table
      *
      * @return Array containing the copy table entries; returns blank if there are no entries for the
@@ -4480,14 +4480,14 @@ public class CcddScriptDataAccessHandler
      * Get the copy table for the messages of the specified data stream. Any macro embedded in a
      * variable name is left in place
      *
-     * @param streamName         data stream name
+     * @param streamName         Data stream name
      *
-     * @param headerSize         size of the message header in bytes. For example, the CCSDS header size
+     * @param headerSize         Size of the message header in bytes. For example, the CCSDS header size
      *                           is 12
      *
-     * @param messageIDNameField name of the message ID name data field (e.g., 'Message ID name')
+     * @param messageIDNameField Name of the message ID name data field (e.g., 'Message ID name')
      *
-     * @param optimize           true to combine memory copy calls for consecutive variables in the copy
+     * @param optimize           True to combine memory copy calls for consecutive variables in the copy
      *                           table
      *
      * @return Array containing the copy table entries with any macro embedded in a variable name left
@@ -4505,15 +4505,15 @@ public class CcddScriptDataAccessHandler
      * Get the copy table for the messages of the specified data stream. Any macro embedded in a
      * variable name is replaced by its corresponding value
      *
-     * @param streamName    data stream name
+     * @param streamName    Data stream name
      *
-     * @param headerSize    size of the message header in bytes. For example, the CCSDS header size is
+     * @param headerSize    Size of the message header in bytes. For example, the CCSDS header size is
      *                      12
      *
-     * @param tlmMessageIDs array containing string array entries giving the structure table path+name
+     * @param tlmMessageIDs Array containing string array entries giving the structure table path+name
      *                      and the table's associated message ID name
      *
-     * @param optimize      true to combine memory copy calls for consecutive variables in the copy
+     * @param optimize      True to combine memory copy calls for consecutive variables in the copy
      *                      table
      *
      * @return Array containing the copy table entries; returns blank if there are no entries for the
@@ -4534,15 +4534,15 @@ public class CcddScriptDataAccessHandler
      * Get the copy table for the messages of the specified data stream. Any macro embedded in a
      * variable name is left in place
      *
-     * @param streamName    data stream name
+     * @param streamName    Data stream name
      *
-     * @param headerSize    size of the message header in bytes. For example, the CCSDS header size is
+     * @param headerSize    Size of the message header in bytes. For example, the CCSDS header size is
      *                      12
      *
-     * @param tlmMessageIDs array containing string array entries giving the structure table path+name
+     * @param tlmMessageIDs Array containing string array entries giving the structure table path+name
      *                      and the table's associated message ID name
      *
-     * @param optimize      true to combine memory copy calls for consecutive variables in the copy
+     * @param optimize      True to combine memory copy calls for consecutive variables in the copy
      *                      table
      *
      * @return Array containing the copy table entries with any macro embedded in a variable name left
@@ -4563,22 +4563,22 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the copy table for the messages of the specified data stream
      *
-     * @param streamName         data stream name
+     * @param streamName         Data stream name
      *
-     * @param headerSize         size of the message header in bytes. For example, the CCSDS header size
+     * @param headerSize         Size of the message header in bytes. For example, the CCSDS header size
      *                           is 12
      *
-     * @param messageIDNameField name of the structure table data field containing the message ID name.
+     * @param messageIDNameField Name of the structure table data field containing the message ID name.
      *                           If provided this is used instead of the tlmMessageIDs list
      *
-     * @param tlmMessageIDs      list containing string array entries giving the structure table
+     * @param tlmMessageIDs      List containing string array entries giving the structure table
      *                           path+name and the table's associated message ID name. Used if
      *                           messageIDNameField is null
      *
-     * @param optimize           true to combine memory copy calls for consecutive variables in the copy
+     * @param optimize           True to combine memory copy calls for consecutive variables in the copy
      *                           table
      *
-     * @param expandMacros       true to expand any macro within the variable names
+     * @param expandMacros       True to expand any macro within the variable names
      *
      * @return Array containing the copy table entries; returns blank if there are no entries for the
      *         specified data stream or if data stream name is invalid
@@ -4616,7 +4616,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the copy table message names and their corresponding ID values for the specified data stream
      *
-     * @param streamName data stream name
+     * @param streamName Data stream name
      *
      * @return Array containing the copy table message names and ID values; returns blank if there are
      *         no entries for the specified data stream or if data stream name is invalid
@@ -4664,7 +4664,7 @@ public class CcddScriptDataAccessHandler
      * name or ID is present in the supplied string the output is based on if the string evaluates to a
      * hexadecimal value (treated as the ID; name is blank) or not (treated as the name; ID is blank)
      *
-     * @param msgNameAndID message name and ID in the format [&lt;message name&gt;] [&lt;message ID&gt;]
+     * @param msgNameAndID Message name and ID in the format [&lt;message name&gt;] [&lt;message ID&gt;]
      *
      * @return One-dimensional array containing the message name in index 0 and the ID in index 1
      *         (depending on the input string either or both may be blank)
@@ -4721,7 +4721,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the specified entry in the application scheduler schedule definition table
      *
-     * @param row row index for the entry in the schedule definition table
+     * @param row Row index for the entry in the schedule definition table
      *
      * @return Array containing the specified entry in the schedule definition table
      *********************************************************************************************/
@@ -4810,7 +4810,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the name of the prototype table for the specified table
      *
-     * @param tableName table name
+     * @param tableName Table name
      *
      * @return The name of the prototype table for the specified table
      *********************************************************************************************/
@@ -4822,7 +4822,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Check if the supplied variable name represents an array member
      *
-     * @param variableName variable name
+     * @param variableName Variable name
      *
      * @return true if the variable name is an array member
      *********************************************************************************************/
@@ -4835,7 +4835,7 @@ public class CcddScriptDataAccessHandler
      * Get the integer array containing the size of each array dimension from the supplied array size
      * string
      *
-     * @param arrayString array size in the format {@literal [#]<[#]<...>> or #<,#<...>>}
+     * @param arrayString Array size in the format {@literal [#]<[#]<...>> or #<,#<...>>}
      *
      * @return Array of integers containing the size of each array dimension
      *********************************************************************************************/
@@ -4848,7 +4848,7 @@ public class CcddScriptDataAccessHandler
      * Convert an integer array containing the size of each array dimension into a string in the format
      * {@literal [#]<[#]<...>>}
      *
-     * @param arrayIndex array of integers containing the size of each array dimension
+     * @param arrayIndex Array of integers containing the size of each array dimension
      *
      * @return Array size in the format {@literal [#]<[#]<...>>}
      *********************************************************************************************/
@@ -4862,21 +4862,21 @@ public class CcddScriptDataAccessHandler
      * using a script association to perform the export. It calls the internal method to set up and
      * parse the tables for export
      *
-     * @param outputFileName    output file name
+     * @param outputFileName    Output file name
      *
-     * @param isBigEndian       true if the data is big endian
+     * @param isBigEndian       True if the data is big endian
      *
-     * @param isHeaderBigEndian true if the telemetry and command headers big endian
+     * @param isHeaderBigEndian True if the telemetry and command headers big endian
      *
-     * @param version           version attribute (for the space system headers)
+     * @param version           Version attribute (for the space system headers)
      *
-     * @param validationStatus  validation status attribute (for the space system headers)
+     * @param validationStatus  Validation status attribute (for the space system headers)
      *
-     * @param classification1   first level classification attribute (for the space system headers)
+     * @param classification1   First level classification attribute (for the space system headers)
      *
-     * @param classification2   second level classification attribute (for the space system headers)
+     * @param classification2   Second level classification attribute (for the space system headers)
      *
-     * @param classification3   third level classification attribute (for the space system headers)
+     * @param classification3   Third level classification attribute (for the space system headers)
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
@@ -4933,15 +4933,15 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Set the space system header attributes
      *
-     * @param spaceSystem      space system reference
+     * @param spaceSystem      Space system reference
      *
-     * @param classification   classification attribute
+     * @param classification   Classification attribute
      *
-     * @param validationStatus validation status attribute
+     * @param validationStatus Validation status attribute
      *
-     * @param version          version attribute
+     * @param version          Version attribute
      *
-     * @param date             export creation time and date
+     * @param date             Export creation time and date
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -4958,7 +4958,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Create the space system telemetry metadata
      *
-     * @param spaceSystem space system reference
+     * @param spaceSystem Space system reference
      *********************************************************************************************/
     public void xtceCreateTelemetryMetadata(SpaceSystemType spaceSystem)
     {
@@ -4972,42 +4972,42 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Add a structure table's parameters to the telemetry meta data
      *
-     * @param spaceSystem     space system to which the table belongs
+     * @param spaceSystem     Space system to which the table belongs
      *
-     * @param tableName       table name
+     * @param tableName       Table name
      *
-     * @param tableData       array containing the table's data
+     * @param tableData       Array containing the table's data
      *
-     * @param varColumn       variable (parameter) name column index
+     * @param varColumn       Variable (parameter) name column index
      *
-     * @param typeColumn      parameter data type column index
+     * @param typeColumn      Parameter data type column index
      *
-     * @param sizeColumn      parameter array size column index
+     * @param sizeColumn      Parameter array size column index
      *
-     * @param bitColumn       parameter bit length column index
+     * @param bitColumn       Parameter bit length column index
      *
-     * @param enumColumn      parameter enumeration column index; -1 if no the table has no enumeration
+     * @param enumColumn      Parameter enumeration column index; -1 if no the table has no enumeration
      *                        column
      *
-     * @param descColumn      parameter description column index; -1 if no the table has no description
+     * @param descColumn      Parameter description column index; -1 if no the table has no description
      *                        column
      *
-     * @param unitsColumn     parameter units column index; -1 if no the table has no units column
+     * @param unitsColumn     Parameter units column index; -1 if no the table has no units column
      *
-     * @param minColumn       minimum parameter value column index; -1 if no the table has no minimum
+     * @param minColumn       Minimum parameter value column index; -1 if no the table has no minimum
      *                        column
      *
-     * @param maxColumn       maximum parameter value column index; -1 if no the table has no maximum
+     * @param maxColumn       Maximum parameter value column index; -1 if no the table has no maximum
      *                        column
      *
-     * @param isTlmHdrTable   true if this table represents the telemetry header or one of its
+     * @param isTlmHdrTable   True if this table represents the telemetry header or one of its
      *                        descendants
      *
-     * @param tlmHdrSysPath   telemetry header table system path; null or blank is none
+     * @param tlmHdrSysPath   Telemetry header table system path; null or blank is none
      *
-     * @param isRootStructure true if the table is a root structure table
+     * @param isRootStructure True if the table is a root structure table
      *
-     * @param applicationID   telemetry header application ID
+     * @param applicationID   Telemetry header application ID
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -5029,27 +5029,27 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Add a parameter with a primitive data type to the parameter set and parameter type set
      *
-     * @param spaceSystem   space system reference
+     * @param spaceSystem   Space system reference
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      parameter primitive data type
+     * @param dataType      Parameter primitive data type
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength     parameter bit length; null or blank if not a bit-wise parameter
+     * @param bitLength     Parameter bit length; null or blank if not a bit-wise parameter
      *
      * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param units         parameter units
+     * @param units         Parameter units
      *
-     * @param minimum       minimum parameter value
+     * @param minimum       Minimum parameter value
      *
-     * @param maximum       maximum parameter value
+     * @param maximum       Maximum parameter value
      *
-     * @param description   parameter description
+     * @param description   Parameter description
      *
-     * @param stringSize    size, in characters, of a string parameter; ignored if not a string or
+     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
      * @throws CCDDException If an error occurs executing an external (script) method
@@ -5070,18 +5070,18 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Add the parameter to the sequence container entry list
      *
-     * @param spaceSystem   reference to the space system to which the parameter belongs
+     * @param spaceSystem   Reference to the space system to which the parameter belongs
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      data type
+     * @param dataType      Data type
      *
-     * @param arraySize     array size
+     * @param arraySize     Array size
      *
-     * @param entryList     reference to the entry list into which to place the parameter (for a
+     * @param entryList     Reference to the entry list into which to place the parameter (for a
      *                      primitive data type) or container (for a structure data type) reference
      *
-     * @param isTlmHdrRef   true if this table represents the telemetry header or one of its descendants
+     * @param isTlmHdrRef   True if this table represents the telemetry header or one of its descendants
      *
      * @return true if the parameter's data type references the telemetry header or one of its
      *         descendants; otherwise return the flag status unchanged
@@ -5105,27 +5105,27 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Create the telemetry parameter data type and set the specified attributes
      *
-     * @param spaceSystem   space system reference
+     * @param spaceSystem   Space system reference
      *
-     * @param parameterName parameter name; null to not specify
+     * @param parameterName Parameter name; null to not specify
      *
-     * @param dataType      data type; null to not specify
+     * @param dataType      Data type; null to not specify
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength     parameter bit length; null or empty if not a bit-wise parameter
+     * @param bitLength     Parameter bit length; null or empty if not a bit-wise parameter
      *
      * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param units         parameter units; null to not specify
+     * @param units         Parameter units; null to not specify
      *
-     * @param minimum       minimum parameter value; null to not specify
+     * @param minimum       Minimum parameter value; null to not specify
      *
-     * @param maximum       maximum parameter value; null to not specify
+     * @param maximum       Maximum parameter value; null to not specify
      *
-     * @param description   parameter description; null to not specify
+     * @param description   Parameter description; null to not specify
      *
-     * @param stringSize    size, in characters, of a string parameter; ignored if not a string or
+     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
      * @throws CCDDException If an error occurs executing an external (script) method
@@ -5146,7 +5146,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Create the space system command metadata
      *
-     * @param spaceSystem space system reference
+     * @param spaceSystem Space system reference
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -5162,23 +5162,23 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Add the command(s) from a table to the specified space system
      *
-     * @param spaceSystem       space system reference
+     * @param spaceSystem       Space system reference
      *
-     * @param tableData         table data array
+     * @param tableData         Table data array
      *
-     * @param cmdNameColumn     command name column index
+     * @param cmdNameColumn     Command name column index
      *
-     * @param cmdCodeColumn     command code column index
+     * @param cmdCodeColumn     Command code column index
      *
-     * @param cmdArgumentColumn command argument structure column index
+     * @param cmdArgumentColumn Command argument structure column index
      *
-     * @param cmdDescColumn     command description column index
+     * @param cmdDescColumn     Command description column index
      *
-     * @param isCmdHeader       true if this table represents the command header
+     * @param isCmdHeader       True if this table represents the command header
      *
-     * @param cmdHdrSysPath     command header table system path
+     * @param cmdHdrSysPath     Command header table system path
      *
-     * @param applicationID     application ID
+     * @param applicationID     Application ID
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -5198,28 +5198,28 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Add a command to the command metadata set
      *
-     * @param spaceSystem   space system reference
+     * @param spaceSystem   Space system reference
      *
-     * @param commandName   command name
+     * @param commandName   Command name
      *
-     * @param cmdFuncCode   command code
+     * @param cmdFuncCode   Command code
      *
-     * @param applicationID application ID
+     * @param applicationID Application ID
      *
-     * @param cmdArgStruct  command argument structure name
+     * @param cmdArgStruct  Command argument structure name
      *
-     * @param isCmdHeader   true if this table represents the command header
+     * @param isCmdHeader   True if this table represents the command header
      *
-     * @param cmdHdrSysPath command header table system path
+     * @param cmdHdrSysPath Command header table system path
      *
-     * @param argumentNames list of command argument names
+     * @param argumentNames List of command argument names
      *
-     * @param argDataTypes  list of of command argument data types
+     * @param argDataTypes  List of of command argument data types
      *
-     * @param argArraySizes list of of command argument array sizes; the list item is null or blank if
+     * @param argArraySizes List of of command argument array sizes; the list item is null or blank if
      *                      the corresponding argument isn't an array
      *
-     * @param description   description of the command
+     * @param description   Description of the command
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -5239,30 +5239,30 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Set the command argument data type and set the specified attributes
      *
-     * @param spaceSystem  space system reference
+     * @param spaceSystem  Space system reference
      *
-     * @param argumentName command argument name; null to not specify
+     * @param argumentName Command argument name; null to not specify
      *
-     * @param dataType     command argument data type; null to not specify
+     * @param dataType     Command argument data type; null to not specify
      *
-     * @param arraySize    command argument array size; null or blank if the argument isn't an array
+     * @param arraySize    Command argument array size; null or blank if the argument isn't an array
      *
-     * @param bitLength    command argument bit length
+     * @param bitLength    Command argument bit length
      *
      * @param enumeration  {@literal command argument enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param units        command argument units; null to not specify
+     * @param units        Command argument units; null to not specify
      *
-     * @param minimum      minimum parameter value; null to not specify
+     * @param minimum      Minimum parameter value; null to not specify
      *
-     * @param maximum      maximum parameter value; null to not specify
+     * @param maximum      Maximum parameter value; null to not specify
      *
-     * @param description  command argument description ; null to not specify
+     * @param description  Command argument description ; null to not specify
      *
-     * @param stringSize   string size in bytes; ignored if the command argument does not have a string
+     * @param stringSize   String size in bytes; ignored if the command argument does not have a string
      *                     data type
      *
-     * @param uniqueID     text used to uniquely identify data types with the same name; blank if the
+     * @param uniqueID     Text used to uniquely identify data types with the same name; blank if the
      *                     data type has no name conflict
      *
      * @return Command description of the type corresponding to the primitive data type with the
@@ -5293,14 +5293,14 @@ public class CcddScriptDataAccessHandler
      * Add a container reference(s) for the telemetry or command parameter or parameter array to the
      * specified entry list
      *
-     * @param entryList     reference to the telemetry or command entry list into which to place the
+     * @param entryList     Reference to the telemetry or command entry list into which to place the
      *                      parameter or parameter array container reference(s)
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      data type
+     * @param dataType      Data type
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
@@ -5317,7 +5317,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Build a unit set from the supplied units string
      *
-     * @param units parameter or command argument units; null to not specify
+     * @param units Parameter or command argument units; null to not specify
      *
      * @return Unit set for the supplied units string; an empty unit set if no units are supplied
      *********************************************************************************************/
@@ -5337,7 +5337,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Build an enumeration list from the supplied enumeration string
      *
-     * @param spaceSystem space system reference
+     * @param spaceSystem Space system reference
      *
      * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
@@ -5359,7 +5359,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Convert the primitive data type into the base equivalent
      *
-     * @param dataType data type
+     * @param dataType Data type
      *
      * @return Base primitive data type corresponding to the specified primitive data type; null if no
      *         match

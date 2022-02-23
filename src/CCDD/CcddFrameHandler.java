@@ -79,7 +79,7 @@ public class CcddFrameHandler extends JFrame
             /**************************************************************************************
              * Override the window closing method
              *
-             * @param button button that initiated window closing
+             * @param button Button that initiated window closing
              *************************************************************************************/
             @Override
             protected void closeWindow(int button)
@@ -150,7 +150,7 @@ public class CcddFrameHandler extends JFrame
      * Set the total width of the table to be displayed in the window which is the sum of the minimum
      * column sizes
      *
-     * @param width total width, in pixels, of the minimum column sizes of the table to be displayed in
+     * @param width Total width, in pixels, of the minimum column sizes of the table to be displayed in
      *              the window
      *********************************************************************************************/
     protected void setTableWidth(int width)
@@ -161,7 +161,7 @@ public class CcddFrameHandler extends JFrame
     /**********************************************************************************************
      * Adjust the minimum allowed window width
      *
-     * @param width window's minimum allowed width, in pixels
+     * @param width Window's minimum allowed width, in pixels
      *********************************************************************************************/
     protected void adjustFrameMinimumWidth(int width)
     {
@@ -191,7 +191,7 @@ public class CcddFrameHandler extends JFrame
     /**********************************************************************************************
      * Set the number of rows occupied by the window's buttons
      *
-     * @param rows number of window button rows
+     * @param rows Number of window button rows
      *********************************************************************************************/
     protected void setButtonRows(int rows)
     {
@@ -201,7 +201,7 @@ public class CcddFrameHandler extends JFrame
     /**********************************************************************************************
      * Enable/disable the button panel buttons. Override to include other frame controls
      *
-     * @param enable true to enable the buttons; false to disable
+     * @param enable True to enable the buttons; false to disable
      *********************************************************************************************/
     protected void setControlsEnabled(boolean enable)
     {
@@ -212,19 +212,19 @@ public class CcddFrameHandler extends JFrame
      * Create the window. If no buttons are provided (lower panel) then create the buttons and button
      * listeners needed based on the option type
      *
-     * @param parent         window to center the window over
+     * @param parent         Window to center the window over
      *
-     * @param upperComponent upper window components
+     * @param upperComponent Upper window components
      *
-     * @param buttonPnl      panel containing the window's buttons; null if a defined option type is
+     * @param buttonPnl      Panel containing the window's buttons; null if a defined option type is
      *                       used
      *
-     * @param defaultBtn     reference to the JButton that is actuated if the Enter key is pressed; null
+     * @param defaultBtn     Reference to the JButton that is actuated if the Enter key is pressed; null
      *                       to have no default button
      *
-     * @param title          title to display in the window frame
+     * @param title          Title to display in the window frame
      *
-     * @param optionType     dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION,
+     * @param optionType     Dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION,
      *                       PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION; ignored if
      *                       buttonPnl isn't null
      *********************************************************************************************/

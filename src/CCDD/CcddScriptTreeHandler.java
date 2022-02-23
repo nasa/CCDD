@@ -60,7 +60,7 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Script tree handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
      * @param parent   GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -72,7 +72,7 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Get the list of scripts stored in the project database
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
      * @param parent   GUI component over which to center any error dialog
      *
@@ -98,11 +98,11 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Perform initialization steps prior to building the script tree
      *
-     * @param ccddMain      main class. This is not used for the script tree
+     * @param ccddMain      Main class. This is not used for the script tree
      *
-     * @param undoHandler   reference to the undo handler. This is not used for the script tree
+     * @param undoHandler   Reference to the undo handler. This is not used for the script tree
      *
-     * @param storedScripts list containing the stored scripts
+     * @param storedScripts List containing the stored scripts
      *********************************************************************************************/
     @Override
     protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> storedScripts)
@@ -113,13 +113,13 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the script tree
      *
-     * @param filterByApp true if the tree is filtered by application. This is not used for the script
+     * @param filterByApp True if the tree is filtered by application. This is not used for the script
      *                    tree
      *
-     * @param filterValue rate column name and message name, separated by a back slash. This is not used
+     * @param filterValue Rate column name and message name, separated by a back slash. This is not used
      *                    for the script tree
      *
-     * @param filterFlag  flag used to filter the tree content. Not used for the script tree
+     * @param filterFlag  Flag used to filter the tree content. Not used for the script tree
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -144,9 +144,9 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Create a script tree panel. The script tree is placed in a scroll pane
      *
-     * @param label         script tree title; null to not display a title
+     * @param label         Script tree title; null to not display a title
      *
-     * @param selectionMode tree item selection mode (single versus multiple)
+     * @param selectionMode Tree item selection mode (single versus multiple)
      *
      * @return JPanel containing the script tree components
      *********************************************************************************************/

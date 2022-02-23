@@ -59,7 +59,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Field handler class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     CcddFieldHandler(CcddMain ccddMain)
     {
@@ -97,7 +97,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Static method to create a copy of the supplied data field information
      *
-     * @param fieldInfo list of field information to copy
+     * @param fieldInfo List of field information to copy
      *
      * @return Copy of the supplied data field information
      *********************************************************************************************/
@@ -112,12 +112,19 @@ public class CcddFieldHandler
             for (FieldInformation info : fieldInfo)
             {
                 // Add the field to the copy (note that the input field reference isn't included in
-                // the copy - the input field only is stored in the field handler and the input field
-                // panel's field information)
-                fldInfo.add(new FieldInformation(info.getOwnerName(), info.getFieldName(), info.getDescription(),
-                                                 info.getInputType(), info.getSize(), info.isRequired(),
-                                                 info.getApplicabilityType(), info.getValue(), info.isInherited(),
-                                                 info.getInputFld(), info.getID()));
+                // the copy - the input field only is stored in the field handler and the input
+                // field panel's field information)
+                fldInfo.add(new FieldInformation(info.getOwnerName(),
+                                                 info.getFieldName(),
+                                                 info.getDescription(),
+                                                 info.getInputType(),
+                                                 info.getSize(),
+                                                 info.isRequired(),
+                                                 info.getApplicabilityType(),
+                                                 info.getValue(),
+                                                 info.isInherited(),
+                                                 info.getInputFld(),
+                                                 info.getID()));
             }
         }
 
@@ -127,8 +134,8 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Set the data field information
      *
-     * @param fieldInfo data field information to copy and use in the field handler; null or an empty
-     *                  list to clear the field information
+     * @param fieldInfo Data field information to copy and use in the field handler; null or an
+     *                  empty list to clear the field information
      *********************************************************************************************/
     protected void setFieldInformation(List<FieldInformation> fieldInfo)
     {
@@ -154,13 +161,15 @@ public class CcddFieldHandler
     protected void buildFieldInformation(Component parent)
     {
         // Use the field definitions to create the data field information
-        setFieldInformationFromDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS, false, parent));
+        setFieldInformationFromDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS,
+                                                                            false,
+                                                                            parent));
     }
 
     /**********************************************************************************************
      * Set the data field information built from the supplied field definitions
      *
-     * @param fieldDefinitions list of data field definitions
+     * @param fieldDefinitions List of data field definitions
      *********************************************************************************************/
     protected void setFieldInformationFromDefinitions(List<String[]> fieldDefinitions)
     {
@@ -172,7 +181,8 @@ public class CcddFieldHandler
         // Check if the field definitions exist
         if (fieldDefinitions != null)
         {
-            // Get the list containing the field information based on the supplied field definitions
+            // Get the list containing the field information based on the supplied field
+            // definitions
             fieldInformation = getFieldInformationFromDefinitions(fieldDefinitions);
         }
     }
@@ -180,10 +190,10 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Get the data field information built from the supplied field definitions
      *
-     * @param fieldDefinitions list of data field definitions
+     * @param fieldDefinitions List of data field definitions
      *
-     * @return List containing the field information based on the supplied field definitions; an empty
-     *         list if the field definitions list is null
+     * @return List containing the field information based on the supplied field definitions; an
+     *         empty list if the field definitions list is null
      *********************************************************************************************/
     protected List<FieldInformation> getFieldInformationFromDefinitions(List<String[]> fieldDefinitions)
     {
@@ -219,16 +229,15 @@ public class CcddFieldHandler
                 // Add the field information
                 fieldInfo.add(new FieldInformation(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
                                                    fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
-                                                   fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(), inputType,
-                                                   Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()]
-                                                           .toString()),
-                                                   Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()]
-                                                           .toString()),
+                                                   fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
+                                                   inputType,
+                                                   Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
+                                                   Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
                                                    applicability,
                                                    fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
-                                                   Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()]
-                                                           .toString()),
-                                                   null, -1));
+                                                   Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()].toString()),
+                                                   null,
+                                                   -1));
             }
         }
 
@@ -236,14 +245,16 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Update the input type for each field definition following a change to the input type definitions
+     * Update the input type for each field definition following a change to the input type
+     * definitions
      *
-     * @param inputTypeNames list of the input type names, before and after the changes; null if none of
-     *                       the input type names changed
+     * @param inputTypeNames List of the input type names, before and after the changes; null if
+     *                       none of the input type names changed
      *
-     * @param fieldInfo      reference to the field information list to update
+     * @param fieldInfo      Reference to the field information list to update
      *********************************************************************************************/
-    protected void updateFieldInputTypes(List<String[]> inputTypeNames, List<FieldInformation> fieldInfo)
+    protected void updateFieldInputTypes(List<String[]> inputTypeNames,
+                                         List<FieldInformation> fieldInfo)
     {
         // Step through each field definition
         for (FieldInformation fldInfo : fieldInfo)
@@ -251,7 +262,8 @@ public class CcddFieldHandler
             // Get the field's input type name before the change
             String inputTypeName = fldInfo.getInputType().getInputName();
 
-            // Check if a list of input type names is provided. If not, assume the names are unchanged
+            // Check if a list of input type names is provided. If not, assume the names are
+            // unchanged
             if (inputTypeNames != null)
             {
                 // Step through each input type that changed
@@ -284,10 +296,10 @@ public class CcddFieldHandler
      * Get the data field information for a specified owner and field from the project's field
      * information list
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
-     * @param fieldName name of the field for which to get the field information (case insensitive)
+     * @param fieldName Name of the field for which to get the field information (case insensitive)
      *
      * @return Reference to the data field information for the specified field; null if the field
      *         doesn't exist
@@ -301,12 +313,13 @@ public class CcddFieldHandler
      * Get the data field information for a specified owner and field from the supplied field
      * information list
      *
-     * @param fieldInformationList list of data field information to search
+     * @param fieldInformationList List of data field information to search
      *
-     * @param ownerName            name of the data field owner (table name, including the path if this
-     *                             table references a structure, group name, or table type name)
+     * @param ownerName            Name of the data field owner (table name, including the path if
+     *                             this table references a structure, group name, or table type
+     *                             name)
      *
-     * @param fieldName            name of the field for which to get the field information (case
+     * @param fieldName            Name of the field for which to get the field information (case
      *                             insensitive)
      *
      * @return Reference to the data field information for the specified field; null if the field
@@ -321,7 +334,8 @@ public class CcddFieldHandler
         for (FieldInformation info : fieldInformationList)
         {
             // Check if the owner and field names match the ones supplied (case insensitive)
-            if (info.getOwnerName().equalsIgnoreCase(ownerName) && info.getFieldName().equalsIgnoreCase(fieldName))
+            if (info.getOwnerName().equalsIgnoreCase(ownerName)
+                && info.getFieldName().equalsIgnoreCase(fieldName))
             {
                 // Store the field information reference and stop searching
                 fieldInfo = info;
@@ -333,16 +347,16 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the data field information for a specified owner and input type. The first field matching the
-     * input type is returned
+     * Get the data field information for a specified owner and input type. The first field
+     * matching the input type is returned
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
-     * @param inputType input type of the field for which to get the field information (InputType)
+     * @param inputType Input type of the field for which to get the field information (InputType)
      *
-     * @return Reference to the data field information for the first field that matches the owner and
-     *         input type; null if the no match is found
+     * @return Reference to the data field information for the first field that matches the owner
+     *         and input type; null if the no match is found
      *********************************************************************************************/
     protected FieldInformation getFieldInformationByInputType(String ownerName, InputType inputType)
     {
@@ -352,7 +366,8 @@ public class CcddFieldHandler
         for (FieldInformation info : fieldInformation)
         {
             // Check if the owner and field types match the ones supplied (case insensitive)
-            if (info.getOwnerName().equalsIgnoreCase(ownerName) && info.getInputType().equals(inputType))
+            if (info.getOwnerName().equalsIgnoreCase(ownerName)
+                && info.getInputType().equals(inputType))
             {
                 // Store the field information reference and stop searching
                 fieldInfo = info;
@@ -366,7 +381,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Get the list of field information for the specified owner
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
      * @return List of field information for the specified owner; an empty list if the owner has no
@@ -451,10 +466,10 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Get the list of field information for the specified table type
      *
-     * @param tableType name of the table type
+     * @param tableType Name of the table type
      *
-     * @return List of field information for the specified table type; an empty list if the table type
-     *         has no fields or the table type is invalid
+     * @return List of field information for the specified table type; an empty list if the table
+     *         type has no fields or the table type is invalid
      *********************************************************************************************/
     protected List<FieldInformation> getFieldInformationByTableType(String tableType)
     {
@@ -464,11 +479,11 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Get a copy of the list of field information for the specified owner
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
-     * @return Copy of the list of field information for the specified owner; an empty list if the owner
-     *         has no fields or the owner name is invalid
+     * @return Copy of the list of field information for the specified owner; an empty list if the
+     *         owner has no fields or the owner name is invalid
      *********************************************************************************************/
     protected List<FieldInformation> getFieldInformationByOwnerCopy(String ownerName)
     {
@@ -478,13 +493,14 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Replace the specified owner's current data fields with those in the supplied list
      *
-     * @param ownerName       name of the data field owner (table name, including the path if this table
-     *                        references a structure, group name, or table type name)
+     * @param ownerName       Name of the data field owner (table name, including the path if this
+     *                        table references a structure, group name, or table type name)
      *
-     * @param newOwnerFldInfo list of field information for the specified owner; an empty list if the
-     *                        owner has no fields
+     * @param newOwnerFldInfo List of field information for the specified owner; an empty list if
+     *                        the owner has no fields
      *********************************************************************************************/
-    protected void replaceFieldInformationByOwner(String ownerName, List<FieldInformation> newOwnerFldInfo)
+    protected void replaceFieldInformationByOwner(String ownerName,
+                                                  List<FieldInformation> newOwnerFldInfo)
     {
         // Get the list of the owner's current fields
         List<FieldInformation> oldOwnerFldInfo = getFieldInformationByOwner(ownerName);
@@ -511,7 +527,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Assign unique ID values to the supplied fields
      *
-     * @param fieldInfo list of field information
+     * @param fieldInfo List of field information
      *********************************************************************************************/
     protected static void assignFieldIDs(List<FieldInformation> fieldInfo)
     {
@@ -527,19 +543,19 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Determine if a field is applicable to the specified owner. A field is always applicable if the
-     * specified applicability is for all tables, or if the owner is a table type or group. If the owner
-     * is a root table then 'child only' fields are inapplicable. If the table doesn't meet any of the
-     * previous criteria then the table is a child table or the prototype for a child table, so 'root
-     * only' fields are inapplicable
+     * Determine if a field is applicable to the specified owner. A field is always applicable if
+     * the specified applicability is for all tables, or if the owner is a table type or group. If
+     * the owner is a root table then 'child only' fields are inapplicable. If the table doesn't
+     * meet any of the previous criteria then the table is a child table or the prototype for a
+     * child table, so 'root only' fields are inapplicable
      *
-     * @param ownerName     name of the data field owner (table name, including the path if this table
-     *                      references a structure, group name, or table type name)
+     * @param ownerName     Name of the data field owner (table name, including the path if this
+     *                      table references a structure, group name, or table type name)
      *
-     * @param applicability one of the ApplicabilityType names; a blank is treated the same as being
-     *                      applicable for all tables
+     * @param applicability One of the ApplicabilityType names; a blank is treated the same as
+     *                      being applicable for all tables
      *
-     * @param isRootStruct  true if the owner is a root structure table; null to obtain the root
+     * @param isRootStruct  True if the owner is a root structure table; null to obtain the root
      *                      structure status from the list maintained in the database table handler
      *
      * @return true if the field is applicable to the owner
@@ -574,21 +590,22 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Determine if the number of data fields, field attributes, or field contents differ between two
-     * sets of data field information
+     * Determine if the number of data fields, field attributes, or field contents differ between
+     * two sets of data field information
      *
-     * @param compFieldInfoA    reference to the the first data field information with which to compare
-     *                          the second data field information
+     * @param compFieldInfoA    Reference to the the first data field information with which to
+     *                          compare the second data field information
      *
-     * @param compFieldInfoB    reference to the second data field information with which to compare the
-     *                          first data field information
+     * @param compFieldInfoB    Reference to the second data field information with which to
+     *                          compare the first data field information
      *
-     * @param isIgnoreOwnerName true if the owner name is ignored. This is the case if called by the
-     *                          data field or table type editors
+     * @param isIgnoreOwnerName True if the owner name is ignored. This is the case if called by
+     *                          the data field or table type editors
      *
      * @return Data field definitions array
      *********************************************************************************************/
-    protected boolean isFieldChanged(List<FieldInformation> compFieldInfoA, List<FieldInformation> compFieldInfoB,
+    protected boolean isFieldChanged(List<FieldInformation> compFieldInfoA,
+                                     List<FieldInformation> compFieldInfoB,
                                      boolean isIgnoreOwnerName)
     {
         // Set the change flag if the number of fields in the two field handlers differ
@@ -624,13 +641,13 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Rebuild the data field definitions for the specified owner from the supplied data field editor
-     * data. The owner's existing fields (if any) are removed, then the supplied definitions are used to
-     * create the owner's new fields (if any)
+     * Rebuild the data field definitions for the specified owner from the supplied data field
+     * editor data. The owner's existing fields (if any) are removed, then the supplied definitions
+     * are used to create the owner's new fields (if any)
      *
-     * @param fieldData array of data field editor data
+     * @param fieldData Array of data field editor data
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
+     * @param ownerName Name of the data field owner (table name, including the path if this table
      *                  references a structure, group name, or table type name)
      *
      * @return List of data field information created from the supplied field definitions
@@ -665,20 +682,14 @@ public class CcddFieldHandler
                 fieldInfo
                         .add(new FieldInformation(ownerName, data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                                   data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                                  inputTypeHandler
-                                                          .getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE
-                                                                  .ordinal()].toString()),
-                                                  Integer.valueOf(data[FieldEditorColumnInfo.CHAR_SIZE.ordinal()]
-                                                          .toString()),
-                                                  Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()]
-                                                          .toString()),
-                                                  ApplicabilityType
-                                                          .getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY
-                                                                  .ordinal()].toString()),
+                                                  inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                  Integer.valueOf(data[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                                  Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                  ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
                                                   data[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
-                                                  Boolean.valueOf(data[FieldEditorColumnInfo.INHERITED.ordinal()]
-                                                          .toString()),
-                                                  null, -1));
+                                                  Boolean.valueOf(data[FieldEditorColumnInfo.INHERITED.ordinal()].toString()),
+                                                  null,
+                                                  -1));
             }
         }
 
@@ -686,13 +697,13 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the array of data field definitions from the supplied field information list for use in the
-     * data field editor
+     * Get the array of data field definitions from the supplied field information list for use in
+     * the data field editor
      *
-     * @param fieldInfo list of field information to convert
+     * @param fieldInfo List of field information to convert
      *
-     * @return Object array containing the data field definitions for the specified owner used by the
-     *         data field editor
+     * @return Object array containing the data field definitions for the specified owner used by
+     *         the data field editor
      *********************************************************************************************/
     protected static Object[][] getFieldEditorDefinition(List<FieldInformation> fieldInfo)
     {
@@ -736,10 +747,14 @@ public class CcddFieldHandler
         for (FieldInformation fieldInfo : fieldInformation)
         {
             // Add the field definition to the list
-            definitions.add(getFieldDefinitionArray(fieldInfo.getOwnerName(), fieldInfo.getFieldName(),
-                                                    fieldInfo.getDescription(), fieldInfo.getInputType(),
-                                                    fieldInfo.getSize(), fieldInfo.isRequired(),
-                                                    fieldInfo.getApplicabilityType(), fieldInfo.getValue(),
+            definitions.add(getFieldDefinitionArray(fieldInfo.getOwnerName(),
+                                                    fieldInfo.getFieldName(),
+                                                    fieldInfo.getDescription(),
+                                                    fieldInfo.getInputType(),
+                                                    fieldInfo.getSize(),
+                                                    fieldInfo.isRequired(),
+                                                    fieldInfo.getApplicabilityType(),
+                                                    fieldInfo.getValue(),
                                                     fieldInfo.isInherited()));
         }
 
@@ -775,30 +790,36 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Create a field definition array from the supplied inputs
      *
-     * @param ownerName     name of the table/table type/group to which the field is a member
+     * @param ownerName     Name of the table/table type/group to which the field is a member
      *
-     * @param fieldName     name of the new field
+     * @param fieldName     Name of the new field
      *
-     * @param description   field description
+     * @param description   Field description
      *
-     * @param inputType     input type (InputType)
+     * @param inputType     Input type (InputType)
      *
-     * @param size          field display size in characters
+     * @param size          Field display size in characters
      *
-     * @param isRequired    true if a value if required in this field
+     * @param isRequired    True if a value if required in this field
      *
-     * @param applicability ApplicabilityType.ALL to indicate all tables, ApplicabilityType.ROOTS_ONLY
-     *                      for root tables only, or ApplicabilityType.CHILD_ONLY for child tables only
+     * @param applicability ApplicabilityType.ALL to indicate all tables,
+     *                      ApplicabilityType.ROOTS_ONLY for root tables only, or
+     *                      ApplicabilityType.CHILD_ONLY for child tables only
      *
-     * @param value         data field value
+     * @param value         Data field value
      *
-     * @param isInherited   true if the field is inherited from a table type definition
+     * @param isInherited   True if the field is inherited from a table type definition
      *
      * @return Field definition array created from the supplied inputs
      *********************************************************************************************/
-    protected static String[] getFieldDefinitionArray(String ownerName, String fieldName, String description,
-                                                      InputType inputType, int size, boolean isRequired,
-                                                      ApplicabilityType applicability, String value,
+    protected static String[] getFieldDefinitionArray(String ownerName,
+                                                      String fieldName,
+                                                      String description,
+                                                      InputType inputType,
+                                                      int size,
+                                                      boolean isRequired,
+                                                      ApplicabilityType applicability,
+                                                      String value,
                                                       boolean isInherited)
     {
         String[] fieldDefn = new String[FieldsColumn.values().length];
@@ -820,9 +841,10 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Update an existing data field's information
      *
-     * @param updateInfo updated field information used to replace the existing field information
+     * @param updateInfo Updated field information used to replace the existing field information
      *
-     * @return true if the a matching owner and field exists for the provided field information update
+     * @return true if the a matching owner and field exists for the provided field information
+     *         update
      *********************************************************************************************/
     protected boolean updateField(FieldInformation updateInfo)
     {
@@ -830,7 +852,8 @@ public class CcddFieldHandler
 
         // Get the reference to the field information for the specified owner/field
         // combination
-        FieldInformation fieldInfo = getFieldInformationByName(updateInfo.getOwnerName(), updateInfo.getFieldName());
+        FieldInformation fieldInfo = getFieldInformationByName(updateInfo.getOwnerName(),
+                                                               updateInfo.getFieldName());
 
         // Check if the owner/field combination exists and if the field differs from the
         // updated
@@ -838,7 +861,8 @@ public class CcddFieldHandler
         if (fieldInfo != null
             && (!fieldInfo.getDescription().equals(updateInfo.getDescription())
                 || !fieldInfo.getInputType().equals(updateInfo.getInputType())
-                || fieldInfo.getSize() != updateInfo.getSize() || fieldInfo.isRequired() != updateInfo.isRequired()
+                || fieldInfo.getSize() != updateInfo.getSize()
+                || fieldInfo.isRequired() != updateInfo.isRequired()
                 || !fieldInfo.getValue().equals(updateInfo.getValue())))
         {
             // Get the position of the field within the list
@@ -859,24 +883,26 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Check the supplied field information list for the specified inheritable (table type) data field
-     * belonging to the specified table. If the table does not have the field then add it; otherwise
-     * update the table's field to ensure it matches the one inherited from its table type (and that no
-     * duplicate field name arises from an existing table field of the same name but different input
-     * type)
+     * Check the supplied field information list for the specified inheritable (table type) data
+     * field belonging to the specified table. If the table does not have the field then add it;
+     * otherwise update the table's field to ensure it matches the one inherited from its table
+     * type (and that no duplicate field name arises from an existing table field of the same name
+     * but different input type)
      *
-     * @param fieldInformationList list of data field information to search
+     * @param fieldInformationList List of data field information to search
      *
-     * @param tablePath            name of the table (including the path if this table represents a
-     *                             structure) for the table owning the field
+     * @param tablePath            Name of the table (including the path if this table represents
+     *                             a structure) for the table owning the field
      *
-     * @param typeFldInfo          reference to the table type data field
+     * @param typeFldInfo          Reference to the table type data field
      *********************************************************************************************/
-    protected void addUpdateInheritedField(List<FieldInformation> fieldInformationList, String tablePath,
+    protected void addUpdateInheritedField(List<FieldInformation> fieldInformationList,
+                                           String tablePath,
                                            FieldInformation typeFldInfo)
     {
         // Get the table's field of the same name as the table type's field
-        FieldInformation tableFldInfo = getFieldInformationByName(fieldInformationList, tablePath,
+        FieldInformation tableFldInfo = getFieldInformationByName(fieldInformationList,
+                                                                  tablePath,
                                                                   typeFldInfo.getFieldName());
 
         // Check if the table doesn't have the inheritable field
@@ -890,10 +916,17 @@ public class CcddFieldHandler
             {
                 // Add the data field to the table
                 fieldInformationList
-                        .add(new FieldInformation(tablePath, typeFldInfo.getFieldName(), typeFldInfo.getDescription(),
-                                                  typeFldInfo.getInputType(), typeFldInfo.getSize(),
-                                                  typeFldInfo.isRequired(), typeFldInfo.getApplicabilityType(),
-                                                  typeFldInfo.getValue(), true, null, -1));
+                        .add(new FieldInformation(tablePath,
+                                                  typeFldInfo.getFieldName(),
+                                                  typeFldInfo.getDescription(),
+                                                  typeFldInfo.getInputType(),
+                                                  typeFldInfo.getSize(),
+                                                  typeFldInfo.isRequired(),
+                                                  typeFldInfo.getApplicabilityType(),
+                                                  typeFldInfo.getValue(),
+                                                  true,
+                                                  null,
+                                                  -1));
             }
         }
         // The table has a field with the same name as the inheritable field
@@ -902,8 +935,7 @@ public class CcddFieldHandler
             // Check if the input types are the same (these are considered the same field)
             if (typeFldInfo.getInputType().equals(tableFldInfo.getInputType()))
             {
-                // Update the description, size, required flag, and applicability type to match
-                // the
+                // Update the description, size, required flag, and applicability type to match the
                 // table type's field definition
                 tableFldInfo.setDescription(typeFldInfo.getDescription());
                 tableFldInfo.setSize(typeFldInfo.getSize());
@@ -920,31 +952,39 @@ public class CcddFieldHandler
 
                 // Add the data field to the table
                 fieldInformationList
-                        .add(new FieldInformation(tablePath, typeFldInfo.getFieldName(), typeFldInfo.getDescription(),
-                                                  typeFldInfo.getInputType(), typeFldInfo.getSize(),
-                                                  typeFldInfo.isRequired(), typeFldInfo.getApplicabilityType(),
-                                                  typeFldInfo.getValue(), true, null, -1));
+                        .add(new FieldInformation(tablePath,
+                                                  typeFldInfo.getFieldName(),
+                                                  typeFldInfo.getDescription(),
+                                                  typeFldInfo.getInputType(),
+                                                  typeFldInfo.getSize(),
+                                                  typeFldInfo.isRequired(),
+                                                  typeFldInfo.getApplicabilityType(),
+                                                  typeFldInfo.getValue(),
+                                                  true,
+                                                  null,
+                                                  -1));
             }
         }
     }
 
     /**********************************************************************************************
-     * Alter an owner's existing field's name so that it doesn't match the supplied name in the supplied
-     * field information list. This can be used when a table inherits a field from its table type
-     * definition to prevent a duplicate field name
+     * Alter an owner's existing field's name so that it doesn't match the supplied name in the
+     * supplied field information list. This can be used when a table inherits a field from its
+     * table type definition to prevent a duplicate field name
      *
-     * @param fieldInformationList list of data field information to search
+     * @param fieldInformationList List of data field information to search
      *
-     * @param ownerName            name of the data field owner (table name, including the path if this
-     *                             table references a structure, group name, or table type name) from
-     *                             which to copy the data fields
+     * @param ownerName            Name of the data field owner (table name, including the path if
+     *                             this table references a structure, group name, or table type
+     *                             name) from which to copy the data fields
      *
-     * @param matchName            field name to use when matching with an existing field for the
+     * @param matchName            Field name to use when matching with an existing field for the
      *                             specified owner
      *
      * @return The field name, updated to be unique by adding one or more trailing underscores
      *********************************************************************************************/
-    protected static String alterFieldName(List<FieldInformation> fieldInformationList, String ownerName,
+    protected static String alterFieldName(List<FieldInformation> fieldInformationList,
+                                           String ownerName,
                                            String matchName)
     {
         // Get the reference to the field
@@ -970,19 +1010,21 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Check if a table already has a field with the specified default field name, but a different input
-     * type
+     * Check if a table already has a field with the specified default field name, but a different
+     * input type
      *
-     * @param tablesOfType  list of tables of the table type containing the default field
+     * @param tablesOfType  List of tables of the table type containing the default field
      *
-     * @param typeFieldName default data field name
+     * @param typeFieldName Default data field name
      *
-     * @param inputType     input type name for the default field
+     * @param inputType     Input type name for the default field
      *
-     * @return true if a table in the list has a data field with the same name but a different input
-     *         type
+     * @return true if a table in the list has a data field with the same name but a different
+     *         input type
      *********************************************************************************************/
-    protected boolean checkForDuplicateField(List<String> tablesOfType, String typeFieldName, String inputType)
+    protected boolean checkForDuplicateField(List<String> tablesOfType,
+                                             String typeFieldName,
+                                             String inputType)
     {
         boolean isDuplicate = false;
 
@@ -1007,11 +1049,11 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Copy the data fields belonging to the specified owner to another table, group, etc.
      *
-     * @param ownerName name of the data field owner (table name, including the path if this table
-     *                  references a structure, group name, or table type name) from which to copy the
-     *                  data fields
+     * @param ownerName Name of the data field owner (table name, including the path if this table
+     *                  references a structure, group name, or table type name) from which to copy
+     *                  the data fields
      *
-     * @param newName   name of the table, group, etc. to which to copy the data fields
+     * @param newName   Name of the table, group, etc. to which to copy the data fields
      *********************************************************************************************/
     protected void copyFields(String ownerName, String newName)
     {
@@ -1032,9 +1074,9 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Count the number of the specified field type that exists in the field information
      *
-     * @param fieldOwner     field owner name
+     * @param fieldOwner     Field owner name
      *
-     * @param fieldInputType field input type (InputType)
+     * @param fieldInputType Field input type (InputType)
      *
      * @return The number of the specified field type that exists in the field information
      *********************************************************************************************/
@@ -1059,12 +1101,12 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Get the value of the data field with the specified input type for the specified field owner
      *
-     * @param fieldOwner field owner name
+     * @param fieldOwner Field owner name
      *
-     * @param inputType  input type for which to search (InputType)
+     * @param inputType  Input type for which to search (InputType)
      *
-     * @return Value of the data field with the specified input type for the specified field owner; null
-     *         if the owner doesn't have a data field of that type
+     * @return Value of the data field with the specified input type for the specified field owner;
+     *         null if the owner doesn't have a data field of that type
      *********************************************************************************************/
     protected String getFieldValue(String fieldOwner, InputType inputType)
     {
@@ -1084,15 +1126,15 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the value of the data field with the specified default input type for the specified field
-     * owner
+     * Get the value of the data field with the specified default input type for the specified
+     * field owner
      *
-     * @param fieldOwner field owner name
+     * @param fieldOwner Field owner name
      *
-     * @param inputType  default input type for which to search (DefaultInputType)
+     * @param inputType  Default input type for which to search (DefaultInputType)
      *
-     * @return Value of the data field with the specified default input type for the specified field
-     *         owner; null if the owner doesn't have a data field of that type
+     * @return Value of the data field with the specified default input type for the specified
+     *         field owner; null if the owner doesn't have a data field of that type
      *********************************************************************************************/
     protected String getFieldValue(String fieldOwner, DefaultInputType inputType)
     {
@@ -1113,7 +1155,7 @@ public class CcddFieldHandler
      * Prepend the table type indicator to the table type name for use in identifying default data
      * fields in the fields table
      *
-     * @param tableType table type name
+     * @param tableType Table type name
      *
      * @return Table type name with the table type indicator prepended
      *********************************************************************************************/
@@ -1123,10 +1165,10 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Prepend the group indicator to the group name for use in identifying group data fields in the
-     * fields table
+     * Prepend the group indicator to the group name for use in identifying group data fields in
+     * the fields table
      *
-     * @param groupName group name
+     * @param groupName Group name
      *
      * @return Group name with the group indicator prepended
      *********************************************************************************************/
@@ -1138,7 +1180,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Check if a data field is owner by a table
      *
-     * @param ownerName data field owner name
+     * @param ownerName Data field owner name
      *
      * @return true if the data field owner is a table
      *********************************************************************************************/
@@ -1150,7 +1192,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Check if a data field is owner by the project
      *
-     * @param ownerName data field owner name
+     * @param ownerName Data field owner name
      *
      * @return true if the data field owner is the project
      *********************************************************************************************/
@@ -1162,7 +1204,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Check if a data field is owner by a table type
      *
-     * @param ownerName data field owner name
+     * @param ownerName Data field owner name
      *
      * @return true if the data field owner is a table type
      *********************************************************************************************/
@@ -1174,7 +1216,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Check if a data field is owner by a group
      *
-     * @param ownerName data field owner name
+     * @param ownerName Data field owner name
      *
      * @return true if the data field owner is a group
      *********************************************************************************************/

@@ -122,7 +122,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Search variable tree dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddSearchVariablesDialog(CcddMain ccddMain)
     {

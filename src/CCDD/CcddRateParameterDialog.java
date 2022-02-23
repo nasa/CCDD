@@ -100,9 +100,9 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         /******************************************************************************************
          * Input field verification result class constructor
          *
-         * @param lastValid last valid field value
+         * @param lastValid Last valid field value
          *
-         * @param isValid   true if the input value is valid
+         * @param isValid   True if the input value is valid
          *****************************************************************************************/
         InputVerificationResult(String lastValid, boolean isValid)
         {
@@ -123,7 +123,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         /******************************************************************************************
          * Set the last valid input value
          *
-         * @param lastValid last valid field value
+         * @param lastValid Last valid field value
          *****************************************************************************************/
         protected void setLastValid(String lastValid)
         {
@@ -143,7 +143,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         /******************************************************************************************
          * Set the value validity status
          *
-         * @param isValid true if the input value is valid
+         * @param isValid True if the input value is valid
          *****************************************************************************************/
         protected void setValid(boolean isValid)
         {
@@ -154,7 +154,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Rate parameter assignment dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddRateParameterDialog(CcddMain ccddMain)
     {
@@ -168,9 +168,9 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify the contents of a rate input field
      *
-     * @param field     reference to the input field
+     * @param field     Reference to the input field
      *
-     * @param lastValid last valid field value
+     * @param lastValid Last valid field value
      *
      * @return input verification results containing the last valid value and the valid status
      *********************************************************************************************/
@@ -488,7 +488,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the tabs for the stream specific input fields
      *
-     * @param rateInfo list containing the rate information
+     * @param rateInfo List containing the rate information
      *********************************************************************************************/
     private void addStreamTabs(List<RateInformation> rateInfo)
     {
@@ -722,20 +722,20 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if any rate parameter changed
      *
-     * @param maxSecPerMsg    maximum number of seconds allowed between downlinking two of the same
+     * @param maxSecPerMsg    Maximum number of seconds allowed between downlinking two of the same
      *                        message
      *
-     * @param maxMsgsPerSec   maximum number of messages that can be downlinked in one second
+     * @param maxMsgsPerSec   Maximum number of messages that can be downlinked in one second
      *
-     * @param streamName      array containing the stream name per stream
+     * @param streamName      Array containing the stream name per stream
      *
-     * @param maxMsgsPerCycle array containing the maximum number of messages that can be downlinked
+     * @param maxMsgsPerCycle Array containing the maximum number of messages that can be downlinked
      *                        before repeating the message list per stream
      *
-     * @param maxBytesPerSec  array containing the maximum number of bytes that can be downlinked in one
+     * @param maxBytesPerSec  Array containing the maximum number of bytes that can be downlinked in one
      *                        second per stream
      *
-     * @param includeUneven   true to include unevenly time-spaced sample rate values; false to only
+     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to only
      *                        include sample rates that are evenly time-spaced
      *
      * @return true if any of the rate parameters changed

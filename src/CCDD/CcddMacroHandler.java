@@ -118,7 +118,7 @@ public class CcddMacroHandler
         /******************************************************************************************
          * Macro data table references class constructor
          *
-         * @param macroName macro name
+         * @param macroName Macro name
          *
          * @param parent    GUI component over which to center any error dialog
          *****************************************************************************************/
@@ -178,9 +178,9 @@ public class CcddMacroHandler
         /******************************************************************************************
          * Macro location class constructor
          *
-         * @param macroName macro name, including the macro delimiters
+         * @param macroName Macro name, including the macro delimiters
          *
-         * @param start     index of the beginning of the macro name in the text string
+         * @param start     Index of the beginning of the macro name in the text string
          *****************************************************************************************/
         MacroLocation(String macroName, int start)
         {
@@ -213,9 +213,9 @@ public class CcddMacroHandler
      * Macro handler class constructor used when setting the macros from a source other than those in
      * the project database
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
-     * @param macros   list of string arrays containing macro names and the corresponding macro values
+     * @param macros   List of string arrays containing macro names and the corresponding macro values
      *********************************************************************************************/
     CcddMacroHandler(CcddMain ccddMain, List<String[]> macros)
     {
@@ -237,7 +237,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Macro handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddMacroHandler(CcddMain ccddMain)
     {
@@ -251,9 +251,9 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Set the reference to the variable size handler class
      *
-     * @param variableHandler reference to the variable handler
+     * @param variableHandler Reference to the variable handler
      *
-     * @param dataTypeHandler reference to the data type handler
+     * @param dataTypeHandler Reference to the data type handler
      *********************************************************************************************/
     protected void setHandlers(CcddVariableHandler variableHandler, CcddDataTypeHandler dataTypeHandler)
     {
@@ -274,7 +274,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Set the macro data to the supplied list of macro definitions
      *
-     * @param macros list of string arrays containing macro names and the corresponding unexpanded macro
+     * @param macros List of string arrays containing macro names and the corresponding unexpanded macro
      *               values
      *********************************************************************************************/
     protected void setMacroData(List<String[]> macros)
@@ -341,7 +341,7 @@ public class CcddMacroHandler
      * Get the the stored version of the supplied macro name. Macro names are case insensitive; however
      * the name as used in the internal table can be needed
      *
-     * @param inputName name of the macro for which to get the stored name
+     * @param inputName Name of the macro for which to get the stored name
      *
      * @return Macro name as stored in the internal macros table; null if the macro doesn't exist
      *********************************************************************************************/
@@ -367,7 +367,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get the macro name encased in the macro identifier character(s)
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @return Macro name encased in the macro identifier character(s)
      *********************************************************************************************/
@@ -379,7 +379,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get a list of all macro name locations in the specified text string
      *
-     * @param text text string to search for macro names
+     * @param text Text string to search for macro names
      *
      * @return List of all macro name locations in the specified text string
      *********************************************************************************************/
@@ -438,11 +438,11 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Replace all instances of the specified macro name in the supplied text string
      *
-     * @param oldName original macro name, including the delimiters
+     * @param oldName Original macro name, including the delimiters
      *
-     * @param newName new macro name, including the delimiters
+     * @param newName New macro name, including the delimiters
      *
-     * @param text    text string in which to replace the macro name
+     * @param text    Text string in which to replace the macro name
      *
      * @return The supplied text string with all references to the specified macro replaced by the new
      *         macro name
@@ -472,9 +472,9 @@ public class CcddMacroHandler
      * Replace all instances in all macros with sizeof() calls using the specified data type name with
      * the new data type name
      *
-     * @param oldDataTypeName original data type name
+     * @param oldDataTypeName Original data type name
      *
-     * @param newDataTypeName new data type name
+     * @param newDataTypeName New data type name
      *********************************************************************************************/
     protected void replaceDataTypeReferences(String oldDataTypeName, String newDataTypeName)
     {
@@ -499,7 +499,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Check for any recursive reference in the specified macro's value
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @return true if a recursive reference is detected in the macro's value
      *********************************************************************************************/
@@ -516,7 +516,7 @@ public class CcddMacroHandler
      * known (from a previous value request) then this known value is used; otherwise the macro's
      * expanded value is evaluated from its unexpanded value
      *
-     * @param macroName name of the macro for which the value is needed
+     * @param macroName Name of the macro for which the value is needed
      *
      * @return Expanded value associated with the specified macro name; returns null if the macro
      *         doesn't exist. The isMacroRecursive flag will be set to true if the macro contains a
@@ -574,9 +574,9 @@ public class CcddMacroHandler
      * Get the value associated with the specified macro name. This is a recursive method for macros
      * referencing other macros
      *
-     * @param macroName        macro name
+     * @param macroName        Macro name
      *
-     * @param referencedMacros list containing the macros references in a macro value path. This list is
+     * @param referencedMacros List containing the macros references in a macro value path. This list is
      *                         used to detect if a macro references itself, which would cause an
      *                         infinite loop. Set to null to not test for recursion
      *
@@ -664,7 +664,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Check if the supplied text contains any macro references
      *
-     * @param text text string containing macro names
+     * @param text Text string containing macro names
      *
      * @return true if the text contains a macro reference
      *********************************************************************************************/
@@ -686,7 +686,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Check if the supplied macro name is already in use (case insensitive)
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @return true if the supplied macro name is already in use
      *********************************************************************************************/
@@ -698,7 +698,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get the index for the macro with the supplied name (case insensitive)
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @return Index for the macro with the supplied name; -1 if no macro with this name exists
      *********************************************************************************************/
@@ -725,7 +725,7 @@ public class CcddMacroHandler
      * Replace any macro names and sizeof() calls embedded in the supplied text with the associated
      * macro values and data type sizes
      *
-     * @param text text string possibly containing macro names and/or sizeof() calls
+     * @param text Text string possibly containing macro names and/or sizeof() calls
      *
      * @return Text string with any embedded macro names and sizeof() calls replaced with the associated
      *         macro values and data type sizes
@@ -740,7 +740,7 @@ public class CcddMacroHandler
      * macro values and data type sizes. If a list of invalid data types is supplied, sizeof() calls set
      * an error flag if the referenced data type is in the list
      *
-     * @param text             text string possibly containing macro names and/or sizeof() calls
+     * @param text             Text string possibly containing macro names and/or sizeof() calls
      *
      * @param invalidDataTypes List containing the invalid data types when evaluating sizeof() calls;
      *                         null if there are no data type constraints for a sizeof() call
@@ -859,7 +859,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Replace any macro names embedded in the supplied string array with the associated macro values
      *
-     * @param array array of strings containing macro names
+     * @param array Array of strings containing macro names
      *
      * @return String array with any embedded macro names replaced with the associated macro values
      *********************************************************************************************/
@@ -885,7 +885,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Replace any macro names embedded in the supplied string array with the associated macro values
      *
-     * @param array array of strings containing macro names
+     * @param array Array of strings containing macro names
      *
      * @return String array with any embedded macro names replaced with the associated macro values
      *********************************************************************************************/
@@ -910,7 +910,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get a list of macros referenced in the specified text string
      *
-     * @param text text string containing macro names
+     * @param text Text string containing macro names
      *
      * @return List of macros referenced in the specified text string. A macro name only appears once in
      *         the list even if referenced multiple times in the text string
@@ -939,7 +939,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get the list of structure names referenced in sizeof() calls in the specified macro
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @return List of structure names referenced in sizeof() calls in the specified macro macro; and
      *         empty list if no structures are referenced or the macro doesn't exist
@@ -981,7 +981,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get a list containing the macros that are dependent on the specified data type
      *
-     * @param dataType data type name for which to search
+     * @param dataType Data type name for which to search
      *
      * @return List containing the macros that are dependent on the specified data type
      *********************************************************************************************/
@@ -1007,7 +1007,7 @@ public class CcddMacroHandler
      * Add the name of specified macro and the names of all macros that depend on this macro's value to
      * the supplied list. This is a recursive method
      *
-     * @param macroName       name of the macro for which to find all dependent macros
+     * @param macroName       Name of the macro for which to find all dependent macros
      *
      * @param dependentMacros List of macros that have a value that is dependent on a specified macro
      *                        (list includes the specified macro)
@@ -1047,7 +1047,7 @@ public class CcddMacroHandler
      * Get a list containing the search results in the project database for tables that reference the
      * specified macro name. Include references in the custom values table
      *
-     * @param macroName macro name for which to search
+     * @param macroName Macro name for which to search
      *
      * @param parent    GUI component over which to center any error dialog
      *
@@ -1097,9 +1097,9 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Add new macros and check for matches with existing ones
      *
-     * @param macroDefinitions list of macro definitions
+     * @param macroDefinitions List of macro definitions
      *
-     * @param replaceExisting  true to replace the value for an existing macro
+     * @param replaceExisting  True to replace the value for an existing macro
      *
      * @return List of macro names for macros with values that differ between the existing macro and the
      *         supplied definitions
@@ -1168,7 +1168,7 @@ public class CcddMacroHandler
      * maintained so that a previous search for a macro can be reused (initializeReferences() must be
      * called to clear this list, such as after a macro has been altered)
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @param parent    GUI component over which to center any error dialog
      *
@@ -1206,7 +1206,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get the list containing the name of every table that references the specified macro
      *
-     * @param macroName macro name
+     * @param macroName Macro name
      *
      * @param parent    GUI component over which to center any error dialog
      *
@@ -1300,9 +1300,9 @@ public class CcddMacroHandler
      * Verify that the updated macros are valid for each instance where the macro is used (e.g., a table
      * column with an input type of "Integer" can't accept a text string)
      *
-     * @param macroName       name of the macro to validate
+     * @param macroName       Name of the macro to validate
      *
-     * @param newMacroHandler reference to the macro handler that incorporates the macro updates
+     * @param newMacroHandler Reference to the macro handler that incorporates the macro updates
      *
      * @param parent          GUI component over which to center any error dialog
      *
@@ -1433,11 +1433,11 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Highlight any macros in the the specified text component
      *
-     * @param component       reference to the table cell renderer component
+     * @param component       Reference to the table cell renderer component
      *
-     * @param text            cell value
+     * @param text            Cell value
      *
-     * @param hightlightColor color used for highlighting the macro name
+     * @param hightlightColor Color used for highlighting the macro name
      *********************************************************************************************/
     protected void highlightMacro(Component component, String text, Color hightlightColor)
     {
@@ -1472,7 +1472,7 @@ public class CcddMacroHandler
      * Tool tip text showing any macro names embedded in the supplied text replaced with the associated
      * macro values
      *
-     * @param text text string containing macro names
+     * @param text Text string containing macro names
      *
      * @return Tool tip text string showing any embedded macro names in the supplied text replaced with
      *         the associated macro values
@@ -1507,12 +1507,12 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Get the list of items to display in the macro pop-up combo box
      *
-     * @param textComp       text component over which to display the pop-up combo box and insert the
+     * @param textComp       Text component over which to display the pop-up combo box and insert the
      *                       selected macro name
      *
-     * @param inputType      input type of the text component (InputType)
+     * @param inputType      Input type of the text component (InputType)
      *
-     * @param validDataTypes list of valid data types from which to choose
+     * @param validDataTypes List of valid data types from which to choose
      *
      * @return List of items to display in the macro pop-up combo box
      *********************************************************************************************/

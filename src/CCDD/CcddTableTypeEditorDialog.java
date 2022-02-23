@@ -131,9 +131,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Table type editor dialog class constructor
      *
-     * @param ccddMain  main class
+     * @param ccddMain  Main class
      *
-     * @param typeNames array of table type names
+     * @param typeNames Array of table type names
      *********************************************************************************************/
     CcddTableTypeEditorDialog(CcddMain ccddMain, String[] typeNames)
     {
@@ -175,7 +175,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Set the active table type editor's name
      *
-     * @param typeName type name
+     * @param typeName Type name
      *********************************************************************************************/
     protected void setActiveTypeName(String typeName)
     {
@@ -229,7 +229,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Enable/disable the type editor dialog buttons and commands
      *
-     * @param enable true to enable the buttons and commands; false to disable
+     * @param enable True to enable the buttons and commands; false to disable
      *********************************************************************************************/
     @Override
     protected void setControlsEnabled(boolean enable)
@@ -273,12 +273,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of table type modification
      *
-     * @param commandError  false if the database commands successfully completed; true if an error
+     * @param commandError  False if the database commands successfully completed; true if an error
      *                      occurred and the changes were not made
      *
-     * @param updatedEditor reference to the table type editor where the change(s) occurred
+     * @param updatedEditor Reference to the table type editor where the change(s) occurred
      *
-     * @param tableNames    array of modified table names
+     * @param tableNames    Array of modified table names
      ********************************************************************************************/
     protected void doTypeModificationComplete(boolean commandError, CcddTableTypeEditorHandler updatedEditor,
                                               String[] tableNames)
@@ -363,7 +363,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
      * initialization completes execution
      *
-     * @param typeNames array containing the table type names
+     * @param typeNames Array containing the table type names
      *********************************************************************************************/
     private void initialize(final String[] typeNames)
     {
@@ -1290,7 +1290,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Perform a control key action
      *
-     * @param key key to simulate pressing along with the control key
+     * @param key Key to simulate pressing along with the control key
      *********************************************************************************************/
     private void controlKeyAction(int key)
     {
@@ -1337,7 +1337,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Commit changes to the database for the specified table type editor
      *
-     * @param editor table type editor to commit
+     * @param editor Table type editor to commit
      *********************************************************************************************/
     private void storeChanges(CcddTableTypeEditorHandler editor)
     {
@@ -1414,7 +1414,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Add one or more table type tabs to the editor dialog tabbed pane
      *
-     * @param typeNames array of table type names
+     * @param typeNames Array of table type names
      *********************************************************************************************/
     protected void addTypePanes(String[] typeNames)
     {
@@ -1449,7 +1449,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Update the change indicator for the specified table type editor
      *
-     * @param typeEditor reference to the table type editor for which the change indicator is to be
+     * @param typeEditor Reference to the table type editor for which the change indicator is to be
      *                   updated
      *********************************************************************************************/
     protected void updateChangeIndicator(CcddTableTypeEditorHandler typeEditor)

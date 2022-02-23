@@ -87,16 +87,16 @@ public interface CcddImportExportInterface
     /**********************************************************************************************
      * Build the information from the internal table in the current file
      *
-     * @param importFile                  import file reference
+     * @param importFile                  Import file reference
      *
      * @param importType                  ImportType.IMPORT_ALL to import the table type, data type, and
      *                                    macro definitions, and the data from all the table
      *                                    definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *                                    for the first table defined
      *
-     * @param ignoreErrors                true to ignore all errors in the import file
+     * @param ignoreErrors                True to ignore all errors in the import file
      *
-     * @param replaceExistingAssociations true to overwrite internal associations with those from the
+     * @param replaceExistingAssociations True to overwrite internal associations with those from the
      *                                    import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
@@ -112,15 +112,15 @@ public interface CcddImportExportInterface
     /**********************************************************************************************
      * Build the information from the input and data type definition(s) in the current file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   true to replace existing macros
+     * @param replaceExistingMacros   True to replace existing macros
      *
-     * @param replaceExistingTables   true to replace existing tables or table fields
+     * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -135,14 +135,14 @@ public interface CcddImportExportInterface
     /**********************************************************************************************
      * Build the information from the input and data type definition(s) in the current file
      *
-     * @param importFile               import file reference
+     * @param importFile               Import file reference
      *
-     * @param ignoreErrors             true to ignore all errors in the import file
+     * @param ignoreErrors             True to ignore all errors in the import file
      *
-     * @param replaceExistingDataTypes true to replace existing data types that share a name with an
+     * @param replaceExistingDataTypes True to replace existing data types that share a name with an
      *                                 imported data type
      *
-     * @param importingEntireDatabase  true to replace existing database internal tables
+     * @param importingEntireDatabase  True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -157,23 +157,23 @@ public interface CcddImportExportInterface
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile            reference to the user-specified input file
+     * @param importFile            Reference to the user-specified input file
      *
      * @param importType            ImportType.IMPORT_ALL to import the table type, data type, and macro
      *                              definitions, and the data from all the table definitions;
      *                              ImportType.FIRST_DATA_ONLY to load only the data for the first table
      *                              defined
      *
-     * @param targetTypeDefn        table type definition of the table in which to import the data;
+     * @param targetTypeDefn        Table type definition of the table in which to import the data;
      *                              ignored if importing all tables
      *
-     * @param ignoreErrors          true to ignore all errors in the import file
+     * @param ignoreErrors          True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros true to replace the values for existing macros
+     * @param replaceExistingMacros True to replace the values for existing macros
      *
-     * @param replaceExistingGroups true to replace existing group definitions
+     * @param replaceExistingGroups True to replace existing group definitions
      *
-     * @param replaceExistingTables true to replace existing tables or table fields
+     * @param replaceExistingTables True to replace existing tables or table fields
      *
      * @throws CCDDException If data is missing, extraneous, or an error in the import file
      *
@@ -188,31 +188,31 @@ public interface CcddImportExportInterface
     /**********************************************************************************************
      * Export each table in the project to the specified file
      *
-     * @param exportFile              reference to the user-specified output file
+     * @param exportFile              Reference to the user-specified output file
      *
-     * @param tableDefs               list of table definitions to convert
+     * @param tableDefs               List of table definitions to convert
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
-     * @param replaceMacros           true to replace any embedded macros with their corresponding
+     * @param replaceMacros           True to replace any embedded macros with their corresponding
      *                                values
      *
-     * @param includeVariablePaths    true to include the variable path for each variable in a structure
+     * @param includeVariablePaths    True to include the variable path for each variable in a structure
      *                                table, both in application format and using the user-defined
      *                                separator characters
      *
-     * @param variableHandler         variable handler class reference; null if includeVariablePaths is
+     * @param variableHandler         Variable handler class reference; null if includeVariablePaths is
      *                                false
      *
-     * @param separators              string array containing the variable path separator character(s),
+     * @param separators              String array containing the variable path separator character(s),
      *                                show/hide data types flag ('true' or 'false'), and data
      *                                type/variable name separator character(s); null if
      *                                includeVariablePaths is false
      *
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
-     * @param extraInfo               extra parameters dependent on the export format
+     * @param extraInfo               Extra parameters dependent on the export format
      *
      * @throws JAXBException If an error occurs marshaling the project
      *
@@ -228,7 +228,7 @@ public interface CcddImportExportInterface
     /**********************************************************************************************
      * Export table type definitions to the specified folder
      *
-     * @param exportFile        reference to the user-specified output file
+     * @param exportFile        Reference to the user-specified output file
      *
      * @param includeTableTypes Boolean representing if the table types should be included
      *
@@ -256,9 +256,9 @@ public interface CcddImportExportInterface
      * Export script association data, group data, macro data, telemetry scheduler data or application
      * scheduler data to the specified folder
      *
-     * @param dataType   the data type that is about to be exported
+     * @param dataType   The data type that is about to be exported
      *
-     * @param exportFile reference to the user-specified output file
+     * @param exportFile Reference to the user-specified output file
      *
      * @param outputType String representing rather the output is going to a single file or multiple
      *                   files. Should be "Single" or "Multiple"

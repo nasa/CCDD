@@ -132,9 +132,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         /******************************************************************************************
          * CSV data type tags constructor
          *
-         * @param tag          text describing the data
+         * @param tag          Text describing the data
          *
-         * @param alternateTag alternate text describing the data; null if there is no alternate name. This
+         * @param alternateTag Alternate text describing the data; null if there is no alternate name. This
          *                     allows the same tag data type to have two names, which is used for backwards
          *                     compatibility, due to a previous mixture of singular and plural tag names
          *****************************************************************************************/
@@ -167,7 +167,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         /******************************************************************************************
          * Check if the supplied text matches the data type tag name or alternate name
          *
-         * @param text text describing the data
+         * @param text Text describing the data
          *
          * @return true if the supplied text matches the tag name or alternate tag name, if one exists (case
          *         insensitive)
@@ -191,7 +191,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         /******************************************************************************************
          * Character sequence constructor
          *
-         * @param value text describing the character sequence
+         * @param value Text describing the character sequence
          *
          *****************************************************************************************/
         Chars(String value)
@@ -213,9 +213,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * CSV handler class constructor
      *
-     * @param ccddMain     main class reference
+     * @param ccddMain     Main class reference
      *
-     * @param groupHandler group handler reference
+     * @param groupHandler Group handler reference
      *
      * @param parent       GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -290,16 +290,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the information from the internal table in the current file
      *
-     * @param importFile                  import file reference
+     * @param importFile                  Import file reference
      *
      * @param importType                  ImportType.IMPORT_ALL to import the table type, data type, and
      *                                    macro definitions, and the data from all the table
      *                                    definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *                                    for the first table defined
      *
-     * @param ignoreErrors                true to ignore all errors in the import file
+     * @param ignoreErrors                True to ignore all errors in the import file
      *
-     * @param replaceExistingAssociations true to overwrite internal associations with those from the
+     * @param replaceExistingAssociations True to overwrite internal associations with those from the
      *                                    import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
@@ -451,15 +451,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Import the input types, table types, table type data fields and data types from the given file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   true to replace existing macros
+     * @param replaceExistingMacros   True to replace existing macros
      *
-     * @param replaceExistingTables   true to replace existing tables or table fields
+     * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -769,14 +769,14 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the information from the input and data type definition(s) in the current file
      *
-     * @param importFile               import file reference
+     * @param importFile               Import file reference
      *
-     * @param ignoreErrors             true to ignore all errors in the import file
+     * @param ignoreErrors             True to ignore all errors in the import file
      *
-     * @param replaceExistingDataTypes true to replace existing data types that share a name with an
+     * @param replaceExistingDataTypes True to replace existing data types that share a name with an
      *                                 imported data type
      *
-     * @param importingEntireDatabase  true to replace existing database internal tables
+     * @param importingEntireDatabase  True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -1323,7 +1323,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *                              ImportType.FIRST_DATA_ONLY to load only the data for the first table
      *                              defined
      *
-     * @param targetTypeDefn        table type definition of the table in which to import the data;
+     * @param targetTypeDefn        Table type definition of the table in which to import the data;
      *                              ignored if importing all tables
      *********************************************************************************************/
     public void importTableDefinitions(BufferedReader br, FileEnvVar importFile, boolean ignoreErrors,
@@ -1564,25 +1564,25 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
      * @param importType              ImportType.IMPORT_ALL to import the table type, data type, and
      *                                macro definitions, and the data from all the table definitions;
      *                                ImportType.FIRST_DATA_ONLY to load only the data for the first
      *                                table defined
      *
-     * @param targetTypeDefn          table type definition of the table in which to import the data;
+     * @param targetTypeDefn          Table type definition of the table in which to import the data;
      *                                ignored if importing all tables
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   true to replace the values for existing macros
+     * @param replaceExistingMacros   True to replace the values for existing macros
      *
-     * @param replaceExistingGroups   true to replace existing group definitions
+     * @param replaceExistingGroups   True to replace existing group definitions
      *
-     * @param replaceExistingTables   true to replace existing tables or table fields
+     * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -1665,27 +1665,27 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Export the project tables
      *
-     * @param exportFile              reference to the user-specified output file
+     * @param exportFile              Reference to the user-specified output file
      *
-     * @param tableDefs               list of table definitions to convert
+     * @param tableDefs               List of table definitions to convert
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
-     * @param replaceMacros           true to replace any embedded macros with their corresponding
+     * @param replaceMacros           True to replace any embedded macros with their corresponding
      *                                values
      *
-     * @param includeReservedMsgIDs   true to include the contents of the reserved message ID table in
+     * @param includeReservedMsgIDs   True to include the contents of the reserved message ID table in
      *                                the export file
      *
-     * @param includeVariablePaths    true to include the variable path for each variable in a structure
+     * @param includeVariablePaths    True to include the variable path for each variable in a structure
      *                                table, both in application format and using the user-defined
      *                                separator characters
      *
-     * @param variableHandler         variable handler class reference; null if includeVariablePaths is
+     * @param variableHandler         Variable handler class reference; null if includeVariablePaths is
      *                                false
      *
-     * @param separators              string array containing the variable path separator character(s),
+     * @param separators              String array containing the variable path separator character(s),
      *                                show/hide data types flag ('true' or 'false'), and data
      *                                type/variable name separator character(s); null if
      *                                includeVariablePaths is false
@@ -2120,9 +2120,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * Export script association data, group data, macro data, telemetry scheduler data or application
      * scheduler data to the specified folder
      *
-     * @param dataType   the data type that is about to be exported
+     * @param dataType   The data type that is about to be exported
      *
-     * @param exportFile reference to the user-specified output file
+     * @param exportFile Reference to the user-specified output file
      *
      * @param outputType String representing rather the output is going to a single file or multiple
      *                   files. Should be EXPORT_SINGLE_FILE or EXPORT_MULTIPLE_FILES
@@ -2431,7 +2431,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Export table type definitions to the specified folder
      *
-     * @param exportFile        reference to the user-specified output file
+     * @param exportFile        Reference to the user-specified output file
      *
      * @param includeTableTypes Boolean representing if the table types should be included
      *

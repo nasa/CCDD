@@ -114,11 +114,11 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Find/replace text in a data or table type table dialog class constructor
      *
-     * @param ccddMain     main class
+     * @param ccddMain     Main class
      *
-     * @param editorDialog reference to the table or table type editor dialog
+     * @param editorDialog Reference to the table or table type editor dialog
      *
-     * @param table        reference to the data table or table type table
+     * @param table        Reference to the data table or table type table
      *********************************************************************************************/
     CcddFindReplaceDialog(CcddMain ccddMain, CcddFrameHandler editorDialog, CcddJTableHandler table)
     {
@@ -133,7 +133,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Set the active table or table type editor in the editor dialog
      *
-     * @param table reference to the data table or table type table
+     * @param table Reference to the data table or table type table
      *********************************************************************************************/
     protected void setActiveEditor(CcddJTableHandler table)
     {
@@ -151,7 +151,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Enable or disable the replace buttons
      *
-     * @param enable true to enable the replace buttons
+     * @param enable True to enable the replace buttons
      *********************************************************************************************/
     private void setReplaceEnable(boolean enable)
     {
@@ -673,15 +673,15 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
      * Replace all text in the specified table cell matching the search criteria with the replacement
      * text
      *
-     * @param tableData  list containing the table data row arrays
+     * @param tableData  List containing the table data row arrays
      *
-     * @param row        table model row index
+     * @param row        Table model row index
      *
-     * @param column     table model column index
+     * @param column     Table model column index
      *
-     * @param isContinue true to display the invalid input dialog, if applicable
+     * @param isContinue True to display the invalid input dialog, if applicable
      *
-     * @param isMultiple true if this is one of multiple cells to be entered and checked; false if only
+     * @param isMultiple True if this is one of multiple cells to be entered and checked; false if only
      *                   a single input is being entered
      *
      * @return true to indicate that subsequent errors should be displayed; false if subsequent errors
@@ -845,7 +845,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the table data if a replacement occurred
      *
-     * @param tableData list containing the table data row arrays
+     * @param tableData List containing the table data row arrays
      *********************************************************************************************/
     private void updateTableData(List<Object[]> tableData)
     {

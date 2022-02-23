@@ -66,7 +66,7 @@ public class CcddApplicationSchedulerTableHandler
     /**********************************************************************************************
      * Application scheduler table handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddApplicationSchedulerTableHandler(CcddMain ccddMain)
     {
@@ -135,7 +135,7 @@ public class CcddApplicationSchedulerTableHandler
     /**********************************************************************************************
      * Sort the list of messages based on the assigned priorities
      *
-     * @param msg message
+     * @param msg Message
      *********************************************************************************************/
     private void prioritizeApps(Message msg)
     {
@@ -155,7 +155,7 @@ public class CcddApplicationSchedulerTableHandler
     /**********************************************************************************************
      * Get message index
      *
-     * @param msgID wake-up ID
+     * @param msgID Wake-up ID
      *
      * @return Message index
      *********************************************************************************************/
@@ -259,7 +259,7 @@ public class CcddApplicationSchedulerTableHandler
     /**********************************************************************************************
      * Get the specified entry in the schedule definition table
      *
-     * @param row row index for the entry in the schedule definition table
+     * @param row Row index for the entry in the schedule definition table
      *
      * @return Array containing the specified entry in the schedule definition table
      *********************************************************************************************/
@@ -295,9 +295,9 @@ public class CcddApplicationSchedulerTableHandler
      * Validate the application scheduler table and remove from the list of messages any application
      * that is invalid
      *
-     * @param applications list of applications in the time slots
+     * @param applications List of applications in the time slots
      *
-     * @param timeSlots    list of time slots in the table
+     * @param timeSlots    List of time slots in the table
      *********************************************************************************************/
     private void validateTableData(List<Variable> applications, List<Message> timeSlots)
     {
@@ -474,7 +474,7 @@ public class CcddApplicationSchedulerTableHandler
     /**********************************************************************************************
      * Remove data that is determined to be invalid
      *
-     * @param removedVars list of invalid data
+     * @param removedVars List of invalid data
      *
      * @return Number of invalid entries that were found and removed
      *********************************************************************************************/

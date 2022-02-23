@@ -52,7 +52,7 @@ public class CcddApplicationParameterHandler
     /**********************************************************************************************
      * Application parameter handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddApplicationParameterHandler(CcddMain ccddMain)
     {
@@ -135,7 +135,7 @@ public class CcddApplicationParameterHandler
             ccddMain.getSessionEventLog()
                     .logFailEvent(ccddMain.getMainFrame(),
                                   "Invalid application parameter(s): using default values instead; cause '"
-                                                           + e.getMessage() + "'",
+                                  + e.getMessage() + "'",
                                   "<html><b>Invalid application parameter(s): using default values instead");
 
             // Use default values
@@ -149,16 +149,16 @@ public class CcddApplicationParameterHandler
     /**********************************************************************************************
      * Set the application parameters in the database
      *
-     * @param maxMsgsPerSec      maximum number of messages that can be downlinked in one second
+     * @param maxMsgsPerSec      Maximum number of messages that can be downlinked in one second
      *
-     * @param maxMsgsPerCycle    maximum number of messages that can be downlinked before repeating the
+     * @param maxMsgsPerCycle    Maximum number of messages that can be downlinked before repeating the
      *                           message list
      *
-     * @param maxMsgsPerTimeSlot maximum number of messages per time slot
+     * @param maxMsgsPerTimeSlot Maximum number of messages per time slot
      *
-     * @param numberOfTimeSlots  number of time slots in the scheduler definition table
+     * @param numberOfTimeSlots  Number of time slots in the scheduler definition table
      *
-     * @param parent             component calling this method, used for positioning any error dialogs
+     * @param parent             Component calling this method, used for positioning any error dialogs
      *********************************************************************************************/
     protected void setApplicationParameters(int maxMsgsPerSec, int maxMsgsPerCycle, int maxMsgsPerTimeSlot,
                                             int numberOfTimeSlots, Component parent)
@@ -171,7 +171,7 @@ public class CcddApplicationParameterHandler
         // Update the the stored application parameters
         dbTable.setTableComment(InternalTable.APP_SCHEDULER.getTableName(),
                                 maxMsgsPerTimeSlot + "," + maxMsgsPerSec + "," + maxMsgsPerCycle + ","
-                                                                            + numberOfTimeSlots,
+                                + numberOfTimeSlots,
                                 parent);
     }
 }

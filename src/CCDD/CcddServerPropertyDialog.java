@@ -97,15 +97,15 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Server properties dialog class constructor
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param useActiveDatabase true to use the active database; false to use the default database. This
+     * @param useActiveDatabase True to use the active database; false to use the default database. This
      *                          is only used when opening the database after changing the login
      *                          credentials
      *
-     * @param dialogType        database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
+     * @param dialogType        Database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
      *
-     * @param errorMessage      message to display following an unsuccessful login; null if no error has
+     * @param errorMessage      Message to display following an unsuccessful login; null if no error has
      *                          occurred or this isn't the login dialog
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain, boolean useActiveDatabase, ServerPropertyDialogType dialogType,
@@ -125,9 +125,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Server properties dialog class constructor
      *
-     * @param ccddMain   main class
+     * @param ccddMain   Main class
      *
-     * @param dialogType database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
+     * @param dialogType Database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain, ServerPropertyDialogType dialogType)
     {
@@ -148,7 +148,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the server properties dialog
      *
-     * @param errorMessage message to display following an unsuccessful login; null if no error has
+     * @param errorMessage Message to display following an unsuccessful login; null if no error has
      *                     occurred or this isn't the login dialog
      *********************************************************************************************/
     private void initialize(String errorMessage)
@@ -368,9 +368,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *
      * @param selectPnl JPanel to which the fields are added
      *
-     * @param gbc       reference to the GridBagConstraints governing the panel
+     * @param gbc       Reference to the GridBagConstraints governing the panel
      *
-     * @param border    border with which to surround the input fields
+     * @param border    Border with which to surround the input fields
      *
      * @return true if at least one user exists in the server or if the user can be entered manually
      *********************************************************************************************/

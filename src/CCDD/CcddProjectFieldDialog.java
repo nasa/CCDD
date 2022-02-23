@@ -94,7 +94,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Project data field manager dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddProjectFieldDialog(CcddMain ccddMain)
     {
@@ -109,7 +109,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of a project description or data field modification
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doProjectFieldModificationComplete(boolean commandError)

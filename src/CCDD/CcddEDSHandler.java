@@ -201,7 +201,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * EDS handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
      * @param parent   GUI component over which to center any error dialog
      *
@@ -297,16 +297,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the information from the internal table in the current file
      *
-     * @param importFile                  import file reference
+     * @param importFile                  Import file reference
      *
      * @param importType                  ImportType.IMPORT_ALL to import the table type, data type, and
      *                                    macro definitions, and the data from all the table
      *                                    definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *                                    for the first table defined
      *
-     * @param ignoreErrors                true to ignore all errors in the import file
+     * @param ignoreErrors                True to ignore all errors in the import file
      *
-     * @param replaceExistingAssociations true to overwrite internal associations with those from the
+     * @param replaceExistingAssociations True to overwrite internal associations with those from the
      *                                    import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
@@ -325,15 +325,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Import the input types, table types, table type data fields and data types from the given file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   true to replace existing macros
+     * @param replaceExistingMacros   True to replace existing macros
      *
-     * @param replaceExistingTables   true to replace existing tables or table fields
+     * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -352,14 +352,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the information from the input and data type definition(s) in the current file
      *
-     * @param importFile               import file reference
+     * @param importFile               Import file reference
      *
-     * @param ignoreErrors             true to ignore all errors in the import file
+     * @param ignoreErrors             True to ignore all errors in the import file
      *
-     * @param replaceExistingDataTypes true to replace existing data types that share a name with an
+     * @param replaceExistingDataTypes True to replace existing data types that share a name with an
      *                                 imported data type
      *
-     * @param importingEntireDatabase  true to replace existing database internal tables
+     * @param importingEntireDatabase  True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -378,25 +378,25 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
      * @param importType              ImportType.IMPORT_ALL to import the table type, data type, and
      *                                macro definitions, and the data from all the table definitions;
      *                                ImportType.FIRST_DATA_ONLY to load only the data for the first
      *                                table defined
      *
-     * @param targetTypeDefn          table type definition of the table in which to import the data;
+     * @param targetTypeDefn          Table type definition of the table in which to import the data;
      *                                ignored if importing all tables
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   true to replace the values for existing macros
+     * @param replaceExistingMacros   True to replace the values for existing macros
      *
-     * @param replaceExistingGroups   true to replace existing group definitions
+     * @param replaceExistingGroups   True to replace existing group definitions
      *
-     * @param replaceExistingTables   true to replace existing tables or table fields
+     * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -545,14 +545,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Scan the import file in order to determine if any structure or command tables exist. If so,
      * create the structure and/or command table type definition that's used to build the new tables
      *
-     * @param importFile     reference to the user-specified XML input file
+     * @param importFile     Reference to the user-specified XML input file
      *
      * @param importType     ImportType.IMPORT_ALL to import the table type, data type, and macro
      *                       definitions, and the data from all the table definitions;
      *                       ImportType.FIRST_DATA_ONLY to load only the data for the first table
      *                       defined
      *
-     * @param targetTypeDefn table type definition of the table in which to import the data; ignored if
+     * @param targetTypeDefn Table type definition of the table in which to import the data; ignored if
      *                       importing all tables
      *
      * @throws CCDDException Included due to calls to addImportedTableTypeColumnDefinition(); since
@@ -732,13 +732,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Extract the telemetry and/or command information from the name space. This is a recursive method
      *
-     * @param namespace       name space
+     * @param namespace       Name space
      *
-     * @param importType      import type: ImportType.ALL to import all information in the import file;
+     * @param importType      Import type: ImportType.ALL to import all information in the import file;
      *                        ImportType.FIRST_DATA_ONLY to import data from the first table defined in
      *                        the import file
      *
-     * @param onlyCmdToStruct true to only allow a command header, converted to a structure, to be
+     * @param onlyCmdToStruct True to only allow a command header, converted to a structure, to be
      *                        stored; false to store (non-header) command tables
      *
      * @throws CCDDException If an input error is detected
@@ -849,16 +849,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build a structure table from the specified telemetry metadata
      *
-     * @param namespace    name space
+     * @param namespace    Name space
      *
-     * @param intfcDecType reference to the interface declaration type from which to build the structure
+     * @param intfcDecType Reference to the interface declaration type from which to build the structure
      *                     table
      *
-     * @param tableName    name table name, including the full system path
+     * @param tableName    Name table name, including the full system path
      *
-     * @param systemPath   system path
+     * @param systemPath   System path
      *
-     * @param hasCommand   true if the name space also has a command set
+     * @param hasCommand   True if the name space also has a command set
      *
      * @throws CCDDException If an input error is detected
      *********************************************************************************************/
@@ -1322,18 +1322,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build a command table from the specified command metadata
      *
-     * @param namespace       name space
+     * @param namespace       Name space
      *
-     * @param intfcDecType    reference to the interface declaration type from which to build the
+     * @param intfcDecType    Reference to the interface declaration type from which to build the
      *                        command table
      *
-     * @param tableName       name table name, including the full system path
+     * @param tableName       Name table name, including the full system path
      *
-     * @param systemPath      system path
+     * @param systemPath      System path
      *
-     * @param hasParameter    true if the name space also has a parameter set
+     * @param hasParameter    True if the name space also has a parameter set
      *
-     * @param onlyCmdToStruct true to only allow a command header, converted to a structure, to be
+     * @param onlyCmdToStruct True to only allow a command header, converted to a structure, to be
      *                        stored; false to store (non-header) command tables
      *
      * @throws CCDDException If an input error is detected
@@ -1922,29 +1922,29 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add a variable definition's column values to a structure table
      *
-     * @param tableDefn       table definition reference
+     * @param tableDefn       Table definition reference
      *
-     * @param rowIndex        index of the row in which to insert the data
+     * @param rowIndex        Index of the row in which to insert the data
      *
-     * @param numArrayMembers number of array members; 0 if not an array parameter
+     * @param numArrayMembers Number of array members; 0 if not an array parameter
      *
-     * @param variableName    variable name; null to not specify
+     * @param variableName    Variable name; null to not specify
      *
-     * @param dataType        parameter data type; null to not specify
+     * @param dataType        Parameter data type; null to not specify
      *
-     * @param arraySize       parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize       Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength       parameter bit length; null or blank if not a bit-wise parameter
+     * @param bitLength       Parameter bit length; null or blank if not a bit-wise parameter
      *
-     * @param description     parameter description; null to not specify
+     * @param description     Parameter description; null to not specify
      *
-     * @param units           parameter units; null to not specify
+     * @param units           Parameter units; null to not specify
      *
      * @param enumeration     {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param minimum         minimum parameter value
+     * @param minimum         Minimum parameter value
      *
-     * @param maximum         maximum parameter value
+     * @param maximum         Maximum parameter value
      *
      * @return Updated row index
      *********************************************************************************************/
@@ -2065,11 +2065,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Export the project tables in EDS XML format to the specified file
      *
-     * @param exportFile              reference to the user-specified output file
+     * @param exportFile              Reference to the user-specified output file
      *
-     * @param tableDefs               list of table definitions to convert
+     * @param tableDefs               List of table definitions to convert
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
      * @param replaceMacros           * Not used for EDS export (all macros are expanded) * true to
@@ -2079,7 +2079,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *                                each variable in a structure table, both in application format and
      *                                using the user-defined separator characters
      *
-     * @param variableHandler         variable handler class reference; null if includeVariablePaths is
+     * @param variableHandler         Variable handler class reference; null if includeVariablePaths is
      *                                false
      *
      * @param separators              * Not used for EDS export * string array containing the variable
@@ -2122,15 +2122,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Convert the project database contents to EDS XML format
      *
-     * @param tableDefs               list of table definitions to convert to EDS format
+     * @param tableDefs               List of table definitions to convert to EDS format
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
      * @param endianess               EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for
      *                                little endian
      *
-     * @param isHeaderBigEndian       true if the telemetry and command headers are always big endian
+     * @param isHeaderBigEndian       True if the telemetry and command headers are always big endian
      *                                (e.g., as with CCSDS)
      *********************************************************************************************/
     private void convertTablesToEDS(List<TableInfo> tableDefs, boolean includeBuildInformation, EndianType endianess,
@@ -2251,7 +2251,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the name spaces for the list of tables specified
      *
-     * @param tableNames list of table definitions to convert
+     * @param tableNames List of table definitions to convert
      *********************************************************************************************/
     private void buildNamespaces(List<TableInfo> tableDefs)
     {
@@ -2479,11 +2479,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create a new name space as a child within the specified name space
      *
-     * @param systemPath  system name; null or blank if no system
+     * @param systemPath  System name; null or blank if no system
      *
-     * @param tableName   table name with full path
+     * @param tableName   Table name with full path
      *
-     * @param description data sheet description
+     * @param description Data sheet description
      *
      * @return Reference to the new name space
      *********************************************************************************************/
@@ -2516,9 +2516,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Search for the name space with the same name as the search name
      *
-     * @param systemPath    system name; null or blank if no system
+     * @param systemPath    System name; null or blank if no system
      *
-     * @param namespaceName name of the name space to search for within the name space hierarchy
+     * @param namespaceName Name of the name space to search for within the name space hierarchy
      *
      * @return Reference to the name space with the same name as the search name; null if no name space
      *         name matches the search name
@@ -2548,7 +2548,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create the parameter set for the specified name space
      *
-     * @param namespace name space
+     * @param namespace Name space
      *
      * @return Reference to the parameter set
      *********************************************************************************************/
@@ -2564,19 +2564,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add the parameter container
      *
-     * @param namespace  name space
+     * @param namespace  Name space
      *
-     * @param tableInfo  table information reference
+     * @param tableInfo  Table information reference
      *
-     * @param varColumn  variable name column index (model coordinates)
+     * @param varColumn  Variable name column index (model coordinates)
      *
-     * @param typeColumn data type column index (model coordinates)
+     * @param typeColumn Data type column index (model coordinates)
      *
-     * @param sizeColumn array size column index (model coordinates)
+     * @param sizeColumn Array size column index (model coordinates)
      *
-     * @param minColumn  minimum value column index (model coordinates)
+     * @param minColumn  Minimum value column index (model coordinates)
      *
-     * @param maxColumn  maximum value column index (model coordinates)
+     * @param maxColumn  Maximum value column index (model coordinates)
      *********************************************************************************************/
     private void addParameterContainer(NamespaceType namespace, TableInfo tableInfo, int varColumn, int typeColumn,
                                        int sizeColumn, int minColumn, int maxColumn)
@@ -2675,29 +2675,29 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Add a telemetry parameter to the name space's parameter set. Create the parameter set for the
      * name space if it does not exist
      *
-     * @param namespace     name space
+     * @param namespace     Name space
      *
-     * @param parameterName parameter name
+     * @param parameterName Parameter name
      *
-     * @param dataType      parameter primitive data type
+     * @param dataType      Parameter primitive data type
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength     parameter bit length; null or blank if not a bit-wise parameter
+     * @param bitLength     Parameter bit length; null or blank if not a bit-wise parameter
      *
      * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
-     * @param units         parameter units
+     * @param units         Parameter units
      *
-     * @param description   parameter description
+     * @param description   Parameter description
      *
-     * @param stringSize    size, in characters, of a string parameter; ignored if not a string or
+     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
-     * @param uniqueID      text used to uniquely identify data types with the same name; blank if the
+     * @param uniqueID      Text used to uniquely identify data types with the same name; blank if the
      *                      data type has no name conflict
      *
-     * @param applicationID application ID
+     * @param applicationID Application ID
      *********************************************************************************************/
     private void addParameter(NamespaceType namespace, String parameterName, String dataType, String arraySize,
                               String bitLength, String enumeration, String units, String description, int stringSize,
@@ -2761,7 +2761,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create the command set for the specified name space
      *
-     * @param namespace name space
+     * @param namespace Name space
      *
      * @return Reference to the command set
      *********************************************************************************************/
@@ -2787,21 +2787,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add the command(s) from a table to the specified name space
      *
-     * @param namespace         name space for this node
+     * @param namespace         Name space for this node
      *
-     * @param tableData         table data array
+     * @param tableData         Table data array
      *
-     * @param cmdNameColumn     command name column index
+     * @param cmdNameColumn     Command name column index
      *
-     * @param cmdCodeColumn     command code column index
+     * @param cmdCodeColumn     Command code column index
      *
-     * @param cmdArgumentColumn command argument column index
+     * @param cmdArgumentColumn Command argument column index
      *
-     * @param cmdDescColumn     command description column index
+     * @param cmdDescColumn     Command description column index
      *
-     * @param isCmdHeader       true if this table represents the command header
+     * @param isCmdHeader       True if this table represents the command header
      *
-     * @param applicationID     application ID
+     * @param applicationID     Application ID
      *********************************************************************************************/
     private void addNamespaceCommands(NamespaceType namespace, String[][] tableData, int cmdNameColumn,
                                       int cmdCodeColumn, int cmdArgumentColumn, int cmdDescColumn, boolean isCmdHeader,
@@ -3028,21 +3028,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add a command metadata set to the command metadata
      *
-     * @param namespace     name space
+     * @param namespace     Name space
      *
-     * @param commandName   command name
+     * @param commandName   Command name
      *
-     * @param cmdFuncCode   command code
+     * @param cmdFuncCode   Command code
      *
-     * @param cmdArgStruct  command argument name
+     * @param cmdArgStruct  Command argument name
      *
-     * @param applicationID application ID
+     * @param applicationID Application ID
      *
-     * @param isCmdHeader   true if this table represents the command header
+     * @param isCmdHeader   True if this table represents the command header
      *
-     * @param arguments     list of command argument types
+     * @param arguments     List of command argument types
      *
-     * @param description   description of the command
+     * @param description   Description of the command
      *********************************************************************************************/
     private void addCommand(NamespaceType namespace, String commandName, String cmdFuncCode, String cmdArgStruct,
                             String applicationID, boolean isCmdHeader, List<CommandArgumentType> arguments,
@@ -3182,34 +3182,35 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create the parameter data type and set the specified attributes
      *
-     * @param namespace     name space
+     * @param namespace     Name space
      *
-     * @param parameterName parameter name; null to not specify
+     * @param parameterName Parameter name; null to not specify
      *
-     * @param dataType      data type; null to not specify
+     * @param dataType      Data type; null to not specify
      *
-     * @param arraySize     parameter array size; null or blank if the parameter isn't an array
+     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
      *
-     * @param bitLength     parameter bit length; null or empty if not a bit-wise parameter
+     * @param bitLength     Parameter bit length; null or empty if not a bit-wise parameter
      *
-     * @param enumeration   enumeration in the format {@literal <enum label>|<enum value>[|...][,...]};
+     * @param enumeration   Enumeration in the format:
+     *                         {@literal <enum label>|<enum value>[|...][,...]};
      *                      null to not specify
      *
-     * @param units         parameter units; null to not specify
+     * @param units         Parameter units; null to not specify
      *
-     * @param description   parameter description; null or blank to not specify
+     * @param description   Parameter description; null or blank to not specify
      *
-     * @param stringSize    size, in characters, of a string parameter; ignored if not a string or
+     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
-     * @param uniqueID      text used to uniquely identify data types with the same name; blank if the
-     *                      data type has no name conflict
+     * @param uniqueID      Text used to uniquely identify data types with the same name; blank if
+     *                      the data type has no name conflict
      *
-     * @param applicationID application ID
+     * @param applicationID Application ID
      *********************************************************************************************/
-    private void setDataType(NamespaceType namespace, String parameterName, String dataType, String arraySize,
-                             String bitLength, String enumeration, String units, String description, int stringSize,
-                             String uniqueID, String applicationID)
+    private void setDataType(NamespaceType namespace, String parameterName, String dataType,
+                             String arraySize, String bitLength, String enumeration, String units,
+                             String description, int stringSize, String uniqueID, String applicationID)
     {
         RootDataType parameterType = null;
 
@@ -3468,9 +3469,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Set the supplied type's units from the supplied units string
      *
-     * @param units parameter or command argument units; null to not specify
+     * @param units Parameter or command argument units; null to not specify
      *
-     * @param type  reference to the numeric data type in which to place the units information
+     * @param type  Reference to the numeric data type in which to place the units information
      *********************************************************************************************/
     private void setUnits(String units, NumericDataType type)
     {
@@ -3498,7 +3499,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build an enumeration list from the supplied enumeration string
      *
-     * @param namespace   name space
+     * @param namespace   Name space
      *
      * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
@@ -3567,7 +3568,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Get the object identifier based on the presence or absence of the array size
      *
-     * @param arraySize array size; null or blank if not an array data type
+     * @param arraySize Array size; null or blank if not an array data type
      *
      * @return The object identifier: _Array if the supplied array size isn't null or blank, or _Type
      *         otherwise
@@ -3580,7 +3581,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Export table type definitions to the specified folder
      *
-     * @param exportFile        reference to the user-specified output file
+     * @param exportFile        Reference to the user-specified output file
      *
      * @param includeTableTypes Boolean representing if the table types should be included
      *
@@ -3610,9 +3611,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Export script association data, group data, macro data, telemetry scheduler data or application
      * scheduler data to the specified folder
      *
-     * @param dataType   the data type that is about to be exported
+     * @param dataType   The data type that is about to be exported
      *
-     * @param exportFile reference to the user-specified output file
+     * @param exportFile Reference to the user-specified output file
      *
      * @param outputType String representing rather the output is going to a single file or multiple
      *                   files. Should be "Single" or "Multiple"

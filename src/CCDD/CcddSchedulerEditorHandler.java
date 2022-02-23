@@ -137,15 +137,15 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Scheduler editor handler class constructor
      *
-     * @param ccddMain       main class reference
+     * @param ccddMain       Main class reference
      *
-     * @param schedulerHndlr reference to the scheduler dialog that created this class
+     * @param schedulerHndlr Reference to the scheduler dialog that created this class
      *
-     * @param totalMessages  total number of parent messages
+     * @param totalMessages  Total number of parent messages
      *
-     * @param totalBytes     total number of bytes per a second
+     * @param totalBytes     Total number of bytes per a second
      *
-     * @param msgsPerSecond  total messages per second
+     * @param msgsPerSecond  Total messages per second
      *********************************************************************************************/
     CcddSchedulerEditorHandler(CcddMain ccddMain, CcddSchedulerHandler schedulerHndlr, int totalMessages,
                                int totalBytes, int msgsPerSecond)
@@ -261,19 +261,19 @@ public class CcddSchedulerEditorHandler
              * Validate changes to the data field value cells; e.g., verify cell content and, if found invalid,
              * revert to the original value
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage unused
+             * @param showMessage Unused
              *
-             * @param isMultiple  unused
+             * @param isMultiple  Unused
              *
              * @return Value of ShowMessage
              ************************************************************************************/
@@ -872,7 +872,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Update the assignment tree/list with the specified message's variables
      *
-     * @param message reference to the message from which the package list is populated
+     * @param message Reference to the message from which the package list is populated
      *********************************************************************************************/
     private void updateAssignmentList(Message message)
     {
@@ -954,7 +954,7 @@ public class CcddSchedulerEditorHandler
      * Set the bytes column for the specified message in the scheduler table. If the remaining bytes is
      * less than zero the text is displayed in red
      *
-     * @param msgIndex index of the message to update, which is the same as the row in the scheduler
+     * @param msgIndex Index of the message to update, which is the same as the row in the scheduler
      *                 table
      *********************************************************************************************/
     private void updateRemainingBytesColumn(int msgIndex)
@@ -1061,7 +1061,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Get the sub-message scheduler column name or assigned variables tab name
      *
-     * @param index sub-message index
+     * @param index Sub-message index
      *
      * @return Sub-message scheduler column name or assigned variables tab name
      *********************************************************************************************/
@@ -1142,7 +1142,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Update the scheduler table based on the current messages
      *
-     * @param isLoadData true to load the scheduler table with the data; false to only update the
+     * @param isLoadData True to load the scheduler table with the data; false to only update the
      *                   scheduler table data array
      *********************************************************************************************/
     protected void updateSchedulerTable(boolean isLoadData)
@@ -1259,11 +1259,11 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Copy the specified (sub-)messages to the specified copy location
      *
-     * @param messageList   list of (sub-)messages to copy
+     * @param messageList   List of (sub-)messages to copy
      *
-     * @param copyList      reference to the list to which to copy the (sub-)messages
+     * @param copyList      Reference to the list to which to copy the (sub-)messages
      *
-     * @param parentMessage parent of the sub-message; null if this is not a sub-message
+     * @param parentMessage Parent of the sub-message; null if this is not a sub-message
      *********************************************************************************************/
     private void copyMessages(List<Message> messageList, List<Message> copyList, Message parentMessage)
     {
@@ -1315,12 +1315,12 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Add a variable to the specified (sub-)message. Update the message and table with the new values
      *
-     * @param variable     variable that will be added
+     * @param variable     Variable that will be added
      *
-     * @param messageIndex message index if the variable is not assigned to a sub-message; sub-message
+     * @param messageIndex Message index if the variable is not assigned to a sub-message; sub-message
      *                     index if the message is assigned to a sub-message
      *
-     * @param subMsgIndex  message index if the variable is assigned to a sub-message, -1 if not
+     * @param subMsgIndex  Message index if the variable is assigned to a sub-message, -1 if not
      *********************************************************************************************/
     protected void addVariableToMessage(Variable variable, int messageIndex, int subMsgIndex)
     {
@@ -1363,7 +1363,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Get the number of variables in the specified message
      *
-     * @param index message index
+     * @param index Message index
      *
      * @return Number of variables in the specified message
      *********************************************************************************************/
@@ -1375,7 +1375,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Select the message name column in the specified row of the scheduler table
      *
-     * @param row row to select, model coordinates
+     * @param row Row to select, model coordinates
      *********************************************************************************************/
     protected void setSelectedRow(int row)
     {
@@ -1478,9 +1478,9 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Remove the specified variable(s) from all messages it is contained in
      *
-     * @param variables list of variables to remove
+     * @param variables List of variables to remove
      *
-     * @param row       message row index
+     * @param row       Message row index
      *
      * @return List of the variable names removed
      *********************************************************************************************/
@@ -1522,7 +1522,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Find all the combinations of messages into which a a rate fits
      *
-     * @param rate rate, in hertz, of the selected variable
+     * @param rate Rate, in hertz, of the selected variable
      *
      * @return List of the combinations
      *********************************************************************************************/
@@ -1550,7 +1550,7 @@ public class CcddSchedulerEditorHandler
      * Get a list of the options for non-sub-hertz rates in the format [MessageName1][,
      * MessageName2],...]]
      *
-     * @param rate rate filter, in hertz
+     * @param rate Rate filter, in hertz
      *
      * @return List of all the combinations
      *********************************************************************************************/
@@ -1593,7 +1593,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Find all the options for sub-hertz
      *
-     * @param rate hertz of the selected variable
+     * @param rate Hertz of the selected variable
      *
      * @return List of all the combinations
      *********************************************************************************************/
@@ -1653,9 +1653,9 @@ public class CcddSchedulerEditorHandler
      * Set the message name to green if the message has room for the size; if not set the name to red.
      * Also set the table model to display the number of bytes after the variable is added
      *
-     * @param messageIndex row number for which to set the values
+     * @param messageIndex Row number for which to set the values
      *
-     * @param size         size that needs to fit in the message
+     * @param size         Size that needs to fit in the message
      *********************************************************************************************/
     protected void setMessageAvailability(int messageIndex, int size)
     {
@@ -1700,7 +1700,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Get the message size for the specified message index
      *
-     * @param index message index
+     * @param index Message index
      *
      * @return Message size
      *********************************************************************************************/
@@ -1712,10 +1712,10 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Get the message at the specified indices
      *
-     * @param messageIndex message index if this is a parent message; sub-message index if this is a
+     * @param messageIndex Message index if this is a parent message; sub-message index if this is a
      *                     sub-message
      *
-     * @param parentIndex  parent message index if this is a sub-message; -1 if not a sub-message
+     * @param parentIndex  Parent message index if this is a sub-message; -1 if not a sub-message
      *
      * @return Message object at the given indices
      *********************************************************************************************/
@@ -1787,7 +1787,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Remove the variables (applications) assigned to the messages (time slots)
      *
-     * @param rateFilter rate of the variables to removed from the telemetry messages; null to remove
+     * @param rateFilter Rate of the variables to removed from the telemetry messages; null to remove
      *                   all variables. Not used for the application scheduler
      *********************************************************************************************/
     protected void clearVariablesFromMessages(String rateFilter)
@@ -2026,7 +2026,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Deallocate any sub-message variables if the number of sub-messages is changed
      *
-     * @param message message for which the variables are deallocated from each sub-message
+     * @param message Message for which the variables are deallocated from each sub-message
      *
      * @return true if the variable is deallocated or there are no variables to deallocate; false if
      *         there are variable to deallocate but the user cancels the operation
@@ -2141,9 +2141,9 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Compare the current (sub-)message to the committed (sub-)message to detect any changes
      *
-     * @param currMsg reference to the message's current values
+     * @param currMsg Reference to the message's current values
      *
-     * @param commMsg reference to the message's original values
+     * @param commMsg Reference to the message's original values
      *
      * @return true if the (sub-)message's content changed; false if no change exists
      *********************************************************************************************/

@@ -135,7 +135,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         /******************************************************************************************
          * Input type data table references class constructor
          *
-         * @param inputTypeName input type name
+         * @param inputTypeName Input type name
          *****************************************************************************************/
         InputTypeReference(String inputTypeName)
         {
@@ -171,7 +171,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Input type editor dialog class constructor
      *
-     * @param ccddMain main class reference
+     * @param ccddMain Main class reference
      *********************************************************************************************/
     CcddInputTypeEditorDialog(CcddMain ccddMain)
     {
@@ -188,10 +188,10 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of input type updates to the database
      *
-     * @param commandError   false if the database commands successfully completed; true if an error
+     * @param commandError   False if the database commands successfully completed; true if an error
      *                       occurred and the changes were not made
      *
-     * @param inputTypeNames list of the input type names, before and after the changes
+     * @param inputTypeNames List of the input type names, before and after the changes
      *********************************************************************************************/
     protected void doInputTypeUpdatesComplete(boolean commandError, List<String[]> inputTypeNames)
     {
@@ -554,7 +554,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Get the references to the specified input type in the prototype tables
      *
-     * @param inputTypeName input type name
+     * @param inputTypeName Input type name
      *
      * @return Reference to the specified input type in the prototype tables
      *********************************************************************************************/
@@ -666,9 +666,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
              * Override getCellEditor so that for a input type format column cell the input type format combo
              * box cell editor is returned; for all other cells return the normal cell editor
              *
-             * @param row    table view row number
+             * @param row    Table view row number
              *
-             * @param column table view column number
+             * @param column Table view column number
              *
              * @return The cell editor for the specified row and column
              *************************************************************************************/
@@ -697,19 +697,19 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             /**************************************************************************************
              * Validate changes to the editable cells
              *
-             * @param tableData   list containing the table data row arrays
+             * @param tableData   List containing the table data row arrays
              *
-             * @param row         table model row number
+             * @param row         Table model row number
              *
-             * @param column      table model column number
+             * @param column      Table model column number
              *
-             * @param oldValue    original cell contents
+             * @param oldValue    Original cell contents
              *
-             * @param newValue    new cell contents
+             * @param newValue    New cell contents
              *
-             * @param showMessage true to display the invalid input dialog, if applicable
+             * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  true if this is one of multiple cells to be entered and checked; false if only
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
              *                    a single input is being entered
              *
              * @return Always returns false

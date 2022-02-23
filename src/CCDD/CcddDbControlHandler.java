@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddDbControlHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing the methods for connecting to, creating, copying, renaming, and deleting
-*     project databases.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddDbControlHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing the methods for connecting to, creating, copying, renaming, and deleting
+ * project databases.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
@@ -173,9 +169,9 @@ public class CcddDbControlHandler
         /******************************************************************************************
          * Input stream consumer class constructor
          *
-         * @param inputStream reference to the input stream to consume
+         * @param inputStream Reference to the input stream to consume
          *
-         * @param storeOutput true to store the contents of the stream; false to discard
+         * @param storeOutput True to store the contents of the stream; false to discard
          *****************************************************************************************/
         StreamConsumer(InputStream inputStream, boolean storeOutput)
         {
@@ -187,7 +183,8 @@ public class CcddDbControlHandler
         /******************************************************************************************
          * Get the streams' content
          *
-         * @return The contents of the stream; empty string if the content was not configured to be stored
+         * @return The contents of the stream; empty string if the content was not configured to be
+         *         stored
          *****************************************************************************************/
         protected String getOutput()
         {
@@ -232,9 +229,7 @@ public class CcddDbControlHandler
 
                 br.close();
             }
-            catch (
-                IOException ioe
-            )
+            catch (IOException ioe)
             {
             }
         }
@@ -243,7 +238,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Database control handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddDbControlHandler(CcddMain ccddMain)
     {
@@ -277,8 +272,8 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Create a reference to the session event log. This can't be done initially since the event log
-     * hasn't been created when this class is instantiated
+     * Create a reference to the session event log. This can't be done initially since the event
+     * log hasn't been created when this class is instantiated
      *********************************************************************************************/
     protected void setEventLog()
     {
@@ -316,12 +311,12 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Convert the specified project name into its equivalent PostgreSQL database name. All upper case
-     * letters are set to lower case. Non-alphanumeric characters are replaced with underscores(_), and
-     * an underscore is prepended if the name begins with a numeral. The database name is truncated if
-     * necessary to the maximum length allowed by PostgreSQL
+     * Convert the specified project name into its equivalent PostgreSQL database name. All upper
+     * case letters are set to lower case. Non-alphanumeric characters are replaced with
+     * underscores(_), and an underscore is prepended if the name begins with a numeral. The
+     * database name is truncated if necessary to the maximum length allowed by PostgreSQL
      *
-     * @param projectName project name
+     * @param projectName Project name
      *
      * @return The specified project name converted to its equivalent PostgreSQL database name
      *********************************************************************************************/
@@ -354,7 +349,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the active project and database names based on the database name
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *********************************************************************************************/
     protected void setDatabaseName(String databaseName)
     {
@@ -375,10 +370,10 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the project name for the specified database
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
-     * @return The project name for the specified database; the database name is used if the project
-     *         name can't be retrieved
+     * @return The project name for the specified database; the database name is used if the
+     *         project name can't be retrieved
      *********************************************************************************************/
     protected String getProjectName(String databaseName)
     {
@@ -400,7 +395,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the active project and database names based on the project name
      *
-     * @param projectName project name
+     * @param projectName Project name
      *********************************************************************************************/
     protected void setProjectName(String projectName)
     {
@@ -471,7 +466,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the status of the flag that indicates if an SSL connection is enabled
      *
-     * @param enable true to enable an SSL connection
+     * @param enable True to enable an SSL connection
      *********************************************************************************************/
     protected void setSSL(boolean enable)
     {
@@ -491,7 +486,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the database user
      *
-     * @param user database user
+     * @param user Database user
      *********************************************************************************************/
     protected void setUser(String user)
     {
@@ -499,8 +494,8 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Set the user access level from the user authorization table. If the user isn't found in the table
-     * then the access level is set to read only
+     * Set the user access level from the user authorization table. If the user isn't found in the
+     * table then the access level is set to read only
      *********************************************************************************************/
     private void setAccessLevel()
     {
@@ -549,15 +544,17 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the list of databases for which the user has administrative access
      *
-     * @return List of databases for which the user has administrative access; empty list if the user
-     *         has no administrative access
+     * @return List of databases for which the user has administrative access; empty list if the
+     *         user has no administrative access
      *********************************************************************************************/
     protected List<String> getUserAdminAccess()
     {
         List<String> adminAccess = new ArrayList<String>();
 
-        // Step through the array containing the database name, lock status, visible (project) name,
-        // project administrator(s), and description for each project to which the current user has access
+        // Step through the array containing the database name, lock status, visible (project)
+        // name,
+        // project administrator(s), and description for each project to which the current user has
+        // access
         for (String userDbInfo : queryDatabaseByUserList(ccddMain.getMainFrame(), activeUser))
         {
             // Separate the information retrieved into the database name and its comment,
@@ -618,7 +615,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the user's database password
      *
-     * @param password user's database password
+     * @param password User's database password
      *********************************************************************************************/
     protected void setPassword(String password)
     {
@@ -628,7 +625,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the file path and name to automatically backup the database to on first connecting
      *
-     * @param backupFileName backup file path and name
+     * @param backupFileName Backup file path and name
      *********************************************************************************************/
     protected void setBackupFileName(String backupFileName)
     {
@@ -636,13 +633,13 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Force the supplied table or column name to lower case. Bound the name with double quotes if it
-     * matches a PostgreSQL reserved word
+     * Force the supplied table or column name to lower case. Bound the name with double quotes if
+     * it matches a PostgreSQL reserved word
      *
-     * @param name table or column name
+     * @param name Table or column name
      *
-     * @return Supplied table or column name in lower case, bounded with double quotes if it matches a
-     *         PostgreSQL reserved word (case insensitive)
+     * @return Supplied table or column name in lower case, bounded with double quotes if it
+     *         matches a PostgreSQL reserved word (case insensitive)
      *********************************************************************************************/
     protected String getQuotedName(String name)
     {
@@ -667,7 +664,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Check if the supplied table or column name is a PostgreSQL reserved word
      *
-     * @param name table or column name
+     * @param name Table or column name
      *
      * @return true if the supplied name matches a reserved word (case insensitive)
      *********************************************************************************************/
@@ -713,9 +710,7 @@ public class CcddDbControlHandler
                 databaseVersion = String.valueOf(metaData.getDatabaseMajorVersion()) + "."
                                   + String.valueOf(metaData.getDatabaseMinorVersion());
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user that the database version number is unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -747,9 +742,7 @@ public class CcddDbControlHandler
                 // Get the database version number
                 version = metaData.getDatabaseMajorVersion();
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user that the database version number is unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -764,8 +757,8 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the JDBC version number
      *
-     * @return String containing the JDBC version number; returns '*not connected*' if if not connected
-     *         to the PostgreSQL server
+     * @return String containing the JDBC version number; returns '*not connected*' if if not
+     *         connected to the PostgreSQL server
      *********************************************************************************************/
     protected String getJDBCVersion()
     {
@@ -783,9 +776,7 @@ public class CcddDbControlHandler
                 jdbcVersion = String.valueOf(metaData.getDriverVersion()) + " (type "
                               + String.valueOf(metaData.getJDBCMajorVersion()) + ")";
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user that the JDBC version number is unavailable
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -836,7 +827,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Retrieve the name of the specified database's owner
      *
-     * @param databaseName name of the database for which the owner is requested
+     * @param databaseName Name of the database for which the owner is requested
      *
      * @param parent       GUI component over which to center any error dialog
      *
@@ -853,8 +844,8 @@ public class CcddDbControlHandler
      *
      * @param parent GUI component over which to center any error dialog
      *
-     * @return Array containing the database names and descriptions; empty list if no CCDD databases
-     *         exist in the server
+     * @return Array containing the database names and descriptions; empty list if no CCDD
+     *         databases exist in the server
      *********************************************************************************************/
     protected String[] queryDatabaseList(Component parent)
     {
@@ -862,14 +853,16 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Retrieve a list of the databases registered on the server for which the current user has access
+     * Retrieve a list of the databases registered on the server for which the current user has
+     * access
      *
      * @param parent   GUI component over which to center any error dialog
      *
-     * @param userName user name
+     * @param userName User name
      *
      * @return Array containing the database names and descriptions for which the current user has
-     *         access; empty list if there are no CCDD databases in the server accessible by the user
+     *         access; empty list if there are no CCDD databases in the server accessible by the
+     *         user
      *********************************************************************************************/
     protected String[] queryDatabaseByUserList(Component parent, String userName)
     {
@@ -879,7 +872,7 @@ public class CcddDbControlHandler
     /**
      * Query the list of all databases and determine if one exists with the given name
      *
-     * @param queryDatabaseName the Database name to find
+     * @param queryDatabaseName The Database name to find
      * @return a database with that name exists or does not
      */
     protected boolean isDatabaseNameInUse(String queryDatabaseName)
@@ -902,7 +895,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the server + database
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
      * @return server + database
      *********************************************************************************************/
@@ -915,7 +908,7 @@ public class CcddDbControlHandler
      * Get the database URL. If SSL is enabled the appropriate properties are set; certificate
      * validation is bypassed.
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
      * @return Database URL
      *********************************************************************************************/
@@ -928,7 +921,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the array containing the database comment fields (without the CFS project identifier)
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
      * @return Array containing the database comment in the format &lt;lock status (0 or
      *         1)&gt;,&lt;visible project database name (with capitalization and special characters
@@ -952,9 +945,7 @@ public class CcddDbControlHandler
 
             resultSet.close();
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that loading the database comment failed
             eventLog.logFailEvent(ccddMain
@@ -971,9 +962,9 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Parse the supplied database comment string into an array of the comment's separate fields
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
-     * @param comment      database comment
+     * @param comment      Database comment
      *
      * @return Array containing the database comment in the format &lt;lock status (0 or
      *         1)&gt;,&lt;visible project database name (with capitalization and special characters
@@ -999,12 +990,14 @@ public class CcddDbControlHandler
             {
                 // Comment is in the post patch #07242018 format (lock status;project name;project
                 // creator;description).
-                // This check can be fooled if the description contains a semi-colon and the text prior to the
+                // This check can be fooled if the description contains a semi-colon and the text
+                // prior to the
                 // semi-colon
                 // matches an alphanumeric. Store the comment fields
                 commentFields = commentParts;
             }
-            // The comment is in the post patch #07112017 format (lock status;project name;description)
+            // The comment is in the post patch #07112017 format (lock status;project
+            // name;description)
             else
             {
                 // Get the lock status, project name, and description from the comment
@@ -1037,10 +1030,10 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the database lock status
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
-     * @return true if the database is locked, false if not locked, or null if the comment cannot be
-     *         retrieved
+     * @return true if the database is locked, false if not locked, or null if the comment cannot
+     *         be retrieved
      *********************************************************************************************/
     protected Boolean getDatabaseLockStatus(String databaseName)
     {
@@ -1062,9 +1055,9 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the database lock status. If the GUI is hidden the lock status is unchanged
      *
-     * @param projectName project name
+     * @param projectName Project name
      *
-     * @param lockStatus  true if the database is locked; false if unlocked
+     * @param lockStatus  True if the database is locked; false if unlocked
      *********************************************************************************************/
     protected void setDatabaseLockStatus(String projectName, boolean lockStatus)
     {
@@ -1099,9 +1092,7 @@ public class CcddDbControlHandler
                     eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' ")
                             .append((lockStatus ? "locked" : "unlocked")));
                 }
-                catch (
-                    SQLException se
-                )
+                catch (SQLException se)
                 {
                     // Inform the user that setting the database comment failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1117,10 +1108,10 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the project database administrator user name(s)
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
-     * @return The project database administrator user name(s), separated by a comma if more than one;
-     *         null if no administrator name is present in the database comment
+     * @return The project database administrator user name(s), separated by a comma if more than
+     *         one; null if no administrator name is present in the database comment
      *********************************************************************************************/
     protected String getDatabaseAdmins(String databaseName)
     {
@@ -1143,8 +1134,8 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Set the project database administrator user name(s)
      *
-     * @param admins string containing the names of the user(s) with administrative access, separated by
-     *               a comma
+     * @param admins String containing the names of the user(s) with administrative access,
+     *               separated by a comma
      *
      * @param parent GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -1166,9 +1157,7 @@ public class CcddDbControlHandler
             eventLog.logEvent(SUCCESS_MSG,
                               new StringBuilder("Project '").append(activeProject).append("' administrators updated"));
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the database administrator(s) cannot be updated
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1186,7 +1175,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the owner of the specified project
      *
-     * @param projectName project name
+     * @param projectName Project name
      *
      * @param parent      GUI component over which to center any error dialog
      *
@@ -1212,9 +1201,7 @@ public class CcddDbControlHandler
 
             resultSet.close();
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that loading the database comment failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1229,11 +1216,11 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Change the owner of the specified project
      *
-     * @param projectName  project name
+     * @param projectName  Project name
      *
-     * @param currentOwner current owner of the database
+     * @param currentOwner Current owner of the database
      *
-     * @param newOwner     new owner of the database
+     * @param newOwner     New owner of the database
      *
      * @param parent       GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -1256,9 +1243,7 @@ public class CcddDbControlHandler
             eventLog.logEvent(SUCCESS_MSG,
                               new StringBuilder("Project '").append(projectName).append("' ownership changed"));
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the database owner cannot be changed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1276,7 +1261,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the database description
      *
-     * @param databaseName database name
+     * @param databaseName Database name
      *
      * @return The database description; null if no description exists
      *********************************************************************************************/
@@ -1325,13 +1310,13 @@ public class CcddDbControlHandler
      * Delimit the text so that special characters (e.g., single quotes) can be placed in the
      * description
      *
-     * @param projectName   project name (with case and special characters preserved)
+     * @param projectName   Project name (with case and special characters preserved)
      *
-     * @param administrator name of the user(s) with administrative access to the project database
+     * @param administrator Name of the user(s) with administrative access to the project database
      *
-     * @param lockStatus    true if the database is locked; false if unlocked
+     * @param lockStatus    True if the database is locked; false if unlocked
      *
-     * @param description   database description
+     * @param description   Database description
      *
      * @return Command to create the database comment
      *********************************************************************************************/
@@ -1358,9 +1343,7 @@ public class CcddDbControlHandler
                 // Update the __dbu_info_ internal table
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             }
-            catch (
-                SQLException e
-            )
+            catch (SQLException e)
             {
                 try
                 {
@@ -1372,9 +1355,7 @@ public class CcddDbControlHandler
                     // Create the default internal table
                     dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
                 }
-                catch (
-                    SQLException se
-                )
+                catch (SQLException se)
                 {
                     // Inform the user that creating the database functions failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1402,10 +1383,10 @@ public class CcddDbControlHandler
      *
      * @param object     DatabaseObjects (DATABASE, TABLE, or FUNCTION)
      *
-     * @param objectName name of the database object to alter
+     * @param objectName Name of the database object to alter
      *
-     * @return Command to change a database object's owner and grant access privileges to the current
-     *         group
+     * @return Command to change a database object's owner and grant access privileges to the
+     *         current group
      *********************************************************************************************/
     protected String buildOwnerCommand(DatabaseObject object, String objectName)
     {
@@ -1416,14 +1397,14 @@ public class CcddDbControlHandler
      * Build the command to change a database object's owner and grant access privileges to the
      * specified database owner
      *
-     * @param ownerName  name of the role or user that owns the database and its objects
+     * @param ownerName  Name of the role or user that owns the database and its objects
      *
      * @param object     DatabaseObjects (DATABASE, TABLE, or FUNCTION)
      *
-     * @param objectName name of the database object to alter
+     * @param objectName Name of the database object to alter
      *
-     * @return Command to change a database object's owner and grant access privileges to the specified
-     *         group
+     * @return Command to change a database object's owner and grant access privileges to the
+     *         specified group
      *********************************************************************************************/
     private String buildOwnerCommand(String ownerName, DatabaseObject object, String objectName)
     {
@@ -1447,9 +1428,7 @@ public class CcddDbControlHandler
             // Disable auto-commit for database changes
             connection.setAutoCommit(false);
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that disabling the database auto-commit flag failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1461,13 +1440,14 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Create a project database
      *
-     * @param projectName   name of the project to create, with case and special characters preserved
+     * @param projectName   Name of the project to create, with case and special characters
+     *                      preserved
      *
-     * @param ownerName     name of the role or user that owns the database and its objects
+     * @param ownerName     Name of the role or user that owns the database and its objects
      *
-     * @param administrator project administrator name(s) (comma-separated)
+     * @param administrator Project administrator name(s) (comma-separated)
      *
-     * @param description   database description
+     * @param description   Database description
      *
      * @return true if the command completes successfully; false otherwise
      *********************************************************************************************/
@@ -1496,9 +1476,7 @@ public class CcddDbControlHandler
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' created"));
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1507,9 +1485,7 @@ public class CcddDbControlHandler
                                   "<html><b>Cannot create project '</b>" + projectName + "<b>'");
             successFlag = false;
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
             successFlag = false;
@@ -1525,17 +1501,17 @@ public class CcddDbControlHandler
 
     /**********************************************************************************************
      * Create a project database. This command is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the database command completes
-     * execution
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the database command
+     * completes execution
      *
-     * @param projectName   name of the project to create, with case preserved
+     * @param projectName   Name of the project to create, with case preserved
      *
-     * @param ownerName     name of the role or user that owns the database and its objects
+     * @param ownerName     Name of the role or user that owns the database and its objects
      *
-     * @param administrator project administrator name(s) (comma-separated)
+     * @param administrator Project administrator name(s) (comma-separated)
      *
-     * @param description   database description
+     * @param description   Database description
      *********************************************************************************************/
     protected void createDatabaseInBackground(final String projectName, final String ownerName,
                                               final String administrator, final String description)
@@ -1573,7 +1549,8 @@ public class CcddDbControlHandler
                     .append("THEN NULL ELSE make_plpgsql() END; ")
                     .append(buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()"))
                     .append("DROP FUNCTION make_plpgsql();");
-            // Send command to create the procedural language in the database if it does not already exists
+            // Send command to create the procedural language in the database if it does not
+            // already exists
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
 
@@ -1624,17 +1601,23 @@ public class CcddDbControlHandler
                 }
             }
 
-            // Create function to search all tables for the input text with case sensitivity determined by an
+            // Create function to search all tables for the input text with case sensitivity
+            // determined by an
             // input
-            // flag. A second flag determines if the search string is treated as a literal string or as a
+            // flag. A second flag determines if the search string is treated as a literal string
+            // or as a
             // regular
-            // expression. If as a literal, then all non-alphanumeric and non-space characters are escaped so
+            // expression. If as a literal, then all non-alphanumeric and non-space characters are
+            // escaped so
             // that
-            // these characters can be detected correctly. A third flag determines if all tables or only the
+            // these characters can be detected correctly. A third flag determines if all tables or
+            // only the
             // data
-            // tables (including entries in the custom values table) are searched. Returns a table giving the
+            // tables (including entries in the custom values table) are searched. Returns a table
+            // giving the
             // unique
-            // schema, table, column name, table comment, and contents of the columns in the table row where the
+            // schema, table, column name, table comment, and contents of the columns in the table
+            // row where the
             // text
             // is found
             command.setLength(0);
@@ -1698,11 +1681,14 @@ public class CcddDbControlHandler
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
 
-            // Create function to retrieve all table names and column values for the tables with the specified
+            // Create function to retrieve all table names and column values for the tables with
+            // the specified
             // column name currently
-            // in use (i.e., blank column values are ignored) in the tables of the specified table type(s).
+            // in use (i.e., blank column values are ignored) in the tables of the specified table
+            // type(s).
             // Include columns from both the
-            // prototype and custom values tables. Use SELECT DISTINCT on the results to eliminate duplicate
+            // prototype and custom values tables. Use SELECT DISTINCT on the results to eliminate
+            // duplicate
             // table names and/or column values
             command.append(deleteFunction("find_columns_by_name"))
                     .append("CREATE OR REPLACE FUNCTION find_columns_by_name(column_name_user text, ")
@@ -1744,9 +1730,7 @@ public class CcddDbControlHandler
             // Inform the user that the database table function creation succeeded
             eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Database tables and functions created"));
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that creating the database functions failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1979,9 +1963,7 @@ public class CcddDbControlHandler
                 // Inform the user that the database function creation succeeded
                 eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Database structure functions created"));
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user that creating the database functions failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1998,10 +1980,10 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Build the command to delete a database function. This deletes the function whether or not the
-     * input parameters match
+     * Build the command to delete a database function. This deletes the function whether or not
+     * the input parameters match
      *
-     * @param functionName name of the function to delete
+     * @param functionName Name of the function to delete
      *
      * @return Command to delete the specified database function
      *********************************************************************************************/
@@ -2014,7 +1996,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Build the command to create an internal table
      *
-     * @param intTable type of internal table to build
+     * @param intTable Type of internal table to build
      *
      * @return Command to build the specified internal table
      *********************************************************************************************/
@@ -2045,9 +2027,9 @@ public class CcddDbControlHandler
      * Authenticate the specified user credentials for the PostgreSQL server and the currently open
      * database
      *
-     * @param userName user name
+     * @param userName User name
      *
-     * @param password user password
+     * @param password User password
      *
      * @return true if the user is allowed access to the currently open database
      *********************************************************************************************/
@@ -2081,9 +2063,7 @@ public class CcddDbControlHandler
                 }
             }
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Ignore any database error condition
         }
@@ -2104,12 +2084,12 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Connect to a database
      *
-     * @param projectName  name of the project to open
+     * @param projectName  Name of the project to open
      *
-     * @param databaseName name of the database to open
+     * @param databaseName Name of the database to open
      *
-     * @param isReconnect  true if this is an attempt to reconnect to the database following a failed
-     *                     transaction
+     * @param isReconnect  True if this is an attempt to reconnect to the database following a
+     *                     failed transaction
      *
      * @return true if the connection attempt failed
      *********************************************************************************************/
@@ -2182,7 +2162,8 @@ public class CcddDbControlHandler
             // A database other than the default is selected
             else
             {
-                // Get the database lock status (note that the database isn't locked if the GUI is hidden)
+                // Get the database lock status (note that the database isn't locked if the GUI is
+                // hidden)
                 Boolean isLocked = getDatabaseLockStatus(databaseName);
 
                 // Check if an error occurred obtaining the lock status
@@ -2240,9 +2221,7 @@ public class CcddDbControlHandler
                                           .append(activeProject).append("' as user '").append(activeUser).append("'"));
             }
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Check if the connection failed due to a missing or invalid password
             if ((se.getMessage().contains("authentication failed") || se.getMessage().contains("password"))
@@ -2269,14 +2248,13 @@ public class CcddDbControlHandler
 
             errorFlag = true;
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             errorFlag = true;
         }
 
-        // Check if a connection is established. Don't log the version information when reconnecting
+        // Check if a connection is established. Don't log the version information when
+        // reconnecting
         if (!errorFlag && !isReconnect)
         {
             // Log the PostgreSQL and JDBC versions
@@ -2300,9 +2278,10 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Open a database. Create the database functions
      *
-     * @param projectName name of the project to open
+     * @param projectName Name of the project to open
      *
-     * @return true if an error occurred opening the database; false if the database successfully opened
+     * @return true if an error occurred opening the database; false if the database successfully
+     *         opened
      *********************************************************************************************/
     protected boolean openDatabase(final String projectName)
     {
@@ -2312,15 +2291,16 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Open a database using the current host, port, and SSL settings
      *
-     * @param projectName         name of the project to open
+     * @param projectName         Name of the project to open
      *
-     * @param createFunctions     true to create the database functions; false if reopening a database
-     *                            (so the functions already exist)
+     * @param createFunctions     True to create the database functions; false if reopening a
+     *                            database (so the functions already exist)
      *
      * @param addDefaultDataTypes Should the default data type be added to the database? This is
      *                            normally false only when restoring a database from JSON or CSV
      *
-     * @return true if an error occurred opening the database; false if the database successfully opened
+     * @return true if an error occurred opening the database; false if the database successfully
+     *         opened
      *********************************************************************************************/
     protected boolean openDatabase(String projectName, boolean createFunctions)
     {
@@ -2330,15 +2310,16 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Open a database using the current host, port, and SSL settings
      *
-     * @param projectName         name of the project to open
+     * @param projectName         Name of the project to open
      *
-     * @param createFunctions     true to create the database functions; false if reopening a database
-     *                            (so the functions already exist)
+     * @param createFunctions     True to create the database functions; false if reopening a
+     *                            database (so the functions already exist)
      *
      * @param addDefaultDataTypes Should the default data type be added to the database? This is
      *                            normally false only when restoring a database from JSON or CSV
      *
-     * @return true if an error occurred opening the database; false if the database successfully opened
+     * @return true if an error occurred opening the database; false if the database successfully
+     *         opened
      *********************************************************************************************/
     protected boolean openDatabase(String projectName, boolean createFunctions, boolean addDefaultDataTypes)
     {
@@ -2349,20 +2330,24 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Open a database using the project name, host, port, and SSL settings provided
      *
-     * @param projectName     name of the project to open
+     * @param projectName     Name of the project to open
      *
      * @param serverHost      PostgreSQL server host
      *
      * @param serverPort      PostgreSQL server port
      *
-     * @param isSSL           true if an SSL connection is enabled
+     * @param isSSL           True if an SSL connection is enabled
      *
-     * @param createFunctions true to create the database functions; false if reopening a database (so
-     *                        the functions already exist)
+     * @param createFunctions True to create the database functions; false if reopening a database
+     *                        (so the functions already exist)
      *
-     * @return true if an error occurred opening the database; false if the database successfully opened
+     * @return true if an error occurred opening the database; false if the database successfully
+     *         opened
      *********************************************************************************************/
-    protected boolean openDatabase(String projectName, String serverHost, String serverPort, boolean isSSL,
+    protected boolean openDatabase(String projectName,
+                                   String serverHost,
+                                   String serverPort,
+                                   boolean isSSL,
                                    boolean createFunctions)
     {
         boolean errorFlag = false;
@@ -2441,34 +2426,31 @@ public class CcddDbControlHandler
                             // (for command line script execution or as a web server) then the
                             // project database is left unlocked
                             setDatabaseLockStatus(activeProject, true);
+
                             if (dbTableCommand == null)
                             {
                                 dbTableCommand = ccddMain.getDbTableCommandHandler();
                             }
 
-                            // Build the table tree and update the pre-loaded table members. This is done in the
-                            // background
-                            // as soon as a database is opened so that when a user performs an action that loads the
-                            // table
-                            // tree they do not have to wait for it to be built.
+                            // Build the table tree and update the pre-loaded table members. This
+                            // is done in the background as soon as a database is opened so that
+                            // when a user performs an action that loads the table tree they do not
+                            // have to wait for it to be built
                             ccddMain.buildTableTreeHandler();
                             dbTableCommand.updatePreLoadedTableMembers();
 
                             // Update the recently opened projects list and store it in the program
                             // preferences, then update the command menu items
-                            CcddUtilities
-                                    .updateRememberedItemList(projectName, ccddMain.getRecentProjectNames(),
-                                                              ModifiableSizeInfo.NUM_REMEMBERED_PROJECTS.getSize());
-                            ccddMain.getProgPrefs()
-                                    .put(PROJECT_STRINGS,
-                                         CcddUtilities.getRememberedItemListAsString(ccddMain.getRecentProjectNames()));
+                            CcddUtilities.updateRememberedItemList(projectName,
+                                                                   ccddMain.getRecentProjectNames(),
+                                                                   ModifiableSizeInfo.NUM_REMEMBERED_PROJECTS.getSize());
+                            ccddMain.getProgPrefs().put(PROJECT_STRINGS,
+                                                        CcddUtilities.getRememberedItemListAsString(ccddMain.getRecentProjectNames()));
                             ccddMain.updateRecentProjectsMenu();
                         }
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag indicating the connection attempt failed
                     errorFlag = true;
@@ -2482,8 +2464,7 @@ public class CcddDbControlHandler
                     }
                 }
                 catch (
-                        LinkageError | ClassNotFoundException le
-                )
+                        LinkageError | ClassNotFoundException le)
                 {
                     // Inform the user that registering the database driver failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2492,9 +2473,7 @@ public class CcddDbControlHandler
                                           "<html><b>Cannot register database driver");
                     errorFlag = true;
                 }
-                catch (
-                    Exception e
-                )
+                catch (Exception e)
                 {
                     // Display a dialog providing details on the unanticipated error
                     CcddUtilities.displayException(e, ccddMain.getMainFrame());
@@ -2514,9 +2493,7 @@ public class CcddDbControlHandler
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT, serverPort);
                         ccddMain.getProgPrefs().putBoolean(POSTGRESQL_SERVER_SSL, isSSL);
                     }
-                    catch (
-                        Exception e
-                    )
+                    catch (Exception e)
                     {
                         // Inform the user that there the program preferences can't be stored
                         new CcddDialogHandler()
@@ -2568,12 +2545,12 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Open a database using the current host, port, and SSL settings provided. This command is executed
-     * in a separate thread since it can take a noticeable amount time to complete, and by using a
-     * separate thread the GUI is allowed to continue to update. The GUI menu commands, however, are
-     * disabled until the database command completes execution
+     * Open a database using the current host, port, and SSL settings provided. This command is
+     * executed in a separate thread since it can take a noticeable amount time to complete, and by
+     * using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the database command completes execution
      *
-     * @param projectName name of the project to open
+     * @param projectName Name of the project to open
      *********************************************************************************************/
     protected void openDatabaseInBackground(final String projectName)
     {
@@ -2585,18 +2562,18 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Open a database using the host, port, and SSL settings provided. This command is executed in a
-     * separate thread since it can take a noticeable amount time to complete, and by using a separate
-     * thread the GUI is allowed to continue to update. The GUI menu commands, however, are disabled
-     * until the database command completes execution
+     * Open a database using the host, port, and SSL settings provided. This command is executed in
+     * a separate thread since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
+     * are disabled until the database command completes execution
      *
-     * @param projectName name of the project to open
+     * @param projectName Name of the project to open
      *
      * @param serverHost  PostgreSQL server host
      *
      * @param serverPort  PostgreSQL server port
      *
-     * @param isSSL       true if an SSL connection is enabled
+     * @param isSSL       True if an SSL connection is enabled
      *********************************************************************************************/
     protected void openDatabaseInBackground(final String projectName, final String serverHost, final String serverPort,
                                             final boolean isSSL)
@@ -2647,11 +2624,11 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Rename a project and/or add/update the database description.
      *
-     * @param oldProject  current name of the project
+     * @param oldProject  Current name of the project
      *
-     * @param newProject  new name of the project
+     * @param newProject  New name of the project
      *
-     * @param description database description
+     * @param description Database description
      *********************************************************************************************/
     protected void renameDatabase(final String oldProject, final String newProject, final String description)
     {
@@ -2703,9 +2680,7 @@ public class CcddDbControlHandler
                         .append("' renamed to '").append(newProject).append("'"));
             }
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the database cannot be renamed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2725,15 +2700,15 @@ public class CcddDbControlHandler
 
     /**********************************************************************************************
      * Rename a project and/or add/update the database description. This command is executed in a
-     * separate thread since it can take a noticeable amount time to complete, and by using a separate
-     * thread the GUI is allowed to continue to update. The GUI menu commands, however, are disabled
-     * until the database command completes execution
+     * separate thread since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
+     * are disabled until the database command completes execution
      *
-     * @param oldProject  current name of the project
+     * @param oldProject  Current name of the project
      *
-     * @param newProject  new name of the project
+     * @param newProject  New name of the project
      *
-     * @param description database description
+     * @param description Database description
      *********************************************************************************************/
     protected void renameDatabaseInBackground(final String oldProject, final String newProject,
                                               final String description)
@@ -2753,15 +2728,16 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Copy a database. This command is executed in a separate thread since it can take a noticeable
-     * amount time to complete, and by using a separate thread the GUI is allowed to continue to update.
-     * The GUI menu commands, however, are disabled until the database command completes execution
+     * Copy a database. This command is executed in a separate thread since it can take a
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the database command
+     * completes execution
      *
-     * @param targetProject name of the project to copy
+     * @param targetProject Name of the project to copy
      *
-     * @param copyProject   name of the project copy
+     * @param copyProject   Name of the project copy
      *
-     * @param description   database description
+     * @param description   Database description
      *********************************************************************************************/
     protected void copyDatabaseInBackground(final String targetProject, final String copyProject,
                                             final String description)
@@ -2821,9 +2797,7 @@ public class CcddDbControlHandler
                                           new StringBuilder("Project '").append(targetProject).append("' copied"));
                     }
                 }
-                catch (
-                    SQLException se
-                )
+                catch (SQLException se)
                 {
                     // Inform the user that the database cannot be copied
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2851,7 +2825,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Delete the database
      *
-     * @param projectName name of the project to delete
+     * @param projectName Name of the project to delete
      *
      * @return false if the specified database is successfully deleted
      *********************************************************************************************/
@@ -2874,9 +2848,7 @@ public class CcddDbControlHandler
             // Log that the database deletion succeeded
             eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' deleted"));
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the database deletion failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2895,12 +2867,12 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Delete the project database. This command is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the database command completes
-     * execution
+     * Delete the project database. This command is executed in a separate thread since it can take
+     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the database command
+     * completes execution
      *
-     * @param projectName name of the project to delete
+     * @param projectName Name of the project to delete
      *********************************************************************************************/
     protected void deleteDatabaseInBackground(final String projectName)
     {
@@ -2966,9 +2938,7 @@ public class CcddDbControlHandler
                                                                             .append(" closed"));
                 connectionStatus = NO_CONNECTION;
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user that the database failed to close
                 eventLog.logFailEvent(ccddMain.getMainFrame(), "Cannot close " + (activeDatabase
@@ -2985,11 +2955,11 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Build the portion of the backup and restore commands that specifies the user name, server host,
-     * and server port
+     * Build the portion of the backup and restore commands that specifies the user name, server
+     * host, and server port
      *
-     * @return Portion of the backup and restore commands that specifies the user name, server host, and
-     *         server port
+     * @return Portion of the backup and restore commands that specifies the user name, server
+     *         host, and server port
      *********************************************************************************************/
     private String getUserHostAndPort()
     {
@@ -3015,13 +2985,13 @@ public class CcddDbControlHandler
 
     /**********************************************************************************************
      * Backup a project database. This command is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the database command completes
-     * execution
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the database command
+     * completes execution
      *
-     * @param projectName project name
+     * @param projectName Project name
      *
-     * @param backupFile  file to which to backup the database
+     * @param backupFile  File to which to backup the database
      *********************************************************************************************/
     protected void backupDatabaseInBackground(final String projectName, final FileEnvVar backupFile)
     {
@@ -3040,9 +3010,7 @@ public class CcddDbControlHandler
                 return;
             }
         }
-        catch (
-            InterruptedException e
-        )
+        catch (InterruptedException e)
         {
             e.printStackTrace();
         }
@@ -3067,19 +3035,19 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Rename a project database, back it up and revert the rename. This can be used during a backup
-     * operation to change the name of the backed up database to match the backup file name (for
-     * instance).
+     * Rename a project database, back it up and revert the rename. This can be used during a
+     * backup operation to change the name of the backed up database to match the backup file name
+     * (for instance).
      *
-     * This will perform the following sequence of operations: 1: Rename an existing database to the new
-     * name 2: Backup the newly renamed database (database name and backup file name will match now) 3:
-     * Rename the database to its original name
+     * This will perform the following sequence of operations: 1: Rename an existing database to
+     * the new name 2: Backup the newly renamed database (database name and backup file name will
+     * match now) 3: Rename the database to its original name
      *
-     * @param projectName    current project name
+     * @param projectName    Current project name
      *
-     * @param newProjectName new project name
+     * @param newProjectName New project name
      *
-     * @param backupFile     file to which to backup the database
+     * @param backupFile     File to which to backup the database
      *********************************************************************************************/
     protected void backupAndRenameDatabase(final String projectName, final String newProjectName,
                                            final FileEnvVar backupFile)
@@ -3108,15 +3076,15 @@ public class CcddDbControlHandler
 
     /**********************************************************************************************
      * Backup a project database. This command is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the database command completes
-     * execution
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the database command
+     * completes execution
      *
-     * @param projectName    current project name
+     * @param projectName    Current project name
      *
-     * @param newProjectName new project name
+     * @param newProjectName New project name
      *
-     * @param backupFile     file to which to backup the database
+     * @param backupFile     File to which to backup the database
      *********************************************************************************************/
     protected void backupAndRenameDatabaseInBackground(final String projectName, final String newProjectName,
                                                        final FileEnvVar backupFile)
@@ -3130,7 +3098,8 @@ public class CcddDbControlHandler
             @Override
             protected void execute()
             {
-                // This will be coming from the GUI which will require that the only database that can be
+                // This will be coming from the GUI which will require that the only database that
+                // can be
                 // backed up is the open one so close it first
                 if (ccddMain.ignoreUncommittedChanges("Close Project", "Discard changes?", true, null, null))
                 {
@@ -3155,9 +3124,9 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Backup a project database
      *
-     * @param projectName project name
+     * @param projectName Project name
      *
-     * @param backupFile  file to which to backup the database
+     * @param backupFile  File to which to backup the database
      *
      * @return true if an the database could not be backed up
      *********************************************************************************************/
@@ -3215,22 +3184,24 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Restore a database. This command is executed in a separate thread since it can take a noticeable
-     * amount time to complete, and by using a separate thread the GUI is allowed to continue to update.
-     * The GUI menu commands, however, are disabled until the database command completes execution
+     * Restore a database. This command is executed in a separate thread since it can take a
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the database command
+     * completes execution
      *
-     * @param projectName       name of the project to restore (preserving case and special characters)
+     * @param projectName       Name of the project to restore (preserving case and special
+     *                          characters)
      *
-     * @param ownerName         name of the role or user that owns the database and its objects
+     * @param ownerName         Name of the role or user that owns the database and its objects
      *
-     * @param administrator     project administrator name(s) (comma-separated)
+     * @param administrator     Project administrator name(s) (comma-separated)
      *
-     * @param description       project description
+     * @param description       Project description
      *
-     * @param restoreFile       file to restore the database from
+     * @param restoreFile       File to restore the database from
      *
-     * @param overwriteExisting true to overwrite the existing project database; false to create a new
-     *                          database ion which to restore the backup file contents
+     * @param overwriteExisting True to overwrite the existing project database; false to create a
+     *                          new database ion which to restore the backup file contents
      *********************************************************************************************/
     protected void restoreDatabaseInBackground(final String projectName, final String ownerName,
                                                final String administrator, final String description,
@@ -3253,18 +3224,19 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Restore a database
      *
-     * @param projectName       name of the project to restore (preserving case and special characters)
+     * @param projectName       Name of the project to restore (preserving case and special
+     *                          characters)
      *
-     * @param ownerName         name of the role or user that owns the database and its objects
+     * @param ownerName         Name of the role or user that owns the database and its objects
      *
-     * @param administrator     project administrator name(s) (comma-separated)
+     * @param administrator     Project administrator name(s) (comma-separated)
      *
-     * @param description       project description
+     * @param description       Project description
      *
-     * @param restoreFile       file to restore the database from
+     * @param restoreFile       File to restore the database from
      *
-     * @param overwriteExisting true to overwrite the existing project database; false to create a new
-     *                          database ion which to restore the backup file contents
+     * @param overwriteExisting True to overwrite the existing project database; false to create a
+     *                          new database ion which to restore the backup file contents
      *********************************************************************************************/
     protected void restoreDatabase(String projectName, String ownerName, String administrator, String description,
                                    File restoreFile, boolean overwriteExisting)
@@ -3354,9 +3326,7 @@ public class CcddDbControlHandler
                     eventLog.logEvent(SUCCESS_MSG,
                                       new StringBuilder("Updated the comment for Project '").append(projectName));
                 }
-                catch (
-                    SQLException se
-                )
+                catch (SQLException se)
                 {
                     // Inform the user that setting the database comment failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -3395,11 +3365,12 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Execute an operating system command
      *
-     * @param command command to process
+     * @param command Command to process
      *
-     * @param numArgs number of arguments in the command
+     * @param numArgs Number of arguments in the command
      *
-     * @return Error message text if an error occurs; empty string is the command completed successfully
+     * @return Error message text if an error occurs; empty string is the command completed
+     *         successfully
      *********************************************************************************************/
     protected String executeProcess(String command, int numArgs)
     {
@@ -3419,9 +3390,7 @@ public class CcddDbControlHandler
                 perms.add(PosixFilePermission.OWNER_WRITE);
                 Files.setPosixFilePermissions(file.toPath(), perms);
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 // The operating system doesn't allow POSIX permissions; ignore. Linux, for
                 // example, uses the POSIX permissions. The Windows OS doesn't, but stores the
@@ -3459,9 +3428,7 @@ public class CcddDbControlHandler
                 errorType = errConsume.getOutput();
             }
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Get the cause of the error for display in the event log
             errorType = e.getMessage();

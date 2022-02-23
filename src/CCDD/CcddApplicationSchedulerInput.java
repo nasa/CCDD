@@ -81,9 +81,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Application scheduler input class constructor
      *
-     * @param ccddMain     main class
+     * @param ccddMain     Main class
      *
-     * @param schedulerDlg reference to the application scheduler dialog
+     * @param schedulerDlg Reference to the application scheduler dialog
      *********************************************************************************************/
     CcddApplicationSchedulerInput(CcddMain ccddMain, CcddApplicationSchedulerDialog schedulerDlg)
     {
@@ -164,9 +164,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * provided. The application tree is used to determine the target application's position relative to
      * the applications in the list (if any)
      *
-     * @param application  application for which to determine the insertion index
+     * @param application  Application for which to determine the insertion index
      *
-     * @param applications list of applications into which the application is to be inserted
+     * @param applications List of applications into which the application is to be inserted
      *
      * @return Index at which to insert the target application
      *********************************************************************************************/
@@ -237,7 +237,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Get the total amount of time for the specified application(s)
      *
-     * @param applications list of applications; null to use the currently selected application(s)
+     * @param applications List of applications; null to use the currently selected application(s)
      *
      * @return Total amount of time for the specified application(s)
      *********************************************************************************************/
@@ -267,7 +267,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Get a list of applications with the specified rate
      *
-     * @param rate currently selected rate
+     * @param rate Currently selected rate
      *
      * @return List of variable object(s) representing the application(s) at the specified rate
      *********************************************************************************************/
@@ -308,9 +308,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Get the selected node in the application tree
      *
-     * @param applications array of application names
+     * @param applications Array of application names
      *
-     * @param rate         currently selected rate
+     * @param rate         Currently selected rate
      *
      * @return List of variable object(s) representing the specified application(s)
      *********************************************************************************************/
@@ -399,7 +399,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Add the specified application(s) to the excluded application list
      *
-     * @param applications list containing the application(s) to be excluded
+     * @param applications List containing the application(s) to be excluded
      *********************************************************************************************/
     @Override
     public void excludeVariable(List<String> applications)
@@ -426,7 +426,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Remove the specified application(s) from the excluded application list
      *
-     * @param applications list of applications to be removed from the excluded application list
+     * @param applications List of applications to be removed from the excluded application list
      *********************************************************************************************/
     @Override
     public void includeVariable(List<String> applications)
@@ -453,7 +453,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Update the tree to display applications at the specified rate
      *
-     * @param rate rate for filtering the applications
+     * @param rate Rate for filtering the applications
      *********************************************************************************************/
     @Override
     public void updateVariableTree(String rate)
@@ -486,9 +486,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Get the data field value for the specified application and field name
      *
-     * @param applicationName application name
+     * @param applicationName Application name
      *
-     * @param appField        application data field
+     * @param appField        Application data field
      *
      * @return Application data field value for the specified application
      *********************************************************************************************/

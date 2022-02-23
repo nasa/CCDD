@@ -167,7 +167,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Validate cell action listener
          *
-         * @param table reference to the CcddJTableHandler table to check for cell validation; null perform
+         * @param table Reference to the CcddJTableHandler table to check for cell validation; null perform
          *              the action with no validation check
          *****************************************************************************************/
         protected ValidateCellActionListener(CcddJTableHandler table)
@@ -207,7 +207,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Placeholder for the action to be performed
          *
-         * @param ae event reference (ActionEvent)
+         * @param ae Event reference (ActionEvent)
          *****************************************************************************************/
         abstract protected void performAction(ActionEvent ae);
 
@@ -225,7 +225,7 @@ public class CcddClassesComponent
     /**********************************************************************************************
      * Set the main class reference
      *
-     * @param main main class reference
+     * @param main Main class reference
      *********************************************************************************************/
     protected static void setHandlers(CcddMain main)
     {
@@ -243,9 +243,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Tree node with tool tip handling class constructor
          *
-         * @param nodeName    node name
+         * @param nodeName    Node name
          *
-         * @param toolTipText text to display when mouse pointer hovers over the node
+         * @param toolTipText Text to display when mouse pointer hovers over the node
          *****************************************************************************************/
         ToolTipTreeNode(String nodeName, String toolTipText)
         {
@@ -304,7 +304,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Padded combo box constructor with an empty list
          *
-         * @param font combo box list item font
+         * @param font Combo box list item font
          *****************************************************************************************/
         PaddedComboBox(Font font)
         {
@@ -314,9 +314,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Padded combo box constructor with initial list items and no tool tip text
          *
-         * @param items combo box list items
+         * @param items Combo box list items
          *
-         * @param font  combo box list item font
+         * @param font  Combo box list item font
          *****************************************************************************************/
         PaddedComboBox(String[] items, Font font)
         {
@@ -328,11 +328,11 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Padded combo box constructor with initial list items and tool tip text
          *
-         * @param items    combo box list items
+         * @param items    Combo box list items
          *
-         * @param toolTips combo box list items
+         * @param toolTips Combo box list items
          *
-         * @param font     combo box list item font
+         * @param font     Combo box list item font
          *****************************************************************************************/
         PaddedComboBox(String[] items, String[] toolTips, Font font)
         {
@@ -417,9 +417,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set up list item characteristics
          *
-         * @param toolTips combo box list items
+         * @param toolTips Combo box list items
          *
-         * @param font     combo box list item font
+         * @param font     Combo box list item font
          *****************************************************************************************/
         private void setListItemCharacteristics(final String[] toolTips, Font font)
         {
@@ -481,7 +481,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the list index of the specified list item
          *
-         * @param itemName name of the list item for which to search
+         * @param itemName Name of the list item for which to search
          *
          * @return the index of the specified item in the list; -1 if the item isn't in the list
          *****************************************************************************************/
@@ -511,7 +511,7 @@ public class CcddClassesComponent
          * and a '*' matches one or more characters. Trailing characters are automatically assumed to be
          * included (i.e., the result is the same as if an asterisk terminates the match text)
          *
-         * @param table reference to the table in which the combo box is a cell editor; null if the combo
+         * @param table Reference to the table in which the combo box is a cell editor; null if the combo
          *              box isn't in a table cell
          *****************************************************************************************/
         protected void enableItemMatching(final CcddJTableHandler table)
@@ -828,7 +828,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Combo box used as a table cell editor class constructor
          *
-         * @param comboBox reference to the comb box used as a cell editor
+         * @param comboBox Reference to the comb box used as a cell editor
          *****************************************************************************************/
         public ComboBoxCellEditor(JComboBox<?> comboBox)
         {
@@ -860,7 +860,7 @@ public class CcddClassesComponent
          * necessary to allow the combo box item matching to operate in a table cell the same way it
          * operates in a data field
          *
-         * @param enable true to allow calls to stopCellEditing() to proceed normally
+         * @param enable True to allow calls to stopCellEditing() to proceed normally
          *****************************************************************************************/
         protected void allowCellEdit(boolean enable)
         {
@@ -892,14 +892,14 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Pop-up combo box class constructor. No tool tips are displayed for the list items
          *
-         * @param owner    dialog owning the pop-up combo box
+         * @param owner    Dialog owning the pop-up combo box
          *
-         * @param textComp text component over which to display the pop-up combo box and insert the selected
+         * @param textComp Text component over which to display the pop-up combo box and insert the selected
          *                 item
          *
-         * @param selItems list of selection items
+         * @param selItems List of selection items
          *
-         * @param font     modifiable font reference
+         * @param font     Modifiable font reference
          *****************************************************************************************/
         PopUpComboBox(Window owner, final JTextComponent textComp, List<String> selItems, ModifiableFont font)
         {
@@ -909,17 +909,17 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Pop-up combo box class constructor
          *
-         * @param owner    dialog owning the pop-up combo box
+         * @param owner    Dialog owning the pop-up combo box
          *
-         * @param textComp text component over which to display the pop-up combo box and insert the selected
+         * @param textComp Text component over which to display the pop-up combo box and insert the selected
          *                 item
          *
-         * @param selItems list of selection items
+         * @param selItems List of selection items
          *
-         * @param toolTips list of selection item tool tips; null if no tool tip text is associated with the
+         * @param toolTips List of selection item tool tips; null if no tool tip text is associated with the
          *                 item
          *
-         * @param font     modifiable font reference
+         * @param font     Modifiable font reference
          *****************************************************************************************/
         PopUpComboBox(Window owner, JTextComponent textComp, List<String> selItems, List<String> toolTips,
                       ModifiableFont font)
@@ -1059,7 +1059,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Override to alter the selected item text
          *
-         * @param selectedItem selected item text
+         * @param selectedItem Selected item text
          *
          * @return Altered selected item text
          *****************************************************************************************/
@@ -1072,7 +1072,7 @@ public class CcddClassesComponent
          * Position the dialog containing the pop-up combo box at the text cursor position in the text
          * component
          *
-         * @param textComp text component over which to display the pop-up combo box
+         * @param textComp Text component over which to display the pop-up combo box
          *****************************************************************************************/
         private void positionReferencePopup(JTextComponent textComp)
         {
@@ -1097,9 +1097,9 @@ public class CcddClassesComponent
          * Get the text of the specified text component with the selected item inserted at the current
          * selection point
          *
-         * @param text     reference
+         * @param text     Reference
          *
-         * @param textComp text component over which the pop-up combo box is displayed
+         * @param textComp Text component over which the pop-up combo box is displayed
          *
          * @return Text of the specified text component with the selected item inserted at the current
          *         selection point
@@ -1160,16 +1160,16 @@ public class CcddClassesComponent
          * identifying those Swing components that utilize the font in the event the font's characteristics
          * are changed
          *
-         * @param fontIdentifier font identifier. The identifier must be unique for each modifiable font
+         * @param fontIdentifier Font identifier. The identifier must be unique for each modifiable font
          *                       since this name is used to identify the font as being used by a particular
          *                       Swing component. The program preferences key for the modifiable font
          *                       information is used as the identifier
          *
-         * @param fontFamily     font family
+         * @param fontFamily     Font family
          *
-         * @param fontStyle      font style
+         * @param fontStyle      Font style
          *
-         * @param fontSize       font size
+         * @param fontSize       Font size
          *****************************************************************************************/
         ModifiableFont(String fontIdentifier, String fontFamily, int fontStyle, int fontSize)
         {
@@ -1204,16 +1204,16 @@ public class CcddClassesComponent
          * of identifying those Swing components that utilize the color in the event the color's
          * characteristics are changed
          *
-         * @param colorIdentifier color identifier. The identifier must be unique for each modifiable color
+         * @param colorIdentifier Color identifier. The identifier must be unique for each modifiable color
          *                        since this name is used to identify the color as being used by a
          *                        particular Swing component. The program preferences key for the modifiable
          *                        color information is used as the identifier
          *
-         * @param red             red color component
+         * @param red             Red color component
          *
-         * @param green           green color component
+         * @param green           Green color component
          *
-         * @param blue            blue color component
+         * @param blue            Blue color component
          *****************************************************************************************/
         ModifiableColor(String colorIdentifier, int red, int green, int blue)
         {
@@ -1249,9 +1249,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Color check box constructor
          *
-         * @param text  label to display along with the check box
+         * @param text  Label to display along with the check box
          *
-         * @param color check box color
+         * @param color Check box color
          *****************************************************************************************/
         ColorCheckBox(String text, ModifiableColor color)
         {
@@ -1283,7 +1283,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Create the icons to display for the check box in the selected color
          *
-         * @param color color in which to display the check box icon
+         * @param color Color in which to display the check box icon
          *****************************************************************************************/
         protected void setIconColor(Color color)
         {
@@ -1313,7 +1313,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Create a check box color icon
          *
-         * @param borderColor color with which to outline the icon
+         * @param borderColor Color with which to outline the icon
          *
          * @return Icon in the selected color with a border in the color specified
          *****************************************************************************************/
@@ -1341,7 +1341,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Update the color check box icon depending whether or not it has the keyboard focus
          *
-         * @param isFocus true if the check box has the key board focus
+         * @param isFocus True if the check box has the key board focus
          *****************************************************************************************/
         protected void setIconFocus(boolean isFocus)
         {
@@ -1366,11 +1366,11 @@ public class CcddClassesComponent
          * dialog background. If a component is specified then the divider is displayed using the supplied
          * component
          *
-         * @param leftUpperComp  component to display in the left or upper side of the split pane
+         * @param leftUpperComp  Component to display in the left or upper side of the split pane
          *
-         * @param rightLowerComp component to display in the right or lower side of the split pane
+         * @param rightLowerComp Component to display in the right or lower side of the split pane
          *
-         * @param dividerComp    component to display in place of the divider; null to create a hidden
+         * @param dividerComp    Component to display in place of the divider; null to create a hidden
          *                       divider
          *
          * @param orientation    JSplitPane.HORIZONTAL_SPLIT to split the pane horizontally or
@@ -1451,7 +1451,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * File class with support for environment variables within the file path constructor
          *
-         * @param pathName file path and name
+         * @param pathName File path and name
          *****************************************************************************************/
         FileEnvVar(String pathName)
         {
@@ -1474,9 +1474,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Replace any environment variables with the corresponding value in the supplied file path
          *
-         * @param pathName  file path
+         * @param pathName  File path
          *
-         * @param envVarMap environment variable map
+         * @param envVarMap Environment variable map
          *
          * @return File path with any environment variables replaced with the variable's value; blank if the
          *         file path is null or blank
@@ -1517,9 +1517,9 @@ public class CcddClassesComponent
          * Replace any portions of the specified file path that match an environment variable value in the
          * supplied map with the corresponding variable name
          *
-         * @param pathName  file path
+         * @param pathName  File path
          *
-         * @param envVarMap map containing environment variables and their corresponding values
+         * @param envVarMap Map containing environment variables and their corresponding values
          *
          * @return File path with any portions that match an environment variable value in the supplied map
          *         replaced with the corresponding variable name; blank if the supplied file path is null of
@@ -1553,7 +1553,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get a map of the environment variables and their corresponding value in the supplied file path
          *
-         * @param pathName file path
+         * @param pathName File path
          *
          * @return Map containing the environment variables and corresponding values in the supplied file
          *         path
@@ -1595,9 +1595,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Selected table cell class constructor. An instance is created for each selected cell in the table
          *
-         * @param row    cell row in view coordinates
+         * @param row    Cell row in view coordinates
          *
-         * @param column cell column in view coordinates
+         * @param column Cell column in view coordinates
          *****************************************************************************************/
         SelectedCell(int row, int column)
         {
@@ -1618,7 +1618,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the cell's row index
          *
-         * @param row cell's row index
+         * @param row Cell's row index
          *****************************************************************************************/
         protected void setRow(int row)
         {
@@ -1638,7 +1638,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the cell's column index
          *
-         * @param column cell's column index
+         * @param column Cell's column index
          *****************************************************************************************/
         protected void setColumn(int column)
         {
@@ -1648,9 +1648,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Determine if the cell coordinates match the ones supplied
          *
-         * @param checkRow    row index in view coordinates to compare to this cell's row index
+         * @param checkRow    Row index in view coordinates to compare to this cell's row index
          *
-         * @param checkColumn column index in view coordinates to compare to this cell's column index
+         * @param checkColumn Column index in view coordinates to compare to this cell's column index
          *
          * @return true if the cell's row and column indices match the specified ones
          *****************************************************************************************/
@@ -1679,9 +1679,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the reference for the specified selected cell
          *
-         * @param row    cell row in view coordinates
+         * @param row    Cell row in view coordinates
          *
-         * @param column cell column in view coordinates
+         * @param column Cell column in view coordinates
          *
          * @return Reference to the specified cell
          *****************************************************************************************/
@@ -1718,9 +1718,9 @@ public class CcddClassesComponent
          * Add the cell, specified by the supplied coordinates, to the list of selected cells if it s not
          * already in the list
          *
-         * @param row    cell row in view coordinates
+         * @param row    Cell row in view coordinates
          *
-         * @param column cell column in view coordinates
+         * @param column Cell column in view coordinates
          *****************************************************************************************/
         protected void add(int row, int column)
         {
@@ -1735,9 +1735,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Remove the cell, specified by the supplied coordinates, from the list of selected cells
          *
-         * @param row    cell row in view coordinates
+         * @param row    Cell row in view coordinates
          *
-         * @param column cell column in view coordinates
+         * @param column Cell column in view coordinates
          *****************************************************************************************/
         protected void remove(int row, int column)
         {
@@ -1758,9 +1758,9 @@ public class CcddClassesComponent
          * Remove any cells in the selected cells list, then add the cell, specified by the supplied
          * coordinates, to the list
          *
-         * @param row    cell row in view coordinates
+         * @param row    Cell row in view coordinates
          *
-         * @param column cell column in view coordinates
+         * @param column Cell column in view coordinates
          *****************************************************************************************/
         protected void reset(int row, int column)
         {
@@ -1782,9 +1782,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Determine if the cell specified by the supplied coordinates is already in the list
          *
-         * @param row    cell row in view coordinates
+         * @param row    Cell row in view coordinates
          *
-         * @param column cell column in view coordinates
+         * @param column Cell column in view coordinates
          *
          * @return true if the cell is already in the selection list
          *****************************************************************************************/
@@ -1817,7 +1817,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Array list class constructor with string arrays; sets the comparison column
          *
-         * @param compareColumn index of the column for indexOf(), contains(), and sort() comparisons. If
+         * @param compareColumn Index of the column for indexOf(), contains(), and sort() comparisons. If
          *                      multiple columns are specified only the first is used for indexOf() and
          *                      contains() calls; the sort() is based on the items in the column sequence
          *                      provided
@@ -1839,7 +1839,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the comparison column(s)
          *
-         * @param compareColumn index of the column for indexOf(), contains(), and sort() comparisons. If
+         * @param compareColumn Index of the column for indexOf(), contains(), and sort() comparisons. If
          *                      multiple columns are specified only the first is used for indexOf() and
          *                      contains() calls; the sort() is based on the items in the column sequence
          *                      provided
@@ -1850,8 +1850,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Override the contains method. Compare the input object to the string in the comparison column in
-         * each array member in the list and return true is a match is found
+         * Override the contains method. Compare the input object to the string in the comparison
+         * column in each array member in the list and return true is a match is found
          *****************************************************************************************/
         @Override
         public boolean contains(Object obj)
@@ -1860,9 +1860,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Override the indexOf method. Compare the input object to the string in the comparison column in
-         * each array member in the list and return the index of the matching array, or -1 if no match is
-         * found
+         * Override the indexOf method. Compare the input object to the string in the comparison
+         * column in each array member in the list and return the index of the matching array, or
+         * -1 if no match is found
          *****************************************************************************************/
         @Override
         public int indexOf(Object obj)
@@ -1874,8 +1874,7 @@ public class CcddClassesComponent
             // Step through each string array in the list
             for (String[] listString : this)
             {
-                // Check if the input string matches the one in the comparison column in the
-                // array
+                // Check if the input string matches the one in the comparison column in the array
                 if (checkString.equals(listString[compareColumn[0]]))
                 {
                     // Set the index to the matching one and stop searching
@@ -1963,7 +1962,7 @@ public class CcddClassesComponent
          * vertical gap. The value of the alignment argument must be one of WrapLayout.LEFT,
          * WrapLayout.RIGHT, or WrapLayout.CENTER
          *
-         * @param align the alignment value
+         * @param align The alignment value
          *****************************************************************************************/
         WrapLayout(int align)
         {
@@ -1974,7 +1973,7 @@ public class CcddClassesComponent
          * Returns the preferred dimensions for this layout given the visible components in the specified
          * target container
          *
-         * @param target the component which needs to be laid out
+         * @param target The component which needs to be laid out
          *
          * @return The preferred dimensions to lay out the subcomponents of the specified container
          *****************************************************************************************/
@@ -1988,7 +1987,7 @@ public class CcddClassesComponent
          * Returns the minimum dimensions needed to layout the visible components contained in the specified
          * target container
          *
-         * @param target the component which needs to be laid out
+         * @param target The component which needs to be laid out
          *
          * @return The minimum dimensions to lay out the subcomponents of the specified container
          *****************************************************************************************/
@@ -2006,9 +2005,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Returns the minimum or preferred dimension needed to layout the target container
          *
-         * @param target    target to get layout size for
+         * @param target    Target to get layout size for
          *
-         * @param preferred should preferred size be calculated
+         * @param preferred Should preferred size be calculated
          *
          * @return The dimension to layout the target container
          *****************************************************************************************/
@@ -2112,11 +2111,11 @@ public class CcddClassesComponent
          * A new row has been completed. Use the dimensions of this row to update the preferred size for the
          * container.
          *
-         * @param dim       update the width and height when appropriate
+         * @param dim       Update the width and height when appropriate
          *
-         * @param rowWidth  the width of the row to add
+         * @param rowWidth  The width of the row to add
          *
-         * @param rowHeight the height of the row to add
+         * @param rowHeight The height of the row to add
          *****************************************************************************************/
         private void addRow(Dimension dim, int rowWidth, int rowHeight)
         {
@@ -2149,7 +2148,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Multiple line label class constructor
          *
-         * @param text label text
+         * @param text Label text
          *****************************************************************************************/
         MultilineLabel(String text)
         {
@@ -2170,7 +2169,7 @@ public class CcddClassesComponent
          * Get the number of rows required to display the label text based on the specified maximum label
          * width
          *
-         * @param maxWidth maximum label width in pixels
+         * @param maxWidth Maximum label width in pixels
          *
          * @return Number of rows required to display the label text
          *****************************************************************************************/
@@ -2331,7 +2330,7 @@ public class CcddClassesComponent
          * JTextField auto-completion class constructor. Assume 10 items are stored in the auto-complete
          * list
          *
-         * @param autoCompList list containing the strings from which the auto-completion text is extracted
+         * @param autoCompList List containing the strings from which the auto-completion text is extracted
          *****************************************************************************************/
         AutoCompleteTextField(List<String> autoCompList)
         {
@@ -2341,7 +2340,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * JTextField auto-completion class constructor. Start with an empty auto-complete list
          *
-         * @param maxItems maximum number of items to maintain in the auto-complete list
+         * @param maxItems Maximum number of items to maintain in the auto-complete list
          *****************************************************************************************/
         AutoCompleteTextField(int maxItems)
         {
@@ -2351,9 +2350,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * JTextField auto-completion class constructor
          *
-         * @param autoCompList list containing the strings from which the auto-completion text is extracted
+         * @param autoCompList List containing the strings from which the auto-completion text is extracted
          *
-         * @param maxItems     maximum number of items to maintain in the auto-complete list
+         * @param maxItems     Maximum number of items to maintain in the auto-complete list
          *****************************************************************************************/
         AutoCompleteTextField(final List<String> autoCompList, int maxItems)
         {
@@ -2448,7 +2447,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the auto-complete list
          *
-         * @param autoCompList list containing the strings from which the auto-completion text is extracted
+         * @param autoCompList List containing the strings from which the auto-completion text is extracted
          *****************************************************************************************/
         protected void setList(List<String> autoCompList)
         {
@@ -2458,7 +2457,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the case sensitivity flag
          *
-         * @param isCaseSensitive true to match case when auto-completing a string
+         * @param isCaseSensitive True to match case when auto-completing a string
          *****************************************************************************************/
         protected void setCaseSensitive(boolean isCaseSensitive)
         {
@@ -2469,7 +2468,7 @@ public class CcddClassesComponent
          * Set the flag that determines if text other than the auto-completion strings can be entered into
          * the text field
          *
-         * @param isOnlyFromList true to only allow text from he auto-completion strings to be entered into
+         * @param isOnlyFromList True to only allow text from he auto-completion strings to be entered into
          *                       the text field
          *****************************************************************************************/
         protected void setOnlyFromList(boolean isOnlyFromList)
@@ -2480,7 +2479,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the first auto-completion list string that matches the input text
          *
-         * @param inputTxt text for which to find a match
+         * @param inputTxt Text for which to find a match
          *
          * @return First auto-completion list string that matches the input text; null if no match is found
          *****************************************************************************************/
@@ -2531,7 +2530,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Update the list of auto-completion items with the specified string
          *
-         * @param text item to add to the auto-completion list. The item is placed at the head of the list.
+         * @param text Item to add to the auto-completion list. The item is placed at the head of the list.
          *             The list size is constrained to the maximum number specified when the field was
          *             created
          *****************************************************************************************/
@@ -2630,7 +2629,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Font chooser constructor
          *
-         * @param fontSizeStrings array containing the available font sizes; null to use the default sizes
+         * @param fontSizeStrings Array containing the available font sizes; null to use the default sizes
          *****************************************************************************************/
         JFontChooser(String[] fontSizeStrings)
         {
@@ -2814,7 +2813,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the selected font's family
          *
-         * @param family font family
+         * @param family Font family
          *****************************************************************************************/
         protected void setSelectedFontFamily(String family)
         {
@@ -2845,7 +2844,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the selected font's style
          *
-         * @param style font style: Font.PLAIN, Font.BOLD, Font.ITALIC, or Font.BOLD|Font.ITALIC
+         * @param style Font style: Font.PLAIN, Font.BOLD, Font.ITALIC, or Font.BOLD|Font.ITALIC
          *****************************************************************************************/
         protected void setSelectedFontStyle(int style)
         {
@@ -2893,7 +2892,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the selected font's size
          *
-         * @param size font size
+         * @param size Font size
          *****************************************************************************************/
         protected void setSelectedFontSize(int size)
         {
@@ -2925,7 +2924,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the selected font
          *
-         * @param font font to select
+         * @param font Font to select
          *****************************************************************************************/
         protected void setSelectedFont(Font font)
         {
@@ -2944,7 +2943,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Font chooser control list class constructor
              *
-             * @param textComponent text component
+             * @param textComponent Text component
              *************************************************************************************/
             ListSelectionHandler(JTextComponent textComponent)
             {
@@ -2989,7 +2988,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Font chooser text field focus handling class constructor
              *
-             * @param textComponent text component
+             * @param textComponent Text component
              *************************************************************************************/
             TextFieldFocusHandlerForTextSelection(JTextComponent textComponent)
             {
@@ -3026,7 +3025,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Font chooser text field key handling class constructor
              *
-             * @param list target list
+             * @param list Target list
              *************************************************************************************/
             TextFieldKeyHandlerForListSelectionUpDown(JList<String> list)
             {
@@ -3089,7 +3088,7 @@ public class CcddClassesComponent
                 /**********************************************************************************
                  * Font chooser list selector class constructor
                  *
-                 * @param index list index
+                 * @param index List index
                  *********************************************************************************/
                 ListSelector(int index)
                 {
@@ -3109,7 +3108,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Font chooser list search handling class constructor
              *
-             * @param targetList search list
+             * @param targetList Search list
              *************************************************************************************/
             ListSearchTextFieldDocumentHandler(JList<String> targetList)
             {
@@ -3146,7 +3145,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Update the list
              *
-             * @param de document event
+             * @param de Document event
              *************************************************************************************/
             private void update(DocumentEvent de)
             {
@@ -3407,9 +3406,9 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Transferable tab class constructor
              *
-             * @param tabbedPane reference to the tabbed pane
+             * @param tabbedPane Reference to the tabbed pane
              *
-             * @param tabIndex   index of the tab being moved
+             * @param tabIndex   Index of the tab being moved
              *************************************************************************************/
             public TabTransferable(DnDTabbedPane tabbedPane, int tabIndex)
             {
@@ -3419,7 +3418,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Get the transfer data
              *
-             * @param flavor data flavor
+             * @param flavor Data flavor
              *
              * @return Transfer data
              *************************************************************************************/
@@ -3443,7 +3442,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Determine if the data flavor is supported
              *
-             * @param flavor data flavor
+             * @param flavor Data flavor
              *
              * @return true if the data flavor is supported
              *************************************************************************************/
@@ -3472,9 +3471,9 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Tab transfer data class constructor
              *
-             * @param tabbedPane reference to the tabbed pane
+             * @param tabbedPane Reference to the tabbed pane
              *
-             * @param tabIndex   index of the tab being moved
+             * @param tabIndex   Index of the tab being moved
              *************************************************************************************/
             TabTransferData(DnDTabbedPane tabbedPane, int tabIndex)
             {
@@ -3495,7 +3494,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Set the reference to the tabbed pane
              *
-             * @param tabbedPane reference to the tabbed pane
+             * @param tabbedPane Reference to the tabbed pane
              *************************************************************************************/
             public void setTabbedPane(DnDTabbedPane tabbedPane)
             {
@@ -3515,7 +3514,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Set the index of the tab
              *
-             * @param tabIndex index of the tab
+             * @param tabIndex Index of the tab
              *************************************************************************************/
             public void setTabIndex(int tabIndex)
             {
@@ -3629,7 +3628,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Determine if dragging is possible
              *
-             * @param dtde drop target drag event reference
+             * @param dtde Drop target drag event reference
              *
              * @return true is the drop target can accept the drag event
              *************************************************************************************/
@@ -3673,7 +3672,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Determine if dropping is possible
              *
-             * @param dtde drop target drag event reference
+             * @param dtde Drop target drag event reference
              *
              * @return true is the drop target can accept the drop event
              *************************************************************************************/
@@ -3748,7 +3747,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Set the drag image
              *
-             * @param dragImage drag image
+             * @param dragImage Drag image
              *************************************************************************************/
             public void setImage(BufferedImage dragImage)
             {
@@ -3758,7 +3757,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Set the glass pane location
              *
-             * @param location point at which to locate the glass pane
+             * @param location Point at which to locate the glass pane
              *************************************************************************************/
             public void setPoint(Point location)
             {
@@ -3787,13 +3786,13 @@ public class CcddClassesComponent
          * JTabbedPane with drag and drop of tabs within and between tabbed panes class constructor. This
          * constructor is configurable so that dropping the tab outside its parent container is allowable
          *
-         * @param tabPlacement     determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
+         * @param tabPlacement     Determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
          *                         JTabbedPane.BOTTOM, JTabbedPane.LEFT, or JTabbedPane.RIGHT
          *
-         * @param compatibleTarget reference to the type of class that tabs from this class can be dropped
+         * @param compatibleTarget Reference to the type of class that tabs from this class can be dropped
          *                         onto; null if dropping outside the original container isn't allowed
          *
-         * @param isSpawnAllowed   true if a new container is created when the tab is dropped outside of a
+         * @param isSpawnAllowed   True if a new container is created when the tab is dropped outside of a
          *                         compatible target; false to ignore drops outside compatible containers
          *****************************************************************************************/
         public DnDTabbedPane(int tabPlacement, Class<?> compatibleTarget, final boolean isSpawnAllowed)
@@ -3980,7 +3979,7 @@ public class CcddClassesComponent
          * JTabbedPane with drag and drop of tabs within and between tabbed panes class constructor. This
          * constructor doesn't allow dropping a tab outside of its parent container
          *
-         * @param tabPlacement determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
+         * @param tabPlacement Determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
          *                     JTabbedPane.BOTTOM, JTabbedPane.LEFT, or JTabbedPane.RIGHT
          *****************************************************************************************/
         DnDTabbedPane(int tabPlacement)
@@ -4012,11 +4011,11 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Placeholder for method to do any other operations related to moving the tab
          *
-         * @param oldTabIndex original tab index; -1 if the tab didn't originate in this tabbed pane
+         * @param oldTabIndex Original tab index; -1 if the tab didn't originate in this tabbed pane
          *
-         * @param newTabIndex new tab index; -1 if the tab is being moved to another tabbed pane
+         * @param newTabIndex New tab index; -1 if the tab is being moved to another tabbed pane
          *
-         * @param tabContents reference to the components in the tab being moved
+         * @param tabContents Reference to the components in the tab being moved
          *
          * @return Reference to the container receiving the tab
          *****************************************************************************************/
@@ -4028,9 +4027,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Placeholder for method to spawn a new container for a moved tab
          *
-         * @param sourceTabIndex index of the tab in its original pane
+         * @param sourceTabIndex Index of the tab in its original pane
          *
-         * @param tabContents    reference to the components in the tab being moved
+         * @param tabContents    Reference to the components in the tab being moved
          *****************************************************************************************/
         protected void spawnContainer(int sourceTabIndex, Object tabContents)
         {
@@ -4039,7 +4038,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab transfer data from the supplied drop target drop event
          *
-         * @param dtde drop target drop event
+         * @param dtde Drop target drop event
          *
          * @return Tab transfer data from the supplied drop target drop event
          *****************************************************************************************/
@@ -4064,7 +4063,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab transfer data from the supplied drop target drag event
          *
-         * @param dtde drop target drop event
+         * @param dtde Drop target drop event
          *
          * @return Tab transfer data from the supplied drop target drag event
          *****************************************************************************************/
@@ -4089,7 +4088,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab transfer data from the supplied drag source drag event
          *
-         * @param dsde drop source drop event
+         * @param dsde Drop source drop event
          *
          * @return Tab transfer data from the supplied drag source drag event
          *****************************************************************************************/
@@ -4114,7 +4113,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab transfer data from the supplied drag source drop event
          *
-         * @param dsde drop source drop event
+         * @param dsde Drop source drop event
          *
          * @return Tab transfer data from the supplied drag source drop event
          *****************************************************************************************/
@@ -4139,7 +4138,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab index if the tab is dropped at the current location
          *
-         * @param dropPoint location of the tab in the drop component's coordinates
+         * @param dropPoint Location of the tab in the drop component's coordinates
          *
          * @return Tab index if the tab is dropped at the current location; after the last tab in the pane
          *         if the drop point isn't within a tab's boundaries
@@ -4178,9 +4177,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Move the tab from its original location to the new one
          *
-         * @param sourceData  tab transfer data for the repositioned tab
+         * @param sourceData  Tab transfer data for the repositioned tab
          *
-         * @param targetIndex index in the target container's tabbed pane at which to place the tab
+         * @param targetIndex Index in the target container's tabbed pane at which to place the tab
          *****************************************************************************************/
         private void moveTabToTarget(TabTransferData sourceData, int targetIndex)
         {
@@ -4285,9 +4284,9 @@ public class CcddClassesComponent
          * Draw the tab insertion point indicator for tabbed panes where the tabs appear at the top or
          * bottom of the pane
          *
-         * @param targetIndex index of the tab if dropped at the current location
+         * @param targetIndex Index of the tab if dropped at the current location
          *
-         * @param data        reference to the tab transfer data
+         * @param data        Reference to the tab transfer data
          *****************************************************************************************/
         private void drawTargetLineToSide(int targetIndex, TabTransferData data)
         {
@@ -4332,9 +4331,9 @@ public class CcddClassesComponent
          * Draw the tab insertion point indicator for tabbed panes where the tabs appear at the left or
          * right of the pane
          *
-         * @param targetIndex index of the tab if dropped at the current location
+         * @param targetIndex Index of the tab if dropped at the current location
          *
-         * @param data        reference to the tab transfer data
+         * @param data        Reference to the tab transfer data
          *****************************************************************************************/
         private void drawTargetLineAboveBelow(int targetIndex, TabTransferData data)
         {
@@ -4378,9 +4377,9 @@ public class CcddClassesComponent
          * Adjust the glass pane location to stay within the bounds set by the tabs in the supplied tabbed
          * pane
          *
-         * @param location current position of the dragged glass pane
+         * @param location Current position of the dragged glass pane
          *
-         * @param pane     tabbed pane in which the glass pane is displayed
+         * @param pane     Tabbed pane in which the glass pane is displayed
          *
          * @return The glass pane location, adjusted to stay within the bounds set by the tabs
          *****************************************************************************************/
@@ -4438,11 +4437,11 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Initialize the tabbed pane's glass pane to display an image of the tab being dragged
          *
-         * @param comp     reference to the tab to be dragged
+         * @param comp     Reference to the tab to be dragged
          *
-         * @param tabPt    coordinates of the point in the tab being dragged
+         * @param tabPt    Coordinates of the point in the tab being dragged
          *
-         * @param tabIndex index of the tab to be dragged
+         * @param tabIndex Index of the tab to be dragged
          *****************************************************************************************/
         private void initGlassPane(Component comp, Point tabPt, int tabIndex)
         {

@@ -75,7 +75,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     /**********************************************************************************************
      * Application scheduler dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddApplicationSchedulerDialog(CcddMain ccddMain)
     {
@@ -269,7 +269,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     /**********************************************************************************************
      * Enable/disable the dialog controls
      *
-     * @param enable true to enable the controls, false to disable
+     * @param enable True to enable the controls, false to disable
      *********************************************************************************************/
     @Override
     public void setControlsEnabled(boolean enable)
@@ -292,7 +292,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     /**********************************************************************************************
      * Creates and returns a scheduler input object
      *
-     * @param unused not used for the application scheduler dialog
+     * @param unused Not used for the application scheduler dialog
      *
      * @return Application input object
      *********************************************************************************************/

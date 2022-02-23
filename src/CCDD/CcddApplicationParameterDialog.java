@@ -69,7 +69,7 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Application parameter assignment dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddApplicationParameterDialog(CcddMain ccddMain)
     {

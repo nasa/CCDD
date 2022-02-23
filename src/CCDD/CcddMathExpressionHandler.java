@@ -68,7 +68,7 @@ public class CcddMathExpressionHandler
         /******************************************************************************************
          * Set the value of this nest level
          *
-         * @param dValue value of this nest level
+         * @param dValue Value of this nest level
          *****************************************************************************************/
         protected void setValue(Double dValue)
         {
@@ -88,7 +88,7 @@ public class CcddMathExpressionHandler
         /******************************************************************************************
          * Set the operator for this nest level
          *
-         * @param operator operator token
+         * @param operator Operator token
          *****************************************************************************************/
         protected void setOperator(char operator)
         {
@@ -108,7 +108,7 @@ public class CcddMathExpressionHandler
         /******************************************************************************************
          * Set the sign value (1 or -1) for this nest level
          *
-         * @param sign sign value (1 or -1)
+         * @param sign Sign value (1 or -1)
          *****************************************************************************************/
         protected void setSign(int sign)
         {
@@ -119,7 +119,7 @@ public class CcddMathExpressionHandler
     /**********************************************************************************************
      * Evaluate the supplied text as a mathematical expression
      *
-     * @param expression text to evaluate as a mathematical expression
+     * @param expression Text to evaluate as a mathematical expression
      *
      * @return The result of the evaluated expression; null if the supplied text doesn't evaluate to a
      *         numeric value (not a mathematical expression or the syntax is in error)
@@ -390,9 +390,9 @@ public class CcddMathExpressionHandler
      * Perform the operation (# operator #), as specified by the supplied nest level's operator, using
      * the supplied value and the nest level's running value
      *
-     * @param dValue    first value
+     * @param dValue    First value
      *
-     * @param nestLevel nest level that determines the second value and the operator
+     * @param nestLevel Nest level that determines the second value and the operator
      *
      * @return true if the operation is valid; false if an error occurs (divide by zero condition
      *         exists)

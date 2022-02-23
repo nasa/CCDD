@@ -62,7 +62,7 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Show duplicate message IDs dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddDuplicateMsgIDDialog(CcddMain ccddMain)
     {
@@ -73,7 +73,7 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Display the duplicate message ID dialog
      *
-     * @param messageHandler message ID handler reference
+     * @param messageHandler Message ID handler reference
      *
      * @param parent         GUI component over which to center any error dialog
      *********************************************************************************************/

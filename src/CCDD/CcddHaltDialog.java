@@ -76,17 +76,17 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Process cancellation dialog class constructor
      *
-     * @param title              dialog title
+     * @param title              Dialog title
      *
-     * @param label              main dialog label, describing the current operation
+     * @param label              Main dialog label, describing the current operation
      *
-     * @param operation          dialog label describing the termination operation
+     * @param operation          Dialog label describing the termination operation
      *
-     * @param numDivisionPerStep number of divisions per each major step in the operation
+     * @param numDivisionPerStep Number of divisions per each major step in the operation
      *
-     * @param numSteps           total number of steps in the operation
+     * @param numSteps           Total number of steps in the operation
      *
-     * @param parent             component over which to center the dialog
+     * @param parent             Component over which to center the dialog
      *********************************************************************************************/
     CcddHaltDialog(String title, String label, String operation, int numDivisionPerStep, int numSteps, Component parent)
     {
@@ -107,7 +107,7 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Process cancellation dialog class constructor. Sets up a non-modal dialog
      *
-     * @param showProgressBar true to display a progress bar in the dialog
+     * @param showProgressBar True to display a progress bar in the dialog
      *********************************************************************************************/
     CcddHaltDialog(boolean showProgressBar)
     {
@@ -126,15 +126,15 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Process cancellation dialog class constructor. No progress bar is displayed
      *
-     * @param title     dialog title
+     * @param title     Dialog title
      *
-     * @param label     main dialog label, describing the current operation
+     * @param label     Main dialog label, describing the current operation
      *
-     * @param operation dialog label describing the termination operation
+     * @param operation Dialog label describing the termination operation
      *
-     * @param modal     true to make the dialog modal
+     * @param modal     True to make the dialog modal
      *
-     * @param parent    parent component over which to center the dialog
+     * @param parent    Parent component over which to center the dialog
      *********************************************************************************************/
     CcddHaltDialog(String title, String label, String operation, boolean modal, Component parent)
     {
@@ -174,7 +174,7 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Set the main dialog label, describing the current operation, and resize the dialog to fit
      *
-     * @param label main dialog label, describing the current operation
+     * @param label Main dialog label, describing the current operation
      *********************************************************************************************/
     protected void setLabel(String label)
     {
@@ -196,20 +196,20 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the process cancellation dialog
      *
-     * @param title              dialog title
+     * @param title              Dialog title
      *
-     * @param label              main dialog label, describing the current operation
+     * @param label              Main dialog label, describing the current operation
      *
-     * @param operation          dialog label describing the termination operation
+     * @param operation          Dialog label describing the termination operation
      *
-     * @param numDivisionPerStep number of divisions per each major step in the operation
+     * @param numDivisionPerStep Number of divisions per each major step in the operation
      *
-     * @param numSteps           total number of steps in the operation
+     * @param numSteps           Total number of steps in the operation
      *
-     * @param modal              false to allow the other application windows to still be operated while
+     * @param modal              False to allow the other application windows to still be operated while
      *                           the dialog is open
      *
-     * @param parent             parent component over which to center the dialog
+     * @param parent             Parent component over which to center the dialog
      *
      * @return Index of the button pressed to exit the dialog
      *********************************************************************************************/
@@ -275,9 +275,9 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the progress bar
      *
-     * @param progText   text to display within the progress bar; null to not change the text
+     * @param progText   Text to display within the progress bar; null to not change the text
      *
-     * @param startValue initial value at which to begin this sequence in the process; -1 to not change
+     * @param startValue Initial value at which to begin this sequence in the process; -1 to not change
      *                   the initial value
      *********************************************************************************************/
     protected void updateProgressBar(final String progText, int startValue)

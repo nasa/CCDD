@@ -88,13 +88,13 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Assignment tree handler class constructor
      *
-     * @param ccddMain      main class
+     * @param ccddMain      Main class
      *
-     * @param rateMsgFilter rate column name and message name, separated by a back slash
+     * @param rateMsgFilter Rate column name and message name, separated by a back slash
      *
-     * @param linkHandler   reference to the link handler
+     * @param linkHandler   Reference to the link handler
      *
-     * @param treePathOrder list of all paths in the variable tree in the order to be maintained in the
+     * @param treePathOrder List of all paths in the variable tree in the order to be maintained in the
      *                      assignment tree; null to not force the order
      *
      * @param parent        GUI component over which to center any error dialog
@@ -133,11 +133,11 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Perform initialization steps prior to building the assignment tree
      *
-     * @param ccddMain          main class
+     * @param ccddMain          Main class
      *
-     * @param undoHandler       reference to the undo handler
+     * @param undoHandler       Reference to the undo handler
      *
-     * @param assignDefinitions list containing the assignment definitions
+     * @param assignDefinitions List containing the assignment definitions
      *********************************************************************************************/
     @Override
     protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> assignDefinitions)
@@ -151,12 +151,12 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the assignment tree from the database. Retain the tree's current expansion state
      *
-     * @param filterByApp true if the tree is filtered by application. This is not applicable to the
+     * @param filterByApp True if the tree is filtered by application. This is not applicable to the
      *                    assignment tree, which can only contain structure references
      *
-     * @param filterValue rate column name and message name, separated by a back slash
+     * @param filterValue Rate column name and message name, separated by a back slash
      *
-     * @param filterFlag  flag used to filter the tree content. Not used for the assignment tree
+     * @param filterFlag  Flag used to filter the tree content. Not used for the assignment tree
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -231,9 +231,9 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * Update references to the specified message name with the new name. This is necessary for the tree
      * to be rebuilt following a message name change
      *
-     * @param oldName original message name
+     * @param oldName Original message name
      *
-     * @param newName new message name
+     * @param newName New message name
      *********************************************************************************************/
     protected void updateMessageName(String oldName, String newName)
     {
@@ -290,9 +290,9 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Update the assignment definition list for the specified rate based on the supplied message list
      *
-     * @param messages list of messages for the specified rate
+     * @param messages List of messages for the specified rate
      *
-     * @param rateName rate column name
+     * @param rateName Rate column name
      *********************************************************************************************/
     protected void updateAssignmentDefinitions(List<Message> messages, String rateName)
     {
@@ -325,11 +325,11 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Add the specified variable to the assignment definition for the specified rate and message
      *
-     * @param message  message for which the variable is a member
+     * @param message  Message for which the variable is a member
      *
-     * @param rateName rate column name
+     * @param rateName Rate column name
      *
-     * @param variable variable to add to the assignment definition
+     * @param variable Variable to add to the assignment definition
      *********************************************************************************************/
     private void addAssignmentDefinition(Message message, String rateName, Variable variable)
     {
@@ -351,7 +351,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * Create an assignment tree panel. The table tree is placed in a scroll pane. A check box is added
      * that allows tree expansion/collapse
      *
-     * @param selectionMode tree item selection mode (single versus multiple)
+     * @param selectionMode Tree item selection mode (single versus multiple)
      *
      * @return JPanel containing the assignment tree components
      *********************************************************************************************/

@@ -131,7 +131,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Script association manager dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddScriptManagerDialog(CcddMain ccddMain)
     {
@@ -152,7 +152,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Enable/disable the script manager dialog menu controls
      *
-     * @param enable true to enable the controls; false to disable
+     * @param enable True to enable the controls; false to disable
      *********************************************************************************************/
     @Override
     protected void setControlsEnabled(boolean enable)
@@ -166,7 +166,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of script association updates to the database
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doAssnUpdatesComplete(boolean commandError)
@@ -833,9 +833,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Create the table tree selection panel
      *
-     * @param labelText   label to display above the table tree
+     * @param labelText   Label to display above the table tree
      *
-     * @param tableSelect table tree item selection model
+     * @param tableSelect Table tree item selection model
      *
      * @return JPanel containing the selection panel
      *********************************************************************************************/
@@ -913,12 +913,12 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Add an association to the script associations list based on the script and table selections
      *
-     * @param insertPoint insertion point for the added row into the associations table:
+     * @param insertPoint Insertion point for the added row into the associations table:
      *                    TableInsertionPoint.START to insert as the first row in the table,
      *                    TableInsertionPoint.SELECTION to insert below the currently selected row, or
      *                    TableInsertionPoint.END to insert as the last row in the table
      *
-     * @param ignoreRow   row to ignore when checking for an identical, existing association (as is
+     * @param ignoreRow   Row to ignore when checking for an identical, existing association (as is
      *                    possible when replacing an association, if no changes are made); -1 to prevent
      *                    a duplicate association (as when adding an association)
      *

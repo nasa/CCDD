@@ -121,7 +121,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Link manager dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddLinkManagerDialog(CcddMain ccddMain)
     {
@@ -138,7 +138,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of link updates to the database
      *
-     * @param commandError false if the database commands successfully completed; true if an error
+     * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
      *********************************************************************************************/
     protected void doLinkUpdatesComplete(boolean commandError)
@@ -490,10 +490,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Set the enable status of the buttons that apply only when one or more links is selected
      *
-     * @param isSingleLinkSelected     true to enable the those buttons that are valid when only a
+     * @param isSingleLinkSelected     True to enable the those buttons that are valid when only a
      *                                 single link is selected
      *
-     * @param isOneOrMoreLinksSelected true to enable those buttons that are valid if one or more links
+     * @param isOneOrMoreLinksSelected True to enable those buttons that are valid if one or more links
      *                                 is selected
      *********************************************************************************************/
     protected void setLinkButtonsEnabled(boolean isSingleLinkSelected, boolean isOneOrMoreLinksSelected)
@@ -1122,11 +1122,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Add a link name field to the dialog
      *
-     * @param fieldText   text to display beside the input field
+     * @param fieldText   Text to display beside the input field
      *
-     * @param currentName name of the selected link
+     * @param currentName Name of the selected link
      *
-     * @param dialogPnl   panel to which to add the input field
+     * @param dialogPnl   Panel to which to add the input field
      *
      * @return The GridBagConstraints used to arrange the dialog
      *********************************************************************************************/
@@ -1170,7 +1170,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      * Verify that the contents of the link name field is valid. For a link copy operation also verify
      * that a data stream is selected
      *
-     * @param isCopy true to if this verification is for a link copy operation
+     * @param isCopy True to if this verification is for a link copy operation
      *
      * @return true if the link name is valid, and, for a copy operation, that a data stream is
      *         selected; false otherwise
@@ -1279,7 +1279,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the change indicator for the specified link manager
      *
-     * @param index index for the tab containing the data stream to update; an invalid tab number causes
+     * @param index Index for the tab containing the data stream to update; an invalid tab number causes
      *              the active tab to be selected
      *********************************************************************************************/
     private void updateChangeIndicator(int index)

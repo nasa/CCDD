@@ -78,9 +78,7 @@ import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
-import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.FileNames;
 import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InputTypeEditorColumnInfo;
@@ -138,9 +136,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * JSON handler class constructor
      *
-     * @param ccddMain     main class reference
+     * @param ccddMain     Main class reference
      *
-     * @param groupHandler group handler reference
+     * @param groupHandler Group handler reference
      *
      * @param parent       GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -259,7 +257,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Parse the supplied JSON array into a list of its constituent JSON objects
      *
-     * @param arrayObj object representing a JSON array
+     * @param arrayObj Object representing a JSON array
      *
      * @return List containing the parsed JSON objects in the supplied JSON array
      *
@@ -349,16 +347,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * Build the information from the Application scheduler, Telemetry Scheduler and Script Association
      * data in the file
      *
-     * @param importFile                  import file reference
+     * @param importFile                  Import file reference
      *
      * @param importType                  ImportType.IMPORT_ALL to import the table type, data type, and
      *                                    macro definitions, and the data from all the table
      *                                    definitions; ImportType.FIRST_DATA_ONLY to load only the data
      *                                    for the first table defined
      *
-     * @param ignoreErrors                true to ignore all errors in the import file
+     * @param ignoreErrors                True to ignore all errors in the import file
      *
-     * @param replaceExistingAssociations true to overwrite internal associations with those from the
+     * @param replaceExistingAssociations True to overwrite internal associations with those from the
      *                                    import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
@@ -614,7 +612,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Verify that the input file will be of a JSONObject type
      *
-     * @param importFile import file reference
+     * @param importFile Import file reference
      *
      * @throws CCDDException If the parsed json object is not of type JSONObject
      *
@@ -640,11 +638,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the Table Types, Table Type Data Fields and Macros in the file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -940,14 +938,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the input and data type definition(s) in the current file
      *
-     * @param importFile               import file reference
+     * @param importFile               Import file reference
      *
-     * @param ignoreErrors             true to ignore all errors in the import file
+     * @param ignoreErrors             True to ignore all errors in the import file
      *
-     * @param replaceExistingDataTypes true to replace existing data types that share a name with an
+     * @param replaceExistingDataTypes True to replace existing data types that share a name with an
      *                                 imported data type
      *
-     * @param importingEntireDatabase  true to replace existing database internal tables
+     * @param importingEntireDatabase  True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -1069,7 +1067,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                     // Add the data type if it's new or match it to an existing one with the same name if the type
                     // definitions are the same
-                    dataTypeHandler.updateDataTypes(dataTypeDefns, replaceExistingDataTypes); // TODO
+                    dataTypeHandler.updateDataTypes(dataTypeDefns, replaceExistingDataTypes);
                 }
             }
         }
@@ -1108,25 +1106,25 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile              import file reference
+     * @param importFile              Import file reference
      *
      * @param importType              ImportType.IMPORT_ALL to import the table type, data type, and
      *                                macro definitions, and the data from all the table definitions;
      *                                ImportType.FIRST_DATA_ONLY to load only the data for the first
      *                                table defined
      *
-     * @param targetTypeDefn          table type definition of the table in which to import the data;
+     * @param targetTypeDefn          Table type definition of the table in which to import the data;
      *                                ignored if importing all tables
      *
-     * @param ignoreErrors            true to ignore all errors in the import file
+     * @param ignoreErrors            True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   true to replace the values for existing macros
+     * @param replaceExistingMacros   True to replace the values for existing macros
      *
-     * @param replaceExistingGroups   true to replace existing group definitions
+     * @param replaceExistingGroups   True to replace existing group definitions
      *
-     * @param replaceExistingTables   true to replace existing tables or table fields
+     * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase true to replace existing database internal tables
+     * @param importingEntireDatabase True to replace existing database internal tables
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -1469,14 +1467,17 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         }
 
                         /*************** TABLE DEFINITION FIELDS ***************/
-                        // Check if all definitions are to be loaded and if any data fields are defined
+                        // Check if all definitions are to be loaded and if any data fields are
+                        // defined
                         if (dataFieldsJA != null)
                         {
                             // Step through each data field definition
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA))
                             {
-                                // Add the data field definition, checking for (and if possible, correcting) errors
-                                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables,
+                                // Add the data field definition, checking for (and if possible,
+                                // correcting) errors
+                                ignoreErrors = addImportedDataFieldDefinition(ignoreErrors,
+                                                                              replaceExistingTables,
                                                                               tableDefn,
                                                                               new String[] {tableName,
                                                                                             getString(dataFieldJO,
@@ -1504,7 +1505,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                       FieldEditorColumnInfo.INHERITED
                                                                                                               .getColumnName())},
                                                                               importFile.getAbsolutePath(),
-                                                                              inputTypeHandler, fieldHandler, parent);
+                                                                              inputTypeHandler,
+                                                                              fieldHandler,
+                                                                              parent);
                             }
                         }
 
@@ -1556,27 +1559,27 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Export the project for a JSON export
      *
-     * @param exportFile              reference to the user-specified output file
+     * @param exportFile              Reference to the user-specified output file
      *
-     * @param tableDefs               list of table definitions to convert
+     * @param tableDefs               List of table definitions to convert
      *
-     * @param includeBuildInformation true to include the CCDD version, project, host, and user
+     * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
-     * @param replaceMacros           true to replace any embedded macros with their corresponding
+     * @param replaceMacros           True to replace any embedded macros with their corresponding
      *                                values
      *
-     * @param includeReservedMsgIDs   true to include the contents of the reserved message ID table in
+     * @param includeReservedMsgIDs   True to include the contents of the reserved message ID table in
      *                                the export file
      *
-     * @param includeVariablePaths    true to include the variable path for each variable in a structure
+     * @param includeVariablePaths    True to include the variable path for each variable in a structure
      *                                table, both in application format and using the user-defined
      *                                separator characters
      *
-     * @param variableHandler         variable handler class reference; null if includeVariablePaths is
+     * @param variableHandler         Variable handler class reference; null if includeVariablePaths is
      *                                false
      *
-     * @param separators              string array containing the variable path separator character(s),
+     * @param separators              String array containing the variable path separator character(s),
      *                                show/hide data types flag ('true' or 'false'), and data
      *                                type/variable name separator character(s); null if
      *                                includeVariablePaths is false
@@ -1589,6 +1592,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
+    @SuppressWarnings({"unchecked"})
     @Override
     public void exportTables(FileEnvVar exportFile, List<TableInfo> tableDefs, boolean includeBuildInformation,
                              boolean replaceMacros, boolean includeVariablePaths, CcddVariableHandler variableHandler,
@@ -1786,22 +1790,22 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the data for the specified data table
      *
-     * @param tableName            table name and path in the format
+     * @param tableName            Table name and path in the format
      *                             rootTable[,dataType1.variable1[,...]]. Blank to return the data for
      *                             all tables
      *
-     * @param getDescription       true to get the table description when loading the table data
+     * @param getDescription       True to get the table description when loading the table data
      *
-     * @param replaceMacros        true to display the macro values in place of the corresponding macro
+     * @param replaceMacros        True to display the macro values in place of the corresponding macro
      *                             names; false to display the macro names
      *
-     * @param includeVariablePaths true to include a column, 'Variable Path', showing the variable path
+     * @param includeVariablePaths True to include a column, 'Variable Path', showing the variable path
      *                             for each variable in a structure table using the user-defined
      *                             separator characters
      *
-     * @param variableHandler      variable handler class reference; null if isIncludePath is false
+     * @param variableHandler      Variable handler class reference; null if isIncludePath is false
      *
-     * @param separators           string array containing the variable path separator character(s),
+     * @param separators           String array containing the variable path separator character(s),
      *                             show/hide data types flag ('true' or 'false'), and data type/variable
      *                             name separator character(s); null if isIncludePath is false
      *
@@ -1912,22 +1916,23 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param tableInfo            The data for the table to be converted
      *
-     * @param replaceMacros        true to display the macro values in place of the corresponding macro
+     * @param replaceMacros        True to display the macro values in place of the corresponding macro
      *                             names; false to display the macro names
      *
-     * @param includeVariablePaths true to include a column, 'Variable Path', showing the variable path
+     * @param includeVariablePaths True to include a column, 'Variable Path', showing the variable path
      *                             for each variable in a structure table using the user-defined
      *                             separator characters
      *
-     * @param variableHandler      variable handler class reference; null if isIncludePath is false
+     * @param variableHandler      Variable handler class reference; null if isIncludePath is false
      *
-     * @param separators           string array containing the variable path separator character(s),
+     * @param separators           String array containing the variable path separator character(s),
      *                             show/hide data types flag ('true' or 'false'), and data type/variable
      *                             name separator character(s); null if isIncludePath is false
      *
      *
      * @return The table data in OrderedJSONObject format
      *********************************************************************************************/
+    @SuppressWarnings("unchecked")
     protected OrderedJSONObject convertTableData(TableInfo tableInfo, boolean replaceMacros,
                                                  boolean includeVariablePaths, CcddVariableHandler variableHandler,
                                                  String[] separators)
@@ -2039,7 +2044,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the data field information for the specified owner (table, table type, or group)
      *
-     * @param ownerName            table name and path in the format
+     * @param ownerName            Table name and path in the format
      *                             rootTable[,dataType1.variable1[,...]] (if blank then every data
      *                             table's data fields are returned), table type name in the format
      *                             tableTypeTag:tableTypepName, or group owner in the format
@@ -2047,7 +2052,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param tagName              JSON tag name
      *
-     * @param referencedInputTypes list of user-defined input types referenced; null if this list isn't
+     * @param referencedInputTypes List of user-defined input types referenced; null if this list isn't
      *                             used by the caller. This list has any user-defined input types not
      *                             already in the list added
      *
@@ -2111,6 +2116,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @return The database information separated by a comma.
      *********************************************************************************************/
+    @SuppressWarnings("unchecked")
     protected OrderedJSONObject getDBUInfo(OrderedJSONObject outputJO)
     {
         JSONArray DBUInfoJA = new JSONArray();
@@ -2168,7 +2174,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param dataTypes  The data types that are about to be exported
      *
-     * @param exportFile reference to the user-specified output file
+     * @param exportFile Reference to the user-specified output file
      *
      * @param outputType String representing rather the output is going to a single file or multiple
      *                   files. Should be EXPORT_SINGLE_FILE or EXPORT_MULTIPLE_FILES
@@ -2475,7 +2481,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Export table type definitions to the specified folder
      *
-     * @param exportFile        reference to the user-specified output file
+     * @param exportFile        Reference to the user-specified output file
      *
      * @param includeTableTypes Boolean representing if the table types should be included
      *
@@ -2615,19 +2621,19 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the type, description, size, data, and data fields for the specified data table
      *
-     * @param tableName            table name and path in the format
+     * @param tableName            Table name and path in the format
      *                             rootTable[,dataType1.variable1[,...]]
      *
-     * @param replaceMacros        true to display the macro values in place of the corresponding macro
+     * @param replaceMacros        True to display the macro values in place of the corresponding macro
      *                             names; false to display the macro names
      *
-     * @param includeVariablePaths true to include a column, 'Variable Path', showing the variable path
+     * @param includeVariablePaths True to include a column, 'Variable Path', showing the variable path
      *                             for each variable in a structure table using the user-defined
      *                             separator characters
      *
-     * @param variableHandler      variable handler class reference
+     * @param variableHandler      Variable handler class reference
      *
-     * @param separators           string array containing the variable path separator character(s),
+     * @param separators           String array containing the variable path separator character(s),
      *                             show/hide data types flag ('true' or 'false'), and data type/variable
      *                             name separator character(s)
      *
@@ -2698,10 +2704,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * specified JSON object. If no table type is provided, or if none are recognized, then nothing is
      * added to the JSON object
      *
-     * @param tableTypeNames       names of the table types to add; null to include all defined table
+     * @param tableTypeNames       Names of the table types to add; null to include all defined table
      *                             types
      *
-     * @param referencedInputTypes list of user-defined input types referenced; null if this list isn't
+     * @param referencedInputTypes List of user-defined input types referenced; null if this list isn't
      *                             used by the caller. This list has any user-defined input types not
      *                             already in the list added
      *
@@ -2832,7 +2838,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * JSON object. If no data type is provided, or if none are recognized, then nothing is added to the
      * JSON object
      *
-     * @param dataTypeNames names of the data types to add; null to include all defined data types
+     * @param dataTypeNames Names of the data types to add; null to include all defined data types
      *
      * @param outputJO      JSON object to which the data types are added
      *
@@ -2902,7 +2908,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * specified JSON object. If no input type is provided, or if none are recognized, then nothing is
      * added to the JSON object
      *
-     * @param inputTypeNames names of the custom input types to add; null to include all defined custom
+     * @param inputTypeNames Names of the custom input types to add; null to include all defined custom
      *                       input types
      *
      * @param outputJO       JSON object to which the input types are added
@@ -2973,7 +2979,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * object. If no macro is provided, or if none are recognized, then nothing is added to the JSON
      * object
      *
-     * @param macroNames names of the macros to add; null to include all defined macros
+     * @param macroNames Names of the macros to add; null to include all defined macros
      *
      * @param outputJO   JSON object to which the macros are added
      *
@@ -3078,7 +3084,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add the variable paths
      *
-     * @param variablePaths list containing arrays of the variable path in both application and
+     * @param variablePaths List containing arrays of the variable path in both application and
      *                      user-defined formats
      *
      * @param outputJO      JSON object to which the variable paths are added
@@ -3169,12 +3175,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * Get the description for the specified group or application, or all groups/applications with a
      * description if no group name is provided
      *
-     * @param groupName       group name. If blank then every group's (application's) descriptions are
+     * @param groupName       Group name. If blank then every group's (application's) descriptions are
      *                        returned
      *
-     * @param applicationOnly true if only groups that represent applications should be processed
+     * @param applicationOnly True if only groups that represent applications should be processed
      *
-     * @param includeNameTag  true to include the group name and description tags
+     * @param includeNameTag  True to include the group name and description tags
      *
      * @return JSON encoded string containing the specified group's (application's) description; null if
      *         the specified group/application doesn't exist or the project has no groups/applications,
@@ -3266,12 +3272,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * Get the tables associated with the specified group or application, or for all groups/applications
      * if no group name is provided
      *
-     * @param groupName       group name. If blank then every group's (application's) descriptions are
+     * @param groupName       Group name. If blank then every group's (application's) descriptions are
      *                        returned
      *
-     * @param applicationOnly true if only groups that represent applications should be processed
+     * @param applicationOnly True if only groups that represent applications should be processed
      *
-     * @param includeNameTag  true to include the group name item
+     * @param includeNameTag  True to include the group name item
      *
      * @return JSON encoded string containing the specified group's (application's) table members; null
      *         if the specified group/application doesn't exist or the project has no
@@ -3382,13 +3388,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * Get the data field information for the specified group or application, or for all
      * groups/applications if no group name is provided
      *
-     * @param groupName            group name. If blank then every data table's data fields are returned
+     * @param groupName            Group name. If blank then every data table's data fields are returned
      *
-     * @param applicationOnly      true if only groups that represent applications should be processed
+     * @param applicationOnly      True if only groups that represent applications should be processed
      *
-     * @param includeNameTag       true to include the group name item and data field tag
+     * @param includeNameTag       True to include the group name item and data field tag
      *
-     * @param referencedInputTypes list of user-defined input types referenced; null if this list isn't
+     * @param referencedInputTypes List of user-defined input types referenced; null if this list isn't
      *                             used by the caller. This list has any user-defined input types not
      *                             already in the list added
      *
@@ -3493,11 +3499,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the description, associated table(s), and data fields for the specified group or application
      *
-     * @param groupName            group name. If blank then every group's information is returned
+     * @param groupName            Group name. If blank then every group's information is returned
      *
-     * @param applicationOnly      true if only groups that represent applications should be processed
+     * @param applicationOnly      True if only groups that represent applications should be processed
      *
-     * @param referencedInputTypes list of user-defined input types referenced; null if this list isn't
+     * @param referencedInputTypes List of user-defined input types referenced; null if this list isn't
      *                             used by the caller. This list has any user-defined input types not
      *                             already in the list added
      *
@@ -3672,6 +3678,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @return The supplied JSON object, with the telemetry scheduler data in it (if any)
      ***************************************************************************************************/
+    @SuppressWarnings("unchecked")
     protected OrderedJSONObject getTlmSchedulerData(OrderedJSONObject outputJO)
     {
         // Retrieve the information stored in the Telemetry Scheduler table.

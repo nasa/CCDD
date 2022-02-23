@@ -69,13 +69,13 @@ public class CcddCommandHandler
         /******************************************************************************************
          * Command information class constructor
          *
-         * @param table           command table in which the command is defined
+         * @param table           Command table in which the command is defined
          *
-         * @param commandName     command name
+         * @param commandName     Command name
          *
-         * @param commandCode     command code
+         * @param commandCode     Command code
          *
-         * @param commandArgument command argument variable
+         * @param commandArgument Command argument variable
          *****************************************************************************************/
         CommandInformation(String table, String commandName, String commandCode, String commandArgument)
         {
@@ -129,7 +129,7 @@ public class CcddCommandHandler
     /**********************************************************************************************
      * Command handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddCommandHandler(CcddMain ccddMain)
     {
@@ -152,13 +152,13 @@ public class CcddCommandHandler
     /**********************************************************************************************
      * Build the command reference string
      *
-     * @param commandName command name
+     * @param commandName Command name
      *
-     * @param commandCode command code
+     * @param commandCode Command code
      *
-     * @param commandArg  command argument structure path
+     * @param commandArg  Command argument structure path
      *
-     * @param table       command table to which the command belongs
+     * @param table       Command table to which the command belongs
      *
      * @return Command reference string
      *********************************************************************************************/
@@ -171,9 +171,9 @@ public class CcddCommandHandler
     /**********************************************************************************************
      * Get the argument variable names for the specified command argument structure reference
      *
-     * @param argumentStructRef command argument structure reference path
+     * @param argumentStructRef Command argument structure reference path
      *
-     * @param separator         character(s) used to separate each command argument variable name
+     * @param separator         Character(s) used to separate each command argument variable name
      *
      * @return The argument variable names for the specified command argument structure reference
      *         separated by the supplied separator character(s); and empty string if the structure has

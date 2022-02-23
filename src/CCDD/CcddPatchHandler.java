@@ -105,7 +105,7 @@ public class CcddPatchHandler
      * versions of the application are no longer guaranteed to function properly and may have
      * detrimental effects
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddPatchHandler(CcddMain ccddMain)
     {
@@ -179,7 +179,7 @@ public class CcddPatchHandler
     /**********************************************************************************************
      * Apply patches based on the input flag
      *
-     * @param isBeforeHandlerInit true if the patch must be implemented prior to initializing the
+     * @param isBeforeHandlerInit True if the patch must be implemented prior to initializing the
      *                            handler classes; false if the patch must be implemented after
      *                            initializing the handler classes
      *
@@ -236,7 +236,7 @@ public class CcddPatchHandler
      * preferences (or the CCDD start-up folder if no preference is specified). The file name is a
      * combination of the project's database name and the current date/time stamp
      *
-     * @param dbControl reference to the database control class
+     * @param dbControl Reference to the database control class
      *
      * @throws CCDDException If the project database cannot be backed up and the user elects to not
      *                       continue

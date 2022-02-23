@@ -68,13 +68,14 @@ public class CcddBackgroundCommand
      * Once complete, any clean-up steps are performed, the cursor is restored, and the menu items are
      * reenabled
      *
-     * @param ccddMain    main class reference
+     * @param ccddMain    Main class reference
      *
-     * @param backCommand background command
+     * @param backCommand Background command
      *
      * @return SwingWorker reference for this thread
      *********************************************************************************************/
-    protected static SwingWorker<?, ?> executeInBackground(final CcddMain ccddMain, final BackgroundCommand backCommand)
+    protected static SwingWorker<?, ?> executeInBackground(final CcddMain ccddMain,
+                                                           final BackgroundCommand backCommand)
     {
         return executeInBackground(ccddMain, null, backCommand);
     }
@@ -85,15 +86,16 @@ public class CcddBackgroundCommand
      * execution. Once complete, any clean-up steps are performed, the cursor is restored, and the menu
      * items are reenabled
      *
-     * @param ccddMain    main class reference
+     * @param ccddMain    Main class reference
      *
-     * @param dialog      reference to the dialog responsible for this operation; null if not applicable
+     * @param dialog      Reference to the dialog responsible for this operation; null if not applicable
      *
-     * @param backCommand background command
+     * @param backCommand Background command
      *
      * @return SwingWorker reference for this thread
      *********************************************************************************************/
-    protected static SwingWorker<?, ?> executeInBackground(final CcddMain ccddMain, final Component dialog,
+    protected static SwingWorker<?, ?> executeInBackground(final CcddMain ccddMain,
+                                                           final Component dialog,
                                                            final BackgroundCommand backCommand)
     {
         // Check if the GUI is visible

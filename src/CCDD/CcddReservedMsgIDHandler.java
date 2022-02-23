@@ -46,7 +46,7 @@ public class CcddReservedMsgIDHandler
      * Reserved message ID handler class constructor used when setting the macros from a source other
      * than those in the project database
      *
-     * @param reservedMsgIDs list of string arrays containing reserved message IDs and corresponding
+     * @param reservedMsgIDs List of string arrays containing reserved message IDs and corresponding
      *                       descriptions
      *********************************************************************************************/
     CcddReservedMsgIDHandler(List<String[]> reservedMsgIDs)
@@ -57,7 +57,7 @@ public class CcddReservedMsgIDHandler
     /**********************************************************************************************
      * Reserved message ID handler class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddReservedMsgIDHandler(CcddMain ccddMain)
     {
@@ -79,7 +79,7 @@ public class CcddReservedMsgIDHandler
     /**********************************************************************************************
      * Set the reserved message ID data to the supplied array
      *
-     * @param reservedMsgIDData list of string arrays containing reserved message IDs and the
+     * @param reservedMsgIDData List of string arrays containing reserved message IDs and the
      *                          corresponding descriptions
      *********************************************************************************************/
     protected void setReservedMsgIDData(List<String[]> reservedMsgIDData)
@@ -122,7 +122,7 @@ public class CcddReservedMsgIDHandler
      * Parse a reserved message ID or ID range string into the single, or lower and upper (if present),
      * value(s)
      *
-     * @param reservedMsgIDs string showing the single, or lower and upper (if present), reserved
+     * @param reservedMsgIDs String showing the single, or lower and upper (if present), reserved
      *                       message ID
      *
      * @return Integer array where the first value is the lower (or single) ID, and the second value is
@@ -150,9 +150,9 @@ public class CcddReservedMsgIDHandler
     /**********************************************************************************************
      * Determine if the supplied message IDs match or their ranges overlap
      *
-     * @param idA     integer array defining the message ID or ID range to test
+     * @param idA     Integer array defining the message ID or ID range to test
      *
-     * @param otherID message ID or ID range to which to compare
+     * @param otherID Message ID or ID range to which to compare
      *
      * @return true if the IDs or ID ranges overlap
      *********************************************************************************************/
@@ -183,7 +183,7 @@ public class CcddReservedMsgIDHandler
     /**********************************************************************************************
      * Check if the supplied message ID is already reserved
      *
-     * @param msgID message ID
+     * @param msgID Message ID
      *
      * @return true if the supplied message ID is already reserved
      *********************************************************************************************/
@@ -214,7 +214,7 @@ public class CcddReservedMsgIDHandler
     /**********************************************************************************************
      * Add new reserved message IDs
      *
-     * @param reservedMsgIDDefns list of reserved message ID definitions
+     * @param reservedMsgIDDefns List of reserved message ID definitions
      *********************************************************************************************/
     protected void updateReservedMsgIDs(List<String[]> reservedMsgIDDefns)
     {

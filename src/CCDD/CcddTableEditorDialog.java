@@ -149,11 +149,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Table editor dialog class constructor
      *
-     * @param ccddMain         main class
+     * @param ccddMain         Main class
      *
-     * @param tableInformation list containing information for each table
+     * @param tableInformation List containing information for each table
      *
-     * @param editor           reference to an existing table editor; null if adding new tables to the
+     * @param editor           Reference to an existing table editor; null if adding new tables to the
      *                         editor dialog
      *********************************************************************************************/
     CcddTableEditorDialog(CcddMain ccddMain, List<TableInfo> tableInformation, CcddTableEditorHandler editor)
@@ -172,9 +172,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Table editor dialog class constructor
      *
-     * @param ccddMain         main class
+     * @param ccddMain         Main class
      *
-     * @param tableInformation list containing the information for each table
+     * @param tableInformation List containing the information for each table
      *********************************************************************************************/
     CcddTableEditorDialog(CcddMain ccddMain, List<TableInfo> tableInformation)
     {
@@ -184,9 +184,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Table editor dialog class constructor
      *
-     * @param ccddMain main class
+     * @param ccddMain Main class
      *
-     * @param editor   reference to an existing table editor
+     * @param editor   Reference to an existing table editor
      *********************************************************************************************/
     CcddTableEditorDialog(CcddMain ccddMain, CcddTableEditorHandler editor)
     {
@@ -227,11 +227,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Set the specified tab's title and tool tip text
      *
-     * @param tabIndex   index of the tab to change
+     * @param tabIndex   Index of the tab to change
      *
-     * @param tabName    tab title
+     * @param tabName    Tab title
      *
-     * @param tabToolTip tab tool tip text
+     * @param tabToolTip Tab tool tip text
      *********************************************************************************************/
     private void setTabText(int tabIndex, String tabName, String tabToolTip)
     {
@@ -264,7 +264,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Set the array of recently opened table menu items
      *
-     * @param menuItems array of recently opened table menu items
+     * @param menuItems Array of recently opened table menu items
      *********************************************************************************************/
     protected void setRecentTableMenuItems(JMenuItem[] menuItems)
     {
@@ -274,7 +274,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Enable/disable the table editor dialog menu controls
      *
-     * @param enable true to enable the controls; false to disable
+     * @param enable True to enable the controls; false to disable
      *********************************************************************************************/
     @Override
     protected void setControlsEnabled(boolean enable)
@@ -363,22 +363,22 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * table editors that are no longer valid and modifying child tables when a prototype table is
      * changed
      *
-     * @param main              reference to CcddMain
+     * @param main              Reference to CcddMain
      *
-     * @param tableInfo         table information
+     * @param tableInfo         Table information
      *
-     * @param modifications     list of row update information
+     * @param modifications     List of row update information
      *
-     * @param deletions         list of row deletion information
+     * @param deletions         List of row deletion information
      *
-     * @param forceUpdate       true to make the changes to other tables (e.g., following a data type or
+     * @param forceUpdate       True to make the changes to other tables (e.g., following a data type or
      *                          macro change); false to only make changes to tables other than the one
      *                          in which the changes originally took place
      *
-     * @param isRefFieldChange  true is a data field has a variable (command, message name and ID)
+     * @param isRefFieldChange  True is a data field has a variable (command, message name and ID)
      *                          reference input type
      *
-     * @param isMsgNameIDChange true is a message name or ID changed and a cell or field uses the
+     * @param isMsgNameIDChange True is a message name or ID changed and a cell or field uses the
      *                          message name and ID input type
      *********************************************************************************************/
     protected static void doTableModificationComplete(CcddMain main, TableInfo tableInfo,
@@ -511,19 +511,19 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Update the table name, editor dialog tab, and editor dialog frame when the prototype name (data
      * type for a structure table) or the variable name for a structure type table is changed
      *
-     * @param main            reference to CcddMain
+     * @param main            Reference to CcddMain
      *
-     * @param oldPrototype    original prototype name (same as the data type for a structure table)
+     * @param oldPrototype    Original prototype name (same as the data type for a structure table)
      *
-     * @param newPrototype    current prototype name (same as the data type for a structure table)
+     * @param newPrototype    Current prototype name (same as the data type for a structure table)
      *
-     * @param oldVariableName original variable name if this change is for a structure table
+     * @param oldVariableName Original variable name if this change is for a structure table
      *
-     * @param newVariableName current variable name if this change is for a structure table
+     * @param newVariableName Current variable name if this change is for a structure table
      *
-     * @param editorDialog    current editor dialog to which the changes are compared
+     * @param editorDialog    Current editor dialog to which the changes are compared
      *
-     * @param editor          current editor to which the changes are compared
+     * @param editor          Current editor to which the changes are compared
      *********************************************************************************************/
     protected static void updateTableNames(CcddMain main, String oldPrototype, String newPrototype,
                                            String oldVariableName, String newVariableName,
@@ -579,9 +579,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Create the data table editor dialog
      *
-     * @param tableInformation list containing information for each table
+     * @param tableInformation List containing information for each table
      *
-     * @param editor           reference to an existing table editor
+     * @param editor           Reference to an existing table editor
      *********************************************************************************************/
     private void initialize(List<TableInfo> tableInformation, CcddTableEditorHandler editor)
     {
@@ -1845,7 +1845,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Perform a control key action
      *
-     * @param key key to simulate pressing along with the control key
+     * @param key Key to simulate pressing along with the control key
      *********************************************************************************************/
     private void controlKeyAction(int key)
     {
@@ -1875,7 +1875,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Commit changes to the database for the specified table editor
      *
-     * @param editor table editor to commit
+     * @param editor Table editor to commit
      *********************************************************************************************/
     private void storeChanges(CcddTableEditorHandler editor)
     {
@@ -1928,7 +1928,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Add one or more table tabs to the editor dialog tabbed pane using the supplied table information
      * list
      *
-     * @param tableInformation list containing information for each table
+     * @param tableInformation List containing information for each table
      *********************************************************************************************/
     protected void addTablePanes(List<TableInfo> tableInformation)
     {
@@ -1939,9 +1939,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Add one or more table tabs to the editor dialog tabbed pane using the supplied table information
      * list and/or existing table editor tab contents
      *
-     * @param tableInformation list containing information for each table
+     * @param tableInformation List containing information for each table
      *
-     * @param editor           reference to an existing table editor
+     * @param editor           Reference to an existing table editor
      *********************************************************************************************/
     protected void addTablePanes(List<TableInfo> tableInformation, CcddTableEditorHandler editor)
     {
@@ -2010,7 +2010,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Update the change indicator for the specified table editor
      *
-     * @param tableEditor reference to the table editor for which the change indicator is to be updated
+     * @param tableEditor Reference to the table editor for which the change indicator is to be updated
      *********************************************************************************************/
     protected void updateChangeIndicator(CcddTableEditorHandler tableEditor)
     {
@@ -2053,7 +2053,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Remove the tab for the specified table
      *
-     * @param tableName name of the table to remove
+     * @param tableName Name of the table to remove
      *********************************************************************************************/
     protected void closeTableEditor(String tableName)
     {

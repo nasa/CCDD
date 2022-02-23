@@ -80,20 +80,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Generic information tree handler class constructor
      *
-     * @param ccddMain        main class
+     * @param ccddMain        Main class
      *
-     * @param undoHandler     reference to the undo handler
+     * @param undoHandler     Reference to the undo handler
      *
-     * @param infoType        internal table type
+     * @param infoType        Internal table type
      *
-     * @param infoDefinitions list of string arrays containing each node name and associated tool tip
+     * @param infoDefinitions List of string arrays containing each node name and associated tool tip
      *
-     * @param filterValue     string value that may be used to modify the tree building method; null or
+     * @param filterValue     String value that may be used to modify the tree building method; null or
      *                        blank if not filtering
      *
-     * @param filterFlag      flag used to filter the tree content
+     * @param filterFlag      Flag used to filter the tree content
      *
-     * @param treePathOrder   list containing all of the items that potentially can appear in the tree
+     * @param treePathOrder   List containing all of the items that potentially can appear in the tree
      *                        in the order in which they appear when added to the tree; null if no order
      *                        is specified (the order can be specified later, if needed)
      *
@@ -135,9 +135,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                  * Perform any actions needed following an undo or redo operation that affects a node's user object
                  * (name) filter nodes
                  *
-                 * @param wasValue node user object value prior to the undo/redo operation
+                 * @param wasValue Node user object value prior to the undo/redo operation
                  *
-                 * @param isValue  node user object value after the undo/redo operation
+                 * @param isValue  Node user object value after the undo/redo operation
                  *********************************************/
                 @Override
                 protected void nodeRenameCleanup(Object wasValue, Object isValue)
@@ -161,18 +161,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Generic information tree handler class constructor
      *
-     * @param ccddMain      main class
+     * @param ccddMain      Main class
      *
-     * @param undoHandler   reference to the undo handler
+     * @param undoHandler   Reference to the undo handler
      *
-     * @param infoType      internal table type
+     * @param infoType      Internal table type
      *
-     * @param filterValue   string value that may be used to modify the tree building method; null or
+     * @param filterValue   String value that may be used to modify the tree building method; null or
      *                      blank if not filtering
      *
-     * @param filterFlag    flag used to filter the tree content
+     * @param filterFlag    Flag used to filter the tree content
      *
-     * @param treePathOrder list containing all of the items that potentially can appear in the tree in
+     * @param treePathOrder List containing all of the items that potentially can appear in the tree in
      *                      the order in which they appear when added to the tree; null if no order is
      *                      specified (the order can be specified later, if needed)
      *
@@ -190,9 +190,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Generic information tree handler class constructor
      *
-     * @param ccddMain        main class
+     * @param ccddMain        Main class
      *
-     * @param infoDefinitions list of string arrays containing each node name and associated tool tip
+     * @param infoDefinitions List of string arrays containing each node name and associated tool tip
      *
      * @param parent          GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -213,9 +213,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Placeholder for performing any actions needed following an undo or redo operation that affects a
      * node's user object (name) filter nodes
      *
-     * @param wasValue node user object value prior to the undo/redo operation
+     * @param wasValue Node user object value prior to the undo/redo operation
      *
-     * @param isValue  node user object value after the undo/redo operation
+     * @param isValue  Node user object value after the undo/redo operation
      *********************************************************************************************/
     protected void nodeRenameCleanup(Object wasValue, Object isValue)
     {
@@ -283,23 +283,23 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Placeholder for method to perform any initialization steps necessary prior to building the
      * information tree
      *
-     * @param ccddMain        main class
+     * @param ccddMain        Main class
      *
-     * @param undoHandler     reference to the undo handler
+     * @param undoHandler     Reference to the undo handler
      *
-     * @param infoDefinitions list containing the internal table definitions
+     * @param infoDefinitions List containing the internal table definitions
      *********************************************************************************************/
     protected abstract void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> infoDefinitions);
 
     /**********************************************************************************************
      * Create the information tree root node and set the tree model
      *
-     * @param isFilterByApp true if the tree is filtered by application status
+     * @param isFilterByApp True if the tree is filtered by application status
      *
-     * @param filterValue   string value that may be used to modify the tree building method; null or
+     * @param filterValue   String value that may be used to modify the tree building method; null or
      *                      blank if not filtering
      *
-     * @param filterFlag    flag used to filter the tree content
+     * @param filterFlag    Flag used to filter the tree content
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -326,7 +326,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Set the list of all tree paths in the table tree in the order to be used when placing a path in
      * the information tree
      *
-     * @param treePathOrder list of all paths in the table tree in the order to be maintained in the
+     * @param treePathOrder List of all paths in the table tree in the order to be maintained in the
      *                      information tree
      *********************************************************************************************/
     protected void setTreePathOrder(List<String> treePathOrder)
@@ -337,13 +337,13 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Add a node to the tree
      *
-     * @param parentNode  parent node for the new node
+     * @param parentNode  Parent node for the new node
      *
-     * @param nodeName    name of the node to add
+     * @param nodeName    Name of the node to add
      *
-     * @param toolTipText tool tip text for the new node
+     * @param toolTipText Tool tip text for the new node
      *
-     * @param order       order in which the added node should be placed relative to the child nodes
+     * @param order       Order in which the added node should be placed relative to the child nodes
      *                    already preset
      *
      * @return Reference to the newly added child node
@@ -436,9 +436,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Add a new node to the tree's root node
      *
-     * @param nodeName    name of the node to add
+     * @param nodeName    Name of the node to add
      *
-     * @param toolTipText tool tip text for the new node
+     * @param toolTipText Tool tip text for the new node
      *
      * @return Reference to the newly added node
      *********************************************************************************************/
@@ -451,11 +451,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Add a new node to the tree's root node, or the application node is filtering by application is
      * active
      *
-     * @param nodeName    name of the node to add
+     * @param nodeName    Name of the node to add
      *
-     * @param toolTipText tool tip text for the new node
+     * @param toolTipText Tool tip text for the new node
      *
-     * @param isApp       true if the group represents a CFS application
+     * @param isApp       True if the group represents a CFS application
      *
      * @return Reference to the newly added node
      *********************************************************************************************/
@@ -468,11 +468,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Add the specified nodes(s) from the source tree to the specified node(s) in the information tree
      *
-     * @param sourcePaths     list containing the node paths for the selected nodes in the source tree
+     * @param sourcePaths     List containing the node paths for the selected nodes in the source tree
      *
-     * @param startIndex      tree level at which the desired node names first appear in the source tree
+     * @param startIndex      Tree level at which the desired node names first appear in the source tree
      *
-     * @param onlyIfPrimitive true to only include nodes that end with a reference to primitive data
+     * @param onlyIfPrimitive True to only include nodes that end with a reference to primitive data
      *                        type; false to include all nodes
      *********************************************************************************************/
     protected void addSourceNodesToTargetNode(List<Object[]> sourcePaths, int startIndex, boolean onlyIfPrimitive)
@@ -541,11 +541,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Add the specified table(s)/variable(s) to the specified information node(s)
      *
-     * @param node       parent information node for this variable
+     * @param node       Parent information node for this variable
      *
-     * @param sourcePath array containing the source node path
+     * @param sourcePath Array containing the source node path
      *
-     * @param startIndex tree level at which the variable names first appear in the array
+     * @param startIndex Tree level at which the variable names first appear in the array
      *********************************************************************************************/
     protected void addNodeToInfoNode(ToolTipTreeNode node, Object[] sourcePath, int startIndex)
     {
@@ -588,7 +588,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Remove the specified child node, and its ancestors until a node with other children or the top
      * level node is reached
      *
-     * @param removeNode node at which to start the removal
+     * @param removeNode Node at which to start the removal
      *********************************************************************************************/
     protected void removeNodeAndEmptyAncestors(ToolTipTreeNode removeNode)
     {
@@ -725,9 +725,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Rename a top-level node (a node that is a direct child of the root node)
      *
-     * @param oldName current name of the node
+     * @param oldName Current name of the node
      *
-     * @param newName new name for the node
+     * @param newName New name for the node
      *
      * @return Reference to the renamed node; null if no node with the name oldName exists
      *********************************************************************************************/
@@ -756,11 +756,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Copy the tree of a source node to a target node
      *
-     * @param originalName name of the node to copy
+     * @param originalName Name of the node to copy
      *
-     * @param nameOfCopy   name of the copy of the node
+     * @param nameOfCopy   Name of the copy of the node
      *
-     * @param infoToCopy   information object to copy
+     * @param infoToCopy   Information object to copy
      *********************************************************************************************/
     protected void copyNodeTree(String originalName, String nameOfCopy, Object infoToCopy)
     {
@@ -790,18 +790,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Placeholder for method to add a copy of the specified information object to the information list
      *
-     * @param information information object to copy
+     * @param information Information object to copy
      *
-     * @param nameOfCopy  name of the copy of the node
+     * @param nameOfCopy  Name of the copy of the node
      *********************************************************************************************/
     protected abstract void addInformation(Object information, String nameOfCopy);
 
     /**********************************************************************************************
      * Recursively copy the tree of a source node to a target node
      *
-     * @param source source node
+     * @param source Source node
      *
-     * @param target target node
+     * @param target Target node
      *********************************************************************************************/
     protected void copySubTree(ToolTipTreeNode source, ToolTipTreeNode target)
     {
@@ -849,7 +849,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Remove any unwanted text from the node names. The object array is converted to a string array
      *
-     * @param nodePath path array
+     * @param nodePath Path array
      *
      * @return Cleaned node path array
      *********************************************************************************************/
@@ -872,7 +872,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Recursively step through the information tree and append the path to each leaf node to the
      * definition list
      *
-     * @param node node to check
+     * @param node Node to check
      *********************************************************************************************/
     private void buildDefinitionFromTree(ToolTipTreeNode node)
     {
@@ -915,11 +915,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Add the specified leaf definition to the tree definition list. Override this method to insert
      * other information into the leaf definition prior to adding it to the tree definition list
      *
-     * @param treeDefns   list to which to add the leaf definition
+     * @param treeDefns   List to which to add the leaf definition
      *
-     * @param leafDefn    leaf definition to add to the list
+     * @param leafDefn    Leaf definition to add to the list
      *
-     * @param filterValue string value that may be used to modify the tree; null or blank if not used
+     * @param filterValue String value that may be used to modify the tree; null or blank if not used
      *********************************************************************************************/
     protected void addLeafDefinition(List<String[]> treeDefns, String[] leafDefn, String filterValue)
     {
@@ -931,7 +931,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Convert the array describing the leaf node path into a single string, with the nodes separated by
      * commas
      *
-     * @param path array describing the tree path to construct
+     * @param path Array describing the tree path to construct
      *
      * @return Node names, separated by commas, in the specified path
      *********************************************************************************************/
@@ -944,9 +944,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Convert the array describing the leaf node path into a single string, with the nodes separated by
      * commas
      *
-     * @param path        array describing the tree path to construct
+     * @param path        Array describing the tree path to construct
      *
-     * @param startAdjust starting node level adjustment
+     * @param startAdjust Starting node level adjustment
      *
      * @return Node names, separated by commas, in the specified path
      *********************************************************************************************/

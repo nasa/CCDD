@@ -115,15 +115,15 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Telemetry scheduler input class constructor
      *
-     * @param ccddMain             main class
+     * @param ccddMain             Main class
      *
-     * @param schedulerDlg         reference to the telemetry scheduler dialog that created this class
+     * @param schedulerDlg         Reference to the telemetry scheduler dialog that created this class
      *
-     * @param rateName             rate column name
+     * @param rateName             Rate column name
      *
-     * @param allVariableTree      reference to a table tree containing all variables
+     * @param allVariableTree      Reference to a table tree containing all variables
      *
-     * @param allVariableTreePaths list containing the paths to all elements in the allVariableTree tree
+     * @param allVariableTreePaths List containing the paths to all elements in the allVariableTree tree
      *********************************************************************************************/
     CcddTelemetrySchedulerInput(CcddMain ccddMain, CcddTelemetrySchedulerDialog schedulerDlg, String rateName,
                                 CcddTableTreeHandler allVariableTree, List<String> allVariableTreePaths)
@@ -269,9 +269,9 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Set the link name for the message variables
      *
-     * @param messages list of messages
+     * @param messages List of messages
      *
-     * @param rateName rate column name
+     * @param rateName Rate column name
      *********************************************************************************************/
     protected void setLinks(List<Message> messages, String rateName)
     {
@@ -293,9 +293,9 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      * provided. The variable tree is used to determine the target variable's position relative to the
      * variables in the list (if any)
      *
-     * @param newVariable       variable for which to determine the insertion index
+     * @param newVariable       Variable for which to determine the insertion index
      *
-     * @param existingVariables list of existing variables into which the variable is to be inserted
+     * @param existingVariables List of existing variables into which the variable is to be inserted
      *
      * @return Index at which to insert the target variable; -1 if the provided list is empty and -2 if
      *         the variable is already in the list
@@ -341,7 +341,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Get the total number of bytes of the specified or selected variable(s)
      *
-     * @param variables list of variables; null to use the currently selected variable(s)
+     * @param variables List of variables; null to use the currently selected variable(s)
      *
      * @return Total number of bytes of the specified variable(s)
      *********************************************************************************************/
@@ -399,7 +399,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      * isn't associated with the succeeding variables then the return value references only the first
      * variable
      *
-     * @param variables list of variables where the first member of the list if the one to be checked
+     * @param variables List of variables where the first member of the list if the one to be checked
      *                  for associates
      *
      * @return AssociatedVariable object containing the total size in bytes of the variables associated
@@ -484,7 +484,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Get a list of variables at the specified rate
      *
-     * @param rate rate column name
+     * @param rate Rate column name
      *
      * @return List of variables at the specified rate
      *********************************************************************************************/
@@ -651,7 +651,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Add the specified variable(s) to the excluded variable list
      *
-     * @param varName list of variables to be added to the excluded variable list
+     * @param varName List of variables to be added to the excluded variable list
      *********************************************************************************************/
     @Override
     public void excludeVariable(List<String> varName)
@@ -679,7 +679,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Remove the variable(s) from the excluded variable list
      *
-     * @param varName list of variables to be removed from the excluded variable list
+     * @param varName List of variables to be removed from the excluded variable list
      *********************************************************************************************/
     @Override
     public void includeVariable(List<String> varName)
@@ -707,7 +707,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     /**********************************************************************************************
      * Update the tree to display variables at the specified rate
      *
-     * @param rate rate for filtering the variables
+     * @param rate Rate for filtering the variables
      *********************************************************************************************/
     @Override
     public void updateVariableTree(String rate)
