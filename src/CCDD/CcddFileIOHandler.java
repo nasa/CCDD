@@ -39,7 +39,6 @@ import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
 import static CCDD.CcddConstants.DEFAULT_DATABASE_NAME;
 import static CCDD.CcddConstants.DEFAULT_DATABASE_DESCRIPTION;
 import static CCDD.CcddConstants.DEFAULT_DATABASE_USER;
-import static CCDD.CcddConstants.SNAP_SHOT_FILE;
 import static CCDD.CcddConstants.EXPORT_MULTIPLE_FILES;
 import static CCDD.CcddConstants.EXPORT_SINGLE_FILE;
 

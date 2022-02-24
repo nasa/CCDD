@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddFrameHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Generic utility class for creating and handling all of the frame windows created within
-*     the application.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddFrameHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Generic utility class for creating and handling all of the frame windows created within
+ * the application.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -135,11 +131,11 @@ public class CcddFrameHandler extends JFrame
     }
 
     /**********************************************************************************************
-     * Get the total width of the table to be displayed in the window which is the sum of the minimum
-     * column sizes
+     * Get the total width of the table to be displayed in the window which is the sum of the
+     * minimum column sizes
      *
-     * @return Total width, in pixels, of the minimum column sizes of the table to be displayed in the
-     *         window
+     * @return Total width, in pixels, of the minimum column sizes of the table to be displayed in
+     *         the window
      *********************************************************************************************/
     protected int getTableWidth()
     {
@@ -147,11 +143,11 @@ public class CcddFrameHandler extends JFrame
     }
 
     /**********************************************************************************************
-     * Set the total width of the table to be displayed in the window which is the sum of the minimum
-     * column sizes
+     * Set the total width of the table to be displayed in the window which is the sum of the
+     * minimum column sizes
      *
-     * @param width Total width, in pixels, of the minimum column sizes of the table to be displayed in
-     *              the window
+     * @param width Total width, in pixels, of the minimum column sizes of the table to be
+     *              displayed in the window
      *********************************************************************************************/
     protected void setTableWidth(int width)
     {
@@ -179,9 +175,9 @@ public class CcddFrameHandler extends JFrame
     }
 
     /**********************************************************************************************
-     * Extract the window's button(s) from the supplied panel, then find the widest button calculated
-     * from the button's text and icon. Set the width of the panel containing the buttons based on the
-     * widest button
+     * Extract the window's button(s) from the supplied panel, then find the widest button
+     * calculated from the button's text and icon. Set the width of the panel containing the
+     * buttons based on the widest button
      *********************************************************************************************/
     protected void setButtonWidth()
     {
@@ -209,18 +205,18 @@ public class CcddFrameHandler extends JFrame
     }
 
     /**********************************************************************************************
-     * Create the window. If no buttons are provided (lower panel) then create the buttons and button
-     * listeners needed based on the option type
+     * Create the window. If no buttons are provided (lower panel) then create the buttons and
+     * button listeners needed based on the option type
      *
      * @param parent         Window to center the window over
      *
      * @param upperComponent Upper window components
      *
-     * @param buttonPnl      Panel containing the window's buttons; null if a defined option type is
-     *                       used
+     * @param buttonPnl      Panel containing the window's buttons; null if a defined option type
+     *                       is used
      *
-     * @param defaultBtn     Reference to the JButton that is actuated if the Enter key is pressed; null
-     *                       to have no default button
+     * @param defaultBtn     Reference to the JButton that is actuated if the Enter key is pressed;
+     *                       null to have no default button
      *
      * @param title          Title to display in the window frame
      *

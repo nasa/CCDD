@@ -244,7 +244,7 @@ public class CcddHaltDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(textLbl, gbc);
         JLabel textLbl2 = new JLabel("<html><b>"
-                                     + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> " + "to terminate "
+                                     + CcddUtilities.colorHTMLText("<i>*** Press </i>Halt<i> " + "to terminate "
                                                                    + operation + " ***", Color.RED)
                                      + "</b><br><br>", SwingConstants.CENTER);
         textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
