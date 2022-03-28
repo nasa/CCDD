@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddSearchHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles event log, table, and script searches.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddSearchHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles event log, table, and script searches.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
@@ -140,11 +136,11 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * @param ignoreCase     True to ignore case when looking for matching text
      *
-     * @param dataTablesOnly True if only the data tables, and not references in the internal tables,
-     *                       are to be searched
+     * @param dataTablesOnly True if only the data tables, and not references in the internal
+     *                       tables, are to be searched
      *
-     * @param searchColumns  String containing the names of columns, separated by commas, to which to
-     *                       constrain a table search
+     * @param searchColumns  String containing the names of columns, separated by commas, to which
+     *                       to constrain a table search
      *
      * @return Search results list containing object arrays providing each match's location in the
      *         database tables or event log, the column within the location, and an extract for the
@@ -156,8 +152,7 @@ public class CcddSearchHandler extends CcddDialogHandler
         // Initialize the list to contain the search results
         List<Object[]> resultsDataList = new ArrayList<Object[]>();
 
-        // Set the search type based on the dialog type and, for a table search, the
-        // state of the
+        // Set the search type based on the dialog type and, for a table search, the state of the
         // 'data tables only' check box
         String searchType = searchDlgType == SearchDialogType.TABLES ? (dataTablesOnly ? SearchType.DATA.toString()
                                                                                        : SearchType.ALL.toString())
@@ -177,8 +172,7 @@ public class CcddSearchHandler extends CcddDialogHandler
             // Split the found item into table, column, description, and context
             String[] tblColDescAndCntxt = hit.split(TABLE_DESCRIPTION_SEPARATOR, 4);
 
-            // Create a reference to the search result's column name to shorten comparisons
-            // below
+            // Create a reference to the search result's column name to shorten comparisons below
             String hitColumnName = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
 
             // Check that the column isn't the primary key or row index
@@ -191,15 +185,12 @@ public class CcddSearchHandler extends CcddDialogHandler
                 String hitTableComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
                 String hitContext = tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()];
 
-                // Separate the table comment into the viewable table name and table type, or
-                // for
+                // Separate the table comment into the viewable table name and table type, or for
                 // scripts the script name and description
                 String[] nameAndType = hitTableComment.split(",");
 
-                // Split the row in which the match is found into its separate columns,
-                // accounting
-                // for quotes around the comma separated column values (i.e., ignore commas
-                // within
+                // Split the row in which the match is found into its separate columns, accounting
+                // for quotes around the comma separated column values (i.e., ignore commas within
                 // quotes)
                 String[] columnValue = CcddUtilities.splitAndRemoveQuotes(hitContext);
 
@@ -683,8 +674,7 @@ public class CcddSearchHandler extends CcddDialogHandler
 
         try
         {
-            // Open a file stream on the event log file and then get a channel from the
-            // stream
+            // Open a file stream on the event log file and then get a channel from the stream
             FileInputStream fis = new FileInputStream(eventLog.getEventLogFile());
             FileChannel fc = fis.getChannel();
 
@@ -744,9 +734,7 @@ public class CcddSearchHandler extends CcddDialogHandler
             fc.close();
             fis.close();
         }
-        catch (
-            IOException ioe
-        )
+        catch (IOException ioe)
         {
             // Inform the user that an error occurred reading the log
             new CcddDialogHandler().showMessageDialog(this, "<html><b>Cannot read event log file", "Log Error",
@@ -758,15 +746,15 @@ public class CcddSearchHandler extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Sort the search results by the first (target) column, and if the same then by second (location)
-     * column. Array variable member references in the location column are arranged by array dimension
-     * value
+     * Sort the search results by the first (target) column, and if the same then by second
+     * (location) column. Array variable member references in the location column are arranged by
+     * array dimension value
      *
      * @param resultsDataList List containing the sorted search results
      *
      * @return Search results sorted by the first (target) column, and if the same then by second
-     *         (location) column. Array variable member references in the location column are arranged
-     *         by array dimension value
+     *         (location) column. Array variable member references in the location column are
+     *         arranged by array dimension value
      *********************************************************************************************/
     private List<Object[]> sortSearchResults(List<Object[]> resultsDataList)
     {
@@ -774,8 +762,8 @@ public class CcddSearchHandler extends CcddDialogHandler
         Collections.sort(resultsDataList, new Comparator<Object[]>()
         {
             /**************************************************************************************
-             * Compare the target names of two search result rows. If the same compare the locations. Move the
-             * tables to the top. Ignore case when comparing
+             * Compare the target names of two search result rows. If the same compare the
+             * locations. Move the tables to the top. Ignore case when comparing
              *************************************************************************************/
             @Override
             public int compare(Object[] entry1, Object[] entry2)
@@ -843,8 +831,8 @@ public class CcddSearchHandler extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Remove data type or macro search references where the match occurs in an array size column of an
-     * array member (the reference in the array's definition is all that's needed)
+     * Remove data type or macro search references where the match occurs in an array size column
+     * of an array member (the reference in the array's definition is all that's needed)
      *
      * @param matches      List containing the search results for the data type or macro reference
      *
@@ -852,17 +840,14 @@ public class CcddSearchHandler extends CcddDialogHandler
      *********************************************************************************************/
     protected static void removeArrayMemberReferences(List<String> matches, CcddTableTypeHandler tblTypeHndlr)
     {
-        // Step through each match (in reverse since an entry in the list may need to be
-        // removed)
+        // Step through each match (in reverse since an entry in the list may need to be removed)
         for (int index = matches.size() - 1; index >= 0; index--)
         {
             // Separate the match components
             String[] tblColDescAndCntxt = matches.get(index).split(TABLE_DESCRIPTION_SEPARATOR, 4);
 
-            // Check if the comment portion isn't empty. The comment contains the table's
-            // visible
-            // name and type for a data table, but is empty for a custom values table
-            // reference
+            // Check if the comment portion isn't empty. The comment contains the table's visible
+            // name and type for a data table, but is empty for a custom values table reference
             if (!tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].isEmpty())
             {
                 // Separate the user-viewable table name and table type
@@ -875,8 +860,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                 String refL = typeDefn.getDbColumnNameByInputType(DefaultInputType.ARRAY_INDEX);
                 String refR = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
 
-                // For some reason there is a null for one of these columns
-                // Return
+                // For some reason there is a null for one of these columns Return
                 if (refL == null || refR == null)
                 {
                     return;
@@ -906,25 +890,26 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Create the match pattern from the search criteria. If the allow regular flag is set then the
      * search string is used as is. If the allow regular expression flag isn't set then a wild card
-     * match is enabled. A custom matching system is used: a question mark matches a single character
-     * and an asterisk matches one or more characters. This is turned into a regular expression to
-     * perform the actual match
+     * match is enabled. A custom matching system is used: a question mark matches a single
+     * character and an asterisk matches one or more characters. This is turned into a regular
+     * expression to perform the actual match
      *
      * Get the regular expression search pattern based on the input criteria
      *
      * @param searchText Reference to the table cell renderer component
      *
-     * @param ignoreCase True if the search is case insensitive and the search pattern is not used by
-     *                   the PostgreSQL search_atables() function (must be false for this case; the case
-     *                   insensitive flag is provided directly to the function instead of being included
-     *                   in the matching string)
+     * @param ignoreCase True if the search is case insensitive and the search pattern is not used
+     *                   by the PostgreSQL search_atables() function (must be false for this case;
+     *                   the case insensitive flag is provided directly to the function instead of
+     *                   being included in the matching string)
      *
      * @param allowRegEx True if the search text can contain a regular expression
      *
-     * @param parent     GUI component over which to center any error dialog; null to not display an
-     *                   error dialog if the search pattern is invalid
+     * @param parent     GUI component over which to center any error dialog; null to not display
+     *                   an error dialog if the search pattern is invalid
      *
-     * @return Compiled regular expression search pattern; null if the regular expression is invalid
+     * @return Compiled regular expression search pattern; null if the regular expression is
+     *         invalid
      *********************************************************************************************/
     protected static Pattern createSearchPattern(String searchText, boolean ignoreCase, boolean allowRegEx,
                                                  Component parent)
@@ -934,12 +919,9 @@ public class CcddSearchHandler extends CcddDialogHandler
         try
         {
             // Create the match pattern from the search criteria. First the reserved regular
-            // expression characters are escaped, other than the asterisk and question mark;
-            // these
-            // are then replaced with their corresponding regular expression (while
-            // protecting any
-            // escaped instances of the asterisks and question marks by temporarily
-            // replacing these
+            // expression characters are escaped, other than the asterisk and question mark; these
+            // are then replaced with their corresponding regular expression (while protecting any
+            // escaped instances of the asterisks and question marks by temporarily replacing these
             // with a marker)
             searchPattern = Pattern
                     .compile("(?" + (ignoreCase ? "i" : "") + ":"
@@ -953,9 +935,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                    .replaceAll(WILD_CARD_MARKER, "\\\\*"))
                              + ")");
         }
-        catch (
-            PatternSyntaxException pse
-        )
+        catch (PatternSyntaxException pse)
         {
             // Check if an error dialog should be displayed
             if (parent != null)
@@ -968,9 +948,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                           DialogOption.OK_OPTION);
             }
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             CcddUtilities.displayException(e, parent);
         }

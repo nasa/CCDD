@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddFieldHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling the data field editor.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddFieldHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling the data field editor.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
@@ -209,8 +205,8 @@ public class CcddFieldHandler
                 InputType inputType = inputTypeHandler
                         .getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
 
-                // Get the applicability type from its name. The all tables applicability type
-                // is the default if the applicability type name is invalid
+                // Get the applicability type from its name. The all tables applicability type is
+                // the default if the applicability type name is invalid
                 ApplicabilityType applicability = ApplicabilityType.ALL;
                 String applicabilityName = fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString();
 
@@ -440,27 +436,31 @@ public class CcddFieldHandler
     protected List<List<FieldInformation>> getGroupFieldInformationAsListOfArrays()
     {
         List<FieldInformation> groupFieldInfo = getGroupFieldInformation();
-        List<List<FieldInformation>> Test = new ArrayList<List<FieldInformation>>();
-        List<FieldInformation> tempField = new ArrayList<FieldInformation>();
-        String groupName = groupFieldInfo.get(0).getOwnerName();
+        List<List<FieldInformation>> allGroups = new ArrayList<List<FieldInformation>>();
 
-        // Step through each data field
-        for (FieldInformation fieldInfo : groupFieldInfo)
+        if (groupFieldInfo.size() != 0)
         {
-            if (groupName.contentEquals(fieldInfo.getOwnerName()))
+            List<FieldInformation> tempField = new ArrayList<FieldInformation>();
+            String groupName = groupFieldInfo.get(0).getOwnerName();
+
+            // Step through each data field
+            for (FieldInformation fieldInfo : groupFieldInfo)
             {
-                tempField.add(fieldInfo);
-            }
-            else
-            {
-                Test.add(tempField);
-                tempField = new ArrayList<FieldInformation>();
-                tempField.add(fieldInfo);
-                groupName = fieldInfo.getOwnerName();
+                if (groupName.contentEquals(fieldInfo.getOwnerName()))
+                {
+                    tempField.add(fieldInfo);
+                }
+                else
+                {
+                    allGroups.add(tempField);
+                    tempField = new ArrayList<FieldInformation>();
+                    tempField.add(fieldInfo);
+                    groupName = fieldInfo.getOwnerName();
+                }
             }
         }
 
-        return Test;
+        return allGroups;
     }
 
     /**********************************************************************************************
@@ -567,16 +567,14 @@ public class CcddFieldHandler
                                      || ownerName.startsWith(GROUP_DATA_FIELD_IDENT)
                                      || ownerName.startsWith(PROJECT_DATA_FIELD_IDENT);
 
-        // Check if the owner is a table type, group, project, or child structure (the
-        // owner name
+        // Check if the owner is a table type, group, project, or child structure (the owner name
         // includes a data type & variable name)
         if (isTypeGroupProject || ownerName.contains("."))
         {
             // Set the flag to indicate the owner isn't a root structure
             isRootStruct = false;
         }
-        // The owner is a prototype or root table. Check if the root structure status is
-        // unknown
+        // The owner is a prototype or root table. Check if the root structure status is unknown
         else if (isRootStruct == null)
         {
             // Set the flag that indicates if the owner is a root structure
@@ -850,13 +848,11 @@ public class CcddFieldHandler
     {
         boolean isUpdate = false;
 
-        // Get the reference to the field information for the specified owner/field
-        // combination
+        // Get the reference to the field information for the specified owner/field combination
         FieldInformation fieldInfo = getFieldInformationByName(updateInfo.getOwnerName(),
                                                                updateInfo.getFieldName());
 
-        // Check if the owner/field combination exists and if the field differs from the
-        // updated
+        // Check if the owner/field combination exists and if the field differs from the updated
         // one
         if (fieldInfo != null
             && (!fieldInfo.getDescription().equals(updateInfo.getDescription())
@@ -871,8 +867,7 @@ public class CcddFieldHandler
             // Remove the existing field from the list
             fieldInformation.remove(fieldInfo);
 
-            // Add the updated field information to the list at the same position as the old
-            // field
+            // Add the updated field information to the list at the same position as the old field
             fieldInformation.add(index, updateInfo);
 
             // Set the flag to indicate a match exists
@@ -891,8 +886,8 @@ public class CcddFieldHandler
      *
      * @param fieldInformationList List of data field information to search
      *
-     * @param tablePath            Name of the table (including the path if this table represents
-     *                             a structure) for the table owning the field
+     * @param tablePath            Name of the table (including the path if this table represents a
+     *                             structure) for the table owning the field
      *
      * @param typeFldInfo          Reference to the table type data field
      *********************************************************************************************/
@@ -908,8 +903,7 @@ public class CcddFieldHandler
         // Check if the table doesn't have the inheritable field
         if (tableFldInfo == null)
         {
-            // Check if the table isn't a child structure (all fields are stored for
-            // prototypes,
+            // Check if the table isn't a child structure (all fields are stored for prototypes,
             // even if not displayed) or the field is applicable to this child table
             if (!tablePath.contains(".")
                 || isFieldApplicable(tablePath, typeFldInfo.getApplicabilityType().getApplicabilityName(), null))
@@ -998,8 +992,7 @@ public class CcddFieldHandler
                 // Alter the field name
                 matchName += "_";
             } while (getFieldInformationByName(fieldInformationList, ownerName, matchName) != null);
-            // Continue to update the field's name until there's no match with one of the
-            // owner's
+            // Continue to update the field's name until there's no match with one of the owner's
             // other fields
 
             // Replace the field's name with the altered one

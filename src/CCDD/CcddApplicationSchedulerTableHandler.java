@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddApplicationSchedulerTableHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling CFS application scheduler table output.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddApplicationSchedulerTableHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling CFS application scheduler table output.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.util.ArrayList;
@@ -279,8 +275,8 @@ public class CcddApplicationSchedulerTableHandler
     }
 
     /**********************************************************************************************
-     * Get the time slots and validate the time slot data. Invalid time slot entries are removed from
-     * the list
+     * Get the time slots and validate the time slot data. Invalid time slot entries are removed
+     * from the list
      *
      * @return List of valid time slots
      *********************************************************************************************/
@@ -292,8 +288,8 @@ public class CcddApplicationSchedulerTableHandler
     }
 
     /**********************************************************************************************
-     * Validate the application scheduler table and remove from the list of messages any application
-     * that is invalid
+     * Validate the application scheduler table and remove from the list of messages any
+     * application that is invalid
      *
      * @param applications List of applications in the time slots
      *
@@ -315,15 +311,16 @@ public class CcddApplicationSchedulerTableHandler
         {
             // Inform the user that invalid entries exist
             ccddMain.getSessionEventLog()
-                    .logFailEvent(ccddMain.getMainFrame(), "Application Error",
+                    .logFailEvent(ccddMain.getMainFrame(),
+                                  "Application Error",
                                   "Invalid " + type + " detected; " + numInvalid + " removed",
                                   "<html><b>Invalid " + type + " detected; " + numInvalid + " removed");
         }
     }
 
     /**********************************************************************************************
-     * Check all the stored application information for inconsistencies. Update or flag the application
-     * for removal if any changes are found
+     * Check all the stored application information for inconsistencies. Update or flag the
+     * application for removal if any changes are found
      *
      * @return List of invalid applications
      *********************************************************************************************/
@@ -372,9 +369,8 @@ public class CcddApplicationSchedulerTableHandler
                         isValid = true;
 
                         // Get the run time field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.EXECUTION_TIME.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.EXECUTION_TIME.getFieldName());
 
                         // Check if the application's run time changed
                         if (appInfo != null && Integer.valueOf(appInfo.getValue()) != app.getSize())
@@ -384,9 +380,8 @@ public class CcddApplicationSchedulerTableHandler
                         }
 
                         // Get the execution priority field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.PRIORITY.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.PRIORITY.getFieldName());
 
                         // Check if the application's priority changed
                         if (appInfo != null && Integer.valueOf(appInfo.getValue()) != appData.getPriority())
@@ -396,9 +391,8 @@ public class CcddApplicationSchedulerTableHandler
                         }
 
                         // Get the message rate field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.MESSAGE_RATE.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.MESSAGE_RATE.getFieldName());
 
                         // Check if the application's message rate changed
                         if (appInfo != null && Integer.valueOf(appInfo.getValue()) != appData.getMessageRate())
@@ -408,9 +402,8 @@ public class CcddApplicationSchedulerTableHandler
                         }
 
                         // Get the wake-up message name & ID field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.WAKE_UP_MESSAGE.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.WAKE_UP_MESSAGE.getFieldName());
 
                         // Check if the application's wake-up message name & ID changed
                         if (appInfo != null && !appInfo.getValue().equals(appData.getWakeUpMessage()))
@@ -420,9 +413,8 @@ public class CcddApplicationSchedulerTableHandler
                         }
 
                         // Get the HK send rate field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.HK_SEND_RATE.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.HK_SEND_RATE.getFieldName());
 
                         // Check if the application's HK send rate changed
                         if (appInfo != null && Integer.valueOf(appInfo.getValue()) != appData.getHkSendRate())
@@ -432,9 +424,8 @@ public class CcddApplicationSchedulerTableHandler
                         }
 
                         // Get the HK wake-up message name & ID field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.HK_WAKE_UP_MESSAGE.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.HK_WAKE_UP_MESSAGE.getFieldName());
 
                         // Check if the application's HK wake-up message name & ID changed
                         if (appInfo != null && !appInfo.getValue().equals(appData.getHkWakeUpMessage()))
@@ -444,9 +435,8 @@ public class CcddApplicationSchedulerTableHandler
                         }
 
                         // Get the schedule group field information
-                        appInfo = fieldHandler
-                                .getFieldInformationByName(application,
-                                                           DefaultApplicationField.SCH_GROUP.getFieldName());
+                        appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                         DefaultApplicationField.SCH_GROUP.getFieldName());
 
                         // Check if the application's schedule group changed
                         if (appInfo != null && !appInfo.getValue().equals(appData.getSchGroup()))

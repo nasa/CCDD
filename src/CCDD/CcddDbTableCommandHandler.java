@@ -121,17 +121,16 @@ public class CcddDbTableCommandHandler
     private CcddCommandHandler commandHandler;
     private CcddInputTypeHandler inputTypeHandler;
 
-    // Flag that indicates a variable has been added to a link definition and the
-    // links table should be updated
+    // Flag that indicates a variable has been added to a link definition and the links table
+    // should be updated
     private boolean updateLinks;
 
-    // Flag that indicates that a message name or ID has been added, modified, or
-    // deleted. If this flag is true then the message name & ID list needs to be rebuilt
+    // Flag that indicates that a message name or ID has been added, modified, or deleted. If this
+    // flag is true then the message name & ID list needs to be rebuilt
     private boolean isMsgIDChange;
 
     // Character(s) separating table references in the script associations and telemetry scheduler
-    // tables,
-    // with any special characters escaped so as to be used in a PostgrSQL command
+    // tables, with any special characters escaped so as to be used in a PostgrSQL command
     private final String assnsSeparator;
     private final String tlmSchSeparator;
 
@@ -142,7 +141,7 @@ public class CcddDbTableCommandHandler
     // updated as needed, is used in place of querying for the list as needed
     private List<String> rootStructures;
 
-    // Pre-loaded table members used to speed up filter by group.
+    // Pre-loaded table members used to speed up filter by group
     private List<TableMembers> preLoadedTableMembers;
 
     // Are the default table members currently updating?
@@ -169,8 +168,8 @@ public class CcddDbTableCommandHandler
         eventLog = ccddMain.getSessionEventLog();
         updatingDefaultTableMembers = "Uninitialized";
 
-        // Escape any special characters in the script associations and telemetry
-        // scheduler table separators
+        // Escape any special characters in the script associations and telemetry scheduler table
+        // separators
         assnsSeparator = CcddUtilities.escapePostgreSQLReservedChars(ASSN_TABLE_SEPARATOR);
         tlmSchSeparator = CcddUtilities.escapePostgreSQLReservedChars(TLM_SCH_SEPARATOR);
 
@@ -242,8 +241,8 @@ public class CcddDbTableCommandHandler
                 }
                 // The item does contain $$. A delimiter that doesn't conflict with the text must
                 // be created. This delimiter is in the form $_$ where _ is a single underscore or
-                // upper/lower case letter, or one or more underscores followed by a single
-                // upper or lower case letter
+                // upper/lower case letter, or one or more underscores followed by a single upper
+                // or lower case letter
                 else
                 {
                     String delimInit = "";
@@ -656,7 +655,7 @@ public class CcddDbTableCommandHandler
      * @param parent     GUI component over which to center any error dialog
      *
      * @return Array containing the table name, data type, and variable names for the specified
-     *         table
+     *         table type(s)
      *********************************************************************************************/
     protected String[] queryDataTypeAndVariablesTypeList(String tableTypes, Component parent)
     {
@@ -1582,7 +1581,7 @@ public class CcddDbTableCommandHandler
                 protected void execute()
                 {
                     // Delete the table(s)
-                    errorFlag = deleteTable(tableNames, dialog, parent);
+                    errorFlag = deleteTable(tableNames, dialog != null, parent);
                 }
 
                 /**********************************************************************************
@@ -1607,16 +1606,16 @@ public class CcddDbTableCommandHandler
      * database, all references to the table are deleted from the custom values table, and any open
      * editors for tables of this prototype are closed
      *
-     * @param tableNames Array of names of the tables to delete
+     * @param tableNames  Array of names of the tables to delete
      *
-     * @param dialog     Reference to the table manager dialog calling this method; null if not
-     *                   called by the table manager
+     * @param isDataTable true is the tables to be deleted are data tables; false if the tables
+     *                    are scripts or internal tables
      *
-     * @param parent     GUI component over which to center any error dialog
+     * @param parent      GUI component over which to center any error dialog
      *
      * @return true if an error occurred when deleting a table
      *********************************************************************************************/
-    protected boolean deleteTable(String[] tableNames, CcddTableManagerDialog dialog, Component parent)
+    protected boolean deleteTable(String[] tableNames, boolean isDataTable, Component parent)
     {
         boolean errorFlag = false;
 
@@ -1625,13 +1624,11 @@ public class CcddDbTableCommandHandler
 
         try
         {
-            // Build the command and delete the table(s). If the table manager called this method
-            // (dialog isn't null) then these are data tables
-            dbCommand.executeDbUpdate(new StringBuilder(deleteTableCommand(tableNames, dialog != null)), parent);
+            // Build the command and delete the table(s)
+            dbCommand.executeDbUpdate(new StringBuilder(deleteTableCommand(tableNames, isDataTable)), parent);
 
-            // Check if the deletion is for a data table. If the table manager called this method
-            // (dialog isn't null) then these are data tables
-            if (dialog != null)
+            // Check if the deletion is for a data table
+            if (isDataTable)
             {
                 // Execute the command to reset the rate for links that no longer contain any
                 // variables
@@ -1643,7 +1640,6 @@ public class CcddDbTableCommandHandler
 
             // Update the table tree information
             updateTableTree();
-
         }
         catch (SQLException se)
         {
@@ -1667,7 +1663,7 @@ public class CcddDbTableCommandHandler
      *
      * @param tableNames  Array of names of the tables to delete
      *
-     * @param isDataTable True if the table(s) to be deleted are data tables; false if the tables
+     * @param isDataTable true if the table(s) to be deleted are data tables; false if the tables
      *                    are scripts or internal tables
      *
      * @return Command to delete one or more prototype or script tables
@@ -1688,6 +1684,7 @@ public class CcddDbTableCommandHandler
         {
             command.setLength(command.length() - 1);
         }
+
         command.append(" CASCADE");
 
         // Check if these are data tables
@@ -1729,10 +1726,8 @@ public class CcddDbTableCommandHandler
                         .append(",)?").append(name).append("(?:(?:,|\\\\.)").append(PATH_IDENT).append(")?$'");
             }
 
-            // Replace the column 1 name placeholder with the table's column 1 name, then
-            // add the
-            // update string to the command. In the telemetry scheduler table the table
-            // names are
+            // Replace the column 1 name placeholder with the table's column 1 name, then add the
+            // update string to the command. In the telemetry scheduler table the table names are
             // preceded by the rate value and a separator which must be skipped
             valuesDelCmd.append(infoCmd.toString().replaceAll("col1", ValuesColumn.TABLE_PATH.getColumnName()));
             linksDelCmd.append(infoCmd.toString().replaceAll("col1", LinksColumn.MEMBER.getColumnName()));
@@ -1748,7 +1743,8 @@ public class CcddDbTableCommandHandler
                     .append(CcddUtilities.removeTrailer(tlmSchDelCmd, " OR "))
                     .append(CcddUtilities.removeTrailer(groupsDelCmd, " OR "))
                     .append(CcddUtilities.removeTrailer(fieldsDelCmd, " OR "))
-                    .append(CcddUtilities.removeTrailer(ordersDelCmd, " OR ")).append(assnsUpdCmd);
+                    .append(CcddUtilities.removeTrailer(ordersDelCmd, " OR "))
+                    .append(assnsUpdCmd);
         }
 
         command.append(";");
@@ -1900,8 +1896,7 @@ public class CcddDbTableCommandHandler
                         callingEditorDlg.addTablePanes(tableInformation);
                     }
                 }
-                // Check if no table data was loaded due to the table(s) already being open in
-                // an
+                // Check if no table data was loaded due to the table(s) already being open in an
                 // editor
                 else if (tableEditorDlg != null)
                 {
@@ -1963,8 +1958,11 @@ public class CcddDbTableCommandHandler
      * @return TableInformation class containing the table data from the database. If the error
      *         flag is set the an error occurred and the data is invalid
      *********************************************************************************************/
-    protected TableInfo loadTableData(String tablePath, boolean loadDescription, boolean loadColumnOrder,
-                                      boolean ignoreErrors, Component parent)
+    protected TableInfo loadTableData(String tablePath,
+                                      boolean loadDescription,
+                                      boolean loadColumnOrder,
+                                      boolean ignoreErrors,
+                                      Component parent)
     {
         // Create an empty table information class
         TableInfo tableInfo = new TableInfo(tablePath);
@@ -2028,8 +2026,8 @@ public class CcddDbTableCommandHandler
                     // order
                     int column = columnNames.indexOf(metaData.getColumnName(index + 1));
 
-                    // Add the column value to the array. Note that the first column's index in
-                    // the database is 1, not 0
+                    // Add the column value to the array. Note that the first column's index in the
+                    // database is 1, not 0
                     columnValues[column] = rowData.getString(index + 1);
 
                     // Check if the value is null
@@ -2053,7 +2051,8 @@ public class CcddDbTableCommandHandler
             rowData.close();
 
             // Create the table information handler for this table
-            tableInfo = new TableInfo(comment[TableCommentIndex.TYPE.ordinal()], tablePath,
+            tableInfo = new TableInfo(comment[TableCommentIndex.TYPE.ordinal()],
+                                      tablePath,
                                       dbRows.toArray(new Object[0][0]),
                                       (loadColumnOrder ? queryColumnOrder(tablePath,
                                                                           comment[TableCommentIndex.TYPE.ordinal()],
@@ -2115,17 +2114,17 @@ public class CcddDbTableCommandHandler
                     {
                         // Get the row index for the referenced variable
                         int row = typeDefn.getRowIndexByColumnValue(tableInfo.getData(),
-                                                                    variableName.substring(varIndex + 1), varNameIndex);
+                                                                    variableName.substring(varIndex + 1),
+                                                                    varNameIndex);
 
                         // Check if the table contains the variable and if the data type of the
                         // variable in the table matches the data type in the path from the custom
                         // values table
-                        if (row != -1 && tableInfo.getData().get(row)[dataTypeIndex]
-                                .equals(variableName.subSequence(variableName.lastIndexOf(",") + 1, varIndex)))
+                        if (row != -1
+                                && tableInfo.getData().get(row)[dataTypeIndex].equals(variableName.subSequence(variableName.lastIndexOf(",") + 1, varIndex)))
                         {
                             // Get the index of the column that will have its data replaced
-                            int column = typeDefn.getColumnIndexByUserName(rowData
-                                    .getString(ValuesColumn.COLUMN_NAME.getColumnName()));
+                            int column = typeDefn.getColumnIndexByUserName(rowData.getString(ValuesColumn.COLUMN_NAME.getColumnName()));
 
                             // Check if the table contains the column
                             if (column != -1)
@@ -2134,8 +2133,7 @@ public class CcddDbTableCommandHandler
                                 if (typeDefn.getInputTypes()[column].getInputFormat() == InputTypeFormat.BOOLEAN)
                                 {
                                     // Store the column value as a boolean
-                                    tableInfo.getData()
-                                            .get(row)[column] = rowData.getString(ValuesColumn.VALUE.getColumnName())
+                                    tableInfo.getData().get(row)[column] = rowData.getString(ValuesColumn.VALUE.getColumnName())
                                                     .equalsIgnoreCase("true") ? true : false;
                                 }
                                 // Not a boolean
@@ -2143,8 +2141,7 @@ public class CcddDbTableCommandHandler
                                 {
                                     // Replace the value in the table with the one from the custom
                                     // values table
-                                    tableInfo.getData().get(row)[column] = rowData
-                                            .getString(ValuesColumn.VALUE.getColumnName());
+                                    tableInfo.getData().get(row)[column] = rowData.getString(ValuesColumn.VALUE.getColumnName());
                                 }
                             }
                         }
@@ -2154,13 +2151,13 @@ public class CcddDbTableCommandHandler
                 rowData.close();
             }
         }
-        catch (
-                SQLException | CCDDException se)
+        catch (SQLException | CCDDException se)
         {
             if (!ignoreErrors)
             {
                 // Inform the user that loading the table failed
-                eventLog.logFailEvent(parent, "Cannot load table '" + tablePath + "'; cause '" + se.getMessage() + "'",
+                eventLog.logFailEvent(parent,
+                                      "Cannot load table '" + tablePath + "'; cause '" + se.getMessage() + "'",
                                       "<html><b>Cannot load table '</b>" + tablePath + "<b>'");
             }
         }
@@ -2245,8 +2242,8 @@ public class CcddDbTableCommandHandler
         // Step through each stream
         for (RateInformation rateInfo : rateHandler.getRateInformation())
         {
-            // Build the string containing the rate name and parameters. The name is placed
-            // within double quotes
+            // Build the string containing the rate name and parameters. The name is placed within
+            // double quotes
             comment += ",\"" + rateInfo.getRateName() + "\",\"" + rateInfo.getStreamName() + "\","
                        + rateInfo.getMaxMsgsPerCycle() + "," + rateInfo.getMaxBytesPerSec();
         }
@@ -2421,19 +2418,16 @@ public class CcddDbTableCommandHandler
                                     else if (result >= 0)
                                     {
                                         // Set the flag indicating that the position of the current
-                                        // variable
-                                        // in the list is located and stop checking the dimension
-                                        // values
+                                        // variable in the list is located and stop checking the
+                                        // dimension values
                                         notFound = false;
                                     }
                                 } while (notFound && addIndex > 0);
                                 // Continue to adjust the insertion index as long as the current
-                                // variable's
-                                // array indices places it prior to the that of the variable at the
-                                // current
-                                // insertion index. The test for addIndex > 0 accounts for the
-                                // possibility
-                                // that array members are missing in the table
+                                // variable's array indices places it prior to the that of the
+                                // variable at the current insertion index. The test for addIndex >
+                                // 0 accounts for the possibility that array members are missing in
+                                // the table
                             }
                         }
 
@@ -2465,8 +2459,8 @@ public class CcddDbTableCommandHandler
 
             rowData.close();
 
-            // Create storage for the tables not added above; i.e., for non-structure tables
-            // and for structure tables containing no rows
+            // Create storage for the tables not added above; i.e., for non-structure tables and
+            // for structure tables containing no rows
             List<TableMembers> newMembers = new ArrayList<TableMembers>();
 
             // Step through the table names
@@ -2498,12 +2492,9 @@ public class CcddDbTableCommandHandler
                     if (tableInfo.getType().equals(TYPE_ENUM) && memberType == TableMemberType.INCLUDE_PRIMITIVES)
                     {
                         // If this table is of type enum the var names must be added to a list
-                        // before
-                        // adding this table to the newMembers list. For each var name a blank
-                        // entry is
-                        // added to data type, rates and bit lengths. They do not apply to enums,
-                        // but
-                        // the lists need to be the same size regardless
+                        // before adding this table to the newMembers list. For each var name a
+                        // blank entry is added to data type, rates and bit lengths. They do not
+                        // apply to enums, but the lists need to be the same size regardless
                         List<String> EnumBitLenths = new ArrayList<String>();
                         List<String> EnumDataTypes = new ArrayList<String>();
                         List<String[]> EnumRates = new ArrayList<String[]>();
@@ -2527,8 +2518,7 @@ public class CcddDbTableCommandHandler
                         String[] comment = getTableComment(tableName, comments);
 
                         // Add the table to the member list with empty data type, variable name,
-                        // bit
-                        // length, and rate lists
+                        // bit length, and rate lists
                         newMembers.add(new TableMembers(tableName, comment[TableCommentIndex.TYPE.ordinal()],
                                                         EnumDataTypes, EnumVarNames, EnumBitLenths, EnumRates));
                     }
@@ -2538,8 +2528,7 @@ public class CcddDbTableCommandHandler
                         String[] comment = getTableComment(tableName, comments);
 
                         // Add the table to the member list with empty data type, variable name,
-                        // bit
-                        // length, and rate lists
+                        // bit length, and rate lists
                         newMembers.add(new TableMembers(tableName, comment[TableCommentIndex.TYPE.ordinal()],
                                                         new ArrayList<String>(), new ArrayList<String>(),
                                                         new ArrayList<String>(), new ArrayList<String[]>()));
@@ -2567,7 +2556,8 @@ public class CcddDbTableCommandHandler
         catch (SQLException se)
         {
             // Inform the user that loading the table members failed
-            eventLog.logFailEvent(parent, "Cannot load table members; cause '" + se.getMessage() + "'",
+            eventLog.logFailEvent(parent,
+                                  "Cannot load table members; cause '" + se.getMessage() + "'",
                                   "<html><b>Cannot load table members");
             tableMembers = null;
         }
@@ -2617,12 +2607,17 @@ public class CcddDbTableCommandHandler
      *
      * @param parent             GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected void modifyTableDataInBackground(final TableInfo tableInfo, final List<TableModification> additions,
+    protected void modifyTableDataInBackground(final TableInfo tableInfo,
+                                               final List<TableModification> additions,
                                                final List<TableModification> modifications,
-                                               final List<TableModification> deletions, final boolean forceUpdate,
-                                               final boolean skipInternalTables, final boolean updateDescription,
-                                               final boolean updateColumnOrder, final boolean updateFieldInfo,
-                                               final CcddDataTypeHandler newDataTypeHandler, final Component parent)
+                                               final List<TableModification> deletions,
+                                               final boolean forceUpdate,
+                                               final boolean skipInternalTables,
+                                               final boolean updateDescription,
+                                               final boolean updateColumnOrder,
+                                               final boolean updateFieldInfo,
+                                               final CcddDataTypeHandler newDataTypeHandler,
+                                               final Component parent)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -2787,8 +2782,8 @@ public class CcddDbTableCommandHandler
                 }
             }
             // Check if the table represents a command and if there are any modifications or
-            // deletions (additions won't change the values in table cells or data fields with
-            // the command reference input type)
+            // deletions (additions won't change the values in table cells or data fields with the
+            // command reference input type)
             else if (typeDefinition.isCommand() && (!modifications.isEmpty() || !deletions.isEmpty()))
             {
                 // Get the references in the table type and data field internal tables that use the
@@ -2822,14 +2817,11 @@ public class CcddDbTableCommandHandler
             // changes to the fields table
             boolean commandExecuted = false;
 
-            StringBuilder command = new StringBuilder((updateFieldInfo
-                                                                       ? modifyFieldsCommand(tableInfo.getTablePath(), tableInfo.getFieldInformation())
+            StringBuilder command = new StringBuilder((updateFieldInfo ? modifyFieldsCommand(tableInfo.getTablePath(), tableInfo.getFieldInformation())
                                                                        : "")
-                                                      + (updateDescription
-                                                                           ? buildTableDescription(tableInfo.getTablePath(), description)
+                                                      + (updateDescription ? buildTableDescription(tableInfo.getTablePath(), description)
                                                                            : "")
-                                                      + (updateColumnOrder
-                                                                           ? buildColumnOrder(tableInfo.getTablePath(),
+                                                      + (updateColumnOrder ? buildColumnOrder(tableInfo.getTablePath(),
                                                                                               tableInfo.getColumnOrder())
                                                                            : "")
                                                       + modifyInternalFieldsTable(additions));
@@ -2846,7 +2838,8 @@ public class CcddDbTableCommandHandler
             // ID value is changed
             if (!deletions.isEmpty())
             {
-                if (buildAndExecuteDeletionCommand(tableInfo, deletions,
+                if (buildAndExecuteDeletionCommand(tableInfo,
+                                                   deletions,
                                                    dbTableName,
                                                    typeDefinition,
                                                    skipInternalTables,
@@ -2992,104 +2985,101 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Update the data fields of any sub-tables that were altered due to the modified tables
      *
-     * @param datatype     DataType of the tableMod
+     * @param structDatatype Data type of the table modification
      *
-     * @param tableMod     Data for the table modification
+     * @param tableMod       Data for the table modification
      *
-     * @param variablePath The path of the variable that was modified
+     * @param variablePath   The path of the variable that was modified
      *
-     * @param ignoreErrors Should errors be ignored
+     * @param ignoreErrors   true if errors should be ignored
+     *
+     * @param parent         GUI component over which to center any error dialog
      *
      * @return String representing the command that was built to modify the data fields
      *********************************************************************************************/
-    private String UpdateSubTableDataFields(String dataType,
+    private String UpdateSubTableDataFields(String structDataType,
                                             String variablePath,
                                             TableModification tableMod,
-                                            boolean ignoreErrors)
+                                            boolean ignoreErrors,
+                                            Component parent)
     {
         StringBuilder command = new StringBuilder();
-        boolean skipTable = false;
 
-        try
+        if (structDataType != null && !structDataType.isEmpty())
         {
-            if (dataType != null && !dataType.isEmpty())
+            // Load the structure table
+            TableInfo subTableInfo = loadTableData(structDataType, false, false, true, parent);
+
+            // Check if the table failed to load (i.e., doesn't exist)
+            if (subTableInfo.isErrorFlag())
             {
-                TableInfo subTableInfo = loadTableData(dataType, false, false, ignoreErrors, null);
-                if (subTableInfo.getType() == null || subTableInfo.getData() == null)
+                if (!ignoreErrors)
                 {
-                    if (!ignoreErrors)
-                    {
-                        throw new CCDDException("Type \"" + dataType + "\" is not defined in this database.");
-                    }
-                    else
-                    {
-                        skipTable = true;
-                    }
+                    // Inform the user that the structure data type is undefined
+                    eventLog.logFailEvent(parent,
+                                          "Structure data type '" + structDataType + "' in table '" + TableInfo.getParentTable(variablePath) + "' is undefined",
+                                          "<html><b>Structure data type '</b>" + structDataType + "<b>' in table '</b>" + TableInfo
+                                                  .getParentTable(variablePath) + "<b>' is undefined");
                 }
+            }
+            else
+            {
+                List<Object[]> subTableData = subTableInfo.getData();
 
-                if (!skipTable)
+                if (!subTableInfo.getType().contentEquals(TYPE_ENUM))
                 {
-                    List<Object[]> subTableData = subTableInfo.getData();
-
-                    if (!subTableInfo.getType().contentEquals(TYPE_ENUM))
+                    // Step through all of the subTableData
+                    for (int index = 0; index < subTableData.size(); index++)
                     {
-                        // Step through all of the subTableData
-                        for (int index = 0; index < subTableData.size(); index++)
+                        // Check that this variable is either a non-array member or if it is an
+                        // array member that it is not the definition
+                        if ((subTableData.get(index)[tableMod.getArraySizeColumn()].toString().isEmpty())
+                            || (!subTableData.get(index)[tableMod.getArraySizeColumn()].toString().isEmpty()
+                                && subTableData.get(index)[tableMod.getVariableColumn()].toString().endsWith("]")))
                         {
-                            // Check that this variable is either a non-array member or if it is an
-                            // array member that it is not the definition
-                            if ((subTableData.get(index)[tableMod.getArraySizeColumn()].toString().isEmpty())
-                                || (!subTableData.get(index)[tableMod.getArraySizeColumn()].toString().isEmpty()
-                                    && subTableData.get(index)[tableMod.getVariableColumn()].toString().endsWith("]")))
+                            // Get the data type
+                            String subDataType = subTableData.get(index)[tableMod.getDataTypeColumn()].toString();
+
+                            // Check if the data type represents a structure
+                            if (!dataTypeHandler.isPrimitive(subDataType))
                             {
-                                // Get the data type
-                                String subDataType = subTableData.get(index)[tableMod.getDataTypeColumn()].toString();
+                                // Get the variable name
+                                String subVariableName = subTableData.get(index)[tableMod.getVariableColumn()].toString();
 
-                                // Check if the data type represents a structure
-                                if (!dataTypeHandler.isPrimitive(subDataType))
+                                // Get the variable path
+                                String subVariablePath = variablePath + "," + subDataType + "." + subVariableName;
+
+                                // Check to see if this is an array definition. If so do not add
+                                // its data to the internal fields table
+                                if (tableMod.getRowData()[tableMod.getArraySizeColumn()].equals("")
+                                    || variablePath.endsWith("]"))
                                 {
-                                    // Get the variable name
-                                    String subVariableName = subTableData.get(index)[tableMod.getVariableColumn()].toString();
-
-                                    // Get the variable path
-                                    String subVariablePath = variablePath + "," + subDataType + "." + subVariableName;
-
-                                    // Check to see if this is an array definition. If so do not
-                                    // add its data to the internal fields table
-                                    if (tableMod.getRowData()[tableMod.getArraySizeColumn()].equals("")
-                                        || variablePath.endsWith("]"))
-                                    {
-                                        // Now build the command to update this tables data fields
-                                        command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName())
-                                                .append(" SELECT regexp_replace(")
-                                                .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^")
-                                                .append(dataType).append("$', E'").append(subVariablePath)
-                                                .append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_DESC.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_REQUIRED.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName())
-                                                .append(", ").append(FieldsColumn.FIELD_INHERITED.getColumnName())
-                                                .append(" FROM ").append(InternalTable.FIELDS.getTableName())
-                                                .append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName())
-                                                .append(" = '").append(dataType).append("' AND ")
-                                                .append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
-                                                .append(" != '")
-                                                .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName())
-                                                .append("' ORDER BY OID; ");
-                                    }
+                                    // Now build the command to update this tables data fields
+                                    command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName())
+                                            .append(" SELECT regexp_replace(")
+                                            .append(FieldsColumn.OWNER_NAME.getColumnName()).append(", E'^")
+                                            .append(structDataType).append("$', E'").append(subVariablePath)
+                                            .append("'), ").append(FieldsColumn.FIELD_NAME.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_DESC.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_SIZE.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_REQUIRED.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_VALUE.getColumnName())
+                                            .append(", ").append(FieldsColumn.FIELD_INHERITED.getColumnName())
+                                            .append(" FROM ").append(InternalTable.FIELDS.getTableName())
+                                            .append(" WHERE ").append(FieldsColumn.OWNER_NAME.getColumnName())
+                                            .append(" = '").append(structDataType).append("' AND ")
+                                            .append(FieldsColumn.FIELD_APPLICABILITY.getColumnName())
+                                            .append(" != '")
+                                            .append(ApplicabilityType.ROOT_ONLY.getApplicabilityName())
+                                            .append("' ORDER BY OID; ");
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
         }
 
         return command.toString();
@@ -3104,16 +3094,20 @@ public class CcddDbTableCommandHandler
      *
      * @param dataTypeChanged Data type was changed from one primitive to another
      *
-     * @param ignoreErrors    Should errors be ignored
+     * @param ignoreErrors    true if errors should be ignored
+     *
+     * @param parent          GUI component over which to center any error dialog
      *
      * @return String representing the command that was built to modify the data fields
      *********************************************************************************************/
     private String BuildReferencedVariablesDataFieldsCmd(TableInfo tableInfo,
                                                          TableModification mod,
                                                          boolean dataTypeChanged,
-                                                         boolean ignoreErrors)
+                                                         boolean ignoreErrors,
+                                                         Component parent)
     {
         StringBuilder command = new StringBuilder();
+
         if ((mod.getArraySizeColumn() != -1) && (mod.getDataTypeColumn() != -1) && (mod.getVariableColumn() != -1))
         {
             // If this mod represents a new variable that is being added to the table then we need
@@ -3130,7 +3124,7 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            // Check if a match was found meaning this variable already existed in the table.
+            // Check if a match was found meaning this variable already existed in the table
             if ((found == false) || (dataTypeChanged == true))
             {
                 // Get the variable path, including its name and data type
@@ -3219,7 +3213,11 @@ public class CcddDbTableCommandHandler
                     {
                         // Update the data fields of any sub-tables that were altered due to the
                         // modified tables
-                        command.append(UpdateSubTableDataFields(dataType, variablePath, mod, ignoreErrors));
+                        command.append(UpdateSubTableDataFields(dataType,
+                                                                variablePath,
+                                                                mod,
+                                                                ignoreErrors,
+                                                                parent));
                     }
 
                     for (int index = 0; index < newVariablePaths.size(); index++)
@@ -3267,8 +3265,9 @@ public class CcddDbTableCommandHandler
      *
      * @param ignoreErrors       Should errors be ignored
      *
+     * @param parent             GUI component over which to center any error dialog
+     *
      * @return Table row addition command
-     * @throws CCDDException if the data type to add is not currently in the database
      *********************************************************************************************/
     private boolean buildAndExecuteAdditionCommand(TableInfo tableInfo,
                                                    List<TableModification> additions,
@@ -3276,7 +3275,7 @@ public class CcddDbTableCommandHandler
                                                    TypeDefinition typeDefn,
                                                    boolean skipInternalTables,
                                                    boolean ignoreErrors,
-                                                   Component parent) throws CCDDException
+                                                   Component parent)
     {
         // Various local variables
         ResultSet queryResult;
@@ -3291,14 +3290,15 @@ public class CcddDbTableCommandHandler
         StringBuilder linksDelCmd = new StringBuilder("");
         StringBuilder tlmDelCmd = new StringBuilder("");
 
-        // Retrieve the largest key value in the database for this particular table and then
-        // add 1 to it. This will be the value used for the next insertion to keep them unique
+        // Retrieve the largest key value in the database for this particular table and then add 1
+        // to it. This will be the value used for the next insertion to keep them unique
         try
         {
             StringBuilder queryCmd = new StringBuilder();
             queryCmd.append("SELECT _key_ FROM ").append(dbTableName).append(" WHERE _key_ = (SELECT MAX(_key_) FROM ")
                     .append(dbTableName).append(");");
             queryResult = dbCommand.executeDbQuery(queryCmd, ccddMain.getMainFrame());
+
             if (queryResult.next())
             {
                 nextKeyValue = queryResult.getInt(1) + 1;
@@ -3306,7 +3306,7 @@ public class CcddDbTableCommandHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            CcddUtilities.displayException(e, parent);
         }
 
         // Create the insert table data command. The array of column names is converted to a string
@@ -3352,9 +3352,13 @@ public class CcddDbTableCommandHandler
                     // Check to see if this is an array definition. If so do not add its data to
                     // the internal fields table. If not update any tables that reference this
                     // prototype
-                    if (((add.getRowData()[add.getArraySizeColumn()].equals("")) || (newVariablePath.endsWith("]"))))
+                    if ((add.getRowData()[add.getArraySizeColumn()].equals("")) || (newVariablePath.endsWith("]")))
                     {
-                        fieldsAddCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, add, false, ignoreErrors));
+                        fieldsAddCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo,
+                                                                                  add,
+                                                                                  false,
+                                                                                  ignoreErrors,
+                                                                                  parent));
                     }
 
                     // Check if this structure data type is currently a root table (i.e., it's
@@ -3453,6 +3457,7 @@ public class CcddDbTableCommandHandler
                 .append(assnsAddCmd).append(linksDelCmd).append(tlmDelCmd);
 
         boolean result = false;
+
         try
         {
             if (addCmd.length() != 0)
@@ -3462,10 +3467,10 @@ public class CcddDbTableCommandHandler
                 result = true;
             }
         }
-        catch (SQLException e)
+        catch (SQLException se)
         {
             // Inform the user that the database command failed
-            eventLog.logFailEvent(parent, "SQL command failed cause " + e.getMessage() + ".",
+            eventLog.logFailEvent(parent, "SQL command failed cause " + se.getMessage() + ".",
                                   "<html><b>SQL command failed</b>");
         }
 
@@ -3535,8 +3540,8 @@ public class CcddDbTableCommandHandler
             assnsMemberTables[index] = assnsData.get(index)[AssociationsColumn.MEMBERS.ordinal()];
         }
 
-        // Check if no updated data type handler is provided. This implies the modifications
-        // are not due to an update in the data type editor
+        // Check if no updated data type handler is provided. This implies the modifications are
+        // not due to an update in the data type editor
         if (newDataTypeHandler == null)
         {
             // Set the updated data type handler to use the current handler
@@ -3601,8 +3606,8 @@ public class CcddDbTableCommandHandler
                         }
                     }
 
-                    // Set the flags to indicate if the variable name, data type, array size,
-                    // and bit length values have changed
+                    // Set the flags to indicate if the variable name, data type, array size, and
+                    // bit length values have changed
                     boolean variableChanged = !oldVariableName.equals(newVariableName);
                     boolean dataTypeChanged = !oldDataType.equals(newDataType);
                     boolean arraySizeChanged = !oldArraySize.equals(newArraySize);
@@ -3615,8 +3620,8 @@ public class CcddDbTableCommandHandler
                     }
 
                     // Check if the variable name, data type, array size, bit length, or rate
-                    // column value(s) changed; this change must be propagated to the instances
-                    // of this prototype and their entries in the internal tables
+                    // column value(s) changed; this change must be propagated to the instances of
+                    // this prototype and their entries in the internal tables
                     if (variableChanged || dataTypeChanged || arraySizeChanged || bitLengthChanged || rateChanged)
                     {
                         // Get the variable path
@@ -3628,8 +3633,8 @@ public class CcddDbTableCommandHandler
                             && rootStructures.contains(newDataType))
                         {
                             // If the structure chosen as the variable's data type is a root
-                            // structure, then any references in the internal tables are
-                            // changed to the structure's new path as a child
+                            // structure, then any references in the internal tables are changed to
+                            // the structure's new path as a child
                             valuesModCmd.append("UPDATE ").append(InternalTable.VALUES.getTableName()).append(" SET ")
                                     .append(ValuesColumn.TABLE_PATH.getColumnName()).append(" = regexp_replace(")
                                     .append(ValuesColumn.TABLE_PATH.getColumnName())
@@ -3683,15 +3688,15 @@ public class CcddDbTableCommandHandler
                                     .append(newVariablePath).append("\\\\1\\\\3', 'ng'); ");
 
                             // References in the links and telemetry scheduler to the root
-                            // structure and its children are not automatically amended to
-                            // include the new parent structure path, but are instead removed
+                            // structure and its children are not automatically amended to include
+                            // the new parent structure path, but are instead removed
                             deleteLinkPathRef("^" + newDataType + "(?:,|\\\\.|$)", linksDelCmd);
                             deleteTlmPathRef(newDataType + "(?:,|\\\\.|$)", tlmDelCmd);
                         }
 
-                        // Check if the table path list doesn't exist. The list only needs to
-                        // be created once per table since it references the prototype, which
-                        // doesn't change even if multiple modifications are made to the table
+                        // Check if the table path list doesn't exist. The list only needs to be
+                        // created once per table since it references the prototype, which doesn't
+                        // change even if multiple modifications are made to the table
                         if (tablePathList == null)
                         {
                             // Create a list of table path arrays that are instances of this
@@ -3719,6 +3724,7 @@ public class CcddDbTableCommandHandler
                             // Before making all the changes below make sure that we are not
                             // dealing with a shift due to a new row of data being added
                             boolean variableStillExists = false;
+
                             for (int i = 0; i < modifications.size(); i++)
                             {
                                 Object[] rowData = modifications.get(i).getRowData();
@@ -3726,11 +3732,12 @@ public class CcddDbTableCommandHandler
                                 if (variableName.contentEquals(oldVariableName))
                                 {
                                     variableStillExists = true;
+
                                     // We now know that the variable name is the same so check to
                                     // see if the data type and array size is the same
                                     String dataType = (String) rowData[(int) modifications.get(i).getDataTypeColumn()];
-                                    String arraySize = (String) rowData[(int) modifications.get(i)
-                                            .getArraySizeColumn()];
+                                    String arraySize = (String) rowData[(int) modifications.get(i).getArraySizeColumn()];
+
                                     if (dataType.contentEquals(oldDataType) && arraySize.contentEquals(oldArraySize))
                                     {
                                         wasShifted = true;
@@ -3788,6 +3795,7 @@ public class CcddDbTableCommandHandler
                                                                                                  .getColumnName(),
                                                                                          "", "", true));
                                         }
+
                                         String orgPathWithChildren = orgVarPathEsc + "(," + PATH_IDENT + ")?";
 
                                         // The associations table should only be updated if it
@@ -3916,14 +3924,16 @@ public class CcddDbTableCommandHandler
                                              || (newVariablePath.endsWith("]")))
                                             && !rootStructures.contains(newDataType))
                                         {
-                                            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod,
-                                                                                                      true, false));
+                                            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo,
+                                                                                                      mod,
+                                                                                                      true,
+                                                                                                      false,
+                                                                                                      parent));
                                         }
 
                                         ordersModCmd.append("DELETE FROM ").append(InternalTable.ORDERS.getTableName())
                                                 .append(" WHERE ").append(OrdersColumn.TABLE_PATH.getColumnName())
                                                 .append(" ~ E'^").append(pathMatch).append("'; ");
-
                                         String orgPathWithChildren = orgVarPathEsc + "(?:," + PATH_IDENT + ")?";
                                         assnsModCmd.append("UPDATE ").append(InternalTable.ASSOCIATIONS.getTableName())
                                                 .append(" SET ").append(AssociationsColumn.MEMBERS.getColumnName())
@@ -4035,18 +4045,17 @@ public class CcddDbTableCommandHandler
                         catch (Exception e)
                         {
                             // Inform the user that the database command failed
-                            e.printStackTrace();
                             eventLog.logFailEvent(parent, "Building command failed cause " + e.getMessage() + ".",
                                                   "<html><b>SQL command failed</b>");
                         }
 
                         // Check if the variable's name or array size has changed (this is for
-                        // adjusting cells and fields having a variable reference input type;
-                        // data type doesn't affect the variable reference)
+                        // adjusting cells and fields having a variable reference input type; data
+                        // type doesn't affect the variable reference)
                         if (variableChanged || arraySizeChanged)
                         {
-                            // Update any table cells or data fields with the variable
-                            // reference input type containing the renamed variable
+                            // Update any table cells or data fields with the variable reference
+                            // input type containing the renamed variable
                             modifyVariableReference(tableInfo, oldVariableName, newVariableName, oldDataType,
                                                     newDataType, varRefChkResults, valuesModCmd, fieldsModCmd);
                         }
@@ -4072,14 +4081,15 @@ public class CcddDbTableCommandHandler
                     if (!oldCommandName.equals(newCommandName) || !oldCommandCode.equals(newCommandCode)
                         || !oldCommandArg.equals(newCommandArg))
                     {
-                        // Update any table cells or data fields with the command reference
-                        // input type containing the command with a name, code, or names of
-                        // arguments change
+                        // Update any table cells or data fields with the command reference input
+                        // type containing the command with a name, code, or names of arguments
+                        // change
                         modifyCommandReference(tableInfo.getTablePath(), oldCommandName, newCommandName, oldCommandCode,
                                                newCommandCode, oldCommandArg, newCommandArg, cmdRefChkResults,
                                                valuesModCmd, fieldsModCmd);
                     }
                 }
+
                 // Check is a command was created to change the associations table
                 if (assnsModCmd.length() != 0)
                 {
@@ -4092,8 +4102,9 @@ public class CcddDbTableCommandHandler
                             .append(" = regexp_replace(").append(AssociationsColumn.MEMBERS.getColumnName())
                             .append(", E'").append(assnsSeparator).append("$', E'', 'ng'); ");
                 }
-                // Remove the trailing comma and space, then add the condition based on the
-                // row's primary key, and add the commands to update the internal tables
+
+                // Remove the trailing comma and space, then add the condition based on the row's
+                // primary key, and add the commands to update the internal tables
                 modCmd = CcddUtilities.removeTrailer(modCmd, ", ").append(" WHERE ")
                         .append(typeDefn.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]).append(" = ")
                         .append(mod.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]).append("; ");
@@ -4113,16 +4124,16 @@ public class CcddDbTableCommandHandler
                     // Check if the column value changed
                     if (!mod.getOriginalRowData()[column].equals(mod.getRowData()[column]))
                     {
-                        // Build the command to delete the old value in the custom values table
-                        // (in case it already exists), then insert the (new) value into the
-                        // custom values table
+                        // Build the command to delete the old value in the custom values table (in
+                        // case it already exists), then insert the (new) value into the custom
+                        // values table
                         modCmd.append("DELETE FROM ").append(InternalTable.VALUES.getTableName()).append(" WHERE ")
                                 .append(ValuesColumn.TABLE_PATH.getColumnName()).append(" = '").append(variablePath)
                                 .append("' AND ").append(ValuesColumn.COLUMN_NAME.getColumnName()).append(" = '")
                                 .append(typeDefn.getColumnNamesUser()[column]).append("';");
 
-                        // Check if the new value does not begin with the flag that indicates
-                        // the existing custom value should be removed
+                        // Check if the new value does not begin with the flag that indicates the
+                        // existing custom value should be removed
                         if (!mod.getRowData()[column].toString().startsWith(REPLACE_INDICATOR))
                         {
                             modCmd.append(" INSERT INTO ").append(InternalTable.VALUES.getTableName()).append(" (")
@@ -4138,6 +4149,7 @@ public class CcddDbTableCommandHandler
                 // Escape any PostgreSQL reserved characters so that the path can be used in a
                 // regular expression
                 String variablePathEsc = CcddUtilities.escapePostgreSQLReservedChars(variablePath);
+
                 // Step through each rate index
                 for (int rateIndex : mod.getRateColumn())
                 {
@@ -4148,24 +4160,32 @@ public class CcddDbTableCommandHandler
                     // Check if the rate changed
                     if (!oldRate.equals(newRate))
                     {
-                        // Create the commands to delete the variable from the link and
-                        // telemetry scheduler tables
+                        // Create the commands to delete the variable from the link and telemetry
+                        // scheduler tables
                         deleteLinkAndTlmPathRef(mod.getRowData()[mod.getArraySizeColumn()].toString(),
-                                                mod.getRowData()[mod.getVariableColumn()].toString(), variablePath,
-                                                variablePathEsc, linksDelCmd, tlmDelCmd);
+                                                mod.getRowData()[mod.getVariableColumn()].toString(),
+                                                variablePath,
+                                                variablePathEsc,
+                                                linksDelCmd,
+                                                tlmDelCmd);
                         break;
                     }
                 }
             }
 
             // Update the data fields
-            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo, mod, false, false));
+            fieldsModCmd.append(BuildReferencedVariablesDataFieldsCmd(tableInfo,
+                                                                      mod,
+                                                                      false,
+                                                                      false,
+                                                                      parent));
         }
 
         modCmd.append(valuesModCmd).append(groupsModCmd).append(fieldsModCmd).append(ordersModCmd).append(assnsModCmd)
                 .append(linksModCmd).append(tlmModCmd).append(linksDelCmd).append(tlmDelCmd);
 
         boolean result = false;
+
         try
         {
             if (modCmd.length() != 0)
@@ -4182,7 +4202,7 @@ public class CcddDbTableCommandHandler
                                   "<html><b>SQL command failed</b>");
         }
 
-        // Check to see if this is a child table that is being converted to a root table.
+        // Check to see if this is a child table that is being converted to a root table
         if (changedDataTypes.size() != 0)
         {
             result = updateTablesRecentlyConvertedToRoot(changedDataTypes, parent);
@@ -4378,8 +4398,7 @@ public class CcddDbTableCommandHandler
                     .append(typeDefn.getColumnNamesDatabase()[DefaultColumn.PRIMARY_KEY.ordinal()]).append(" = ")
                     .append(del.getRowData()[DefaultColumn.PRIMARY_KEY.ordinal()]).append("; ");
 
-            // Check if the internal tables are to be updated and the table represents a
-            // structure
+            // Check if the internal tables are to be updated and the table represents a structure
             if (!skipInternalTables && typeDefn.isStructure())
             {
                 // Get the variable name, data type, and bit length
@@ -4393,26 +4412,25 @@ public class CcddDbTableCommandHandler
                 // prototype
                 String protoVarPathEsc = CcddUtilities.escapePostgreSQLReservedChars(variablePath);
 
-                // Build the regular expression that matches the variable path in any instance
-                // of the table's prototype
+                // Build the regular expression that matches the variable path in any instance of
+                // the table's prototype
                 String instanceVarPathEsc = ".+," + tableInfo.getPrototypeName() + "\\\\.[^,]*," + dataType + "\\\\."
                                             + CcddUtilities.escapePostgreSQLReservedChars(variableName);
 
-                // Append the command to delete any instance of the variable from the custom
-                // values table
+                // Append the command to delete any instance of the variable from the custom values
+                // table
                 valuesDelCmd.append("DELETE FROM ").append(InternalTable.VALUES.getTableName()).append(" WHERE ")
                         .append(ValuesColumn.TABLE_PATH.getColumnName()).append(" ~ E'^").append(protoVarPathEsc)
                         .append("(?:,|:|$)' OR ").append(ValuesColumn.TABLE_PATH.getColumnName()).append(" ~ E'^")
                         .append(instanceVarPathEsc).append("(?:,|:|$)'; ");
 
-                // Append the command to delete the variable from the link and telemetry
-                // scheduler tables for references to the variable in the prototype table
+                // Append the command to delete the variable from the link and telemetry scheduler
+                // tables for references to the variable in the prototype table
                 deleteLinkAndTlmPathRef(del.getRowData()[del.getArraySizeColumn()].toString(), variableName,
                                         variablePath, protoVarPathEsc, linksDelCmd, tlmDelCmd);
 
-                // Append the command to delete the variable from the link and telemetry
-                // scheduler tables for all references to the variable in instances of the
-                // prototype table
+                // Append the command to delete the variable from the link and telemetry scheduler
+                // tables for all references to the variable in instances of the prototype table
                 deleteLinkAndTlmPathRef(del.getRowData()[del.getArraySizeColumn()].toString(), variableName,
                                         variablePath, instanceVarPathEsc, linksDelCmd, tlmDelCmd);
 
@@ -4451,7 +4469,10 @@ public class CcddDbTableCommandHandler
 
                 // Blank any table cells or data fields with the variable reference input type
                 // containing the deleted variable
-                deleteVariableReference(tableInfo.getPrototypeName(), variableName, varRefChkResults, valuesDelCmd,
+                deleteVariableReference(tableInfo.getPrototypeName(),
+                                        variableName,
+                                        varRefChkResults,
+                                        valuesDelCmd,
                                         fieldsDelCmd);
             }
             // Check if this is a command table
@@ -4562,8 +4583,7 @@ public class CcddDbTableCommandHandler
                 }
 
                 // Create the command to update the internal table for instances of array variables
-                // of
-                // the prototype table
+                // of the prototype table
                 command.append("UPDATE ").append(tableName).append(" SET ").append(columnName)
                         .append(" = regexp_replace(").append(columnName).append(", E'^").append(captureIn)
                         .append(orgVariablePath).append((includeChildren ? "(,.*|$)" : "$")).append("', E'")
@@ -4699,8 +4719,7 @@ public class CcddDbTableCommandHandler
         // Step through each variable in the table as is existed prior to the updates
         for (int childIndex = 0; childIndex < orgTableNode.getChildCount(); childIndex++)
         {
-            // Get the indices of all variables bit-packed the variable at the current child
-            // index
+            // Get the indices of all variables bit-packed the variable at the current child index
             BitPackNodeIndex nodeIndex = tableTree
                     .getBitPackedVariables((ToolTipTreeNode) orgTableNode.getChildAt(childIndex));
 
@@ -4792,12 +4811,10 @@ public class CcddDbTableCommandHandler
             addLinkHandler = new CcddLinkHandler(ccddMain, ccddMain.getMainFrame());
         }
 
-        // Get the reference to the link definitions in order to shorten subsequent
-        // calls
+        // Get the reference to the link definitions in order to shorten subsequent calls
         List<String[]> linkDefns = addLinkHandler.getLinkDefinitions();
 
-        // Get the variable name without the string dimension (leaving any other array
-        // dimensions)
+        // Get the variable name without the string dimension (leaving any other array dimensions)
         String stringVarNameDefn = ArrayVariable.removeStringSize(variableName);
 
         // Extract the string dimension value from the variable name, then decrement it by one -
@@ -4950,8 +4967,8 @@ public class CcddDbTableCommandHandler
             // This is an array member
             else
             {
-                // Get the variable path without the array index (this is what appears as the
-                // array definition's path)
+                // Get the variable path without the array index (this is what appears as the array
+                // definition's path)
                 String pathWithoutArrayIndex = variablePath.replaceFirst("(?:\\[[0-9]+\\])?$", "");
 
                 // Step through the list of deleted array definitions
@@ -4973,8 +4990,8 @@ public class CcddDbTableCommandHandler
         // definition, or is an array member that doesn't have its definition already set to delete
         if (isOkayToDelete)
         {
-            // Remove all references to the structure and its children from the links and
-            // telemetry scheduler tables
+            // Remove all references to the structure and its children from the links and telemetry
+            // scheduler tables
             deleteLinkPathRef("^" + variablePathEsc + pathEndRegEx, linksDelCmd);
             deleteTlmPathRef(variablePathEsc + pathEndRegEx, tlmDelCmd);
         }
@@ -5087,8 +5104,8 @@ public class CcddDbTableCommandHandler
                         if (entry.matches(match))
                         {
                             // Remove the data type(s) from the variable path (the variable
-                            // reference input
-                            // type only displays the variable name portion of the path)
+                            // reference input type only displays the variable name portion of the
+                            // path)
                             String targetVar = CcddUtilities.escapePostgreSQLReservedChars(variableHandler
                                     .removeDataTypeFromVariablePath(entry));
 
@@ -5096,8 +5113,7 @@ public class CcddDbTableCommandHandler
                             if (!targetVars.contains((Object) targetVar))
                             {
                                 // Add the before and after variable names to the list for use in
-                                // building
-                                // the modification commands
+                                // building the modification commands
                                 targetVars.add(new String[] {targetVar, variableHandler
                                         .removeDataTypeFromVariablePath(entry
                                                 .replaceFirst(match,
@@ -5303,8 +5319,7 @@ public class CcddDbTableCommandHandler
                                         StringBuilder valuesDelCmd,
                                         StringBuilder fieldsDelCmd)
     {
-        // Append the regular expression needed to include the command code, table, and
-        // number of
+        // Append the regular expression needed to include the command code, table, and number of
         // arguments
         commandName += " \\(.*";
 
@@ -5713,7 +5728,7 @@ public class CcddDbTableCommandHandler
         storeInformationTable(intTable, tableData, null, null, null, tableComment, parent);
 
         // After storing the new information in the internal table make sure that the field handler
-        // is in sync with the current data in the internal table.
+        // is in sync with the current data in the internal table
         if (intTable == InternalTable.FIELDS)
         {
             fieldHandler.buildFieldInformation(parent);
@@ -5955,8 +5970,7 @@ public class CcddDbTableCommandHandler
                 break;
 
             case RESERVED_MSG_IDS:
-                // Check if the store request originated from the reserved message ID editor
-                // dialog
+                // Check if the store request originated from the reserved message ID editor dialog
                 if (parent instanceof CcddReservedMsgIDEditorDialog)
                 {
                     // Perform the reserved message ID store command completion steps
@@ -5966,8 +5980,7 @@ public class CcddDbTableCommandHandler
                 break;
 
             case USERS:
-                // Check if the store request originated from the user access level editor
-                // dialog
+                // Check if the store request originated from the user access level editor dialog
                 if (parent instanceof CcddDbManagerDialog)
                 {
                     // Perform the user access level store command completion steps
@@ -6482,8 +6495,7 @@ public class CcddDbTableCommandHandler
                                    final CcddTableTypeManagerDialog typeDialog,
                                    final Component parent)
     {
-        // Set the flags to indicate if the type represents a structure and a telemetry
-        // structure
+        // Set the flags to indicate if the type represents a structure and a telemetry structure
         final boolean isStructure = typeDefn.isStructure();
         final boolean isTlmStructure = typeDefn.isTelemetryStructure();
 
@@ -6767,8 +6779,8 @@ public class CcddDbTableCommandHandler
             boolean wasStructure = originalDefn != null ? originalDefn.isStructure() : false;
             boolean isStructure = typeDefn.isStructure();
 
-            // Set the flags that indicates if the table type definition represents a command
-            // prior to and after making the updates
+            // Set the flags that indicates if the table type definition represents a command prior
+            // to and after making the updates
             boolean wasCommand = originalDefn != null ? originalDefn.isCommand() : false;
             boolean isCommand = typeDefn.isCommand();
 
@@ -7591,8 +7603,7 @@ public class CcddDbTableCommandHandler
                 // Update the table editor for the input type change
                 editor.updateForInputTypeChange(inputTypeNames);
 
-                // Force the table to repaint to update the highlighting of the changed input
-                // types
+                // Force the table to repaint to update the highlighting of the changed input types
                 editor.getTable().repaint();
             }
         }
@@ -7777,7 +7788,7 @@ public class CcddDbTableCommandHandler
         {
             // Create new data type, macro, and variable size handlers using the updates from the
             // data type editor
-            newDataTypeHandler = new CcddDataTypeHandler(updates);
+            newDataTypeHandler = new CcddDataTypeHandler(updates, ccddMain);
             newMacroHandler = new CcddMacroHandler(ccddMain, ccddMain.getMacroHandler().getMacroData());
             newDataTypeHandler.setMacroHandler(newMacroHandler);
             changeName = "Data types";
@@ -7785,8 +7796,7 @@ public class CcddDbTableCommandHandler
         // This is a macro change
         else
         {
-            // Create new macro and variable size handlers using the updates from the macro
-            // editor
+            // Create new macro and variable size handlers using the updates from the macro editor
             newDataTypeHandler = dataTypeHandler;
             newMacroHandler = new CcddMacroHandler(ccddMain, updates);
             changeName = "Macros";
@@ -7902,6 +7912,7 @@ public class CcddDbTableCommandHandler
                     {
                         newSize = newMacroHandler.getMacroExpansion(newSize);
                     }
+
                     // Set to false if the size increased or the base type changed; keep equal to
                     // true if only the data type name has changed and the size is no larger
                     nameChangeOnly = Integer.valueOf(originalSize) >= Integer.valueOf(newSize)
@@ -8741,8 +8752,8 @@ public class CcddDbTableCommandHandler
         {
             boolean isOfType;
 
-            // Check if the table type matches the one specified. Note that all structure types
-            // are handled as one, as are all command types and all 'other' types
+            // Check if the table type matches the one specified. Note that all structure types are
+            // handled as one, as are all command types and all 'other' types
             switch (tableType)
             {
                 case TYPE_STRUCTURE:
@@ -8854,7 +8865,7 @@ public class CcddDbTableCommandHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
     }
 }

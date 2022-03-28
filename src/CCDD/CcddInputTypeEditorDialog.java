@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddInputTypeEditorDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for creating, modifying, and deleting custom data input types. The dialog is built
-*     on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddInputTypeEditorDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for creating, modifying, and deleting custom data input types. The dialog is built
+ * on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -103,18 +99,15 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     private ComboBoxCellEditor formatCellEditor;
     private ComboBoxCellEditor itemFormatCellEditor;
 
-    // Table instance model data. Current copy is the table information as it exists
-    // in the table
-    // editor and is used to determine what changes have been made to the table
-    // since the previous
+    // Table instance model data. Current copy is the table information as it exists in the table
+    // editor and is used to determine what changes have been made to the table since the previous
     // field editor update
     private Object[][] committedData;
 
     // List of input type table content changes to process
     private List<TableModification> modifications;
 
-    // List of input type references already loaded from the database. This is used
-    // to avoid
+    // List of input type references already loaded from the database. This is used to avoid
     // repeated searches for a the same input type
     private List<InputTypeReference> loadedReferences;
 
@@ -141,8 +134,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         {
             this.inputTypeName = inputTypeName;
 
-            // Get the references to the specified input type in the table type an data
-            // field
+            // Get the references to the specified input type in the table type an data field
             // tables
             references = inputTypeHandler.searchInputTypeReferences(inputTypeName, CcddInputTypeEditorDialog.this);
         }
@@ -188,8 +180,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of input type updates to the database
      *
-     * @param commandError   False if the database commands successfully completed; true if an error
-     *                       occurred and the changes were not made
+     * @param commandError   False if the database commands successfully completed; true if an
+     *                       error occurred and the changes were not made
      *
      * @param inputTypeNames List of the input type names, before and after the changes
      *********************************************************************************************/
@@ -198,13 +190,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Assign temporary OIDs to the added rows so that these can be matched when
-            // building
+            // Assign temporary OIDs to the added rows so that these can be matched when building
             // updates
             tempOID = inputTypeTable.assignOIDsToNewRows(tempOID, InputTypesColumn.OID.ordinal());
 
-            // Update the input type handler with the changes. The variable paths input type
-            // must
+            // Update the input type handler with the changes. The variable paths input type must
             // be re-added since it gets removed when the input types are built
             inputTypeHandler.setInputTypeData(getUpdatedData());
             inputTypeHandler.updateVariableReferences();
@@ -217,8 +207,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             // Update the input type columns in the open table editors
             dbTable.updateInputTypeColumns(inputTypeNames, CcddInputTypeEditorDialog.this);
 
-            // Update the copy of the input type data so it can be used to determine if
-            // changes are
+            // Update the copy of the input type data so it can be used to determine if changes are
             // made
             committedData = inputTypeTable.getTableData(true);
 
@@ -228,10 +217,10 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the input type editor dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the input type editor dialog. This is executed in a separate thread since it can take
+     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -259,8 +248,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-                // Create a copy of the input type data so it can be used to determine if
-                // changes
+                // Create a copy of the input type data so it can be used to determine if changes
                 // are made
                 committedData = inputTypeHandler.getCustomInputTypeData();
 
@@ -524,8 +512,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -580,8 +567,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             // Search for references to this input type
             inputTypeRefs = new InputTypeReference(inputTypeName);
 
-            // Add the search results to the list so that this search doesn't get performed
-            // again
+            // Add the search results to the list so that this search doesn't get performed again
             loadedReferences.add(inputTypeRefs);
         }
 
@@ -663,8 +649,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override getCellEditor so that for a input type format column cell the input type format combo
-             * box cell editor is returned; for all other cells return the normal cell editor
+             * Override getCellEditor so that for a input type format column cell the input type
+             * format combo box cell editor is returned; for all other cells return the normal cell
+             * editor
              *
              * @param row    Table view row number
              *
@@ -709,8 +696,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
              *
              * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-             *                    a single input is being entered
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked;
+             *                    false if only a single input is being entered
              *
              * @return Always returns false
              *************************************************************************************/
@@ -764,9 +751,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                 // Validate the regular expression by attempting to compile it
                                 Pattern.compile(newValueS);
                             }
-                            catch (
-                                PatternSyntaxException pse
-                            )
+                            catch (PatternSyntaxException pse)
                             {
                                 throw new CCDDException("Invalid regular expression; cause '</b>" + pse.getMessage()
                                                         + "<b>'");
@@ -800,9 +785,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         }
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -846,8 +829,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
-                // Check if the cell isn't already selected (selection highlighting overrides
-                // the
+                // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
                 if (!(isFocusOwner() && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
@@ -895,8 +877,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to produce an array containing empty values for a new row
-             * in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *************************************************************************************/
@@ -912,8 +894,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether any unstored changes
-                // exist
+                // Add or remove the change indicator based on whether any unstored changes exist
                 setTitle(DIALOG_TITLE + (inputTypeTable.isTableChanged(committedData) ? CHANGE_INDICATOR : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed
@@ -939,10 +920,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // there are changes that haven't been stored. If changes exist then confirm
-        // discarding the
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been stored. If changes exist then confirm discarding the
         // changes
         if (inputTypeTable.isLastCellValid()
             && (!inputTypeTable.isTableChanged(committedData) || new CcddDialogHandler()
@@ -976,8 +955,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 formatComboBox.addItem(type.getFormatName());
             }
 
-            // Check if the format type is selectable when the input type has selection
-            // items
+            // Check if the format type is selectable when the input type has selection items
             if (type.isValidWithItems())
             {
                 // Add the input type format name to the list
@@ -1080,8 +1058,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Compare the current input type table data to the committed data and create lists of the changed
-     * values necessary to update the table in the database to match the current values
+     * Compare the current input type table data to the committed data and create lists of the
+     * changed values necessary to update the table in the database to match the current values
      *********************************************************************************************/
     private void buildUpdates()
     {

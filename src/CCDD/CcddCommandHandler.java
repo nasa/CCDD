@@ -1,33 +1,29 @@
 /**************************************************************************************************
-/** \file CcddCommandHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for building a list of project commands (including the command’s name, code, command
-*     table, and argument variable names). This is used for populating the the Command reference
-*     input type selection item list and by the script data access methods.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddCommandHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for building a list of project commands (including the command’s name, code,
+ * command table, and argument variable names). This is used for populating the the Command
+ * reference input type selection item list and by the script data access methods.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.sql.ResultSet;
@@ -77,7 +73,10 @@ public class CcddCommandHandler
          *
          * @param commandArgument Command argument variable
          *****************************************************************************************/
-        CommandInformation(String table, String commandName, String commandCode, String commandArgument)
+        CommandInformation(String table,
+                           String commandName,
+                           String commandCode,
+                           String commandArgument)
         {
             this.table = table;
             this.commandName = commandName;
@@ -162,10 +161,18 @@ public class CcddCommandHandler
      *
      * @return Command reference string
      *********************************************************************************************/
-    protected String buildCommandReference(String commandName, String commandCode, String commandArg, String table)
+    protected String buildCommandReference(String commandName,
+                                           String commandCode,
+                                           String commandArg,
+                                           String table)
     {
-        return commandName + " (code: " + commandCode + ", owner: " + table + ", arg: "
-               + getCommandArgumentVariables(commandArg, ", ") + ")";
+        return commandName
+               + " (code: "
+               + commandCode
+               + ", owner: "
+               + table + ", arg: "
+               + getCommandArgumentVariables(commandArg, ", ")
+               + ")";
     }
 
     /**********************************************************************************************
@@ -176,8 +183,8 @@ public class CcddCommandHandler
      * @param separator         Character(s) used to separate each command argument variable name
      *
      * @return The argument variable names for the specified command argument structure reference
-     *         separated by the supplied separator character(s); and empty string if the structure has
-     *         no variables
+     *         separated by the supplied separator character(s); and empty string if the structure
+     *         has no variables
      *********************************************************************************************/
     protected String getCommandArgumentVariables(String argumentStructRef, String separator)
     {
@@ -192,8 +199,7 @@ public class CcddCommandHandler
             // Get the index in the variable path to the period preceding the variable name
             int variableStart = argVariable.lastIndexOf(".");
 
-            // Check if this is a variable belonging to the command's argument structure
-            // (but not a
+            // Check if this is a variable belonging to the command's argument structure (but not a
             // child of a child structure)
             if (argVariable.startsWith(commandArgumentStart))
             {
@@ -218,18 +224,20 @@ public class CcddCommandHandler
         for (CommandInformation cmdInfo : commandInformation)
         {
             // Add the command information to the list
-            allCommandNames.add(buildCommandReference(cmdInfo.getCommandName(), cmdInfo.getCommandCode(),
-                                                      cmdInfo.getCommandArgument(), cmdInfo.getTable()));
+            allCommandNames.add(buildCommandReference(cmdInfo.getCommandName(),
+                                                      cmdInfo.getCommandCode(),
+                                                      cmdInfo.getCommandArgument(),
+                                                      cmdInfo.getTable()));
         }
 
         return allCommandNames;
     }
 
     /**********************************************************************************************
-     * Build the list of command information for every command defined in the project database. A single
-     * query is constructed to obtain the command information in order to reduce the number of
-     * transactions with the database (as opposed to using loadTableInformation() for each command
-     * table)
+     * Build the list of command information for every command defined in the project database. A
+     * single query is constructed to obtain the command information in order to reduce the number
+     * of transactions with the database (as opposed to using loadTableInformation() for each
+     * command table)
      *********************************************************************************************/
     protected void buildCommandList()
     {
@@ -256,19 +264,21 @@ public class CcddCommandHandler
 
                 // Begin building the column name string
                 columnNames.setLength(0);
-                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
-                        .getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]);
+                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]);
                 columnNames.append(", ");
-                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
-                        .getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]);
+                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]);
                 columnNames.append(", ");
-                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn
-                        .getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)]);
+                columnNames.append(typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)]);
 
-                // Append the command to obtain the specified column information from the command table
-                command.append("(SELECT '" + namesAndType[0] + "' AS command_table, " + columnNames + " FROM "
-                               + namesAndType[1]);
-                command.append(") UNION ALL ");
+                // Append the command to obtain the specified column information from the command
+                // table
+                command.append("(SELECT '"
+                               + namesAndType[0]
+                               + "' AS command_table, "
+                               + columnNames
+                               + " FROM "
+                               + namesAndType[1]
+                               + ") UNION ALL ");
             }
         }
 
@@ -281,33 +291,36 @@ public class CcddCommandHandler
 
             try
             {
-                // Perform the query to obtain the command information for all commands defined in the project
+                // Perform the query to obtain the command information for all commands defined in
+                // the project
                 ResultSet commands = ccddMain.getDbCommandHandler().executeDbQuery(command, ccddMain.getMainFrame());
 
                 // Check if a comment exists
                 while (commands.next())
                 {
                     // Add the command's information to the list
-                    commandInformation.add(new CommandInformation(commands.getString(1), commands.getString(2),
-                                                                  commands.getString(3), commands.getString(4)));
+                    commandInformation.add(new CommandInformation(commands.getString(1),
+                                                                  commands.getString(2),
+                                                                  commands.getString(3),
+                                                                  commands.getString(4)));
                 }
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user an error occurred obtaining the command information
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>Cannot obtain command information", "Query Fail",
-                                                          JOptionPane.ERROR_MESSAGE, DialogOption.OK_OPTION);
+                                                          "<html><b>Cannot obtain command information",
+                                                          "Query Fail",
+                                                          JOptionPane.ERROR_MESSAGE,
+                                                          DialogOption.OK_OPTION);
             }
 
             // Sort the command information
             Collections.sort(commandInformation, new Comparator<CommandInformation>()
             {
                 /**********************************************************************************
-                 * Sort the command information by command name; if the same then by command code; if the same then
-                 * by table name
+                 * Sort the command information by command name; if the same then by command code;
+                 * if the same then by table name
                  *********************************************************************************/
                 @Override
                 public int compare(CommandInformation cmd1, CommandInformation cmd2)
@@ -322,10 +335,8 @@ public class CcddCommandHandler
                         // (unless blank)
                         result = cmd1.getCommandCode().isEmpty()
                                  || cmd2.getCommandCode().isEmpty()
-                                                                    ? cmd1.getCommandCode()
-                                                                            .compareToIgnoreCase(cmd2.getCommandCode())
-                                                                    : (Integer.decode(cmd1.getCommandCode()) > Integer
-                                                                            .decode(cmd2.getCommandCode()) ? 1 : -1);
+                                                                    ? cmd1.getCommandCode().compareToIgnoreCase(cmd2.getCommandCode())
+                                                                    : (Integer.decode(cmd1.getCommandCode()) > Integer.decode(cmd2.getCommandCode()) ? 1 : -1);
 
                         // Check if the command codes are the same
                         if (result == 0)
@@ -339,8 +350,7 @@ public class CcddCommandHandler
                 }
             });
 
-            // Add the command information to the command references input type and refresh
-            // any
+            // Add the command information to the command references input type and refresh any
             // open editors
             ccddMain.getInputTypeHandler().updateCommandReferences();
             ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());

@@ -133,8 +133,8 @@ public class CcddDbControlHandler
     // Array of reserved words
     private String[] keyWords;
 
-    // Current connection status (none, connected to the server (default database),
-    // or connected to a database
+    // Current connection status (none, connected to the server (default database), or connected to
+    // a database
     private ConnectionType connectionStatus;
 
     // SQL database connection
@@ -262,8 +262,8 @@ public class CcddDbControlHandler
         isFirstConnectionAttempt = true;
         addDefaultDataTypes = true;
 
-        // Reset the flag that indicates a connection failure occurred due to a missing
-        // or invalid user name or password
+        // Reset the flag that indicates a connection failure occurred due to a missing or invalid
+        // user name or password
         isAuthenticationFail = false;
 
         // Create the parameters for the the 'by name' and 'by index' postgreSQL functions
@@ -322,8 +322,8 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected String convertProjectNameToDatabase(String projectName)
     {
-        // Convert any upper case characters to lower case, prepend an underscore if the
-        // name begins with a numeral, and replace all special characters with an underscore
+        // Convert any upper case characters to lower case, prepend an underscore if the name
+        // begins with a numeral, and replace all special characters with an underscore
         String databaseName = projectName.toLowerCase().replaceFirst("^([0-9])", "_$1").replaceAll("[^a-z0-9_]", "_");
 
         // Check if the database name is longer than allowed
@@ -552,13 +552,12 @@ public class CcddDbControlHandler
         List<String> adminAccess = new ArrayList<String>();
 
         // Step through the array containing the database name, lock status, visible (project)
-        // name,
-        // project administrator(s), and description for each project to which the current user has
-        // access
+        // name, project administrator(s), and description for each project to which the current
+        // user has access
         for (String userDbInfo : queryDatabaseByUserList(ccddMain.getMainFrame(), activeUser))
         {
-            // Separate the information retrieved into the database name and its comment,
-            // then parse the comment into its separate fields
+            // Separate the information retrieved into the database name and its comment, then
+            // parse the comment into its separate fields
             String[] nameAndComment = userDbInfo.split(DATABASE_COMMENT_SEPARATOR, 2);
             String commentFields[] = parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
 
@@ -978,22 +977,20 @@ public class CcddDbControlHandler
         // Separate the comment into the individual fields
         String[] commentParts = comment.split(DATABASE_COMMENT_SEPARATOR, DatabaseComment.values().length);
 
-        // Check if at least 3 fields exist, the first field is either '0' or '1', and
-        // the second field is the project name
+        // Check if at least 3 fields exist, the first field is either '0' or '1', and the second
+        // field is the project name
         if (commentParts.length >= 2 && commentParts[0].matches("[01]")
             && databaseName.equals(convertProjectNameToDatabase(commentParts[1])))
         {
-            // Check if all the expected fields exist and the third field meets the
-            // constraints for one or more user names
+            // Check if all the expected fields exist and the third field meets the constraints for
+            // one or more user names
             if (commentParts.length >= DatabaseComment.values().length && commentParts[2]
                     .matches("(?:" + DefaultInputType.ALPHANUMERIC.getInputMatch() + DATABASE_ADMIN_SEPARATOR + "?)+"))
             {
                 // Comment is in the post patch #07242018 format (lock status;project name;project
-                // creator;description).
-                // This check can be fooled if the description contains a semi-colon and the text
-                // prior to the
-                // semi-colon
-                // matches an alphanumeric. Store the comment fields
+                // creator;description). This check can be fooled if the description contains a
+                // semi-colon and the text prior to the semi-colon matches an alphanumeric. Store
+                // the comment fields
                 commentFields = commentParts;
             }
             // The comment is in the post patch #07112017 format (lock status;project
@@ -1018,8 +1015,8 @@ public class CcddDbControlHandler
             commentFields[DatabaseComment.LOCK_STATUS.ordinal()] = commentParts[0].substring(0, 1);
             commentFields[DatabaseComment.DESCRIPTION.ordinal()] = comment.substring(1);
 
-            // Set the project name to the database name and set the project creator to a
-            // blank to indicate it's unknown
+            // Set the project name to the database name and set the project creator to a blank to
+            // indicate it's unknown
             commentFields[DatabaseComment.PROJECT_NAME.ordinal()] = databaseName;
             commentFields[DatabaseComment.ADMINS.ordinal()] = "";
         }
@@ -1079,14 +1076,11 @@ public class CcddDbControlHandler
                 try
                 {
                     // Set the database comment with the specified lock status
-                    dbCommand
-                            .executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(projectName,
-                                                                                                                 comment[DatabaseComment.ADMINS
-                                                                                                                         .ordinal()],
-                                                                                                                 lockStatus,
-                                                                                                                 comment[DatabaseComment.DESCRIPTION
-                                                                                                                         .ordinal()])),
-                                             ccddMain.getMainFrame());
+                    dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(projectName,
+                                                                                                                  comment[DatabaseComment.ADMINS.ordinal()],
+                                                                                                                  lockStatus,
+                                                                                                                  comment[DatabaseComment.DESCRIPTION.ordinal()])),
+                                              ccddMain.getMainFrame());
 
                     // Inform the user that the lock status update succeeded
                     eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' ")
@@ -1120,8 +1114,8 @@ public class CcddDbControlHandler
         // Get the database comment
         String[] comment = getDatabaseComment(databaseName);
 
-        // Check if a comment was successfully retrieved and that the project
-        // administrator is present
+        // Check if a comment was successfully retrieved and that the project administrator is
+        // present
         if (comment != null && !comment[DatabaseComment.ADMINS.ordinal()].isEmpty())
         {
             // Add the user to the string of database administrators
@@ -1147,11 +1141,10 @@ public class CcddDbControlHandler
             connection.setAutoCommit(true);
 
             // Update the database administrator(s) in the database comment
-            dbCommand
-                    .executeDbCommand(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(activeProject,
-                                                                                                          admins, true,
-                                                                                                          getDatabaseDescription(activeDatabase))),
-                                      parent);
+            dbCommand.executeDbCommand(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(activeProject,
+                                                                                                           admins, true,
+                                                                                                           getDatabaseDescription(activeDatabase))),
+                                       parent);
 
             // Log that updating the database administrator(s) succeeded
             eventLog.logEvent(SUCCESS_MSG,
@@ -1272,10 +1265,9 @@ public class CcddDbControlHandler
         // Get the database comment
         String[] comment = getDatabaseComment(databaseName);
 
-        // The comment could not be obtained from the pg_shdescription field
-        // of the DB. This means that somehow the field has not been updated
-        // or the DB otherwise failed. So, try to get it with another
-        // mechanism as a last ditch effort.
+        // The comment could not be obtained from the pg_shdescription field of the DB. This means
+        // that somehow the field has not been updated or the DB otherwise failed. So, try to get
+        // it with another mechanism as a last ditch effort
         if (comment == null)
         {
             String[] userDatabaseInformation = ccddMain.getDbControlHandler()
@@ -1320,8 +1312,10 @@ public class CcddDbControlHandler
      *
      * @return Command to create the database comment
      *********************************************************************************************/
-    protected String buildDatabaseCommentCommandAndUpdateInternalTable(String projectName, String administrator,
-                                                                       boolean lockStatus, String description)
+    protected String buildDatabaseCommentCommandAndUpdateInternalTable(String projectName,
+                                                                       String administrator,
+                                                                       boolean lockStatus,
+                                                                       String description)
     {
 
         if (activeOwner != "")
@@ -1329,29 +1323,36 @@ public class CcddDbControlHandler
             // Update the internal table
             try
             {
-                StringBuilder command = new StringBuilder("DELETE FROM ").append(InternalTable.DBU_INFO.getTableName())
-                        .append(";");
+                StringBuilder command = new StringBuilder("DELETE FROM ").append(InternalTable.DBU_INFO.getTableName()).append(";");
 
                 // Delete the current contents of the __dbu_info_ internal table
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
 
-                command.append("INSERT INTO ").append(InternalTable.DBU_INFO.getTableName()).append(" VALUES ('")
-                        .append((CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0"))).append("', '")
-                        .append(getQuotedName(convertProjectNameToDatabase(projectName))).append("', '")
-                        .append(administrator).append("', '").append(description).append("');");
+                command.append("INSERT INTO ")
+                       .append(InternalTable.DBU_INFO.getTableName())
+                       .append(" VALUES ('")
+                       .append((CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0")))
+                       .append("', '")
+                       .append(getQuotedName(convertProjectNameToDatabase(projectName)))
+                       .append("', '")
+                       .append(administrator)
+                       .append("', '")
+                       .append(description)
+                       .append("');");
 
                 // Update the __dbu_info_ internal table
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             }
-            catch (SQLException e)
+            catch (SQLException sqle)
             {
                 try
                 {
                     String command = buildInformationTableCommand(InternalTable.DBU_INFO);
 
                     command = command.replace(LOCK, (CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0")))
-                            .replace(NAME, getQuotedName(convertProjectNameToDatabase(projectName)));
+                                     .replace(NAME, getQuotedName(convertProjectNameToDatabase(projectName)));
                     command = command.replace(ADMINS, administrator).replace(DESC, description);
+
                     // Create the default internal table
                     dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
                 }
@@ -1359,21 +1360,31 @@ public class CcddDbControlHandler
                 {
                     // Inform the user that creating the database functions failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Cannot create tables and functions in project database '" + activeDatabase
-                                                                   + "' as user '" + activeUser + "'; cause '"
-                                                                   + se.getMessage() + "'",
+                                          "Cannot create tables and functions in project database '"
+                                          + activeDatabase
+                                          + "' as user '"
+                                          + activeUser
+                                          + "'; cause '"
+                                          + se.getMessage() + "'",
                                           "<html><b>Cannot create tables and functions in project database '</b>"
-                                                                                            + activeDatabase + "<b>'");
+                                          + activeDatabase
+                                          + "<b>'");
                 }
             }
         }
 
-        // return the command
-        return "COMMENT ON DATABASE " + getQuotedName(convertProjectNameToDatabase(projectName)) + " IS "
-               + CcddDbTableCommandHandler
-                       .delimitText(CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0") + DATABASE_COMMENT_SEPARATOR
-                                    + projectName + DATABASE_COMMENT_SEPARATOR + administrator
-                                    + DATABASE_COMMENT_SEPARATOR + description)
+        // Return the command
+        return "COMMENT ON DATABASE "
+               + getQuotedName(convertProjectNameToDatabase(projectName))
+               + " IS "
+               + CcddDbTableCommandHandler.delimitText(CCDD_PROJECT_IDENTIFIER
+                                                       + (lockStatus ? "1" : "0")
+                                                       + DATABASE_COMMENT_SEPARATOR
+                                                       + projectName
+                                                       + DATABASE_COMMENT_SEPARATOR
+                                                       + administrator
+                                                       + DATABASE_COMMENT_SEPARATOR
+                                                       + description)
                + "; ";
     }
 
@@ -1408,8 +1419,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     private String buildOwnerCommand(String ownerName, DatabaseObject object, String objectName)
     {
-        // Bound the owner and object names with double quotes if the name matches a
-        // PostgreSQL
+        // Bound the owner and object names with double quotes if the name matches a PostgreSQL
         // reserved word
         objectName = object.toString() + " " + getQuotedName(objectName);
         ownerName = getQuotedName(ownerName);
@@ -1451,13 +1461,15 @@ public class CcddDbControlHandler
      *
      * @return true if the command completes successfully; false otherwise
      *********************************************************************************************/
-    protected boolean createDatabase(final String projectName, String ownerName, String administrator,
+    protected boolean createDatabase(final String projectName,
+                                     String ownerName,
+                                     String administrator,
                                      String description)
     {
-        // Init local variables
         boolean successFlag = true;
         String databaseName = null;
         StringBuilder command = new StringBuilder();
+
         try
         {
             // Convert the project name into its database form
@@ -1467,11 +1479,15 @@ public class CcddDbControlHandler
             connection.setAutoCommit(true);
 
             // Execute the command to create the project database
-            command.append("CREATE DATABASE ").append(getQuotedName(databaseName)).append(" ENCODING 'UTF8'; ")
-                    .append(buildDatabaseCommentCommandAndUpdateInternalTable(projectName, administrator, false,
-                                                                              description))
-                    .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, databaseName))
-                    .append(dbCommand.executeDbUpdate(command, ccddMain.getMainFrame()));
+            command.append("CREATE DATABASE ")
+                   .append(getQuotedName(databaseName))
+                   .append(" ENCODING 'UTF8'; ")
+                   .append(buildDatabaseCommentCommandAndUpdateInternalTable(projectName,
+                                                                             administrator,
+                                                                             false,
+                                                                             description))
+                   .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, databaseName))
+                   .append(dbCommand.executeDbUpdate(command, ccddMain.getMainFrame()));
 
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName).append("' created"));
@@ -1480,8 +1496,10 @@ public class CcddDbControlHandler
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot create project database '" + getServerAndDatabase(databaseName) + "'; cause '"
-                                                           + se.getMessage() + "'",
+                                  "Cannot create project database '"
+                                  + getServerAndDatabase(databaseName)
+                                  + "'; cause '"
+                                  + se.getMessage() + "'",
                                   "<html><b>Cannot create project '</b>" + projectName + "<b>'");
             successFlag = false;
         }
@@ -1545,20 +1563,22 @@ public class CcddDbControlHandler
         try
         {
             command.append("CREATE OR REPLACE FUNCTION make_plpgsql() RETURNS VOID LANGUAGE SQL AS $$ CREATE LANGUAGE plpgsql; $$; ")
-                    .append("SELECT CASE WHEN EXISTS(SELECT 1 FROM pg_catalog.pg_language WHERE lanname = 'plpgsql') ")
-                    .append("THEN NULL ELSE make_plpgsql() END; ")
-                    .append(buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()"))
-                    .append("DROP FUNCTION make_plpgsql();");
+                   .append("SELECT CASE WHEN EXISTS(SELECT 1 FROM pg_catalog.pg_language WHERE lanname = 'plpgsql') ")
+                   .append("THEN NULL ELSE make_plpgsql() END; ")
+                   .append(buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()"))
+
+                   .append("DROP FUNCTION make_plpgsql();");
             // Send command to create the procedural language in the database if it does not
             // already exists
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
 
             command.append("CREATE OR REPLACE FUNCTION delete_function(function_name text) RETURNS VOID AS $$ BEGIN EXECUTE ")
-                    .append("(SELECT 'DROP FUNCTION ' || oid::regproc || '(' || pg_get_function_identity_arguments(oid) ")
-                    .append("|| ');' || E'\n' FROM pg_proc WHERE proname = function_name AND pg_function_is_visible(oid)); ")
-                    .append("END $$ LANGUAGE plpgsql; ")
-                    .append(buildOwnerCommand(DatabaseObject.FUNCTION, "delete_function(function_name text)"));
+                   .append("(SELECT 'DROP FUNCTION ' || oid::regproc || '(' || pg_get_function_identity_arguments(oid) ")
+                   .append("|| ');' || E'\n' FROM pg_proc WHERE proname = function_name AND pg_function_is_visible(oid)); ")
+                   .append("END $$ LANGUAGE plpgsql; ")
+                   .append(buildOwnerCommand(DatabaseObject.FUNCTION, "delete_function(function_name text)"));
+
             // Create function to delete functions whether or not the input parameters match
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
@@ -1591,9 +1611,13 @@ public class CcddDbControlHandler
                             command.setLength(0);
                             String[] comment = getDatabaseComment(activeDatabase);
 
-                            command.append((buildInformationTableCommand(intTable)
-                                    .replace(LOCK, CCDD_PROJECT_IDENTIFIER + comment[0]).replace(NAME, comment[1]))
-                                            .replace(ADMINS, comment[2]).replace(DESC, comment[3]));
+                            command.append((buildInformationTableCommand(intTable).replace(LOCK,
+                                                                                           CCDD_PROJECT_IDENTIFIER + comment[0])
+                                                                                  .replace(NAME,
+                                                                                           comment[1])).replace(ADMINS,
+                                                                                                                comment[2]).replace(DESC,
+                                                                                                                                    comment[3]));
+
                             // Create the default internal table
                             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
                         }
@@ -1602,24 +1626,13 @@ public class CcddDbControlHandler
             }
 
             // Create function to search all tables for the input text with case sensitivity
-            // determined by an
-            // input
-            // flag. A second flag determines if the search string is treated as a literal string
-            // or as a
-            // regular
-            // expression. If as a literal, then all non-alphanumeric and non-space characters are
-            // escaped so
-            // that
-            // these characters can be detected correctly. A third flag determines if all tables or
-            // only the
-            // data
-            // tables (including entries in the custom values table) are searched. Returns a table
-            // giving the
-            // unique
-            // schema, table, column name, table comment, and contents of the columns in the table
-            // row where the
-            // text
-            // is found
+            // determined by an input flag. A second flag determines if the search string is
+            // treated as a literal string or as a regular expression. If as a literal, then all
+            // non-alphanumeric and non-space characters are escaped so that these characters can
+            // be detected correctly. A third flag determines if all tables or only the data tables
+            // (including entries in the custom values table) are searched. Returns a table giving
+            // the unique schema, table, column name, table comment, and contents of the columns in
+            // the table row where the text is found
             command.setLength(0);
             command.append(deleteFunction("search_tables"))
                     .append("CREATE OR REPLACE FUNCTION search_tables(search_text text, ")
@@ -1682,14 +1695,10 @@ public class CcddDbControlHandler
             command.setLength(0);
 
             // Create function to retrieve all table names and column values for the tables with
-            // the specified
-            // column name currently
-            // in use (i.e., blank column values are ignored) in the tables of the specified table
-            // type(s).
-            // Include columns from both the
+            // the specified column name currently in use (i.e., blank column values are ignored)
+            // in the tables of the specified table type(s). Include columns from both the
             // prototype and custom values tables. Use SELECT DISTINCT on the results to eliminate
-            // duplicate
-            // table names and/or column values
+            // duplicate table names and/or column values
             command.append(deleteFunction("find_columns_by_name"))
                     .append("CREATE OR REPLACE FUNCTION find_columns_by_name(column_name_user text, ")
                     .append("column_name_db text, table_types text[]) RETURNS table(owner_name text, column_value text) AS $$ BEGIN RETURN QUERY EXECUTE ")
@@ -1772,8 +1781,7 @@ public class CcddDbControlHandler
         {
             try
             {
-                // Use the default structure column names for those columns required by a
-                // structure
+                // Use the default structure column names for those columns required by a structure
                 String dbVariableName = DefaultColumn.VARIABLE_NAME.getDbName();
                 String dbDataType = DefaultColumn.DATA_TYPE.getDbName();
                 String dbArraySize = DefaultColumn.ARRAY_SIZE.getDbName();
@@ -1989,8 +1997,11 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     private String deleteFunction(String functionName)
     {
-        return "SELECT CASE WHEN EXISTS(SELECT * FROM pg_proc WHERE proname = '" + functionName
-               + "' AND pg_function_is_visible(oid)) THEN delete_function('" + functionName + "') END; ";
+        return "SELECT CASE WHEN EXISTS(SELECT * FROM pg_proc WHERE proname = '"
+               + functionName
+               + "' AND pg_function_is_visible(oid)) THEN delete_function('"
+               + functionName
+               + "') END; ";
     }
 
     /**********************************************************************************************
@@ -2019,7 +2030,10 @@ public class CcddDbControlHandler
             }
         }
 
-        return "CREATE TABLE " + intTable.getTableName() + " " + columnCommand
+        return "CREATE TABLE "
+               + intTable.getTableName()
+               + " "
+               + columnCommand
                + buildOwnerCommand(DatabaseObject.TABLE, intTable.getTableName());
     }
 
@@ -2112,16 +2126,16 @@ public class CcddDbControlHandler
 
             dbCommand.setStatement(connection.createStatement());
 
-            // Reset the flag that indicates a connection failure occurred due to a missing
-            // or invalid user name or password
+            // Reset the flag that indicates a connection failure occurred due to a missing or
+            // invalid user name or password
             isAuthenticationFail = false;
 
-            // Set the transaction isolation mode to serializable to prevent transaction
-            // collisions if there are concurrent users of the database
+            // Set the transaction isolation mode to serializable to prevent transaction collisions
+            // if there are concurrent users of the database
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
-            // Disable automatic commit of database updates. This allows database commands
-            // to be grouped prior to committing
+            // Disable automatic commit of database updates. This allows database commands to be
+            // grouped prior to committing
             connection.setAutoCommit(false);
 
             // The connection to the server must exist in order to reach this point, so set the
@@ -2358,8 +2372,8 @@ public class CcddDbControlHandler
             // Convert the project name to its database equivalent
             String databaseName = convertProjectNameToDatabase(projectName);
 
-            // Check if the required server inputs are available. A password may be needed;
-            // if so, then it is requested after the connection attempt fails
+            // Check if the required server inputs are available. A password may be needed; if so,
+            // then it is requested after the connection attempt fails
             if (serverHost != null && activeUser != null && !serverHost.isEmpty() && !activeUser.isEmpty())
             {
                 try
@@ -2468,8 +2482,10 @@ public class CcddDbControlHandler
                 {
                     // Inform the user that registering the database driver failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Cannot register database driver '" + DATABASE_DRIVER + "'; cause '"
-                                                                   + le.getMessage() + "'",
+                                          "Cannot register database driver '"
+                                          + DATABASE_DRIVER + "'; cause '"
+                                          + le.getMessage()
+                                          + "'",
                                           "<html><b>Cannot register database driver");
                     errorFlag = true;
                 }
@@ -2554,8 +2570,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected void openDatabaseInBackground(final String projectName)
     {
-        // Set the flag to indicate this in the first connection attempt for this server
-        // and
+        // Set the flag to indicate this in the first connection attempt for this server and
         // attempt to open the database
         isFirstConnectionAttempt = true;
         openDatabaseInBackground(projectName, serverHost, serverPort, isSSL);
@@ -2575,7 +2590,9 @@ public class CcddDbControlHandler
      *
      * @param isSSL       True if an SSL connection is enabled
      *********************************************************************************************/
-    protected void openDatabaseInBackground(final String projectName, final String serverHost, final String serverPort,
+    protected void openDatabaseInBackground(final String projectName,
+                                            final String serverHost,
+                                            final String serverPort,
                                             final boolean isSSL)
     {
         // Execute the command in the background
@@ -2644,28 +2661,32 @@ public class CcddDbControlHandler
             // Get the database's administrator(s)
             String administrator = getDatabaseAdmins(oldDatabase);
 
-            // Check if the old and new database names are identical; this implies only the
-            // project name and/or description changed
+            // Check if the old and new database names are identical; this implies only the project
+            // name and/or description changed
             if (oldDatabase.equals(newDatabase))
             {
                 // Update the database's description
-                dbCommand
-                        .executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(newProject,
-                                                                                                             administrator,
-                                                                                                             false,
-                                                                                                             description)),
+                dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(newProject,
+                                                                                                              administrator,
+                                                                                                              false,
+                                                                                                              description)),
                                          ccddMain.getMainFrame());
             }
-            // Check if the currently open database is not the one being renamed;
-            // otherwise, check if the target database can be closed and the default opened
-            // (required in order to make changes to the current database)
+            // Check if the currently open database is not the one being renamed; otherwise, check
+            // if the target database can be closed and the default opened (required in order to
+            // make changes to the current database)
             else if (!oldDatabase.equals(currentDatabase) || !openDatabase(DEFAULT_DATABASE))
             {
                 // Rename the database to the new name and update the description
-                dbCommand.executeDbUpdate(new StringBuilder("ALTER DATABASE ").append(getQuotedName(oldDatabase))
-                        .append(" RENAME TO ").append(getQuotedName(newDatabase)).append("; ")
-                        .append(buildDatabaseCommentCommandAndUpdateInternalTable(newProject, administrator, false,
-                                                                                  description)),
+                dbCommand.executeDbUpdate(new StringBuilder("ALTER DATABASE ")
+                                          .append(getQuotedName(oldDatabase))
+                                          .append(" RENAME TO ")
+                                          .append(getQuotedName(newDatabase))
+                                          .append("; ")
+                                          .append(buildDatabaseCommentCommandAndUpdateInternalTable(newProject,
+                                                                                                    administrator,
+                                                                                                    false,
+                                                                                                    description)),
                                           ccddMain.getMainFrame());
 
                 // Check if the currently open database is the one being renamed
@@ -2676,20 +2697,25 @@ public class CcddDbControlHandler
                 }
 
                 // Log that the renaming the database succeeded
-                eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project database '").append(oldProject)
-                        .append("' renamed to '").append(newProject).append("'"));
+                eventLog.logEvent(SUCCESS_MSG,
+                                  new StringBuilder("Project database '")
+                                  .append(oldProject)
+                                  .append("' renamed to '")
+                                  .append(newProject)
+                                  .append("'"));
             }
         }
         catch (SQLException se)
         {
             // Inform the user that the database cannot be renamed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot rename project database '" + getServerAndDatabase(oldDatabase) + "'; cause '"
-                                                           + se.getMessage() + "'",
+                                  "Cannot rename project database '"
+                                  + getServerAndDatabase(oldDatabase)
+                                  + "'; cause '"
+                                  + se.getMessage() + "'",
                                   "<html><b>Cannot rename project '</b>" + oldProject + "<b>'");
 
-            // Check if the currently open database is the one that was attempted to be
-            // renamed
+            // Check if the currently open database is the one that was attempted to be renamed
             if (oldProject.equals(currentDatabase))
             {
                 // Close the default database and reopen the target
@@ -2710,7 +2736,8 @@ public class CcddDbControlHandler
      *
      * @param description Database description
      *********************************************************************************************/
-    protected void renameDatabaseInBackground(final String oldProject, final String newProject,
+    protected void renameDatabaseInBackground(final String oldProject,
+                                              final String newProject,
                                               final String description)
     {
         // Execute the command in the background
@@ -2767,21 +2794,24 @@ public class CcddDbControlHandler
                         // Get the administrator(s) and owner of the database being copied; the
                         // copy will have the same administrator(s) and owner
                         String administrator = getDatabaseAdmins(targetDatabase);
-                        String ownerName = targetDatabase
-                                .equals(currentDatabase) ? activeOwner
-                                                         : queryDatabaseOwner(targetDatabase,
-                                                                              ccddMain.getMainFrame())[0];
+                        String ownerName = targetDatabase.equals(currentDatabase) ? activeOwner
+                                                                                  : queryDatabaseOwner(targetDatabase,
+                                                                                                       ccddMain.getMainFrame())[0];
 
                         // Enable auto-commit for database changes
                         connection.setAutoCommit(true);
 
                         // Copy the database and transfer the comment
                         dbCommand.executeDbCommand(new StringBuilder("CREATE DATABASE ")
-                                .append(getQuotedName(copyDatabase)).append(" WITH TEMPLATE ")
-                                .append(getQuotedName(targetDatabase)).append("; ")
-                                .append(buildDatabaseCommentCommandAndUpdateInternalTable(copyProject, administrator,
-                                                                                          false, description))
-                                .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, copyDatabase)),
+                                                   .append(getQuotedName(copyDatabase))
+                                                   .append(" WITH TEMPLATE ")
+                                                   .append(getQuotedName(targetDatabase))
+                                                   .append("; ")
+                                                   .append(buildDatabaseCommentCommandAndUpdateInternalTable(copyProject,
+                                                                                                             administrator,
+                                                                                                             false,
+                                                                                                             description))
+                                                   .append(buildOwnerCommand(ownerName, DatabaseObject.DATABASE, copyDatabase)),
                                                    ccddMain.getMainFrame());
 
                         // Check if the currently open database is the one being copied
@@ -2801,8 +2831,9 @@ public class CcddDbControlHandler
                 {
                     // Inform the user that the database cannot be copied
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Cannot copy project database '" + getServerAndDatabase(targetDatabase)
-                                                                   + "'; cause '" + se.getMessage() + "'",
+                                          "Cannot copy project database '"
+                                          + getServerAndDatabase(targetDatabase)
+                                          + "'; cause '" + se.getMessage() + "'",
                                           "<html><b>Cannot copy project '</b>" + targetProject + "<b>'");
 
                     // Check if the currently open database is the one that was attempted to be
@@ -2996,11 +3027,12 @@ public class CcddDbControlHandler
     protected void backupDatabaseInBackground(final String projectName, final FileEnvVar backupFile)
     {
 
-        // Try Acquire the semaphore here outside of the worker thread.
-        // This is because the program may exit before the thread actually begins to run
+        // Try Acquire the semaphore here outside of the worker thread. This is because the program
+        // may exit before the thread actually begins to run
         try
         {
             ImmutablePair<Semaphore, Integer> pair = ccddMain.getSemMap().get(CcddMain.BACKUP_KEY);
+
             if (!pair.left.tryAcquire(pair.right, TimeUnit.SECONDS))
             {
                 ccddMain.getSessionEventLog()
@@ -3012,7 +3044,7 @@ public class CcddDbControlHandler
         }
         catch (InterruptedException e)
         {
-            e.printStackTrace();
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
 
         // Execute the command in the background
@@ -3099,8 +3131,7 @@ public class CcddDbControlHandler
             protected void execute()
             {
                 // This will be coming from the GUI which will require that the only database that
-                // can be
-                // backed up is the open one so close it first
+                // can be backed up is the open one so close it first
                 if (ccddMain.ignoreUncommittedChanges("Close Project", "Discard changes?", true, null, null))
                 {
                     openDatabase(DEFAULT_DATABASE);
@@ -3137,20 +3168,16 @@ public class CcddDbControlHandler
         // Convert the project name to its database equivalent
         String databaseName = convertProjectNameToDatabase(projectName);
 
-        // Build the command to backup the database. Options: -w: no password, -o: dump
-        // OIDs, -O do
+        // Build the command to backup the database. Options: -w: no password, -o: dump OIDs, -O do
         // not set ownership
         String command = "pg_dump " + getUserHostAndPort() + "--no-password --oids --no-owner --file ";
 
-        // Get the number of command line arguments. Since the backup file name may have
-        // spaces the
-        // argument count must be made prior to appending it. The argument count is
-        // adjusted for
+        // Get the number of command line arguments. Since the backup file name may have spaces the
+        // argument count must be made prior to appending it. The argument count is adjusted for
         // the addition of the database name as well
         int numArgs = command.split(" ").length + 2;
 
-        // Append the backup file and database names. Surround the file name with quotes
-        // in case it
+        // Append the backup file and database names. Surround the file name with quotes in case it
         // contains a space
         command += "\"" + backupFile.getAbsolutePath() + "\" " + databaseName;
 
@@ -3262,13 +3289,11 @@ public class CcddDbControlHandler
             // Step through each existing database name
             for (String name : databases)
             {
-                // Check if the name of the restored database name matches that of another
-                // database
+                // Check if the name of the restored database name matches that of another database
                 if ((restoreDatabaseName + seqName).equals(name.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
                 {
-                    // Increment the sequence number and set the flag to indicate a match
-                    // was found. Repeat the process in case this amended name is also a
-                    // match
+                    // Increment the sequence number and set the flag to indicate a match was
+                    // found. Repeat the process in case this amended name is also a match
                     seqNum++;
                     seqName = "_" + seqNum;
                     isMatch = true;
@@ -3285,8 +3310,7 @@ public class CcddDbControlHandler
             restoreDatabaseName += seqName;
         }
 
-        // Check if an existing database is being overwritten; if not, create a new
-        // database to
+        // Check if an existing database is being overwritten; if not, create a new database to
         // which to restore the data and check that it is created successfully
         if (overwriteExisting || createDatabase(restoreProjectName, ownerName, administrator, description))
         {
@@ -3294,8 +3318,8 @@ public class CcddDbControlHandler
             String command = "psql " + getUserHostAndPort() + "-d " + restoreDatabaseName
                              + " -v ON_ERROR_STOP=true -f ";
 
-            // Get the number of command line arguments. Since the restore file name may
-            // have spaces the argument count must be made prior to appending it
+            // Get the number of command line arguments. Since the restore file name may have
+            // spaces the argument count must be made prior to appending it
             int numArgs = command.split(" ").length + 1;
 
             // Append the file name, bounded by quotes in case it contains a space
@@ -3307,21 +3331,19 @@ public class CcddDbControlHandler
             // Execute the restore command
             errorType = executeProcess(command, numArgs);
 
-            // If the overwriteExisting is true, then the database won't be
-            // created and the internal table won't have been added already.
-            // This probably means that the database has already been created
-            // and is probably coming from the command line functionality. So,
-            // do it here
+            // If the overwriteExisting is true, then the database won't be created and the
+            // internal table won't have been added already. This probably means that the database
+            // has already been created and is probably coming from the command line functionality.
+            // So, do it here
             if (overwriteExisting)
             {
                 try
                 {
-                    dbCommand
-                            .executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(projectName,
-                                                                                                                 administrator,
-                                                                                                                 false,
-                                                                                                                 description)),
-                                             ccddMain.getMainFrame());
+                    dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(projectName,
+                                                                                                                  administrator,
+                                                                                                                  false,
+                                                                                                                  description)),
+                                              ccddMain.getMainFrame());
                     // Log that the copying the database succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       new StringBuilder("Updated the comment for Project '").append(projectName));
@@ -3331,8 +3353,9 @@ public class CcddDbControlHandler
                     // Inform the user that setting the database comment failed
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
                                           "Cannot set comment for project database '"
-                                                                   + getServerAndDatabase(projectName) + "'; cause '"
-                                                                   + se.getMessage() + "'",
+                                          + getServerAndDatabase(projectName)
+                                          + "'; cause '"
+                                          + se.getMessage() + "'",
                                           "<html><b>Cannot set comment for project '</b>" + projectName + "<b>'");
                 }
             }
@@ -3341,8 +3364,12 @@ public class CcddDbControlHandler
             if (errorType.isEmpty())
             {
                 // Log that the database restoration succeeded
-                eventLog.logEvent(SUCCESS_MSG, new StringBuilder("Project '").append(projectName)
-                        .append("' restored as '").append(restoreProjectName).append("'"));
+                eventLog.logEvent(SUCCESS_MSG,
+                                  new StringBuilder("Project '")
+                                  .append(projectName)
+                                  .append("' restored as '")
+                                  .append(restoreProjectName)
+                                  .append("'"));
             }
         }
         // Database restoration failed
@@ -3413,16 +3440,14 @@ public class CcddDbControlHandler
             // Execute the command
             Process process = builder.start();
 
-            // Read the output from stdout and stderr until no more exists. This prevents
-            // filling
+            // Read the output from stdout and stderr until no more exists. This prevents filling
             // up the output buffer, which would cause the process to block indefinitely
             StreamConsumer outConsume = new StreamConsumer(process.getInputStream(), false);
             StreamConsumer errConsume = new StreamConsumer(process.getErrorStream(), true);
             errConsume.start();
             outConsume.start();
 
-            // Wait for the command to complete and check if it failed to successfully
-            // complete
+            // Wait for the command to complete and check if it failed to successfully complete
             if (process.waitFor() != 0)
             {
                 errorType = errConsume.getOutput();

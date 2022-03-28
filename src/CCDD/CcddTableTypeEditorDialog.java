@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddTableTypeEditorHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles the commands associated with a specific table type editor. This class
-*     is an extension of the CcddInputFieldPanelHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTableTypeEditorHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles the commands associated with a specific table type editor. This class
+ * is an extension of the CcddInputFieldPanelHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
@@ -89,7 +85,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private CcddTableTypeEditorHandler activeEditor;
     private CcddFindReplaceDialog searchDlg;
 
-    // Define globally so that it can be accessed by the action listeners, etc.
+    // Define globally so that it can be accessed by the action listeners, etc
     private JMenu mnFile;
     private JMenuItem mntmNewType;
     private JMenuItem mntmCopyType;
@@ -124,8 +120,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private final List<CcddTableTypeEditorHandler> typeEditors;
 
     // List containing the table type names for the types that are being updated. If a table type
-    // change is stored, any tables of that type with unsaved changes will have the changes removed.
-    // This list is used when determining if the user is asked to confirm discarding the table changes
+    // change is stored, any tables of that type with unsaved changes will have the changes
+    // removed. This list is used when determining if the user is asked to confirm discarding the
+    // table changes
     private final List<String> changedTypes;
 
     /**********************************************************************************************
@@ -188,8 +185,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     protected void removeActiveTab()
     {
-        // Remove the selected editor for the deleted type from the list, then remove
-        // its tab
+        // Remove the selected editor for the deleted type from the list, then remove its tab
         typeEditors.remove(tabbedPane.getSelectedIndex());
         tabbedPane.removeTabAt(tabbedPane.getSelectedIndex());
     }
@@ -250,8 +246,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             getJMenuBar().getMenu(index).setEnabled(enableIfType);
         }
 
-        // Set the menu item/button based on the input flag for these items since these
-        // are valid even when no table type exists
+        // Set the menu item/button based on the input flag for these items since these are valid
+        // even when no table type exists
         mnFile.setEnabled(enable);
         mntmNewType.setEnabled(enableIfReadWrite);
         mntmCopyType.setEnabled(enableIfType && enableIfReadWrite);
@@ -264,10 +260,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         btnStore.setEnabled(enableIfReadWrite);
         btnClose.setEnabled(enable);
 
-        // Set the menu item based on the input flag and if there are any data fields
-        // assigned to the table type
-        mntmClearValues
-                .setEnabled(enable && activeEditor != null && !activeEditor.getPanelFieldInformation().isEmpty());
+        // Set the menu item based on the input flag and if there are any data fields assigned to
+        // the table type
+        mntmClearValues.setEnabled(enable && activeEditor != null && !activeEditor.getPanelFieldInformation().isEmpty());
     }
 
     /**********************************************************************************************
@@ -280,7 +275,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *
      * @param tableNames    Array of modified table names
      ********************************************************************************************/
-    protected void doTypeModificationComplete(boolean commandError, CcddTableTypeEditorHandler updatedEditor,
+    protected void doTypeModificationComplete(boolean commandError,
+                                              CcddTableTypeEditorHandler updatedEditor,
                                               String[] tableNames)
     {
         // Check if a table type editor initiated the update
@@ -358,10 +354,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Create the table type editor dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the table type editor dialog. This is executed in a separate thread since it can take
+     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *
      * @param typeNames Array containing the table type names
      *********************************************************************************************/
@@ -379,8 +375,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             @Override
             protected void execute()
             {
-                // Menu
-                // ///////////////////////////////////////////////////////////////////////////
+                // Menu ///////////////////////////////////////////////////////////////////////////
                 // Create the table menu bar
                 JMenuBar menuBar = new JMenuBar();
                 setJMenuBar(menuBar);
@@ -638,8 +633,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmPaste.addActionListener(new ValidateCellActionListener()
                 {
                     /******************************************************************************
-                     * Paste the clipboard contents in the table, overwriting any existing data in the target cells and
-                     * adding new rows at the end of the table if needed
+                     * Paste the clipboard contents in the table, overwriting any existing data in
+                     * the target cells and adding new rows at the end of the table if needed
                      *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
@@ -664,7 +659,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmInsert.addActionListener(new ValidateCellActionListener()
                 {
                     /******************************************************************************
-                     * Insert the clipboard contents in the table, creating new rows to contain the data
+                     * Insert the clipboard contents in the table, creating new rows to contain the
+                     * data
                      *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
@@ -767,7 +763,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                           .isStructure(),
                                                   MIN_WINDOW_WIDTH);
 
-                        // Enable/disable the Clear values command depending on if any data fields remain
+                        // Enable/disable the Clear values command depending on if any data fields
+                        // remain
                         mntmClearValues.setEnabled(!activeEditor.getPanelFieldInformation().isEmpty());
                     }
 
@@ -1027,9 +1024,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         changedTypes.clear();
                         changedTypes.add(activeEditor.getTypeName());
 
-                        // Only update the table in the database if a cell's content has changed, none
-                        // of the required columns is missing a value, no duplicate input types exists
-                        // for types defined as unique, and the user confirms the action
+                        // Only update the table in the database if a cell's content has changed,
+                        // none of the required columns is missing a value, no duplicate input
+                        // types exists for types defined as unique, and the user confirms the
+                        // action
                         if (activeEditor.isTableChanged() && !activeEditor.checkForMissingColumns()
                             && !activeEditor.isInvalidInputTypes()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
@@ -1104,8 +1102,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 btnClose.addActionListener(closeAction);
                 mntmClose.addActionListener(closeAction);
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -1118,8 +1115,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Distribute the buttons across two rows
                 setButtonRows(2);
 
-                // Table Editors
-                // //////////////////////////////////////////////////////////////////
+                // Table Editors //////////////////////////////////////////////////////////////////
                 // Create a tabbed pane for the editors to appear in
                 tabbedPane = new DnDTabbedPane(JTabbedPane.TOP)
                 {
@@ -1183,8 +1179,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         }
 
                         // Update the editor controls state due to the tab selection change. The
-                        // enable state of the File menu is chosen to determine the controls
-                        // state. This prevents the controls from being re-enabled due to the tab
+                        // enable state of the File menu is chosen to determine the controls state.
+                        // This prevents the controls from being re-enabled due to the tab
                         // selection changing when the controls should be disabled
                         setControlsEnabled(mnFile.isEnabled());
                     }
@@ -1243,9 +1239,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Determine if any of the table types represented in this editor dialog have uncommitted changes
+     * Determine if any of the table types represented in this editor dialog have uncommitted
+     * changes
      *
-     * @return true if any of the editors represented in this editor dialog have uncommitted changes
+     * @return true if any of the editors represented in this editor dialog have uncommitted
+     *         changes
      *********************************************************************************************/
     private boolean isTablesChanged()
     {
@@ -1272,10 +1270,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the specified table is
-        // validated and
-        // that there are no uncommitted changes. If a change exists then confirm
-        // discarding the
+        // Check if the contents of the last cell edited in the specified table is validated and
+        // that there are no uncommitted changes. If a change exists then confirm discarding the
         // changes
         if (activeEditor == null
             || (activeEditor.getTable().isLastCellValid() && (!isTablesChanged() || new CcddDialogHandler()
@@ -1305,9 +1301,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             robot.keyRelease(key);
             robot.keyRelease(KeyEvent.VK_CONTROL);
         }
-        catch (
-            AWTException awte
-        )
+        catch (AWTException awte)
         {
             // Inform the user that key presses cannot be simulated
             new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
@@ -1320,9 +1314,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Get the selected field value overwrite action
      *
-     * @return OverwriteFieldValueType: ALL to overwrite all field values, SAME to overwrite only those
-     *         fields with a matching value, EMPTY to overwrite only fields with blank values, or NONE
-     *         to not overwrite any field values
+     * @return OverwriteFieldValueType: ALL to overwrite all field values, SAME to overwrite only
+     *         those fields with a matching value, EMPTY to overwrite only fields with blank
+     *         values, or NONE to not overwrite any field values
      *********************************************************************************************/
     private OverwriteFieldValueType getOverwriteFieldType()
     {
@@ -1350,25 +1344,30 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             List<FieldInformation> fieldInfo = editor.getPanelFieldInformation();
             List<String[]> newDataFields = CcddFieldHandler.getFieldDefnsAsListOfStrings(fieldInfo);
 
-            dbTable.modifyTableType(editor.getTypeName(), activeEditor.getPanelFieldInformation(),
-                                    getOverwriteFieldType(), editor.getTypeAdditions(), editor.getTypeModifications(),
-                                    editor.getTypeDeletions(), editor.isColumnOrderChange(), editor.getTypeDefinition(),
-                                    newDataFields, CcddTableTypeEditorDialog.this, activeEditor);
+            dbTable.modifyTableType(editor.getTypeName(),
+                                    activeEditor.getPanelFieldInformation(),
+                                    getOverwriteFieldType(),
+                                    editor.getTypeAdditions(),
+                                    editor.getTypeModifications(),
+                                    editor.getTypeDeletions(),
+                                    editor.isColumnOrderChange(),
+                                    editor.getTypeDefinition(),
+                                    newDataFields,
+                                    CcddTableTypeEditorDialog.this,
+                                    activeEditor);
 
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Update aborted by user
         }
     }
 
     /**********************************************************************************************
-     * Commit changes to the database for every table in the editor that has changes. This command is
-     * executed in a separate thread since it can take a noticeable amount time to complete, and by
-     * using a separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
-     * are disabled until the database command completes execution
+     * Commit changes to the database for every table in the editor that has changes. This command
+     * is executed in a separate thread since it can take a noticeable amount time to complete, and
+     * by using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the database command completes execution
      *********************************************************************************************/
     private void storeAllChanges()
     {
@@ -1393,15 +1392,19 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             editor.buildUpdates();
 
                             // Perform the changes to the table in the database
-                            dbTable.modifyTableType(editor.getTypeName(), activeEditor.getPanelFieldInformation(),
-                                                    getOverwriteFieldType(), editor.getTypeAdditions(),
-                                                    editor.getTypeModifications(), editor.getTypeDeletions(),
-                                                    editor.isColumnOrderChange(), editor.getTypeDefinition(), null,
-                                                    CcddTableTypeEditorDialog.this, editor);
+                            dbTable.modifyTableType(editor.getTypeName(),
+                                                    activeEditor.getPanelFieldInformation(),
+                                                    getOverwriteFieldType(),
+                                                    editor.getTypeAdditions(),
+                                                    editor.getTypeModifications(),
+                                                    editor.getTypeDeletions(),
+                                                    editor.isColumnOrderChange(),
+                                                    editor.getTypeDefinition(),
+                                                    null,
+                                                    CcddTableTypeEditorDialog.this,
+                                                    editor);
                         }
-                        catch (
-                            CCDDException ce
-                        )
+                        catch (CCDDException ce)
                         {
                             // Update aborted by user
                         }

@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddDataTypeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling data type operations.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddDataTypeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling data type operations.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.SIZEOF_DATATYPE;
@@ -60,6 +56,7 @@ import CCDD.CcddConstants.SearchType;
 public class CcddDataTypeHandler
 {
     // Class references
+    private final CcddMain ccddMain;
     private CcddDbTableCommandHandler dbTable;
     private CcddDbCommandHandler dbCommand;
     private CcddTableTypeHandler tableTypeHandler;
@@ -72,15 +69,17 @@ public class CcddDataTypeHandler
     private HashMap<String, String[]> dataTypesMap;
 
     /**********************************************************************************************
-     * Data type handler class constructor used when setting the data types from a source other than
-     * those in the project database
+     * Data type handler class constructor used when setting the data types from a source other
+     * than those in the project database
      *
-     * @param dataTypes List of string arrays containing data type names and the corresponding data type
-     *                  definitions
+     * @param dataTypes List of string arrays containing data type names and the corresponding data
+     *                  type definitions
      *********************************************************************************************/
-    CcddDataTypeHandler(List<String[]> dataTypes)
+    CcddDataTypeHandler(List<String[]> dataTypes, CcddMain ccddMain)
     {
+        this.ccddMain = ccddMain;
         this.dataTypes = dataTypes;
+
         // There is a new list of data types, generate the equivalent map
         buildDataTypesMap();
     }
@@ -93,8 +92,10 @@ public class CcddDataTypeHandler
     CcddDataTypeHandler(CcddMain ccddMain)
     {
         // Load the data types table from the project database
-        this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.DATA_TYPES, true,
-                                                                          ccddMain.getMainFrame()));
+        this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.DATA_TYPES,
+                                                                          true,
+                                                                          ccddMain.getMainFrame()),
+             ccddMain);
 
         // Get references to make subsequent calls shorter
         dbTable = ccddMain.getDbTableCommandHandler();
@@ -190,8 +191,8 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the data type definitions as an object array. The object array allows preserving the column
-     * value's type (string, integer, etc.)
+     * Get the data type definitions as an object array. The object array allows preserving the
+     * column value's type (string, integer, etc.)
      *
      * @return Data type definitions as an object array
      *********************************************************************************************/
@@ -209,8 +210,8 @@ public class CcddDataTypeHandler
                 // Check to see if we are working with the SIZE column
                 if (isInteger(column))
                 {
-                    // Check if the value being stored is a macro and if so store it as a string. If not
-                    // then store it as an integer
+                    // Check if the value being stored is a macro and if so store it as a string.
+                    // If not then store it as an integer
                     if (dataTypes.get(row)[column].contains("##"))
                     {
                         dataTypesArray[row][column] = dataTypes.get(row)[column].toString();
@@ -234,21 +235,23 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Set the data types to the supplied array
      *
-     * @param dataTypes List of string arrays containing data type names and the corresponding data type
-     *                  definitions
+     * @param dataTypes List of string arrays containing data type names and the corresponding data
+     *                  type definitions
      *********************************************************************************************/
     protected void setDataTypeData(List<String[]> dataTypes)
     {
         this.dataTypes = CcddUtilities.copyListOfStringArrays(dataTypes);
+
         // There is a new list, build the map again
         buildDataTypesMap();
     }
 
     /**********************************************************************************************
-     * Get the data type name. Return the user-defined name unless it's blank, in which case return the
-     * C-language name
+     * Get the data type name. Return the user-defined name unless it's blank, in which case return
+     * the C-language name
      *
-     * @param dataType String array containing data type name and the corresponding data type definition
+     * @param dataType String array containing data type name and the corresponding data type
+     *                 definition
      *
      * @return User-defined data type name; if blank then the C-language name
      *********************************************************************************************/
@@ -259,8 +262,8 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the data type name. Return the user-defined name unless it's blank, in which case return the
-     * C-language name
+     * Get the data type name. Return the user-defined name unless it's blank, in which case return
+     * the C-language name
      *
      * @param userName User-defined data type name
      *
@@ -293,22 +296,21 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return Data type information associated with the specified data type name; returns null if the
-     *         data type doesn't exist
+     * @return Data type information associated with the specified data type name; returns null if
+     *         the data type doesn't exist
      *********************************************************************************************/
     protected String[] getDataTypeByName(String dataTypeName)
     {
-        // Pull from the map and return the value
-        // Will return a null if the key is not in the map
-        // This is a much faster implementation than going through the
-        // list and doing a string compare on each item in the list
+        // Pull from the map and return the value. Will return a null if the key is not in the map.
+        // This is a much faster implementation than going through the list and doing a string
+        // compare on each item in the list
         String[] dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
 
-        // TODO DON'T LIKE THIS!
+        // TODO DON'T LIKE ADDING DATA TYPES LIKE THIS! USER SHOULD DO THIS EXPLICITLY
         if (dataTypeInfo == null && getDataTypeData().size() > 0)
         {
-            // Some databases do not have uint8-uint64 and int8-int64 defined. If they
-            // are needed then add them
+            // Some databases do not have uint8-uint64 and int8-int64 defined. If they are needed
+            // then add them
             List<String[]> currentDataTypes = getDataTypeData();
             String[] newDataType = new String[currentDataTypes.get(0).length];
             String baseType = "signed integer";
@@ -372,16 +374,15 @@ public class CcddDataTypeHandler
             if (newType)
             {
                 currentDataTypes.add(newDataType);
+
                 try
                 {
                     updateDataTypes(currentDataTypes, true);
                     dataTypeInfo = getDataTypesAsMap().get(dataTypeName);
                 }
-                catch (
-                    CCDDException e
-                )
+                catch (CCDDException e)
                 {
-                    e.printStackTrace();
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
             }
         }
@@ -394,7 +395,8 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return Base data type for the specified data type; returns null if the data type doesn't exist
+     * @return Base data type for the specified data type; returns null if the data type doesn't
+     *         exist
      *********************************************************************************************/
     protected BaseDataTypeInfo getBaseDataType(String dataTypeName)
     {
@@ -452,8 +454,8 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return Data type size in bytes for the specified data type; returns 0 if the data type doesn't
-     *         exist
+     * @return Data type size in bytes for the specified data type; returns 0 if the data type
+     *         doesn't exist
      *********************************************************************************************/
     protected int getSizeInBytes(String dataTypeName)
     {
@@ -463,10 +465,8 @@ public class CcddDataTypeHandler
         // Check if this data type is a character string
         if (isString(dataTypeName))
         {
-            // Force the size to 1 byte. This prevents the string pseudo-data type, which
-            // uses a
-            // size other than 1 to indicate the data type is a string, from returning an
-            // incorrect
+            // Force the size to 1 byte. This prevents the string pseudo-data type, which uses a
+            // size other than 1 to indicate the data type is a string, from returning an incorrect
             // size
             dataTypeSize = 1;
         }
@@ -479,8 +479,8 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return Data type size in bits for the specified data type; returns 0 if the data type doesn't
-     *         exist
+     * @return Data type size in bits for the specified data type; returns 0 if the data type
+     *         doesn't exist
      *********************************************************************************************/
     protected int getSizeInBits(String dataTypeName)
     {
@@ -604,11 +604,13 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the minimum possible value of the primitive type based on the data type and size in bytes
+     * Get the minimum possible value of the primitive type based on the data type and size in
+     * bytes
      *
      * @param dataTypeName Data type name
      *
-     * @return Minimum possible value of the primitive type based on the data type and size in bytes
+     * @return Minimum possible value of the primitive type based on the data type and size in
+     *         bytes
      *********************************************************************************************/
     protected Object getMinimum(String dataTypeName)
     {
@@ -622,8 +624,7 @@ public class CcddDataTypeHandler
         {
             minimum = (long) 0;
         }
-        // Check if the data type is a signed integer (an unsigned integer was already
-        // accounted
+        // Check if the data type is a signed integer (an unsigned integer was already accounted
         // for above)
         else if (isInteger(dataTypeName))
         {
@@ -640,11 +641,13 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the maximum possible value of the primitive type based on the data type and size in bytes
+     * Get the maximum possible value of the primitive type based on the data type and size in
+     * bytes
      *
      * @param dataTypeName Data type name
      *
-     * @return Maximum possible value of the primitive type based on the data type and size in bytes
+     * @return Maximum possible value of the primitive type based on the data type and size in
+     *         bytes
      *********************************************************************************************/
     protected Object getMaximum(String dataTypeName)
     {
@@ -658,8 +661,7 @@ public class CcddDataTypeHandler
         {
             maximum = (long) Math.pow(2, bytes * 8);
         }
-        // Check if the data type is a signed integer (an unsigned integer was already
-        // accounted
+        // Check if the data type is a signed integer (an unsigned integer was already accounted
         // for above)
         else if (isInteger(dataTypeName))
         {
@@ -677,15 +679,16 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get a list containing the tables in the project database that reference the specified data type
-     * name. Only search for references in the prototype tables (any references in the custom values
-     * table are automatically updated when the prototype is changed)
+     * Get a list containing the tables in the project database that reference the specified data
+     * type name. Only search for references in the prototype tables (any references in the custom
+     * values table are automatically updated when the prototype is changed)
      *
      * @param dataTypeName Data type name for which to search
      *
      * @param parent       GUI component over which to center any error dialog
      *
-     * @return List containing the tables in the database that reference the specified data type name
+     * @return List containing the tables in the database that reference the specified data type
+     *         name
      *********************************************************************************************/
     protected String[] searchDataTypeReferences(String dataTypeName, Component parent)
     {
@@ -698,8 +701,7 @@ public class CcddDataTypeHandler
             searchCriteria += "|" + macroName;
         }
 
-        // Get the references in the prototype tables that match the specified data type
-        // name
+        // Get the references in the prototype tables that match the specified data type name
         List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand
                 .getList(DatabaseListCommand.SEARCH,
                          new String[][] {{"_search_text_", "(" + searchCriteria + ")"}, {"_case_insensitive_", "true"},
@@ -707,8 +709,7 @@ public class CcddDataTypeHandler
                                          {"_columns_", ""}},
                          parent)));
 
-        // Remove any references to the data type that appear in an array size column
-        // for an array
+        // Remove any references to the data type that appear in an array size column for an array
         // member (the reference in the array's definition is all that's needed)
         CcddSearchHandler.removeArrayMemberReferences(matches, tableTypeHandler);
 
@@ -723,8 +724,8 @@ public class CcddDataTypeHandler
      * @param replaceExistingDataTypes True if any existing data types that share a name with an
      *                                 imported one should be replaced
      *
-     * @throws CCDDException If an data type with the same same already exists and the imported type
-     *                       doesn't match
+     * @throws CCDDException If an data type with the same same already exists and the imported
+     *                       type doesn't match
      *********************************************************************************************/
     protected void updateDataTypes(List<String[]> dataTypeDefinitions,
                                    boolean replaceExistingDataTypes) throws CCDDException
@@ -743,16 +744,13 @@ public class CcddDataTypeHandler
                 // Add the data type
                 dataTypes.add(typeDefn);
             }
-            // The data type exists; check if the type information provided matches the
-            // existing type information
-            else if (!(dataType[DataTypesColumn.USER_NAME.ordinal()]
-                    .equals(typeDefn[DataTypesColumn.USER_NAME.ordinal()])
+            // The data type exists; check if the type information provided matches the existing
+            // type information
+            else if (!(dataType[DataTypesColumn.USER_NAME.ordinal()].equals(typeDefn[DataTypesColumn.USER_NAME.ordinal()])
                        && dataType[DataTypesColumn.C_NAME.ordinal()].equals(typeDefn[DataTypesColumn.C_NAME.ordinal()])
                        && dataType[DataTypesColumn.SIZE.ordinal()].equals(typeDefn[DataTypesColumn.SIZE.ordinal()])
-                       && dataType[DataTypesColumn.BASE_TYPE.ordinal()]
-                               .equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()])))
+                       && dataType[DataTypesColumn.BASE_TYPE.ordinal()].equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()])))
             {
-
                 // If it does not match then check if we should replace the existing data type
                 if (replaceExistingDataTypes)
                 {
@@ -761,7 +759,8 @@ public class CcddDataTypeHandler
                 }
                 else
                 {
-                    throw new CCDDException("Imported data type '</b>" + CcddDataTypeHandler.getDataTypeName(typeDefn)
+                    throw new CCDDException("Imported data type '</b>"
+                                            + CcddDataTypeHandler.getDataTypeName(typeDefn)
                                             + "<b>' doesn't match the existing definition");
                 }
             }
@@ -799,14 +798,11 @@ public class CcddDataTypeHandler
         {
             try
             {
-                // Highlight the matching text. Adjust the highlight color to account for the
-                // cell
+                // Highlight the matching text. Adjust the highlight color to account for the cell
                 // selection highlighting so that the sizeof() call is easily readable
                 ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(), matcher.end(), painter);
             }
-            catch (
-                BadLocationException ble
-            )
+            catch (BadLocationException ble)
             {
                 // Ignore highlighting failure
             }
@@ -816,8 +812,8 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Get the list of items to display in the data type pop-up combo box
      *
-     * @param includePrimitives True to include primitive data types in the list; false to include only
-     *                          structures
+     * @param includePrimitives True to include primitive data types in the list; false to include
+     *                          only structures
      *
      * @return List of items to display in the data type pop-up combo box
      *********************************************************************************************/

@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddXTCEHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling import and export of data tables in XTCE XML format. This class implements
-*     the CcddImportExportInterface class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddXTCEHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling import and export of data tables in XTCE XML format. This class
+ * implements the CcddImportExportInterface class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -158,8 +154,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private ObjectFactory factory;
     private SpaceSystemType rootSystem;
 
-    // Reference to the script engine as an Invocable interface; used if external
-    // (script) methods are used for the export operation
+    // Reference to the script engine as an Invocable interface; used if external (script) methods
+    // are used for the export operation
     private Invocable invocable;
 
     // Attribute strings
@@ -176,8 +172,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private TypeDefinition structureTypeDefn;
     private TypeDefinition commandTypeDefn;
 
-    // Flags to indicate if a structure table type and a command table type is
-    // defined in the import file
+    // Flags to indicate if a structure table type and a command table type is defined in the
+    // import file
     private boolean isStructureExists;
     private boolean isCommandExists;
 
@@ -236,7 +232,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
          *
          * @param bitLength       Parameter bit length
          *
-         * @param enumeration     Enumeration in the format {@literal <enum label>|<enum value>[|...][,...]}
+         * @param enumeration     Enumeration in the format
+         *                        {@literal <enum label>|<enum value>[|...][,...]}
          *
          * @param units           Parameter units
          *
@@ -406,8 +403,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param ccddMain     Main class
      *
-     * @param scriptEngine Reference to the script engine so that the export methods can be overridden
-     *                     by the script methods; null if the internal methods are to be used
+     * @param scriptEngine Reference to the script engine so that the export methods can be
+     *                     overridden by the script methods; null if the internal methods are to be
+     *                     used
      *
      * @param parent       GUI component over which to center any error dialog
      *
@@ -436,7 +434,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the scripting language supports the Invocable interface
             if (!(scriptEngine instanceof Invocable))
             {
-                // Inform the user that the scripting language doesn't support the Invocable interface
+                // Inform the user that the scripting language doesn't support the Invocable
+                // interface
                 throw new CCDDException("XTCE conversion failed; cause '</b>" + "The scripting language '"
                                         + scriptEngine.getFactory().getLanguageName()
                                         + "' does not implement the Invocable interface" + "<b>'");
@@ -463,12 +462,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Create the factory for building the space system objects
             factory = new ObjectFactory();
 
-            // Create the XML unmarshaller used to convert XTCE XML data into CCDD project data format
+            // Create the XML unmarshaller used to convert XTCE XML data into CCDD project data
+            // format
             unmarshaller = context.createUnmarshaller();
         }
-        catch (
-            JAXBException je
-        )
+        catch (JAXBException je)
         {
             // Inform the user that the XTCE/JAXB set up failed
             throw new CCDDException("XTCE conversion setup failed; cause '</b>" + je.getMessage() + "<b>'");
@@ -492,8 +490,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the imported table definitions
      *
-     * @return List of imported table definitions; an empty list if no table definitions exist in the
-     *         import file
+     * @return List of imported table definitions; an empty list if no table definitions exist in
+     *         the import file
      *********************************************************************************************/
     @Override
     public List<TableDefinition> getTableDefinitions()
@@ -504,7 +502,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the list of original and new script associations. Not used for EDS import
      *
-     * @return List of original and new script associations; null if no new associations have been added
+     * @return List of original and new script associations; null if no new associations have been
+     *         added
      *********************************************************************************************/
     @Override
     public List<String[]> getScriptAssociations()
@@ -515,8 +514,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the list of original and new telemetry scheduler data
      *
-     * @return List of original and new telemetry scheduler data; null if no new associations have been
-     *         added
+     * @return List of original and new telemetry scheduler data; null if no new associations have
+     *         been added
      *********************************************************************************************/
     @Override
     public List<String[]> getTlmSchedulerData()
@@ -527,8 +526,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the list of original and new application scheduler data
      *
-     * @return List of original and new application scheduler data; null if no new associations have
-     *         been added
+     * @return List of original and new application scheduler data; null if no new associations
+     *         have been added
      *********************************************************************************************/
     @Override
     public List<String[]> getAppSchedulerData()
@@ -541,15 +540,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFile                  Import file reference
      *
-     * @param importType                  ImportType.IMPORT_ALL to import the table type, data type, and
-     *                                    macro definitions, and the data from all the table
-     *                                    definitions; ImportType.FIRST_DATA_ONLY to load only the data
-     *                                    for the first table defined
+     * @param importType                  ImportType.IMPORT_ALL to import the table type, data
+     *                                    type, and macro definitions, and the data from all the
+     *                                    table definitions; ImportType.FIRST_DATA_ONLY to load
+     *                                    only the data for the first table defined
      *
      * @param ignoreErrors                True to ignore all errors in the import file
      *
-     * @param replaceExistingAssociations True to overwrite internal associations with those from the
-     *                                    import file
+     * @param replaceExistingAssociations True to overwrite internal associations with those from
+     *                                    the import file
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -565,7 +564,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Import the input types, table types, table type data fields and data types from the given file
+     * Import the input types, table types, table type data fields and data types from the given
+     * file
      *
      * @param importFile            Import file reference
      *
@@ -596,8 +596,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param ignoreErrors             True to ignore all errors in the import file
      *
-     * @param replaceExistingDataTypes True to replace existing data types that share a name with an
-     *                                 imported data type
+     * @param replaceExistingDataTypes True to replace existing data types that share a name with
+     *                                 an imported data type
      *
      * @param importingEntireDatabase  True to replace existing database internal tables
      *
@@ -620,10 +620,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFile            Import file reference
      *
-     * @param importType            ImportType.IMPORT_ALL to import the table type, data type, and macro
-     *                              definitions, and the data from all the table definitions;
-     *                              ImportType.FIRST_DATA_ONLY to load only the data for the first table
-     *                              defined
+     * @param importType            ImportType.IMPORT_ALL to import the table type, data type, and
+     *                              macro definitions, and the data from all the table definitions;
+     *                              ImportType.FIRST_DATA_ONLY to load only the data for the first
+     *                              table defined
      *
      * @param targetTypeDefn        Table type definition of the table in which to import the data;
      *                              ignored if importing all tables
@@ -665,25 +665,29 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Step through each ancillary data item
                 for (AncillaryData data : ancillarySet.getAncillaryData())
                 {
-                    // Check if the item name matches that for the telemetry header table name indicator
+                    // Check if the item name matches that for the telemetry header table name
+                    // indicator
                     if (data.getName().equals(DefaultInputType.XML_TLM_HDR.getInputName()))
                     {
                         // Store the item value as the telemetry header table name
                         tlmHeaderTable = data.getValue();
                     }
-                    // Check if the item name matches that for the command header table name indicator
+                    // Check if the item name matches that for the command header table name
+                    // indicator
                     else if (data.getName().equals(DefaultInputType.XML_CMD_HDR.getInputName()))
                     {
                         // Store the item value as the command header table name
                         cmdHeaderTable = data.getValue();
                     }
-                    // Check if the item name matches that for the application ID variable name indicator
+                    // Check if the item name matches that for the application ID variable name
+                    // indicator
                     else if (data.getName().equals(DefaultInputType.XML_APP_ID.getInputName()))
                     {
                         // Store the item value as the application ID variable name
                         applicationIDName = data.getValue();
                     }
-                    // Check if the item name matches that for the command function code variable name indicator
+                    // Check if the item name matches that for the command function code variable
+                    // name indicator
                     else if (data.getName().equals(DefaultInputType.XML_FUNC_CODE.getInputName()))
                     {
                         // Store the item value as the command function code variable name
@@ -702,7 +706,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             if (true)
             {
                 // Set the flag if importing into an existing table to indicate that only a command
-                // header, which is converted to structure table, is allowed when processing commands
+                // header, which is converted to structure table, is allowed when processing
+                // commands
                 boolean onlyCmdToStruct = importType == ImportType.FIRST_DATA_ONLY && targetTypeDefn.isStructure();
 
                 // Step through each space system
@@ -712,7 +717,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // and command information
                     unbuildSpaceSystems(system, "", importType, onlyCmdToStruct);
 
-                    // Check if only the data from the first table of the target table type is to be read
+                    // Check if only the data from the first table of the target table type is to
+                    // be read
                     if (importType == ImportType.FIRST_DATA_ONLY && !tableDefinitions.isEmpty())
                     {
                         // Stop reading table definitions
@@ -741,9 +747,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 }
             }
         }
-        catch (
-            JAXBException je
-        )
+        catch (JAXBException je)
         {
             // Inform the user that the file cannot be parsed
             throw new CCDDException("Parsing error; cause '</b>" + je.getMessage() + "<b>'");
@@ -756,12 +760,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param system          Space system to which the new system belongs
      *
-     * @param systemPath      Full path name for this space system (based on its nesting within other
-     *                        space systems)
+     * @param systemPath      Full path name for this space system (based on its nesting within
+     *                        other space systems)
      *
-     * @param importType      Import type: ImportType.ALL to import all information in the import file;
-     *                        ImportType.FIRST_DATA_ONLY to import data from the first table defined in
-     *                        the import file
+     * @param importType      Import type: ImportType.ALL to import all information in the import
+     *                        file; ImportType.FIRST_DATA_ONLY to import data from the first table
+     *                        defined in the import file
      *
      * @param onlyCmdToStruct True to only allow a command header, converted to a structure, to be
      *                        stored; false to store (non-header) command tables
@@ -795,16 +799,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Get the child system's command metadata information
         CommandMetaDataType cmdMetaData = system.getCommandMetaData();
 
-        // Check if the command metadata information exists; if so, the assumption is
-        // made that this is a command table
+        // Check if the command metadata information exists; if so, the assumption is made that
+        // this is a command table
         if (cmdMetaData != null)
         {
             // Build the command table from the telemetry data
             importCommandTable(system, cmdMetaData, tableName, systemPath, onlyCmdToStruct);
         }
 
-        // Check if the data from all tables is to be read or no table of the target
-        // type has been located yet
+        // Check if the data from all tables is to be read or no table of the target type has been
+        // located yet
         if (importType == ImportType.IMPORT_ALL || tableDefinitions.isEmpty())
         {
             // Step through each child system, if any
@@ -822,7 +826,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param system      Space system
      *
-     * @param tlmMetaData Reference to the telemetry metadata from which to build the structure table
+     * @param tlmMetaData Reference to the telemetry metadata from which to build the structure
+     *                    table
      *
      * @param tableName   Name table name, including the full system path
      *
@@ -859,8 +864,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             SpaceSystemType ownerSystem = dbTable.isRootStructure(tableName) ? system : rootSystem;
 
             // Create a table definition for this structure table. If the name space also includes
-            // a command metadata (which creates a command table) then ensure the two tables
-            // have different names
+            // a command metadata (which creates a command table) then ensure the two tables have
+            // different names
             TableDefinition tableDefn = new TableDefinition(tableName
                                                             + (system.getCommandMetaData() == null ? "" : "_tlm"),
                                                             system.getLongDescription());
@@ -871,8 +876,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Step through each sequence container in the container set
             for (SequenceContainerType seqContainer : tlmMetaData.getContainerSet().getSequenceContainer())
             {
-                // Get the reference to the sequence container's base container (if any). The
-                // base container is assumed to reference the telemetry header
+                // Get the reference to the sequence container's base container (if any). The base
+                // container is assumed to reference the telemetry header
                 BaseContainer baseContainer = seqContainer.getBaseContainer();
 
                 // Check if the reference to the telemetry header table exists
@@ -901,15 +906,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Create a data field for the table containing the application ID.
                                 // Once a match is found the search is discontinued
                                 tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName, comparison
-                                        .getParameterRef(), "Application name and ID", inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID), Math.min(Math.max(comparison.getValue().length(), 5), 40), false, ApplicabilityType.ROOT_ONLY, comparison.getValue(), false));
+                                        .getParameterRef(), "Application name and ID", inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID),
+                                                                                                Math.min(Math.max(comparison.getValue().length(), 5), 40), false,
+                                                                                                ApplicabilityType.ROOT_ONLY, comparison.getValue(), false));
                                 break;
                             }
                         }
                     }
                 }
 
-                // Get the reference to the sequence container's entry list to shorten
-                // subsequent calls
+                // Get the reference to the sequence container's entry list to shorten subsequent
+                // calls
                 List<SequenceEntryType> sequenceEntries = seqContainer.getEntryList()
                         .getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry();
 
@@ -918,10 +925,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     ParameterInformation parmInfo = null;
 
-                    // Get the reference to the sequence container entry to shorten subsequent calls
+                    // Get the reference to the sequence container entry to shorten subsequent
+                    // calls
                     SequenceEntryType seqEntry = sequenceEntries.get(seqIndex);
 
-                    // Check if the entry is for an array or non-array primitive data type parameter
+                    // Check if the entry is for an array or non-array primitive data type
+                    // parameter
                     if (seqEntry instanceof ParameterRefEntryType || seqEntry instanceof ArrayParameterRefEntryType)
                     {
                         // Check if the telemetry information exists
@@ -944,17 +953,20 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Get the reference to the parameter in the parameter set
                                 Parameter parameter = (Parameter) parmSet.get(parmIndex);
 
-                                // Check if this is the parameter set entry for the parameter being processed
+                                // Check if this is the parameter set entry for the parameter being
+                                // processed
                                 if (parameter.getName()
                                         .equals(seqEntry instanceof ParameterRefEntryType ? ((ParameterRefEntryType) seqEntry)
                                                 .getParameterRef()
                                                                                           : ((ArrayParameterRefEntryType) seqEntry)
                                                                                                   .getParameterRef()))
                                 {
-                                    // Get the parameter information referenced by the parameter type
+                                    // Get the parameter information referenced by the parameter
+                                    // type
                                     parmInfo = processParameterReference(parameter, parmTypeSet, seqEntry, seqIndex);
 
-                                    // Stop searching the parameter set since the matching entry was found
+                                    // Stop searching the parameter set since the matching entry
+                                    // was found
                                     break;
                                 }
                             }
@@ -1010,7 +1022,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param system          Space system
      *
-     * @param cmdMetaData     Reference to the command metadata from which to build the command table
+     * @param cmdMetaData     Reference to the command metadata from which to build the command
+     *                        table
      *
      * @param tableName       Name table name, including the full system path
      *
@@ -1093,7 +1106,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if the name and value exist
                             if (argAssn.getArgumentName() != null && argAssn.getArgumentValue() != null)
                             {
-                                // Check if the argument name matches the application ID variable name
+                                // Check if the argument name matches the application ID variable
+                                // name
                                 if (argAssn.getArgumentName().equals(applicationIDName))
                                 {
                                     boolean isExists = false;
@@ -1270,8 +1284,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     argRowData[descColumn] = argInfo.getDescription();
                                 }
 
-                                // Check if the command argument units
-                                // is present
+                                // Check if the command argument units is present
                                 if (unitsColumn != -1 && argInfo.getUnits() != null)
                                 {
                                     // Store the command argument units
@@ -1362,8 +1375,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 }
             }
 
-            // Check if the command table definition contains any commands. If the entire
-            // table was
+            // Check if the command table definition contains any commands. If the entire table was
             // converted to a structure then there won't be any data rows, in which case the
             // command table doesn't get generated
             if (!cmdTableDefn.getData().isEmpty())
@@ -1428,15 +1440,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             int numStructureColumns = structureTypeDefn.getColumnCountVisible();
 
             // Create a new row of data in the table definition to contain this parameter's
-            // information. Columns values are null if no value is specified (the table
-            // paste method uses this to distinguish between a skipped cell and a pasted blank)
+            // information. Columns values are null if no value is specified (the table paste
+            // method uses this to distinguish between a skipped cell and a pasted blank)
             String[] newRow = new String[numStructureColumns];
             Arrays.fill(newRow, null);
             tableDefn.addData(newRow);
 
-            // Step through each parameter to add. A single pass is made for non-array
-            // parameters. For array parameters a pass is made for the array definition
-            // plus for each array member
+            // Step through each parameter to add. A single pass is made for non-array parameters.
+            // For array parameters a pass is made for the array definition plus for each array
+            // member
             for (int varIndex = 0; varIndex <= numArrayMembers; varIndex++)
             {
                 // Check if this is an array parameter
@@ -1455,14 +1467,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Add a new row for the array member
                         tableDefn.addData(newRow);
 
-                        // Set the array member's variable name by appending the current array index
+                        // Set the array member's variable name by appending the current array
+                        // index
                         variableName = arrayDefnName + ArrayVariable.formatArrayIndex(currentIndices);
 
                         // Check if this wasn't the last array member (no need to calculate the
                         // index for a member after the last one)
                         if (varIndex != numArrayMembers)
                         {
-                            // Step through the array indices so that the next array index can be created
+                            // Step through the array indices so that the next array index can be
+                            // created
                             for (int subIndex = currentIndices.length - 1; subIndex >= 0; subIndex--)
                             {
                                 // Increment the index
@@ -1485,9 +1499,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                // Store the variable definition's column values if the column exists in the structure
-                // table type definition (all of these columns exist when the table type is created
-                // during import, but certain ones may not exist when importing into an existing structure)
+                // Store the variable definition's column values if the column exists in the
+                // structure table type definition (all of these columns exist when the table type
+                // is created during import, but certain ones may not exist when importing into an
+                // existing structure)
                 tableDefn.getData().set(rowIndex * numStructureColumns + variableNameIndex, variableName);
                 tableDefn.getData().set(rowIndex * numStructureColumns + dataTypeIndex, dataType);
                 tableDefn.getData().set(rowIndex * numStructureColumns + arraySizeIndex, arraySize);
@@ -1526,8 +1541,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Process the contents of telemetry sequence or command container entry list parameter or array
-     * parameter reference to extract the parameter attributes
+     * Process the contents of telemetry sequence or command container entry list parameter or
+     * array parameter reference to extract the parameter attributes
      *
      * @param parameter   Reference to the parameter in the parameter set
      *
@@ -1586,20 +1601,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
             arraySize = CcddUtilities.removeTrailer(arraySize, ",");
 
-            // Store the total number of array members. This causes a row of data to be
-            // added for
+            // Store the total number of array members. This causes a row of data to be added for
             // each member of the array
             numArrayMembers = ArrayVariable.getNumMembersFromArraySize(arraySize);
 
-            // The array parameter type entry references a non-array parameter type that
-            // describes
-            // the individual array members' data type. Step through each parameter type in
-            // the
+            // The array parameter type entry references a non-array parameter type that describes
+            // the individual array members' data type. Step through each parameter type in the
             // parameter type set in order to locate this data type entry
             for (NameDescriptionType type : parmTypeSet)
             {
-                // Check if the array parameter's array type reference matches the parameter
-                // type
+                // Check if the array parameter's array type reference matches the parameter type
                 // set entry name
                 if (parameter.getParameterTypeRef().equals(type.getName()))
                 {
@@ -1610,10 +1621,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             }
         }
 
-        // Check if a parameter type set entry name for the parameter is set (note that
-        // if the
-        // parameter is an array the steps above locate the data type entry for the
-        // individual
+        // Check if a parameter type set entry name for the parameter is set (note that if the
+        // parameter is an array the steps above locate the data type entry for the individual
         // array members)
         if (matchParmType != null)
         {
@@ -1821,8 +1830,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Process the contents of telemetry sequence or command container entry list parameter or array
-     * parameter reference to extract the parameter attributes
+     * Process the contents of telemetry sequence or command container entry list parameter or
+     * array parameter reference to extract the parameter attributes
      *
      * @param argument   Reference to the argument in the argument list
      *
@@ -1855,8 +1864,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Step through each command argument type
         for (NameDescriptionType argType : argTypeSet)
         {
-            // Check if this is the same command argument referenced in the argument list
-            // (by
+            // Check if this is the same command argument referenced in the argument list (by
             // matching the command and argument names between the two)
             if (argument.getArgumentTypeRef().equals(argType.getName()))
             {
@@ -1912,8 +1920,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     long dataTypeBitSize = 0;
 
-                    // Check if the argument is an integer data
-                    // type
+                    // Check if the argument is an integer data type
                     if (argType instanceof IntegerArgumentType)
                     {
                         IntegerArgumentType icmd = (IntegerArgumentType) argType;
@@ -2110,16 +2117,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Process the contents of telemetry sequence or command container entry list container reference to
-     * extract the parameter name, data type, array size, and description
+     * Process the contents of telemetry sequence or command container entry list container
+     * reference to extract the parameter name, data type, array size, and description
      *
      * @param system             Space system to which the container reference belongs
      *
-     * @param tlmSequenceEntries Reference to the list of telemetry sequence container entries; null if
-     *                           processing a command container reference
+     * @param tlmSequenceEntries Reference to the list of telemetry sequence container entries;
+     *                           null if processing a command container reference
      *
-     * @param cmdSequenceEntries Reference to the list of command container entries; null if processing
-     *                           a telemetry sequence container reference
+     * @param cmdSequenceEntries Reference to the list of command container entries; null if
+     *                           processing a telemetry sequence container reference
      *
      * @param seqEntry           Reference to the sequence container's entry list item to process
      *
@@ -2140,20 +2147,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         String description = null;
         int numArrayMembers = 0;
 
-        // Separate the container reference path into the child space system name, the
-        // child's
+        // Separate the container reference path into the child space system name, the child's
         // sequence container name, and the total array size
         String[] path = ((ContainerRefEntryType) seqEntry).getContainerRef().split("/");
 
-        // Get the reference to the child space system indicated by the container
-        // reference. The
+        // Get the reference to the child space system indicated by the container reference. The
         // first portion of the path is the name of the child space system
         SpaceSystemType childSystem = getSpaceSystemByName(path[0], system);
 
-        // Check if the child space system exists and that the short description field
-        // contains the
-        // table path in its original (application) format. The container is ignored if
-        // these
+        // Check if the child space system exists and that the short description field contains the
+        // table path in its original (application) format. The container is ignored if these
         // criteria aren't met
         if (childSystem != null && childSystem.getShortDescription() != null
             && TableDefinition.isPathFormatValid(childSystem.getShortDescription()))
@@ -2181,7 +2184,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // sequence container. For import purposes the array definition must be
                         // created, and from this the individual array members are generated
                         // (similar to the primitive data type parameters). The array size
-                        // information is extracted from the first container reference for the array
+                        // information is extracted from the first container reference for the
+                        // array
 
                         // Get the variable name without the array index portion
                         parameterName = ArrayVariable.removeArrayIndex(parameterName);
@@ -2278,25 +2282,27 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
-     * @param replaceMacros           * Not used for XTCE export (all macros are expanded) * true to
-     *                                replace any embedded macros with their corresponding values
+     * @param replaceMacros           * Not used for XTCE export (all macros are expanded) * true
+     *                                to replace any embedded macros with their corresponding
+     *                                values
      *
-     * @param includeVariablePaths    * Not used for XTCE export * true to include the variable path for
-     *                                each variable in a structure table, both in application format and
-     *                                using the user-defined separator characters
+     * @param includeVariablePaths    * Not used for XTCE export * true to include the variable
+     *                                path for each variable in a structure table, both in
+     *                                application format and using the user-defined separator
+     *                                characters
      *
-     * @param variableHandler         * Not used for XTCE export * variable handler class reference;
-     *                                null if includeVariablePaths is false
+     * @param variableHandler         * Not used for XTCE export * variable handler class
+     *                                reference; null if includeVariablePaths is false
      *
-     * @param separators              * Not used for XTCE export * string array containing the variable
-     *                                path separator character(s), show/hide data types flag ('true' or
-     *                                'false'), and data type/variable name separator character(s); null
-     *                                if includeVariablePaths is false
+     * @param separators              * Not used for XTCE export * string array containing the
+     *                                variable path separator character(s), show/hide data types
+     *                                flag ('true' or 'false'), and data type/variable name
+     *                                separator character(s); null if includeVariablePaths is false
      *
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
-     * @param extraInfo               [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN)
-     *                                <br>
+     * @param extraInfo               [0] endianess (EndianType.BIG_ENDIAN or
+     *                                EndianType.LITTLE_ENDIAN) <br>
      *                                [1] are the telemetry and command headers big endian (true or
      *                                false) <br>
      *                                [2] version attribute <br>
@@ -2323,9 +2329,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             (String) extraInfo[2], (String) extraInfo[3], (String) extraInfo[4], (String) extraInfo[5],
                             (String) extraInfo[6]);
 
-        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
-        // levels; once exceeded it starts back at the first column. Therefore, a Transformer
-        // is used to set the indentation amount (it doesn't have an indentation level limit)
+        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8 levels;
+        // once exceeded it starts back at the first column. Therefore, a Transformer is used to
+        // set the indentation amount (it doesn't have an indentation level limit)
         DOMResult domResult = new DOMResult();
         marshaller.marshal(project, domResult);
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -2342,11 +2348,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeBuildInformation True to include the CCDD version, project, host, and user
      *                                information
      *
-     * @param endianess               EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for
-     *                                little endian
+     * @param endianess               EndianType.BIG_ENDIAN for big endian,
+     *                                EndianType.LITTLE_ENDIAN for little endian
      *
-     * @param isHeaderBigEndian       True if the telemetry and command headers are always big endian
-     *                                (e.g., as with CCSDS)
+     * @param isHeaderBigEndian       True if the telemetry and command headers are always big
+     *                                endian (e.g., as with CCSDS)
      *
      * @param version                 Version attribute
      *
@@ -2396,15 +2402,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             rootSystem.getHeader().setNoteSet(note);
         }
 
-        // Get the names of the tables representing the CCSDS telemetry and command
-        // headers
+        // Get the names of the tables representing the CCSDS telemetry and command headers
         tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                     DefaultInputType.XML_TLM_HDR);
         cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                     DefaultInputType.XML_CMD_HDR);
 
-        // Get the telemetry and command header argument column names for the
-        // application ID and
+        // Get the telemetry and command header argument column names for the application ID and
         // the command function code. These are stored as project-level data fields
         applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                        DefaultInputType.XML_APP_ID);
@@ -2418,18 +2422,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             applicationIDName = DefaultHeaderVariableName.APP_ID.getDefaultVariableName();
         }
 
-        // Check if the command function code argument column name isn't set in the
-        // project
+        // Check if the command function code argument column name isn't set in the project
         if (cmdFuncCodeName == null)
         {
             // Use the default command function code argument column name
             cmdFuncCodeName = DefaultHeaderVariableName.FUNC_CODE.getDefaultVariableName();
         }
 
-        // The telemetry and command header table names, and application ID and command
-        // function
-        // code variable names are stored as ancillary data which is used if the export
-        // file is
+        // The telemetry and command header table names, and application ID and command function
+        // code variable names are stored as ancillary data which is used if the export file is
         // imported into CCDD
         AncillaryDataSet ancillarySet = factory.createDescriptionTypeAncillaryDataSet();
 
@@ -2494,21 +2495,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             boolean isTlmHdrTable = false;
             boolean isCmdHdrTable = false;
 
-            // Store the table name as the one used for extracting data from the project
-            // database.
+            // Store the table name as the one used for extracting data from the project database.
             // The two names differ when a descendant of the telemetry header is loaded
             String loadTableName = tableName;
 
-            // Check if this table is a reference to the telemetry header table or one of
-            // its
+            // Check if this table is a reference to the telemetry header table or one of its
             // descendant tables
             if (tablePath.matches("(?:[^,]+,)?" + tlmHeaderTable + "(?:\\..*|,.+|$)"))
             {
-                // Only one telemetry header table is created even though multiple instances of
-                // it
+                // Only one telemetry header table is created even though multiple instances of it
                 // may be referenced. The prototype is used to define the telemetry header; any
-                // custom values in the instances are ignored. Descendants of the telemetry
-                // header
+                // custom values in the instances are ignored. Descendants of the telemetry header
                 // table are treated similarly
 
                 isTlmHdrTable = true;
@@ -2597,8 +2594,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             }
 
             // Check if this table has already been loaded and its space system built. This
-            // prevents repeated references to the telemetry/command header and its children
-            // from
+            // prevents repeated references to the telemetry/command header and its children from
             // being from being reprocessed
             if (!processedTables.contains(tableName))
             {
@@ -2779,19 +2775,20 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Create a new space system as a child of the specified space system, if it doesn't already exist.
-     * If the system already exists then use the supplied description, full path, and document
-     * attributes to update the system. If the specified system is null then this is the root space
-     * system
+     * Create a new space system as a child of the specified space system, if it doesn't already
+     * exist. If the system already exists then use the supplied description, full path, and
+     * document attributes to update the system. If the specified system is null then this is the
+     * root space system
      *
-     * @param parentSystem     Parent space system for the new system; null for the root space system
+     * @param parentSystem     Parent space system for the new system; null for the root space
+     *                         system
      *
      * @param systemName       Name for the new space system
      *
      * @param description      Space system description
      *
-     * @param fullPath         Full table path; null or blank if this space system doesn't describe a
-     *                         table
+     * @param fullPath         Full table path; null or blank if this space system doesn't describe
+     *                         a table
      *
      * @param classification   XML document classification
      *
@@ -2813,8 +2810,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Check if the space system doesn't already exist
         if (childSystem == null)
         {
-            // Create the new space system, store its name, and set the flag to indicate a
-            // new
+            // Create the new space system, store its name, and set the flag to indicate a new
             // space system exists
             childSystem = factory.createSpaceSystemType();
             childSystem.setName(systemName);
@@ -2843,8 +2839,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Check if the full table path is provided
         if (fullPath != null && !fullPath.isEmpty())
         {
-            // Store the table name, with its full path, in the short description field.
-            // This is
+            // Store the table name, with its full path, in the short description field. This is
             // used if the export file is used to import tables into a project
             childSystem.setShortDescription(fullPath);
         }
@@ -2857,15 +2852,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Get the reference to the space system with the specified name, starting at the specified space
-     * system
+     * Get the reference to the space system with the specified name, starting at the specified
+     * space system
      *
      * @param systemName     Name to search for within the space system hierarchy
      *
      * @param startingSystem Space system in which to start the search
      *
-     * @return Reference to the space system with the same name as the search name; null if no space
-     *         system name matches the search name
+     * @return Reference to the space system with the same name as the search name; null if no
+     *         space system name matches the search name
      *********************************************************************************************/
     private SpaceSystemType getSpaceSystemByName(String systemName, SpaceSystemType startingSystem)
     {
@@ -2874,17 +2869,18 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Recursively search through the space system tree for the space system with the same name as the
-     * search name
+     * Recursively search through the space system tree for the space system with the same name as
+     * the search name
      *
      * @param systemName  Name to search for within the space system hierarchy
      *
      * @param spaceSystem Current space system to check
      *
-     * @param foundSystem Space system that matches the search name; null if no match has been found
+     * @param foundSystem Space system that matches the search name; null if no match has been
+     *                    found
      *
-     * @return Reference to the space system with the same name as the search name; null if no space
-     *         system name matches the search name
+     * @return Reference to the space system with the same name as the search name; null if no
+     *         space system name matches the search name
      *********************************************************************************************/
     private SpaceSystemType searchSpaceSystemsForName(String systemName, SpaceSystemType spaceSystem,
                                                       SpaceSystemType foundSystem)
@@ -2953,16 +2949,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addSpaceSystemHeader<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -3009,19 +3001,19 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param bitColumn       Parameter bit length column index
      *
-     * @param enumColumn      Parameter enumeration column index; -1 if no the table has no enumeration
-     *                        column
+     * @param enumColumn      Parameter enumeration column index; -1 if no the table has no
+     *                        enumeration column
      *
-     * @param descColumn      Parameter description column index; -1 if no the table has no description
-     *                        column
+     * @param descColumn      Parameter description column index; -1 if no the table has no
+     *                        description column
      *
      * @param unitsColumn     Parameter units column index; -1 if no the table has no units column
      *
-     * @param minColumn       Minimum parameter value column index; -1 if no the table has no minimum
-     *                        column
+     * @param minColumn       Minimum parameter value column index; -1 if no the table has no
+     *                        minimum column
      *
-     * @param maxColumn       Maximum parameter value column index; -1 if no the table has no maximum
-     *                        column
+     * @param maxColumn       Maximum parameter value column index; -1 if no the table has no
+     *                        maximum column
      *
      * @param isTlmHdrTable   True if this table represents the telemetry header or one of its
      *                        descendants
@@ -3059,16 +3051,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addSpaceSystemParameters<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -3127,8 +3115,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // telemetry header
                     seqContainer.setAbstract(true);
                 }
-                // Not the telemetry header. Check if this is a root structure that references
-                // the
+                // Not the telemetry header. Check if this is a root structure that references the
                 // telemetry header table (child structures don't require a reference to the
                 // telemetry header) and if the application ID information is provided
                 else if (isRootStructure && isTlmHdrRef && applicationIDName != null && !applicationIDName.isEmpty()
@@ -3217,16 +3204,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addParameterAndType<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -3236,11 +3219,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Check if the internal method is used
         if (useInternal)
         {
-            // Check if a data type is provided, that it's a primitive, and this isn't an
-            // array
-            // member. The array definition is sufficient to define the array elements.
-            // Structure
-            // data types are handled as containers.
+            // Check if a data type is provided, that it's a primitive, and this isn't an array
+            // member. The array definition is sufficient to define the array elements. Structure
+            // data types are handled as containers
             if (dataType != null && dataTypeHandler.isPrimitive(dataType)
                 && !ArrayVariable.isArrayMember(parameterName))
             {
@@ -3267,8 +3248,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 setParameterDataType(spaceSystem, parameterName, dataType, arraySize, bitLength, enumeration, units,
                                      minimum, maximum, description, stringSize);
 
-                // Create the parameter. This links the parameter name with the parameter
-                // reference
+                // Create the parameter. This links the parameter name with the parameter reference
                 // type
                 Parameter parameter = factory.createParameterSetTypeParameter();
                 parameter.setName(parameterName);
@@ -3293,7 +3273,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param entryList     Reference to the entry list into which to place the parameter (for a
      *                      primitive data type) or container (for a structure data type) reference
      *
-     * @param isTlmHdrRef   True if this table represents the telemetry header or one of its descendants
+     * @param isTlmHdrRef   True if this table represents the telemetry header or one of its
+     *                      descendants
      *
      * @return true if the parameter's data type references the telemetry header or one of its
      *         descendants; otherwise return the flag status unchanged
@@ -3320,16 +3301,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addParameterAndType<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -3342,8 +3319,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the parameter is an array definition or member
             if (!arraySize.isEmpty())
             {
-                // Check if this is the array definition (array members are ignored; the
-                // definition
+                // Check if this is the array definition (array members are ignored; the definition
                 // is sufficient to describe the array)
                 if (!ArrayVariable.isArrayMember(parameterName))
                 {
@@ -3393,8 +3369,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
             }
-            // Not an array definition or member. Check if this parameter has a primitive
-            // data type
+            // Not an array definition or member. Check if this parameter has a primitive data type
             // (i.e., it isn't an instance of a structure)
             else if (dataTypeHandler.isPrimitive(dataType))
             {
@@ -3408,13 +3383,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             else if (!dataType.equals(tlmHeaderTable))
             {
                 // The XTCE aggregate data type would be used to define the structure reference,
-                // but a limitation in the XTCE schema doesn't allow an array of structures to
-                // be
+                // but a limitation in the XTCE schema doesn't allow an array of structures to be
                 // defined. In place of the aggregate data type, a sequence container is used to
-                // define the table's members (for both primitive and structure data types). To
-                // be
-                // consistent with the treatment of structure arrays, container references are
-                // also
+                // define the table's members (for both primitive and structure data types). To be
+                // consistent with the treatment of structure arrays, container references are also
                 // used for non-array structure variables
 
                 // Add a container reference to the space system in the sequence container entry
@@ -3424,8 +3396,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // This is a reference to the telemetry header table
             else
             {
-                // Set the flag indicating that a reference is made to the telemetry header
-                // table
+                // Set the flag indicating that a reference is made to the telemetry header table
                 isTlmHdrRef = true;
             }
         }
@@ -3483,16 +3454,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>setParameterDataType<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -3504,24 +3471,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             NameDescriptionType parameterType = null;
 
-            // Note: Each parameter has an associated size in bits equal to the size of its
-            // parent
+            // Note: Each parameter has an associated size in bits equal to the size of its parent
             // data type. In addition to its parent size, a bit-wise parameter (valid for an
-            // integer or enumeration) also has its bit length, the subset of bits it
-            // occupies in
-            // its parent. The value stored in the parameter encoding type's sizeInBits
-            // field is
-            // the bit length if a bit-wise parameter, else the parent data type size is
-            // used.
+            // integer or enumeration) also has its bit length, the subset of bits it occupies in
+            // its parent. The value stored in the parameter encoding type's sizeInBits field is
+            // the bit length if a bit-wise parameter, else the parent data type size is used.
             // Ideally both the bit length and overall sizes would be preserved (one in the
-            // parameter type's sizeInBits field and the other in the encoding type's
-            // sizeInBits
-            // field). However, this isn't always possible since the enumerated parameter
-            // type
-            // lacks the sizeInBits field. To prevent possible confusion of the values, for
-            // an
-            // integer parameter the parameter type's sizeInBits field is set to match the
-            // encoding
+            // parameter type's sizeInBits field and the other in the encoding type's sizeInBits
+            // field). However, this isn't always possible since the enumerated parameter type
+            // lacks the sizeInBits field. To prevent possible confusion of the values, for an
+            // integer parameter the parameter type's sizeInBits field is set to match the encoding
             // type's sizeInBits field
 
             // Check if the parameter is an array
@@ -3781,16 +3740,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>createCommandMetadata<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -3851,16 +3806,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addSpaceSystemCommands<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -4125,8 +4076,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param argDataTypes  Array of of command argument data types
      *
-     * @param argArraySizes Array of of command argument array sizes; the array item is null or blank if
-     *                      the corresponding argument isn't an array
+     * @param argArraySizes Array of of command argument array sizes; the array item is null or
+     *                      blank if the corresponding argument isn't an array
      *
      * @param description   Description of the command
      *
@@ -4153,16 +4104,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addCommand<b>'; cause '</b>" + e.getMessage()
                                         + "<b>'");
@@ -4286,8 +4233,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // header
                     command.setAbstract(true);
                 }
-                // Not the command header. Check if the command application ID and command
-                // header
+                // Not the command header. Check if the command application ID and command header
                 // table name are provided
                 else if (applicationID != null && !applicationID.isEmpty() && cmdHeaderTable != null
                          && !cmdHeaderTable.isEmpty())
@@ -4357,7 +4303,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param dataType     Command argument data type; null to not specify
      *
-     * @param arraySize    Command argument array size; null or blank if the argument isn't an array
+     * @param arraySize    Command argument array size; null or blank if the argument isn't an
+     *                     array
      *
      * @param bitLength    Command argument bit length
      *
@@ -4372,11 +4319,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param description  Command argument description ; null to not specify
      *
-     * @param stringSize   String size in bytes; ignored if the command argument does not have a string
-     *                     data type
+     * @param stringSize   String size in bytes; ignored if the command argument does not have a
+     *                     string data type
      *
-     * @param uniqueID     Text used to uniquely identify data types with the same name; blank if the
-     *                     data type has no name conflict
+     * @param uniqueID     Text used to uniquely identify data types with the same name; blank if
+     *                     the data type has no name conflict
      *
      * @return Command description of the type corresponding to the primitive data type with the
      *         specified attributes set
@@ -4408,16 +4355,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>setArgumentDataType<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -4661,11 +4604,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Add a container reference(s) for the telemetry or command parameter or parameter array to the
-     * specified entry list
+     * Add a container reference(s) for the telemetry or command parameter or parameter array to
+     * the specified entry list
      *
-     * @param entryList     Reference to the telemetry or command entry list into which to place the
-     *                      parameter or parameter array container reference(s)
+     * @param entryList     Reference to the telemetry or command entry list into which to place
+     *                      the parameter or parameter array container reference(s)
      *
      * @param parameterName Parameter name
      *
@@ -4693,16 +4636,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Set the flag to indicate the internal method is not used
                 useInternal = false;
             }
-            catch (
-                NoSuchMethodException nsme
-            )
+            catch (NoSuchMethodException nsme)
             {
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 throw new CCDDException("Error in script function '</b>addContainerReference<b>'; cause '</b>"
                                         + e.getMessage() + "<b>'");
@@ -4866,12 +4805,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         try
         {
-            // Get the character that separates the enumeration value from the associated
-            // label
+            // Get the character that separates the enumeration value from the associated label
             String enumValSep = CcddUtilities.getEnumeratedValueSeparator(enumeration);
 
-            // Check if the enumeration value is missing or the value separator couldn't be
-            // located
+            // Check if the enumeration value is missing or the value separator couldn't be located
             if (enumValSep == null)
             {
                 throw new CCDDException("initial non-negative integer or separator character "
@@ -4896,8 +4833,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Split the enumeration definition into the name and label components
                 String[] enumParts = enumDefn[index].split(Pattern.quote(enumValSep), 2);
 
-                // Create a new enumeration value type and add the enumerated name and value to
-                // the
+                // Create a new enumeration value type and add the enumerated name and value to the
                 // enumeration list
                 ValueEnumerationType valueEnum = factory.createValueEnumerationType();
                 valueEnum.setLabel(enumParts[1].trim());
@@ -4905,9 +4841,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 enumList.getEnumeration().add(valueEnum);
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the enumeration format is invalid
             new CcddDialogHandler()
@@ -4950,15 +4884,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Export script association data, group data, macro data, telemetry scheduler data or application
-     * scheduler data to the specified folder
+     * Export script association data, group data, macro data, telemetry scheduler data or
+     * application scheduler data to the specified folder
      *
      * @param dataType   The data type that is about to be exported
      *
      * @param exportFile Reference to the user-specified output file
      *
-     * @param outputType String representing rather the output is going to a single file or multiple
-     *                   files. Should be "Single" or "Multiple"
+     * @param outputType String representing rather the output is going to a single file or
+     *                   multiple files. Should be "Single" or "Multiple"
      *
      * @throws CCDDException If a file I/O or parsing error occurs
      *

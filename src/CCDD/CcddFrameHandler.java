@@ -54,8 +54,7 @@ public class CcddFrameHandler extends JFrame
     // Common button utility methods
     private final CcddButtonPanelHandler buttonHandler;
 
-    // Sum of the minimum column widths, in pixels, of the table to display a table
-    // within a window
+    // Sum of the minimum column widths, in pixels, of the table to display a table within a window
     private int tableWidth;
 
     // Window minimum width in pixels
@@ -106,8 +105,7 @@ public class CcddFrameHandler extends JFrame
      *********************************************************************************************/
     protected void windowCloseButtonAction()
     {
-        // Send a button press event for the last button in the frame's button panel,
-        // which is
+        // Send a button press event for the last button in the frame's button panel, which is
         // either the close or cancel button
         buttonHandler.getExitButton().doClick();
     }
@@ -240,10 +238,8 @@ public class CcddFrameHandler extends JFrame
             @Override
             public void windowGainedFocus(WindowEvent we)
             {
-                // Set the default button to the last button pressed when the dialog (re)gains
-                // the
-                // focus. This enables the special highlighting associated with the default
-                // button
+                // Set the default button to the last button pressed when the dialog (re)gains the
+                // focus. This enables the special highlighting associated with the default button
                 getRootPane().setDefaultButton(buttonHandler.getLastButtonPressed());
             }
 
@@ -253,8 +249,7 @@ public class CcddFrameHandler extends JFrame
             @Override
             public void windowLostFocus(WindowEvent we)
             {
-                // Set so that there is no default button while the dialog doesn't have the
-                // focus.
+                // Set so that there is no default button while the dialog doesn't have the focus.
                 // This removes the special highlighting associated with the default button
                 getRootPane().setDefaultButton(null);
             }
@@ -267,10 +262,8 @@ public class CcddFrameHandler extends JFrame
             setTitle(title);
         }
 
-        // Set the default close operation so that the window frame's close button
-        // doesn't
-        // automatically exit the window. Instead, if this close button is pressed a
-        // button press
+        // Set the default close operation so that the window frame's close button doesn't
+        // automatically exit the window. Instead, if this close button is pressed a button press
         // event is sent to the last button on the window's button panel
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -301,16 +294,11 @@ public class CcddFrameHandler extends JFrame
         // Size the window to fit its components
         pack();
 
-        // Set the preferred width to the smaller of (1) the width of all of the columns
-        // and (2)
-        // the screen width. Set minimum width to the larger of (1) the default window
-        // width (or
-        // its updated value) and (2) the button panel width. Set the preferred height
-        // to larger of
-        // (1) the minimum window height and (2) the packed height, then select (1) the
-        // smaller of
-        // this value and (2) the screen height. Set the minimum height to the default
-        // minimum
+        // Set the preferred width to the smaller of (1) the width of all of the columns and (2)
+        // the screen width. Set minimum width to the larger of (1) the default window width (or
+        // its updated value) and (2) the button panel width. Set the preferred height to larger of
+        // (1) the minimum window height and (2) the packed height, then select (1) the smaller of
+        // this value and (2) the screen height. Set the minimum height to the default minimum
         // window height. Finally, set the initial frame size to the preferred size
         setPreferredSize(new Dimension(Math.min(tableWidth + ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing() * 2,
                                                 java.awt.Toolkit.getDefaultToolkit().getScreenSize().width),

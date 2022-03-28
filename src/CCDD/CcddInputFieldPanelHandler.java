@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddInputFieldPanelHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for creating the table editor panel in which a table, description, and data fields
-*     are displayed.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddInputFieldPanelHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for creating the table editor panel in which a table, description, and data fields
+ * are displayed.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
@@ -225,7 +221,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Check if the description field is the current focus owner (i.e., editing is active for the field)
+     * Check if the description field is the current focus owner (i.e., editing is active for the
+     * field)
      *
      * @return true if the description field has the focus
      *********************************************************************************************/
@@ -235,8 +232,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Enable/disable the description field, set its background color based on the enable status, and
-     * set the description text
+     * Enable/disable the description field, set its background color based on the enable status,
+     * and set the description text
      *
      * @param enable      True to enable editing the description, false to disable
      *
@@ -253,7 +250,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Update the description field text. Put the edit on the undo/redo stack based on the input flag
+     * Update the description field text. Put the edit on the undo/redo stack based on the input
+     * flag
      *
      * @param undoable True to enable putting the edit on the undo/redo stack
      *********************************************************************************************/
@@ -295,8 +293,7 @@ public abstract class CcddInputFieldPanelHandler
             // Get a reference to the data field's input field to shorten subsequent calls
             Component inputFld = fieldInfo.getInputFld();
 
-            // Check if the data field isn't a page format field (line break or separator)
-            // and the
+            // Check if the data field isn't a page format field (line break or separator) and the
             // field is applicable
             if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT
                 && (fieldHandler.isFieldApplicable(fieldInfo.getOwnerName(),
@@ -336,8 +333,7 @@ public abstract class CcddInputFieldPanelHandler
         // Step through each data field
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Check if a text field or check box exists for this data field and isn't a
-            // page
+            // Check if a text field or check box exists for this data field and isn't a page
             // format field (line break or separator)
             if (fieldInfo.getInputFld() != null
                 && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
@@ -374,17 +370,17 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param fieldPnlHndlrOwner Reference to the owner of this description and data field handler
      *
-     * @param upperPane          Component to display above the description and data fields scroll pane;
-     *                           null if this field panel handler does not contain a table
+     * @param upperPane          Component to display above the description and data fields scroll
+     *                           pane; null if this field panel handler does not contain a table
      *
-     * @param ownerName          Name of the owner of this field panel handler; null if no owner name is
-     *                           associated with it
+     * @param ownerName          Name of the owner of this field panel handler; null if no owner
+     *                           name is associated with it
      *
-     * @param description        Description field text; null if the description is initially blank and
-     *                           disabled
+     * @param description        Description field text; null if the description is initially blank
+     *                           and disabled
      *
-     * @param ownerFieldInfo     List of field information to use to build the data fields; null if no
-     *                           data field is associated with owner
+     * @param ownerFieldInfo     List of field information to use to build the data fields; null if
+     *                           no data field is associated with owner
      *********************************************************************************************/
     protected void createDescAndDataFieldPanel(CcddMain ccddMain, final Component fieldPnlHndlrOwner,
                                                final JComponent upperPane, String ownerName, String description,
@@ -418,8 +414,7 @@ public abstract class CcddInputFieldPanelHandler
                                                                          .getSpacing()));
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
-        // Create an outer panel to put the editor panel in (the border doesn't appear
-        // without
+        // Create an outer panel to put the editor panel in (the border doesn't appear without
         // this) and add the table description text field
         descAndFldPnl = new JPanel(new GridBagLayout());
         descAndFldPnl.setBorder(emptyBorder);
@@ -438,8 +433,7 @@ public abstract class CcddInputFieldPanelHandler
             tablePnl.add(innerPanel, gbc);
         }
 
-        // Create a panel to hold the table's system name, description and, if
-        // applicable, message
+        // Create a panel to hold the table's system name, description and, if applicable, message
         // ID information
         JPanel descriptionPnl = new JPanel(new GridBagLayout());
 
@@ -482,16 +476,14 @@ public abstract class CcddInputFieldPanelHandler
         // Check if the description field is initially disabled
         if (description == null)
         {
-            // Set the description field and description field scroll pane background color
-            // to
+            // Set the description field and description field scroll pane background color to
             // indicate these are disabled
             descriptionFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
             descScrollPane.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
         }
         else
         {
-            // Set the description field and description field scroll pane background color
-            // to
+            // Set the description field and description field scroll pane background color to
             // indicate these are enabled, and set the description field text
             descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
@@ -501,8 +493,7 @@ public abstract class CcddInputFieldPanelHandler
         // Check if this editor doesn't contain an upper pane
         if (upperPane == null)
         {
-            // Place the description field within a scroll pane and add the field to the
-            // editor
+            // Place the description field within a scroll pane and add the field to the editor
             descScrollPane.setBorder(border);
             descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
             gbc.gridy++;
@@ -511,8 +502,7 @@ public abstract class CcddInputFieldPanelHandler
         // The editor contains an upper pane
         else
         {
-            // Place the description field within a scroll pane and add the field to the
-            // editor
+            // Place the description field within a scroll pane and add the field to the editor
             descriptionFld.setToolTipText(CcddUtilities.wrapText("Table description",
                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             descScrollPane.setBorder(emptyBorder);
@@ -539,8 +529,7 @@ public abstract class CcddInputFieldPanelHandler
         // Check if this editor doesn't contain an upper pane
         if (upperPane == null)
         {
-            // Add an invisible component in order to force the description panel and data
-            // fields
+            // Add an invisible component in order to force the description panel and data fields
             // to the top of the panel
             JLabel invisibleLbl = new JLabel("");
             gbc.gridy++;
@@ -553,14 +542,12 @@ public abstract class CcddInputFieldPanelHandler
         inputScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         inputScrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
-        // Check if the data field panel exists (if there are no fields defined then the
-        // panel
+        // Check if the data field panel exists (if there are no fields defined then the panel
         // isn't created)
         if (fieldPnl != null)
         {
-            // Set the data field panel size so that the input scroll pane is sized such
-            // that
-            // the fields are displayed
+            // Set the data field panel size so that the input scroll pane is sized such that the
+            // fields are displayed
             fieldPnl.setSize(fieldPnl.getPreferredSize());
         }
 
@@ -603,8 +590,8 @@ public abstract class CcddInputFieldPanelHandler
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     /******************************************************************************
-                     * Since the size returned by get___Size() can lag the actual size, use invokeLater to let the sizes
-                     * "catch up"
+                     * Since the size returned by get___Size() can lag the actual size, use
+                     * invokeLater to let the sizes "catch up"
                      *****************************************************************************/
                     @Override
                     public void run()
@@ -634,11 +621,11 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Create the data fields for display in the description and data field panel
      *
-     * @param undoable            True if the change(s) to the data fields should be stored for possible
-     *                            undo/redo operations; false to not store the changes
+     * @param undoable            True if the change(s) to the data fields should be stored for
+     *                            possible undo/redo operations; false to not store the changes
      *
-     * @param ownerFieldInfo      List of field information to use to build the data fields null if no
-     *                            data field is associated with the owner
+     * @param ownerFieldInfo      List of field information to use to build the data fields null if
+     *                            no data field is associated with the owner
      *
      * @param ignoreApplicability Should the applicability of the fields be ignored?
      *********************************************************************************************/
@@ -685,7 +672,7 @@ public abstract class CcddInputFieldPanelHandler
             descAndFldPnl.remove(fieldPnl);
         }
 
-        // Check if any data fields exist for this table/group/etc.
+        // Check if any data fields exist for this table/group/etc
         if (!fieldInformation.isEmpty())
         {
             // Create a panel to contain the data fields. As the editor is resized the field panel
@@ -728,7 +715,8 @@ public abstract class CcddInputFieldPanelHandler
                                     fldInfo.setInputFld(undoableTxtFld);
                                 }
 
-                                // Store the reference to the input field in the data field information
+                                // Store the reference to the input field in the data field
+                                // information
                                 fieldInfo.setInputFld(undoableTxtFld);
 
                                 // Add a vertical separator to the field panel
@@ -752,7 +740,8 @@ public abstract class CcddInputFieldPanelHandler
                                     fldInfo.setInputFld(undoableTxtFld);
                                 }
 
-                                // Store the reference to the input field in the data field information
+                                // Store the reference to the input field in the data field
+                                // information
                                 fieldInfo.setInputFld(undoableTxtFld);
 
                                 // Add a horizontal separator to the field panel
@@ -864,7 +853,8 @@ public abstract class CcddInputFieldPanelHandler
                                     fldInfo.setInputFld(undoableTxtArea);
                                 }
 
-                                // Store the reference to the input field in the data field information
+                                // Store the reference to the input field in the data field
+                                // information
                                 fieldInfo.setInputFld(undoableTxtArea);
 
                                 inputFld = undoableTxtArea;
@@ -891,10 +881,12 @@ public abstract class CcddInputFieldPanelHandler
                                         fldInfo.setInputFld(undoableTxtFld);
                                     }
 
-                                    // Store the reference to the input field in the data field information
+                                    // Store the reference to the input field in the data field
+                                    // information
                                     fieldInfo.setInputFld(undoableTxtFld);
 
-                                    // Set the data field reference in the undo handler for the input field
+                                    // Set the data field reference in the undo handler for the
+                                    // input field
                                     undoableTxtFld.setUndoFieldInformation(fieldInfo.getOwnerName(),
                                                                            fieldInfo.getFieldName());
 
@@ -919,10 +911,12 @@ public abstract class CcddInputFieldPanelHandler
                                         fldInfo.setInputFld(undoableCmbBx);
                                     }
 
-                                    // Store the reference to the input field in the data field information
+                                    // Store the reference to the input field in the data field
+                                    // information
                                     fieldInfo.setInputFld(undoableCmbBx);
 
-                                    // Set the data field reference in the undo handler for the input field
+                                    // Set the data field reference in the undo handler for the
+                                    // input field
                                     undoableCmbBx.setUndoFieldInformation(fieldInfo.getOwnerName(),
                                                                           fieldInfo.getFieldName());
 
@@ -1024,7 +1018,8 @@ public abstract class CcddInputFieldPanelHandler
                                         if (!fieldInfo.getInputType().getInputMatch().isEmpty() && !inputTxt.isEmpty()
                                             && !inputTxt.matches(fieldInfo.getInputType().getInputMatch()))
                                         {
-                                            // Inform the user that the data field contents is invalid
+                                            // Inform the user that the data field contents is
+                                            // invalid
                                             new CcddDialogHandler()
                                                     .showMessageDialog(fieldPnlHndlrOwner,
                                                                        "<html><b>Invalid characters in field '</b>"
@@ -1064,7 +1059,8 @@ public abstract class CcddInputFieldPanelHandler
                                                 ((UndoableTextArea) inFld).setText(lastValid);
                                             }
 
-                                            // Set the flag to indicate an invalid value was entered
+                                            // Set the flag to indicate an invalid value was
+                                            // entered
                                             isValid = false;
                                         }
                                         // The input is valid
@@ -1105,7 +1101,8 @@ public abstract class CcddInputFieldPanelHandler
         // Check if the data field panel change should be put in the undo/redo stack
         if (undoable)
         {
-            // Store the field information in the undo handler in case the update needs to be undone
+            // Store the field information in the undo handler in case the update needs to be
+            // undone
             undoFieldPnl.addDataFieldEdit(this, CcddFieldHandler.getFieldInformationCopy(fieldInformation));
         }
 
@@ -1167,15 +1164,15 @@ public abstract class CcddInputFieldPanelHandler
             }
         }
 
-        // Re-enable automatic edit sequence ending, then end the edit sequence to group
-        // the
+        // Re-enable automatic edit sequence ending, then end the edit sequence to group the
         // cleared fields
         undoHandler.setAutoEndEditSequence(true);
         undoManager.endEditSequence();
     }
 
     /**********************************************************************************************
-     * Set the data field background color for all fields based each field's value and required flag
+     * Set the data field background color for all fields based each field's value and required
+     * flag
      *********************************************************************************************/
     protected void setFieldBackgound()
     {
@@ -1183,8 +1180,8 @@ public abstract class CcddInputFieldPanelHandler
         SwingUtilities.invokeLater(new Runnable()
         {
             /**************************************************************************************
-             * Set the data field colors after other pending events are complete. If this isn't done following
-             * other events then the colors aren't updated consistently
+             * Set the data field colors after other pending events are complete. If this isn't
+             * done following other events then the colors aren't updated consistently
              *************************************************************************************/
             @Override
             public void run()
@@ -1214,8 +1211,7 @@ public abstract class CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void setFieldBackground(FieldInformation fieldInfo)
     {
-        // Set the text field background color. If the field is empty and is flagged as
-        // required
+        // Set the text field background color. If the field is empty and is flagged as required
         // then set the background to indicate a value should be supplied
         ((JComponent) fieldInfo.getInputFld())
                 .setBackground(fieldInfo.getValue().isEmpty()

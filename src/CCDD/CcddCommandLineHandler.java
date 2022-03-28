@@ -78,8 +78,8 @@ public class CcddCommandLineHandler
     // Flag that indicates if further command line argument processing should not occur
     private boolean stopProcessingCommands;
 
-    // Flag that indicates the application should exit once the command is complete.
-    // Used by the script execution command
+    // Flag that indicates the application should exit once the command is complete. Used by the
+    // script execution command
     private boolean shutdownWhenComplete;
 
     // Flag that indicates if the command line usage information should be displayed
@@ -188,8 +188,14 @@ public class CcddCommandLineHandler
          *
          * @param subArgument List of this commands sub-argument definitions
          *****************************************************************************************/
-        protected CommandHandler(String command, String description, String value, CommandLineType type, int priority,
-                                 Object[] conditions, String[] options, List<CommandHandler> subArgument)
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority,
+                                 Object[] conditions,
+                                 String[] options,
+                                 List<CommandHandler> subArgument)
         {
             this.command = command;
             this.description = description;
@@ -224,8 +230,13 @@ public class CcddCommandLineHandler
          *
          * @param options     Array of valid input options
          *****************************************************************************************/
-        protected CommandHandler(String command, String description, String value, CommandLineType type, int priority,
-                                 Object[] conditions, String[] options)
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority,
+                                 Object[] conditions,
+                                 String[] options)
         {
             this(command, description, value, type, priority, conditions, options, null);
         }
@@ -247,7 +258,11 @@ public class CcddCommandLineHandler
          *                    executed prior to one with a higher number; commands with the same
          *                    priority are executed in the order they appear on the command line
          *****************************************************************************************/
-        protected CommandHandler(String command, String description, String value, CommandLineType type, int priority)
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority)
         {
             this(command, description, value, type, priority, null, null, null);
         }
@@ -271,7 +286,11 @@ public class CcddCommandLineHandler
          *
          * @param subArguments List of this commands sub-argument definitions
          *****************************************************************************************/
-        protected CommandHandler(String command, String description, String value, CommandLineType type, int priority,
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority,
                                  List<CommandHandler> subArguments)
         {
             this(command, description, value, type, priority, null, null, subArguments);
@@ -296,7 +315,11 @@ public class CcddCommandLineHandler
          *
          * @param conditions  Array of limit values
          *****************************************************************************************/
-        protected CommandHandler(String command, String description, String value, CommandLineType type, int priority,
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority,
                                  Object[] conditions)
         {
             this(command, description, value, type, priority, conditions, null, null);
@@ -399,10 +422,8 @@ public class CcddCommandLineHandler
             // Check if the argument is bounded by single or double quotes
             if (args[index].matches("^'.*'$|^\".*\"$"))
             {
-                // Remove the bounding quotes. This allows the use of single quotes around
-                // command
-                // line arguments in operating systems that don't recognize single (e.g.,
-                // Windows)
+                // Remove the bounding quotes. This allows the use of single quotes around command
+                // line arguments in operating systems that don't recognize single (e.g., Windows)
                 // or double quotes as bounding characters
                 this.args[index] = args[index].replaceFirst("^['\"]", "").replaceFirst("['\"]$", "");
             }
@@ -446,19 +467,22 @@ public class CcddCommandLineHandler
         shutdownWhenComplete = false;
         showUsage = false;
 
-        // Get the variable path separators and the show/hide data type flag from the
-        // program preferences
+        // Get the variable path separators and the show/hide data type flag from the program
+        // preferences
         varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, DEFAULT_VARIABLE_PATH_SEP);
         typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, DEFAULT_TYPE_NAME_SEP);
         excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE));
 
-        // Store the session event log and script output paths, in case these are
-        // modified by a command line command
+        // Store the session event log and script output paths, in case these are modified by a
+        // command line command
         sessionLogPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPreferenceKey(), "");
         scriptOutPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
 
         // Display application version information command
-        argument.add(new CommandHandler("version", "Display CCDD version and exit", "", CommandLineType.NONE,
+        argument.add(new CommandHandler("version",
+                                        "Display CCDD version and exit",
+                                        "",
+                                        CommandLineType.NONE,
                                         CommandLinePriority.PRE_START.getStartPriority())
         {
             /**************************************************************************************
@@ -472,12 +496,14 @@ public class CcddCommandLineHandler
             }
         });
 
-        // Event log file path command. This command, if present, is executed prior to
-        // all other commands (except the version command), regardless of relative priorities
+        // Event log file path command. This command, if present, is executed prior to all other
+        // commands (except the version command), regardless of relative priorities
         argument.add(new CommandHandler("logPath",
-                                        "Set event log file path. This\n" + "  path is in effect for the\n"
-                                                   + "  current session only",
-                                        "file path", CommandLineType.NAME,
+                                        "Set event log file path. This\n"
+                                        + "  path is in effect for the\n"
+                                        + "  current session only",
+                                        "file path",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.PRE_START.getStartPriority() + 1)
         {
             /**************************************************************************************
@@ -486,13 +512,18 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                CcddFileIOHandler.storePath(ccddMain, (String) parmVal, false,
+                CcddFileIOHandler.storePath(ccddMain,
+                                            (String) parmVal,
+                                            false,
                                             ModifiablePathInfo.SESSION_LOG_FILE_PATH);
             }
         });
 
         // Open project command
-        argument.add(new CommandHandler("project", "Set the CCDD project to open", "project name", CommandLineType.NAME,
+        argument.add(new CommandHandler("project",
+                                        "Set the CCDD project to open",
+                                        "project name",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority() + 6)
         {
             /**************************************************************************************
@@ -506,8 +537,11 @@ public class CcddCommandLineHandler
         });
 
         // Backup the project database on connecting command
-        argument.add(new CommandHandler("backup", "Backup project on connecting", "backup file name",
-                                        CommandLineType.NAME, CommandLinePriority.SET_UP.getStartPriority())
+        argument.add(new CommandHandler("backup",
+                                        "Backup project on connecting",
+                                        "backup file name",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
              * Backup the project database when first connected
@@ -520,7 +554,10 @@ public class CcddCommandLineHandler
         });
 
         // User name command
-        argument.add(new CommandHandler("user", "Set user name", "user name", CommandLineType.NAME,
+        argument.add(new CommandHandler("user",
+                                        "Set user name",
+                                        "user name",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
@@ -534,7 +571,10 @@ public class CcddCommandLineHandler
         });
 
         // User password command
-        argument.add(new CommandHandler("password", "Set user password", "user password", CommandLineType.NAME,
+        argument.add(new CommandHandler("password",
+                                        "Set user password",
+                                        "user password",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
@@ -548,7 +588,10 @@ public class CcddCommandLineHandler
         });
 
         // PostgreSQL server host command
-        argument.add(new CommandHandler("host", "Set PostgreSQL server host", "host name", CommandLineType.NAME,
+        argument.add(new CommandHandler("host",
+                                        "Set PostgreSQL server host",
+                                        "host name",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
@@ -562,7 +605,10 @@ public class CcddCommandLineHandler
         });
 
         // PostgreSQL server port command
-        argument.add(new CommandHandler("port", "Set PostgreSQL server port", "port number", CommandLineType.NAME,
+        argument.add(new CommandHandler("port",
+                                        "Set PostgreSQL server port",
+                                        "port number",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
@@ -576,8 +622,12 @@ public class CcddCommandLineHandler
         });
 
         // PostgreSQL server secure socket layer command
-        argument.add(new CommandHandler("ssl", "Enable/disable SSL", "on or off", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority(), new Object[] {true, false},
+        argument.add(new CommandHandler("ssl",
+                                        "Enable/disable SSL",
+                                        "on or off",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority(),
+                                        new Object[] {true, false},
                                         new String[] {"on", "off"})
         {
             /**************************************************************************************
@@ -591,8 +641,12 @@ public class CcddCommandLineHandler
         });
 
         // 'All' event log filter
-        argument.add(new CommandHandler("events", "Show events", "true or false", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority() + 1, new Object[] {true, false},
+        argument.add(new CommandHandler("events",
+                                        "Show events",
+                                        "true or false",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
+                                        new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
             /**************************************************************************************
@@ -606,8 +660,12 @@ public class CcddCommandLineHandler
         });
 
         // 'Command' event log filter
-        argument.add(new CommandHandler("command", "Show command events", "true or false", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority() + 1, new Object[] {true, false},
+        argument.add(new CommandHandler("command",
+                                        "Show command events",
+                                        "true or false",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
+                                        new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
             /**************************************************************************************
@@ -621,8 +679,12 @@ public class CcddCommandLineHandler
         });
 
         // 'Success' event log filter
-        argument.add(new CommandHandler("success", "Show success events", "true or false", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority() + 1, new Object[] {true, false},
+        argument.add(new CommandHandler("success",
+                                        "Show success events",
+                                        "true or false",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
+                                        new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
             /**************************************************************************************
@@ -636,8 +698,12 @@ public class CcddCommandLineHandler
         });
 
         // 'Fail' event log filter
-        argument.add(new CommandHandler("fail", "Show fail events", "true or false", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority() + 1, new Object[] {true, false},
+        argument.add(new CommandHandler("fail",
+                                        "Show fail events",
+                                        "true or false",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
+                                        new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
             /**************************************************************************************
@@ -651,8 +717,11 @@ public class CcddCommandLineHandler
         });
 
         // 'Status' event log filter
-        argument.add(new CommandHandler("status", "Show status events", "true or false", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority() + 1, new Object[] {true, false},
+        argument.add(new CommandHandler("status", "Show status events",
+                                        "true or false",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
+                                        new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
             /**************************************************************************************
@@ -666,8 +735,12 @@ public class CcddCommandLineHandler
         });
 
         // 'Server' event log filter
-        argument.add(new CommandHandler("server", "Show web server events", "true or false", CommandLineType.OPTION,
-                                        CommandLinePriority.SET_UP.getStartPriority() + 1, new Object[] {true, false},
+        argument.add(new CommandHandler("server",
+                                        "Show web server events",
+                                        "true or false",
+                                        CommandLineType.OPTION,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
+                                        new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
             /**************************************************************************************
@@ -681,7 +754,10 @@ public class CcddCommandLineHandler
         });
 
         // Look & feel command
-        argument.add(new CommandHandler("laf", "Load look & feel", "look & feel", CommandLineType.NAME,
+        argument.add(new CommandHandler("laf",
+                                        "Load look & feel",
+                                        "look & feel",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority() + 3)
         {
             /**************************************************************************************
@@ -695,7 +771,10 @@ public class CcddCommandLineHandler
         });
 
         // Main window size command
-        argument.add(new CommandHandler("mainSize", "Set main window size", "widthxheight", CommandLineType.SIZE,
+        argument.add(new CommandHandler("mainSize",
+                                        "Set main window size",
+                                        "widthxheight",
+                                        CommandLineType.SIZE,
                                         CommandLinePriority.SET_UP.getStartPriority() + 3,
                                         new Object[] {MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT})
         {
@@ -710,7 +789,10 @@ public class CcddCommandLineHandler
         });
 
         // Enable the web server, with or without the graphical user interface
-        argument.add(new CommandHandler("webserver", "Enable web server", "nogui or gui", CommandLineType.NAME,
+        argument.add(new CommandHandler("webserver",
+                                        "Enable web server",
+                                        "nogui or gui",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority() + 2)
         {
             /**************************************************************************************
@@ -724,7 +806,10 @@ public class CcddCommandLineHandler
         });
 
         // Web server port command
-        argument.add(new CommandHandler("webport", "Set web server port", "port number", CommandLineType.NAME,
+        argument.add(new CommandHandler("webport",
+                                        "Set web server port",
+                                        "port number",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority() + 2)
         {
             /**************************************************************************************
@@ -740,10 +825,11 @@ public class CcddCommandLineHandler
         // Script output file path command
         argument.add(new CommandHandler("scriptOutPath",
                                         "Set the script output file path. This\n"
-                                                         + "  command may be used more than once.\n"
-                                                         + "  This path is in effect for the\n"
-                                                         + "  current session only",
-                                        "file path", CommandLineType.NAME,
+                                        + "  command may be used more than once.\n"
+                                        + "  This path is in effect for the\n"
+                                        + "  current session only",
+                                        "file path",
+                                        CommandLineType.NAME,
                                         CommandLinePriority.DB_DEPENDENT.getStartPriority())
         {
             /**************************************************************************************
@@ -758,11 +844,15 @@ public class CcddCommandLineHandler
 
         // Shutdown the application following execution of the post-database connection commands
         argument.add(new CommandHandler("shutdown",
-                                        "Shutdown the application after\n" + "  completing the command line\n"
-                                                    + "  commands (e.g., script\n"
-                                                    + "  execution(s), table imports, or\n"
-                                                    + "  table exports. The GUI is not\n" + "  displayed",
-                                        "", CommandLineType.NONE, CommandLinePriority.PRE_START.getStartPriority())
+                                        "Shutdown the application after\n"
+                                        + "  completing the command line\n"
+                                        + "  commands (e.g., script\n"
+                                        + "  execution(s), table imports, or\n"
+                                        + "  table exports. The GUI is not\n"
+                                        + "  displayed",
+                                        "",
+                                        CommandLineType.NONE,
+                                        CommandLinePriority.PRE_START.getStartPriority())
         {
             /**************************************************************************************
              * Set the flags to hide the user interface and shutdown the application following
@@ -782,8 +872,11 @@ public class CcddCommandLineHandler
         });
 
         // Apply patches to the database automatically (if needed)
-        argument.add(new CommandHandler("patch", "Automatically apply patches to the database", "",
-                                        CommandLineType.NONE, CommandLinePriority.PRE_START.getStartPriority())
+        argument.add(new CommandHandler("patch",
+                                        "Automatically apply patches to the database",
+                                        "",
+                                        CommandLineType.NONE,
+                                        CommandLinePriority.PRE_START.getStartPriority())
         {
             /**************************************************************************************
              * Set the flag that will automatically patch the DB if necessary.
@@ -799,11 +892,13 @@ public class CcddCommandLineHandler
 
         // Execute script command
         argument.add(new CommandHandler("execute", "Execute script(s)",
-                                        "[association name] or\n" + "[\" or ']script file name["
-                                                                        + SCRIPT_MEMBER_SEPARATOR + "table1\n"
-                                                                        + "  or Group:group1[+...[+tableN or\n"
-                                                                        + "  Group:groupN]]][;...][\" or ']",
-                                        CommandLineType.NAME, CommandLinePriority.DB_DEPENDENT.getStartPriority() + 2)
+                                        "[association name] or\n"
+                                        + "[\" or ']script file name["
+                                        + SCRIPT_MEMBER_SEPARATOR + "table1\n"
+                                        + "  or Group:group1[+...[+tableN or\n"
+                                        + "  Group:groupN]]][;...][\" or ']",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 2)
         {
             /**************************************************************************************
              * Execute a script
@@ -863,8 +958,7 @@ public class CcddCommandLineHandler
                     // Check if the name contains a file extension (it's a script file name)
                     if (name.contains("."))
                     {
-                        // Set the script and table in the association array (assumes no
-                        // table(s))
+                        // Set the script and table in the association array (assumes no table(s))
                         association = new String[] {"", "", name, " "};
 
                         // Check if one or more tables are provided
@@ -895,9 +989,9 @@ public class CcddCommandLineHandler
                         else
                         {
                             // Inform the user that the association name is invalid
-                            ccddMain.getSessionEventLog()
-                                    .logFailEvent(null, "Unrecognized association name '" + name + "'",
-                                                  "<html><b>Unrecognized association name '</b>" + name + "<b>'");
+                            ccddMain.getSessionEventLog().logFailEvent(null,
+                                                                       "Unrecognized association name '" + name + "'",
+                                                                       "<html><b>Unrecognized association name '</b>" + name + "<b>'");
                         }
                     }
                 }
@@ -915,7 +1009,9 @@ public class CcddCommandLineHandler
                     if (ccddMain.isGUIHidden())
                     {
                         // Execute the script association(s) and log the result
-                        boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null, associations, null);
+                        boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
+                                                                                              associations,
+                                                                                              null);
                         ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
 
                         // Step through the script execution fail flags
@@ -932,7 +1028,9 @@ public class CcddCommandLineHandler
                     else
                     {
                         // TODO Doesn't allow for not running in background
-                        ccddMain.getScriptHandler().performScriptExecutionInBackground(null, associations, ccddMain.getMainFrame());
+                        ccddMain.getScriptHandler().performScriptExecutionInBackground(null,
+                                                                                       associations,
+                                                                                       ccddMain.getMainFrame());
                     }
                 }
             }
@@ -940,9 +1038,12 @@ public class CcddCommandLineHandler
 
         // Import one or more tables
         argument.add(new CommandHandler("import",
-                                        "Import tables, etc. from a CSV, EDS,\n" + "  JSON, XTCE or C header file",
-                                        "'<import sub-commands>'", CommandLineType.NAME,
-                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1, importArgument)
+                                        "Import tables, etc. from a CSV, "
+                                        + "EDS,\n" + "  JSON, XTCE or C header file",
+                                        "'<import sub-commands>'",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1,
+                                        importArgument)
         {
             /**************************************************************************************
              * Import one or more tables from a file in CSV, EDS, JSON, or XTCE format
@@ -954,11 +1055,9 @@ public class CcddCommandLineHandler
                 if (ccddMain.isGUIHidden())
                 {
                     // Get the lock status of the project. The project isn't locked by this
-                    // instance
-                    // of CCDD if the GUI is hidden, so if the lock status is set then another
-                    // instance of CCDD has the database open
-                    Boolean lockStatus = ccddMain.getDbControlHandler()
-                            .getDatabaseLockStatus(ccddMain.getDbControlHandler().getDatabaseName());
+                    // instance of CCDD if the GUI is hidden, so if the lock status is set then
+                    // another instance of CCDD has the database open
+                    Boolean lockStatus = ccddMain.getDbControlHandler().getDatabaseLockStatus(ccddMain.getDbControlHandler().getDatabaseName());
 
                     // Check if the project database status can't be obtained
                     if (lockStatus == null)
@@ -969,7 +1068,8 @@ public class CcddCommandLineHandler
                     // Check if the project database is locked
                     if (lockStatus)
                     {
-                        throw new Exception("Cannot import; project '" + ccddMain.getDbControlHandler().getProjectName()
+                        throw new Exception("Cannot import; project '"
+                                            + ccddMain.getDbControlHandler().getProjectName()
                                             + "' is open in another CCDD instance");
                     }
                 }
@@ -1018,13 +1118,22 @@ public class CcddCommandLineHandler
                         if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)
                             || (importFileType == FileExtension.C_HEADER))
                         {
-                            if (ccddMain.getFileIOHandler()
-                                    .prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]), importFullDatabase,
-                                                            backupFirst, replaceExistingTables, appendExistingFields,
-                                                            useExistingFields, openEditor, ignoreErrors,
-                                                            replaceExistingMacros, replaceExistingAssociations,
-                                                            replaceExistingGroups, replaceExistingDataTypes,
-                                                            deleteAbsentFiles, importFileType, dialogType, null))
+                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]),
+                                                                                   importFullDatabase,
+                                                                                   backupFirst,
+                                                                                   replaceExistingTables,
+                                                                                   appendExistingFields,
+                                                                                   useExistingFields,
+                                                                                   openEditor,
+                                                                                   ignoreErrors,
+                                                                                   replaceExistingMacros,
+                                                                                   replaceExistingAssociations,
+                                                                                   replaceExistingGroups,
+                                                                                   replaceExistingDataTypes,
+                                                                                   deleteAbsentFiles,
+                                                                                   importFileType,
+                                                                                   dialogType,
+                                                                                   null))
                             {
                                 throw new Exception();
                             }
@@ -1033,11 +1142,20 @@ public class CcddCommandLineHandler
                         {
                             // Import the table(s) from the specified file; check if the import
                             // operation fails
-                            if (ccddMain.getFileIOHandler()
-                                    .importFiles(dataFile, backupFirst, replaceExistingTables, appendExistingFields,
-                                                 useExistingFields, openEditor, ignoreErrors, replaceExistingMacros,
-                                                 replaceExistingAssociations, replaceExistingGroups,
-                                                 replaceExistingDataTypes, importFullDatabase, dialogType, null))
+                            if (ccddMain.getFileIOHandler().importFiles(dataFile,
+                                                                        backupFirst,
+                                                                        replaceExistingTables,
+                                                                        appendExistingFields,
+                                                                        useExistingFields,
+                                                                        openEditor,
+                                                                        ignoreErrors,
+                                                                        replaceExistingMacros,
+                                                                        replaceExistingAssociations,
+                                                                        replaceExistingGroups,
+                                                                        replaceExistingDataTypes,
+                                                                        importFullDatabase,
+                                                                        dialogType,
+                                                                        null))
                             {
                                 throw new Exception();
                             }
@@ -1046,20 +1164,31 @@ public class CcddCommandLineHandler
                         {
                             // Display the error message
                             throw new Exception("Import disabled; user did not provide an import file type/extension for '"
-                                                + ccddMain.getDbControlHandler().getProjectName() + "'");
+                                                + ccddMain.getDbControlHandler().getProjectName()
+                                                + "'");
                         }
                     }
                     // The GUI is displayed
                     else
                     {
                         // Import the table(s) from the specified file in a background thread
-                        ccddMain.getFileIOHandler()
-                                .importFileInBackground(dataFile.toArray(new FileEnvVar[0]), importFullDatabase, false,
-                                                        replaceExistingTables, appendExistingFields, useExistingFields,
-                                                        openEditor, ignoreErrors, replaceExistingMacros,
-                                                        replaceExistingGroups, replaceExistingAssociations,
-                                                        deleteAbsentFiles, replaceExistingDataTypes, importFileType,
-                                                        dialogType, null, ccddMain.getMainFrame());
+                        ccddMain.getFileIOHandler().importFileInBackground(dataFile.toArray(new FileEnvVar[0]),
+                                                                           importFullDatabase,
+                                                                           false,
+                                                                           replaceExistingTables,
+                                                                           appendExistingFields,
+                                                                           useExistingFields,
+                                                                           openEditor,
+                                                                           ignoreErrors,
+                                                                           replaceExistingMacros,
+                                                                           replaceExistingGroups,
+                                                                           replaceExistingAssociations,
+                                                                           deleteAbsentFiles,
+                                                                           replaceExistingDataTypes,
+                                                                           importFileType,
+                                                                           dialogType,
+                                                                           null,
+                                                                           ccddMain.getMainFrame());
                     }
 
                     // Delete the snapshot directories
@@ -1076,10 +1205,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - file path + name
-        importArgument.add(new CommandHandler("fileName", "Import path+file name(s)",
-                                              "[path1]nameA[+nameB[+...]\n" + "  [;[path2]nameC[+...][;...]]\n"
-                                                                                      + "  (required)",
-                                              CommandLineType.NAME, 0)
+        importArgument.add(new CommandHandler("fileName",
+                                              "Import path+file name(s)",
+                                              "[path1]nameA[+nameB[+...]\n"
+                                              + "  [;[path2]nameC[+...][;...]]\n"
+                                              + "  (required)",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the import file path+name(s). Multiple files in the same path can be specified
@@ -1129,8 +1261,11 @@ public class CcddCommandLineHandler
         });
 
         // Import command - folder containing files to import
-        importArgument.add(new CommandHandler("folder", "Folder containing file(s) to import", "path/folderName",
-                                              CommandLineType.NAME, 0)
+        importArgument.add(new CommandHandler("folder",
+                                              "Folder containing file(s) to import",
+                                              "path/folderName",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the import file folder. Will import all files with the correct extension.
@@ -1156,9 +1291,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - replace existing tables
-        importArgument.add(new CommandHandler("replaceExistingTables", "Replace existing table(s)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("replaceExistingTables",
+                                              "Replace existing table(s)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to replace existing tables
@@ -1171,9 +1310,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - replace existing data types
-        importArgument.add(new CommandHandler("replaceExistingDataTypes", "Replace existing data type(s)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("replaceExistingDataTypes",
+                                              "Replace existing data type(s)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to replace existing data types
@@ -1187,10 +1330,14 @@ public class CcddCommandLineHandler
 
         // Import command - append existing fields
         importArgument.add(new CommandHandler("appendExistingFields",
-                                              "Append existing data field(s) if\n" + "  table exists. Only used if\n"
-                                                                      + "  replaceExisting is true",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "Append existing data field(s) if\n"
+                                              + "  table exists. Only used if\n"
+                                              + "  replaceExisting is true",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to append existing data fields
@@ -1204,11 +1351,15 @@ public class CcddCommandLineHandler
 
         // Import command - use existing fields
         importArgument.add(new CommandHandler("useExistingFields",
-                                              "Use existing data field if imported\n" + "  one matches. Only used if\n"
-                                                                   + "  replaceExisting and\n"
-                                                                   + "  appendExistingFields are true",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "Use existing data field if imported\n"
+                                              + "  one matches. Only used if\n"
+                                              + "  replaceExisting and\n"
+                                              + "  appendExistingFields are true",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to use existing data fields
@@ -1221,9 +1372,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - open table editor
-        importArgument.add(new CommandHandler("openEditor", "Open an editor for each imported table",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("openEditor",
+                                              "Open an editor for each imported table",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to open an editor for each imported table
@@ -1237,10 +1392,14 @@ public class CcddCommandLineHandler
 
         // Import command - ignore errors
         importArgument.add(new CommandHandler("ignoreErrors",
-                                              "Ignore all import file errors and\n" + "  continue processing the file\n"
-                                                              + "  (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "Ignore all import file errors and\n"
+                                              + "  continue processing the file\n"
+                                              + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to ignore all errors in the import file
@@ -1253,9 +1412,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - replace existing macro values
-        importArgument.add(new CommandHandler("replaceExistingMacros", "Replace existing macros values",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("replaceExistingMacros",
+                                              "Replace existing macros values",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to replace existing macro values
@@ -1268,9 +1431,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - replace existing group definitions
-        importArgument.add(new CommandHandler("replaceExistingGroups", "Replace existing group definitions",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("replaceExistingGroups",
+                                              "Replace existing group definitions",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to replace existing groups definitions
@@ -1283,9 +1450,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - replace existing association values
-        importArgument.add(new CommandHandler("replaceExistingAssociations", "Replace existing script associations",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("replaceExistingAssociations",
+                                              "Replace existing script associations",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to replace existing script association values
@@ -1297,12 +1468,14 @@ public class CcddCommandLineHandler
             }
         });
 
-        // Import command - delete files/data from database that does not exist in the
-        // import files
+        // Import command - delete files/data from database that does not exist in the import files
         importArgument.add(new CommandHandler("deleteAbsentFiles",
                                               "delete files/data from database that does not exist in import files",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to delete non existing files
@@ -1315,9 +1488,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - Backup the database before beginning the import
-        importArgument.add(new CommandHandler("backupFirst", "Backup database before beginning the import?",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("backupFirst",
+                                              "Backup database before beginning the import?",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to delete non existing files
@@ -1330,9 +1507,13 @@ public class CcddCommandLineHandler
         });
 
         // Import command - is an entire database being imported
-        importArgument.add(new CommandHandler("importFullDatabase", "is an entire database being imported",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        importArgument.add(new CommandHandler("importFullDatabase",
+                                              "is an entire database being imported",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to indicate if an entire database is to be imported
@@ -1345,12 +1526,17 @@ public class CcddCommandLineHandler
         });
 
         // Import command - what type of files are being imported
-        importArgument
-                .add(new CommandHandler("importFileType", "what type of files are being imported",
-                                        "String: 'JSON', 'CSV', 'EDS', 'XTCE' or 'C_Header'", CommandLineType.OPTION, 0,
-                                        new Object[] {FileExtension.CSV, FileExtension.EDS, FileExtension.JSON,
-                                                      FileExtension.XTCE, FileExtension.C_HEADER},
-                                        new String[] {"csv", "eds", "json", "xtce", "c_header"})
+        importArgument.add(new CommandHandler("importFileType",
+                                              "what type of files are being imported",
+                                              "String: 'JSON', 'CSV', 'EDS', 'XTCE' or 'C_Header'",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {FileExtension.CSV,
+                                                            FileExtension.EDS,
+                                                            FileExtension.JSON,
+                                                            FileExtension.XTCE,
+                                                            FileExtension.C_HEADER},
+                                              new String[] {"csv", "eds", "json", "xtce", "c_header"})
                 {
                     /**************************************************************************************
                      * Set the flag to indicate if an entire database is to be imported
@@ -1380,9 +1566,13 @@ public class CcddCommandLineHandler
                 });
 
         // Export one or more tables
-        argument.add(new CommandHandler("export", "Export tables, etc. in CSV, EDS, JSON,\n" + "  or XTCE format",
-                                        "'<export sub-commands>'", CommandLineType.NAME,
-                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1, exportArgument)
+        argument.add(new CommandHandler("export",
+                                        "Export tables, etc. in CSV, EDS, JSON,\n"
+                                        + "  or XTCE format",
+                                        "'<export sub-commands>'",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1,
+                                        exportArgument)
         {
             /**************************************************************************************
              * Export one or more tables to a file (or files) in CSV, EDS, JSON, or XTCE format
@@ -1435,15 +1625,37 @@ public class CcddCommandLineHandler
                 {
                     // Export the specified table(s); check if the export operation fails
                     if (ccddMain.getFileIOHandler()
-                            .exportSelectedTables(filePath, tablePaths, overwriteFile, singleFile,
-                                                  includeBuildInformation, replaceMacros, clearTargetDirectory,
-                                                  includeAllTableTypes, includeAllDataTypes, includeAllInputTypes,
-                                                  includeAllMacros, includeReservedMsgIDs, includeProjectFields,
-                                                  includeGroups, includeAssociations, includeTlmSched, includeAppSched,
-                                                  includeVariablePaths, ccddMain.getVariableHandler(), separators,
-                                                  fileExtn, endianess, isHeaderBigEndian, version, validationStatus,
-                                                  classification1, classification2, classification3,
-                                                  scriptFileName != null, scriptFileName, null))
+                            .exportSelectedTables(filePath,
+                                                  tablePaths,
+                                                  overwriteFile,
+                                                  singleFile,
+                                                  includeBuildInformation,
+                                                  replaceMacros,
+                                                  clearTargetDirectory,
+                                                  includeAllTableTypes,
+                                                  includeAllDataTypes,
+                                                  includeAllInputTypes,
+                                                  includeAllMacros,
+                                                  includeReservedMsgIDs,
+                                                  includeProjectFields,
+                                                  includeGroups,
+                                                  includeAssociations,
+                                                  includeTlmSched,
+                                                  includeAppSched,
+                                                  includeVariablePaths,
+                                                  ccddMain.getVariableHandler(),
+                                                  separators,
+                                                  fileExtn,
+                                                  endianess,
+                                                  isHeaderBigEndian,
+                                                  version,
+                                                  validationStatus,
+                                                  classification1,
+                                                  classification2,
+                                                  classification3,
+                                                  scriptFileName != null,
+                                                  scriptFileName,
+                                                  null))
                     {
                         throw new Exception();
                     }
@@ -1456,17 +1668,36 @@ public class CcddCommandLineHandler
 
                     // Export the specified table(s) in a background thread
                     ccddMain.getFileIOHandler()
-                            .exportSelectedTablesInBackground(filePath, tablePaths, overwriteFile, singleFile,
-                                                              includeBuildInformation, replaceMacros,
-                                                              clearTargetDirectory, includeAllTableTypes,
-                                                              includeAllDataTypes, includeAllInputTypes,
-                                                              includeAllMacros, includeReservedMsgIDs,
-                                                              includeProjectFields, includeGroups, includeAssociations,
-                                                              includeTlmSched, includeAppSched, includeVariablePaths,
-                                                              ccddMain.getVariableHandler(), separators, fileExtn,
-                                                              endianess, isHeaderBigEndian, version, validationStatus,
-                                                              classification1, classification2, classification3,
-                                                              scriptFileName != null, scriptFileName,
+                            .exportSelectedTablesInBackground(filePath,
+                                                              tablePaths,
+                                                              overwriteFile,
+                                                              singleFile,
+                                                              includeBuildInformation,
+                                                              replaceMacros,
+                                                              clearTargetDirectory,
+                                                              includeAllTableTypes,
+                                                              includeAllDataTypes,
+                                                              includeAllInputTypes,
+                                                              includeAllMacros,
+                                                              includeReservedMsgIDs,
+                                                              includeProjectFields,
+                                                              includeGroups,
+                                                              includeAssociations,
+                                                              includeTlmSched,
+                                                              includeAppSched,
+                                                              includeVariablePaths,
+                                                              ccddMain.getVariableHandler(),
+                                                              separators,
+                                                              fileExtn,
+                                                              endianess,
+                                                              isHeaderBigEndian,
+                                                              version,
+                                                              validationStatus,
+                                                              classification1,
+                                                              classification2,
+                                                              classification3,
+                                                              scriptFileName != null,
+                                                              scriptFileName,
                                                               ccddMain.getMainFrame());
                 }
             }
@@ -1475,10 +1706,13 @@ public class CcddCommandLineHandler
         // Export command - file path + name
         exportArgument.add(new CommandHandler("filePath",
                                               "Export file path + name (required for\n"
-                                                          + "  EDS, XTCE, and for CSV, JSON if\n"
-                                                          + "  exporting to a single file). This\n"
-                                                          + "  path is in effect for the current\n" + "  session only",
-                                              "export file name", CommandLineType.NAME, 0)
+                                              + "  EDS, XTCE, and for CSV, JSON if\n"
+                                              + "  exporting to a single file). This\n"
+                                              + "  path is in effect for the current\n"
+                                              + "  session only",
+                                              "export file name",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the export file path + name
@@ -1491,10 +1725,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - table path(s)
-        exportArgument.add(new CommandHandler("tablePaths", "Table paths (required)",
-                                              "<table1 or Group:group1[+...\n" + "  [+tableN or Group:groupN]]]\n"
-                                                                                      + "  [;...]>",
-                                              CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("tablePaths",
+                                              "Table paths (required)",
+                                              "<table1 or Group:group1[+...\n"
+                                              + "  [+tableN or Group:groupN]]]\n"
+                                              + "  [;...]>",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the table(s) to export
@@ -1518,21 +1755,26 @@ public class CcddCommandLineHandler
                     // includes expanding group references
                     tablePaths = ccddMain.getScriptHandler()
                             .getAssociationTablePaths(internalFormat,
-                                                      new CcddGroupHandler(ccddMain, null, (ccddMain
-                                                              .isGUIHidden() ? null : ccddMain.getMainFrame())),
-                                                      true, (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame()))
+                                                      new CcddGroupHandler(ccddMain,
+                                                                           null,
+                                                                           (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame())),
+                                                      true,
+                                                      (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame()))
                             .toArray(new String[0]);
                 }
             };
         });
 
         // Export command - overwrite existing file
-        exportArgument
-                .add(new CommandHandler("overwriteFile",
-                                        "Overwrite existing file(s). If the\n" + "  GUI is hidden then any existing\n"
-                                                         + "  files are always overwritten",
-                                        "true or false (default: false)", CommandLineType.OPTION, 0,
-                                        new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("overwriteFile",
+                                              "Overwrite existing file(s). If the\n"
+                                              + "  GUI is hidden then any existing\n"
+                                              + "  files are always overwritten",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to overwrite existing file(s)
@@ -1545,9 +1787,13 @@ public class CcddCommandLineHandler
                 });
 
         // Export command - output to a single file
-        exportArgument.add(new CommandHandler("singleFile", "Store in single file (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("singleFile",
+                                              "Store in single file (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output all tables to a single file
@@ -1561,9 +1807,12 @@ public class CcddCommandLineHandler
 
         // Export command - include all table type definitions
         exportArgument
-                .add(new CommandHandler("includeAllTableTypes", "Include all table type definitions\n" + " (CSV, JSON)",
-                                        "true or false (default: false)", CommandLineType.OPTION, 0,
-                                        new Object[] {true, false}, new String[] {"true", "false"})
+                .add(new CommandHandler("includeAllTableTypes",
+                                        "Include all table type definitions\n" + " (CSV, JSON)",
+                                        "true or false (default: false)",
+                                        CommandLineType.OPTION, 0,
+                                        new Object[] {true, false},
+                                        new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the table type definitions
@@ -1577,9 +1826,12 @@ public class CcddCommandLineHandler
 
         // Export command - include all data type definitions
         exportArgument
-                .add(new CommandHandler("includeAllDataTypes", "Include all data type definitions\n" + " (CSV, JSON)",
-                                        "true or false (default: false)", CommandLineType.OPTION, 0,
-                                        new Object[] {true, false}, new String[] {"true", "false"})
+                .add(new CommandHandler("includeAllDataTypes",
+                                        "Include all data type definitions\n" + " (CSV, JSON)",
+                                        "true or false (default: false)",
+                                        CommandLineType.OPTION, 0,
+                                        new Object[] {true, false},
+                                        new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the data type definitions
@@ -1594,8 +1846,11 @@ public class CcddCommandLineHandler
         // Export command - include all user-defined input type definitions
         exportArgument.add(new CommandHandler("includeAllInputTypes",
                                               "Include all user-defined input type\n" + "  definitions (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the user-defined input type definitions
@@ -1608,9 +1863,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - include all macro definitions
-        exportArgument.add(new CommandHandler("includeAllMacros", "Include all macro definitions\n" + "  (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeAllMacros",
+                                              "Include all macro definitions\n" + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the list of all macro definitions
@@ -1625,8 +1884,11 @@ public class CcddCommandLineHandler
         // Export command - include build information
         exportArgument.add(new CommandHandler("includeBuildInformation",
                                               "Include the CCDD version, project,\n" + "  host, and user information",
-                                              "true or false (default: true)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "true or false (default: true)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to include the build information
@@ -1639,9 +1901,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - replace macros
-        exportArgument.add(new CommandHandler("replaceMacros", "Replace macros with values",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("replaceMacros",
+                                              "Replace macros with values",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to replace each macro with its corresponding value
@@ -1655,9 +1921,13 @@ public class CcddCommandLineHandler
 
         // Export command - include reserved message IDs
         exportArgument
-                .add(new CommandHandler("includeReservedMsgIDs", "Include reserved message ID list\n" + " (CSV, JSON)",
-                                        "true or false (default: false)", CommandLineType.OPTION, 0,
-                                        new Object[] {true, false}, new String[] {"true", "false"})
+                .add(new CommandHandler("includeReservedMsgIDs",
+                                        "Include reserved message ID list\n" + " (CSV, JSON)",
+                                        "true or false (default: false)",
+                                        CommandLineType.OPTION,
+                                        0,
+                                        new Object[] {true, false},
+                                        new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the list of reserved message IDs
@@ -1670,9 +1940,13 @@ public class CcddCommandLineHandler
                 });
 
         // Export command - include reserved message IDs
-        exportArgument.add(new CommandHandler("includeProjectFields", "Include project data fields",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeProjectFields",
+                                              "Include project data fields",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the project data field definitions
@@ -1685,9 +1959,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - export entire database
-        exportArgument.add(new CommandHandler("exportFullDatabase", "Export full database",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("exportFullDatabase",
+                                              "Export full database",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the project data field definitions
@@ -1701,9 +1979,13 @@ public class CcddCommandLineHandler
 
         // Export command - include groups
         exportArgument
-                .add(new CommandHandler("includeGroups", "Include group definitions and data\n" + " fields (CSV, JSON)",
-                                        "true or false (default: false)", CommandLineType.OPTION, 0,
-                                        new Object[] {true, false}, new String[] {"true", "false"})
+                .add(new CommandHandler("includeGroups",
+                                        "Include group definitions and data\n" + " fields (CSV, JSON)",
+                                        "true or false (default: false)",
+                                        CommandLineType.OPTION,
+                                        0,
+                                        new Object[] {true, false},
+                                        new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the group definitions and data fields
@@ -1716,9 +1998,13 @@ public class CcddCommandLineHandler
                 });
 
         // Export command - include script associations
-        exportArgument.add(new CommandHandler("includeAssociations", "Include script associations\n" + " (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeAssociations",
+                                              "Include script associations\n" + " (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the script associations
@@ -1731,9 +2017,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - include telemetry scheduler table
-        exportArgument.add(new CommandHandler("includeTlmSched", "Include telemetry scheduler table\n" + " (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeTlmSched",
+                                              "Include telemetry scheduler table\n" + " (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the script associations
@@ -1747,9 +2037,13 @@ public class CcddCommandLineHandler
 
         // Export command - include application scheduler table
         exportArgument
-                .add(new CommandHandler("includeAppSched", "Include application scheduler table\n" + " (CSV, JSON)",
-                                        "true or false (default: false)", CommandLineType.OPTION, 0,
-                                        new Object[] {true, false}, new String[] {"true", "false"})
+                .add(new CommandHandler("includeAppSched",
+                                        "Include application scheduler table\n" + " (CSV, JSON)",
+                                        "true or false (default: false)",
+                                        CommandLineType.OPTION,
+                                        0,
+                                        new Object[] {true, false},
+                                        new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the script associations
@@ -1762,9 +2056,13 @@ public class CcddCommandLineHandler
                 });
 
         // Export command - include variable paths
-        exportArgument.add(new CommandHandler("includeVariablePaths", "Include variable path list (CSV, JSON)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeVariablePaths",
+                                              "Include variable path list (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to output the list of variable paths
@@ -1777,8 +2075,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - variable path separator
-        exportArgument.add(new CommandHandler("variableSep", "variable path separator character(s)", "default: ,",
-                                              CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("variableSep",
+                                              "variable path separator character(s)",
+                                              "default: ,",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the variable path separator
@@ -1791,8 +2092,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - data type/variable name separator
-        exportArgument.add(new CommandHandler("typeNameSep", "Data type/variable name separator\n" + " character(s)",
-                                              "default: .", CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("typeNameSep",
+                                              "Data type/variable name separator\n" + " character(s)",
+                                              "default: .",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the data type/variable name separator
@@ -1805,9 +2109,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - hide data type
-        exportArgument.add(new CommandHandler("hideDataType", "Hide the data type in the variable\n" + " paths",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("hideDataType",
+                                              "Hide the data type in the variable\n" + " paths",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the exclude data types flag
@@ -1820,10 +2128,14 @@ public class CcddCommandLineHandler
         });
 
         // Export command - file extension
-        exportArgument.add(new CommandHandler("format", "Export file format",
-                                              "csv, eds, json, or xtce\n" + " (default: csv)", CommandLineType.OPTION,
+        exportArgument.add(new CommandHandler("format",
+                                              "Export file format",
+                                              "csv, eds, json, or xtce\n" + " (default: csv)",
+                                              CommandLineType.OPTION,
                                               0,
-                                              new Object[] {FileExtension.CSV, FileExtension.EDS, FileExtension.JSON,
+                                              new Object[] {FileExtension.CSV,
+                                                            FileExtension.EDS,
+                                                            FileExtension.JSON,
                                                             FileExtension.XTCE},
                                               new String[] {"csv", "eds", "json", "xtce"})
         {
@@ -1840,8 +2152,11 @@ public class CcddCommandLineHandler
         // Export command - clear target directory
         exportArgument.add(new CommandHandler("clearTargetDirectory",
                                               "Clear target directory of all contents\n" + " (true, false)",
-                                              "true or false (default: false)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the deleteTargetDirectory variable
@@ -1854,8 +2169,10 @@ public class CcddCommandLineHandler
         });
 
         // Export command - data endianess
-        exportArgument.add(new CommandHandler("endianess", "Endianess (EDS, XTCE)", "big or little (default: big)",
-                                              CommandLineType.OPTION, 0,
+        exportArgument.add(new CommandHandler("endianess", "Endianess (EDS, XTCE)",
+                                              "big or little (default: big)",
+                                              CommandLineType.OPTION,
+                                              0,
                                               new Object[] {EndianType.BIG_ENDIAN, EndianType.LITTLE_ENDIAN},
                                               new String[] {"big", "little"})
         {
@@ -1872,8 +2189,11 @@ public class CcddCommandLineHandler
         // Export command - telemetry and command headers endianess
         exportArgument.add(new CommandHandler("isHeaderBigEndian",
                                               "Force telemetry & command header to\n" + "big endian (EDS, XTCE)",
-                                              "true or false (default: true)", CommandLineType.OPTION, 0,
-                                              new Object[] {true, false}, new String[] {"true", "false"})
+                                              "true or false (default: true)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
         {
             /**************************************************************************************
              * Set the flag to force the telemetry and command headers to be big endian
@@ -1886,8 +2206,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - version number
-        exportArgument.add(new CommandHandler("version", "Version (EDS, XTCE)", "text (default: 1.0)",
-                                              CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("version",
+                                              "Version (EDS, XTCE)",
+                                              "text (default: 1.0)",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the version number
@@ -1900,8 +2223,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - validation status
-        exportArgument.add(new CommandHandler("validationStatus", "Validation status (EDS, XTCE)",
-                                              "text (default: Working)", CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("validationStatus",
+                                              "Validation status (EDS, XTCE)",
+                                              "text (default: Working)",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the validation status
@@ -1914,8 +2240,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - classification level 1
-        exportArgument.add(new CommandHandler("classification1", "Classification level 1 (XTCE)",
-                                              "text (default: DOMAIN)", CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("classification1",
+                                              "Classification level 1 (XTCE)",
+                                              "text (default: DOMAIN)",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the level 1 classification
@@ -1928,8 +2257,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - classification level 2
-        exportArgument.add(new CommandHandler("classification2", "Classification level 2 (XTCE)",
-                                              "text (default: SYSTEM)", CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("classification2",
+                                              "Classification level 2 (XTCE)",
+                                              "text (default: SYSTEM)",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the level 2 classification
@@ -1942,8 +2274,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - classification level 3
-        exportArgument.add(new CommandHandler("classification3", "Classification level 3 (XTCE)",
-                                              "text (default: INTERFACE)", CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("classification3",
+                                              "Classification level 3 (XTCE)",
+                                              "text (default: INTERFACE)",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the level 3 classification
@@ -1956,8 +2291,11 @@ public class CcddCommandLineHandler
         });
 
         // Export command - external export script file name
-        exportArgument.add(new CommandHandler("externalFileName", "External export script file name\n" + "(EDS, XTCE)",
-                                              "external export script file name", CommandLineType.NAME, 0)
+        exportArgument.add(new CommandHandler("externalFileName",
+                                              "External export script file name\n" + "(EDS, XTCE)",
+                                              "external export script file name",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the external export script file name
@@ -1970,8 +2308,11 @@ public class CcddCommandLineHandler
         });
 
         // Create a new project database
-        argument.add(new CommandHandler("create", "Create a new project database", "'<create sub-commands>'",
-                                        CommandLineType.NAME, CommandLinePriority.SET_UP.getStartPriority() + 5,
+        argument.add(new CommandHandler("create",
+                                        "Create a new project database",
+                                        "'<create sub-commands>'",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 5,
                                         createArgument)
         {
             /**************************************************************************************
@@ -2003,13 +2344,14 @@ public class CcddCommandLineHandler
                 if (!ccddMain.getDbControlHandler().connectToServer())
                 {
                     // If this is a dbu file; Create the project database; check if creating the
-                    // database
-                    // fails. The project can't be created in a background thread since the
-                    // operation may
-                    // not be complete before subsequent database operations are commanded
+                    // database fails. The project can't be created in a background thread since
+                    // the operation may not be complete before subsequent database operations are
+                    // commanded
                     if (createRestore.endsWith("dbu"))
                     {
-                        if (!ccddMain.getDbControlHandler().createDatabase(createName, createOwner, createOwner,
+                        if (!ccddMain.getDbControlHandler().createDatabase(createName,
+                                                                           createOwner,
+                                                                           createOwner,
                                                                            createDescription))
                         {
                             throw new Exception();
@@ -2024,26 +2366,31 @@ public class CcddCommandLineHandler
                         if (createRestore.endsWith("json"))
                         {
                             ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
-                                                                                     createName, createOwner,
-                                                                                     createDescription, createRestore);
+                                                                                     createName,
+                                                                                     createOwner,
+                                                                                     createDescription,
+                                                                                     createRestore);
                         }
                         else if (createRestore.endsWith("csv"))
                         {
                             ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
-                                                                                     createName, createOwner,
-                                                                                     createDescription, createRestore);
+                                                                                     createName,
+                                                                                     createOwner,
+                                                                                     createDescription,
+                                                                                     createRestore);
                         }
                         else if (createRestore.endsWith("dbu"))
                         {
                             // Restore the backup file to the newly created project database
-                            ccddMain.getFileIOHandler().restoreDatabaseFromDBU(createRestore, createName, createOwner,
+                            ccddMain.getFileIOHandler().restoreDatabaseFromDBU(createRestore,
+                                                                               createName,
+                                                                               createOwner,
                                                                                createDescription);
                         }
                         else
                         {
                             // If we are working with a directory look at the first file within the
-                            // directory
-                            // to determine if we are working with JSON or CSV files
+                            // directory to determine if we are working with JSON or CSV files
                             FileEnvVar directory = new FileEnvVar(createRestore);
                             if (directory.isDirectory())
                             {
@@ -2051,15 +2398,19 @@ public class CcddCommandLineHandler
                                 if (firstFile.getName().endsWith(".json"))
                                 {
                                     ccddMain.getFileIOHandler()
-                                            .restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON, createName,
-                                                                          createOwner, createDescription,
+                                            .restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
+                                                                          createName,
+                                                                          createOwner,
+                                                                          createDescription,
                                                                           createRestore);
                                 }
                                 else if (firstFile.getName().endsWith(".csv"))
                                 {
                                     ccddMain.getFileIOHandler()
-                                            .restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV, createName,
-                                                                          createOwner, createDescription,
+                                            .restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
+                                                                          createName,
+                                                                          createOwner,
+                                                                          createDescription,
                                                                           createRestore);
                                 }
                             }
@@ -2075,8 +2426,11 @@ public class CcddCommandLineHandler
         });
 
         // Create project command - project name
-        createArgument
-                .add(new CommandHandler("name", "Name of project to create", "project name", CommandLineType.NAME, 0)
+        createArgument.add(new CommandHandler("name",
+                                              "Name of project to create",
+                                              "project name",
+                                              CommandLineType.NAME,
+                                              0)
                 {
                     /**************************************************************************************
                      * Set the project name
@@ -2089,8 +2443,11 @@ public class CcddCommandLineHandler
                 });
 
         // Create project command - project owner
-        createArgument
-                .add(new CommandHandler("owner", "Owner of the new project", "project owner", CommandLineType.NAME, 0)
+        createArgument.add(new CommandHandler("owner",
+                                              "Owner of the new project",
+                                              "project owner",
+                                              CommandLineType.NAME,
+                                              0)
                 {
                     /**************************************************************************************
                      * Set the project owner
@@ -2103,8 +2460,11 @@ public class CcddCommandLineHandler
                 });
 
         // Create project command - project description
-        createArgument.add(new CommandHandler("description", "Description of the new project", "project description",
-                                              CommandLineType.NAME, 0)
+        createArgument.add(new CommandHandler("description",
+                                              "Description of the new project",
+                                              "project description",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the project description
@@ -2117,8 +2477,11 @@ public class CcddCommandLineHandler
         });
 
         // Restore project backup command - backup file name
-        createArgument.add(new CommandHandler("restore", "Backup file to restore", "backup file name",
-                                              CommandLineType.NAME, 0)
+        createArgument.add(new CommandHandler("restore",
+                                              "Backup file to restore",
+                                              "backup file name",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the backup file name to restore
@@ -2131,8 +2494,11 @@ public class CcddCommandLineHandler
         });
 
         // Delete an existing project database
-        argument.add(new CommandHandler("delete", "Delete an existing project database", "<delete sub-commands>",
-                                        CommandLineType.NAME, CommandLinePriority.SET_UP.getStartPriority() + 4,
+        argument.add(new CommandHandler("delete",
+                                        "Delete an existing project database",
+                                        "<delete sub-commands>",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 4,
                                         deleteArgument)
         {
             /**************************************************************************************
@@ -2168,8 +2534,8 @@ public class CcddCommandLineHandler
                         String[] nameAndComment = userDbInfo.split(DATABASE_COMMENT_SEPARATOR, 2);
                         String comment[] = dbControl.parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
 
-                        // Check if the project names match (i.e., the project exists)
-                        // Match on the database name and the project name
+                        // Check if the project names match (i.e., the project exists) Match on the
+                        // database name and the project name
                         String projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
                         String dbName = dbControl.convertProjectNameToDatabase(projectName);
                         boolean isNameMatch = dbName.equals(deleteName) || projectName.equals(deleteName);
@@ -2217,8 +2583,11 @@ public class CcddCommandLineHandler
         });
 
         // Delete project command - project name
-        deleteArgument.add(new CommandHandler("name", "Name of the project to delete", "project name",
-                                              CommandLineType.NAME, 0)
+        deleteArgument.add(new CommandHandler("name",
+                                              "Name of the project to delete",
+                                              "project name",
+                                              CommandLineType.NAME,
+                                              0)
         {
             /**************************************************************************************
              * Set the project name
@@ -2230,11 +2599,12 @@ public class CcddCommandLineHandler
             }
         });
 
-        // Delete project command - continue executing commands if the project doesn't
-        // exist
+        // Delete project command - continue executing commands if the project doesn't exist
         deleteArgument.add(new CommandHandler("continueIfMissing",
-                                              "Continue to process commands if the\n" + "  project doesn't exist", "",
-                                              CommandLineType.NONE, 0)
+                                              "Continue to process commands if the\n" + "  project doesn't exist",
+                                              "",
+                                              CommandLineType.NONE,
+                                              0)
         {
             /**************************************************************************************
              * Set the flag to indicate that command execution should continue if the project
@@ -2360,7 +2730,8 @@ public class CcddCommandLineHandler
 
                             // Check if the command's priority matches the target priority and
                             // falls within the specified priority bounds
-                            if (priority == cmd.priority && (startPriority == -1 || cmd.priority >= startPriority)
+                            if (priority == cmd.priority
+                                && (startPriority == -1 || cmd.priority >= startPriority)
                                 && (endPriority == -1 || cmd.priority <= endPriority))
                             {
                                 // Handle the command
@@ -2411,31 +2782,28 @@ public class CcddCommandLineHandler
      *********************************************************************************************/
     protected void postCommandCleanUp(int exitStatus)
     {
-        // Restore the original session event log path, in case it was changed via a
-        // command line
+        // Restore the original session event log path, in case it was changed via a command line
         // command
-        CcddFileIOHandler.storePath(ccddMain, sessionLogPath, false, ModifiablePathInfo.SESSION_LOG_FILE_PATH);
+        CcddFileIOHandler.storePath(ccddMain,
+                                    sessionLogPath,
+                                    false,
+                                    ModifiablePathInfo.SESSION_LOG_FILE_PATH);
 
         // Check if the application should be terminated following execution of the
-        // project-specific commands (script execution, export, or import) (note that
-        // the GUI is
-        // hidden if this flag is set), or if an error occurred and the GUI is hidden
-        // (if the GUI
+        // project-specific commands (script execution, export, or import) (note that the GUI is
+        // hidden if this flag is set), or if an error occurred and the GUI is hidden (if the GUI
         // is visible then the error is handled via error dialog and event log message)
         if (shutdownWhenComplete || (exitStatus == 1 && ccddMain.isGUIHidden()))
         {
-            // Restore the original table export and script output paths (in case either of
-            // these
-            // were changed via a command line command). If the GUI is visible then the
-            // script
+            // Restore the original table export and script output paths (in case either of these
+            // were changed via a command line command). If the GUI is visible then the script
             // execute and table export commands are performed as background operations. The
             // background operation is responsible for resetting the affected path once the
             // operation completes
             ccddMain.restoreTableExportPath();
             ccddMain.restoreScriptOutputPath();
 
-            // Exit the application, supplying the execution status (= 1 if a failure
-            // occurred,
+            // Exit the application, supplying the execution status (= 1 if a failure occurred,
             // otherwise returns 0)
             ccddMain.exitApplication(false, exitStatus);
         }
@@ -2443,10 +2811,8 @@ public class CcddCommandLineHandler
         // Check if an error occurred
         if (exitStatus != 0)
         {
-            // Set the flag to stop further command line argument processing. This is set
-            // here,
-            // versus when the exception is thrown, since the main class can call this
-            // method
+            // Set the flag to stop further command line argument processing. This is set here,
+            // versus when the exception is thrown, since the main class can call this method
             // directly
             stopProcessingCommands = true;
         }
@@ -2535,8 +2901,19 @@ public class CcddCommandLineHandler
         }
 
         // Build the format strings using the maximum lengths
-        String format = "  %-" + cmdLen + "." + cmdLen + "s  %-" + valLen + "." + valLen + "s  %-" + descLen + "."
-                        + descLen + "s\n";
+        String format = "  %-"
+                        + cmdLen
+                        + "."
+                        + cmdLen
+                        + "s  %-"
+                        + valLen
+                        + "."
+                        + valLen
+                        + "s  %-"
+                        + descLen
+                        + "."
+                        + descLen
+                        + "s\n";
 
         // Create a string filled with '-' characters
         char[] dashes = new char[Math.max(Math.max(descLen, cmdLen), valLen)];
@@ -2546,7 +2923,12 @@ public class CcddCommandLineHandler
         // Initialize the usage information
         String usage = String
                 .format("usage:\n" + "java -classpath <class_paths> CCDD.CcddMain [[<- or />]<command> <value> [...]]\n"
-                        + " Command line arguments:\n" + format + format, "Command", "Value", "Description", dash, dash,
+                        + " Command line arguments:\n" + format + format,
+                        "Command",
+                        "Value",
+                        "Description",
+                        dash,
+                        dash,
                         dash);
 
         // Step through each command
@@ -2569,7 +2951,9 @@ public class CcddCommandLineHandler
             {
                 // Append the sub-command header
                 String subCmdHdr = cmd.command + " sub-commands:";
-                usage += "   " + subCmdHdr + "\n   "
+                usage += "   "
+                         + subCmdHdr
+                         + "\n   "
                          + String.format("%-" + subCmdHdr.length() + "." + subCmdHdr.length() + "s\n", dash);
 
                 // Step through each sub-command
@@ -2614,8 +2998,7 @@ public class CcddCommandLineHandler
         // Split out the width and height strings
         String[] parts = parm.split("x");
 
-        // Check that only two values are provided and that both contain only decimal
-        // digits
+        // Check that only two values are provided and that both contain only decimal digits
         if (parts.length == 2 && parts[0].matches("\\d+") && parts[1].matches("\\d+"))
         {
             // Convert the width and height strings to a Dimension variable
@@ -2716,8 +3099,7 @@ public class CcddCommandLineHandler
             // Not a hexadecimal value
             else
             {
-                // Check if the parameter is a valid color name; if so, get the RGB value (mask
-                // out
+                // Check if the parameter is a valid color name; if so, get the RGB value (mask out
                 // the alpha portion)
                 val = ((Color) Color.class.getField(parm).get(null)).getRGB() & 0xffffff;
             }
@@ -2725,7 +3107,8 @@ public class CcddCommandLineHandler
         catch (Exception e)
         {
             // Parameter is not a hexadecimal color or color name
-            throw new Exception(arg + " must be a color name or in the format "
+            throw new Exception(arg
+                                + " must be a color name or in the format "
                                 + "'0x######' where '#' is a hexadecimal digit");
         }
 
@@ -2748,7 +3131,10 @@ public class CcddCommandLineHandler
      *
      * @throws Exception If the supplied value is not one of those in the predefined list
      *********************************************************************************************/
-    private Object handleOption(String arg, String parm, String[] inputOptions, Object[] outputValues) throws Exception
+    private Object handleOption(String arg,
+                                String parm,
+                                String[] inputOptions,
+                                Object[] outputValues) throws Exception
     {
         Object val = null;
         int index = 0;

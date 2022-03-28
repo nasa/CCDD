@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddScriptExecutiveDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to select script associations to execute. The dialog is built on
-*     the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddScriptExecutiveDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to select script associations to execute. The dialog is built on the
+ * CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -83,15 +79,14 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Create the script executive dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the script executive dialog. This is executed in a separate thread since it can take
+     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
-        // Check if there are any open editors with uncommitted changes and if so check
-        // that the
+        // Check if there are any open editors with uncommitted changes and if so check that the
         // user confirms ignoring the changes
         if (ccddMain.ignoreUncommittedChanges("Script Executive", "Ignore changes?", false, null,
                                               ccddMain.getMainFrame()))

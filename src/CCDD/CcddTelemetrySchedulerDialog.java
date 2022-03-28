@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddTelemetrySchedulerDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for assignment of variables to telemetry messages. The dialog is built on the
-*     CcddDialogHandler class and implements the CcddSchedulerDialogInterface class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTelemetrySchedulerDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for assignment of variables to telemetry messages. The dialog is built on the
+ * CcddDialogHandler class and implements the CcddSchedulerDialogInterface class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.AUTO_CREATE_ICON;
@@ -108,10 +104,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     }
 
     /**********************************************************************************************
-     * Create the telemetry scheduler dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the telemetry scheduler dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -158,7 +154,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 btnAutoFill.addActionListener(new ValidateCellActionListener()
                 {
                     /******************************************************************************
-                     * Auto-fill the variables into the telemetry scheduler for the currently selected data stream
+                     * Auto-fill the variables into the telemetry scheduler for the currently
+                     * selected data stream
                      *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
@@ -186,8 +183,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 btnClearRate.addActionListener(new ValidateCellActionListener()
                 {
                     /******************************************************************************
-                     * Remove the variables of the currently selected rate from all messages in the currently selected
-                     * data stream
+                     * Remove the variables of the currently selected rate from all messages in the
+                     * currently selected data stream
                      *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
@@ -294,7 +291,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 btnAssign.addActionListener(new ValidateCellActionListener()
                 {
                     /******************************************************************************
-                     * Automatically assign names and/or IDs to the telemetry messages and sub-messages
+                     * Automatically assign names and/or IDs to the telemetry messages and
+                     * sub-messages
                      *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
@@ -376,8 +374,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnAutoFill);
                 buttonPnl.add(btnClearRate);
                 buttonPnl.add(btnAddSubMessage);
@@ -402,8 +399,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                         // Adjust the new tab index if moving the tab to a higher index
                         newTabIndex -= newTabIndex > oldTabIndex ? 1 : 0;
 
-                        // Re-order the rate information based on the new tab order
-                        // Re-order the rate information based on the new tab order
+                        // Re-order the rate information based on the new tab order Re-order the
+                        // rate information based on the new tab order
                         RateInformation[] rateInfoArray = rateHandler.getRateInformation()
                                 .toArray(new RateInformation[0]);
                         rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex,
@@ -513,10 +510,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the scheduler table is
-        // validated and
-        // that no message has changed. If a change exists then confirm discarding the
-        // changes
+        // Check if the contents of the last cell edited in the scheduler table is validated and
+        // that no message has changed. If a change exists then confirm discarding the changes
         if (activeSchHandler.getSchedulerEditor().getTable().isLastCellValid()
             && (!isChanges()
                 || new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
@@ -650,8 +645,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         // Check that no error occurred storing the telemetry scheduler table
         if (!errorFlag)
         {
-            // Update the message ID names combo boxes in any open table editors in case the
-            // group
+            // Update the message ID names combo boxes in any open table editors in case the group
             // has a message ID name or message ID data field that may have changed
             ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, CcddTelemetrySchedulerDialog.this);
 

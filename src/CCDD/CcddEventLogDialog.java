@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddEventLogDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for displaying and updating the session and stored event logs. The dialog is built on
-*     the CcddFrameHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddEventLogDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for displaying and updating the session and stored event logs. The dialog is built
+ * on the CcddFrameHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CCDD_ICON;
@@ -137,9 +133,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param logFile      Event log file; null if creating the session log or if opening a
      *                     user-selected log file
      *
-     * @param targetRow    Row index a specific log entry in an existing log to display in a stand-alone
-     *                     table without message length constraints; null if not displaying a single log
-     *                     entry
+     * @param targetRow    Row index a specific log entry in an existing log to display in a
+     *                     stand-alone table without message length constraints; null if not
+     *                     displaying a single log entry
      *
      * @param isSessionLog True if this is the event log for the current session
      *********************************************************************************************/
@@ -193,25 +189,22 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *                      user-selected log file
      *
      * @param targetRow     Row index a specific log entry in an existing log to display in a
-     *                      stand-alone table without message length constraints; null if not displaying
-     *                      a single log entry
+     *                      stand-alone table without message length constraints; null if not
+     *                      displaying a single log entry
      *********************************************************************************************/
     private void initialize(FileEnvVar targetLogFile, final Long targetRow)
     {
-        // Create storage for stored log events. The list is initially empty for the
-        // session log
+        // Create storage for stored log events. The list is initially empty for the session log
         eventLogList = new ArrayList<Object[]>();
 
-        // Flag indicating if only a single entry from an existing log file is to be
-        // displayed in
+        // Flag indicating if only a single entry from an existing log file is to be displayed in
         // this log table
         boolean isOpenSingleEntry = (targetLogFile != null && targetRow != null);
 
         // Initialize the event index number
         indexNum = 1;
 
-        // If a log file is provided then use it; otherwise attempt to open the event
-        // log file
+        // If a log file is provided then use it; otherwise attempt to open the event log file
         if (isOpenSingleEntry || openEventLogFile())
         {
             // Check if this is not the current session's event log
@@ -224,8 +217,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // Create the event log window
             createEventLogWindow(!isOpenSingleEntry);
 
-            // Check if this log can display multiple log entries (this prevents reopening
-            // the log
+            // Check if this log can display multiple log entries (this prevents reopening the log
             // entry for a single entry table)
             if (!isOpenSingleEntry)
             {
@@ -377,10 +369,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
             @Override
             protected void loadAndFormatData()
             {
-                // Place the event log data into the table model along with the column names,
-                // set
-                // up the editors and renderers for the table cells, hide the table grid lines,
-                // and
+                // Place the event log data into the table model along with the column names, set
+                // up the editors and renderers for the table cells, hide the table grid lines, and
                 // calculate the minimum width required to display the table information
                 int totalWidth = setUpdatableCharacteristics(eventLogList.toArray(new Object[0][0]),
                                                              EventColumns.getColumnNames(), null,
@@ -403,7 +393,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method in order to show/hide the events based on event type
+             * Override the CcddJTableHandler method in order to show/hide the events based on
+             * event type
              *************************************************************************************/
             @Override
             protected void setTableSortable()
@@ -413,8 +404,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // Get the table's row sorter and add the event type filter
                 TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
 
-                // Check if the table has a sorter (i.e., has at least one visible row), that
-                // the
+                // Check if the table has a sorter (i.e., has at least one visible row), that the
                 // filter hasn't been set, and that there is an event type row filter
                 if (sorter != null && sorter.getRowFilter() != rowFilter && rowFilter != null)
                 {
@@ -424,8 +414,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
             }
 
             /**************************************************************************************
-             * Override the table layout so that all extra width goes to the message column when the table is
-             * resized
+             * Override the table layout so that all extra width goes to the message column when
+             * the table is resized
              *************************************************************************************/
             @Override
             public void doLayout()
@@ -598,20 +588,19 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // STart with the Command filter set to off
             setFilter(EventLogMessageType.COMMAND_MSG, false);
 
-            // Enable or disable the web server message filter check box based on if the web
-            // server exists or if this isn't the session log
+            // Enable or disable the web server message filter check box based on if the web server
+            // exists or if this isn't the session log
             setServerFilterEnable(ccddMain.getWebServer() != null || !isSessionLog);
 
             // Add the filter check box panel to the log & filter panel
             logAndFilterPnl.add(filterPanel, BorderLayout.PAGE_END);
 
-            // Adjust the dialog's minimum width if the filter panel exceeds the default
-            // minimum
+            // Adjust the dialog's minimum width if the filter panel exceeds the default minimum
             adjustFrameMinimumWidth(filterPanel.getWidth());
         }
 
-        // Create an outer log panel in which to put the log table and filter check box
-        // panel. The border doesn't appear without this
+        // Create an outer log panel in which to put the log table and filter check box panel. The
+        // border doesn't appear without this
         logPanel = new JPanel();
         logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.X_AXIS));
         logPanel.add(logAndFilterPnl);
@@ -625,17 +614,15 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // Create the CCDD logo graphic
             image = ImageIO.read(getClass().getResource(CCDD_ICON));
         }
-        catch (
-            IOException ioe
-        )
+        catch (IOException ioe)
         {
             // Ignore the error if the logo cannot be created
         }
     }
 
     /**********************************************************************************************
-     * Show or hide the web server message filter check box. The server check box is shown only when the
-     * web server exists (even if the server is subsequently disabled)
+     * Show or hide the web server message filter check box. The server check box is shown only
+     * when the web server exists (even if the server is subsequently disabled)
      *
      * @param show True to show the check box; false to hide it
      *********************************************************************************************/
@@ -681,8 +668,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
         // Check if the 'All' events filter state is specified
         if (type == EventLogMessageType.SELECT_ALL)
         {
-            // Set the 'All' check box state to opposite the intended state so that the step
-            // below triggers the correct update
+            // Set the 'All' check box state to opposite the intended state so that the step below
+            // triggers the correct update
             filterCheckBox[index].setSelected(!isFiltered);
         }
 
@@ -695,7 +682,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Check if the supplied message type should be displayed based on the filter check box statuses
+     * Check if the supplied message type should be displayed based on the filter check box
+     * statuses
      *
      * @param type Event log message type (e.g., COMMAND_MSG)
      *
@@ -708,8 +696,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
         // Step through the event message types
         for (EventLogMessageType eventType : EventLogMessageType.values())
         {
-            // Check if the type number matches the event type and if this type of message
-            // is
+            // Check if the type number matches the event type and if this type of message is
             // selected for display
             if (type == eventType
                 && filterCheckBox[EventLogMessageType.valueOf(eventType.name()).ordinal()].isSelected())
@@ -734,8 +721,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Open the event log file. If this is the current session's event log then create the file; if this
-     * is an existing log then open the user-selected file
+     * Open the event log file. If this is the current session's event log then create the file; if
+     * this is an existing log then open the user-selected file
      *
      * @return true if the log is opened
      *********************************************************************************************/
@@ -751,8 +738,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // The session log is considered open even if the file cannot be opened
                 isOpen = true;
 
-                // Create the session log file using the date and time stamp as part of the
-                // name,
+                // Create the session log file using the date and time stamp as part of the name,
                 // and the log file path if set by command line command
                 logFile = new FileEnvVar((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
                         .isEmpty() ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath() + File.separator : "") + "CCDD-"
@@ -789,9 +775,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     isLogWrite = false;
                 }
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 // Indicate that the log wasn't created
                 isLogWrite = false;
@@ -855,9 +839,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Read an existing event log file
      *
-     * @param targetRow Row index a specific log entry in an existing log to display in a stand-alone
-     *                  table without message length constraints; null if not displaying a single log
-     *                  entry
+     * @param targetRow Row index a specific log entry in an existing log to display in a
+     *                  stand-alone table without message length constraints; null if not
+     *                  displaying a single log entry
      *********************************************************************************************/
     private void readEventLog(Long targetRow)
     {
@@ -878,8 +862,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // Break the input line into its separate columns
                 String[] parts = line.split("[|]", EventColumns.values().length - 1);
 
-                // Check if no target time stamp is provided, or if one is that it matches this
-                // log
+                // Check if no target time stamp is provided, or if one is that it matches this log
                 // entry's time stamp
                 if (targetRow == null || row == targetRow)
                 {
@@ -912,9 +895,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
             // Close the log reader
             logReader.close();
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user that an error occurred reading the log
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), "<html><b>Cannot read event log file",
@@ -970,7 +951,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *********************************************************************************************/
     protected void logEvent(final EventLogMessageType type, final StringBuilder logMessage)
     {
-        // Get the server, database, and user responsible for the event.
+        // Get the server, database, and user responsible for the event
         final String server = dbControl.getServer();
         final String database = dbControl.isDatabaseConnected() ? dbControl
                 .getProjectName() : (dbControl.isServerConnected() ? "*server*" : "*none*");
@@ -992,8 +973,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
             SwingUtilities.invokeLater(new Runnable()
             {
                 /**********************************************************************************
-                 * Since the log addition involves a GUI update use invokeLater to execute the call on the event
-                 * dispatch thread
+                 * Since the log addition involves a GUI update use invokeLater to execute the call
+                 * on the event dispatch thread
                  *********************************************************************************/
                 @Override
                 public void run()
@@ -1006,8 +987,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Append a database failure message to the event log window and file and display a corresponding
-     * error dialog
+     * Append a database failure message to the event log window and file and display a
+     * corresponding error dialog
      *
      * @param parent        Window to center the dialog over; null if no dialog should be displayed
      *
@@ -1085,17 +1066,15 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 StringBuilder logEntry = new StringBuilder(server).append("|").append(database).append("|").append(user)
                         .append("|").append(timestamp).append("|").append(type.getTypeName()).append("|");
 
-                // Remove any embedded line feed characters since these interfere with parsing when reading
-                // the log files
+                // Remove any embedded line feed characters since these interfere with parsing when
+                // reading the log files
                 logEntry.append(logMessage.toString().replaceAll("\n", ""));
 
                 // Write the message to the event log file
                 logWriter.println(logEntry.toString());
                 logWriter.flush();
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 // Inform the user that an error occurred writing to the log
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), "<html><b>Cannot write to event log",
@@ -1120,10 +1099,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Format the date and time string provided for display in the event log table
      *
-     * @param timestamp Date and time string in the format [month/day/year][ ] [hours/minutes/seconds]
+     * @param timestamp Date and time string in the format [month/day/year][ ]
+     *                  [hours/minutes/seconds]
      *
-     * @return The date and time string formatted for HTML, centered, and with the month/day/year and
-     *         hours/minutes/seconds on separate lines
+     * @return The date and time string formatted for HTML, centered, and with the month/day/year
+     *         and hours/minutes/seconds on separate lines
      *********************************************************************************************/
     private String getDateTimeStampLog(String timestamp)
     {
@@ -1135,8 +1115,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @param server Server string in the format [server name][:][port number]
      *
-     * @return The server string formatted for HTML, centered, and with the server name and port number
-     *         on separate lines
+     * @return The server string formatted for HTML, centered, and with the server name and port
+     *         number on separate lines
      *********************************************************************************************/
     private String getServerLog(String server)
     {
@@ -1153,13 +1133,12 @@ public class CcddEventLogDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Create a mouse listener for opening single, non-length constrained log messages in a separate
-     * table
+     * Create a mouse listener for opening single, non-length constrained log messages in a
+     * separate table
      *********************************************************************************************/
     private void setLogMessageListener()
     {
-        // Add a mouse listener to the table to handle mouse clicks on the message
-        // column
+        // Add a mouse listener to the table to handle mouse clicks on the message column
         eventTable.addMouseListener(new MouseAdapter()
         {
             /**********************************************************************************

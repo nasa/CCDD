@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddTelemetrySchedulerInput.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling variable selection in the telemetry scheduler dialog. This class
-*     implements the CcddSchedulerInputInterface class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTelemetrySchedulerInput.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling variable selection in the telemetry scheduler dialog. This class
+ * implements the CcddSchedulerInputInterface class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
@@ -93,8 +89,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     // List containing the paths to all elements in the allVariableTree tree
     private final List<String> allVariableTreePaths;
 
-    // Index position in the variable tree for the variable to be inserted in a list
-    // of existing variables
+    // Index position in the variable tree for the variable to be inserted in a list of existing
+    // variables
     private int targetVarTreeIndex;
 
     /**********************************************************************************************
@@ -103,7 +99,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     private class VariableComparator implements Comparator<Variable>
     {
         /******************************************************************************************
-         * Compare the position indices of a variable in a variable list with that of a target variable
+         * Compare the position indices of a variable in a variable list with that of a target
+         * variable
          *****************************************************************************************/
         @Override
         public int compare(Variable variable1, Variable variable2)
@@ -117,13 +114,15 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      *
      * @param ccddMain             Main class
      *
-     * @param schedulerDlg         Reference to the telemetry scheduler dialog that created this class
+     * @param schedulerDlg         Reference to the telemetry scheduler dialog that created this
+     *                             class
      *
      * @param rateName             Rate column name
      *
      * @param allVariableTree      Reference to a table tree containing all variables
      *
-     * @param allVariableTreePaths List containing the paths to all elements in the allVariableTree tree
+     * @param allVariableTreePaths List containing the paths to all elements in the allVariableTree
+     *                             tree
      *********************************************************************************************/
     CcddTelemetrySchedulerInput(CcddMain ccddMain, CcddTelemetrySchedulerDialog schedulerDlg, String rateName,
                                 CcddTableTreeHandler allVariableTree, List<String> allVariableTreePaths)
@@ -169,10 +168,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     {
         isNodeSelectionChanging = false;
 
-        // Initialize the currently selected rate to 1 Hz if present in the list of
-        // available
-        // rates; otherwise choose the first rate if any rates exist, and if none exist
-        // set the
+        // Initialize the currently selected rate to 1 Hz if present in the list of available
+        // rates; otherwise choose the first rate if any rates exist, and if none exist set the
         // rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
         selectedRate = availableRates
@@ -186,10 +183,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // Set the linked selected rate
         linkTree.setSelectedRate(selectedRate);
 
-        // Build the variable tree that shows tables and their variables for the
-        // selected rate. Use
-        // the first rate in the available rates array to determine which variables to
-        // display in
+        // Build the variable tree that shows tables and their variables for the selected rate. Use
+        // the first rate in the available rates array to determine which variables to display in
         // the tree, or, if none, create the tree showing no variables
         variableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
                                                 TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES, rateName,
@@ -197,8 +192,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                                 UNLINKED_VARIABLES_NODE_NAME, ccddMain.getMainFrame())
         {
             /**************************************************************************************
-             * Respond to changes in selection of a node in the variable tree. This replaces the placeholder
-             * method in CcddTableTreeHandler
+             * Respond to changes in selection of a node in the variable tree. This replaces the
+             * placeholder method in CcddTableTreeHandler
              *************************************************************************************/
             @Override
             protected void updateTableSelection()
@@ -255,8 +250,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // Create the tree panel
         treePnl = new JPanel(new GridBagLayout());
 
-        // Create the variable and link trees panels with buttons in between and add
-        // them to the
+        // Create the variable and link trees panels with buttons in between and add them to the
         // panel
         treePnl.add(variableTree.createTreePanel("Variables", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
                                                  ccddMain.getMainFrame()),
@@ -290,15 +284,16 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
     /**********************************************************************************************
      * Get the index at which the specified variable should be inserted into the list of variables
-     * provided. The variable tree is used to determine the target variable's position relative to the
-     * variables in the list (if any)
+     * provided. The variable tree is used to determine the target variable's position relative to
+     * the variables in the list (if any)
      *
      * @param newVariable       Variable for which to determine the insertion index
      *
-     * @param existingVariables List of existing variables into which the variable is to be inserted
+     * @param existingVariables List of existing variables into which the variable is to be
+     *                          inserted
      *
-     * @return Index at which to insert the target variable; -1 if the provided list is empty and -2 if
-     *         the variable is already in the list
+     * @return Index at which to insert the target variable; -1 if the provided list is empty and
+     *         -2 if the variable is already in the list
      *********************************************************************************************/
     @Override
     public int getVariableRelativeIndex(Variable newVariable, List<Variable> existingVariables)
@@ -392,31 +387,30 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     }
 
     /**********************************************************************************************
-     * For the specified list of variables, get (1) the total size in bytes of the variables that are
-     * associated with the first variable in the list, and (2) a list of Variable objects of the
-     * associated variables. Variables are considered 'associated' if (a) they are all bit-wise
-     * variables that are packed together, or (b) they are members of a string. If the first variable
-     * isn't associated with the succeeding variables then the return value references only the first
-     * variable
+     * For the specified list of variables, get (1) the total size in bytes of the variables that
+     * are associated with the first variable in the list, and (2) a list of Variable objects of
+     * the associated variables. Variables are considered 'associated' if (a) they are all bit-wise
+     * variables that are packed together, or (b) they are members of a string. If the first
+     * variable isn't associated with the succeeding variables then the return value references
+     * only the first variable
      *
-     * @param variables List of variables where the first member of the list if the one to be checked
-     *                  for associates
+     * @param variables List of variables where the first member of the list if the one to be
+     *                  checked for associates
      *
-     * @return AssociatedVariable object containing the total size in bytes of the variables associated
-     *         with the first variable in the specified list and the list of the associated variables
+     * @return AssociatedVariable object containing the total size in bytes of the variables
+     *         associated with the first variable in the specified list and the list of the
+     *         associated variables
      *********************************************************************************************/
     protected AssociatedVariable getAssociatedVariables(List<Variable> variables)
     {
-        // Get a reference to the lead variable. This is the variable that is checked
-        // for
+        // Get a reference to the lead variable. This is the variable that is checked for
         // associated variables
         Variable variable = variables.get(0);
 
         // Store the size of the variable
         int totalSize = variable.getSize();
 
-        // Create a list to store the lead variable and its associates and add the lead
-        // variable to
+        // Create a list to store the lead variable and its associates and add the lead variable to
         // the list
         List<Variable> associatedVars = new ArrayList<Variable>();
         associatedVars.add(variable);
@@ -424,8 +418,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // Set flag to true if the lead variable is a bit-wise variable
         boolean isBitPack = variable.getFullName().contains(":");
 
-        // Check if the lead variable is a bit-wise or string variable (and hence can
-        // have other
+        // Check if the lead variable is a bit-wise or string variable (and hence can have other
         // variables associated with it)
         if (isBitPack || dataTypeHandler.isString(((TelemetryData) variable).getDataType()))
         {
@@ -435,8 +428,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Get the variable's tree node
             ToolTipTreeNode last = (ToolTipTreeNode) allVariableTree.getPathForRow(treeIndex).getLastPathComponent();
 
-            // Get the indices of the other variables associated with this variable (i.e.,
-            // other
+            // Get the indices of the other variables associated with this variable (i.e., other
             // variable bit-packed or other members of the string)
             BitPackNodeIndex nodeIndex = isBitPack ? allVariableTree.getBitPackedVariables(last)
                                                    : allVariableTree.getStringVariableMembers(last);
@@ -444,8 +436,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Calculate the number of other variables associated with the lead variable
             int numVars = nodeIndex.getLastIndex() - nodeIndex.getFirstIndex();
 
-            // Check if the number of associated variables doesn't exceed the number of
-            // variables
+            // Check if the number of associated variables doesn't exceed the number of variables
             // in the list provided
             if (numVars <= variables.size())
             {
@@ -463,8 +454,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     associatedVars.add(variables.get(index));
                 }
             }
-            // More associated variables were detected than were provided. This can only
-            // occur if
+            // More associated variables were detected than were provided. This can only occur if
             // the rates for associated variables don't match - this shouldn't be possible
             else
             {
@@ -506,8 +496,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // Step through each path in the list
         for (String path : pathList)
         {
-            // Split the path (project name , linked/unlinked node header, and variable
-            // path)
+            // Split the path (project name , linked/unlinked node header, and variable path)
             String[] pathParts = path.split(",");
 
             // Check if the variable is linked
@@ -562,8 +551,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Check if the variable is linked
             if (path[1].toString().trim().equals(LINKED_VARIABLES_NODE_NAME))
             {
-                // Set the start of the variable path to skip the root, link header, and link
-                // name
+                // Set the start of the variable path to skip the root, link header, and link name
                 // nodes
                 index = 3;
 
@@ -735,8 +723,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     }
 
     /**********************************************************************************************
-     * Select the message(s) in the assignment tree for which the selected variable in the variable tree
-     * is a member
+     * Select the message(s) in the assignment tree for which the selected variable in the variable
+     * tree is a member
      *********************************************************************************************/
     private void selectMessageByVariable()
     {
@@ -752,8 +740,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Check if the variable is linked
             if (variableTree.removeExtraText(path[1].toString().trim()).equals(LINKED_VARIABLES_NODE_NAME))
             {
-                // Set the start of the variable path to skip the root, link header, and link
-                // name
+                // Set the start of the variable path to skip the root, link header, and link name
                 // nodes
                 index = 1;
             }
@@ -761,8 +748,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             // Get the first selected variable
             String variablePath = variableTree.getFullVariablePath(path, index);
 
-            // Check if the variable contains the HTML flags indicating it is in use; i.e.,
-            // belongs
+            // Check if the variable contains the HTML flags indicating it is in use; i.e., belongs
             // to a message
             if (variablePath.contains(DISABLED_TEXT_COLOR))
             {
@@ -772,8 +758,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 // Clear any selected message(s) in the Scheduler table
                 schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().clearSelection();
 
-                // Step through the list of current messages. Go in reverse order so that the
-                // first
+                // Step through the list of current messages. Go in reverse order so that the first
                 // message containing the variable gets the focus
                 for (int row = schedulerDlg.getSchedulerHandler().getCurrentMessages().size() - 1; row >= 0; row--)
                 {

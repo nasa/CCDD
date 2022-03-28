@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddHaltDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog that displays a button for canceling the current operation, and optionally displays
-*     a progress bar. The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddHaltDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog that displays a button for canceling the current operation, and optionally
+ * displays a progress bar. The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.awt.Color;
@@ -88,7 +84,12 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @param parent             Component over which to center the dialog
      *********************************************************************************************/
-    CcddHaltDialog(String title, String label, String operation, int numDivisionPerStep, int numSteps, Component parent)
+    CcddHaltDialog(String title,
+                   String label,
+                   String operation,
+                   int numDivisionPerStep,
+                   int numSteps,
+                   Component parent)
     {
         isHalted = false;
         minWidth = -1;
@@ -206,18 +207,22 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @param numSteps           Total number of steps in the operation
      *
-     * @param modal              False to allow the other application windows to still be operated while
-     *                           the dialog is open
+     * @param modal              False to allow the other application windows to still be operated
+     *                           while the dialog is open
      *
      * @param parent             Parent component over which to center the dialog
      *
      * @return Index of the button pressed to exit the dialog
      *********************************************************************************************/
-    protected int initialize(String title, String label, String operation, int numDivisionPerStep, int numSteps,
-                             boolean modal, Component parent)
+    protected int initialize(String title,
+                             String label,
+                             String operation,
+                             int numDivisionPerStep,
+                             int numSteps,
+                             boolean modal,
+                             Component parent)
     {
-        // Set the number of divisions within each step and use it, along with the
-        // number of items,
+        // Set the number of divisions within each step and use it, along with the number of items,
         // to calculate the total number of steps
         this.numDivisionPerStep = numDivisionPerStep;
         itemsPerStep = numDivisionPerStep;
@@ -277,8 +282,8 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @param progText   Text to display within the progress bar; null to not change the text
      *
-     * @param startValue Initial value at which to begin this sequence in the process; -1 to not change
-     *                   the initial value
+     * @param startValue Initial value at which to begin this sequence in the process; -1 to not
+     *                   change the initial value
      *********************************************************************************************/
     protected void updateProgressBar(final String progText, int startValue)
     {
@@ -301,8 +306,8 @@ public class CcddHaltDialog extends CcddDialogHandler
             SwingUtilities.invokeLater(new Runnable()
             {
                 /**********************************************************************************
-                 * Since the progress bar involves a GUI update use invokeLater to execute the call on the event
-                 * dispatch thread
+                 * Since the progress bar involves a GUI update use invokeLater to execute the call
+                 * on the event dispatch thread
                  *********************************************************************************/
                 @Override
                 public void run()

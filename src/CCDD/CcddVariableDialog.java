@@ -96,10 +96,10 @@ public class CcddVariableDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the variable paths and names dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the variable paths and names dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -168,8 +168,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                 gbc.gridy++;
                 inputPnl.add(varPathSepFld, gbc);
 
-                // Create the data type/variable name separator label and input field, and add
-                // them
+                // Create the data type/variable name separator label and input field, and add them
                 // to the dialog panel
                 final JLabel typeNameSepLbl = new JLabel("<html>Enter data type/variable name<br>&#160;separator character(s)");
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -214,8 +213,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add the inputs panel, containing the separator characters fields and check
-                // box,
+                // Add the inputs panel, containing the separator characters fields and check box,
                 // to the upper panel
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -287,7 +285,8 @@ public class CcddVariableDialog extends CcddDialogHandler
                     }
 
                     /******************************************************************************
-                     * Load the structure table variables paths & names into the table and format the table cells
+                     * Load the structure table variables paths & names into the table and format
+                     * the table cells
                      *****************************************************************************/
                     @Override
                     protected void loadAndFormatData()
@@ -506,11 +505,11 @@ public class CcddVariableDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Get the array of variables. If the table tree has any selections use these to filter the variable
-     * array
+     * Get the array of variables. If the table tree has any selections use these to filter the
+     * variable array
      *
-     * @return Array of variables matching the filter tables, or all variables if no filter table is
-     *         selected
+     * @return Array of variables matching the filter tables, or all variables if no filter table
+     *         is selected
      *********************************************************************************************/
     private Object[][] getVariables()
     {

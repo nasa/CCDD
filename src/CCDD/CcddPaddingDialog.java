@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddPaddingDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for adding, updating, or removing padding variables for the selected structure
-*     table(s). The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddPaddingDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for adding, updating, or removing padding variables for the selected structure
+ * table(s). The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_ICON;
@@ -96,8 +92,8 @@ public class CcddPaddingDialog extends CcddDialogHandler
         JPanel dialogPnl = new JPanel(new GridBagLayout());
         dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
-        // Build the table tree showing both table prototypes and table instances; i.e.,
-        // parent tables with their child tables (i.e., parents with children)
+        // Build the table tree showing both table prototypes and table instances; i.e., parent
+        // tables with their child tables (i.e., parents with children)
         final CcddTableTreeHandler prototypeTree = new CcddTableTreeHandler(ccddMain,
                                                                             new CcddGroupHandler(ccddMain, null,
                                                                                                  ccddMain.getMainFrame()),
@@ -213,14 +209,14 @@ public class CcddPaddingDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Perform the specified padding operation on the selected tables. If a selected table is the
-     * prototype for a child table, then include the prototype name for every table in the child's path
-     * in the tables to be altered
+     * prototype for a child table, then include the prototype name for every table in the child's
+     * path in the tables to be altered
      *
      * @param ccddMain      Main class reference
      *
      * @param padOpType     Padding operation type: REMOVE to remove padding from the selected and
-     *                      affected tabled; ADD_UPDATE to add or update the padding for the selected
-     *                      and affected tables (PadOperationType)
+     *                      affected tabled; ADD_UPDATE to add or update the padding for the
+     *                      selected and affected tables (PadOperationType)
      *
      * @param prototypeTree Reference to the prototype table tree
      *********************************************************************************************/
@@ -272,8 +268,8 @@ public class CcddPaddingDialog extends CcddDialogHandler
             }
         }
 
-        // Add any table(s) (prototype and instance) that the selected prototype(s)
-        // affect to the list of prototype tables
+        // Add any table(s) (prototype and instance) that the selected prototype(s) affect to the
+        // list of prototype tables
         selectedPrototypeTables.addAll(affectedTables);
 
         // Step through each selected table and its descendant table(s) (if any). Information on
@@ -281,8 +277,9 @@ public class CcddPaddingDialog extends CcddDialogHandler
         // structure size and alignment
         for (String table : instanceTree.getTablesWithChildren(selectedPrototypeTables))
         {
-            // The table path can reference multiple prototypes (the root table plus one for each child
-            // structure variable). Each of these prototypes must be included in the referenced tables list
+            // The table path can reference multiple prototypes (the root table plus one for each
+            // child structure variable). Each of these prototypes must be included in the
+            // referenced tables list
             do
             {
                 // Get the prototype for the last child structure variable in the table path
@@ -305,8 +302,8 @@ public class CcddPaddingDialog extends CcddDialogHandler
                     table = table.substring(0, index);
                 }
             } while (table.contains(","));
-            // Continue to process the table path, until no child structure variable
-            // reference remains
+            // Continue to process the table path, until no child structure variable reference
+            // remains
         }
 
         // Sort the lists alphabetically

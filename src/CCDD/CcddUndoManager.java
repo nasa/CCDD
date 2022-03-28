@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddUndoManager.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles undo and redo of edit operations and the edit stack.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddUndoManager.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles undo and redo of edit operations and the edit stack.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.util.ArrayList;
@@ -64,8 +60,8 @@ public class CcddUndoManager extends UndoManager
     }
 
     /**********************************************************************************************
-     * Add an edit action to the compound edit sequence in progress. If no sequence is active then first
-     * create a new sequence
+     * Add an edit action to the compound edit sequence in progress. If no sequence is active then
+     * first create a new sequence
      *
      * @param editAction Edit action
      *********************************************************************************************/
@@ -125,8 +121,8 @@ public class CcddUndoManager extends UndoManager
     }
 
     /**********************************************************************************************
-     * Undo the last compound edit sequence and remove the action from the stack so that it can't be
-     * redone
+     * Undo the last compound edit sequence and remove the action from the stack so that it can't
+     * be redone
      *********************************************************************************************/
     protected void undoRemoveEdit()
     {
@@ -142,7 +138,8 @@ public class CcddUndoManager extends UndoManager
     }
 
     /**********************************************************************************************
-     * Override the undo method so that a check can be first performed that edits are available to undo
+     * Override the undo method so that a check can be first performed that edits are available to
+     * undo
      *********************************************************************************************/
     @Override
     public void undo()
@@ -153,8 +150,7 @@ public class CcddUndoManager extends UndoManager
         // Check if an undo is allowed
         if (canUndo())
         {
-            // Undo all actions within this compound edit sequence and adjust the stack
-            // pointer
+            // Undo all actions within this compound edit sequence and adjust the stack pointer
             compoundEdits.get(pointer).undo();
             pointer--;
 
@@ -164,7 +160,8 @@ public class CcddUndoManager extends UndoManager
     }
 
     /**********************************************************************************************
-     * Override the redo method so that a check can be first performed that edits are available to redo
+     * Override the redo method so that a check can be first performed that edits are available to
+     * redo
      *********************************************************************************************/
     @Override
     public void redo()
@@ -175,8 +172,7 @@ public class CcddUndoManager extends UndoManager
         // Check if an redo is allowed
         if (canRedo())
         {
-            // Adjust the stack pointer and redo all actions within this compound edit
-            // sequence
+            // Adjust the stack pointer and redo all actions within this compound edit sequence
             pointer++;
             compoundEdits.get(pointer).redo();
 

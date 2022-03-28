@@ -141,8 +141,8 @@ public class CcddScriptHandler
     // Global storage for the data obtained in the recursive table data reading method
     private Object[][] combinedData;
 
-    // List containing the table paths for the tables loaded for a script
-    // association. Used to prevent loading the same table more than once
+    // List containing the table paths for the tables loaded for a script association. Used to
+    // prevent loading the same table more than once
     private List<String> loadedTablePaths;
 
     // Array to indicate if a script association has a problem that prevents its execution
@@ -293,8 +293,8 @@ public class CcddScriptHandler
             }
             catch (CCDDException ce)
             {
-                // The script file or associated table doesn't exist; set the flag to indicate
-                // the association isn't available
+                // The script file or associated table doesn't exist; set the flag to indicate the
+                // association isn't available
                 availableStatus = AvailabilityType.TABLE_MISSING;
             }
 
@@ -673,8 +673,8 @@ public class CcddScriptHandler
             }
         };
 
-        // Set the list selection model in order to detect table rows that aren't
-        // allowed to be selected
+        // Set the list selection model in order to detect table rows that aren't allowed to be
+        // selected
         assnsTable.setSelectionModel(new DefaultListSelectionModel()
         {
             /**************************************************************************************
@@ -718,8 +718,8 @@ public class CcddScriptHandler
         gbc.weighty = 1.0;
         assnsPnl.add(assnsTblPnl, gbc);
 
-        // Create the check box for hiding/showing the file paths in the associations
-        // table script file column
+        // Create the check box for hiding/showing the file paths in the associations table script
+        // file column
         hideScriptFilePath = new JCheckBox("Hide script file path",
                                            ccddMain.getProgPrefs().getBoolean(HIDE_SCRIPT_PATH, false));
         hideScriptFilePath.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -1108,8 +1108,8 @@ public class CcddScriptHandler
                 }
             }
 
-            // Force the table to redraw so that a change in an association's availability
-            // status is reflected
+            // Force the table to redraw so that a change in an association's availability status
+            // is reflected
             ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
             ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
         }
@@ -1148,14 +1148,13 @@ public class CcddScriptHandler
             String members = CcddUtilities
                     .removeHTMLTags(associations.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
 
-            // Check if this isn't the current association being added (if applicable), and
-            // the script and tables match between the two script associations
+            // Check if this isn't the current association being added (if applicable), and the
+            // script and tables match between the two script associations
             boolean isRowValid = row != ignoreRow;
             boolean isNameSame = scriptName
                     .equals(associations.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString());
             // Pull out the string array to compare against. If it is empty, then create an array
-            // with an empty
-            // entry
+            // with an empty entry
             String[] compareAgainst = members.isEmpty() ? new String[] {""}
                                                         : members.split(Pattern.quote(ASSN_TABLE_SEPARATOR));
             boolean isArraySame = CcddUtilities.isArraySetsEqual(tables, compareAgainst);
@@ -1443,8 +1442,8 @@ public class CcddScriptHandler
         typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, DEFAULT_TYPE_NAME_SEP);
         excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE));
 
-        // Check if the script execution was initiated via command line command (and not
-        // from the script manager or executive dialog)
+        // Check if the script execution was initiated via command line command (and not from the
+        // script manager or executive dialog)
         if (!(parent instanceof CcddFrameHandler))
         {
             // Get the system environment variables map
@@ -1468,8 +1467,8 @@ public class CcddScriptHandler
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
 
-        // Get the list of the table paths in the order of appearance in the table tree.
-        // This is used to sort the association table paths
+        // Get the list of the table paths in the order of appearance in the table tree. This is
+        // used to sort the association table paths
         final List<String> allTablePaths = tableTree.getTableTreePathList(null);
 
         // To reduce database access and speed script execution when executing multiple

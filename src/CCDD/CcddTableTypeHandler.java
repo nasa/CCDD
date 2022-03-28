@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddTableTypeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling interactions with table types.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTableTypeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling interactions with table types.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -58,9 +54,9 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
 
 /**************************************************************************************************
- * CFS Command and Data Dictionary table type handler class. The table definition consists of one or
- * more table types, each with its associated column name(s) and file definition(s), and the value
- * required status of the columns
+ * CFS Command and Data Dictionary table type handler class. The table definition consists of one
+ * or more table types, each with its associated column name(s) and file definition(s), and the
+ * value required status of the columns
  *************************************************************************************************/
 public class CcddTableTypeHandler
 {
@@ -88,8 +84,8 @@ public class CcddTableTypeHandler
         // Table column names used in the database
         private final List<String> columnNamesDatabase;
 
-        // Table column names used in the database, bounded by double quotes if the name
-        // matches a PostgreSQL reserved word
+        // Table column names used in the database, bounded by double quotes if the name matches a
+        // PostgreSQL reserved word
         private final List<String> columnNamesDatabaseQuoted;
 
         // Table column names seen by the user
@@ -107,8 +103,7 @@ public class CcddTableTypeHandler
         // Flag indicating if the column requires a value
         private final List<Boolean> isColumnRequired;
 
-        // List for storage of flags indicating if the column applies to a specific data
-        // type
+        // List for storage of flags indicating if the column applies to a specific data type
         private final List<Boolean> isStructureOk;
         private final List<Boolean> isPointerOk;
 
@@ -153,8 +148,9 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Get the table type data for the type editor. The primary key and row index column definitions
-         * (the first two rows) are ignored so that these aren't displayed in the type editor
+         * Get the table type data for the type editor. The primary key and row index column
+         * definitions (the first two rows) are ignored so that these aren't displayed in the type
+         * editor
          *
          * @return table type data
          *****************************************************************************************/
@@ -177,8 +173,7 @@ public class CcddTableTypeHandler
                 data[visibleIndex][TableTypeEditorColumnInfo.REQUIRED.ordinal()] = isColumnRequired.get(index);
                 data[visibleIndex][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()] = isStructureOk.get(index);
                 data[visibleIndex][TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()] = isPointerOk.get(index);
-                data[visibleIndex][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = columnInputType.get(index)
-                        .getInputName();
+                data[visibleIndex][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = columnInputType.get(index).getInputName();
             }
 
             return data;
@@ -215,11 +210,11 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Get the array of column names as used in the database, surrounded by double quotes if the name
-         * matches a PostgreSQL key word
+         * Get the array of column names as used in the database, surrounded by double quotes if
+         * the name matches a PostgreSQL key word
          *
-         * @return Array of column names as used in the database, surrounded by double quotes if the name
-         *         matches a PostgreSQL key word
+         * @return Array of column names as used in the database, surrounded by double quotes if
+         *         the name matches a PostgreSQL key word
          *****************************************************************************************/
         protected String[] getColumnNamesDatabaseQuoted()
         {
@@ -227,10 +222,10 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Convert the visible column names to their database equivalents. The database column name is the
-         * visible name with any characters that are invalid in a database column name replaced with an
-         * underscore; however, if the table type represents a structure then certain column names use fixed
-         * values
+         * Convert the visible column names to their database equivalents. The database column name
+         * is the visible name with any characters that are invalid in a database column name
+         * replaced with an underscore; however, if the table type represents a structure then
+         * certain column names use fixed values
          *****************************************************************************************/
         protected void setColumnNamesDatabase()
         {
@@ -390,18 +385,7 @@ public class CcddTableTypeHandler
          *****************************************************************************************/
         protected boolean isCommandArgumentStructure()
         {
-            boolean result = false;
-
-            if (!columnToolTip.get(0).isEmpty())
-            {
-                result = !columnToolTip.get(0).startsWith("0");
-            }
-            else
-            {
-                result = !columnToolTip.get(0).startsWith("0");
-            }
-
-            return result;
+            return !columnToolTip.get(0).startsWith("0");
         }
 
         /******************************************************************************************
@@ -409,8 +393,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (InputType)
          *
-         * @return Index of the first column of the specified input type; -1 if no column of the specified
-         *         type is found
+         * @return Index of the first column of the specified input type; -1 if no column of the
+         *         specified type is found
          *****************************************************************************************/
         protected int getColumnIndexByInputType(InputType inputType)
         {
@@ -436,8 +420,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (DefaultInputType)
          *
-         * @return Index of the first column of the specified default input type; -1 if no column of the
-         *         specified type is found
+         * @return Index of the first column of the specified default input type; -1 if no column
+         *         of the specified type is found
          *****************************************************************************************/
         protected int getColumnIndexByInputType(DefaultInputType inputType)
         {
@@ -449,8 +433,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (InputType)
          *
-         * @return List containing the index (or indices) of the column(s) of the specified input type; an
-         *         empty list if no column of the specified type is found
+         * @return List containing the index (or indices) of the column(s) of the specified input
+         *         type; an empty list if no column of the specified type is found
          *****************************************************************************************/
         protected List<Integer> getColumnIndicesByInputType(InputType inputType)
         {
@@ -475,8 +459,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (DefaultInputType)
          *
-         * @return List containing the index (or indices) of the column(s) of the specified default input
-         *         type; an empty list if no column of the specified type is found
+         * @return List containing the index (or indices) of the column(s) of the specified default
+         *         input type; an empty list if no column of the specified type is found
          *****************************************************************************************/
         protected List<Integer> getColumnIndicesByInputType(DefaultInputType inputType)
         {
@@ -488,8 +472,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (InputType)
          *
-         * @return Visible name of the first column with the specified input type; null if no column of the
-         *         specified type is found
+         * @return Visible name of the first column with the specified input type; null if no
+         *         column of the specified type is found
          *****************************************************************************************/
         protected String getColumnNameByInputType(InputType inputType)
         {
@@ -515,8 +499,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (DefaultInputType)
          *
-         * @return Visible name of the first column with the specified default input type; null if no column
-         *         of the specified type is found
+         * @return Visible name of the first column with the specified default input type; null if
+         *         no column of the specified type is found
          *****************************************************************************************/
         protected String getColumnNameByInputType(DefaultInputType inputType)
         {
@@ -528,8 +512,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (InputType)
          *
-         * @return Database name of the first column with the specified input type; null if no column of the
-         *         specified type is found
+         * @return Database name of the first column with the specified input type; null if no
+         *         column of the specified type is found
          *****************************************************************************************/
         protected String getDbColumnNameByInputType(InputType inputType)
         {
@@ -555,8 +539,8 @@ public class CcddTableTypeHandler
          *
          * @param inputType Column input type (DefaultInputType)
          *
-         * @return Database name of the first column with the specified default input type; null if no
-         *         column of the specified type is found
+         * @return Database name of the first column with the specified default input type; null if
+         *         no column of the specified type is found
          *****************************************************************************************/
         protected String getDbColumnNameByInputType(DefaultInputType inputType)
         {
@@ -568,8 +552,8 @@ public class CcddTableTypeHandler
          *
          * @param inputFormat Column input type format (InputTypeFormat)
          *
-         * @return Index of the first column of the specified input type format; -1 if no column of the
-         *         specified format is found
+         * @return Index of the first column of the specified input type format; -1 if no column of
+         *         the specified format is found
          *****************************************************************************************/
         protected int getColumnIndexByInputTypeFormat(InputTypeFormat inputFormat)
         {
@@ -595,8 +579,8 @@ public class CcddTableTypeHandler
          *
          * @param inputFormat Column input type format (InputTypeFormat)
          *
-         * @return List containing the index (or indices) of the column(s) of the specified input type
-         *         format; an empty list if no column of the specified format is found
+         * @return List containing the index (or indices) of the column(s) of the specified input
+         *         type format; an empty list if no column of the specified format is found
          *****************************************************************************************/
         protected List<Integer> getColumnIndicesByInputTypeFormat(InputTypeFormat inputFormat)
         {
@@ -621,8 +605,8 @@ public class CcddTableTypeHandler
          *
          * @param inputFormat Column input type format (InputTypeFormat)
          *
-         * @return Visible name of the first column with the specified input type format; null if no column
-         *         of the specified format is found
+         * @return Visible name of the first column with the specified input type format; null if
+         *         no column of the specified format is found
          *****************************************************************************************/
         protected String getColumnNameByInputTypeFormat(InputTypeFormat inputFormat)
         {
@@ -648,8 +632,8 @@ public class CcddTableTypeHandler
          *
          * @param inputFormat Column input type format (InputTypeFormat)
          *
-         * @return Database name of the first column with the specified input type format; null if no column
-         *         of the specified format is found
+         * @return Database name of the first column with the specified input type format; null if
+         *         no column of the specified format is found
          *****************************************************************************************/
         protected String getDbColumnNameByInputTypeFormat(InputTypeFormat inputFormat)
         {
@@ -697,8 +681,8 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Get the viewable index of the column having the specified name. This index accounts for the
-         * hidden columns, primary key and row index
+         * Get the viewable index of the column having the specified name. This index accounts for
+         * the hidden columns, primary key and row index
          *
          * @param columnName Column name (as seen by the user)
          *
@@ -752,17 +736,19 @@ public class CcddTableTypeHandler
          *
          * @param databaseName     Name of the column as used in the database
          *
-         * @param visibleName      Name of the column as seen by the user; e.g., as table editor column
-         *                         headers
+         * @param visibleName      Name of the column as seen by the user; e.g., as table editor
+         *                         column headers
          *
-         * @param comment          Column description used as the table editor column header tool tip text
+         * @param comment          Column description used as the table editor column header tool
+         *                         tip text
          *
          * @param inputType        Column input type (InputType)
          *
-         * @param isRowValueUnique True if the each row value in the column must have a unique value
+         * @param isRowValueUnique True if the each row value in the column must have a unique
+         *                         value
          *
-         * @param isColumnRequired True if the column must have a value when the type is committed to the
-         *                         database
+         * @param isColumnRequired True if the column must have a value when the type is committed
+         *                         to the database
          *
          * @param isStructure      True if the the column applies to structure data types
          *
@@ -785,11 +771,11 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Determine if this table type contains all of the default protected columns of the Structure table
-         * type
+         * Determine if this table type contains all of the default protected columns of the
+         * Structure table type
          *
-         * @return true if this table type contains all of the protected columns of the Structure table
-         *         type; i.e., this table type represents a structure table
+         * @return true if this table type contains all of the protected columns of the Structure
+         *         table type; i.e., this table type represents a structure table
          *****************************************************************************************/
         protected boolean isStructure()
         {
@@ -797,10 +783,11 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Determine if this table type contains all of the default protected columns of the ENUM table type
+         * Determine if this table type contains all of the default protected columns of the ENUM
+         * table type
          *
-         * @return true if this table type contains all of the protected columns of the ENUM table type;
-         *         i.e., this table type represents a ENUM table
+         * @return true if this table type contains all of the protected columns of the ENUM table
+         *         type; i.e., this table type represents a ENUM table
          *****************************************************************************************/
         protected boolean isENUM()
         {
@@ -808,12 +795,12 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Determine if this table type contains all of the default protected columns of the Structure table
-         * type in addition to a column with the Rate input type
+         * Determine if this table type contains all of the default protected columns of the
+         * Structure table type in addition to a column with the Rate input type
          *
-         * @return true if this table type contains all of the protected columns of the Structure table type
-         *         in addition to a column with the Rate input type; i.e., this table type represents a
-         *         telemetry structure table
+         * @return true if this table type contains all of the protected columns of the Structure
+         *         table type in addition to a column with the Rate input type; i.e., this table
+         *         type represents a telemetry structure table
          *****************************************************************************************/
         protected boolean isTelemetryStructure()
         {
@@ -821,12 +808,12 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Determine if this table type contains all of the default protected columns of the Command table
-         * type
+         * Determine if this table type contains all of the default protected columns of the
+         * Command table type
          *
-         * @return true if this table type contains all of the protected columns of the Command table type
-         *         (but not those of a Structure table type); i.e., this table type represents a Command
-         *         table
+         * @return true if this table type contains all of the protected columns of the Command
+         *         table type (but not those of a Structure table type); i.e., this table type
+         *         represents a Command table
          *****************************************************************************************/
         protected boolean isCommand()
         {
@@ -834,13 +821,14 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Determine if this table type contains all of the default protected columns of the specified table
-         * type
+         * Determine if this table type contains all of the default protected columns of the
+         * specified table type
          *
-         * @param typeName Table type name of the default table type with which to compare this table's
-         *                 columns
+         * @param typeName Table type name of the default table type with which to compare this
+         *                 table's columns
          *
-         * @return true if this table type contains all of the protected columns of the specified table type
+         * @return true if this table type contains all of the protected columns of the specified
+         *         table type
          *****************************************************************************************/
         private boolean isTargetType(String typeName)
         {
@@ -961,8 +949,9 @@ public class CcddTableTypeHandler
         for (TypeDefinition typeDefn : typeDefinitions)
         {
             // Create and add the copy of the type definition to the list
-            typeDefinitionCopy
-                    .add(createTypeDefinition(typeDefn.getName(), typeDefn.getDescription(), typeDefn.getData()));
+            typeDefinitionCopy.add(createTypeDefinition(typeDefn.getName(),
+                                                        typeDefn.getDescription(),
+                                                        typeDefn.getData()));
         }
 
         return typeDefinitionCopy;
@@ -1008,8 +997,7 @@ public class CcddTableTypeHandler
                 typeDefinitions.add(typeDefn);
             }
 
-            // Add the column names, tool tip, column unique, column required, and column
-            // input
+            // Add the column names, tool tip, column unique, column required, and column input
             // type information to the type definition
             typeDefn.addColumn(Integer.parseInt(typeData[TableTypesColumn.INDEX.ordinal()].toString()),
                                typeData[TableTypesColumn.COLUMN_NAME_DB.ordinal()].toString(),
@@ -1025,8 +1013,8 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Create a new table type definition and add it to the list of type definitions. If the definition
-     * exists then replace it with the new one
+     * Create a new table type definition and add it to the list of type definitions. If the
+     * definition exists then replace it with the new one
      *
      * @param typeName    Table type name
      *
@@ -1036,7 +1024,9 @@ public class CcddTableTypeHandler
      *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    protected TypeDefinition createReplaceTypeDefinition(String typeName, String description, Object[][] typeData)
+    protected TypeDefinition createReplaceTypeDefinition(String typeName,
+                                                         String description,
+                                                         Object[][] typeData)
     {
         // Get the reference to the type definition
         TypeDefinition typeDefn = getTypeDefinition(typeName);
@@ -1062,7 +1052,8 @@ public class CcddTableTypeHandler
      *
      * @param eTypeName   The name of the existing table type. If it is found it will be removed
      *
-     * @param nTypeName   The name of the new table type. If this is null the table will not be created
+     * @param nTypeName   The name of the new table type. If this is null the table will not be
+     *                    created
      *
      * @param description The description for the new table type
      *
@@ -1070,7 +1061,9 @@ public class CcddTableTypeHandler
      *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    protected TypeDefinition addRemoveTypeDefinition(String eTypeName, String nTypeName, String description,
+    protected TypeDefinition addRemoveTypeDefinition(String eTypeName,
+                                                     String nTypeName,
+                                                     String description,
                                                      Object[][] typeData)
     {
 
@@ -1083,7 +1076,8 @@ public class CcddTableTypeHandler
     /**********************************************************************************************
      * Add a new table type
      *
-     * @param nTypeName   The name of the new table type. If this is null the table will not be created
+     * @param nTypeName   The name of the new table type. If this is null the table will not be
+     *                    created
      *
      * @param description The description for the new table type
      *
@@ -1091,7 +1085,9 @@ public class CcddTableTypeHandler
      *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    protected TypeDefinition addTypeDefinition(String nTypeName, String description, Object[][] typeData)
+    protected TypeDefinition addTypeDefinition(String nTypeName,
+                                               String description,
+                                               Object[][] typeData)
     {
         TypeDefinition typeDefn = null;
 
@@ -1110,8 +1106,8 @@ public class CcddTableTypeHandler
     /**********************************************************************************************
      * Remove an existing table type (if it is found) Add a new table type
      *
-     * @param eTypeName The name of the existing table type. If it is found it will be removed from the
-     *                  list
+     * @param eTypeName The name of the existing table type. If it is found it will be removed from
+     *                  the list
      *
      * @return None
      *********************************************************************************************/
@@ -1140,30 +1136,37 @@ public class CcddTableTypeHandler
      *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    protected TypeDefinition createTypeDefinition(String typeName, String description, Object[][] typeData)
+    protected TypeDefinition createTypeDefinition(String typeName,
+                                                  String description,
+                                                  Object[][] typeData)
     {
         // Create a new type definition
         TypeDefinition typeDefn = new TypeDefinition(typeName);
 
         // Add the primary key and row index column definitions
-        typeDefn.addColumn(DefaultColumn.PRIMARY_KEY.ordinal(), DefaultColumn.PRIMARY_KEY.getDbName(),
-                           DefaultColumn.PRIMARY_KEY.getName(), description,
+        typeDefn.addColumn(DefaultColumn.PRIMARY_KEY.ordinal(),
+                           DefaultColumn.PRIMARY_KEY.getDbName(),
+                           DefaultColumn.PRIMARY_KEY.getName(),
+                           description,
                            inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.PRIMARY_KEY.getInputType()),
-                           DefaultColumn.PRIMARY_KEY.isRowValueUnique(), DefaultColumn.PRIMARY_KEY.isInputRequired(),
+                           DefaultColumn.PRIMARY_KEY.isRowValueUnique(),
+                           DefaultColumn.PRIMARY_KEY.isInputRequired(),
                            DefaultColumn.PRIMARY_KEY.isStructureAllowed(),
                            DefaultColumn.PRIMARY_KEY.isPointerAllowed());
-        typeDefn.addColumn(DefaultColumn.ROW_INDEX.ordinal(), DefaultColumn.ROW_INDEX.getDbName(),
-                           DefaultColumn.ROW_INDEX.getName(), DefaultColumn.ROW_INDEX.getDescription(),
+        typeDefn.addColumn(DefaultColumn.ROW_INDEX.ordinal(),
+                           DefaultColumn.ROW_INDEX.getDbName(),
+                           DefaultColumn.ROW_INDEX.getName(),
+                           DefaultColumn.ROW_INDEX.getDescription(),
                            inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.ROW_INDEX.getInputType()),
-                           DefaultColumn.ROW_INDEX.isRowValueUnique(), DefaultColumn.ROW_INDEX.isInputRequired(),
+                           DefaultColumn.ROW_INDEX.isRowValueUnique(),
+                           DefaultColumn.ROW_INDEX.isInputRequired(),
                            DefaultColumn.PRIMARY_KEY.isStructureAllowed(),
                            DefaultColumn.PRIMARY_KEY.isPointerAllowed());
 
         // Step through each row in the type definition data
         for (int row = 0; row < typeData.length; row++)
         {
-            // Add the column names, description, input type, and flags to the type
-            // definition
+            // Add the column names, description, input type, and flags to the type definition
             typeDefn.addColumn(row, (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()],
@@ -1196,8 +1199,7 @@ public class CcddTableTypeHandler
         // Step through each definition
         for (TypeDefinition typeDefn : typeDefinitions)
         {
-            // Check if the supplied type name matches the type definition name; ignoring
-            // case
+            // Check if the supplied type name matches the type definition name; ignoring case
             // sensitivity
             if (typeName.equalsIgnoreCase(typeDefn.getName()))
             {
@@ -1213,8 +1215,8 @@ public class CcddTableTypeHandler
     /**********************************************************************************************
      * Get an array of the name of the defined table types
      *
-     * @return Array of names of the table types, sorted alphabetically; an empty list if no table types
-     *         are defined
+     * @return Array of names of the table types, sorted alphabetically; an empty list if no table
+     *         types are defined
      *********************************************************************************************/
     protected String[] getTableTypeNames()
     {
@@ -1234,10 +1236,11 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Convert the visible column name to its database equivalent by replacing all characters that are
-     * invalid in a database column name with underscores. If the column belongs to a table representing
-     * a structure the specific input types use predefined names in place of the conversion name. If the
-     * column name matches a PostgreSQL reserved word then the name is bounded by double quotes
+     * Convert the visible column name to its database equivalent by replacing all characters that
+     * are invalid in a database column name with underscores. If the column belongs to a table
+     * representing a structure the specific input types use predefined names in place of the
+     * conversion name. If the column name matches a PostgreSQL reserved word then the name is
+     * bounded by double quotes
      *
      * @param columnName    Column name (as seen by the user)
      *
@@ -1276,8 +1279,8 @@ public class CcddTableTypeHandler
             }
             else
             {
-                // Replace any characters that aren't allowed in a database column name
-                // with underscores
+                // Replace any characters that aren't allowed in a database column name with
+                // underscores
                 dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
             }
         }
@@ -1297,7 +1300,8 @@ public class CcddTableTypeHandler
      *
      * @param typeName Table type name
      *
-     * @return String containing the column indices separated by colons; blank if the type in invalid
+     * @return String containing the column indices separated by colons; blank if the type in
+     *         invalid
      *********************************************************************************************/
     protected String getDefaultColumnOrder(String typeName)
     {
@@ -1352,9 +1356,9 @@ public class CcddTableTypeHandler
      *
      * @param inputType Column input type (InputType)
      *
-     * @return Name (as seen by the user) of the first column in the specified table type's definition
-     *         that matches the specified input type; null if the input type doesn't exist in the table
-     *         type definition
+     * @return Name (as seen by the user) of the first column in the specified table type's
+     *         definition that matches the specified input type; null if the input type doesn't
+     *         exist in the table type definition
      *********************************************************************************************/
     protected String getColumnNameByInputType(String typeName, InputType inputType)
     {
@@ -1381,9 +1385,9 @@ public class CcddTableTypeHandler
      *
      * @param inputType Column input type (DefaultInputType)
      *
-     * @return Name (as seen by the user) of the first column in the specified table type's definition
-     *         that matches the specified default input type; null if the input type doesn't exist in
-     *         the table type definition
+     * @return Name (as seen by the user) of the first column in the specified table type's
+     *         definition that matches the specified default input type; null if the input type
+     *         doesn't exist in the table type definition
      *********************************************************************************************/
     protected String getColumnNameByInputType(String typeName, DefaultInputType inputType)
     {
@@ -1418,8 +1422,8 @@ public class CcddTableTypeHandler
      *
      * @param useDbName True to use the database column name; false to use the user column name
      *
-     * @return List of unique structure table enumeration column names; an empty list if no enumeration
-     *         columns exist
+     * @return List of unique structure table enumeration column names; an empty list if no
+     *         enumeration columns exist
      *********************************************************************************************/
     protected List<String> getStructEnumColNames(boolean useDbName)
     {
@@ -1453,11 +1457,11 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Update the input type for each table type definition column following a change to the input type
-     * definitions
+     * Update the input type for each table type definition column following a change to the input
+     * type definitions
      *
-     * @param inputTypeNames List of the input type names, before and after the changes; null if none of
-     *                       the input type names changed
+     * @param inputTypeNames List of the input type names, before and after the changes; null if
+     *                       none of the input type names changed
      *********************************************************************************************/
     protected void updateInputTypes(List<String[]> inputTypeNames)
     {
@@ -1495,17 +1499,17 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Check if the specified table types are new or match an existing one. If new then add the table
-     * type. If the table type name matches then compare the type definitions to ensure the two are the
-     * same (ignoring the column descriptions)
+     * Check if the specified table types are new or match an existing one. If new then add the
+     * table type. If the table type name matches then compare the type definitions to ensure the
+     * two are the same (ignoring the column descriptions)
      *
      * @param tableTypeDefinitions List of table type definitions
      *
-     * @return null if all of the table types are created or match existing ones; the name of the table
-     *         type that matches an existing one but the type definitions differ
+     * @return null if all of the table types are created or match existing ones; the name of the
+     *         table type that matches an existing one but the type definitions differ
      *
-     * @throws CCDDException If an imported data field name will cause an existing table's field to be
-     *                       renamed and the user elects to cancel the update
+     * @throws CCDDException If an imported data field name will cause an existing table's field to
+     *                       be renamed and the user elects to cancel the update
      *********************************************************************************************/
     protected void updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException
     {
@@ -1554,17 +1558,17 @@ public class CcddTableTypeHandler
     }
 
     /**********************************************************************************************
-     * Check if specified table type is new or matches an existing one. If new then add the table type.
-     * If the table type name matches then compare the type definitions to see if they differ
+     * Check if specified table type is new or matches an existing one. If new then add the table
+     * type. If the table type name matches then compare the type definitions to see if they differ
      *
      * @param tableTypeDefn Table type definition
      *
-     * @return TableTypeUpdate.NEW if the table type is new, TableTypeUpdate.MATCH if the table type
-     *         matches an existing one, or TableTypeUpdate.MISMATCH if the table type name matches an
-     *         existing one but the type definition differs
+     * @return TableTypeUpdate.NEW if the table type is new, TableTypeUpdate.MATCH if the table
+     *         type matches an existing one, or TableTypeUpdate.MISMATCH if the table type name
+     *         matches an existing one but the type definition differs
      *
-     * @throws CCDDException If an imported data field name will cause an existing table's field to be
-     *                       renamed and the user elects to cancel the update
+     * @throws CCDDException If an imported data field name will cause an existing table's field to
+     *                       be renamed and the user elects to cancel the update
      *********************************************************************************************/
     private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn) throws CCDDException
     {
@@ -1596,8 +1600,8 @@ public class CcddTableTypeHandler
         }
         else
         {
-            // A table type with this name already exists
-            // Get a list of all of the table type names and descriptions
+            // A table type with this name already exists Get a list of all of the table type names
+            // and descriptions
             String[][] tableTypeNamesAndDescriptions = dbTable
                     .queryTableTypeNamesAndDescriptions(ccddMain.getMainFrame());
 
@@ -1624,8 +1628,8 @@ public class CcddTableTypeHandler
                                                                          tableTypeDefn.getColumns()
                                                                                  .toArray(new Object[0][0]));
 
-                // See if the same number of columns exists, but subtract 2 from typeDefn due to the key and index
-                // being included
+                // See if the same number of columns exists, but subtract 2 from typeDefn due to
+                // the key and index being included
                 if (tableTypeDefn.getColumns().size() == (typeDefn.getColumnNamesUser().length - 2))
                 {
                     // Step through each column name
@@ -1676,8 +1680,8 @@ public class CcddTableTypeHandler
                 List<FieldInformation> currentDataFields = fieldHandler
                         .getFieldInformationByOwner("Type:" + tableTypeDefn.getTypeName());
 
-                // Check to see if the same number of data fields exist for both the new and existing table type
-                // definition
+                // Check to see if the same number of data fields exist for both the new and
+                // existing table type definition
                 if ((currentDataFields == null) || (currentDataFields.size() != tableTypeDefn.getDataFields().size()))
                 {
                     // Set the flag indicating a mismatch exists and stop searching
@@ -1690,8 +1694,8 @@ public class CcddTableTypeHandler
                     {
                         String[] dataField = tableTypeDefn.getDataFields().get(i);
 
-                        // Check if the existing field's input type, required state, applicability, or
-                        // value don't match (the description and size are allowed to differ)
+                        // Check if the existing field's input type, required state, applicability,
+                        // or value don't match (the description and size are allowed to differ)
                         if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()]
                                 .equals(currentDataFields.get(i).getInputType().getInputName())
                             || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()]
@@ -1740,8 +1744,7 @@ public class CcddTableTypeHandler
         Object[][] newTypeData = new Object[typeDataList.size()][];
         newTypeData = typeDataList.toArray(newTypeData);
 
-        // Create/replace the type definition. The description is prepended with a '0'
-        // is the table
+        // Create/replace the type definition. The description is prepended with a '0' is the table
         // type doesn't represent a command argument structure, and a '1' if it does
         createReplaceTypeDefinition(newTableTypeDefn.getTypeName(), newTableTypeDefn.getDescription(), newTypeData);
 
@@ -1807,8 +1810,9 @@ public class CcddTableTypeHandler
                     // Set the flag indicating this row has a match
                     matchFound = true;
 
-                    // Copy the current row's index into the empty comparison row so that the otherwise
-                    // blank index doesn't register as a difference when comparing the rows below
+                    // Copy the current row's index into the empty comparison row so that the
+                    // otherwise blank index doesn't register as a difference when comparing the
+                    // rows below
                     emptyRow[TableTypeEditorColumnInfo.INDEX
                             .ordinal()] = newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
 
@@ -1832,7 +1836,8 @@ public class CcddTableTypeHandler
                         String newInputType = newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
                                 .toString();
 
-                        // Check if the column name changed or if the input type changed to/from a rate
+                        // Check if the column name changed or if the input type changed to/from a
+                        // rate
                         if (!prevColumnName.equals(currColumnName)
                             || ((newInputType.equals(DefaultInputType.RATE.getInputName())
                                  || oldInputType.equals(DefaultInputType.RATE.getInputName()))
@@ -1853,7 +1858,8 @@ public class CcddTableTypeHandler
             // Check if no match was made with the committed data for the current table row
             if (!matchFound)
             {
-                // The column definition is being added; add the column name and input type to the list
+                // The column definition is being added; add the column name and input type to the
+                // list
                 typeAdditions.add(new String[] {currColumnName,
                                                 newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
                                                         .toString()});
@@ -1866,7 +1872,8 @@ public class CcddTableTypeHandler
             // Check if no matching row was found with the current data
             if (!rowModified[comRow])
             {
-                // The column definition has been deleted; add the column name and input type to the list
+                // The column definition has been deleted; add the column name and input type to
+                // the list
                 typeDeletions.add(new String[] {oldTypeData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()]
                         .toString(), oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }
@@ -1882,14 +1889,15 @@ public class CcddTableTypeHandler
         List<TableModification> fieldDeletions = new ArrayList<TableModification>();
         List<TableModification> fieldModifications = new ArrayList<TableModification>();
 
-        // Get the existing data fields information and convert it to a list of string arrays for easier use
+        // Get the existing data fields information and convert it to a list of string arrays for
+        // easier use
         List<FieldInformation> oldDataFieldInformation = fieldHandler
                 .getFieldInformationByOwner("Type:" + newTableTypeDefn.getTypeName());
 
         // Get the new data fields
         List<String[]> newDataFields = newTableTypeDefn.getDataFields();
-        // Convert the new data fields information into a list of FieldInformation objects that
-        // can be passed to the modifyTable() function.
+        // Convert the new data fields information into a list of FieldInformation objects that can
+        // be passed to the modifyTable() function
         List<FieldInformation> newDataFieldInformation = new ArrayList<FieldInformation>();
         for (int i = 0; i < newDataFields.size(); i++)
         {
@@ -1906,8 +1914,8 @@ public class CcddTableTypeHandler
                 appType = ApplicabilityType.CHILD_ONLY;
             }
 
-            // All FieldColumns offset by 1 to account for owner name which is the first index of each row of
-            // newDataFields
+            // All FieldColumns offset by 1 to account for owner name which is the first index of
+            // each row of newDataFields
             FieldInformation currentFieldInformation = new FieldInformation(newDataFields.get(i)[0], newDataFields
                     .get(i)[FieldEditorColumnInfo.NAME.ordinal() + 1],
                                                                             newDataFields
@@ -1964,9 +1972,9 @@ public class CcddTableTypeHandler
             fieldProcessed = false;
         }
 
-        // All of the old field data that was matched to a row in the new field data array has an index
-        // within oldDataMatched set to true. If the given index is not true then the old field data no
-        // longer exists and should be deleted.
+        // All of the old field data that was matched to a row in the new field data array has an
+        // index within oldDataMatched set to true. If the given index is not true then the old
+        // field data no longer exists and should be deleted
         for (int i = 0; i < oldFieldData.length; i++)
         {
             if (oldDataProcessed[i] != true)

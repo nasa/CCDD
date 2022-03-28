@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddMathExpressionHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for evaluating simple mathematical expressions.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddMathExpressionHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for evaluating simple mathematical expressions.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.util.ArrayList;
@@ -121,8 +117,8 @@ public class CcddMathExpressionHandler
      *
      * @param expression Text to evaluate as a mathematical expression
      *
-     * @return The result of the evaluated expression; null if the supplied text doesn't evaluate to a
-     *         numeric value (not a mathematical expression or the syntax is in error)
+     * @return The result of the evaluated expression; null if the supplied text doesn't evaluate
+     *         to a numeric value (not a mathematical expression or the syntax is in error)
      *********************************************************************************************/
     protected static Double evaluateExpression(String expression)
     {
@@ -130,8 +126,7 @@ public class CcddMathExpressionHandler
         boolean isExpression = true;
         Double result = null;
 
-        // Create a list to contain the operators and results for each nested portion of
-        // the
+        // Create a list to contain the operators and results for each nested portion of the
         // expression
         List<NestLevel> nestLevels = new ArrayList<NestLevel>();
         NestLevel nestLevel = new NestLevel();
@@ -262,8 +257,7 @@ public class CcddMathExpressionHandler
                     break;
 
                 case '|':
-                    // Bit-wise OR operator
-                    // Check if the value for this level is set
+                    // Bit-wise OR operator Check if the value for this level is set
                     if (nestLevel.getValue() != null)
                     {
                         nestLevel.setOperator('|');
@@ -374,8 +368,7 @@ public class CcddMathExpressionHandler
             }
         }
 
-        // Check if the text is a mathematical expression, there is no unclosed nest
-        // level, and
+        // Check if the text is a mathematical expression, there is no unclosed nest level, and
         // there is no trailing operator
         if (isExpression && levelIndex == 0 && nestLevel.getOperator() == '\0')
         {
@@ -387,8 +380,8 @@ public class CcddMathExpressionHandler
     }
 
     /**********************************************************************************************
-     * Perform the operation (# operator #), as specified by the supplied nest level's operator, using
-     * the supplied value and the nest level's running value
+     * Perform the operation (# operator #), as specified by the supplied nest level's operator,
+     * using the supplied value and the nest level's running value
      *
      * @param dValue    First value
      *

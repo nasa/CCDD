@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddFindReplaceDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for performing a search or search and replace in a data table. The dialog is built on
-*     the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddFindReplaceDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for performing a search or search and replace in a data table. The dialog is built
+ * on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -103,8 +99,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     // Flag that indicates if text was replaced in a table cell
     private boolean isReplaced;
 
-    // Listener for table editor dialog focus events; used in conjunction with the
-    // find/replace
+    // Listener for table editor dialog focus events; used in conjunction with the find/replace
     // dialog
     private WindowFocusListener editorListener = null;
 
@@ -167,8 +162,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     {
         prevSearchText = null;
 
-        // Set the flag so that the find/replace dialog is always on top of other
-        // windows
+        // Set the flag so that the find/replace dialog is always on top of other windows
         setAlwaysOnTop(true);
 
         // Create a borders for the dialog components
@@ -211,8 +205,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         labelPnl.add(numMatchesLbl);
         inputPnl.add(labelPnl, gbc);
 
-        // Create the auto-completion search field and add it to the dialog panel. The
-        // search list
+        // Create the auto-completion search field and add it to the dialog panel. The search list
         // is initially empty as it is updated whenever a key is pressed
         searchFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
         searchFld.setCaseSensitive(true);
@@ -342,8 +335,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         btnFindNext.addActionListener(new ActionListener()
         {
             /**************************************************************************************
-             * Highlight the search text in the table and go to the first match after to the currently selected
-             * cell
+             * Highlight the search text in the table and go to the first match after to the
+             * currently selected cell
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -362,8 +355,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         btnFindPrevious.addActionListener(new ActionListener()
         {
             /**************************************************************************************
-             * Highlight the search text in the table and go to the first match prior to the currently selected
-             * cell
+             * Highlight the search text in the table and go to the first match prior to the
+             * currently selected cell
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -383,7 +376,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         btnReplaceFind.addActionListener(new ActionListener()
         {
             /**************************************************************************************
-             * Replace the matching text in the selected cell then select the next cell containing a match
+             * Replace the matching text in the selected cell then select the next cell containing
+             * a match
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -418,7 +412,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         btnReplaceAll.addActionListener(new ActionListener()
         {
             /**************************************************************************************
-             * Search for text matching the search criteria and replace the matching text in all table cells
+             * Search for text matching the search criteria and replace the matching text in all
+             * table cells
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -474,8 +469,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             @Override
             public void windowGainedFocus(WindowEvent we)
             {
-                // Check if the table editor dialog's window focus listener doesn't exist. This
-                // is
+                // Check if the table editor dialog's window focus listener doesn't exist. This is
                 // the case when the find/replace dialog is initially displayed
                 if (editorListener == null)
                 {
@@ -509,9 +503,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                                 SwingUtilities.invokeLater(new Runnable()
                                 {
                                     /**************************************************************
-                                     * The change in focus to the receiver isn't immediate, so invokeLater is used to
-                                     * ensure any receiver focus gain event is completed prior to handling the focus
-                                     * lost event
+                                     * The change in focus to the receiver isn't immediate, so
+                                     * invokeLater is used to ensure any receiver focus gain event
+                                     * is completed prior to handling the focus lost event
                                      *************************************************************/
                                     @Override
                                     public void run()
@@ -543,8 +537,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     /******************************************************************************
-                     * The change in focus to the receiver isn't immediate, so invokeLater is used to ensure any
-                     * receiver focus gain event is completed prior to handling the focus lost event
+                     * The change in focus to the receiver isn't immediate, so invokeLater is used
+                     * to ensure any receiver focus gain event is completed prior to handling the
+                     * focus lost event
                      *****************************************************************************/
                     @Override
                     public void run()
@@ -563,8 +558,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         // Display the find/replace dialog
         createDialog(editorDialog, inputPnl, buttonPnl, btnFindNext, "Find/Replace", null, null, true, false);
 
-        // Except for its initial appearance, don't set the focus to the find/replace
-        // dialog each
+        // Except for its initial appearance, don't set the focus to the find/replace dialog each
         // time it reappears due to the table editor dialog regaining focus
         setAutoRequestFocus(false);
     }
@@ -594,8 +588,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             // Update the number of results found label
             int matchCount = updateMatchCount();
 
-            // Enable/disable the previous and next buttons based on if search text is
-            // present
+            // Enable/disable the previous and next buttons based on if search text is present
             setReplaceEnable(matchCount != 0);
 
             // Update the search string list
@@ -670,8 +663,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Replace all text in the specified table cell matching the search criteria with the replacement
-     * text
+     * Replace all text in the specified table cell matching the search criteria with the
+     * replacement text
      *
      * @param tableData  List containing the table data row arrays
      *
@@ -681,11 +674,11 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
      *
      * @param isContinue True to display the invalid input dialog, if applicable
      *
-     * @param isMultiple True if this is one of multiple cells to be entered and checked; false if only
-     *                   a single input is being entered
+     * @param isMultiple True if this is one of multiple cells to be entered and checked; false if
+     *                   only a single input is being entered
      *
-     * @return true to indicate that subsequent errors should be displayed; false if subsequent errors
-     *         should not be displayed; null if the replace operation should be canceled
+     * @return true to indicate that subsequent errors should be displayed; false if subsequent
+     *         errors should not be displayed; null if the replace operation should be canceled
      *********************************************************************************************/
     private Boolean replaceMatchInCell(List<Object[]> tableData, int row, int column, Boolean isContinue,
                                        boolean isMultiple)
@@ -702,8 +695,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             // Check if there is a match in the cell value
             while (matcher.find())
             {
-                // Replace all matching text in the cell and validate the cell contents. If
-                // invalid
+                // Replace all matching text in the cell and validate the cell contents. If invalid
                 // the cell contents is automatically reverted to its previous value, which is
                 // assumed to be valid, so the flag indicating the last cell is valid is set
                 Object newValue = matcher.replaceFirst(replaceFld.getText());
@@ -719,10 +711,11 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Select the next or previous cell matching the search text beginning at the currently selected
-     * cell
+     * Select the next or previous cell matching the search text beginning at the currently
+     * selected cell
      *
-     * @param direction +1 to search forwards, -1 to search backwards from the currently selected cell
+     * @param direction +1 to search forwards, -1 to search backwards from the currently selected
+     *                  cell
      *********************************************************************************************/
     private void selectNextMatchingCell(int direction)
     {
@@ -836,8 +829,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                     }
                 }
             } while (!(row == selRow && column == selColumn));
-            // Continue to search until a match is found of the search wraps around to the
-            // starting
+            // Continue to search until a match is found of the search wraps around to the starting
             // cell
         }
     }

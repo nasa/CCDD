@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddScriptTreehandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles building the script trees
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddScriptTreehandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles building the script trees
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.awt.Color;
@@ -76,8 +72,8 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
      *
      * @param parent   GUI component over which to center any error dialog
      *
-     * @return List of scripts stored in the project database. An empty list if no scripts are stored in
-     *         the database
+     * @return List of scripts stored in the project database. An empty list if no scripts are
+     *         stored in the database
      *********************************************************************************************/
     private static List<String[]> getScriptInformation(CcddMain ccddMain, Component parent)
     {
@@ -113,11 +109,11 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the script tree
      *
-     * @param filterByApp True if the tree is filtered by application. This is not used for the script
-     *                    tree
+     * @param filterByApp True if the tree is filtered by application. This is not used for the
+     *                    script tree
      *
-     * @param filterValue Rate column name and message name, separated by a back slash. This is not used
-     *                    for the script tree
+     * @param filterValue Rate column name and message name, separated by a back slash. This is not
+     *                    used for the script tree
      *
      * @param filterFlag  Flag used to filter the tree content. Not used for the script tree
      *
@@ -128,8 +124,7 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
     {
         super.buildTree(false, filterValue, filterFlag, parent);
 
-        // Register the tool tip manager for the script tree (otherwise the tool tips
-        // aren't
+        // Register the tool tip manager for the script tree (otherwise the tool tips aren't
         // displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 

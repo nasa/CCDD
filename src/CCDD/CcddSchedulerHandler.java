@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddSchedulerHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that manages the application and telemetry scheduler dialogs, including transfer
-*     of information between the trees and lists.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddSchedulerHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that manages the application and telemetry scheduler dialogs, including transfer of
+ * information between the trees and lists.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
@@ -405,8 +401,8 @@ public class CcddSchedulerHandler
     /**********************************************************************************************
      * Get the list of messages stored in the database
      *
-     * @return List of messages for the data stream stored in the database; null if the scheduler dialog
-     *         type is not recognized
+     * @return List of messages for the data stream stored in the database; null if the scheduler
+     *         dialog type is not recognized
      *********************************************************************************************/
     protected List<Message> getStoredData()
     {
@@ -435,7 +431,8 @@ public class CcddSchedulerHandler
     }
 
     /**********************************************************************************************
-     * Automatically fill the variables/applications in messages/time slots corresponding to their rate
+     * Automatically fill the variables/applications in messages/time slots corresponding to their
+     * rate
      *********************************************************************************************/
     protected void autoFill()
     {
@@ -455,8 +452,8 @@ public class CcddSchedulerHandler
         // Step through the available rates
         for (String rate : schedulerInput.getAvailableRates())
         {
-            // Check if the rate has any parameters. Rates with no parameters are grayed
-            // out using HTML tags
+            // Check if the rate has any parameters. Rates with no parameters are grayed out using
+            // HTML tags
             if (!rate.startsWith("<html>"))
             {
                 // Add the rate to the list of those in use
@@ -468,10 +465,11 @@ public class CcddSchedulerHandler
         final Thread autoFillThread = new Thread(new Runnable()
         {
             /**************************************************************************************
-             * Auto-fill the telemetry messages (if this is the telemetry scheduler) or application time slots
-             * (if this is the application scheduler). Note that in the comments below 'variable' is used to
-             * describe the object being assigned, which is accurate for the telemetry scheduler. For the
-             * application scheduler substitute 'application' for 'variable'
+             * Auto-fill the telemetry messages (if this is the telemetry scheduler) or application
+             * time slots (if this is the application scheduler). Note that in the comments below
+             * 'variable' is used to describe the object being assigned, which is accurate for the
+             * telemetry scheduler. For the application scheduler substitute 'application' for
+             * 'variable'
              *************************************************************************************/
             @Override
             public void run()
@@ -479,8 +477,7 @@ public class CcddSchedulerHandler
                 int numVariables = 0;
                 int unassigned = 0;
 
-                // Step through rates in use getting the highest one each time. Add the
-                // variables
+                // Step through rates in use getting the highest one each time. Add the variables
                 // at each rate until no more rates are available
                 for (String rate : ratesInUse)
                 {
@@ -541,8 +538,8 @@ public class CcddSchedulerHandler
                         // Get the rate as a floating point value
                         float rateVal = CcddUtilities.convertStringToFloat(rate);
 
-                        // Get a list of all variables at the given rate (ones already assigned
-                        // are not included)
+                        // Get a list of all variables at the given rate (ones already assigned are
+                        // not included)
                         varList = schedulerInput.getVariablesAtRate(rate);
 
                         // Set the number of steps to the number of variables for this rate
@@ -577,8 +574,7 @@ public class CcddSchedulerHandler
                                 // Step through each variable in the variable list
                                 for (Variable linkVar : varList)
                                 {
-                                    // Check if the variable is in the link of the given
-                                    // variable
+                                    // Check if the variable is in the link of the given variable
                                     if (linkVar.getLink() != null && linkVar.getLink().equals(variable.getLink()))
                                     {
                                         // Add the variable's size to the total size
@@ -598,16 +594,15 @@ public class CcddSchedulerHandler
                                     // Set total size to the given variable's size
                                     totalSize = variable.getSize();
 
-                                    // Get the total size (in bytes) and the list of the
-                                    // variable, or variables if this variable is associated
-                                    // with others due to bit-packing or string membership and
-                                    // therefore must be placed together in a message
+                                    // Get the total size (in bytes) and the list of the variable,
+                                    // or variables if this variable is associated with others due
+                                    // to bit-packing or string membership and therefore must be
+                                    // placed together in a message
                                     AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput)
                                             .getAssociatedVariables(varList);
 
-                                    // Set the total size to that of the associated variable(s)
-                                    // and add the variable(s) to the list of those to be
-                                    // removed
+                                    // Set the total size to that of the associated variable(s) and
+                                    // add the variable(s) to the list of those to be removed
                                     totalSize = associates.getTotalSize();
                                     removedVars.addAll(associates.getAssociates());
                                 }
@@ -628,13 +623,13 @@ public class CcddSchedulerHandler
                             // Check to make sure there is an option
                             if (option != null)
                             {
-                                // Parse the option string to extract the sub-index (if this is
-                                // a sub-option) and the message indices
+                                // Parse the option string to extract the sub-index (if this is a
+                                // sub-option) and the message indices
                                 Object[] parsedIndices = parseOption(option);
 
                                 // Add the variable to the given message. If a sub-index is not
-                                // given it will be set to -1. Add the list of added variables
-                                // to the list of those to exclude in the Variables tree
+                                // given it will be set to -1. Add the list of added variables to
+                                // the list of those to exclude in the Variables tree
                                 excludedVars.addAll(addVariableToMessage(removedVars, (Integer[]) parsedIndices[1],
                                                                          (int) parsedIndices[0]));
                             }
@@ -645,8 +640,8 @@ public class CcddSchedulerHandler
                                 unassigned++;
                             }
 
-                            // Remove all the variables in removed variables list. This
-                            // includes variables that did not fit into the telemetry table
+                            // Remove all the variables in removed variables list. This includes
+                            // variables that did not fit into the telemetry table
                             varList.removeAll(removedVars);
 
                             // Step through each removed variable
@@ -733,8 +728,8 @@ public class CcddSchedulerHandler
         CcddBackgroundCommand.executeInBackground(ccddMain, schedulerDlg.getDialog(), new BackgroundCommand()
         {
             /**************************************************************************************
-             * Build and display the auto-fill progress/cancellation dialog. This is done as a background
-             * operation so that the
+             * Build and display the auto-fill progress/cancellation dialog. This is done as a
+             * background operation so that the
              *************************************************************************************/
             @Override
             protected void execute()
@@ -794,8 +789,8 @@ public class CcddSchedulerHandler
 
     /**********************************************************************************************
      * Update actions required after adding one or more variables to a message. This is a separate
-     * method so that these update steps can be performed s single time if multiple variable additions
-     * are made
+     * method so that these update steps can be performed s single time if multiple variable
+     * additions are made
      *********************************************************************************************/
     private void updateAfterVariableAdded()
     {
@@ -814,15 +809,16 @@ public class CcddSchedulerHandler
      * Parse an option string to extract the message indices and, if a sub-message, the sub-message
      * index
      *
-     * @param option String representing the option in the format Message[s] #[, # [, ...]][ sub-msg[s]
-     *               #[, # [, ...]]]
+     * @param option String representing the option in the format Message[s] #[, # [, ...]][
+     *               sub-msg[s] #[, # [, ...]]]
      *
-     * @return Two-element object array. If the option string does not contains only a message name or
-     *         names then the first element is -1 (indicating no sub-messages) and the second element is
-     *         the array containing the message index (or indices) corresponding to the message name(s).
-     *         If the option string contains one or more sub-message indices then the first element is
-     *         the parent message index and the second element is the array containing the sub-message
-     *         index (or indices). A null array is returned if the option provided is invalid
+     * @return Two-element object array. If the option string does not contains only a message name
+     *         or names then the first element is -1 (indicating no sub-messages) and the second
+     *         element is the array containing the message index (or indices) corresponding to the
+     *         message name(s). If the option string contains one or more sub-message indices then
+     *         the first element is the parent message index and the second element is the array
+     *         containing the sub-message index (or indices). A null array is returned if the
+     *         option provided is invalid
      *********************************************************************************************/
     private Object[] parseOption(String option)
     {
@@ -921,8 +917,7 @@ public class CcddSchedulerHandler
             // Step though each message object that the variable can fit into
             for (int optIndex = 0; optIndex < options.size(); optIndex++)
             {
-                // Parse the option string to extract the sub-index (if this is a sub-option)
-                // and
+                // Parse the option string to extract the sub-index (if this is a sub-option) and
                 // the message indices
                 Object[] parsedIndices = parseOption(options.get(optIndex));
                 int parentIndex = (int) parsedIndices[0];
@@ -1103,8 +1098,8 @@ public class CcddSchedulerHandler
         rateFilter = new PaddedComboBox(schedulerInput.getAvailableRates(), ModifiableFontInfo.INPUT_TEXT.getFont())
         {
             /**************************************************************************************
-             * Override so that items flagged as disabled (grayed out) can't be selected. Only the telemetry
-             * scheduler makes use of this; it has no effect on the application scheduler
+             * Override so that items flagged as disabled (grayed out) can't be selected. Only the
+             * telemetry scheduler makes use of this; it has no effect on the application scheduler
              *************************************************************************************/
             @Override
             public void setSelectedItem(Object anObject)
@@ -1199,10 +1194,8 @@ public class CcddSchedulerHandler
         JSplitPane leftSpltPn = new CustomSplitPane(schedulerInput.getInputPanel(), packPnl, null,
                                                     JSplitPane.HORIZONTAL_SPLIT);
 
-        // Create the split pane containing the left split pane and the split pane
-        // containing the
-        // scheduler and assignment tree/list. Use the arrow button panel as the split
-        // pane divider
+        // Create the split pane containing the left split pane and the split pane containing the
+        // scheduler and assignment tree/list. Use the arrow button panel as the split pane divider
         JSplitPane allSpltPn = new CustomSplitPane(leftSpltPn, schedulerEditor.getSchedulerAndAssignPanel(),
                                                    createArrowButtonPanel(), JSplitPane.HORIZONTAL_SPLIT);
 
@@ -1229,8 +1222,7 @@ public class CcddSchedulerHandler
             // The selected message option
             String option = optionList.getSelectedValue().toString();
 
-            // Parse the option string to extract the sub-index (if this is a sub-option)
-            // and the
+            // Parse the option string to extract the sub-index (if this is a sub-option) and the
             // message indices
             Object[] parsedIndices = parseOption(option);
 
@@ -1270,7 +1262,8 @@ public class CcddSchedulerHandler
      *
      * @param indices     (sub-)message indices
      *
-     * @param parentIndex Parent message index if this is a sub-message; -1 if this is not a sub-message
+     * @param parentIndex Parent message index if this is a sub-message; -1 if this is not a
+     *                    sub-message
      *
      * @return Smallest number of bytes
      *********************************************************************************************/

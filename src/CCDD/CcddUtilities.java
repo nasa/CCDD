@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddUtilities.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing common utility methods used by other CCDD classes.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddUtilities.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing common utility methods used by other CCDD classes.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.FLAGGED;
@@ -118,7 +114,8 @@ public class CcddUtilities
          *
          * @param inputText Text string in which to replace the HTML characters
          *
-         * @return The input text with the HTML reserved characters replaced with the equivalent HTML tag
+         * @return The input text with the HTML reserved characters replaced with the equivalent
+         *         HTML tag
          *****************************************************************************************/
         private String replaceReservedChar(String inputText)
         {
@@ -145,8 +142,8 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * HTML tag storage class. HTML tags that are removed from the input string are store in this object
-     * along with the string index location
+     * HTML tag storage class. HTML tags that are removed from the input string are store in this
+     * object along with the string index location
      *********************************************************************************************/
     private static class Tags
     {
@@ -201,8 +198,7 @@ public class CcddUtilities
         // Check if the value is a fraction (#/#)
         if (value.contains("/"))
         {
-            // Separate the numerator and denominator and perform the conversion of each
-            // part
+            // Separate the numerator and denominator and perform the conversion of each part
             String[] temp = value.split("/");
             result = Float.valueOf(temp[0]) / Float.valueOf(temp[1]);
         }
@@ -274,13 +270,13 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * For each of the supplied text strings repeat any embedded double quotes, then bound with double
-     * quotes and separate each result with a comma
+     * For each of the supplied text strings repeat any embedded double quotes, then bound with
+     * double quotes and separate each result with a comma
      *
      * @param texts Text string(s) for which to add double quotes and comma-separate
      *
-     * @return Each of the supplied text strings with any embedded double quotes repeated, then bound
-     *         with double quotes and separate each result with a comma
+     * @return Each of the supplied text strings with any embedded double quotes repeated, then
+     *         bound with double quotes and separate each result with a comma
      *********************************************************************************************/
     protected static String addEmbeddedQuotesAndCommas(String... texts)
     {
@@ -289,8 +285,7 @@ public class CcddUtilities
         // Step through each supplied text string
         for (String text : texts)
         {
-            // Repeat any double quotes, bound the result in double quotes, and append a
-            // comma
+            // Repeat any double quotes, bound the result in double quotes, and append a comma
             output += addEmbeddedQuotes(text) + ",";
         }
 
@@ -298,14 +293,14 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Split the supplied text string into an array, divided at commas, ignoring commas within quotes.
-     * Remove the excess double quotes from the array members
+     * Split the supplied text string into an array, divided at commas, ignoring commas within
+     * quotes. Remove the excess double quotes from the array members
      *
      * @param text Text string to split
      *
-     * @return Text string divided into separate components, split at commas (including any surrounding
-     *         white space characters), accounting for commas within double quotes, and with the excess
-     *         double quotes removed
+     * @return Text string divided into separate components, split at commas (including any
+     *         surrounding white space characters), accounting for commas within double quotes, and
+     *         with the excess double quotes removed
      *********************************************************************************************/
     protected static String[] splitAndRemoveQuotes(String text)
     {
@@ -313,17 +308,17 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Split the supplied text string into an array, divided at the specified separator character(s),
-     * ignoring the separator character(s) within quotes. Remove the excess double quotes from the array
-     * members
+     * Split the supplied text string into an array, divided at the specified separator
+     * character(s), ignoring the separator character(s) within quotes. Remove the excess double
+     * quotes from the array members
      *
      * @param text         Text string to split
      *
      * @param separator    Character(s) at which to split the text
      *
      * @param limit        Maximum number of parts to separate the text into. This is the number of
-     *                     parts returned, with any missing parts returned as blanks. Set to -1 to split
-     *                     the text into as many parts as there are separators in the text
+     *                     parts returned, with any missing parts returned as blanks. Set to -1 to
+     *                     split the text into as many parts as there are separators in the text
      *
      * @param removeQuotes True to remove excess double quotes from the individual array members
      *
@@ -332,8 +327,7 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String[] splitAndRemoveQuotes(String text, String separator, int limit, boolean removeQuotes)
     {
-        // Split the supplied string into the specified number of parts using the
-        // specified
+        // Split the supplied string into the specified number of parts using the specified
         // separator
         String[] array = text.split(separator + SPLIT_IGNORE_QUOTES, limit);
 
@@ -352,15 +346,15 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Convert the supplied array of text items into a single string with the items separated by commas.
-     * If the length of the string exceeds a specified maximum then shorten the string to the maximum,
-     * find the last comma, truncate the string, and add an indication of how many other items are in
-     * the list
+     * Convert the supplied array of text items into a single string with the items separated by
+     * commas. If the length of the string exceeds a specified maximum then shorten the string to
+     * the maximum, find the last comma, truncate the string, and add an indication of how many
+     * other items are in the list
      *
      * @param itemArray Array of text items to combine
      *
-     * @return The array of text items converted to a single, comma-separated string, and shortened if
-     *         above a maximum length
+     * @return The array of text items converted to a single, comma-separated string, and shortened
+     *         if above a maximum length
      *********************************************************************************************/
     protected static String convertArrayToStringTruncate(String[] itemArray)
     {
@@ -370,8 +364,7 @@ public class CcddUtilities
         // Check if the length of the item string exceeds the specified maximum
         if (names.length() > ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize())
         {
-            // Shorten the item list to the maximum length and find the index to the last
-            // comma,
+            // Shorten the item list to the maximum length and find the index to the last comma,
             // which separates the items
             names = names.substring(0, ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize());
             int index = names.lastIndexOf(",");
@@ -418,8 +411,7 @@ public class CcddUtilities
             // Create a tokenizer using single and double quotes, and a space as the tokens
             StringTokenizer tokenizer = new StringTokenizer(argString, "\"\' ", true);
 
-            // Continue to parse the string as long as one of the tokens is present in the
-            // argument
+            // Continue to parse the string as long as one of the tokens is present in the argument
             // string
             while (tokenizer.hasMoreTokens())
             {
@@ -550,8 +542,8 @@ public class CcddUtilities
      *
      * @param enumeration        {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
-     * @param enumValueSeparator Character used to separate an enumeration value from its corresponding
-     *                           label
+     * @param enumValueSeparator Character used to separate an enumeration value from its
+     *                           corresponding label
      *
      * @return Character that separates the enumerated pairs
      *********************************************************************************************/
@@ -567,13 +559,12 @@ public class CcddUtilities
             String[] parts = enumeration.split("\\s*\\d+\\s*" + Pattern.quote(enumValueSeparator));
 
             // If parts.length is less than or equal to 2 than that means there is only a single
-            // enum and no enum pair separator.
+            // enum and no enum pair separator
             if (parts.length > 2)
             {
                 // Determine the length of the second array member. This consists of the first
                 // enumerated value followed by the enumerated pair separator character. Extract
-                // the
-                // ending character which is the enumerated pair separator
+                // the ending character which is the enumerated pair separator
                 int index = parts[1].length();
                 separator = parts[1].substring(index - 1, index);
             }
@@ -627,14 +618,15 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Create a copy of a single dimensional array with a specified number of extra columns appended
+     * Create a copy of a single dimensional array with a specified number of extra columns
+     * appended
      *
      * @param array      Array to copy
      *
      * @param numColumns Number of columns to append
      *
-     * @return Array containing the data from the input array plus the specified number of extra, empty
-     *         columns appended
+     * @return Array containing the data from the input array plus the specified number of extra,
+     *         empty columns appended
      *********************************************************************************************/
     protected static String[] appendArrayColumns(Object[] array, int numColumns)
     {
@@ -667,8 +659,8 @@ public class CcddUtilities
      *
      * @param numColumns Number of columns to append
      *
-     * @return Array containing the data from the input array plus the specified number of extra, empty
-     *         columns appended
+     * @return Array containing the data from the input array plus the specified number of extra,
+     *         empty columns appended
      *********************************************************************************************/
     protected static String[][] appendArrayColumns(Object[][] array, int numColumns)
     {
@@ -699,7 +691,8 @@ public class CcddUtilities
      *
      * @param delColumn Column to remove
      *
-     * @return List of string arrays containing the data from the input list minus the specified column
+     * @return List of string arrays containing the data from the input list minus the specified
+     *         column
      *********************************************************************************************/
     protected static List<String[]> removeArrayListColumn(List<String[]> list, int delColumn)
     {
@@ -739,13 +732,12 @@ public class CcddUtilities
      *
      * @param targetIndex New index for the moved array member
      *
-     * @return Array with the specified member moved to the new position and the other members adjusted
-     *         to accommodate the move
+     * @return Array with the specified member moved to the new position and the other members
+     *         adjusted to accommodate the move
      *********************************************************************************************/
     protected static Object[] moveArrayMember(Object[] array, int indexToMove, int targetIndex)
     {
-        // Copy the array. This ensures that the object array is of the same class as
-        // the input
+        // Copy the array. This ensures that the object array is of the same class as the input
         // array
         Object[] tempArray = Arrays.copyOf(array, array.length);
 
@@ -813,10 +805,11 @@ public class CcddUtilities
      *
      * @param array2 Second array to combine
      *
-     * @return One-dimensional array with the contents of the second array appended to the first array
+     * @return One-dimensional array with the contents of the second array appended to the first
+     *         array
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     protected static <T> T[] concatenateArrays(T[] array1, T[] array2)
     {
@@ -855,10 +848,11 @@ public class CcddUtilities
      *
      * @param array2 Second array to combine
      *
-     * @return Two-dimensional array with the contents of the second array appended to the first array
+     * @return Two-dimensional array with the contents of the second array appended to the first
+     *         array
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     protected static <T> T[][] concatenateArrays(T[][] array1, T[][] array2)
     {
@@ -916,8 +910,8 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Convert an object array to a string array. The number of columns in the input array do not have
-     * to have the same number of columns
+     * Convert an object array to a string array. The number of columns in the input array do not
+     * have to have the same number of columns
      *
      * @param asObject Two-dimensional object array to convert
      *
@@ -984,8 +978,7 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static StringBuilder removeTrailer(StringBuilder text, String trailingText)
     {
-        // Get the length of the string and the index where the trailing text should
-        // start
+        // Get the length of the string and the index where the trailing text should start
         int textLength = text.length();
         int index = textLength - trailingText.length();
 
@@ -1000,8 +993,8 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Remove any leading and trailing quotes from a quoted string, and replace pairs of double quotes
-     * with one double quote
+     * Remove any leading and trailing quotes from a quoted string, and replace pairs of double
+     * quotes with one double quote
      *
      * @param text String from which to remove the excess quotes
      *
@@ -1017,7 +1010,8 @@ public class CcddUtilities
      *
      * @param array Array of strings
      *
-     * @return Single string containing the strings from the array, separated by a comma and a space
+     * @return Single string containing the strings from the array, separated by a comma and a
+     *         space
      *********************************************************************************************/
     protected static String convertArrayToString(Object[] array)
     {
@@ -1025,8 +1019,9 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Replace any HTML break tags with spaces, remove the remaining HTML tag(s) from the supplied text,
-     * and replace special character markers with the special character if recognized, else with a blank
+     * Replace any HTML break tags with spaces, remove the remaining HTML tag(s) from the supplied
+     * text, and replace special character markers with the special character if recognized, else
+     * with a blank
      *
      * @param text String from which to remove the HTML tags
      *
@@ -1039,16 +1034,17 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Replace any HTML break tags with line feeds or spaces (depending on the input flag), remove the
-     * remaining HTML tag(s) from the supplied text, and replace special character markers with the
-     * special character if recognized, else with a blank
+     * Replace any HTML break tags with line feeds or spaces (depending on the input flag), remove
+     * the remaining HTML tag(s) from the supplied text, and replace special character markers with
+     * the special character if recognized, else with a blank
      *
      * @param text           String from which to remove the HTML tags
      *
-     * @param preserveBreaks True to replace breaks with line feeds; false to replace breaks with spaces
+     * @param preserveBreaks True to replace breaks with line feeds; false to replace breaks with
+     *                       spaces
      *
-     * @return Input string with line feeds or spaces replacing breaks, minus any HTML tag(s), and with
-     *         special character markers replaced
+     * @return Input string with line feeds or spaces replacing breaks, minus any HTML tag(s), and
+     *         with special character markers replaced
      *********************************************************************************************/
     protected static String removeHTMLTags(String text, boolean preserveBreaks)
     {
@@ -1073,13 +1069,13 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Escape any PostgreSQL reserved characters in the supplied string so that when used in a regular
-     * expression the characters are recognized properly
+     * Escape any PostgreSQL reserved characters in the supplied string so that when used in a
+     * regular expression the characters are recognized properly
      *
      * @param text String in which to escape any reserved characters
      *
-     * @return String with any reserved PostgreSQL characters escaped so that they are recognized by a
-     *         regular expression
+     * @return String with any reserved PostgreSQL characters escaped so that they are recognized
+     *         by a regular expression
      *********************************************************************************************/
     protected static String escapePostgreSQLReservedChars(String text)
     {
@@ -1106,8 +1102,8 @@ public class CcddUtilities
      *
      * @param inputText    String to format for HTML
      *
-     * @param ignoreBreaks True to ignore replacing line feeds with breaks; false to replace line feeds
-     *                     with breaks
+     * @param ignoreBreaks True to ignore replacing line feeds with breaks; false to replace line
+     *                     feeds with breaks
      *
      * @return Input string converted to HTML format
      *********************************************************************************************/
@@ -1116,8 +1112,7 @@ public class CcddUtilities
         // Step through each HTML tag
         for (HTMLTag tagInfo : HTMLTag.values())
         {
-            // Check if this isn't the line break tag, or if it is that line breaks are not
-            // to be
+            // Check if this isn't the line break tag, or if it is that line breaks are not to be
             // ignored
             if (tagInfo != HTMLTag.BREAK || !ignoreBreaks)
             {
@@ -1162,18 +1157,19 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Insert line breaks into the supplied string so as to limit the maximum length of each line to the
-     * value specified. If the supplied string is formatted for HTML then the HTML tags are removed
-     * prior to determining the line breaks insertion position(s). Once the line breaks are added the
-     * HTML tags are restored. A non-HTML input string is converted to HTML format, including conversion
-     * of any special characters
+     * Insert line breaks into the supplied string so as to limit the maximum length of each line
+     * to the value specified. If the supplied string is formatted for HTML then the HTML tags are
+     * removed prior to determining the line breaks insertion position(s). Once the line breaks are
+     * added the HTML tags are restored. A non-HTML input string is converted to HTML format,
+     * including conversion of any special characters
      *
      * @param inputText String to format for wrapping
      *
      * @param maxLength Maximum length, in characters, to wrap the text
      *
-     * @return The input text, converted to HTML format (if not already), with line breaks inserted to
-     *         limit the line length to the maximum specified; null if the input string is null or blank
+     * @return The input text, converted to HTML format (if not already), with line breaks inserted
+     *         to limit the line length to the maximum specified; null if the input string is null
+     *         or blank
      *********************************************************************************************/
     protected static String wrapText(String inputText, int maxLength)
     {
@@ -1197,13 +1193,11 @@ public class CcddUtilities
 
             boolean isDone = false;
 
-            // Process the input string to locate, store, and remove the HTML tags from the
-            // input
+            // Process the input string to locate, store, and remove the HTML tags from the input
             // string
             while (!isDone)
             {
-                // Get the tag index nearest the point in the string where the previously found
-                // tag
+                // Get the tag index nearest the point in the string where the previously found tag
                 // is located
                 int tagIndex = Math.max(inputText.lastIndexOf("<", lastIndex), inputText.lastIndexOf("&", lastIndex));
 
@@ -1306,10 +1300,8 @@ public class CcddUtilities
             int breakIndex = 0;
             int breakCount = 0;
 
-            // Insert breaks into the 'cleaned' string to constrain the width of the
-            // displayed text
-            // to the specified maximum. Continue to process the input string while it's
-            // length is
+            // Insert breaks into the 'cleaned' string to constrain the width of the displayed text
+            // to the specified maximum. Continue to process the input string while it's length is
             // above the maximum
             while (inputText.length() > maxLength)
             {
@@ -1383,8 +1375,7 @@ public class CcddUtilities
                 // Get the index into the string for this tag
                 int tagIndex = tag.getIndex();
 
-                // Check if this is the <html> tag (i.e., any line breaks added for wrapping
-                // have
+                // Check if this is the <html> tag (i.e., any line breaks added for wrapping have
                 // already been inserted)
                 if (tagIndex == 0)
                 {
@@ -1477,8 +1468,7 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String highlightDataType(String path)
     {
-        // Check if the path contains a child structure reference and isn't disabled or
-        // invalid
+        // Check if the path contains a child structure reference and isn't disabled or invalid
         if (path.contains(".") && !path.startsWith(FLAGGED))
         {
             // Create the tag using the data type highlight color
@@ -1562,9 +1552,7 @@ public class CcddUtilities
                     // Set the flag to indicate the text contains a match
                     hasHighlight = true;
                 }
-                catch (
-                    BadLocationException ble
-                )
+                catch (BadLocationException ble)
                 {
                     // Ignore highlighting failure
                 }
@@ -1590,8 +1578,7 @@ public class CcddUtilities
         // Step through each element in the stack trace
         for (StackTraceElement ste : e.getStackTrace())
         {
-            // Check if the reference is to a CCDD class (i.e., skip references in the Java
-            // library
+            // Check if the reference is to a CCDD class (i.e., skip references in the Java library
             // classes)
             if (ste.getClassName().startsWith("CCDD"))
             {
@@ -1607,11 +1594,12 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Update the list of remembered items with the specified string. This is used by the search and
-     * server auto-completion lists, and by the lists of previously opened projects and tables
+     * Update the list of remembered items with the specified string. This is used by the search
+     * and server auto-completion lists, and by the lists of previously opened projects and tables
      *
-     * @param text     Item to add to the list. The item is placed at the head of the list. The list
-     *                 size is constrained to the maximum number specified when the field was created
+     * @param text     Item to add to the list. The item is placed at the head of the list. The
+     *                 list size is constrained to the maximum number specified when the field was
+     *                 created
      *
      * @param itemList List containing the items
      *
@@ -1622,9 +1610,8 @@ public class CcddUtilities
         // Check if this is a repeat of a previous text string
         if (itemList.contains(text))
         {
-            // Remove the text string from its current position in the remembered strings
-            // list
-            // so that it can be put at the head of the list
+            // Remove the text string from its current position in the remembered strings list so
+            // that it can be put at the head of the list
             itemList.remove(text);
         }
         // Check if the maximum number of remembered strings has been reached
@@ -1639,8 +1626,8 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Get the list of remembered items as a single, delimited string. This is used by the search and
-     * server auto-completion lists, and by the lists of previously opened projects and tables
+     * Get the list of remembered items as a single, delimited string. This is used by the search
+     * and server auto-completion lists, and by the lists of previously opened projects and tables
      *
      * @param itemList List containing the items to combine into a single string
      *

@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddFieldTableEditorDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for inspecting and assigning values to data input fields. The dialog is built on
-*     the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddFieldTableEditorDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for inspecting and assigning values to data input fields. The dialog is built on
+ * the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
@@ -131,15 +127,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     // List of columns representing boolean data fields
     private List<Integer> checkBoxColumns;
 
-    // Flag that indicates if any of the tables with data fields to display are
-    // children of another
+    // Flag that indicates if any of the tables with data fields to display are children of another
     // table, and therefore have a structure path
     private boolean isPath;
 
-    // Table instance model data. Committed copy is the table information as it
-    // exists in the
-    // database and is used to determine what changes have been made to the table
-    // since the
+    // Table instance model data. Committed copy is the table information as it exists in the
+    // database and is used to determine what changes have been made to the table since the
     // previous database update
     private Object[][] committedData;
 
@@ -213,8 +206,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Create a list to contain all non-structure table names
         nonStructureTableNames = new ArrayList<String>();
 
-        // Step through each data table comment. The table comment contains the table's
-        // visible
+        // Step through each data table comment. The table comment contains the table's visible
         // name and type
         for (String[] tableComment : dbTable.queryDataTableComments(CcddFieldTableEditorDialog.this))
         {
@@ -240,8 +232,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Clear the cells selected for deletion
             selectedCells.clear();
 
-            // Update the field handler information from the field definitions in the
-            // database
+            // Update the field handler information from the field definitions in the database
             fieldHandler.buildFieldInformation(CcddFieldTableEditorDialog.this);
 
             // Load the data field information into the data field editor table
@@ -304,10 +295,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Display a dialog for the user to select the data fields to display in the editor table. This is
-     * executed in a separate thread since it can take a noticeable amount time to complete, and by
-     * using a separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
-     * are disabled until the telemetry scheduler initialization completes execution
+     * Display a dialog for the user to select the data fields to display in the editor table. This
+     * is executed in a separate thread since it can take a noticeable amount time to complete, and
+     * by using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void selectDataFields()
     {
@@ -336,8 +327,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Build the list of non-structure tables
                 buildNonStructureTableList();
 
-                // Create a selection dialog, a panel for the table selection tree, and a panel
-                // to
+                // Create a selection dialog, a panel for the table selection tree, and a panel to
                 // contain a check box for each unique data field name
                 selectDlg = new CcddDialogHandler()
                 {
@@ -416,7 +406,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             columnCb.addActionListener(new ActionListener()
                             {
                                 /******************************************************************
-                                 * Handle a change to the data field name check box selection status
+                                 * Handle a change to the data field name check box selection
+                                 * status
                                  *****************************************************************/
                                 @Override
                                 public void actionPerformed(ActionEvent ae)
@@ -551,10 +542,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Create the data field table editor dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the data field table editor dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void displayDataFieldTableEditor()
     {
@@ -595,8 +586,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 gbc.weighty = 1.0;
                 dialogPnl.add(tablePnl, gbc);
 
-                // Add the field display filter label and a filter check box for each field
-                // owner
+                // Add the field display filter label and a filter check box for each field owner
                 // type
                 JLabel fieldFilterLbl = new JLabel("Show fields belonging to:");
                 fieldFilterLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -928,10 +918,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // the table has no uncommitted changes. If changes exist then confirm
-        // discarding the
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // the table has no uncommitted changes. If changes exist then confirm discarding the
         // changes
         if (dataFieldTable.isLastCellValid() && (!isFieldTableChanged() || new CcddDialogHandler()
                 .showMessageDialog(CcddFieldTableEditorDialog.this, "<html><b>Discard changes?", "Discard Changes",
@@ -943,8 +931,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Reposition the field table editor dialog relative to the location of the (now invisible) field
-     * selection dialog
+     * Reposition the field table editor dialog relative to the location of the (now invisible)
+     * field selection dialog
      *********************************************************************************************/
     private void positionFieldEditorDialog()
     {
@@ -955,8 +943,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         Dimension d1 = selectDlg.getSize();
         Dimension d2 = CcddFieldTableEditorDialog.this.getSize();
 
-        // Move the editor dialog so that it's centered over the selection dialog's last
-        // location
+        // Move the editor dialog so that it's centered over the selection dialog's last location
         CcddFieldTableEditorDialog.this
                 .setLocation(new Point(p1.x + d1.width / 2 - d2.width / 2, p1.y + d1.height / 2 - d2.height / 2));
     }
@@ -1002,8 +989,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     private JScrollPane createDataFieldTableEditorTable()
     {
-        // Create the table to display the structure tables and their corresponding
-        // user-selected
+        // Create the table to display the structure tables and their corresponding user-selected
         // data fields
         dataFieldTable = new CcddJTableHandler()
         {
@@ -1088,8 +1074,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             }
 
             /**************************************************************************************
-             * Validate changes to the data field value cells; e.g., verify cell content and, if found invalid,
-             * revert to the original value
+             * Validate changes to the data field value cells; e.g., verify cell content and, if
+             * found invalid, revert to the original value
              *
              * @param tableData   List containing the table data row arrays
              *
@@ -1183,14 +1169,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected void loadAndFormatData()
             {
-                // Get the default column names and tool tip text for the data field editor
-                // table
+                // Get the default column names and tool tip text for the data field editor table
                 String[] toolTips = new String[columnNames.length];
                 toolTips[FieldTableEditorColumnInfo.OWNER.ordinal()] = FieldTableEditorColumnInfo.OWNER.getToolTip();
                 toolTips[FieldTableEditorColumnInfo.PATH.ordinal()] = FieldTableEditorColumnInfo.PATH.getToolTip();
 
-                // Get the owners, paths, data field values values, and check box columns based
-                // on
+                // Get the owners, paths, data field values values, and check box columns based on
                 // the specified data fields
                 committedData = getDataFieldsToDisplay();
 
@@ -1199,18 +1183,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(committedData, columnNames, null, toolTips, true, true, true);
 
-                // Set up editors for the columns that display combo boxes (i.e., for fields
-                // with
-                // selection item lists). This is done after the table is loaded since the
-                // number
-                // of columns and their field contents change based on the user's field
-                // selections
+                // Set up editors for the columns that display combo boxes (i.e., for fields with
+                // selection item lists). This is done after the table is loaded since the number
+                // of columns and their field contents change based on the user's field selections
                 setSelectionCellEditors();
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method in order to show/hide the data fields based on the selected
-             * field filters
+             * Override the CcddJTableHandler method in order to show/hide the data fields based on
+             * the selected field filters
              *************************************************************************************/
             @Override
             protected void setTableSortable()
@@ -1220,8 +1201,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Get the table's row sorter and add the event type filter
                 TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
 
-                // Check if the table has a sorter (i.e., has at least one visible row), that
-                // the
+                // Check if the table has a sorter (i.e., has at least one visible row), that the
                 // filter hasn't been set, and that there is a field owner row filter
                 if (sorter != null && sorter.getRowFilter() != rowFilter && rowFilter != null)
                 {
@@ -1241,10 +1221,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
 
-                // Check if the cell doesn't have the focus or is selected (the focus and
-                // selection
-                // highlight colors override the invalid highlight color) and if this is a
-                // column
+                // Check if the cell doesn't have the focus or is selected (the focus and selection
+                // highlight colors override the invalid highlight color) and if this is a column
                 // for a data field
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
                     && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
@@ -1383,8 +1361,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether any unstored changes
-                // exist
+                // Add or remove the change indicator based on whether any unstored changes exist
                 setTitle(DIALOG_TITLE + (isFieldTableChanged() ? CHANGE_INDICATOR : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed
@@ -1401,8 +1378,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                ModifiableColorInfo.TABLE_BACK.getColor(), true, true,
                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
 
-        // Set the reference to the cell selection container in the undo handler, then
-        // create a
+        // Set the reference to the cell selection container in the undo handler, then create a
         // cell selection object
         dataFieldTable.getUndoHandler().setSelectedCells(selectedCells);
         cellSelect = dataFieldTable.getUndoHandler().new UndoableCellSelection();
@@ -1413,8 +1389,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Build the data field array
      *
-     * @return Array containing the data field owner names and corresponding user-selected data field
-     *         values
+     * @return Array containing the data field owner names and corresponding user-selected data
+     *         field values
      *********************************************************************************************/
     private Object[][] getDataFieldsToDisplay()
     {
@@ -1432,8 +1408,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Get the field information for all data fields
         List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationCopy();
 
-        // Sort the field information by owner name so that sequence order of the data
-        // field values
+        // Sort the field information by owner name so that sequence order of the data field values
         // is based on the owners' alphabetical order
         Collections.sort(fieldInformation, new Comparator<FieldInformation>()
         {
@@ -1456,8 +1431,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Get the data field owner's name
             String ownerName = fieldInfo.getOwnerName();
 
-            // Check if the field is in a table selected by the user (if no table is
-            // selected then
+            // Check if the field is in a table selected by the user (if no table is selected then
             // all tables are considered to match) and is currently applicable
             if ((filterTables.isEmpty() || filterTables.contains(ownerName)) && fieldHandler
                     .isFieldApplicable(ownerName, fieldInfo.getApplicabilityType().getApplicabilityName(), null))
@@ -1588,10 +1562,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             }
         }
 
-        // Since all of the check box columns are now determined, step through each of
-        // them so that
-        // any that have a blank value (i.e., a boolean cell in a row for which the
-        // field is not
+        // Since all of the check box columns are now determined, step through each of them so that
+        // any that have a blank value (i.e., a boolean cell in a row for which the field is not
         // applicable to the owner) can be set to false (a legal boolean value)
         for (int cbxCol : checkBoxColumns)
         {
@@ -1611,7 +1583,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Set up combo box cell editors for the columns that display data fields with selection item lists
+     * Set up combo box cell editors for the columns that display data fields with selection item
+     * lists
      *********************************************************************************************/
     private void setSelectionCellEditors()
     {
@@ -1624,8 +1597,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Step through each row in the table
             for (int row = 0; row < dataFieldTable.getRowCount(); row++)
             {
-                // Get the field information based on the owner (the contents of the first
-                // column)
+                // Get the field information based on the owner (the contents of the first column)
                 // and the field name (the column name)
                 FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(CcddUtilities
                         .removeHTMLTags(dataFieldTable.getValueAt(row, 0).toString()), columnNames[columnModel]);
@@ -1662,8 +1634,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Compare the current table data to the committed table data and create lists of the changed values
-     * necessary to update the table data fields in the database to match the current values
+     * Compare the current table data to the committed table data and create lists of the changed
+     * values necessary to update the table data fields in the database to match the current values
      *********************************************************************************************/
     private void buildUpdates()
     {
@@ -1775,13 +1747,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             ownerName = CcddUtilities.removeHTMLTags(path).replaceAll(" ", "") + ","
                         + CcddUtilities.removeHTMLTags(ownerName).replaceAll(" ", "");
         }
-        // No path provided - either this is a root-level table or the owner is the
-        // project, a
+        // No path provided - either this is a root-level table or the owner is the project, a
         // group, or a table type
         else
         {
-            // Remove any highlighting and extra spaces (such as that used for indenting
-            // child
+            // Remove any highlighting and extra spaces (such as that used for indenting child
             // structure names) from the owner name
             ownerName = highlightFieldOwner(ownerName, false);
         }
@@ -1790,8 +1760,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Determine if the data field owner isn't a table. This is the case for project, group, and table
-     * type fields
+     * Determine if the data field owner isn't a table. This is the case for project, group, and
+     * table type fields
      *
      * @param ownerName Name of the data field's owner
      *
@@ -1801,8 +1771,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     {
         boolean isNotTable = false;
 
-        // Remove the HTML tags from the owner name and trim any leading/trailing spaces
-        // (such as
+        // Remove the HTML tags from the owner name and trim any leading/trailing spaces (such as
         // those used for indenting child structure names)
         ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
 
@@ -1829,12 +1798,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Highlight the data field owner's indicator text (the indicator determines if the field belongs to
-     * the project, a group, or a table type)
+     * Highlight the data field owner's indicator text (the indicator determines if the field
+     * belongs to the project, a group, or a table type)
      *
      * @param ownerName Name of the data field's owner
      *
-     * @param enable    True to highlight the data field indicator; false to remove any highlighting
+     * @param enable    True to highlight the data field indicator; false to remove any
+     *                  highlighting
      *
      * @return The data field owner with the indicator highlighted or not highlighted
      *********************************************************************************************/
@@ -1842,8 +1812,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     {
         String prepend = null;
 
-        // Remove the HTML tags from the owner name and trim any leading/trailing spaces
-        // (such as
+        // Remove the HTML tags from the owner name and trim any leading/trailing spaces (such as
         // those used for indenting child structure names)
         ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
 
@@ -1878,8 +1847,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Highlighting is to be removed
             else
             {
-                // Restore the field owner to its original form (remove the added space; the
-                // HTML
+                // Restore the field owner to its original form (remove the added space; the HTML
                 // tags are removed above)
                 ownerName = ownerName.replaceFirst(prepend + " ", prepend);
             }

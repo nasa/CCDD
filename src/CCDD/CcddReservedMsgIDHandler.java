@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddReservedMsgIDHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling reserved message ID operations.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddReservedMsgIDHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling reserved message ID operations.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.util.ArrayList;
@@ -43,11 +39,11 @@ public class CcddReservedMsgIDHandler
     private List<String[]> reservedMsgIDData;
 
     /**********************************************************************************************
-     * Reserved message ID handler class constructor used when setting the macros from a source other
-     * than those in the project database
+     * Reserved message ID handler class constructor used when setting the macros from a source
+     * other than those in the project database
      *
-     * @param reservedMsgIDs List of string arrays containing reserved message IDs and corresponding
-     *                       descriptions
+     * @param reservedMsgIDs List of string arrays containing reserved message IDs and
+     *                       corresponding descriptions
      *********************************************************************************************/
     CcddReservedMsgIDHandler(List<String[]> reservedMsgIDs)
     {
@@ -69,7 +65,8 @@ public class CcddReservedMsgIDHandler
     /**********************************************************************************************
      * Get the reserved message ID data
      *
-     * @return List of string arrays containing reserved message IDs and the corresponding descriptions
+     * @return List of string arrays containing reserved message IDs and the corresponding
+     *         descriptions
      *********************************************************************************************/
     protected List<String[]> getReservedMsgIDData()
     {
@@ -102,8 +99,7 @@ public class CcddReservedMsgIDHandler
             // Convert the ID string into the lower and upper (if present) value(s)
             int[] lowHigh = parseReservedMsgIDs(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]);
 
-            // Store the first reserved message ID value in the range (or only value if not
-            // a
+            // Store the first reserved message ID value in the range (or only value if not a
             // range)
             reservedMsgIDs.add(lowHigh[0]);
 
@@ -119,14 +115,14 @@ public class CcddReservedMsgIDHandler
     }
 
     /**********************************************************************************************
-     * Parse a reserved message ID or ID range string into the single, or lower and upper (if present),
-     * value(s)
+     * Parse a reserved message ID or ID range string into the single, or lower and upper (if
+     * present), value(s)
      *
      * @param reservedMsgIDs String showing the single, or lower and upper (if present), reserved
      *                       message ID
      *
-     * @return Integer array where the first value is the lower (or single) ID, and the second value is
-     *         the upper ID (if a range; -1 if not a range)
+     * @return Integer array where the first value is the lower (or single) ID, and the second
+     *         value is the upper ID (if a range; -1 if not a range)
      *********************************************************************************************/
     protected int[] parseReservedMsgIDs(String reservedMsgIDs)
     {
@@ -162,17 +158,14 @@ public class CcddReservedMsgIDHandler
         int[] idB = parseReservedMsgIDs(otherID);
 
         return ((
-        // Check if the new and other IDs are single values (not ranges), and that the
-        // IDs match
+        // Check if the new and other IDs are single values (not ranges), and that the IDs match
         idA[1] == -1 && idB[1] == -1 && idA[0] == idB[0])
 
-                // Check is the new ID is a single value and the other is a range, and if the
-                // new
+                // Check is the new ID is a single value and the other is a range, and if the new
                 // ID falls within the other range
                 || (idA[1] == -1 && idB[1] != -1 && idA[0] >= idB[0] && idA[0] <= idB[1])
 
-                // Check is the new ID is a range and the other is a single value, and if the
-                // other
+                // Check is the new ID is a range and the other is a single value, and if the other
                 // ID falls within the new range
                 || (idA[1] != -1 && idB[1] == -1 && idB[0] >= idA[0] && idB[0] <= idA[1])
 
@@ -200,8 +193,7 @@ public class CcddReservedMsgIDHandler
             // Check if the message IDs or ID ranges overlap
             if (isWithinRange(lowHigh, reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]))
             {
-                // Set the flag that indicates the supplied ID matches or falls within the range
-                // of
+                // Set the flag that indicates the supplied ID matches or falls within the range of
                 // an existing reserved message ID, and stop searching
                 isExists = true;
                 break;

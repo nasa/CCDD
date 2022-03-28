@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddAssignMessageIDDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for automatic assignment of message IDs to data tables or telemetry messages.
-*     The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddAssignMessageIDDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for automatic assignment of message IDs to data tables or telemetry messages. The
+ * dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -357,7 +353,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param schedulerDlg    Component over which to center the dialog (only used for telemetry
      *                        messages dialog)
      *********************************************************************************************/
-    CcddAssignMessageIDDialog(CcddMain ccddMain, MessageIDType msgIDDialogType, List<Message> messages,
+    CcddAssignMessageIDDialog(CcddMain ccddMain,
+                              MessageIDType msgIDDialogType,
+                              List<Message> messages,
                               CcddTelemetrySchedulerDialog schedulerDlg)
     {
         this.ccddMain = ccddMain;
@@ -434,33 +432,37 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
                 // Create borders for the dialog components
                 border = BorderFactory
-                        .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+                        .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                              Color.LIGHT_GRAY,
                                                                               Color.GRAY),
-                                              BorderFactory.createEmptyBorder(
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing()));
+                                              BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                        .getSpacing() / 2,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                   .getSpacing() / 2,
-                                                                           0, 0),
-                                                                0, 0);
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                           0,
+                                                                           0),
+                                                                0,
+                                                                0);
 
                 // Check if this is the table and group message ID assignment dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
                     // OK button
-                    btnOk = CcddButtonPanelHandler.createButton("OK", OK_ICON, KeyEvent.VK_O,
+                    btnOk = CcddButtonPanelHandler.createButton("OK",
+                                                                OK_ICON,
+                                                                KeyEvent.VK_O,
                                                                 "Assign The Message ID's");
 
                     // Create a listener for the OK button
@@ -478,7 +480,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     });
 
                     // Close button
-                    btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                    btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                   CLOSE_ICON,
+                                                                   KeyEvent.VK_C,
                                                                    "Close the Assign Message ID Editor");
 
                     // Create a listener for the Close button
@@ -494,39 +498,54 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         }
                     });
 
-                    // Add buttons in the order in which they'll appear (left to right, top to bottom)
+                    // Add buttons in the order in which they'll appear (left to right, top to
+                    // bottom)
                     buttonPnl.add(btnOk);
                     buttonPnl.add(btnClose);
 
                     // Distribute the buttons across two rows
                     setButtonRows(1);
 
-                    // Create a tabbed pane to contain the message name/ID parameters and add it to the dialog
+                    // Create a tabbed pane to contain the message name/ID parameters and add it to
+                    // the dialog
                     tabbedPane = new JTabbedPane(SwingConstants.LEFT);
                     tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     dialogPnl.add(tabbedPane, gbc);
 
                     // Create the information for the message name and ID assignment
-                    msgTabs = new MsgTabInfo[] {new MsgTabInfo("Msg ID", "Message ID tab", "Message ID assignment tab"),
-                                                new MsgTabInfo("Group", "group", "Group message ID assignment")};
+                    msgTabs = new MsgTabInfo[] {new MsgTabInfo("Msg ID",
+                                                               "Message ID tab",
+                                                               "Message ID assignment tab"),
+                                                new MsgTabInfo("Group",
+                                                               "group",
+                                                               "Group message ID assignment")};
 
                     // Add the Msg ID Panels
                     addMessageIDTab(msgTabs[0], false);
                     addMessageIDTab(msgTabs[1], false);
 
-                    // Build the table tree showing only root tables that can be assigned a message ID
-                    tableTree = new CcddTableTreeHandler(ccddMain, groupHandler, TableTreeType.INSTANCE_TABLES, true,
-                                                         true, true, ccddMain.getMainFrame());
+                    // Build the table tree showing only root tables that can be assigned a message
+                    // ID
+                    tableTree = new CcddTableTreeHandler(ccddMain,
+                                                         groupHandler,
+                                                         TableTreeType.INSTANCE_TABLES,
+                                                         true,
+                                                         true,
+                                                         true,
+                                                         ccddMain.getMainFrame());
 
-                    // Create a table tree panel and add it to another panel (in order to control spacing)
+                    // Create a table tree panel and add it to another panel (in order to control
+                    // spacing)
                     JPanel tableTreePnl = new JPanel(new GridBagLayout());
                     tableTreePnl.setBorder(emptyBorder);
                     gbc.gridx++;
                     gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                     gbc.weighty = 1.0;
                     tableTreePnl
-                            .add(tableTree.createTreePanel("Tables", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                           false, ccddMain.getMainFrame()),
+                            .add(tableTree.createTreePanel("Tables",
+                                                           TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                           false,
+                                                           ccddMain.getMainFrame()),
                                  gbc);
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
 
@@ -551,16 +570,19 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 // This is the telemetry message ID assignment dialog
                 else
                 {
-                    // Create a tabbed pane to contain the message name/ID parameters and add it to the dialog
+                    // Create a tabbed pane to contain the message name/ID parameters and add it to
+                    // the dialog
                     tabbedPane = new JTabbedPane(SwingConstants.LEFT);
                     tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     dialogPnl.add(tabbedPane, gbc);
                     dialogPnl.setBorder(etchBorder);
 
                     // Create the information for the telemetry message name and ID assignment
-                    msgTabs = new MsgTabInfo[] {new MsgTabInfo("Message Name", "telemetry",
+                    msgTabs = new MsgTabInfo[] {new MsgTabInfo("Message Name",
+                                                               "telemetry",
                                                                "Telemetry message name assignment"),
-                                                new MsgTabInfo("Message ID", "telemetry",
+                                                new MsgTabInfo("Message ID",
+                                                               "telemetry",
                                                                "Telemetry message ID assignment")};
 
                     // Add the telemetry message name and ID tabs
@@ -578,14 +600,21 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 // Check if this is the table and group message ID assignment dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
-                    showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnClose, "Assign Message IDs",
+                    showOptionsDialog(ccddMain.getMainFrame(),
+                                      dialogPnl,
+                                      buttonPnl,
+                                      btnClose,
+                                      "Assign Message IDs",
                                       true);
                 }
                 // This is the telemetry message ID/name assignment dialog
                 else
                 {
-                    // Get the user's input and check if at least one of assignment check boxes is selected
-                    if (showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, "Assign Message Names and IDs",
+                    // Get the user's input and check if at least one of assignment check boxes is
+                    // selected
+                    if (showOptionsDialog(ccddMain.getMainFrame(),
+                                          dialogPnl,
+                                          "Assign Message Names and IDs",
                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
                         && getNumAssignTypeSelected() != 0)
                     {
@@ -607,17 +636,20 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private void addMessageIDTab(final MsgTabInfo tabInfo, final boolean isTlmName)
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
 
         // Create sub-panels for the dialog components
         JPanel tabPnl = new JPanel(new GridBagLayout());
@@ -629,14 +661,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         {
             // Create borders for the input fields and assignment panels
             border = BorderFactory
-                    .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+                    .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                          Color.LIGHT_GRAY,
                                                                           Color.GRAY),
-                                          BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                  .getSpacing(), ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                  .getSpacing(),
-                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                  .getSpacing()));
+                                          BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
             // Create the telemetry message name pattern label
             tabInfo.setPatternLbl(new JLabel("Name pattern"));
@@ -650,9 +681,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             tabInfo.getPatternFld().setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
             tabInfo.getPatternFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             tabInfo.getPatternFld().setBorder(border);
-            tabInfo.getPatternFld()
-                    .setToolTipText(CcddUtilities.wrapText("<html>Format: <i>alphanumeric</i>#<i>&lt;alphanumeric&gt;",
-                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            tabInfo.getPatternFld().setToolTipText(CcddUtilities.wrapText("<html>Format: <i>alphanumeric</i>#<i>&lt;alphanumeric&gt;",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
             // Create an input field verifier for the pattern field
             tabInfo.getPatternFld().setInputVerifier(new InputVerifier()
@@ -676,18 +706,18 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                             .matches(DefaultInputType.ALPHANUMERIC.getInputMatch() + "%(0\\d+)?d[a-zA-Z0-9_]*"))
                     {
                         // Inform the user that the input value is invalid
-                        new CcddDialogHandler()
-                                .showMessageDialog(CcddAssignMessageIDDialog.this,
-                                                   "<html><b>Message name pattern must be in the format:<br><br></b>"
-                                                                                   + "&#160;&#160;&#160;<i>startText</i>%&lt;0#&gt;d<i>&lt;"
-                                                                                   + "endText&gt;</i><b><br><br>where </b><i>startText</i><b> "
-                                                                                   + "and </b><i>endText</i><b> consist of alphanumeric "
-                                                                                   + "characters and/or underscores, </b><i>startText</i><b> "
-                                                                                   + "begins with a letter or underscore, and </b><i>#</i><b> "
-                                                                                   + "is one or more digits.&#160;&#160;Note: </b><i>0#</i><b> "
-                                                                                   + "and </b><i>endText</i><b> are optional",
-                                                   "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_OPTION);
+                        new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
+                                                                  "<html><b>Message name pattern must be in the format:<br><br></b>"
+                                                                  + "&#160;&#160;&#160;<i>startText</i>%&lt;0#&gt;d<i>&lt;"
+                                                                  + "endText&gt;</i><b><br><br>where </b><i>startText</i><b> "
+                                                                  + "and </b><i>endText</i><b> consist of alphanumeric "
+                                                                  + "characters and/or underscores, </b><i>startText</i><b> "
+                                                                  + "begins with a letter or underscore, and </b><i>#</i><b> "
+                                                                  + "is one or more digits.&#160;&#160;Note: </b><i>0#</i><b> "
+                                                                  + "and </b><i>endText</i><b> are optional",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
 
                         // Restore the previous value in the field
                         tabInfo.getPatternFld().setText(lastValid);
@@ -695,7 +725,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Set the flag indicating the input is invalid
                         isValid = false;
 
-                        // Toggle the controls enable status so that the buttons are redrawn correctly
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
                         CcddAssignMessageIDDialog.this.setControlsEnabled(false);
                         CcddAssignMessageIDDialog.this.setControlsEnabled(true);
                     }
@@ -731,16 +762,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         tabInfo.getStartFld().setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         tabInfo.getStartFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         tabInfo.getStartFld().setBorder(border);
-        tabInfo.getStartFld()
-                .setToolTipText(isTlmName ? null
-                                          : CcddUtilities
-                                                  .wrapText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits",
-                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        tabInfo.getStartFld().setToolTipText(isTlmName ? null
+                                                       : CcddUtilities.wrapText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits",
+                                                                                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
         // Create an input field verifier for the start field
         tabInfo.getStartFld().setInputVerifier(new InputVerifier()
         {
             // Storage for the last valid value entered; used to restore the start field value if
-            // an invalid value is entered. Initialize to the value at the time the field is created
+            // an invalid value is entered. Initialize to the value at the time the field is
+            // created
             String lastValid = tabInfo.getStartFld().getText();
 
             /**************************************************************************************
@@ -761,7 +792,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         new CcddDialogHandler()
                                 .showMessageDialog(CcddAssignMessageIDDialog.this,
                                                    "<html><b>Message starting number must be an integer >= 0",
-                                                   "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                   "Missing/Invalid Input",
+                                                   JOptionPane.WARNING_MESSAGE,
                                                    DialogOption.OK_OPTION);
 
                         // Restore the previous value in the field
@@ -770,7 +802,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Set the flag indicating the input is invalid
                         isValid = false;
 
-                        // Toggle the controls enable status so that the buttons are redrawn correctly
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
                         CcddAssignMessageIDDialog.this.setControlsEnabled(false);
                         CcddAssignMessageIDDialog.this.setControlsEnabled(true);
                     }
@@ -778,8 +811,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     else
                     {
                         // Clean up the field value
-                        tabInfo.getStartFld().setText(DefaultInputType.INT_NON_NEGATIVE
-                                .formatInput(tabInfo.getStartFld().getText()));
+                        tabInfo.getStartFld().setText(DefaultInputType.INT_NON_NEGATIVE.formatInput(tabInfo.getStartFld().getText()));
 
                         // Store the new value as the last valid value
                         lastValid = tabInfo.getStartFld().getText();
@@ -792,13 +824,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     if (!tabInfo.getStartFld().getText().matches(DefaultInputType.HEXADECIMAL.getInputMatch()))
                     {
                         // Inform the user that the input value is invalid
-                        new CcddDialogHandler()
-                                .showMessageDialog(CcddAssignMessageIDDialog.this,
-                                                   "<html><b>Starting ID must be in the format<br>&#160;&#160;<i>&lt;</i>"
-                                                                                   + "0x<i>&gt;</i>#<br>where # is one or "
-                                                                                   + "more hexadecimal digits",
-                                                   "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_OPTION);
+                        new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
+                                                                  "<html><b>Starting ID must be in the format<br>&#160;&#160;<i>&lt;</i>"
+                                                                  + "0x<i>&gt;</i>#<br>where # is one or "
+                                                                  + "more hexadecimal digits",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
 
                         // Restore the previous value in the field
                         tabInfo.getStartFld().setText(lastValid);
@@ -809,8 +841,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     else
                     {
                         // Clean up the field value
-                        tabInfo.getStartFld()
-                                .setText(DefaultInputType.HEXADECIMAL.formatInput(tabInfo.getStartFld().getText()));
+                        tabInfo.getStartFld().setText(DefaultInputType.HEXADECIMAL.formatInput(tabInfo.getStartFld().getText()));
 
                         // Store the new value as the last valid value
                         lastValid = tabInfo.getStartFld().getText();
@@ -843,7 +874,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         tabInfo.getIntervalFld().setInputVerifier(new InputVerifier()
         {
             // Storage for the last valid value entered; used to restore the interval field value
-            // if an invalid value is entered. Initialize to the value at the time the field is created
+            // if an invalid value is entered. Initialize to the value at the time the field is
+            // created
             String lastValid = tabInfo.getIntervalFld().getText();
 
             /**************************************************************************************
@@ -860,7 +892,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Inform the user that the input value is invalid
                     new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
                                                               "<html><b>ID interval must be a positive integer",
-                                                              "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                              "Missing/Invalid Input",
+                                                              JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
 
                     // Restore the previous value in the field
@@ -892,8 +925,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         inputPnl.add(tabInfo.getIntervalFld(), gbc);
 
         // Create the check box to enable message name/ID assignment
-        tabInfo.setAssignCbx(new JCheckBox("Assign " + tabInfo.getType() + " message "
-                                           + (isTlmName ? "names" : "IDs")));
+        tabInfo.setAssignCbx(new JCheckBox("Assign " + tabInfo.getType() + " message " + (isTlmName ? "names" : "IDs")));
         tabInfo.getAssignCbx().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Add a listener for check box selection changes
@@ -934,12 +966,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set the enable state of the specified table type or telemetry message name/ID input fields and
-     * check box
+     * Set the enable state of the specified table type or telemetry message name/ID input fields
+     * and check box
      *
      * @param tabInfo Message name/ID tab information reference
      *
-     * @param enable  True to enable the message name/ID input fields and check box; false to disable
+     * @param enable  True to enable the message name/ID input fields and check box; false to
+     *                disable
      *********************************************************************************************/
     private void setTabGUIComponentsEnable(MsgTabInfo tabInfo, boolean enable)
     {
@@ -986,15 +1019,22 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private void performTableGroupMessageIDAssignment()
     {
         // Get the list of message IDs that are reserved or already in use
-        idsInUse = messageIDHandler.getMessageIDsInUse(true, true, true, true, true, false, null, false,
+        idsInUse = messageIDHandler.getMessageIDsInUse(true,
+                                                       true,
+                                                       true,
+                                                       true,
+                                                       true,
+                                                       false,
+                                                       null,
+                                                       false,
                                                        CcddAssignMessageIDDialog.this);
 
         // Get a copy of the data field definitions for all of the fields in the database
         List<FieldInformation> fieldInformation = CcddFieldHandler
                 .getFieldInformationCopy(fieldHandler.getFieldInformation());
 
-        // Sort the field information by table name so that sequence order of the message
-        // ID values is applied to the tables' alphabetical order
+        // Sort the field information by table name so that sequence order of the message ID values
+        // is applied to the tables' alphabetical order
         Collections.sort(fieldInformation, new Comparator<FieldInformation>()
         {
             /******************************************************************************
@@ -1031,16 +1071,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         // Check if message IDs should be assigned to any tables
         if (msgTabs[0].getAssignCbx().isSelected() && tablesToUpdate.size() > 0)
         {
-            // Assign the tables and data fields IDS, and update the flag that
-            // indicates if a data field changed
+            // Assign the tables and data fields IDS, and update the flag that indicates if a data
+            // field changed
             fieldChanged |= assignTableMessageIDs(msgTabs[0], tablesToUpdate, fieldInformation);
         }
 
         // Check if the group message IDs should be assigned
         if (msgTabs[1].getAssignCbx().isSelected())
         {
-            // Assign the group data field IDS, and update the flag that indicates if a
-            // data field changed
+            // Assign the group data field IDS, and update the flag that indicates if a data field
+            // changed
             fieldChanged |= assignGroupMessageIDs(msgTabs[1], fieldInformation);
         }
 
@@ -1049,8 +1089,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         {
             // Store the updated field information in the field handler and in the database
             fieldHandler.setFieldInformation(fieldInformation);
-            dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null, null, null,
-                                          null, CcddAssignMessageIDDialog.this);
+            dbTable.storeInformationTable(InternalTable.FIELDS,
+                                          fieldHandler.getFieldDefnsFromInfo(),
+                                          null,
+                                          null,
+                                          null,
+                                          null,
+                                          CcddAssignMessageIDDialog.this);
 
             // Check if the data field editor table dialog is open
             if (ccddMain.getFieldTableEditor() != null && ccddMain.getFieldTableEditor().isShowing())
@@ -1082,14 +1127,23 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             protected void execute()
             {
                 // Create the message ID assignment cancellation dialog
-                haltDlg = new CcddHaltDialog("Assign Message IDs", "Assigning telemetry message names/IDs",
-                                             "name/ID assignment", getNumAssignTypeSelected(), 1,
+                haltDlg = new CcddHaltDialog("Assign Message IDs",
+                                             "Assigning telemetry message names/IDs",
+                                             "name/ID assignment",
+                                             getNumAssignTypeSelected(),
+                                             1,
                                              CcddAssignMessageIDDialog.this);
 
                 // Get the list of message IDs that are reserved or already in use
-                idsInUse = messageIDHandler.getMessageIDsInUse(true, true, true, true, false,
-                                                               msgTabs[1].getOverwriteCbx().isSelected(), schedulerDlg,
-                                                               false, CcddAssignMessageIDDialog.this);
+                idsInUse = messageIDHandler.getMessageIDsInUse(true,
+                                                               true,
+                                                               true,
+                                                               true,
+                                                               false,
+                                                               msgTabs[1].getOverwriteCbx().isSelected(),
+                                                               schedulerDlg,
+                                                               false,
+                                                               CcddAssignMessageIDDialog.this);
 
                 // Check if the message names should be assigned
                 if (msgTabs[0].getAssignCbx().isSelected())
@@ -1149,8 +1203,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Assign message ID values to the structure, command, or other table type message ID columns and
-     * data fields
+     * Assign message ID values to the structure, command, or other table type message ID columns
+     * and data fields
      *
      * @param tabInfo          Message ID tab information reference
      *
@@ -1165,8 +1219,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     {
         boolean isChanges = false;
 
-        // Get the starting message ID, ID interval, and format length (to preserve
-        // leading zeroes)
+        // Get the starting message ID, ID interval, and format length (to preserve leading zeroes)
         int startID = Integer.decode(tabInfo.getStartFld().getText());
         int interval = Integer.valueOf(tabInfo.getIntervalFld().getText());
         int formatLength = tabInfo.getStartFld().getText().length() - 2;
@@ -1178,6 +1231,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             {
                 // Remove the IDs for the tables that are about to be updated
                 int ID = Integer.decode(result.getValue().split(" ")[1]);
+
                 for (int i = 0; i < idsInUse.size(); i++)
                 {
                     if (idsInUse.get(i) == ID)
@@ -1186,9 +1240,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     }
                 }
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 // Do nothing. ID may be in wrong format so skip.
             }
@@ -1213,8 +1265,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // the supplied tables, the field is applicable if the table is a structure based on
             // the structure's root/child status, and that either the overwrite check box is
             // selected or the field is blank
-            if (fieldInfo.getInputType()
-                    .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
                 && tables.contains(fieldInfo.getOwnerName()) && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (fieldInfo.getApplicabilityType() == ApplicabilityType.ALL
                     || (fieldInfo.getApplicabilityType() == ApplicabilityType.ROOT_ONLY
@@ -1243,17 +1294,20 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // to the new value
                         if (fieldHandler.updateField(fieldInfo))
                         {
-                            // Update the current and committed data field information for this table
+                            // Update the current and committed data field information for this
+                            // table
                             editor.updateTableFieldInformationFromHandler();
 
                             // Update the editor data field components from the field values
                             editor.updateFieldComponentFromValue(editor.getTableInformation().getFieldInformation());
 
-                            // Rebuild the data field panel in the table editor using the updated fields
+                            // Rebuild the data field panel in the table editor using the updated
+                            // fields
                             editor.createDataFieldPanel(false, editor.getTableInformation().getFieldInformation(),
                                                         false);
 
-                            // Set the flag to indicate the table/field combination was located and stop searching
+                            // Set the flag to indicate the table/field combination was located and
+                            // stop searching
                             isUpdate = true;
                             break;
                         }
@@ -1299,10 +1353,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Get the reference to the field information
             FieldInformation fieldInfo = fieldInformation.get(index);
 
-            // Check if the field contains a message name and ID, is for a group, and that
-            // either the overwrite check box is selected or the field is blank
-            if (fieldInfo.getInputType()
-                    .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
+            // Check if the field contains a message name and ID, is for a group, and that either
+            // the overwrite check box is selected or the field is blank
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
                 && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
                 && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (tabInfo.getOverwriteCbx().isSelected() || fieldInfo.getValue().isEmpty()))
@@ -1375,8 +1428,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void assignTelemetryMessageIDs(MsgTabInfo tlmID)
     {
-        // Get the starting message ID, ID interval, and format length (to preserve
-        // leading zeroes)
+        // Get the starting message ID, ID interval, and format length (to preserve leading zeroes)
         int startID = Integer.decode(tlmID.getStartFld().getText());
         int interval = Integer.valueOf(tlmID.getIntervalFld().getText());
         int formatLength = tlmID.getStartFld().getText().length() - 2;
@@ -1396,8 +1448,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Set the message's ID to the next one in the sequence
             startID = setMessageID(tlmID, message, startID, interval, formatLength);
 
-            // Step through each of the message's sub-messages. The default sub-message is
-            // skipped since its ID gets set when the parent message's ID is set
+            // Step through each of the message's sub-messages. The default sub-message is skipped
+            // since its ID gets set when the parent message's ID is set
             for (int index = 1; index < message.getSubMessages().size(); index++)
             {
                 // Check if the user canceled ID assignment
@@ -1414,8 +1466,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set the message ID. If the message already has an ID only update it if the overwrite check box is
-     * selected
+     * Set the message ID. If the message already has an ID only update it if the overwrite check
+     * box is selected
      *
      * @param tlmID        Telemetry message ID tab information reference
      *
@@ -1425,8 +1477,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @param interval     Difference between two contiguous message ID values
      *
-     * @param formatLength Length of the formatted message ID; used to preserve the number of leading
-     *                     zeroes
+     * @param formatLength Length of the formatted message ID; used to preserve the number of
+     *                     leading zeroes
      *
      * @return Next ID value in the sequence
      *********************************************************************************************/
@@ -1434,8 +1486,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     {
         int nextID = idValue;
 
-        // Check if the message has no ID, or if it does, that the overwrite ID check
-        // box is selected
+        // Check if the message has no ID, or if it does, that the overwrite ID check box is
+        // selected
         if (!message.getID().endsWith(PROTECTED_MSG_ID_IDENT)
             && (message.getID().isEmpty() || tlmID.getOverwriteCbx().isSelected()))
         {
@@ -1461,12 +1513,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *********************************************************************************************/
     private int getNextMessageID(int idValue, int interval)
     {
-        // Continue to loop as long as the ID value matches a reserved or existing one.
-        // This prevents assigning a duplicate ID
+        // Continue to loop as long as the ID value matches a reserved or existing one. This
+        // prevents assigning a duplicate ID
         while (idsInUse.contains(idValue))
         {
-            // Adjust the message ID value by the interval amount and set the flag to
-            // indicate a message ID value is changed
+            // Adjust the message ID value by the interval amount and set the flag to indicate a
+            // message ID value is changed
             idValue += interval;
         }
 
@@ -1483,8 +1535,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @param nameID       Message name and ID
      *
-     * @param formatLength Length of the formatted message ID; used to preserve the number of leading
-     *                     zeroes
+     * @param formatLength Length of the formatted message ID; used to preserve the number of
+     *                     leading zeroes
      *
      * @return Formatted message name and ID, using the new ID value
      *********************************************************************************************/

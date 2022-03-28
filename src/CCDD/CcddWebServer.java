@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddWebServer.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles set up and management of the embedded Jetty web server.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddWebServer.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles set up and management of the embedded Jetty web server.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 
 package CCDD;
 
@@ -63,8 +59,8 @@ public class CcddWebServer
     // Web server
     private Server server;
 
-    // Storage for a user+password combination authenticated by the PostgreSQL
-    // server for the current project database
+    // Storage for a user+password combination authenticated by the PostgreSQL server for the
+    // current project database
     private String validUser;
     private String validPassword;
 
@@ -116,8 +112,8 @@ public class CcddWebServer
             HashLoginService loginService = new HashLoginService("CCDDRealm")
             {
                 /**********************************************************************************
-                 * Override the login method so that the supplied user name and password can be authenticated by the
-                 * PostgreSQL server
+                 * Override the login method so that the supplied user name and password can be
+                 * authenticated by the PostgreSQL server
                  *********************************************************************************/
                 @Override
                 public UserIdentity login(String user, Object password)
@@ -148,9 +144,7 @@ public class CcddWebServer
                         // generic login credentials
                         identity = super.login("valid", "valid");
                     }
-                    catch (
-                        SQLException se
-                    )
+                    catch (SQLException se)
                     {
                         validUser = null;
                         validPassword = null;
@@ -169,29 +163,25 @@ public class CcddWebServer
             loginService.putUser("valid", Credential.getCredential("valid"), new String[] {"user"});
             server.addBean(loginService);
 
-            // Set the security handler that secures content behind a particular portion of
-            // a URL
+            // Set the security handler that secures content behind a particular portion of a URL
             // space
             ConstraintSecurityHandler security = new ConstraintSecurityHandler();
             server.setHandler(security);
 
-            // Set a constraint that requires authentication and in addition that an
-            // authenticated
+            // Set a constraint that requires authentication and in addition that an authenticated
             // user be a member of a given set of roles for authorization purposes
             Constraint constraint = new Constraint();
             constraint.setName("auth");
             constraint.setAuthenticate(true);
             constraint.setRoles(new String[] {"user"});
 
-            // Bind the URL pattern with the previously created constraint.
+            // Bind the URL pattern with the previously created constraint
             ConstraintMapping mapping = new ConstraintMapping();
             mapping.setPathSpec("/*");
             mapping.setConstraint(constraint);
 
-            // Apply the constraint mapping to the handler, set an authenticator to check
-            // the
-            // user's credentials, and set the login service which contains the single valid
-            // user
+            // Apply the constraint mapping to the handler, set an authenticator to check the
+            // user's credentials, and set the login service which contains the single valid user
             security.setConstraintMappings(Collections.singletonList(mapping));
             security.setAuthenticator(new BasicAuthenticator());
             security.setLoginService(loginService);
@@ -200,9 +190,7 @@ public class CcddWebServer
             accessHandler = new CcddWebDataAccessHandler(ccddMain);
             security.setHandler(accessHandler);
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user that creating the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
@@ -226,9 +214,7 @@ public class CcddWebServer
                               new StringBuilder("Web server started; listening on port ")
                                       .append(((ServerConnector) server.getConnectors()[0]).getLocalPort()));
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user that starting the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
@@ -250,9 +236,7 @@ public class CcddWebServer
             // Inform the user that the web server stopped
             eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder("Web server stopped"));
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user that stopping the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
@@ -278,8 +262,8 @@ public class CcddWebServer
         }
 
         /******************************************************************************************
-         * Create the log message from the input information and output the formatted message to the log
-         * file
+         * Create the log message from the input information and output the formatted message to
+         * the log file
          *
          * @param type Message type
          *

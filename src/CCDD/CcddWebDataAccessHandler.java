@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddWebDataAccessHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that accepts web access commands and provides JSON formatted output of the
-*     requested project data.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddWebDataAccessHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that accepts web access commands and provides JSON formatted output of the
+ * requested project data.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
@@ -84,15 +80,15 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private CcddFieldHandler fieldHandler;
     private CcddGroupHandler groupHandler;
 
-    // Flag that indicates if the macro name(s) in the table cells is to be replaced
-    // by the corresponding macro values
+    // Flag that indicates if the macro name(s) in the table cells is to be replaced by the
+    // corresponding macro values
     private boolean isReplaceMacro;
 
     // Flag that indicates if the variable paths are to be appended to structure table data
     private boolean isIncludePath;
 
-    // Flag that indicates if the table tree path list should only include table
-    // names to a specified level in the tree. This is used to get the root tables
+    // Flag that indicates if the table tree path list should only include table names to a
+    // specified level in the tree. This is used to get the root tables
     private boolean isMaxLevel;
 
     /**********************************************************************************************
@@ -147,8 +143,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             query = "";
         }
 
-        // Process the request and get the information encoded as a JSON string. The
-        // leading '/' is removed from the request path
+        // Process the request and get the information encoded as a JSON string. The leading '/' is
+        // removed from the request path
         String jsonResponse = getQueryResults(target.replaceFirst("^/", "").trim(), query);
 
         // Check if the specified content was loaded successfully
@@ -175,9 +171,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             response.getWriter().write(jsonResponse);
             response.flushBuffer();
         }
-        catch (
-            IOException ioe
-        )
+        catch (IOException ioe)
         {
             // Inform the user that processing the web server request failed
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
@@ -188,8 +182,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
     /**********************************************************************************************
      * Extract the parts from the supplied text string, separating the string at the specified
-     * separation character(s) and removing any leading and trailing white space characters from each
-     * part
+     * separation character(s) and removing any leading and trailing white space characters from
+     * each part
      *
      * @param text         Text string to separate
      *
@@ -201,8 +195,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @param removeQuotes True to remove excess double quotes from the individual array members
      *
-     * @return Array containing the specified number of parts of the text string. A part is returned as
-     *         blank if the supplied text does not contain the number of parts specified by the limit
+     * @return Array containing the specified number of parts of the text string. A part is
+     *         returned as blank if the supplied text does not contain the number of parts
+     *         specified by the limit
      *********************************************************************************************/
     private String[] getParts(String text, String separator, int limit, boolean removeQuotes)
     {
@@ -224,14 +219,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the separator characters used to convert an application variable path to a user-defined
      * variable path
      *
-     * @param parameters Comma-separated string containing the variable path separator character(s),
-     *                   show/hide data types flag ('true' or 'false'), and data type/variable name
-     *                   separator character(s)
+     * @param parameters Comma-separated string containing the variable path separator
+     *                   character(s), show/hide data types flag ('true' or 'false'), and data
+     *                   type/variable name separator character(s)
      *
-     * @return String array containing the variable path separator character(s), show/hide data types
-     *         flag ('true' or 'false'), and data type/variable name separator character(s); the default
-     *         separators if the input parameters string is blank. An exception is thrown if the
-     *         parameter string format is invalid
+     * @return String array containing the variable path separator character(s), show/hide data
+     *         types flag ('true' or 'false'), and data type/variable name separator character(s);
+     *         the default separators if the input parameters string is blank. An exception is
+     *         thrown if the parameter string format is invalid
      *
      * @throws CCDDException If an invalid character is detected in the separator field(s)
      *********************************************************************************************/
@@ -270,8 +265,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Process the web query and return the results encoded as a JSON string. The query is in the form
-     * [server]:[port]/[component]?[attribute][=name]
+     * Process the web query and return the results encoded as a JSON string. The query is in the
+     * form [server]:[port]/[component]?[attribute][=name]
      *
      * @param component Component for which to request data
      *
@@ -283,8 +278,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         String response = null;
 
-        // Log the web server request. Mask the password for authentication requests
-        // (match an expanded range in case the user mistypes the command)
+        // Log the web server request. Mask the password for authentication requests (match an
+        // expanded range in case the user mistypes the command)
         eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder("Request component '").append(component)
                 .append("' item '")
                 .append((component.contains("authentic") ? item.replaceFirst("=.*(?:;|$)", "=*****") : item))
@@ -312,14 +307,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Display macro names command
                     case "macro":
                     case "macros":
-                        // Set the flag so that the macro names (in place of macro values) are displayed
+                        // Set the flag so that the macro names (in place of macro values) are
+                        // displayed
                         isReplaceMacro = false;
                         break;
 
                     // Include variable paths command
                     case "path":
                     case "paths":
-                        // Set the flag to include the variable paths and parse the variable path separators
+                        // Set the flag to include the variable paths and parse the variable path
+                        // separators
                         isIncludePath = true;
                         separators = getVariablePathSeparators(parts[1]);
                         break;
@@ -353,12 +350,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         break;
 
                     case "data":
-                        // Get the data for the specified table (or all tables if no table name is specified)
+                        // Get the data for the specified table (or all tables if no table name is
+                        // specified)
                         response = getTableData(attributeAndName[1], true, separators);
                         break;
 
                     case "description":
-                        // Get the description for the specified table (or all tables if no table name is specified)
+                        // Get the description for the specified table (or all tables if no table
+                        // name is specified)
                         response = getTableDescription(attributeAndName[1]);
                         break;
 
@@ -392,7 +391,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if this is a group or application related request
             else if (component.equals("group") || component.equals("application"))
             {
-                // Set the flag to true if this request only applies to groups that represent an application
+                // Set the flag to true if this request only applies to groups that represent an
+                // application
                 boolean applicationOnly = component.equals("application");
 
                 // Set the name based on if a group or application is requested
@@ -409,12 +409,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         break;
 
                     case "tables":
-                        // Get the tables for the specified group (or all groups if no group name is specified)
+                        // Get the tables for the specified group (or all groups if no group name
+                        // is specified)
                         response = jsonHandler.getGroupTables(attributeAndName[1], applicationOnly, true);
                         break;
 
                     case "description":
-                        // Get the description for the specified group (or all groups if no group name is specified)
+                        // Get the description for the specified group (or all groups if no group
+                        // name is specified)
                         response = jsonHandler.getGroupDescription(attributeAndName[1], applicationOnly, true);
                         break;
 
@@ -536,18 +538,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 throw new CCDDException("Unrecognized request component '" + component + "'");
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the web server request is invalid
             eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
                                   "Invalid web server request; cause '" + ce.getMessage() + "'",
                                   "<html><b>Invalid web server request");
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
@@ -556,7 +554,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Check if a response to the request was made
         if (response != null)
         {
-            // Remove the extraneous escape (\) characters that the JSON encoder inserts into the string
+            // Remove the extraneous escape (\) characters that the JSON encoder inserts into the
+            // string
             response = response.replaceAll("\\\\\\\\", "\\\\").replaceAll("\\\\/", "/");
         }
 
@@ -591,26 +590,27 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Perform a search for the specified text in the data and internal tables
      *
      * @param searchCriteria Attribute containing the search constraints in the format &lt;search
-     *                       text&gt;,&lt;ignore case (true or false)&gt;,&lt;allow regular expression
-     *                       (true or false)&gt;,&lt;data table cells only (true or
-     *                       false)&gt;&lt;,search table column names&gt;. The 'ignore case' and 'data
-     *                       table cells only' flags default to false if not provided. The last
-     *                       criterion is optional and allows the search to be constrained to specific
-     *                       columns in the data tables. The column names must be comma-separated (if
-     *                       more than one) and are case sensitive
+     *                       text&gt;,&lt;ignore case (true or false)&gt;,&lt;allow regular
+     *                       expression (true or false)&gt;,&lt;data table cells only (true or
+     *                       false)&gt;&lt;,search table column names&gt;. The 'ignore case' and
+     *                       'data table cells only' flags default to false if not provided. The
+     *                       last criterion is optional and allows the search to be constrained to
+     *                       specific columns in the data tables. The column names must be
+     *                       comma-separated (if more than one) and are case sensitive
      *
      * @return JSON encoded string containing the search results. An empty string if no matches are
      *         found, and null if the search parameters are missing or invalid
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getSearchResults(String searchCriteria)
     {
         String response = null;
 
-        // Separate the search criteria string into the search text, ignore case flag, allow regular
-        // expression, search data table cells only flag, and the column names in which to search
+        // Separate the search criteria string into the search text, ignore case flag, allow
+        // regular expression, search data table cells only flag, and the column names in which to
+        // search
         String[] parameter = getParts(searchCriteria, ",", 5, true);
         String searchText = parameter[0];
         String ignoreCase = parameter[1];
@@ -628,12 +628,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Check if the flag to search only the data tables isn't present
         if (dataTablesOnly.isEmpty())
         {
-            // Default to searching the entire project database (data and internal table references)
+            // Default to searching the entire project database (data and internal table
+            // references)
             dataTablesOnly = "false";
         }
 
-        // Check if all the input parameters are present and that they're in the
-        // expected formats
+        // Check if all the input parameters are present and that they're in the expected formats
         if (!searchText.isEmpty() && ignoreCase.matches(TRUE_OR_FALSE) && dataTablesOnly.matches(TRUE_OR_FALSE))
         {
             String dbColumns = "";
@@ -651,7 +651,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Step through each visible column in the table type
                         for (int index = NUM_HIDDEN_COLUMNS; index < typeDefn.getColumnCountDatabase(); ++index)
                         {
-                            // Check if the column name matches the one in the table type definition
+                            // Check if the column name matches the one in the table type
+                            // definition
                             if (column.equals(typeDefn.getColumnNamesUser()[index]))
                             {
                                 // Add the column's corresponding database name to the column
@@ -687,7 +688,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         .searchTablesOrScripts(searchPattern.pattern(), Boolean.valueOf(ignoreCase),
                                                Boolean.valueOf(dataTablesOnly), dbColumns))
                 {
-                    // Store each search result in a JSON object and add it to the search results array
+                    // Store each search result in a JSON object and add it to the search results
+                    // array
                     OrderedJSONObject searchJO = new OrderedJSONObject();
                     searchJO.put(SearchResultsColumnInfo.OWNER.getColumnName(SearchDialogType.TABLES),
                                  searchResult[SearchResultsColumnInfo.OWNER.ordinal()]);
@@ -729,8 +731,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             }
         }
 
-        // Store the project name, equivalent database name, description, lock status,
-        // user name, owner, server, port, and data fields in the JSON object
+        // Store the project name, equivalent database name, description, lock status, user name,
+        // owner, server, port, and data fields in the JSON object
         projectJO.put("Project", dbControl.getProjectName());
         projectJO.put("Database", dbControl.getDatabaseName());
         projectJO.put("Description", dbControl.getDatabaseDescription(dbControl.getDatabaseName()));
@@ -746,8 +748,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get a list containing the names and paths of every data table. The tree type (prototype only or
-     * instances only) is determined by the server command
+     * Get a list containing the names and paths of every data table. The tree type (prototype only
+     * or instances only) is determined by the server command
      *
      * @return List containing the names and paths of every data table
      *********************************************************************************************/
@@ -762,26 +764,28 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the data for the specified data table, or for all data tables if no table name is provided
+     * Get the data for the specified data table, or for all data tables if no table name is
+     * provided
      *
-     * @param tableName      Table name and path in the format rootTable[,dataType1.variable1[,...]].
-     *                       Blank to return the data for all tables
+     * @param tableName      Table name and path in the format
+     *                       rootTable[,dataType1.variable1[,...]]. Blank to return the data for
+     *                       all tables
      *
      * @param getDescription True to get the table description when loading the table data
      *
-     * @param separators     String array containing the variable path separator character(s), show/hide
-     *                       data types flag ('true' or 'false'), and data type/variable name separator
-     *                       character(s)
+     * @param separators     String array containing the variable path separator character(s),
+     *                       show/hide data types flag ('true' or 'false'), and data type/variable
+     *                       name separator character(s)
      *
-     * @return JSON encoded string containing the specified table cell data; null if a table name is
-     *         specified and the table doesn't exist or if no data tables exist in the project database,
-     *         or blank if the specified table has no data or none of the tables have data. Empty cells
-     *         are included
+     * @return JSON encoded string containing the specified table cell data; null if a table name
+     *         is specified and the table doesn't exist or if no data tables exist in the project
+     *         database, or blank if the specified table has no data or none of the tables have
+     *         data. Empty cells are included
      *
      * @throws CCDDException If an error occurs while parsing the table data
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableData(String tableName, boolean getDescription, String[] separators) throws CCDDException
     {
@@ -810,9 +814,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // get the brackets and commas in the JSON formatted string correct
                         responseJA.add(parser.parse(getTableData(name, true, separators)));
                     }
-                    catch (
-                        ParseException pe
-                    )
+                    catch (ParseException pe)
                     {
                         throw new CCDDException("Error parsing table data");
                     }
@@ -843,17 +845,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the description for the specified table, or all tables with a description if no table name is
-     * provided
+     * Get the description for the specified table, or all tables with a description if no table
+     * name is provided
      *
      * @param tableName Table name and path in the format rootTable[,dataType1.variable1[,...]]. If
-     *                  blank then the description for every data table with a description is returned
+     *                  blank then the description for every data table with a description is
+     *                  returned
      *
-     * @return JSON encoded string containing the specified table's description; null if the specified
-     *         table doesn't exist or the project has no data tables
+     * @return JSON encoded string containing the specified table's description; null if the
+     *         specified table doesn't exist or the project has no data tables
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableDescription(String tableName)
     {
@@ -920,11 +923,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the data field information for the specified table, or for all tables if no table name is
-     * provided
+     * Get the data field information for the specified table, or for all tables if no table name
+     * is provided
      *
-     * @param tableName   Table name and path in the format rootTable[,dataType1.variable1[,...]]. If
-     *                    blank then every data table's data fields are returned
+     * @param tableName   Table name and path in the format rootTable[,dataType1.variable1[,...]].
+     *                    If blank then every data table's data fields are returned
      *
      * @param checkExists True to check if the specified table exists in the project database
      *
@@ -933,8 +936,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @throws CCDDException If an error occurs while parsing the table data field data
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableFields(String tableName, boolean checkExists) throws CCDDException
     {
@@ -976,9 +979,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // get the brackets and commas in the JSON formatted string correct
                         responseJA.add(parser.parse(getTableFields(name, false)));
                     }
-                    catch (
-                        ParseException pe
-                    )
+                    catch (ParseException pe)
                     {
                         throw new CCDDException("Error parsing table data fields");
                     }
@@ -988,8 +989,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 response = responseJA.toString();
             }
         }
-        // A table name is provided. Check if the table existence should be ignored, or
-        // else if the table exists in the database
+        // A table name is provided. Check if the table existence should be ignored, or else if the
+        // table exists in the database
         else if (!checkExists || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
         {
             // Add the table name and data field information to the output
@@ -1004,18 +1005,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the names of all tables of the specified table type, or all tables names and their types if
-     * no table type is provided
+     * Get the names of all tables of the specified table type, or all tables names and their types
+     * if no table type is provided
      *
-     * @param tableType Table type. The type is case insensitive. If blank then every data table and its
-     *                  type is returned
+     * @param tableType Table type. The type is case insensitive. If blank then every data table
+     *                  and its type is returned
      *
-     * @return JSON encoded string containing all table names of the specified table type; blank if the
-     *         type is valid but no tables of the type exist, and null if the specified table type
-     *         doesn't exist or if no data tables exist in the project database
+     * @return JSON encoded string containing all table names of the specified table type; blank if
+     *         the type is valid but no tables of the type exist, and null if the specified table
+     *         type doesn't exist or if no data tables exist in the project database
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableNames(String tableType)
     {
@@ -1099,17 +1100,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the number of bytes for the prototype of the specified structure table, or for all prototype
-     * structure tables if no table is specified
+     * Get the number of bytes for the prototype of the specified structure table, or for all
+     * prototype structure tables if no table is specified
      *
      * @param tableName Structure table name or path
      *
-     * @return JSON encoded string containing the structure table name(s) and corresponding size(s) in
-     *         bytes; null if a table name is specified and the table doesn't exist or isn't a
+     * @return JSON encoded string containing the structure table name(s) and corresponding size(s)
+     *         in bytes; null if a table name is specified and the table doesn't exist or isn't a
      *         structure, or if no structure tables exist in the project database
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getStructureSize(String tableName)
     {
@@ -1160,13 +1161,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             }
         }
 
-        // Check if the specified table exists and is a structure, or any structure
-        // table exists if none is specified
+        // Check if the specified table exists and is a structure, or any structure table exists if
+        // none is specified
         if (responseJO != null)
         {
             // Set the response based of if a single or multiple types are included in the
-            // response. If single then the JSON object is used to prevent the extraneous
-            // brackets from enclosing the response
+            // response. If single then the JSON object is used to prevent the extraneous brackets
+            // from enclosing the response
             response = isSingle ? responseJO.toString() : responseJA.toString();
         }
 
@@ -1176,20 +1177,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the type, description, size, data, and data fields for the specified data table
      *
-     * @param tableName  Table name and path in the format rootTable[,dataType1.variable1[,...]]. Blank
-     *                   to return the data for all tables
+     * @param tableName  Table name and path in the format rootTable[,dataType1.variable1[,...]].
+     *                   Blank to return the data for all tables
      *
-     * @param separators String array containing the variable path separator character(s), show/hide
-     *                   data types flag ('true' or 'false'), and data type/variable name separator
-     *                   character(s)
+     * @param separators String array containing the variable path separator character(s),
+     *                   show/hide data types flag ('true' or 'false'), and data type/variable name
+     *                   separator character(s)
      *
-     * @return JSON encoded string containing the specified table information; null if a table name is
-     *         specified and the table doesn't exist or if no data tables exist in the project database
+     * @return JSON encoded string containing the specified table information; null if a table name
+     *         is specified and the table doesn't exist or if no data tables exist in the project
+     *         database
      *
      * @throws CCDDException If an error occurs while parsing the table information
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTableInformation(String tableName, String[] separators) throws CCDDException
     {
@@ -1218,9 +1220,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // get the brackets and commas in the JSON formatted string correct
                         responseJA.add(parser.parse(getTableInformation(name, separators)));
                     }
-                    catch (
-                        ParseException pe
-                    )
+                    catch (ParseException pe)
                     {
                         throw new CCDDException("Error parsing table information");
                     }
@@ -1255,8 +1255,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @return JSON encoded string containing the all group/application names; null if no
      *         groups/applications exist in the project database
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getGroupNames(boolean applicationOnly)
     {
@@ -1291,17 +1291,17 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the telemetry scheduler's copy table entries
      *
-     * @param parameters Comma-separated string containing the data stream name, header size (in bytes),
-     *                   message ID name data field name, and the optimize result flag ('true' or
-     *                   'false')
+     * @param parameters Comma-separated string containing the data stream name, header size (in
+     *                   bytes), message ID name data field name, and the optimize result flag
+     *                   ('true' or 'false')
      *
-     * @return JSON encoded string containing the specified copy table entries; null if the number of
-     *         parameters or their formats are incorrect
+     * @return JSON encoded string containing the specified copy table entries; null if the number
+     *         of parameters or their formats are incorrect
      *
      * @throws CCDDException If an error occurs while parsing the telemetry scheduler data
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTelemetrySchedulerData(String parameters) throws CCDDException
     {
@@ -1310,8 +1310,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Separate the input parameters
         String[] parameter = getParts(parameters, ",", 4, true);
 
-        // Check if all the input parameters are present and that they're in the
-        // expected formats
+        // Check if all the input parameters are present and that they're in the expected formats
         if (parameter[1].matches("\\d+") && parameter[3].matches(TRUE_OR_FALSE))
         {
             JSONArray tableJA = new JSONArray();
@@ -1331,8 +1330,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 throw new CCDDException("Unknown data stream name");
             }
 
-            // Create an instance of the copy table handler in order to read the information
-            // from the database
+            // Create an instance of the copy table handler in order to read the information from
+            // the database
             CcddCopyTableHandler copyHandler = new CcddCopyTableHandler(ccddMain);
 
             // Create the copy table entries based on the supplied parameters
@@ -1351,7 +1350,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Step through each column in the row
                     for (int column = 0; column < row.length; column++)
                     {
-                        // Add the copy table value to the array. An array is used to preserve the order of the items
+                        // Add the copy table value to the array. An array is used to preserve the
+                        // order of the items
                         rowJO.put(CopyTableEntry.values()[column].getColumnName(), row[column]);
                     }
 
@@ -1384,21 +1384,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @param appTableType Application scheduler table entry type: schedule or message
      *
-     * @return JSON encoded string containing the schedule or message definition table entries; null if
-     *         the table type is unrecognized
+     * @return JSON encoded string containing the schedule or message definition table entries;
+     *         null if the table type is unrecognized
      *
      * @throws CCDDException If the scheduler table type is unrecognized
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getApplicationSchedulerData(String appTableType) throws CCDDException
     {
         String response = null;
         JSONArray tableJA = new JSONArray();
 
-        // Create an instance of the application scheduler table handler in order to
-        // read the information from the database
+        // Create an instance of the application scheduler table handler in order to read the
+        // information from the database
         CcddApplicationSchedulerTableHandler appSchTable = new CcddApplicationSchedulerTableHandler(ccddMain);
 
         // Check if the schedule definition table data is requested
@@ -1487,18 +1487,19 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Get the variable names, both in application format and altered based on the user-provided
      * parameters
      *
-     * @param variablePath Variable path + name for which to return the converted path; blank to provide
-     *                     the paths for all variables
+     * @param variablePath Variable path + name for which to return the converted path; blank to
+     *                     provide the paths for all variables
      *
-     * @param parameters   Comma-separated string containing the variable path separator character(s),
-     *                     show/hide data types flag ('true' or 'false'), and data type/variable name
-     *                     separator character(s); blank to use the default separators
+     * @param parameters   Comma-separated string containing the variable path separator
+     *                     character(s), show/hide data types flag ('true' or 'false'), and data
+     *                     type/variable name separator character(s); blank to use the default
+     *                     separators
      *
-     * @return JSON encoded string containing the variable names; blank if the project doesn't contain
-     *         any variables and null if any input parameter is invalid
+     * @return JSON encoded string containing the variable names; blank if the project doesn't
+     *         contain any variables and null if any input parameter is invalid
      *
-     * @throws CCDDException If an illegal separator character(s) or invalid show/hide data type flag
-     *                       value is detected
+     * @throws CCDDException If an illegal separator character(s) or invalid show/hide data type
+     *                       flag value is detected
      *********************************************************************************************/
     private String getVariableNames(String variablePath, String parameters) throws CCDDException
     {
@@ -1531,7 +1532,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Step through each row in the variables table
                 for (int row = 0; row < variableHandler.getAllVariableNames().size(); row++)
                 {
-                    // Store the variable paths and names in the application and user-specified formats
+                    // Store the variable paths and names in the application and user-specified
+                    // formats
                     responseJO.put(variableHandler.getAllVariableNames().get(row).toString(),
                                    variableHandler.getFullVariableName(
                                                                        variableHandler.getAllVariableNames().get(row)
@@ -1553,26 +1555,27 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the path, data type, bit length, description, units, data stream information, and enumeration
-     * information for each telemetered variable matching the specified filters
+     * Get the path, data type, bit length, description, units, data stream information, and
+     * enumeration information for each telemetered variable matching the specified filters
      *
      * @param telemetryFilter Group (or application) name, data stream name, and/or rate value
-     *                        filter(s). A table must belong to the specified group in order for its
-     *                        telemetered variables to be returned; blank to get all telemetered
-     *                        variables (regardless of group). A variable must have a rate assigned for
-     *                        the specified data stream in order to be included; blank to include all
-     *                        data streams. A variable's rate must match the specified rate in order to
-     *                        be included; blank to include the variable regardless of the rate value
+     *                        filter(s). A table must belong to the specified group in order for
+     *                        its telemetered variables to be returned; blank to get all
+     *                        telemetered variables (regardless of group). A variable must have a
+     *                        rate assigned for the specified data stream in order to be included;
+     *                        blank to include all data streams. A variable's rate must match the
+     *                        specified rate in order to be included; blank to include the variable
+     *                        regardless of the rate value
      *
-     * @return JSON encoded string containing the path, data type, bit length, description, units, data
-     *         stream name(s), and enumeration(s) for each telemetered variable matching the specified
-     *         filters; empty array if no variables are telemetered
+     * @return JSON encoded string containing the path, data type, bit length, description, units,
+     *         data stream name(s), and enumeration(s) for each telemetered variable matching the
+     *         specified filters; empty array if no variables are telemetered
      *
      * @throws CCDDException If an invalid group name, data stream name, or rate value format is
      *                       detected
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getTelemetryInformation(String telemetryFilter) throws CCDDException
     {
@@ -1659,8 +1662,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Check if the table represents a telemetry structure
                 if (typeDefn.isTelemetryStructure())
                 {
-                    // Check if the table type changed. This accounts for multiple table types that represent
-                    // structures, and prevents reloading the table type information for every table
+                    // Check if the table type changed. This accounts for multiple table types that
+                    // represent structures, and prevents reloading the table type information for
+                    // every table
                     if (!tableInfo.getType().equals(lastType))
                     {
                         String descColName;
@@ -1683,10 +1687,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Check if a data stream filter is in effect
                         if (!streamFilter.isEmpty())
                         {
-                            // Get the index of the rate column corresponding to the data stream filter
+                            // Get the index of the rate column corresponding to the data stream
+                            // filter
                             rateIndices = new ArrayList<Integer>();
 
-                            // Get the index of the rate column with the corresponding data stream name
+                            // Get the index of the rate column with the corresponding data stream
+                            // name
                             int rateIndex = typeDefn.getColumnIndexByUserName(rateHandler
                                     .getRateInformationByStreamName(streamFilter).getRateName());
 
@@ -1729,7 +1735,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         }
                     }
 
-                    // Check if the macro names should be replaced with the corresponding macro values
+                    // Check if the macro names should be replaced with the corresponding macro
+                    // values
                     if (isReplaceMacro)
                     {
                         // Replace all macros in the table
@@ -1742,8 +1749,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         OrderedJSONObject structureJO = new OrderedJSONObject();
                         String cellValue;
 
-                        // Check if the variable name is present. If not then all the variable data on this row is
-                        // skipped
+                        // Check if the variable name is present. If not then all the variable data
+                        // on this row is skipped
                         if (!(cellValue = tableInfo.getData().get(row)[variableNameIndex].toString()).isEmpty())
                         {
                             boolean hasRate = false;
@@ -1768,7 +1775,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                             // Check if a variable matching the rate filters exists
                             if (hasRate)
                             {
-                                // Store the name of the structure table from which this variable is taken
+                                // Store the name of the structure table from which this variable
+                                // is taken
                                 structureJO.put("Structure Table Name", table);
 
                                 // Store the variable name in the JSON output
@@ -1832,8 +1840,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the information for each command matching the specified filters
      *
-     * @param groupFilter Group (or application) name. A table must belong to the specified group in
-     *                    order for its telemetered variables to be returned; blank to get all
+     * @param groupFilter Group (or application) name. A table must belong to the specified group
+     *                    in order for its telemetered variables to be returned; blank to get all
      *                    telemetered variables (regardless of group)
      *
      * @return JSON encoded string containing information for each command matching the specified
@@ -1841,8 +1849,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *
      * @throws CCDDException If the supplied group name is unrecognized
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     private String getCommandInformation(String groupFilter) throws CCDDException
     {
@@ -1876,8 +1884,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Step through each command table
         for (String commandTable : dbTable.getPrototypeTablesOfType(TYPE_COMMAND))
         {
-            // Check if all commands are to be returned, or if a specific group's commands
-            // are requested that the table is a member of the group
+            // Check if all commands are to be returned, or if a specific group's commands are
+            // requested that the table is a member of the group
             if (groupFilter.isEmpty() || groupTables.contains(commandTable))
             {
                 // Get the information from the database for the specified table
@@ -1886,8 +1894,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Check if the table loaded successfully
                 if (!tableInfo.isErrorFlag())
                 {
-                    // Check if the table type changed. This accounts for multiple table types that represent
-                    // commands, and prevents reloading the table type information for every table
+                    // Check if the table type changed. This accounts for multiple table types that
+                    // represent commands, and prevents reloading the table type information for
+                    // every table
                     if (!tableInfo.getType().equals(lastType))
                     {
                         String descColName;
@@ -1919,7 +1928,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         }
                     }
 
-                    // Check if the macro names should be replaced with the corresponding macro values
+                    // Check if the macro names should be replaced with the corresponding macro
+                    // values
                     if (!isReplaceMacro)
                     {
                         // Replace all macros in the table
@@ -1979,8 +1989,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the table type definitions
      *
-     * @return JSON encoded string containing the table type definitions; an empty object if no table
-     *         type definition exists
+     * @return JSON encoded string containing the table type definitions; an empty object if no
+     *         table type definition exists
      *********************************************************************************************/
     private String getTableTypeDefinitions()
     {
@@ -1991,8 +2001,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the data type definitions
      *
-     * @return JSON encoded string containing the data type definitions; an empty object if no data type
-     *         definition exists
+     * @return JSON encoded string containing the data type definitions; an empty object if no data
+     *         type definition exists
      *********************************************************************************************/
     private String getDataTypeDefinitions()
     {
@@ -2003,8 +2013,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the input type definitions
      *
-     * @return JSON encoded string containing the input type definitions; an empty object if no input
-     *         type definition exists
+     * @return JSON encoded string containing the input type definitions; an empty object if no
+     *         input type definition exists
      *********************************************************************************************/
     private String getInputTypeDefinitions()
     {
@@ -2027,8 +2037,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the message ID owners, names, and values
      *
-     * @return JSON encoded string containing the message ID owners, names, and values; an empty string
-     *         if no message IDs or names exist
+     * @return JSON encoded string containing the message ID owners, names, and values; an empty
+     *         string if no message IDs or names exist
      *********************************************************************************************/
     private String getMessageIDAndNames()
     {

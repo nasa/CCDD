@@ -1,33 +1,29 @@
 /**************************************************************************************************
-/** \file CcddJTableHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Generic utility class for creating and handling all of the tables created within the
-*     application, including the data, type, and field tables. This class is an extension
-*     of the JTable class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddJTableHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Generic utility class for creating and handling all of the tables created within the
+ * application, including the data, type, and field tables. This class is an extension of the
+ * JTable class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
@@ -138,8 +134,7 @@ public abstract class CcddJTableHandler extends JTable
     // Table cell selection mode
     private TableSelectionMode cellSelection;
 
-    // Flag that indicates if row should remain highlighted when the table loses
-    // focus
+    // Flag that indicates if row should remain highlighted when the table loses focus
     private boolean selectWithoutFocus;
 
     // Flag that indicates if the grid lines between cells is visible
@@ -170,18 +165,15 @@ public abstract class CcddJTableHandler extends JTable
     // Number of rows to display initially
     private final int initialViewableRows;
 
-    // Flag that indicates that a table model data update is in progress. Table
-    // change events are
-    // generated during a model data update; until the update completes the table
-    // characteristics
+    // Flag that indicates that a table model data update is in progress. Table change events are
+    // generated during a model data update; until the update completes the table characteristics
     // can be incorrect (e.g., column count)
     private boolean isReloadData;
 
     // Flag that indicates that a table layout change is in progress
     private boolean inLayout;
 
-    // Lists to contain row indices and colors for rows that are displayed in
-    // special colors
+    // Lists to contain row indices and colors for rows that are displayed in special colors
     private List<Integer> rowColorIndex;
     private List<Color> rowColor;
 
@@ -203,12 +195,10 @@ public abstract class CcddJTableHandler extends JTable
     private int lastSelectionStart;
     private int lastSelectionEnd;
 
-    // Mouse listener used to resize a column when the right column header border is
-    // double clicked
+    // Mouse listener used to resize a column when the right column header border is double clicked
     private ResizeColumnListener resizeColumnListener;
 
-    // Sort keys for the last sort via column header. Used to restore the sort order
-    // after
+    // Sort keys for the last sort via column header. Used to restore the sort order after
     // reloading the table data
     private List<? extends SortKey> lastSortKeys;
 
@@ -304,8 +294,8 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Get the start position of the selected text in the last cell edited
      *
-     * @return Start position of the selected text in the last cell edited; -1 if no text cell being
-     *         edited when the method is called
+     * @return Start position of the selected text in the last cell edited; -1 if no text cell
+     *         being edited when the method is called
      *********************************************************************************************/
     protected int getLastSelectionStart()
     {
@@ -363,16 +353,14 @@ public abstract class CcddJTableHandler extends JTable
             // Check if the selection should be extended
             if (extend)
             {
-                // Check if the control key (and no other modifier key) is pressed. This
-                // indicates
+                // Check if the control key (and no other modifier key) is pressed. This indicates
                 // that the single cell should be added
                 if (controlKey)
                 {
                     // Add the cell's coordinates to the list of selected cells
                     selectedCells.add(rowIndex, columnIndex);
                 }
-                // The control key isn't pressed; add the range of cells to the selected cell
-                // list
+                // The control key isn't pressed; add the range of cells to the selected cell list
                 else
                 {
                     // Clear any currently selected cells from the list
@@ -443,28 +431,25 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Override the method so that the cell selection set values can be checked to determine if a cell
-     * is selected
+     * Override the method so that the cell selection set values can be checked to determine if a
+     * cell is selected
      *********************************************************************************************/
     @Override
     public boolean isCellSelected(int row, int column)
     {
         boolean isSelected;
 
-        // Check if one or no cell is currently selected, and that the control or shift
-        // key is not
+        // Check if one or no cell is currently selected, and that the control or shift key is not
         // pressed
         if (selectedCells.isOneOrNone() && !controlKey && !shiftKey)
         {
             // Use the default method to indicate cell selection
             isSelected = super.isCellSelected(row, column);
         }
-        // More that one cell is currently selected, or the shift or control key is
-        // pressed
+        // More that one cell is currently selected, or the shift or control key is pressed
         else
         {
-            // Set the flag indicating the cell is selected if the row and column
-            // coordinates match
+            // Set the flag indicating the cell is selected if the row and column coordinates match
             // that of one of the selected cells
             isSelected = selectedCells.contains(row, column);
         }
@@ -531,11 +516,11 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Adjust the selected cells
      *
-     * @param rowDelta    -1 if the cells were moved up, +1 if the cells were moved down, 0 if the cell
-     *                    row position is unchanged
+     * @param rowDelta    -1 if the cells were moved up, +1 if the cells were moved down, 0 if the
+     *                    cell row position is unchanged
      *
-     * @param columnDelta -1 if the cells were moved left, +1 if the cells were moved right, 0 if the
-     *                    cell column position is unchanged
+     * @param columnDelta -1 if the cells were moved left, +1 if the cells were moved right, 0 if
+     *                    the cell column position is unchanged
      *********************************************************************************************/
     private void adjustSelectedCells(int rowDelta, int columnDelta)
     {
@@ -564,8 +549,7 @@ public abstract class CcddJTableHandler extends JTable
         focusRow = row;
         focusColumn = column;
 
-        // Since the focus has changed reset the flag that indicates if the last edited
-        // cell's
+        // Since the focus has changed reset the flag that indicates if the last edited cell's
         // contents was invalid
         lastCellValid = true;
     }
@@ -616,8 +600,8 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Get the cell values from the table model in a list. Since the values are based on the model
-     * instead of the view, repositioning a column doesn't result in a change to the returned array.
-     * Empty rows are included or excluded depending on the input flag
+     * instead of the view, repositioning a column doesn't result in a change to the returned
+     * array. Empty rows are included or excluded depending on the input flag
      *
      * @param excludeEmptyRows True if rows containing only empty cells are to be ignored
      *
@@ -659,9 +643,9 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Get the cell values from the table model in an array. Since the values are based on the model
-     * instead of the view, repositioning a column doesn't result in a change to the returned array.
-     * Empty rows are ignored
+     * Get the cell values from the table model in an array. Since the values are based on the
+     * model instead of the view, repositioning a column doesn't result in a change to the returned
+     * array. Empty rows are ignored
      *
      * @param excludeEmptyRows True if rows containing only empty cells are to be ignored
      *
@@ -673,8 +657,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Get the next non-empty table row number starting at the supplied index. Rows are empty if the
-     * cell values match that returned by the getEmptyRow() method. Hidden columns are ignored
+     * Get the next non-empty table row number starting at the supplied index. Rows are empty if
+     * the cell values match that returned by the getEmptyRow() method. Hidden columns are ignored
      *
      * @param tableRow Next table row to check for data, model coordinates
      *
@@ -687,8 +671,7 @@ public abstract class CcddJTableHandler extends JTable
         // Get an empty row for the table for comparison purposes
         Object[] emptyRow = getEmptyRow();
 
-        // Check if the row's cells are empty, and that the end of the table hasn't been
-        // reached
+        // Check if the row's cells are empty, and that the end of the table hasn't been reached
         while (!hasData && tableRow < tableModel.getRowCount())
         {
             // Step through each column in the row
@@ -717,12 +700,12 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Assign OIDs to newly added table rows. Some tables use OIDs, when building the table updates used
-     * to generate the SQL commands to adjust the database, to match up a row that has had one or more
-     * column values or its position in the table changed with the same row prior to the change(s). New
-     * rows are initialized with a blank OID (the OID is assigned when the table is written to the
-     * database). If a subsequent table store operation is performed then rows with blank OIDs can't be
-     * matched, so assigning a temporary OID allows matching.
+     * Assign OIDs to newly added table rows. Some tables use OIDs, when building the table updates
+     * used to generate the SQL commands to adjust the database, to match up a row that has had one
+     * or more column values or its position in the table changed with the same row prior to the
+     * change(s). New rows are initialized with a blank OID (the OID is assigned when the table is
+     * written to the database). If a subsequent table store operation is performed then rows with
+     * blank OIDs can't be matched, so assigning a temporary OID allows matching.
      *
      * @param tempOID   Starting number for the temporary OID. This should be negative so as not to
      *                  duplicate an actual OIDs in another table row
@@ -739,8 +722,7 @@ public abstract class CcddJTableHandler extends JTable
             // Skip rows in the table that have no data
             row = getNextPopulatedRowNumber(row);
 
-            // Check if the end of the table hasn't been reached and the OID is blank (i.e.,
-            // this
+            // Check if the end of the table hasn't been reached and the OID is blank (i.e., this
             // is a newly added row)
             if (row < tableModel.getRowCount() && tableModel.getValueAt(row, oidColumn).toString().isEmpty())
             {
@@ -772,8 +754,8 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param previousData  Current database values for the table
      *
-     * @param ignoreColumns List containing indices of columns to ignore when checking for changes; null
-     *                      or an empty list if no columns are to be ignored
+     * @param ignoreColumns List containing indices of columns to ignore when checking for changes;
+     *                      null or an empty list if no columns are to be ignored
      *
      * @return true if any cell in the table has been changed
      *********************************************************************************************/
@@ -812,8 +794,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to allow resizing of the table columns. Override this method to prevent
-     * resizing one or more columns
+     * Placeholder for method to allow resizing of the table columns. Override this method to
+     * prevent resizing one or more columns
      *
      * @param column Column index; model coordinate
      *
@@ -830,7 +812,8 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to allow display of multiple lines in the specified column's cells; false otherwise
+     * @return true to allow display of multiple lines in the specified column's cells; false
+     *         otherwise
      *********************************************************************************************/
     protected boolean isColumnMultiLine(int column)
     {
@@ -838,14 +821,14 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to determine if a column's cells can be displayed with HTML formatting and
-     * multiple lines. Override this method to allow HTML-formatted, multiple line display of one or
-     * more columns
+     * Placeholder for method to determine if a column's cells can be displayed with HTML
+     * formatting and multiple lines. Override this method to allow HTML-formatted, multiple line
+     * display of one or more columns
      *
      * @param column Column index; model coordinate
      *
-     * @return true to allow display of HTML-formatted, multiple lines in the specified column's cells;
-     *         false otherwise
+     * @return true to allow display of HTML-formatted, multiple lines in the specified column's
+     *         cells; false otherwise
      *********************************************************************************************/
     protected boolean isColumnHTML(int column)
     {
@@ -867,8 +850,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to determine if a column should be hidden. Override this method to allow
-     * hiding one or more columns
+     * Placeholder for method to determine if a column should be hidden. Override this method to
+     * allow hiding one or more columns
      *
      * @param column Column index; model coordinate
      *
@@ -880,8 +863,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to determine if a column should be displayed as a check box. Override this
-     * method to allow boolean input for one or more columns
+     * Placeholder for method to determine if a column should be displayed as a check box. Override
+     * this method to allow boolean input for one or more columns
      *
      * @param column Column index; model coordinate
      *
@@ -893,8 +876,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to determine if a table cell can be edited. Override this method to allow
-     * editing the contents of the cell at the specified row and column
+     * Placeholder for method to determine if a table cell can be edited. Override this method to
+     * allow editing the contents of the cell at the specified row and column
      *
      * @param row    Table row index in view coordinates
      *
@@ -909,8 +892,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to determine if a table cell can be changed. Override this method to allow
-     * changing the contents of the cell at the specified row and column
+     * Placeholder for method to determine if a table cell can be changed. Override this method to
+     * allow changing the contents of the cell at the specified row and column
      *
      * @param rowData Array containing the table row data
      *
@@ -926,8 +909,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Placeholder for method to determine if a table cell can be blanked. Override this method to allow
-     * deleting the contents of the cell at the specified row and column
+     * Placeholder for method to determine if a table cell can be blanked. Override this method to
+     * allow deleting the contents of the cell at the specified row and column
      *
      * @param row    Table row index in view coordinates
      *
@@ -955,11 +938,11 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param showMessage True to display the invalid input dialog, if applicable
      *
-     * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-     *                    a single input is being entered
+     * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if
+     *                    only a single input is being entered
      *
-     * @return true to indicate that subsequent errors should be displayed; false if subsequent errors
-     *         should not be displayed; null if the operation should be canceled
+     * @return true to indicate that subsequent errors should be displayed; false if subsequent
+     *         errors should not be displayed; null if the operation should be canceled
      *********************************************************************************************/
     protected Boolean validateCellContent(List<Object[]> tableData, int row, int column, Object oldValue,
                                           Object newValue, Boolean showMessage, boolean isMultiple)
@@ -970,7 +953,8 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Get the status of the flag that indicates if the contents of the last cell edited is valid
      *
-     * @return true if the contents of the last cell edited is valid; false if the contents is invalid
+     * @return true if the contents of the last cell edited is valid; false if the contents is
+     *         invalid
      *********************************************************************************************/
     protected boolean isLastCellValid()
     {
@@ -981,8 +965,7 @@ public abstract class CcddJTableHandler extends JTable
             getCellEditor().stopCellEditing();
         }
 
-        // Check if the contents of the last cell edited in the specified table is
-        // validated
+        // Check if the contents of the last cell edited in the specified table is validated
         return lastCellValid;
     }
 
@@ -1087,30 +1070,31 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Set common table parameters and characteristics. These only need to be set when the table is
-     * initially created and do not require to be updated if the table is changed while it is visible
+     * initially created and do not require to be updated if the table is changed while it is
+     * visible
      *
-     * @param scrollPane         The scroll pane in which the table resides. Set to null if the table
-     *                           isn't in a scroll pane
+     * @param scrollPane         The scroll pane in which the table resides. Set to null if the
+     *                           table isn't in a scroll pane
      *
-     * @param isRowsAlterable    True if the table's rows are allowed to be changed (e.g., inserted,
-     *                           deleted, moved) via keyboard commands from the user
+     * @param isRowsAlterable    True if the table's rows are allowed to be changed (e.g.,
+     *                           inserted, deleted, moved) via keyboard commands from the user
      *
-     * @param intervalSelection  ListSelectionModel selection mode used by the row and column selection
-     *                           models
+     * @param intervalSelection  ListSelectionModel selection mode used by the row and column
+     *                           selection models
      *
-     * @param cellSelection      Table cell selection mode that determines the cell or cells selected
-     *                           when a cell has focus: SELECT_BY_ROW to select the entire row occupied
-     *                           the cell with focus; SELECT_BY_COLUMN to select the entire column
-     *                           containing the cell with focus; SELECT_BY_CELL to select only the cell
-     *                           with focus
+     * @param cellSelection      Table cell selection mode that determines the cell or cells
+     *                           selected when a cell has focus: SELECT_BY_ROW to select the entire
+     *                           row occupied the cell with focus; SELECT_BY_COLUMN to select the
+     *                           entire column containing the cell with focus; SELECT_BY_CELL to
+     *                           select only the cell with focus
      *
      * @param columnDragAllowed  True if a column can be positioned by selecting the header via the
      *                           mouse and dragging the column
      *
      * @param background         Table background color (when row not selected)
      *
-     * @param selectWithoutFocus True to ignore if the table has focus when determining the row colors
-     *                           for selected rows
+     * @param selectWithoutFocus True to ignore if the table has focus when determining the row
+     *                           colors for selected rows
      *
      * @param allowUndo          True to allow changes to the table to be undone and redone
      *
@@ -1142,8 +1126,7 @@ public abstract class CcddJTableHandler extends JTable
         // Set to true to allow the rows to be sorted by selecting the column header
         this.allowSort = allowSort;
 
-        // Initialize the special row color lists. These lists remain empty if no rows
-        // are assigned
+        // Initialize the special row color lists. These lists remain empty if no rows are assigned
         // special colors
         rowColorIndex = new ArrayList<Integer>();
         rowColor = new ArrayList<Color>();
@@ -1151,48 +1134,41 @@ public abstract class CcddJTableHandler extends JTable
         // Set the selection mode (single, contiguous, or multiple)
         setSelectionMode(intervalSelection);
 
-        // Set row and column selection modes. If both are true then selection is by
-        // single cell
+        // Set row and column selection modes. If both are true then selection is by single cell
         this.cellSelection = cellSelection;
         setRowSelectionAllowed(cellSelection == TableSelectionMode.SELECT_BY_ROW
                                || cellSelection == TableSelectionMode.SELECT_BY_CELL);
         setColumnSelectionAllowed(cellSelection == TableSelectionMode.SELECT_BY_COLUMN
                                   || cellSelection == TableSelectionMode.SELECT_BY_CELL);
 
-        // Set if a column can be moved by selecting the header with the mouse and
-        // dragging it
+        // Set if a column can be moved by selecting the header with the mouse and dragging it
         getTableHeader().setReorderingAllowed(columnDragAllowed);
 
         // Remove the table border
         setBorder(BorderFactory.createEmptyBorder());
 
-        // Set the focus to a cell if the keyboard is used to select it. Needed under
-        // some
+        // Set the focus to a cell if the keyboard is used to select it. Needed under some
         // circumstances to make text cursor appear in table cell when editing
         setSurrendersFocusOnKeystroke(true);
 
-        // Set so that the columns aren't automatically resized when the table is
-        // resized; this is
+        // Set so that the columns aren't automatically resized when the table is resized; this is
         // handled manually below
         setAutoResizeMode(AUTO_RESIZE_OFF);
 
         // Set the font for the table cells
         setFont(cellFont);
 
-        // Replace the table's header mouse listener with a version that captures double
-        // clicks on
+        // Replace the table's header mouse listener with a version that captures double clicks on
         // the column header borders in order to implement automatic resizing
         resizeColumnListener = new ResizeColumnListener();
 
         // Listen for changes made by the user to the table's cells
         new TableCellListener();
 
-        // Change TAB/SHIFT-TAB behavior so that focus jumps between the tables and the
-        // buttons
+        // Change TAB/SHIFT-TAB behavior so that focus jumps between the tables and the buttons
         setTableKeyboardTraversal();
 
-        // Create the table model. The data and column headers are added later in case
-        // these need
+        // Create the table model. The data and column headers are added later in case these need
         // to be adjusted
         tableModel = undoHandler.new UndoableTableModel()
         {
@@ -1237,12 +1213,9 @@ public abstract class CcddJTableHandler extends JTable
             }
         });
 
-        // Row height, used to set the viewport size, needs to be determined prior to
-        // loading the
-        // data, which can alter the height returned; and loading the data must be done
-        // prior to
-        // setting the viewport size in order for the initial viewport size to be set
-        // correctly
+        // Row height, used to set the viewport size, needs to be determined prior to loading the
+        // data, which can alter the height returned; and loading the data must be done prior to
+        // setting the viewport size in order for the initial viewport size to be set correctly
         int rowHeight = getRowHeight();
 
         // Load the table data and format the table cells
@@ -1255,10 +1228,8 @@ public abstract class CcddJTableHandler extends JTable
         // Make the table fill the dialog
         setFillsViewportHeight(true);
 
-        // Set the keys that initiate table cell editing and the keys to be ignored when
-        // initiating
-        // editing. If the table cells and rows are editable then set the keys for these
-        // actions
+        // Set the keys that initiate table cell editing and the keys to be ignored when initiating
+        // editing. If the table cells and rows are editable then set the keys for these actions
         setEditorKeys(isRowsAlterable);
 
         // Add a listener for scroll bar slider position changes
@@ -1292,8 +1263,7 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected Object cleanUpCellValue(Object value, int row, int column)
     {
-        // Check if the cell isn't being actively edited and if the cell value
-        // represents a string
+        // Check if the cell isn't being actively edited and if the cell value represents a string
         // (i.e., it isn't boolean, etc.)
         if (!table.isEditing() && value instanceof String)
         {
@@ -1321,8 +1291,8 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param columnOrder    String of colon-separated column indices
      *
-     * @param toolTips       Tool tip text to display when hovering over the column headers; null if no
-     *                       column has tool tip text
+     * @param toolTips       Tool tip text to display when hovering over the column headers; null
+     *                       if no column has tool tip text
      *
      * @param centerText     True to center the text within the cells
      *
@@ -1336,8 +1306,7 @@ public abstract class CcddJTableHandler extends JTable
                                               String[] toolTips, boolean centerText, boolean calcTotalWidth,
                                               boolean showGrid)
     {
-        // Initialize the hidden column list. This list remains empty if there is no
-        // hidden column
+        // Initialize the hidden column list. This list remains empty if there is no hidden column
         hiddenColumns = new ArrayList<TableColumn>();
 
         // Initialize the total table pixel width
@@ -1358,8 +1327,7 @@ public abstract class CcddJTableHandler extends JTable
         // Load the array of data into the table
         loadDataArrayIntoTable(tableData, false);
 
-        // Check if this is the first pass through for this table (note that this relies
-        // on calls
+        // Check if this is the first pass through for this table (note that this relies on calls
         // to this method to set calcTotalWidth to false for subsequent passes)
         if (calcTotalWidth)
         {
@@ -1386,8 +1354,7 @@ public abstract class CcddJTableHandler extends JTable
         // Check if the width should be calculated
         if (calcTotalWidth)
         {
-            // Calculate and set the widths of the table columns and get the minimum width
-            // needed
+            // Calculate and set the widths of the table columns and get the minimum width needed
             // to display the table
             totalWidth = calcAndSetColumnWidths();
         }
@@ -1396,8 +1363,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Display or hide columns. Note that a column, when no longer hidden, is shown at the right of the
-     * table
+     * Display or hide columns. Note that a column, when no longer hidden, is shown at the right of
+     * the table
      *********************************************************************************************/
     protected void updateHiddenColumns()
     {
@@ -1444,8 +1411,7 @@ public abstract class CcddJTableHandler extends JTable
             }
         }
 
-        // Remove the columns that were hidden but are now showing (if any) from the
-        // list of hidden
+        // Remove the columns that were hidden but are now showing (if any) from the list of hidden
         // columns
         hiddenColumns.removeAll(wasHidden);
     }
@@ -1463,8 +1429,7 @@ public abstract class CcddJTableHandler extends JTable
         if (tableData.length != tableModel.getRowCount()
             || (tableData.length != 0 && tableData[0].length != tableModel.getColumnCount()))
         {
-            // Initialize the row sorter to null in order to prevent an error when the table
-            // is
+            // Initialize the row sorter to null in order to prevent an error when the table is
             // empty and to remove the effects of any row filtering
             setRowSorter(null);
         }
@@ -1493,14 +1458,13 @@ public abstract class CcddJTableHandler extends JTable
         SwingUtilities.invokeLater(new Runnable()
         {
             /**************************************************************************************
-             * Execute after all pending Swing events are finished. This allows the number of viewable columns
-             * to catch up with the column model when a column is removed
+             * Execute after all pending Swing events are finished. This allows the number of
+             * viewable columns to catch up with the column model when a column is removed
              *************************************************************************************/
             @Override
             public void run()
             {
-                // Issue data and structural change events to ensure the table is redrawn
-                // correctly
+                // Issue data and structural change events to ensure the table is redrawn correctly
                 tableModel.fireTableDataChanged();
                 tableModel.fireTableStructureChanged();
             }
@@ -1512,8 +1476,7 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void setTableSortable()
     {
-        // Check if sorting is enabled, if any rows exist in the table, and no sorter is
-        // set
+        // Check if sorting is enabled, if any rows exist in the table, and no sorter is set
         if (allowSort && tableModel.getRowCount() != 0 && getRowSorter() == null)
         {
             // Set up sorter to allow sorting the table rows by clicking the column header
@@ -1522,8 +1485,8 @@ public abstract class CcddJTableHandler extends JTable
                 int lastColumn = -1;
 
                 /**********************************************************************************
-                 * Override the sort toggle method to include showing the column unsorted and to allow undo/redo
-                 * operations
+                 * Override the sort toggle method to include showing the column unsorted and to
+                 * allow undo/redo operations
                  *********************************************************************************/
                 @Override
                 public void toggleSortOrder(int column)
@@ -1567,8 +1530,7 @@ public abstract class CcddJTableHandler extends JTable
 
             setRowSorter(sorter);
         }
-        // The table is empty and a sorter exists; disable sorting to prevent an error
-        // that would
+        // The table is empty and a sorter exists; disable sorting to prevent an error that would
         // occur if sorting was attempted
         else if (tableModel.getRowCount() == 0 && getRowSorter() != null)
         {
@@ -1602,14 +1564,14 @@ public abstract class CcddJTableHandler extends JTable
          *****************************************************************************************/
         HeaderFontRenderer()
         {
-            // Get the default table header renderer. This allows manipulation of look &
-            // feels that
+            // Get the default table header renderer. This allows manipulation of look & feels that
             // have specialized header renderers
             renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
         }
 
         /******************************************************************************************
-         * Override the table header renderer so that the font can be set based on the column name content
+         * Override the table header renderer so that the font can be set based on the column name
+         * content
          *****************************************************************************************/
         @Override
         public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
@@ -1659,9 +1621,9 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Create a cell renderer that can display text only on a single line. This allows the cell border
-     * to be set to provide padding around the cell contents. HTML-formatted text is supported by this
-     * renderer
+     * Create a cell renderer that can display text only on a single line. This allows the cell
+     * border to be set to provide padding around the cell contents. HTML-formatted text is
+     * supported by this renderer
      *********************************************************************************************/
     private class SingleLineCellRenderer extends DefaultTableCellRenderer
     {
@@ -1675,8 +1637,7 @@ public abstract class CcddJTableHandler extends JTable
             // Set the font
             setFont(cellFont);
 
-            // Add inset space around the cell's perimeter to provide padding between it and
-            // the
+            // Add inset space around the cell's perimeter to provide padding between it and the
             // cell's contents
             setBorder(cellBorder);
 
@@ -1713,8 +1674,8 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Create a cell renderer for cells that can display text on more than one line. This allows
-     * adjusting the row height to fit the text and to set the cell border to provide padding around the
-     * cell contents
+     * adjusting the row height to fit the text and to set the cell border to provide padding
+     * around the cell contents
      *********************************************************************************************/
     private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer
     {
@@ -1731,8 +1692,7 @@ public abstract class CcddJTableHandler extends JTable
             // Set the font
             setFont(cellFont);
 
-            // Add inset space around the cell's perimeter to provide padding between it and
-            // the
+            // Add inset space around the cell's perimeter to provide padding between it and the
             // cell's contents
             setBorder(cellBorder);
 
@@ -1751,8 +1711,8 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         /******************************************************************************************
-         * Override this method so that the text is displayed in the cell and the row height can be adjusted
-         * to fit the text
+         * Override this method so that the text is displayed in the cell and the row height can be
+         * adjusted to fit the text
          *****************************************************************************************/
         @Override
         public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
@@ -1765,12 +1725,9 @@ public abstract class CcddJTableHandler extends JTable
             // Check if the row and column indices are valid
             if (row < table.getRowCount() && column < table.getColumnCount())
             {
-                // Set the text area's width to the table column width. This causes the
-                // JTextArea
-                // to calculate the height required to show all of the cell's text. Subtract 1
-                // from
-                // the width so that cell text matching the exact width doesn't have text
-                // truncated
+                // Set the text area's width to the table column width. This causes the JTextArea
+                // to calculate the height required to show all of the cell's text. Subtract 1 from
+                // the width so that cell text matching the exact width doesn't have text truncated
                 setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1, jtable.getRowHeight(row));
             }
 
@@ -1786,28 +1743,24 @@ public abstract class CcddJTableHandler extends JTable
         private final JCheckBox checkBox;
 
         /******************************************************************************************
-         * Table cell renderer constructor. Note that there is a single check box shared by all users of
-         * this cell renderer for which attempts to change individual cells must account
+         * Table cell renderer constructor. Note that there is a single check box shared by all
+         * users of this cell renderer for which attempts to change individual cells must account
          *****************************************************************************************/
         BooleanCellRenderer()
         {
-            // Create a check box in which the cell renderer can display boolean values. If
-            // the
-            // default boolean renderer is used the cell background flashes when the check
-            // box is
+            // Create a check box in which the cell renderer can display boolean values. If the
+            // default boolean renderer is used the cell background flashes when the check box is
             // toggled
             checkBox = new JCheckBox();
 
             // Center the check box within the cell
             checkBox.setHorizontalAlignment(SwingConstants.CENTER);
 
-            // Set the opaque flag for the check box so that the background color of the
-            // cell is
+            // Set the opaque flag for the check box so that the background color of the cell is
             // displayed correctly for alternating rows
             checkBox.setOpaque(true);
 
-            // Add inset space around the cell's perimeter to provide padding between it and
-            // the
+            // Add inset space around the cell's perimeter to provide padding between it and the
             // cell's contents
             setBorder(cellBorder);
         }
@@ -1846,9 +1799,9 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Create a cell renderer for cells that can display HTML-formatted text on more than one line. This
-     * allows adjusting the row height to fit the text and to set the cell border to provide padding
-     * around the cell contents
+     * Create a cell renderer for cells that can display HTML-formatted text on more than one line.
+     * This allows adjusting the row height to fit the text and to set the cell border to provide
+     * padding around the cell contents
      *********************************************************************************************/
     private class HTMLCellRenderer extends JTextPane implements TableCellRenderer
     {
@@ -1863,8 +1816,7 @@ public abstract class CcddJTableHandler extends JTable
             // Set the font
             setFont(cellFont);
 
-            // Add inset space around the cell's perimeter to provide padding between it and
-            // the
+            // Add inset space around the cell's perimeter to provide padding between it and the
             // cell's contents
             setBorder(cellBorder);
 
@@ -1886,28 +1838,22 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         /******************************************************************************************
-         * Override this method so that the text is displayed in the cell and the row height can be adjusted
-         * to fit the text
+         * Override this method so that the text is displayed in the cell and the row height can be
+         * adjusted to fit the text
          *****************************************************************************************/
         @Override
         public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
                                                        boolean hasFocus, int row, int column)
         {
-            // Check if this is the first row and column in the table and the cell is not
-            // already
+            // Check if this is the first row and column in the table and the cell is not already
             // formatted for HTML
             if (row == 0 && column == 0 && !value.toString().startsWith("<html>"))
             {
-                // Convert the cell's content to HTML. If the first row in the table formatted
-                // for
-                // HTML is beyond row 13 and a previous row contains a line feed then the row
-                // with
-                // the line feed isn't displayed correctly (unless the table is scrolled to the
-                // row
-                // containing the HTML text). If more than one column is 'forced' to be HTML
-                // then
-                // the initial rows aren't displayed correctly. Forcing the first row's column
-                // to
+                // Convert the cell's content to HTML. If the first row in the table formatted for
+                // HTML is beyond row 13 and a previous row contains a line feed then the row with
+                // the line feed isn't displayed correctly (unless the table is scrolled to the row
+                // containing the HTML text). If more than one column is 'forced' to be HTML then
+                // the initial rows aren't displayed correctly. Forcing the first row's column to
                 // be HTML avoids the condition
                 value = CcddUtilities.convertToHTML(value.toString());
             }
@@ -1933,12 +1879,9 @@ public abstract class CcddJTableHandler extends JTable
             // Check if the row and column indices are valid
             if (row < table.getRowCount() && column < table.getColumnCount())
             {
-                // Set the text pane's width to the table column width. This causes the
-                // JTextPane
-                // to calculate the height required to show all of the cell's text. Subtract 1
-                // from
-                // the width so that cell text matching the exact width doesn't have text
-                // truncated
+                // Set the text pane's width to the table column width. This causes the JTextPane
+                // to calculate the height required to show all of the cell's text. Subtract 1 from
+                // the width so that cell text matching the exact width doesn't have text truncated
                 setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1, jtable.getRowHeight(row));
             }
 
@@ -1983,8 +1926,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Create a cell editor for cells that can display text on more than one line. This allows adjusting
-     * the row height to fit the text as it is added or deleted
+     * Create a cell editor for cells that can display text on more than one line. This allows
+     * adjusting the row height to fit the text as it is added or deleted
      *********************************************************************************************/
     private class MultiLineCellEditor extends DefaultCellEditor
     {
@@ -2002,8 +1945,7 @@ public abstract class CcddJTableHandler extends JTable
 
             this.textArea = textArea;
 
-            // Set the click count so that a double click is required to initiate editing on
-            // the
+            // Set the click count so that a double click is required to initiate editing on the
             // cell
             clickCountToStart = 2;
 
@@ -2016,10 +1958,10 @@ public abstract class CcddJTableHandler extends JTable
             textArea.addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle a key press event so that the table's content can be updated. This causes the cell's row
-                 * height to be expanded/contracted automatically as text is added/removed. This also allows the
-                 * cell's owner to be informed of a change in text, such as to update the table container's change
-                 * indicator
+                 * Handle a key press event so that the table's content can be updated. This causes
+                 * the cell's row height to be expanded/contracted automatically as text is
+                 * added/removed. This also allows the cell's owner to be informed of a change in
+                 * text, such as to update the table container's change indicator
                  *********************************************************************************/
                 @Override
                 public void keyPressed(final KeyEvent ke)
@@ -2032,8 +1974,9 @@ public abstract class CcddJTableHandler extends JTable
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         /**************************************************************************
-                         * Since the cell text change involves a GUI update use invokeLater to execute the call on the
-                         * event dispatch thread following any pending events
+                         * Since the cell text change involves a GUI update use invokeLater to
+                         * execute the call on the event dispatch thread following any pending
+                         * events
                          *************************************************************************/
                         @Override
                         public void run()
@@ -2080,8 +2023,7 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     private void setCellEditors()
     {
-        // Create a focus listener to track the text cursor position when the cell loses
-        // focus
+        // Create a focus listener to track the text cursor position when the cell loses focus
         FocusListener focusListener = new FocusListener()
         {
             /**************************************************************************************
@@ -2115,8 +2057,7 @@ public abstract class CcddJTableHandler extends JTable
             }
         };
 
-        // Create a text area so that its properties can be set and then used to create
-        // a
+        // Create a text area so that its properties can be set and then used to create a
         // multi-line editor for cells containing one or more lines of text
         JTextArea textFieldMulti = new JTextArea();
         textFieldMulti.setFont(cellFont);
@@ -2128,10 +2069,8 @@ public abstract class CcddJTableHandler extends JTable
         // Create the cell editor for multi-line cells
         MultiLineCellEditor dceMulti = new MultiLineCellEditor(textFieldMulti);
 
-        // Create a a cell editor for single line cells. The padding differs from the
-        // multi-line
-        // cell; using this editor for single line cells prevents the text from changing
-        // vertical
+        // Create a a cell editor for single line cells. The padding differs from the multi-line
+        // cell; using this editor for single line cells prevents the text from changing vertical
         // alignment when editing is initiated
         JTextField textFieldSingle = new JTextField();
         textFieldSingle.setFont(cellFont);
@@ -2152,8 +2091,7 @@ public abstract class CcddJTableHandler extends JTable
             // Check if the column's contents is not displayed as a check box
             if (!isColumnBoolean(columnModel))
             {
-                // Set the editor so that the contents can be modified within the table cell.
-                // Use
+                // Set the editor so that the contents can be modified within the table cell. Use
                 // the editor appropriate for the number of cell display lines
                 getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(columnModel) ? dceMulti : dceSingle);
             }
@@ -2161,8 +2099,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Calculate and then set the minimum width for each visible column and return the combined width of
-     * all of the columns
+     * Calculate and then set the minimum width for each visible column and return the combined
+     * width of all of the columns
      *
      * @return Combined width of all visible columns in pixels
      *********************************************************************************************/
@@ -2197,13 +2135,11 @@ public abstract class CcddJTableHandler extends JTable
         Component comp = tableColumn.getHeaderRenderer().getTableCellRendererComponent(table, getColumnName(column),
                                                                                        false, false, -1, column);
 
-        // Remove any padding added to the column name (to force its width larger when
-        // setting the
+        // Remove any padding added to the column name (to force its width larger when setting the
         // initial column width)
         tableColumn.setHeaderValue(getColumnName(column).trim());
 
-        // Save the width required to hold the header text and use it to initialize the
-        // data cell
+        // Save the width required to hold the header text and use it to initialize the data cell
         // width
         minHeaderWidth[column] = comp.getPreferredSize().width
                                  + ModifiableSpacingInfo.HEADER_HORIZONTAL_PADDING.getSpacing();
@@ -2215,8 +2151,7 @@ public abstract class CcddJTableHandler extends JTable
             // Get the component used to draw the table cell from the cell's renderer
             comp = super.prepareRenderer(getDefaultRenderer(String.class), row, column);
 
-            // Compare the width of the cell to the largest width found so far and store it
-            // if it's
+            // Compare the width of the cell to the largest width found so far and store it if it's
             // larger, but no larger than a specified maximum starting width
             minDataWidth[column] = Math.min(
                                             Math.max(comp.getPreferredSize().width
@@ -2244,8 +2179,9 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Get the array of minimum widths of the visible table columns. Since the minimum cell width is
-     * initialized to the minimum header width the cell width represents the overall minimum width
+     * Get the array of minimum widths of the visible table columns. Since the minimum cell width
+     * is initialized to the minimum header width the cell width represents the overall minimum
+     * width
      *
      * @return Array of minimum widths of the visible table columns
      *********************************************************************************************/
@@ -2270,8 +2206,7 @@ public abstract class CcddJTableHandler extends JTable
             // Check if the column is visible
             if (convertColumnIndexToView(column) != -1)
             {
-                // Convert the column's visible index to model coordinates (taking into account
-                // any
+                // Convert the column's visible index to model coordinates (taking into account any
                 // intervening hidden columns) and store this as the order index
                 columnOrder += convertColumnIndexToModel(column - numHiddenColumns) + ":";
             }
@@ -2295,8 +2230,7 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void arrangeColumns(String columnOrder)
     {
-        // Check that the column order string was provided. If not, the order of the
-        // columns is
+        // Check that the column order string was provided. If not, the order of the columns is
         // unchanged
         if (columnOrder != null && !columnOrder.isEmpty() && !columnOrder.equals(getColumnOrder()))
         {
@@ -2333,35 +2267,32 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Update the flags indicating the state of the control and shift modifier keys. The modifier's flag
-     * is set to true if the key is pressed while no other modifier keys are pressed
+     * Update the flags indicating the state of the control and shift modifier keys. The modifier's
+     * flag is set to true if the key is pressed while no other modifier keys are pressed
      *
      * @param ke Key event
      *********************************************************************************************/
     private void updateModifierKeyStates(KeyEvent ke)
     {
-        // Set the flag to true if the shift key is pressed, and the control and alt
-        // keys are not
+        // Set the flag to true if the shift key is pressed, and the control and alt keys are not
         // pressed
         shiftKey = ke.isShiftDown() && !ke.isControlDown() && !ke.isAltDown();
 
-        // Set the flag to true if the control key is pressed, and the shift and alt
-        // keys are not
+        // Set the flag to true if the control key is pressed, and the shift and alt keys are not
         // pressed
         controlKey = ke.isControlDown() && !ke.isAltDown() && !ke.isShiftDown();
     }
 
     /**********************************************************************************************
-     * Set the keys that initiate editing the cell with the focus and which keys do not. Handle keyboard
-     * commands
+     * Set the keys that initiate editing the cell with the focus and which keys do not. Handle
+     * keyboard commands
      *
-     * @param isRowsAlterable True if the table's rows can be altered by the user via key presses (e.g.,
-     *                        row insertion)
+     * @param isRowsAlterable True if the table's rows can be altered by the user via key presses
+     *                        (e.g., row insertion)
      *********************************************************************************************/
     private void setEditorKeys(final boolean isRowsAlterable)
     {
-        // Add a key press listener for the table cells to filter out invalid editor
-        // initiation
+        // Add a key press listener for the table cells to filter out invalid editor initiation
         // keys and to listen for user keyboard commands
         addKeyListener(new KeyAdapter()
         {
@@ -2374,8 +2305,7 @@ public abstract class CcddJTableHandler extends JTable
                 // Set the flags indicating the state of the modifier keys
                 updateModifierKeyStates(ke);
 
-                // Check that the Alt key isn't pressed. If the Alt key is pressed this allows
-                // the
+                // Check that the Alt key isn't pressed. If the Alt key is pressed this allows the
                 // keyboard mnemonic keys to activate their respective controls
                 if (!ke.isAltDown())
                 {
@@ -2540,15 +2470,15 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected class MoveCellSelection
     {
-        // Start and end selected row(s) (model coordinates) and column(s) (view
-        // coordinates)
+        // Start and end selected row(s) (model coordinates) and column(s) (view coordinates)
         private final int startRow;
         private final int endRow;
         private final int startColumn;
         private final int endColumn;
 
         /******************************************************************************************
-         * Move cell selection class constructor. Determine the bounds of the currently selected table cells
+         * Move cell selection class constructor. Determine the bounds of the currently selected
+         * table cells
          *****************************************************************************************/
         MoveCellSelection()
         {
@@ -2617,16 +2547,17 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         /******************************************************************************************
-         * Update the selected cells based on the direction the cells were moved. The cells that are
-         * highlighted are those at the intersection of the selected rows and columns
+         * Update the selected cells based on the direction the cells were moved. The cells that
+         * are highlighted are those at the intersection of the selected rows and columns
          *
-         * @param rowDelta    Negative value equal to the number of rows the selected row or rows are moved
-         *                    up, positive value equal to the number of rows the selected row or rows are
-         *                    moved down, 0 if the cell row position is unchanged
+         * @param rowDelta    Negative value equal to the number of rows the selected row or rows
+         *                    are moved up, positive value equal to the number of rows the selected
+         *                    row or rows are moved down, 0 if the cell row position is unchanged
          *
-         * @param columnDelta Negative value equal to the number of columns the selected column or columns
-         *                    are moved up, positive value equal to the number of columns the selected
-         *                    column or columns are moved down, 0 if the cell column position is unchanged
+         * @param columnDelta Negative value equal to the number of columns the selected column or
+         *                    columns are moved up, positive value equal to the number of columns
+         *                    the selected column or columns are moved down, 0 if the cell column
+         *                    position is unchanged
          *****************************************************************************************/
         protected void moveCellSelection(int rowDelta, int columnDelta)
         {
@@ -2663,7 +2594,8 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Insert an empty row into the table at the selection point
      *
-     * @param endEdit True to end the editing sequence at the end of the insert for undo/redo purposes
+     * @param endEdit True to end the editing sequence at the end of the insert for undo/redo
+     *                purposes
      *********************************************************************************************/
     protected void insertEmptyRow(boolean endEdit)
     {
@@ -2673,14 +2605,15 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Insert a row of data into the table at the selection point
      *
-     * @param endEdit        True to end the editing sequence at the end of the insert for undo/redo
-     *                       purposes
+     * @param endEdit        True to end the editing sequence at the end of the insert for
+     *                       undo/redo purposes
      *
-     * @param insertionPoint START to insert the data as the new first row in the table; END to force
-     *                       insertion of the new data at the end of the table; SELECTION to insert the
-     *                       data below the currently selected row(s)
+     * @param insertionPoint START to insert the data as the new first row in the table; END to
+     *                       force insertion of the new data at the end of the table; SELECTION to
+     *                       insert the data below the currently selected row(s)
      *
-     * @param data           Data with which to populate the inserted row; null to insert an empty row
+     * @param data           Data with which to populate the inserted row; null to insert an empty
+     *                       row
      *********************************************************************************************/
     protected void insertRow(boolean endEdit, TableInsertionPoint insertionPoint, Object[] data)
     {
@@ -2702,8 +2635,7 @@ public abstract class CcddJTableHandler extends JTable
             // Insert the new row at the start of the table
             modelRow = -1;
         }
-        // Check if no row is selected or if the flag is set to add the row at the end
-        // of the table
+        // Check if no row is selected or if the flag is set to add the row at the end of the table
         else if (viewRow < 0 || insertionPoint == TableInsertionPoint.END)
         {
             // Insert the new row at the end of the table
@@ -2719,8 +2651,7 @@ public abstract class CcddJTableHandler extends JTable
             removeRowSelectionInterval(getSelectedRow(), viewRow);
         }
 
-        // Insert the data into a new row below the selected row, and select and scroll
-        // to the
+        // Insert the data into a new row below the selected row, and select and scroll to the
         // inserted row
         setSelectedRow(insertRowData(modelRow, data));
 
@@ -2775,12 +2706,9 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void scrollToCell(final int row, final int column)
     {
-        // Scroll the window to keep the specified cell visible. This is called twice;
-        // immediately
-        // and then in the invokeLater() call below. If only performed once the
-        // specified cell may
-        // not be visible since the rectangle returned by getCellRect() can differ; the
-        // second call
+        // Scroll the window to keep the specified cell visible. This is called twice; immediately
+        // and then in the invokeLater() call below. If only performed once the specified cell may
+        // not be visible since the rectangle returned by getCellRect() can differ; the second call
         // ensures the cell is visible
         scrollRectToVisible(getCellRect(row, column, true));
 
@@ -2806,8 +2734,8 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param data      Data to place in the inserted row; null to insert an empty row
      *
-     * @return The index of the newly inserted row in view coordinates; -1 if the specified row isn't
-     *         visible
+     * @return The index of the newly inserted row in view coordinates; -1 if the specified row
+     *         isn't visible
      *********************************************************************************************/
     protected int insertRowData(int targetRow, Object[] data)
     {
@@ -2822,8 +2750,7 @@ public abstract class CcddJTableHandler extends JTable
         // Initialize the view row index
         int viewRow = -1;
 
-        // Check if any rows are visible (filtering may prevent any rows from being
-        // displayed)
+        // Check if any rows are visible (filtering may prevent any rows from being displayed)
         if (getRowCount() != 0)
         {
             // Convert the model row index to view coordinates
@@ -2836,7 +2763,8 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Delete the selected row(s) from the table
      *
-     * @param endEdit True to end the editing sequence at the end of the delete for undo/redo purposes
+     * @param endEdit True to end the editing sequence at the end of the delete for undo/redo
+     *                purposes
      *********************************************************************************************/
     protected void deleteRow(boolean endEdit)
     {
@@ -2880,11 +2808,11 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Delete the contents of the selected cell(s)
      *
-     * @param isReplaceSpecial False to replace the cell value with a blank; true to replace the cell
-     *                         contents with one or more special replacement characters
+     * @param isReplaceSpecial False to replace the cell value with a blank; true to replace the
+     *                         cell contents with one or more special replacement characters
      *********************************************************************************************/
-    // Suppress warnings is used because when this code is compiled some of it is
-    // not legal, but it will be at runtime
+    // Suppress warnings is used because when this code is compiled some of it is not legal, but it
+    // will be at runtime
     @SuppressWarnings("unchecked")
     protected void deleteCell(boolean isReplaceSpecial)
     {
@@ -2897,14 +2825,12 @@ public abstract class CcddJTableHandler extends JTable
             List<Object[]> tableData = getTableDataList(false);
 
             // Copy the selected cell information. The deletion process clears the global
-            // selectedCells list so copy the selected cell information in case cells in
-            // multiple
+            // selectedCells list so copy the selected cell information in case cells in multiple
             // rows are selected for deletion
             List<SelectedCell> sc = new ArrayList<SelectedCell>();
             sc.addAll(selectedCells.getSelectedCells());
 
-            // Step through each selected cell in reverse order. This is necessary in case
-            // arrays
+            // Step through each selected cell in reverse order. This is necessary in case arrays
             // are deleted (removing the array members changes the row indices)
             for (int index = sc.size() - 1; index >= 0; index--)
             {
@@ -3008,8 +2934,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Create an array of cell values containing empty strings to fill an inserted row. This method can
-     * be overridden to account for cells with non-string content
+     * Create an array of cell values containing empty strings to fill an inserted row. This method
+     * can be overridden to account for cells with non-string content
      *
      * @return Array containing the column values for an empty row
      *********************************************************************************************/
@@ -3025,14 +2951,14 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Paste the contents of the clipboard into the table. The expected format is cell values in a row
-     * are separated by tab characters and rows are terminated by new line characters
+     * Paste the contents of the clipboard into the table. The expected format is cell values in a
+     * row are separated by tab characters and rows are terminated by new line characters
      *
-     * @param isInsert      True to add new rows to contain the pasted data; false to overwrite existing
-     *                      cells in the paste range and only add rows if needed
+     * @param isInsert      True to add new rows to contain the pasted data; false to overwrite
+     *                      existing cells in the paste range and only add rows if needed
      *
-     * @param isAddIfNeeded True to add new rows if the pasted data doesn't fit; false to discard excess
-     *                      rows
+     * @param isAddIfNeeded True to add new rows if the pasted data doesn't fit; false to discard
+     *                      excess rows
      *********************************************************************************************/
     private void pasteClipboardData(boolean isInsert, boolean isAddIfNeeded)
     {
@@ -3111,19 +3037,15 @@ public abstract class CcddJTableHandler extends JTable
                     }
 
                     // Paste the data from the clipboard into the table
-                    pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true, true);
+                    pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true, true, false);
                 }
-                catch (
-                    Exception e
-                )
+                catch (Exception e)
                 {
                     CcddUtilities.displayException(e, table);
                 }
             }
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user that an error occurred retrieving the clipboard values
             new CcddDialogHandler().showMessageDialog(table,
@@ -3135,37 +3057,48 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Paste the contents of the supplied cell data array into the table. Depending on the input flag
-     * values, current rows are either overwritten, excess rows are discarded, or new rows are inserted
-     * below the currently selected row to contain the pasted data. The currently selected column
-     * determines the column alignment for the pasted data. Pasted column data beyond the table
-     * boundaries are discarded
+     * Paste the contents of the supplied cell data array into the table. Depending on the input
+     * flag values, current rows are either overwritten, excess rows are discarded, or new rows are
+     * inserted below the currently selected row to contain the pasted data. The currently selected
+     * column determines the column alignment for the pasted data. Pasted column data beyond the
+     * table boundaries are discarded
      *
      * @param cellData            Array of cell values to be inserted
      *
      * @param numColumns          Number of columns represented by the cell data array
      *
-     * @param isInsert            True to add new rows to contain the pasted data; false to overwrite
-     *                            existing cells in the paste range and only add rows if needed
+     * @param isInsert            True to add new rows to contain the pasted data; false to
+     *                            overwrite existing cells in the paste range and only add rows if
+     *                            needed
      *
-     * @param isAddIfNeeded       True to add new rows if the pasted data doesn't fit; false to discard
-     *                            excess rows
+     * @param isAddIfNeeded       True to add new rows if the pasted data doesn't fit; false to
+     *                            discard excess rows
      *
-     * @param startFirstColumn    True is pasting of the data begins in the first column; false to begin
-     *                            pasting at the currently cell with the focus
+     * @param startFirstColumn    True if pasting of the data begins in the first column; false to
+     *                            begin pasting at the currently cell with the focus
      *
-     * @param combineAsSingleEdit True to combine the pasted data as a single edit; false to not alter
-     *                            the undo manager's handling of the edit sequence (this allows handling
-     *                            externally so that other edits may be grouped with the paste
-     *                            operation)
+     * @param combineAsSingleEdit True to combine the pasted data as a single edit; false to not
+     *                            alter the undo manager's handling of the edit sequence (this
+     *                            allows handling externally so that other edits may be grouped
+     *                            with the paste operation)
      *
      * @param highlightPastedData True to highlight the cells containing the pasted data
      *
-     * @return true if the user elected to cancel pasting the data following a cell validation error
+     * @param forceOverwrite      True to overwrite cells, even if considered unalterable. This is
+     *                            only used when importing tables
+     *
+     * @return true if the user elected to cancel pasting the data following a cell validation
+     *         error
      *********************************************************************************************/
-    protected boolean pasteData(Object[] cellData, int numColumns, boolean isInsert, boolean isAddIfNeeded,
-                                boolean startFirstColumn, boolean combineAsSingleEdit, boolean highlightPastedData,
-                                boolean dataComingFromClipboard)
+    protected boolean pasteData(Object[] cellData,
+                                int numColumns,
+                                boolean isInsert,
+                                boolean isAddIfNeeded,
+                                boolean startFirstColumn,
+                                boolean combineAsSingleEdit,
+                                boolean highlightPastedData,
+                                boolean dataComingFromClipboard,
+                                boolean forceOverwrite)
     {
         Boolean showMessage = true;
         int modelRow = 0;
@@ -3188,16 +3121,13 @@ public abstract class CcddJTableHandler extends JTable
         // Check if no row is selected
         if (getSelectedRow() == -1)
         {
-            // Clear the column selection. The column selection can remain in effect after
-            // an undo
+            // Clear the column selection. The column selection can remain in effect after an undo
             // action that clears the row selection
             getColumnModel().getSelectionModel().clearSelection();
         }
 
-        // Determine the starting column and ending column for pasting the data. If no
-        // column is
-        // selected then default to the first column. Data pasted outside of the column
-        // range is
+        // Determine the starting column and ending column for pasting the data. If no column is
+        // selected then default to the first column. Data pasted outside of the column range is
         // ignored
         int startColumn = startFirstColumn ? 0
                                            : Math.max(Math.max(getSelectedColumn(), 0),
@@ -3205,8 +3135,7 @@ public abstract class CcddJTableHandler extends JTable
         int endColumn = startColumn + numColumns - 1;
         int endColumnSelect = Math.min(endColumn, getColumnCount() - 1);
 
-        // Determine the starting row for pasting the data. If no row is selected then
-        // default to
+        // Determine the starting row for pasting the data. If no row is selected then default to
         // the first row
         int startRow = Math.max(getSelectedRow(), getSelectedRow() + getSelectedRowCount() - 1);
 
@@ -3261,13 +3190,10 @@ public abstract class CcddJTableHandler extends JTable
             // Store the index into the array of data to be pasted
             int indexSave = index;
 
-            // If pasting values over existing ones it's possible that the check for a cell
-            // being
-            // alterable will return false due to other cells in the row that haven't yet
-            // been
+            // If pasting values over existing ones it's possible that the check for a cell being
+            // alterable will return false due to other cells in the row that haven't yet been
             // pasted over. To overcome this two passes for each row are made; first cells
-            // containing blanks in the pasted data are pasted, then the cells that are not
-            // empty
+            // containing blanks in the pasted data are pasted, then the cells that are not empty
             // are pasted
             for (int pass = 1; pass <= 2; pass++)
             {
@@ -3296,8 +3222,9 @@ public abstract class CcddJTableHandler extends JTable
                         // not equal to "true" or "false". If the number of cells to be filled
                         // exceeds the stored values then use "false" as the default. A null paste
                         // value indicates that the current cell's value won't be overwritten
-                        newValue = index < cellData.length ? (cellData[index] != null ? (cellData[index]
-                                .equals("true") ? true : (cellData[index].equals("false") ? false : ""))
+                        newValue = index < cellData.length ? (cellData[index] != null ? (cellData[index].equals("true") ? true
+                                                                                                                        : (cellData[index].equals("false") ? false
+                                                                                                                                                           : ""))
                                                                                       : (isInsert ? false : null))
                                                            : false;
                     }
@@ -3353,8 +3280,7 @@ public abstract class CcddJTableHandler extends JTable
             }
         }
 
-        // Check if the user hasn't selected the Cancel button following an invalid
-        // input
+        // Check if the user hasn't selected the Cancel button following an invalid input
         if (showMessage != null)
         {
             // Load the array of data into the table
@@ -3387,8 +3313,7 @@ public abstract class CcddJTableHandler extends JTable
         // Check if the pasted data should be combined into a single edit operation
         if (combineAsSingleEdit)
         {
-            // Re-enable auto-ending of the edit sequence and end the sequence. The pasted
-            // data can
+            // Re-enable auto-ending of the edit sequence and end the sequence. The pasted data can
             // be removed with a single undo if desired
             undoHandler.setAutoEndEditSequence(true);
             undoManager.endEditSequence();
@@ -3542,8 +3467,7 @@ public abstract class CcddJTableHandler extends JTable
         // Get the selected cells
         MoveCellSelection selected = new MoveCellSelection();
 
-        // Check if a valid column is selected: can't move the last column further to
-        // the right
+        // Check if a valid column is selected: can't move the last column further to the right
         if (selected.getEndColumn() != -1 && selected.getEndColumn() < getColumnCount() - 1)
         {
             // Flag the end of the editing sequence for undo/redo purposes
@@ -3593,8 +3517,7 @@ public abstract class CcddJTableHandler extends JTable
                 rowColor.set(index, color);
             }
         }
-        // The row isn't already in the lists. Check if a color is specified and is not
-        // the normal
+        // The row isn't already in the lists. Check if a color is specified and is not the normal
         // text color
         else if (color != null && !color.equals(ModifiableColorInfo.TABLE_TEXT.getColor()))
         {
@@ -3608,8 +3531,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Override prepareRenderer to allow adjusting the foreground and background colors of the table's
-     * cells
+     * Override prepareRenderer to allow adjusting the foreground and background colors of the
+     * table's cells
      *********************************************************************************************/
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
@@ -3619,24 +3542,19 @@ public abstract class CcddJTableHandler extends JTable
         // Get the index for this row's special text color, if any
         int index = rowColorIndex.indexOf(row);
 
-        // Flag that indicates that the cell is in a selected row and that all of the
-        // columns in a
+        // Flag that indicates that the cell is in a selected row and that all of the columns in a
         // row should be selected if any cell in the row is selected
         boolean isSelectedRow = cellSelection == TableSelectionMode.SELECT_BY_ROW && isRowSelected(row);
 
-        // Check if this is one of the selected rows (and columns, if column selection
-        // is enabled
-        // for this table) and, unless selection doesn't depend on having the focus,
-        // that the table
-        // has the focus; or if the cell is in a selected row and all columns should be
-        // selected
+        // Check if this is one of the selected rows (and columns, if column selection is enabled
+        // for this table) and, unless selection doesn't depend on having the focus, that the table
+        // has the focus; or if the cell is in a selected row and all columns should be selected
         if (((isFocusOwner() || selectWithoutFocus) && isCellSelected(row, column)) || isSelectedRow)
         {
             // Set the text (foreground) color for the selected cell(s)
             comp.setForeground(index == -1 ? ModifiableColorInfo.SELECTED_TEXT.getColor() : rowColor.get(index));
 
-            // Check if this cell has the focus (last cell selected) and the only this cell
-            // should
+            // Check if this cell has the focus (last cell selected) and the only this cell should
             // be highlighted
             if (isFocusCell(row, column) && !isSelectedRow)
             {
@@ -3653,8 +3571,7 @@ public abstract class CcddJTableHandler extends JTable
         // Row is not selected and/or the table does not have the focus
         else
         {
-            // Set the fore- and background colors for the non-selected row. Alternate the
-            // row
+            // Set the fore- and background colors for the non-selected row. Alternate the row
             // background colors every other row
             comp.setForeground(index == -1 ? ModifiableColorInfo.TABLE_TEXT.getColor() : rowColor.get(index));
             comp.setBackground(row % 2 == 0 ? getBackground() : ModifiableColorInfo.ALTERNATE_BACK.getColor());
@@ -3671,8 +3588,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Performing any special cell text rendering in the table cells. The default highlights the text in
-     * cells matching the search criteria
+     * Performing any special cell text rendering in the table cells. The default highlights the
+     * text in cells matching the search criteria
      *
      * @param component  Reference to the table cell renderer component
      *
@@ -3726,24 +3643,16 @@ public abstract class CcddJTableHandler extends JTable
     @Override
     public void tableChanged(final TableModelEvent tme)
     {
-        // Check if a model data reload is not in progress, the table model is valid,
-        // and the table
-        // has rows to display. The columns are not correct until the model data reload
-        // is complete
+        // Check if a model data reload is not in progress, the table model is valid, and the table
+        // has rows to display. The columns are not correct until the model data reload is complete
         if (!isReloadData && tableModel != null && getRowCount() != 0)
         {
-            // Flag to indicate if the changed row indices are valid and the row heights
-            // need to be
-            // updated. Initialize to true if the table is showing on the screen, or false
-            // if the
-            // table isn't displayed. If the table (or its container) isn't showing yet then
-            // a null
-            // exception can infrequently occur in updateRowHeights() due to what appears to
-            // be a
-            // race condition or Swing bug. However, the default tableChanged() must be
-            // called
-            // under certain conditions even when the table isn't showing so that the
-            // conversion of
+            // Flag to indicate if the changed row indices are valid and the row heights need to be
+            // updated. Initialize to true if the table is showing on the screen, or false if the
+            // table isn't displayed. If the table (or its container) isn't showing yet then a null
+            // exception can infrequently occur in updateRowHeights() due to what appears to be a
+            // race condition or Swing bug. However, the default tableChanged() must be called
+            // under certain conditions even when the table isn't showing so that the conversion of
             // view to/from model coordinates can be made
             boolean isValid = table.isShowing();
 
@@ -3786,8 +3695,7 @@ public abstract class CcddJTableHandler extends JTable
             // A specific row or rows changed
             else
             {
-                // Call the baseline method. This is required in order for the session event log
-                // to
+                // Call the baseline method. This is required in order for the session event log to
                 // display and to allow conversion of view to/from model coordinates
                 super.tableChanged(tme);
 
@@ -3828,8 +3736,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Update the table's row heights. Each row's height is based on the contents of the cells in that
-     * row; the cell with the greatest height determines the height for the entire row
+     * Update the table's row heights. Each row's height is based on the contents of the cells in
+     * that row; the cell with the greatest height determines the height for the entire row
      *
      * @param first Row with which to begin height check
      *
@@ -3846,8 +3754,7 @@ public abstract class CcddJTableHandler extends JTable
             // Step through each visible column in the row
             for (int column = 0; column < getColumnCount(); column++)
             {
-                // Use the prepareRenderer() to calculate the height required to display the
-                // cell's
+                // Use the prepareRenderer() to calculate the height required to display the cell's
                 // contents
                 Component comp = super.prepareRenderer(getCellRenderer(row, column), row, column);
 
@@ -3896,18 +3803,14 @@ public abstract class CcddJTableHandler extends JTable
         if (getPreferredSize().width < getParent().getWidth())
         {
             // Set the flag to instruct the super.doLayout() method to add extra width to a
-            // subsequent column when the user is adjusting a specific column's width. Note
-            // that
-            // this does not affect the distribution of extra width if the table's container
-            // is
+            // subsequent column when the user is adjusting a specific column's width. Note that
+            // this does not affect the distribution of extra width if the table's container is
             // resized
             autoResizeMode = AUTO_RESIZE_SUBSEQUENT_COLUMNS;
         }
 
-        // Set the flag to indicate that the table layout is in progress, perform the
-        // layout, then
-        // reset the flag. This prevents columnMarginChanged() from interfering with the
-        // layout
+        // Set the flag to indicate that the table layout is in progress, perform the layout, then
+        // reset the flag. This prevents columnMarginChanged() from interfering with the layout
         // resizing
         inLayout = true;
 
@@ -3930,8 +3833,7 @@ public abstract class CcddJTableHandler extends JTable
         // Get the column being resized
         TableColumn resizingColumn = getTableHeader().getResizingColumn();
 
-        // Check if a specific column is referenced (versus the container for the table)
-        // and that a
+        // Check if a specific column is referenced (versus the container for the table) and that a
         // table layout update is not in progress
         if (resizingColumn != null && !inLayout)
         {
@@ -3951,11 +3853,9 @@ public abstract class CcddJTableHandler extends JTable
             @Override
             public void run()
             {
-                // Set the flag so that it instructs tableChanged() to recalculate the heights
-                // of
+                // Set the flag so that it instructs tableChanged() to recalculate the heights of
                 // all rows prior to the last one displayed (true) or only for those currently
-                // displayed (false). Recalculating back to the beginning is needed for the
-                // scroll
+                // displayed (false). Recalculating back to the beginning is needed for the scroll
                 // bar slider to resize as needed, based on the number of rows displayed and the
                 // total number of rows. As the number of rows in the table increases the
                 // calculation takes a proportionally longer time to complete. The slider size
@@ -3975,11 +3875,11 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Listen for changes made to individual table cells via the TableCellEditor. When editing begins,
-     * the cell's value is saved, and when editing ends the cell contents is checked against the saved
-     * value to see if it changed. If so, the new contents is validated and if found to be invalid then
-     * the original value is restored. Also, if the user exits editing via the ESC key the cell contents
-     * is replaced by the original value
+     * Listen for changes made to individual table cells via the TableCellEditor. When editing
+     * begins, the cell's value is saved, and when editing ends the cell contents is checked
+     * against the saved value to see if it changed. If so, the new contents is validated and if
+     * found to be invalid then the original value is restored. Also, if the user exits editing via
+     * the ESC key the cell contents is replaced by the original value
      *********************************************************************************************/
     private class TableCellListener implements PropertyChangeListener, Runnable
     {
@@ -4001,8 +3901,8 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         /******************************************************************************************
-         * Create a TableCellListener with a copy of all the data relevant to the change of data for a given
-         * cell
+         * Create a TableCellListener with a copy of all the data relevant to the change of data
+         * for a given cell
          *
          * @param row      Cell row index, model coordinates
          *
@@ -4139,8 +4039,8 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         /******************************************************************************************
-         * Get the selected row and column, initiate editing (if needed), convert the row index to the table
-         * model, and store the cell original cell value
+         * Get the selected row and column, initiate editing (if needed), convert the row index to
+         * the table model, and store the cell original cell value
          *****************************************************************************************/
         @Override
         public void run()
@@ -4175,8 +4075,7 @@ public abstract class CcddJTableHandler extends JTable
                 editRow = convertRowIndexToModel(editRow);
                 editColumn = convertColumnIndexToModel(editColumn);
 
-                // Store the cell's original contents so that the cell can be restored if the
-                // new
+                // Store the cell's original contents so that the cell can be restored if the new
                 // value is invalid or abandoned (by the user pressing the ESC key)
                 oldValue = tableModel.getValueAt(editRow, editColumn);
             }
@@ -4184,9 +4083,9 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Resize-capturing mouse listener class. This replaces the table header mouse listener so that a
-     * double-click on column header's right border causes the column to be resized based on the header
-     * and cell content
+     * Resize-capturing mouse listener class. This replaces the table header mouse listener so that
+     * a double-click on column header's right border causes the column to be resized based on the
+     * header and cell content
      *********************************************************************************************/
     private class ResizeColumnListener implements MouseListener
     {
@@ -4218,27 +4117,24 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         /******************************************************************************************
-         * Override in order to capture double click of the mouse button so that a column can be resized
+         * Override in order to capture double click of the mouse button so that a column can be
+         * resized
          *****************************************************************************************/
         @Override
         public void mouseClicked(MouseEvent me)
         {
-            // Check if the cursor isn't the one for resizing (indicates that the mouse is
-            // outside
+            // Check if the cursor isn't the one for resizing (indicates that the mouse is outside
             // of the "resize zone")
             if (header.getCursor() != Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR))
             {
                 // Perform the default action
                 headerListener.mouseClicked(me);
             }
-            // Mouse pointer is in the "resize zone"; check if the mouse button was double
-            // clicked
+            // Mouse pointer is in the "resize zone"; check if the mouse button was double clicked
             else if (me.getClickCount() == 2)
             {
-                // Adjust the mouse x-coordinate to get the correct column (the one to the left
-                // of
-                // the pointer). Resizing is active when the pointer is +/-3 pixels from the
-                // border
+                // Adjust the mouse x-coordinate to get the correct column (the one to the left of
+                // the pointer). Resizing is active when the pointer is +/-3 pixels from the border
                 // between columns
                 Point p = me.getPoint();
                 p.x -= 3;
@@ -4306,18 +4202,14 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void resetHeaderOnLaFChange()
     {
-        // Remove the current table header mouse listener for column resizing and
-        // replace it with
-        // the version that captures double clicks in order to implement automatic
-        // resizing. This
-        // is necessary since the header UI, which responds to mouse inputs, is
-        // 'damaged' during a
+        // Remove the current table header mouse listener for column resizing and replace it with
+        // the version that captures double clicks in order to implement automatic resizing. This
+        // is necessary since the header UI, which responds to mouse inputs, is 'damaged' during a
         // look & feel change
         getTableHeader().removeMouseListener(resizeColumnListener);
         resizeColumnListener = new ResizeColumnListener();
 
-        // Reset the table header renderer so that the header is drawn to match the new
-        // look & feel
+        // Reset the table header renderer so that the header is drawn to match the new look & feel
         setHeaderRenderer();
     }
 
@@ -4326,8 +4218,8 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param tableName        Table name; displayed at the top of each printed page
      *
-     * @param fieldInformation Data field information for the fields associated with this table; null if
-     *                         no data fields are associated with the table
+     * @param fieldInformation Data field information for the fields associated with this table;
+     *                         null if no data fields are associated with the table
      *
      * @param parent           Parent window for this table
      *
@@ -4341,18 +4233,18 @@ public abstract class CcddJTableHandler extends JTable
             // Create a printer job
             PrinterJob printerJob = PrinterJob.getPrinterJob();
 
-            // The native print dialog does not allow simple positioning on the screen relative to another
-            // component. However, the ServiceUI.printDialog() method, which calls PrinterJob.printDialog(),
-            // does allow setting the dialog's x and y coordinates. The dimensions of the print dialog must
-            // be known in order to center it over its parent, but the size is unknown until the dialog is
-            // instantiated. Therefore, a dummy dialog is created using the same call within
-            // ServiceUI.printDialog()
-            // and the dialog's size is taken from it. The dialog's x, y coordinates can then be determined
+            // The native print dialog does not allow simple positioning on the screen relative to
+            // another component. However, the ServiceUI.printDialog() method, which calls
+            // PrinterJob.printDialog(), does allow setting the dialog's x and y coordinates. The
+            // dimensions of the print dialog must be known in order to center it over its parent,
+            // but the size is unknown until the dialog is instantiated. Therefore, a dummy dialog
+            // is created using the same call within ServiceUI.printDialog() and the dialog's size
+            // is taken from it. The dialog's x, y coordinates can then be determined
             PrintService defaultService = printerJob.getPrintService();
             PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
 
-            // If no printer is setup a dialog will spawn informing the user that the log
-            // can not be printed
+            // If no printer is setup a dialog will spawn informing the user that the log can not
+            // be printed
             if (defaultService != null)
             {
 
@@ -4409,9 +4301,7 @@ public abstract class CcddJTableHandler extends JTable
                         printerJob.print(attributes);
                         printerJob.print();
                     }
-                    catch (
-                        PrinterException e
-                    )
+                    catch (PrinterException e)
                     {
                     }
                 }
@@ -4422,9 +4312,7 @@ public abstract class CcddJTableHandler extends JTable
                                                           JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
             }
         }
-        catch (
-            Exception pe
-        )
+        catch (Exception pe)
         {
             // Inform the user that printing failed
             new CcddDialogHandler()
@@ -4436,8 +4324,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Printable wrapper class. This allows multiple printable objects to be output for the same print
-     * job
+     * Printable wrapper class. This allows multiple printable objects to be output for the same
+     * print job
      *********************************************************************************************/
     public class PrintableBook extends Book implements Printable
     {

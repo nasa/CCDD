@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddCommandDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to view the project’s commands (including the command’s name, code,
-*     argument variable names, and command table). The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddCommandDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to view the project’s commands (including the command’s name, code,
+ * argument variable names, and command table). The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -102,10 +98,10 @@ public class CcddCommandDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the command information dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the command information dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -126,15 +122,20 @@ public class CcddCommandDialog extends CcddDialogHandler
                 Border emptyBorder = BorderFactory.createEmptyBorder();
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                0.0,
+                                                                0.0,
                                                                 GridBagConstraints.FIRST_LINE_START,
                                                                 GridBagConstraints.NONE,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                        .getSpacing() / 2, 0,
-                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                                   .getSpacing() / 2,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           0,
+                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                            0),
-                                                                0, 0);
+                                                                0,
+                                                                0);
 
                 // Create panels to hold the components of the dialog
                 JPanel upperPnl = new JPanel(new GridBagLayout());
@@ -143,8 +144,7 @@ public class CcddCommandDialog extends CcddDialogHandler
                 upperPnl.setBorder(emptyBorder);
                 inputPnl.setBorder(emptyBorder);
 
-                // Add the inputs panel, containing the separator characters fields and check
-                // box,
+                // Add the inputs panel, containing the separator characters fields and check box,
                 // to the upper panel
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -154,8 +154,12 @@ public class CcddCommandDialog extends CcddDialogHandler
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
                 tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                                                     TableTreeType.COMMAND_TABLES, "Commands", null,
+                                                     new CcddGroupHandler(ccddMain,
+                                                                          null,
+                                                                          ccddMain.getMainFrame()),
+                                                     TableTreeType.COMMAND_TABLES,
+                                                     "Commands",
+                                                     null,
                                                      ccddMain.getMainFrame());
 
                 // Add the tree to the upper panel
@@ -167,7 +171,8 @@ public class CcddCommandDialog extends CcddDialogHandler
                 gbc.weighty = 1.0;
                 gbc.gridx++;
                 upperPnl.add(tableTree.createTreePanel("Command Tables",
-                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
+                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                       false,
                                                        ccddMain.getMainFrame()),
                              gbc);
                 gbc.gridwidth = 1;
@@ -216,13 +221,18 @@ public class CcddCommandDialog extends CcddDialogHandler
                         // the editors and renderers for the table cells, set up the table grid
                         // lines, and calculate the minimum width required to display the table
                         // information
-                        setUpdatableCharacteristics(getCommands(), CommandInformationTableColumnInfo.getColumnNames(),
-                                                    null, CommandInformationTableColumnInfo.getToolTips(), false, true,
+                        setUpdatableCharacteristics(getCommands(),
+                                                    CommandInformationTableColumnInfo.getColumnNames(),
+                                                    null,
+                                                    CommandInformationTableColumnInfo.getToolTips(),
+                                                    false,
+                                                    true,
                                                     true);
                     }
 
                     /******************************************************************************
-                     * Override prepareRenderer to allow adjusting the background colors of table cells
+                     * Override prepareRenderer to allow adjusting the background colors of table
+                     * cells
                      *****************************************************************************/
                     @Override
                     public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
@@ -275,10 +285,16 @@ public class CcddCommandDialog extends CcddDialogHandler
                 JScrollPane scrollPane = new JScrollPane(commandTable);
 
                 // Set common table parameters and characteristics
-                commandTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                                     TableSelectionMode.SELECT_BY_CELL, true,
-                                                     ModifiableColorInfo.TABLE_BACK.getColor(), true, false,
-                                                     ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+                commandTable.setFixedCharacteristics(scrollPane,
+                                                     false,
+                                                     ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                                     TableSelectionMode.SELECT_BY_CELL,
+                                                     true,
+                                                     ModifiableColorInfo.TABLE_BACK.getColor(),
+                                                     true,
+                                                     false,
+                                                     ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                                     true);
 
                 // Define the panel to contain the table
                 JPanel commandsTblPnl = new JPanel();
@@ -298,7 +314,9 @@ public class CcddCommandDialog extends CcddDialogHandler
                 final TableOpener opener = new TableOpener();
 
                 // Show commands button
-                btnShow = CcddButtonPanelHandler.createButton("Show", RENAME_ICON, KeyEvent.VK_W,
+                btnShow = CcddButtonPanelHandler.createButton("Show",
+                                                              RENAME_ICON,
+                                                              KeyEvent.VK_W,
                                                               "Show the project commands");
 
                 // Add a listener for the Show button
@@ -316,12 +334,16 @@ public class CcddCommandDialog extends CcddDialogHandler
                 });
 
                 // Print command information button
-                JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
+                JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
+                                                                       PRINT_ICON,
+                                                                       KeyEvent.VK_P,
                                                                        "Print the command information");
 
                 // Open table(s) button
                 JButton btnOpen = CcddButtonPanelHandler
-                        .createButton("Open", TABLE_ICON, KeyEvent.VK_O,
+                        .createButton("Open",
+                                      TABLE_ICON,
+                                      KeyEvent.VK_O,
                                       "Open the table(s) associated with the selected search result(s)");
 
                 // Add a listener for the Open button
@@ -346,13 +368,17 @@ public class CcddCommandDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        commandTable.printTable("Project '" + ccddMain.getDbControlHandler().getDatabaseName()
-                                                + "' Commands", null, CcddCommandDialog.this, PageFormat.LANDSCAPE);
+                        commandTable.printTable("Project '" + ccddMain.getDbControlHandler().getDatabaseName() + "' Commands",
+                                                null,
+                                                CcddCommandDialog.this,
+                                                PageFormat.LANDSCAPE);
                     }
                 });
 
                 // Close command dialog button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
                                                                        "Close the commands dialog");
 
                 // Add a listener for the Close button
@@ -384,17 +410,22 @@ public class CcddCommandDialog extends CcddDialogHandler
             protected void complete()
             {
                 // Display the command information dialog
-                showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnShow, "Command Information", true);
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  dialogPnl,
+                                  buttonPnl,
+                                  btnShow,
+                                  "Command Information",
+                                  true);
             }
         });
     }
 
     /**********************************************************************************************
-     * Get the array of command information. If the table tree has any selections use these to filter
-     * the command information array
+     * Get the array of command information. If the table tree has any selections use these to
+     * filter the command information array
      *
-     * @return Array of command informations matching the filter tables, or all commands' information if
-     *         no filter table is selected
+     * @return Array of command informations matching the filter tables, or all commands'
+     *         information if no filter table is selected
      *********************************************************************************************/
     private Object[][] getCommands()
     {
@@ -406,14 +437,15 @@ public class CcddCommandDialog extends CcddDialogHandler
         // Step through each command in the project
         for (CommandInformation commandInfo : commandHandler.getCommandInformation())
         {
-            // Check if no tables are selected for use as filters or if the command table is
-            // in the
+            // Check if no tables are selected for use as filters or if the command table is in the
             // list of filter tables
             if (filterTables.isEmpty() || filterTables.contains(commandInfo.getTable()))
             {
                 // Add the command information to the list
-                commandList.add(new Object[] {commandInfo.getCommandName(), commandInfo.getCommandCode(), commandHandler
-                        .getCommandArgumentVariables(commandInfo.getCommandArgument(), "\n"), commandInfo.getTable()});
+                commandList.add(new Object[] {commandInfo.getCommandName(),
+                                              commandInfo.getCommandCode(),
+                                              commandHandler.getCommandArgumentVariables(commandInfo.getCommandArgument(), "\n"),
+                                              commandInfo.getTable()});
             }
         }
 

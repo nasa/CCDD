@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddAssignmentTreeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles the variable assignment tree in the telemetry scheduler dialog. This
-*     class is an extension of the CcddInformationTreeHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddAssignmentTreeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles the variable assignment tree in the telemetry scheduler dialog. This
+ * class is an extension of the CcddInformationTreeHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
@@ -94,13 +90,16 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *
      * @param linkHandler   Reference to the link handler
      *
-     * @param treePathOrder List of all paths in the variable tree in the order to be maintained in the
-     *                      assignment tree; null to not force the order
+     * @param treePathOrder List of all paths in the variable tree in the order to be maintained in
+     *                      the assignment tree; null to not force the order
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddAssignmentTreeHandler(CcddMain ccddMain, String rateMsgFilter, CcddLinkHandler linkHandler,
-                              List<String> treePathOrder, Component parent)
+    CcddAssignmentTreeHandler(CcddMain ccddMain,
+                              String rateMsgFilter,
+                              CcddLinkHandler linkHandler,
+                              List<String> treePathOrder,
+                              Component parent)
     {
         super(ccddMain, null, InternalTable.TLM_SCHEDULER, rateMsgFilter, false, treePathOrder, parent);
 
@@ -119,8 +118,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Get the node level that skips any active filter nodes. The assignment tree has no extra header
-     * nodes, but instead begins with the root structure tables
+     * Get the node level that skips any active filter nodes. The assignment tree has no extra
+     * header nodes, but instead begins with the root structure tables
      *
      * @return Node level for root structure tables
      *********************************************************************************************/
@@ -151,8 +150,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     /**********************************************************************************************
      * Build the assignment tree from the database. Retain the tree's current expansion state
      *
-     * @param filterByApp True if the tree is filtered by application. This is not applicable to the
-     *                    assignment tree, which can only contain structure references
+     * @param filterByApp True if the tree is filtered by application. This is not applicable to
+     *                    the assignment tree, which can only contain structure references
      *
      * @param filterValue Rate column name and message name, separated by a back slash
      *
@@ -171,8 +170,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Get the tree's root node
         ToolTipTreeNode root = getRootNode();
 
-        // Register the tool tip manager for the assignment tree (otherwise the tool
-        // tips aren't displayed)
+        // Register the tool tip manager for the assignment tree (otherwise the tool tips aren't
+        // displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 
         // Set the flag to indicate that the assignment tree is being built. This flag is used to
@@ -204,15 +203,17 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             // Step through each assignment definition
             for (String[] assignDefn : assignDefinitions)
             {
-                // Check if the assignment definition matches the target data stream rate column name
+                // Check if the assignment definition matches the target data stream rate column
+                // name
                 if (assignDefn[TlmSchedulerColumn.RATE_NAME.ordinal()].equals(rateAndMessage[0])
                     && !assignDefn[TlmSchedulerColumn.MEMBER.ordinal()].isEmpty()
                     && (assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(rateAndMessage[1])
                         || assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(parentMessage)))
                 {
                     // Add the variable to the node
-                    addNodeToInfoNode(root, assignDefn[TlmSchedulerColumn.MEMBER.ordinal()]
-                            .split("\\" + TLM_SCH_SEPARATOR, 2)[1].split(","), 0);
+                    addNodeToInfoNode(root,
+                                      assignDefn[TlmSchedulerColumn.MEMBER.ordinal()].split("\\" + TLM_SCH_SEPARATOR, 2)[1].split(","),
+                                      0);
                 }
             }
 
@@ -228,8 +229,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Update references to the specified message name with the new name. This is necessary for the tree
-     * to be rebuilt following a message name change
+     * Update references to the specified message name with the new name. This is necessary for the
+     * tree to be rebuilt following a message name change
      *
      * @param oldName Original message name
      *
@@ -269,7 +270,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                 if (path.getPathCount() >= getHeaderNodeLevel())
                 {
                     // Check if the selected variable node has children
-                    addChildNodes((ToolTipTreeNode) path.getLastPathComponent(), selectedVariablePaths,
+                    addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),
+                                  selectedVariablePaths,
                                   new ArrayList<String>(), true);
                 }
             }
@@ -288,7 +290,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Update the assignment definition list for the specified rate based on the supplied message list
+     * Update the assignment definition list for the specified rate based on the supplied message
+     * list
      *
      * @param messages List of messages for the specified rate
      *
@@ -340,16 +343,15 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         msg[TlmSchedulerColumn.RATE_NAME.ordinal()] = rateName;
         msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
         msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
-        msg[TlmSchedulerColumn.MEMBER.ordinal()] = variable.getRate() + TLM_SCH_SEPARATOR
-                                                   + variable.getFullName().trim();
+        msg[TlmSchedulerColumn.MEMBER.ordinal()] = variable.getRate() + TLM_SCH_SEPARATOR + variable.getFullName().trim();
 
         // Add the variable assignment to the list of definitions
         assignDefinitions.add(msg);
     }
 
     /**********************************************************************************************
-     * Create an assignment tree panel. The table tree is placed in a scroll pane. A check box is added
-     * that allows tree expansion/collapse
+     * Create an assignment tree panel. The table tree is placed in a scroll pane. A check box is
+     * added that allows tree expansion/collapse
      *
      * @param selectionMode Tree item selection mode (single versus multiple)
      *
@@ -357,16 +359,21 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     protected JPanel createTreePanel(int selectionMode)
     {
-        // Set the renderer for the tree so that custom icons can be used for the
-        // various node types
+        // Set the renderer for the tree so that custom icons can be used for the various node
+        // types
         setCellRenderer(new VariableTreeCellRenderer()
         {
             /**************************************************************************************
              * Display the variable nodes using a special icon in the tree
              *************************************************************************************/
             @Override
-            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
-                                                          boolean leaf, int row, boolean hasFocus)
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
             {
                 // Display the node name
                 super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
@@ -388,17 +395,20 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        1.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
 
         // Set the table tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
@@ -410,14 +420,13 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Create the tree scroll pane
         JScrollPane treeScroll = new JScrollPane(this);
         treeScroll.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                      Color.LIGHT_GRAY,
                                                                       Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+                                      BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Add the tree to the panel
         treePnl.add(treeScroll, gbc);

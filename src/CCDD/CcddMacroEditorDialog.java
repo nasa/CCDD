@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddMacroEditorDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to create, modify, or delete macros and macro values. The dialog is
-*     built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddMacroEditorDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to create, modify, or delete macros and macro values. The dialog is
+ * built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -97,8 +93,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     // List of macro table content changes to process
     private List<TableModification> modifications;
 
-    // Temporary table cell storage for when macro names are replaced by their
-    // corresponding values so that the original cell contents can be restored
+    // Temporary table cell storage for when macro names are replaced by their corresponding values
+    // so that the original cell contents can be restored
     private String[][] originalCellData;
 
     // Temporary OID
@@ -135,7 +131,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Assign temporary OIDs to the added rows so that these can be matched when building updates
+            // Assign temporary OIDs to the added rows so that these can be matched when building
+            // updates
             tempOID = macroTable.assignOIDsToNewRows(tempOID, MacrosColumn.OID.ordinal());
 
             // Update the macro handler with the changes
@@ -184,9 +181,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Create the macro editor dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -216,7 +213,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-                // Create a copy of the macro data so it can be used to determine if changes are made
+                // Create a copy of the macro data so it can be used to determine if changes are
+                // made
                 storeCurrentData();
 
                 // Define the panel to contain the table and place it in the editor
@@ -383,8 +381,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Only update the table in the database if a cell's content has changed, none of
-                        // the required columns is missing a value, and the user confirms the action
+                        // Only update the table in the database if a cell's content has changed,
+                        // none of the required columns is missing a value, and the user confirms
+                        // the action
                         if (macroTable.isTableChanged(committedData) && !checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
                                                                          "<html><b>Store changes in project database?",
@@ -474,7 +473,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 if (column == MacroEditorColumnInfo.VALUE.ordinal())
                 {
                     // Highlight any macro names in the table cell. Adjust the highlight color to
-                    // account for the cell selection highlighting so that the macro is easily readable
+                    // account for the cell selection highlighting so that the macro is easily
+                    // readable
                     macroHandler.highlightMacro(component, text,
                                                 isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                            : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
@@ -487,8 +487,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Get the tool tip text for a table cell, showing any macro name replaced with its corresponding
-             * macro value
+             * Get the tool tip text for a table cell, showing any macro name replaced with its
+             * corresponding macro value
              *************************************************************************************/
             @Override
             public String getToolTipText(MouseEvent me)
@@ -503,7 +503,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 // Check if a cell is beneath the mouse pointer
                 if (row != -1 && column != -1)
                 {
-                    // Expand any macros in the cell text and display this as the cell's tool tip text
+                    // Expand any macros in the cell text and display this as the cell's tool tip
+                    // text
                     toolTipText = macroHandler.getMacroToolTipText(getValueAt(row, column).toString());
                 }
 
@@ -561,8 +562,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
              *
              * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-             *                    a single input is being entered
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked;
+             *                    false if only a single input is being entered
              *
              * @return Always returns false
              *************************************************************************************/
@@ -611,7 +612,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         // Check if the macro value changed
                         else if (column == MacroEditorColumnInfo.VALUE.ordinal())
                         {
-                            // Create a macro handler using the values currently displayed in the macro editor
+                            // Create a macro handler using the values currently displayed in the
+                            // macro editor
                             CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain, getUpdatedData());
                             newMacroHandler.setHandlers(ccddMain.getVariableHandler(), ccddMain.getDataTypeHandler());
 
@@ -647,9 +649,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         }
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -663,13 +663,12 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                                                   JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
                     }
 
-                    // Restore the cell contents to its original value and pop the edit from the stack
+                    // Restore the cell contents to its original value and pop the edit from the
+                    // stack
                     tableData.get(row)[column] = oldValue;
                     macroTable.getUndoManager().undoRemoveEdit();
                 }
-                catch (
-                    Exception e
-                )
+                catch (Exception e)
                 {
                     // Display a dialog providing details on the unanticipated error
                     CcddUtilities.displayException(e, CcddMacroEditorDialog.this);
@@ -699,8 +698,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
-                // Check if the cell isn't already selected (selection highlighting overrides
-                // the invalid highlighting, if applicable)
+                // Check if the cell isn't already selected (selection highlighting overrides the
+                // invalid highlighting, if applicable)
                 if (!(isFocusOwner() && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
                 {
@@ -726,8 +725,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to produce an array containing empty values for a new row
-             * in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *************************************************************************************/
@@ -743,7 +742,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether or not any unstored changes exist
+                // Add or remove the change indicator based on whether or not any unstored changes
+                // exist
                 setTitle(DIALOG_TITLE + (macroTable.isTableChanged(committedData) ? CHANGE_INDICATOR : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed
@@ -769,8 +769,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is validated and that there
-        // are changes that haven't been stored. If changes exist then confirm discarding the changes
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been stored. If changes exist then confirm discarding the
+        // changes
         if (macroTable.isLastCellValid()
             && (!macroTable.isTableChanged(committedData)
                 || new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this, "<html><b>Discard changes?",
@@ -786,10 +787,11 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Based on the input flag, display the macro values (names) in place of the macro names (values)
+     * Based on the input flag, display the macro values (names) in place of the macro names
+     * (values)
      *
-     * @param isExpand True to replace the macro names with the corresponding macro values; false to
-     *                 restore the macro names
+     * @param isExpand True to replace the macro names with the corresponding macro values; false
+     *                 to restore the macro names
      *********************************************************************************************/
     protected void expandMacros(boolean isExpand)
     {
@@ -813,8 +815,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         .getValueAt(row, MacroEditorColumnInfo.VALUE.ordinal()).toString();
             }
 
-            // Replace the table cells with their original contents (i.e., show macro names
-            // in place of their corresponding values)
+            // Replace the table cells with their original contents (i.e., show macro names in
+            // place of their corresponding values)
             tableModel.setValueAt((isExpand ? macroHandler
                     .getMacroExpansion(originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()])
                                             : originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()]),
@@ -885,8 +887,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Compare the current macro table data to the committed data and create lists of the changed values
-     * necessary to update the table in the database to match the current values
+     * Compare the current macro table data to the committed data and create lists of the changed
+     * values necessary to update the table in the database to match the current values
      *********************************************************************************************/
     private void buildUpdates()
     {
@@ -925,7 +927,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                             // Check if the current and committed values don't match
                             if (!tableData[tblRow][column].equals(committedData[comRow][column]))
                             {
-                                // Set the flag to indicate a column value changed and stop searching
+                                // Set the flag to indicate a column value changed and stop
+                                // searching
                                 isChangedColumn = true;
                                 break;
                             }

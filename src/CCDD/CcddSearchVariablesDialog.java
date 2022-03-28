@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to perform variable searches of the project database data tables.
-*     The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to perform variable searches of the project database data tables. The
+ * dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -179,8 +175,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         labelPnl.add(numMatchesLbl);
         inputPnl.add(labelPnl, gbc);
 
-        // Create the auto-completion search field and add it to the dialog panel. The
-        // search list is initially empty as it is updated whenever a key is pressed
+        // Create the auto-completion search field and add it to the dialog panel. The search list
+        // is initially empty as it is updated whenever a key is pressed
         searchFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
         searchFld.setCaseSensitive(true);
         searchFld.setText("");
@@ -297,8 +293,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Disable the other check boxes along with the search field if
-                // the show all variables checkbox has been selected
+                // Disable the other check boxes along with the search field if the show all
+                // variables checkbox has been selected
                 allowRegexCb.setEnabled(!showAllVarCB.isSelected());
                 allowRegexCb.setSelected(showAllVarCB.isSelected());
                 ignoreCaseCb.setEnabled(!showAllVarCB.isSelected());
@@ -306,7 +302,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                 searchFld.setEnabled(!showAllVarCB.isSelected());
                 searchViaTableTreeCB.setEnabled(!showAllVarCB.isSelected());
 
-                // If the show all variables check-box was just clicked than search the variable tree
+                // If the show all variables check-box was just clicked than search the variable
+                // tree
                 if (showAllVarCB.isSelected())
                 {
                     searchVariableTree();
@@ -334,8 +331,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Disable the other check boxes along with the search field if the
-                // search via table tree checkbox has been selected
+                // Disable the other check boxes along with the search field if the search via
+                // table tree checkbox has been selected
                 allowRegexCb.setEnabled(!searchViaTableTreeCB.isSelected());
                 allowRegexCb.setSelected(searchViaTableTreeCB.isSelected());
                 ignoreCaseCb.setEnabled(!searchViaTableTreeCB.isSelected());
@@ -343,11 +340,9 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                 searchFld.setEnabled(!searchViaTableTreeCB.isSelected());
                 showAllVarCB.setEnabled(!searchViaTableTreeCB.isSelected());
 
-                // If the search via table tree check box was just selected than build the table tree so that all
-                // tables
-                // are available for selection. If not build the table tree so that only the tables that are
-                // identifed by
-                // the search term will be displayed
+                // If the search via table tree check box was just selected than build the table
+                // tree so that all tables are available for selection. If not build the table tree
+                // so that only the tables that are identifed by the search term will be displayed
                 if (searchViaTableTreeCB.isSelected())
                 {
                     buildTableTreeForSelection();
@@ -378,17 +373,17 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // If the search via table tree check box is not selected than search the variable tree
-                // for the search term. If it is selected than search the selected tables within the table
-                // tree for all variables
+                // If the search via table tree check box is not selected than search the variable
+                // tree for the search term. If it is selected than search the selected tables
+                // within the table tree for all variables
                 if (!searchViaTableTreeCB.isSelected())
                 {
                     searchVariableTree();
                 }
                 else
                 {
-                    // Get the variables (matching the filtering tables, if applicable) and
-                    // display them in the table
+                    // Get the variables (matching the filtering tables, if applicable) and display
+                    // them in the table
                     tableData = getVariables();
                     variableTable.loadAndFormatData();
                 }
@@ -475,9 +470,9 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     {
         String searchFieldTxt = "";
 
-        // If the show all variables button has been selected than use a regular expression to search the
-        // variable tree for all variables. If it is not selected than search the variable tree using the
-        // search term located in the search fld
+        // If the show all variables button has been selected than use a regular expression to
+        // search the variable tree for all variables. If it is not selected than search the
+        // variable tree using the search term located in the search fld
         if (showAllVarCB.isSelected())
         {
             searchFieldTxt = ".*";
@@ -513,18 +508,16 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                     variableTree.setHighlightPattern(searchPattern);
                 }
 
-                // Rebuild the table tree, retaining only those nodes that contain a match with
-                // the search pattern or are ancestors to a matching node
+                // Rebuild the table tree, retaining only those nodes that contain a match with the
+                // search pattern or are ancestors to a matching node
                 variableTree.buildTableTree(false, null, null, false, CcddSearchVariablesDialog.this);
             }
         }
     }
 
-    // This function will build the table tree in a manner that allows the user to use the search field
-    // to search for
-    // variables. When the user selects the "Search" button after typing in a search term only the
-    // tables that contain
-    // the term will be displayed
+    // This function will build the table tree in a manner that allows the user to use the search
+    // field to search for variables. When the user selects the "Search" button after typing in a
+    // search term only the tables that contain the term will be displayed
     private void buildTableTreeForSearch(boolean delete, GridBagConstraints gbc)
     {
         // If needed, delete any panels from the dialog that are going to be replaced
@@ -606,8 +599,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                                                 ccddMain.getMainFrame())
         {
             /**************************************************************************************
-             * Rebuild the variable tree, retaining only those nodes that contain a match with the search
-             * criteria or are ancestors to a matching node
+             * Rebuild the variable tree, retaining only those nodes that contain a match with the
+             * search criteria or are ancestors to a matching node
              *************************************************************************************/
             @Override
             protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter,
@@ -673,8 +666,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         // Clear the variable tree initially
         variableTree.removeAllNodes();
 
-        // If we are not deleting any components then tableTreeGbc will need to be set. This indicates
-        // where the table tree will always be placed when repainting the dialog
+        // If we are not deleting any components then tableTreeGbc will need to be set. This
+        // indicates where the table tree will always be placed when repainting the dialog
         if (!delete)
         {
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -687,8 +680,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             tableTreeGbc = gbc;
         }
 
-        // Create a tree panel using the variable tree and place it in a custom split pane before adding it
-        // to the inputPnl
+        // Create a tree panel using the variable tree and place it in a custom split pane before
+        // adding it to the inputPnl
         tableTreePane = new CustomSplitPane(variableTree
                 .createTreePanel("Table Tree", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, true,
                                  ccddMain.getMainFrame()), scrollPane, null, JSplitPane.VERTICAL_SPLIT);
@@ -698,11 +691,9 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         inputPnl.repaint();
     }
 
-    // This function will build the table tree in a manner that allows the user to select tables from
-    // the table tree. Once
-    // the user has selected the desired tables they may select the "Search" button and all variables
-    // within the selected
-    // tables will be displayed
+    // This function will build the table tree in a manner that allows the user to select tables
+    // from the table tree. Once the user has selected the desired tables they may select the
+    // "Search" button and all variables within the selected tables will be displayed
     public void buildTableTreeForSelection()
     {
         GridBagConstraints gbc = tableTreeGbc;
@@ -713,8 +704,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         // Remove the table tree pane as it is going to be replaced
         inputPnl.remove(tableTreePane);
 
-        // Build the table tree showing both table prototypes and table instances; i.e.,
-        // parent tables with their child tables (i.e., parents with children)
+        // Build the table tree showing both table prototypes and table instances; i.e., parent
+        // tables with their child tables (i.e., parents with children)
         variableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
                                                 TableTreeType.STRUCTURE_TABLES, DEFAULT_PROTOTYPE_NODE_NAME,
                                                 DEFAULT_INSTANCE_NODE_NAME, ccddMain.getMainFrame());
@@ -780,15 +771,15 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             }
 
             /******************************************************************************
-             * Load the structure table variables paths & names into the table and format the table cells
+             * Load the structure table variables paths & names into the table and format the table
+             * cells
              *****************************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Place the data into the table model along with the column names, set up
-                // the editors and renderers for the table cells, set up the table grid
-                // lines, and calculate the minimum width required to display the table
-                // information
+                // Place the data into the table model along with the column names, set up the
+                // editors and renderers for the table cells, set up the table grid lines, and
+                // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(tableData, VariablePathTableColumnInfo.getColumnNames(), null,
                                             VariablePathTableColumnInfo.getToolTips(), false, true, true);
             }
@@ -825,11 +816,11 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Get the array of variables. If the table tree has any selections use these to filter the variable
-     * array
+     * Get the array of variables. If the table tree has any selections use these to filter the
+     * variable array
      *
-     * @return Array of variables matching the filter tables, or all variables if no filter table is
-     *         selected
+     * @return Array of variables matching the filter tables, or all variables if no filter table
+     *         is selected
      *********************************************************************************************/
     private Object[][] getVariables()
     {

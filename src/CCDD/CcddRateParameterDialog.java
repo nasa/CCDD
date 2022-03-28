@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddRateParameterDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for assigning the telemetry sample rate parameters. The dialog is built on the
-*     CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddRateParameterDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for assigning the telemetry sample rate parameters. The dialog is built on the
+ * CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -266,8 +262,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         // Set the field's input verifier
         maxSecPerMsgFld.setInputVerifier(new InputVerifier()
         {
-            // Storage for the last valid value entered; used to restore the input field
-            // value if
+            // Storage for the last valid value entered; used to restore the input field value if
             // an invalid value is entered. Initialize to the value at the time the field is
             // created
             String lastValid = maxSecPerMsgFld.getText();
@@ -309,8 +304,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         // Set the field's input verifier
         maxMsgsPerSecFld.setInputVerifier(new InputVerifier()
         {
-            // Storage for the last valid value entered; used to restore the input field
-            // value if
+            // Storage for the last valid value entered; used to restore the input field value if
             // an invalid value is entered. Initialize to the value at the time the field is
             // created
             String lastValid = maxMsgsPerSecFld.getText();
@@ -558,10 +552,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Set the field's input verifier
             streamNameFld[index].setInputVerifier(new InputVerifier()
             {
-                // Storage for the last valid value entered; used to restore the input field
-                // value
-                // if an invalid value is entered. Initialize to the value at the time the field
-                // is
+                // Storage for the last valid value entered; used to restore the input field value
+                // if an invalid value is entered. Initialize to the value at the time the field is
                 // created
                 String lastValid = initStreamName;
 
@@ -635,10 +627,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Set the field's input verifier
             maxMsgsPerCycleFld[index].setInputVerifier(new InputVerifier()
             {
-                // Storage for the last valid value entered; used to restore the input field
-                // value
-                // if an invalid value is entered. Initialize to the value at the time the field
-                // is
+                // Storage for the last valid value entered; used to restore the input field value
+                // if an invalid value is entered. Initialize to the value at the time the field is
                 // created
                 String lastValid = initMaxMsgsPerCycle;
 
@@ -682,10 +672,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Set the field's input verifier
             maxBytesPerSecFld[index].setInputVerifier(new InputVerifier()
             {
-                // Storage for the last valid value entered; used to restore the input field
-                // value
-                // if an invalid value is entered. Initialize to the value at the time the field
-                // is
+                // Storage for the last valid value entered; used to restore the input field value
+                // if an invalid value is entered. Initialize to the value at the time the field is
                 // created
                 String lastValid = initMaxBytesPerSec;
 
@@ -729,14 +717,14 @@ public class CcddRateParameterDialog extends CcddDialogHandler
      *
      * @param streamName      Array containing the stream name per stream
      *
-     * @param maxMsgsPerCycle Array containing the maximum number of messages that can be downlinked
-     *                        before repeating the message list per stream
+     * @param maxMsgsPerCycle Array containing the maximum number of messages that can be
+     *                        downlinked before repeating the message list per stream
      *
-     * @param maxBytesPerSec  Array containing the maximum number of bytes that can be downlinked in one
-     *                        second per stream
+     * @param maxBytesPerSec  Array containing the maximum number of bytes that can be downlinked
+     *                        in one second per stream
      *
-     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to only
-     *                        include sample rates that are evenly time-spaced
+     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to
+     *                        only include sample rates that are evenly time-spaced
      *
      * @return true if any of the rate parameters changed
      *********************************************************************************************/

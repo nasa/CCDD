@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddMessageIDDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog displaying all message ID names and associated message ID values. The dialog is built
-*     on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddMessageIDDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog displaying all message ID names and associated message ID values. The dialog is
+ * built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -70,8 +66,8 @@ import CCDD.CcddConstants.TableSelectionMode;
 @SuppressWarnings("serial")
 public class CcddMessageIDDialog extends CcddDialogHandler
 {
-    // Flag that indicates if any of the tables with message IDS to display are
-    // children of another table, and therefore have a structure path
+    // Flag that indicates if any of the tables with message IDS to display are children of another
+    // table, and therefore have a structure path
     private boolean isPath;
 
     /**********************************************************************************************
@@ -169,8 +165,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
 
-                // Check if the cell doesn't have the focus or is selected (the focus and
-                // selection
+                // Check if the cell doesn't have the focus or is selected (the focus and selection
                 // highlight colors override the invalid highlight color), and if this is the
                 // message name or ID column
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()

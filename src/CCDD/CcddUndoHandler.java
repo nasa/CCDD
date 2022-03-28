@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddUndoHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that manages GUI component undo and redo edit operations.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddUndoHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that manages GUI component undo and redo edit operations.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.awt.Font;
@@ -112,12 +108,12 @@ public class CcddUndoHandler
     }
 
     /**********************************************************************************************
-     * Set the reference to the data field handler. This allows changes to the contents of a data field
-     * that is subsequently deleted, then restored via an undo, to retain the undo capability for the
-     * content changes
+     * Set the reference to the data field handler. This allows changes to the contents of a data
+     * field that is subsequently deleted, then restored via an undo, to retain the undo capability
+     * for the content changes
      *
-     * @param fieldHandler Reference to the data field handler; null to not retain data field content
-     *                     changes following deletion and restoration of the field
+     * @param fieldHandler Reference to the data field handler; null to not retain data field
+     *                     content changes following deletion and restoration of the field
      *********************************************************************************************/
     protected void setFieldHandler(CcddFieldHandler fieldHandler)
     {
@@ -135,11 +131,11 @@ public class CcddUndoHandler
     }
 
     /**********************************************************************************************
-     * Set the reference to the table cell selection container for which selection changes are to be
-     * tracked
+     * Set the reference to the table cell selection container for which selection changes are to
+     * be tracked
      *
-     * @param selectedCells Reference to the cell selection container for which selection changes are to
-     *                      be tracked
+     * @param selectedCells Reference to the cell selection container for which selection changes
+     *                      are to be tracked
      *********************************************************************************************/
     protected void setSelectedCells(CellSelectionHandler selectedCells)
     {
@@ -179,13 +175,14 @@ public class CcddUndoHandler
     }
 
     /**********************************************************************************************
-     * Set the flag that automatically ends an edit sequence. This flag is used by the group manager,
-     * link manager, and the data field editor panel so that multiple group/link/field changes are
-     * stored as a single edit rather than a number of individual edits; if the edit is undone then the
-     * changes are restored in a single operation. This flag is not used in the undoable table model and
-     * table column model classes
+     * Set the flag that automatically ends an edit sequence. This flag is used by the group
+     * manager, link manager, and the data field editor panel so that multiple group/link/field
+     * changes are stored as a single edit rather than a number of individual edits; if the edit is
+     * undone then the changes are restored in a single operation. This flag is not used in the
+     * undoable table model and table column model classes
      *
-     * @param autoEndEdit True to automatically end an edit sequence when a new edit operation occurs
+     * @param autoEndEdit True to automatically end an edit sequence when a new edit operation
+     *                    occurs
      *********************************************************************************************/
     protected void setAutoEndEditSequence(boolean autoEndEdit)
     {
@@ -193,10 +190,11 @@ public class CcddUndoHandler
     }
 
     /**********************************************************************************************
-     * Get the status of the flag that indicates if an edit sequence should be automatically ended. This
-     * flag is not used in the undoable table model and table column model classes
+     * Get the status of the flag that indicates if an edit sequence should be automatically ended.
+     * This flag is not used in the undoable table model and table column model classes
      *
-     * @return true if the edit sequence is ended automatically; false if automatic ending is suspended
+     * @return true if the edit sequence is ended automatically; false if automatic ending is
+     *         suspended
      *********************************************************************************************/
     protected boolean isAutoEndEditSequence()
     {
@@ -210,8 +208,8 @@ public class CcddUndoHandler
     protected class UndoableArrayList<E> extends ArrayList<E>
     {
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list item inserted in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the list item
+         * inserted in the undo stack
          *****************************************************************************************/
         @Override
         public boolean add(E listItem)
@@ -230,8 +228,7 @@ public class CcddUndoHandler
          *****************************************************************************************/
         protected boolean add(E listItem, boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -251,8 +248,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list item inserted in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the list item
+         * inserted in the undo stack
          *****************************************************************************************/
         @Override
         public void add(int listIndex, E listItem)
@@ -271,8 +268,7 @@ public class CcddUndoHandler
          *****************************************************************************************/
         protected void add(int listIndex, E listItem, boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -292,8 +288,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list items inserted
-         * in the undo stack
+         * Override the default method with a method that includes a flag to store the list items
+         * inserted in the undo stack
          *****************************************************************************************/
         @Override
         public boolean addAll(Collection<? extends E> listItems)
@@ -310,13 +306,12 @@ public class CcddUndoHandler
          *
          * @return true if the list changed as a result of the call
          *****************************************************************************************/
-        // Suppress warnings is used because when this code is compiled some of it is
-        // not legal, but it will be at runtime
+        // Suppress warnings is used because when this code is compiled some of it is not legal,
+        // but it will be at runtime
         @SuppressWarnings("unchecked")
         protected boolean addAll(Collection<? extends E> listItems, boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -336,8 +331,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list item removed in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the list item
+         * removed in the undo stack
          *****************************************************************************************/
         @Override
         public boolean remove(Object listItem)
@@ -354,13 +349,12 @@ public class CcddUndoHandler
          *
          * @return true if the list contained the specified element
          *****************************************************************************************/
-        // Suppress warnings is used because when this code is compiled some of it is
-        // not legal, but it will be at runtime
+        // Suppress warnings is used because when this code is compiled some of it is not legal,
+        // but it will be at runtime
         @SuppressWarnings("unchecked")
         protected boolean remove(Object listItem, boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -380,8 +374,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list item removed in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the list item
+         * removed in the undo stack
          *****************************************************************************************/
         @Override
         public E remove(int index)
@@ -400,8 +394,7 @@ public class CcddUndoHandler
          *****************************************************************************************/
         protected E remove(int index, boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -421,8 +414,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list items removed in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the list items
+         * removed in the undo stack
          *****************************************************************************************/
         @Override
         public boolean removeAll(Collection<?> listItems)
@@ -439,13 +432,12 @@ public class CcddUndoHandler
          *
          * @return true if the list changed as a result of the call
          *****************************************************************************************/
-        // Suppress warnings is used because when this code is compiled some of it is
-        // not legal, but it will be at runtime
+        // Suppress warnings is used because when this code is compiled some of it is not legal,
+        // but it will be at runtime
         @SuppressWarnings("unchecked")
         protected boolean removeAll(Collection<?> listItems, boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -465,8 +457,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the list items removed in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the list items
+         * removed in the undo stack
          *****************************************************************************************/
         @Override
         public void clear()
@@ -481,8 +473,7 @@ public class CcddUndoHandler
          *****************************************************************************************/
         protected void clear(boolean undoable)
         {
-            // Check if undoing is enabled, if the edit is undoable, and if the check box
-            // selection
+            // Check if undoing is enabled, if the edit is undoable, and if the check box selection
             // state changed
             if (isAllowUndo && undoable)
             {
@@ -522,21 +513,22 @@ public class CcddUndoHandler
          *
          * @param undoableArrayList Reference to the array list
          *
-         * @param listIndex         Index at which to add or remove the item (ignored if not an INDEX
-         *                          operation)
+         * @param listIndex         Index at which to add or remove the item (ignored if not an
+         *                          INDEX operation)
          *
-         * @param listItem          Item to add or remove from the list (ignored if not an item add or
-         *                          remove operation in which case null can be used)
+         * @param listItem          Item to add or remove from the list (ignored if not an item add
+         *                          or remove operation in which case null can be used)
          *
-         * @param listItems         List of items to add or remove (ignored if not a list item add or remove
-         *                          operation in which case null can be used)
+         * @param listItems         List of items to add or remove (ignored if not a list item add
+         *                          or remove operation in which case null can be used)
          *
          * @param type              ListEditType.ADD if if adding an item to the list;
-         *                          ListEditType.ADD_INDEX if if adding an item to the list at a specific
-         *                          index; ListEditType.ADD_ALL if if adding a list of items to the list;
-         *                          ListEditType.REMOVE if removing an item from the list;
-         *                          ListEditType.REMOVE_INDEX if removing the item at the specified index
-         *                          from the list; ListEditType.CLEAR if removing all items from the list
+         *                          ListEditType.ADD_INDEX if if adding an item to the list at a
+         *                          specific index; ListEditType.ADD_ALL if if adding a list of
+         *                          items to the list; ListEditType.REMOVE if removing an item from
+         *                          the list; ListEditType.REMOVE_INDEX if removing the item at the
+         *                          specified index from the list; ListEditType.CLEAR if removing
+         *                          all items from the list
          *****************************************************************************************/
         ListEdit(UndoableArrayList<T> undoableArrayList, int listIndex, T listItem, Collection<T> listItems,
                  ListEditType type)
@@ -688,8 +680,8 @@ public class CcddUndoHandler
             }
 
             /**************************************************************************************
-             * Override the default method with a method that includes a flag to store the edit in the undo
-             * stack
+             * Override the default method with a method that includes a flag to store the edit in
+             * the undo stack
              *************************************************************************************/
             @Override
             public void setSelected(boolean select)
@@ -774,7 +766,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the data field to which the check box belongs (only used if the check box is a data field)
+         * Set the data field to which the check box belongs (only used if the check box is a data
+         * field)
          *
          * @param fieldOwner Owner of the data field to which the check box belongs
          *
@@ -787,8 +780,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Add a the undo manager to the edit listener list, set the check box model to be undoable, and add
-         * a focus change listener to the check box
+         * Add a the undo manager to the edit listener list, set the check box model to be
+         * undoable, and add a focus change listener to the check box
          *
          * @param select Initial selection state of the check box
          *****************************************************************************************/
@@ -838,11 +831,11 @@ public class CcddUndoHandler
          *
          * @param newValue   New check box selection state
          *
-         * @param fieldOwner Owner of the data field to which the check box belongs; null if the check box
-         *                   is not a data field
+         * @param fieldOwner Owner of the data field to which the check box belongs; null if the
+         *                   check box is not a data field
          *
-         * @param fieldName  Name of the data field to which the check box belongs; null if the check box is
-         *                   not a data field
+         * @param fieldName  Name of the data field to which the check box belongs; null if the
+         *                   check box is not a data field
          *****************************************************************************************/
         CheckBoxEdit(UndoableCheckBox checkBox, boolean oldValue, boolean newValue, String fieldOwner, String fieldName)
         {
@@ -881,15 +874,14 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the selected check box. In order for this to select the check box it must be scheduled to
-         * execute after other pending events
+         * Set the selected check box. In order for this to select the check box it must be
+         * scheduled to execute after other pending events
          *
          * @param selected Check box selection state
          *****************************************************************************************/
         private void setSelectedCheckBox(boolean selected)
         {
-            // Check if a data field handler exists and if the check box's owner and name
-            // have been
+            // Check if a data field handler exists and if the check box's owner and name have been
             // set (the owner and name are set when the data field is created)
             if (fieldHandler != null && fieldOwner != null && fieldName != null)
             {
@@ -955,7 +947,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the data field to which the combo box belongs (only used if the combo box is a data field)
+         * Set the data field to which the combo box belongs (only used if the combo box is a data
+         * field)
          *
          * @param fieldOwner Owner of the data field to which the combo box belongs
          *
@@ -968,8 +961,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Add a the undo manager to the edit listener list, set the combo box model to be undoable, and add
-         * a focus change listener to the combo box
+         * Add a the undo manager to the edit listener list, set the combo box model to be
+         * undoable, and add a focus change listener to the combo box
          *****************************************************************************************/
         private void setModelAndListeners()
         {
@@ -1002,8 +995,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the edit in the undo
-         * stack
+         * Override the default method with a method that includes a flag to store the edit in the
+         * undo stack
          *****************************************************************************************/
         @Override
         public void setSelectedItem(Object selection)
@@ -1080,11 +1073,11 @@ public class CcddUndoHandler
          *
          * @param newValue   New selected combo box item
          *
-         * @param fieldOwner Owner of the data field to which the combo box belongs; null if the combo box
-         *                   is not a data field
+         * @param fieldOwner Owner of the data field to which the combo box belongs; null if the
+         *                   combo box is not a data field
          *
-         * @param fieldName  Name of the data field to which the combo box belongs; null if the combo box is
-         *                   not a data field
+         * @param fieldName  Name of the data field to which the combo box belongs; null if the
+         *                   combo box is not a data field
          *****************************************************************************************/
         ComboBoxEdit(UndoableComboBox comboBox, Object oldValue, Object newValue, String fieldOwner, String fieldName)
         {
@@ -1129,8 +1122,7 @@ public class CcddUndoHandler
          *****************************************************************************************/
         private void setSelectedComboBox(Object selection)
         {
-            // Check if a data field handler exists and if the combo box's owner and name
-            // have been
+            // Check if a data field handler exists and if the combo box's owner and name have been
             // set (the owner and name are set when the data field is created)
             if (fieldHandler != null && fieldOwner != null && fieldName != null)
             {
@@ -1210,7 +1202,8 @@ public class CcddUndoHandler
          *
          * @param text    Text to display in the text field
          *
-         * @param columns The number of columns to use to calculate the preferred width of the text field
+         * @param columns The number of columns to use to calculate the preferred width of the text
+         *                field
          *****************************************************************************************/
         UndoableTextField(String text, int columns)
         {
@@ -1222,7 +1215,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Add the undo manager to the edit listeners and add a focus change listener to the text field
+         * Add the undo manager to the edit listeners and add a focus change listener to the text
+         * field
          *
          * @param text Text to display in the text field
          *****************************************************************************************/
@@ -1259,8 +1253,8 @@ public class CcddUndoHandler
             addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle a key press event. This allows the text field's owner to be informed of a change in text,
-                 * such as to update the text field container's change indicator
+                 * Handle a key press event. This allows the text field's owner to be informed of a
+                 * change in text, such as to update the text field container's change indicator
                  *********************************************************************************/
                 @Override
                 public void keyPressed(final KeyEvent ke)
@@ -1269,8 +1263,9 @@ public class CcddUndoHandler
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         /**************************************************************************
-                         * Since the cell text change involves a GUI update use invokeLater to execute the call on the
-                         * event dispatch thread following any pending events
+                         * Since the cell text change involves a GUI update use invokeLater to
+                         * execute the call on the event dispatch thread following any pending
+                         * events
                          *************************************************************************/
                         @Override
                         public void run()
@@ -1289,7 +1284,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the data field to which the text field belongs (only used if the text field is a data field)
+         * Set the data field to which the text field belongs (only used if the text field is a
+         * data field)
          *
          * @param fieldOwner Owner of the data field to which the text field belongs
          *
@@ -1302,8 +1298,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the edit in the undo
-         * stack
+         * Override the default method with a method that includes a flag to store the edit in the
+         * undo stack
          *****************************************************************************************/
         @Override
         public void setText(String text)
@@ -1361,9 +1357,9 @@ public class CcddUndoHandler
 
     /**********************************************************************************************
      * Text field edit event handler class. If the data field handler is set then the undo/redo
-     * operation compares the text field's name to the data field owner and field names to determine if
-     * these match, and if so the text field specified in the data field information is the one on which
-     * the undo/redo operation is performed
+     * operation compares the text field's name to the data field owner and field names to
+     * determine if these match, and if so the text field specified in the data field information
+     * is the one on which the undo/redo operation is performed
      *********************************************************************************************/
     @SuppressWarnings("serial")
     private class TextFieldEdit extends AbstractUndoableEdit
@@ -1383,11 +1379,11 @@ public class CcddUndoHandler
          *
          * @param newValue   New text field value
          *
-         * @param fieldOwner Owner of the data field to which the text field belongs; null if the text field
-         *                   is not a data field
+         * @param fieldOwner Owner of the data field to which the text field belongs; null if the
+         *                   text field is not a data field
          *
-         * @param fieldName  Name of the data field to which the text field belongs; null if the text field
-         *                   is not a data field
+         * @param fieldName  Name of the data field to which the text field belongs; null if the
+         *                   text field is not a data field
          *****************************************************************************************/
         TextFieldEdit(UndoableTextField textField, String oldValue, String newValue, String fieldOwner,
                       String fieldName)
@@ -1427,15 +1423,14 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the selected text field. In order for this to select the text field it must be scheduled to
-         * execute after other pending events
+         * Set the selected text field. In order for this to select the text field it must be
+         * scheduled to execute after other pending events
          *
          * @param value Text to place in the text field
          *****************************************************************************************/
         private void setSelectedTextField(final String value)
         {
-            // Check if a data field handler exists and if the text field's owner and name
-            // have
+            // Check if a data field handler exists and if the text field's owner and name have
             // been set (the owner and name are set when the data field is created)
             if (fieldHandler != null && fieldOwner != null && fieldName != null)
             {
@@ -1514,7 +1509,8 @@ public class CcddUndoHandler
          *
          * @param rows    Number of rows
          *
-         * @param columns The number of columns to use to calculate the preferred width of the text area
+         * @param columns The number of columns to use to calculate the preferred width of the text
+         *                area
          *****************************************************************************************/
         UndoableTextArea(int rows, int columns)
         {
@@ -1532,7 +1528,8 @@ public class CcddUndoHandler
          *
          * @param rows    Number of rows
          *
-         * @param columns The number of columns to use to calculate the preferred width of the text area
+         * @param columns The number of columns to use to calculate the preferred width of the text
+         *                area
          *****************************************************************************************/
         UndoableTextArea(String text, int rows, int columns)
         {
@@ -1544,7 +1541,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Add the undo manager to the edit listener list and add a focus change listener to the text area
+         * Add the undo manager to the edit listener list and add a focus change listener to the
+         * text area
          *
          * @param text Text to display in the text area
          *****************************************************************************************/
@@ -1556,8 +1554,7 @@ public class CcddUndoHandler
             // Initialize the text area's original value
             oldValue = text;
 
-            // Initialize the flag that allows undo/redo operations on this text area to be
-            // stored.
+            // Initialize the flag that allows undo/redo operations on this text area to be stored.
             // The text area must gain focus to be enabled
             undoable = false;
 
@@ -1599,8 +1596,8 @@ public class CcddUndoHandler
             addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle a key press event. This allows the text field's owner to be informed of a change in text,
-                 * such as to update the text area container's change indicator
+                 * Handle a key press event. This allows the text field's owner to be informed of a
+                 * change in text, such as to update the text area container's change indicator
                  *********************************************************************************/
                 @Override
                 public void keyPressed(final KeyEvent ke)
@@ -1609,8 +1606,9 @@ public class CcddUndoHandler
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         /**************************************************************************
-                         * Since the cell text change involves a GUI update use invokeLater to execute the call on the
-                         * event dispatch thread following any pending events
+                         * Since the cell text change involves a GUI update use invokeLater to
+                         * execute the call on the event dispatch thread following any pending
+                         * events
                          *************************************************************************/
                         @Override
                         public void run()
@@ -1629,9 +1627,9 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Flag the text as being allowed/prevented being stored as an update on the undo/redo stack. The
-         * other criteria (the allow undo flag is set and the text has changed) must be met in order for the
-         * edit to be undoable
+         * Flag the text as being allowed/prevented being stored as an update on the undo/redo
+         * stack. The other criteria (the allow undo flag is set and the text has changed) must be
+         * met in order for the edit to be undoable
          *
          * @param undoable True to enable putting the edit on the undo/redo stack
          *****************************************************************************************/
@@ -1642,8 +1640,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Check if an edit to the text area should be stored on the undo/redo stack, and if so add it to
-         * the stack
+         * Check if an edit to the text area should be stored on the undo/redo stack, and if so add
+         * it to the stack
          *****************************************************************************************/
         private void setText()
         {
@@ -1682,8 +1680,7 @@ public class CcddUndoHandler
             // Store the new text area value for the next edit
             oldValue = newValue;
 
-            // Reset the flag so that any further edits must be preceded by another focus
-            // gained
+            // Reset the flag so that any further edits must be preceded by another focus gained
             // event in order to be stored on the undo/redo stack
             undoable = false;
         }
@@ -1778,8 +1775,7 @@ public class CcddUndoHandler
         // Check that the component is still visible
         if (comp.isVisible())
         {
-            // Disable input verification since this sets the component value, creating an
-            // edit
+            // Disable input verification since this sets the component value, creating an edit
             // event
             comp.setVerifyInputWhenFocusTarget(false);
 
@@ -1825,8 +1821,9 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Placeholder for performing any clean-up of the cell value prior to setting the cell contents.
-         * This can include, for example, removal of leading and trailing white space characters
+         * Placeholder for performing any clean-up of the cell value prior to setting the cell
+         * contents. This can include, for example, removal of leading and trailing white space
+         * characters
          *
          * @param value  New cell value
          *
@@ -1842,8 +1839,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the edit in the undo
-         * stack
+         * Override the default method with a method that includes a flag to store the edit in the
+         * undo stack
          *****************************************************************************************/
         @Override
         public void setValueAt(Object value, int row, int column)
@@ -1871,8 +1868,7 @@ public class CcddUndoHandler
             // Get the cell's current value
             Object oldValue = getValueAt(row, column);
 
-            // Check if the cell value has changed. Not processing duplicate updates
-            // prevents the
+            // Check if the cell value has changed. Not processing duplicate updates prevents the
             // undo stack from registering the edit twice
             if (!oldValue.equals(value))
             {
@@ -1904,8 +1900,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the table data change in
-         * the undo stack
+         * Override the default method with a method that includes a flag to store the table data
+         * change in the undo stack
          *****************************************************************************************/
         @Override
         public void setDataVector(Object[][] dataVector, Object[] columnIdentifiers)
@@ -1951,8 +1947,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the row inserted in the
-         * undo stack
+         * Override the default method with a method that includes a flag to store the row inserted
+         * in the undo stack
          *****************************************************************************************/
         @Override
         public void insertRow(int row, Object[] values)
@@ -1965,7 +1961,8 @@ public class CcddUndoHandler
          *
          * @param row      Row to insert
          *
-         * @param values   Array containing the column information for the row to insert into the table
+         * @param values   Array containing the column information for the row to insert into the
+         *                 table
          *
          * @param undoable True if the row deletion can be undone
          *****************************************************************************************/
@@ -1995,14 +1992,13 @@ public class CcddUndoHandler
 
             super.insertRow(row, values);
 
-            // Set the table sort capability in case the table had no rows prior to the
-            // insert
+            // Set the table sort capability in case the table had no rows prior to the insert
             table.setTableSortable();
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the row removed in the
-         * undo stack
+         * Override the default method with a method that includes a flag to store the row removed
+         * in the undo stack
          *****************************************************************************************/
         @Override
         public void removeRow(int row)
@@ -2050,8 +2046,7 @@ public class CcddUndoHandler
                 }
             }
 
-            // Disable the row sorter in case the last table row is removed and a row filter
-            // is
+            // Disable the row sorter in case the last table row is removed and a row filter is
             // active
             table.setRowSorter(null);
 
@@ -2062,8 +2057,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the row moved in the undo
-         * stack
+         * Override the default method with a method that includes a flag to store the row moved in
+         * the undo stack
          *****************************************************************************************/
         @Override
         public void moveRow(int start, int end, int to)
@@ -2090,8 +2085,7 @@ public class CcddUndoHandler
                 // Get the listeners for this event
                 UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
 
-                // Check if there is an edit listener registered and that the target row isn't
-                // the
+                // Check if there is an edit listener registered and that the target row isn't the
                 // same as the starting row
                 if (listeners.length != 0 && start != to)
                 {
@@ -2117,8 +2111,7 @@ public class CcddUndoHandler
             if (sorter != null && sorter.getRowFilter() != null)
             {
                 // Issue data and structural change events to ensure the table is redrawn
-                // correctly. If this is done for all cases it can cause the table to scroll to
-                // an
+                // correctly. If this is done for all cases it can cause the table to scroll to an
                 // unexpected position
                 ((UndoableTableModel) table.getModel()).fireTableDataChanged();
                 ((UndoableTableModel) table.getModel()).fireTableStructureChanged();
@@ -2305,8 +2298,8 @@ public class CcddUndoHandler
          *
          * @param end        End index for a row move
          *
-         * @param type       TableEditType.INSERT if inserting a row; TableEditType.DELETE if removing a
-         *                   row; TableEditType.MOVE if moving a row or rows
+         * @param type       TableEditType.INSERT if inserting a row; TableEditType.DELETE if
+         *                   removing a row; TableEditType.MOVE if moving a row or rows
          *****************************************************************************************/
         RowEdit(UndoableTableModel tableModel, Object[] values, int row, int start, int end, TableEditType type)
         {
@@ -2455,8 +2448,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the selected cell in the table. In order for this to select the cell it must be scheduled to
-         * execute after other pending events
+         * Set the selected cell in the table. In order for this to select the cell it must be
+         * scheduled to execute after other pending events
          *****************************************************************************************/
         private void setSelectedCell()
         {
@@ -2505,8 +2498,8 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Override the default method with a method that includes a flag to store the column moved in the
-         * undo stack
+         * Override the default method with a method that includes a flag to store the column moved
+         * in the undo stack
          *****************************************************************************************/
         @Override
         public void moveColumn(int columnIndex, int newIndex)
@@ -2531,8 +2524,7 @@ public class CcddUndoHandler
                 // Get the listeners for this event
                 UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
 
-                // Check if there is an edit listener registered and that the column position
-                // has
+                // Check if there is an edit listener registered and that the column position has
                 // changed
                 if (listeners.length != 0 && columnIndex != newIndex)
                 {
@@ -2574,8 +2566,8 @@ public class CcddUndoHandler
          *
          * @param end              End index for a column move
          *
-         * @param type             TableEditType.INSERT if inserting a column; TableEditType.DELETE if
-         *                         removing a column; TableEditType.MOVE if moving a column
+         * @param type             TableEditType.INSERT if inserting a column; TableEditType.DELETE
+         *                         if removing a column; TableEditType.MOVE if moving a column
          *****************************************************************************************/
         ColumnEdit(UndoableTableColumnModel tableColumnModel, int start, int end, TableEditType type)
         {
@@ -2766,8 +2758,8 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Set the selected cell
          *
-         * @param selectState State to which the cell should be set; true to show the cell selected and
-         *                    false for deselected
+         * @param selectState State to which the cell should be set; true to show the cell selected
+         *                    and false for deselected
          *****************************************************************************************/
         private void setSelectedCell(boolean selectState)
         {
@@ -2888,8 +2880,7 @@ public class CcddUndoHandler
         @Override
         public void undo() throws CannotUndoException
         {
-            // Set the flag so that changes to the tree caused by the undo operation aren't
-            // placed
+            // Set the flag so that changes to the tree caused by the undo operation aren't placed
             // on the edit stack
             isAllowUndo = false;
 
@@ -2898,8 +2889,7 @@ public class CcddUndoHandler
             // Select the old paths
             changeTreePathSelection(oldPaths);
 
-            // Reset the flag so that changes to the tree are handled by the undo/redo
-            // manager
+            // Reset the flag so that changes to the tree are handled by the undo/redo manager
             isAllowUndo = true;
         }
 
@@ -2909,8 +2899,7 @@ public class CcddUndoHandler
         @Override
         public void redo() throws CannotUndoException
         {
-            // Set the flag so that changes to the tree caused by the redo operation aren't
-            // placed
+            // Set the flag so that changes to the tree caused by the redo operation aren't placed
             // on the edit stack
             isAllowUndo = false;
 
@@ -2919,8 +2908,7 @@ public class CcddUndoHandler
             // Select the new paths
             changeTreePathSelection(newPaths);
 
-            // Reset the flag so that changes to the tree are handled by the undo/redo
-            // manager
+            // Reset the flag so that changes to the tree are handled by the undo/redo manager
             isAllowUndo = true;
         }
 
@@ -2964,7 +2952,8 @@ public class CcddUndoHandler
     protected class UndoableTreeModel extends DefaultTreeModel
     {
         /******************************************************************************************
-         * Tree model undo/redo class constructor. Creates a tree model in which any node can have children
+         * Tree model undo/redo class constructor. Creates a tree model in which any node can have
+         * children
          *
          * @param root Tree root node
          *****************************************************************************************/
@@ -2977,13 +2966,13 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Tree model undo/redo class constructor. Creates a tree model specifying whether any node can have
-         * children, or whether only certain nodes can have children
+         * Tree model undo/redo class constructor. Creates a tree model specifying whether any node
+         * can have children, or whether only certain nodes can have children
          *
          * @param root               Tree root node
          *
-         * @param asksAllowsChildren False if any node can have children, true if each node is asked to see
-         *                           if it can have children
+         * @param asksAllowsChildren False if any node can have children, true if each node is
+         *                           asked to see if it can have children
          *****************************************************************************************/
         UndoableTreeModel(TreeNode root, boolean asksAllowsChildren)
         {
@@ -3128,16 +3117,16 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Placeholder for performing any actions needed following an undo or redo operation that adds or
-         * removes a node
+         * Placeholder for performing any actions needed following an undo or redo operation that
+         * adds or removes a node
          *****************************************************************************************/
         protected void nodeAddRemoveCleanup()
         {
         }
 
         /******************************************************************************************
-         * Placeholder for performing any actions needed following an undo or redo operation that affects a
-         * node's user object (name)
+         * Placeholder for performing any actions needed following an undo or redo operation that
+         * affects a node's user object (name)
          *
          * @param wasValue Node user object value prior to the undo/redo operation
          *
@@ -3179,9 +3168,9 @@ public class CcddUndoHandler
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         /**************************************************************************
-                         * Since the node restoration involves a GUI update use invokeLater to execute the call after
-                         * other pending events. This is necessary for the tree to appear without blank lines between
-                         * some nodes
+                         * Since the node restoration involves a GUI update use invokeLater to
+                         * execute the call after other pending events. This is necessary for the
+                         * tree to appear without blank lines between some nodes
                          *************************************************************************/
                         @Override
                         public void run()
@@ -3218,8 +3207,7 @@ public class CcddUndoHandler
                 // Notify any listeners that the node was re-added
                 nodesWereRemoved(parent, new int[] {index}, new Object[] {child});
 
-                // Reset the flag so that changes to the tree are handled by the undo/redo
-                // manager
+                // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
             }
 
@@ -3248,9 +3236,9 @@ public class CcddUndoHandler
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         /**************************************************************************
-                         * Since the node restoration involves a GUI update use invokeLater to execute the call after
-                         * other pending events. This is necessary for the tree to appear without blank lines between
-                         * some nodes
+                         * Since the node restoration involves a GUI update use invokeLater to
+                         * execute the call after other pending events. This is necessary for the
+                         * tree to appear without blank lines between some nodes
                          *************************************************************************/
                         @Override
                         public void run()
@@ -3264,8 +3252,7 @@ public class CcddUndoHandler
                 // Notify any listeners that the node was re-added
                 nodesWereInserted(parent, new int[] {index});
 
-                // Reset the flag so that changes to the tree are handled by the undo/redo
-                // manager
+                // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
             }
 
@@ -3324,8 +3311,7 @@ public class CcddUndoHandler
                 // Set the node's user object to the previous value
                 valueForPathChanged(path, oldValue);
 
-                // Reset the flag so that changes to the tree are handled by the undo/redo
-                // manager
+                // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
 
                 // Perform any clean-up actions required due to changing the node's user object
@@ -3348,8 +3334,7 @@ public class CcddUndoHandler
                 // Set the node's user object to the the new value
                 valueForPathChanged(path, newValue);
 
-                // Reset the flag so that changes to the tree are handled by the undo/redo
-                // manager
+                // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
 
                 // Perform any clean-up actions required due to changing the node's user object
@@ -3431,9 +3416,9 @@ public class CcddUndoHandler
                     SwingUtilities.invokeLater(new Runnable()
                     {
                         /**************************************************************************
-                         * Since the node restoration involves a GUI update use invokeLater to execute the call after
-                         * other pending events. This is necessary for the tree to appear without blank lines between
-                         * some nodes
+                         * Since the node restoration involves a GUI update use invokeLater to
+                         * execute the call after other pending events. This is necessary for the
+                         * tree to appear without blank lines between some nodes
                          *************************************************************************/
                         @Override
                         public void run()
@@ -3448,8 +3433,7 @@ public class CcddUndoHandler
                 // Notify all listeners that the node was re-added
                 nodesWereInserted(parent, new int[] {index});
 
-                // Reset the flag so that changes to the tree are handled by the undo/redo
-                // manager
+                // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
             }
 
@@ -3474,8 +3458,7 @@ public class CcddUndoHandler
                 // Notify all listeners that the child was removed
                 nodesWereRemoved(parent, new int[] {index}, new Object[] {child});
 
-                // Reset the flag so that changes to the tree are handled by the undo/redo
-                // manager
+                // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
             }
 
@@ -3493,9 +3476,9 @@ public class CcddUndoHandler
     }
 
     /**********************************************************************************************
-     * Data field panel undo/redo class. This handles 'structural' edits to the data field(s) (e.g.,
-     * field addition or deletion, or changes to the field's name, input type, size, etc., as opposed to
-     * the field's value)
+     * Data field panel undo/redo class. This handles 'structural' edits to the data field(s)
+     * (e.g., field addition or deletion, or changes to the field's name, input type, size, etc.,
+     * as opposed to the field's value)
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected class UndoableDataFieldPanel extends JComponent
@@ -3512,8 +3495,9 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the current state of the data field information. This is the state the data fields revert to
-         * in the event of an undo operation on a data field edit (not including edits of the field's value)
+         * Set the current state of the data field information. This is the state the data fields
+         * revert to in the event of an undo operation on a data field edit (not including edits of
+         * the field's value)
          *
          * @param oldFieldInfo List containing the current data field information
          *****************************************************************************************/
@@ -3525,7 +3509,8 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Add an edit of the data field panel to the undo/redo stack
          *
-         * @param fieldPnlHandler Reference to the data field panel handler in which the edit occurred
+         * @param fieldPnlHandler Reference to the data field panel handler in which the edit
+         *                        occurred
          *
          * @param newFieldInfo    Updated data field information list
          *****************************************************************************************/
@@ -3577,7 +3562,8 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Data field panel edit event handler constructor
          *
-         * @param fieldPnlHandler Reference to the data field panel handler in which the edit occurred
+         * @param fieldPnlHandler Reference to the data field panel handler in which the edit
+         *                        occurred
          *
          * @param oldFieldInfo    List containing the original state of the data field information
          *
@@ -3602,8 +3588,7 @@ public class CcddUndoHandler
         {
             super.undo();
 
-            // Rebuild the data fields using the original data field information list. Do
-            // not store
+            // Rebuild the data fields using the original data field information list. Do not store
             // this edit operation on the undo/redo stack
             fieldPnlHandler.createDataFieldPanel(false, oldFieldInfo, false);
         }
@@ -3616,8 +3601,7 @@ public class CcddUndoHandler
         {
             super.redo();
 
-            // Rebuild the data fields using the updated data field information list. Do not
-            // store
+            // Rebuild the data fields using the updated data field information list. Do not store
             // this edit operation on the undo/redo stack
             fieldPnlHandler.createDataFieldPanel(false, newFieldInfo, false);
         }

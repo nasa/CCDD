@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddDbManagerDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to set the connection parameters to the database, and for creating,
-*     copying, renaming, and deleting databases. The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddDbManagerDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to set the connection parameters to the database, and for creating,
+ * copying, renaming, and deleting databases. The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -124,20 +120,16 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     // Array containing the radio button or check box text and descriptions
     private String[][] arrayItemData;
 
-    // List of radio button or check box item indices for items that appear in the
-    // dialog but
+    // List of radio button or check box item indices for items that appear in the dialog but
     // aren't selectable
     private List<Integer> disabledItems;
 
-    // Table instance model data. Current copy is the table information as it exists
-    // in the table
-    // editor and is used to determine what changes have been made to the table
-    // since the previous
+    // Table instance model data. Current copy is the table information as it exists in the table
+    // editor and is used to determine what changes have been made to the table since the previous
     // editor update
     private String[][] committedData;
 
-    // Owner of the currently selected project (used when changing a project's
-    // owner)
+    // Owner of the currently selected project (used when changing a project's owner)
     private String currentOwner;
 
     // Indices into the array of arrayItemData
@@ -172,10 +164,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the project database manager dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the project database manager dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -404,8 +396,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                                             new Insets(0, 0, 0, 0), 0, 0);
 
                             // Create a copy of the user access level data so it can be used to
-                            // determine if
-                            // changes are made
+                            // determine if changes are made
                             storeCurrentData();
 
                             // Define the panel to contain the table and place it in the editor
@@ -594,9 +585,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Check if the error message is provided
                     if (!ce.getMessage().isEmpty())
@@ -608,9 +597,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                     errorFlag = true;
                 }
-                catch (
-                    Exception e
-                )
+                catch (Exception e)
                 {
                     // Inform the user than an unexpected error occurred
                     CcddUtilities.displayException(e, ccddMain.getMainFrame());
@@ -663,10 +650,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
 
                         case RENAME:
-                            // Display the rename project dialog.
-                            // Only the description can be altered for the currently
-                            // open project. The description and names can be
-                            // altered for all other projects.
+                            // Display the rename project dialog. Only the description can be
+                            // altered for the currently open project. The description and names
+                            // can be altered for all other projects
                             int chosenButton = showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Rename Project",
                                                                  DialogOption.RENAME_UPDATE_OPTIONS, true);
 
@@ -685,7 +671,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             String dbNewName = "";
 
                             boolean updateDb = false;
-                            // The OK button was chosen so rename the database and update the description
+                            // The OK button was chosen so rename the database and update the
+                            // description
                             if (chosenButton == CcddConstants.OK_BUTTON
                                 && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges))
                             {
@@ -694,7 +681,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                 updateDb = true;
                             }
 
-                            // The UPDATE button was chosen so just update the description and keep the name the same
+                            // The UPDATE button was chosen so just update the description and keep
+                            // the name the same
                             if (chosenButton == CcddConstants.UPDATE_BUTTON
                                 && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges))
                             {
@@ -789,8 +777,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void displayDatabaseError(String action)
     {
-        // Inform the user that no project database exists on the server for which the
-        // user has
+        // Inform the user that no project database exists on the server for which the user has
         // access
         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                   "<html><b>No project exists for which user '</b>"
@@ -943,8 +930,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         nameFld.setBackground(isAlterable ? ModifiableColorInfo.INPUT_BACK.getColor()
                                                           : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
 
-                        // If needed inform the user that an open project cannot be renamed. 16 is the
-                        // length of "New project name"
+                        // If needed inform the user that an open project cannot be renamed. 16 is
+                        // the length of "New project name"
                         if (nameLbl.getText().substring(0, 16).equals("New project name"))
                         {
                             nameLbl.setText(isAlterable ? "New project name"
@@ -1095,9 +1082,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     break;
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this, "<html><b>" + ce.getMessage(),
@@ -1107,9 +1092,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // Set the flag to indicate the dialog input is invalid
             isValid = false;
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user than an unexpected error occurred
             CcddUtilities.displayException(e, CcddDbManagerDialog.this);
@@ -1148,7 +1131,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override isCellEditable so that all columns can be edited except those for the current user
+             * Override isCellEditable so that all columns can be edited except those for the
+             * current user
              *************************************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
@@ -1159,7 +1143,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Allow pasting data into the user access level cells except those for the current user
+             * Allow pasting data into the user access level cells except those for the current
+             * user
              *************************************************************************************/
             @Override
             protected boolean isDataAlterable(Object[] rowData, int row, int column)
@@ -1168,8 +1153,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override getCellEditor so that for a user name or access level column cell the correct combo box
-             * cell editor is returned
+             * Override getCellEditor so that for a user name or access level column cell the
+             * correct combo box cell editor is returned
              *
              * @param row    Table view row number
              *
@@ -1193,8 +1178,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     // Select the combo box cell editor that displays the user names
                     cellEditor = userNameCellEditor;
                 }
-                // Check if the column for which the cell editor is requested is the access
-                // level
+                // Check if the column for which the cell editor is requested is the access level
                 // column
                 else if (modelColumn == AccessLevelEditorColumnInfo.ACCESS_LEVEL.ordinal())
                 {
@@ -1220,8 +1204,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
              *
              * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-             *                    a single input is being entered
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked;
+             *                    false if only a single input is being entered
              *
              * @return Always returns false
              *************************************************************************************/
@@ -1264,9 +1248,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         }
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -1290,7 +1272,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Load the table user access level definition values into the table and format the table cells
+             * Load the table user access level definition values into the table and format the
+             * table cells
              *************************************************************************************/
             @Override
             protected void loadAndFormatData()
@@ -1310,8 +1293,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
-                // Check if the cell isn't already selected (selection highlighting overrides
-                // the
+                // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
                 if (!(isFocusOwner() && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
@@ -1336,8 +1318,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to produce an array containing empty values for a new row
-             * in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *************************************************************************************/
@@ -1348,7 +1330,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method so that the current user's row can't be deleted
+             * Override the CcddJTableHandler method so that the current user's row can't be
+             * deleted
              *************************************************************************************/
             @Override
             protected void deleteRow(boolean endEdit)
@@ -1379,8 +1362,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether or not any unstored
-                // changes
+                // Add or remove the change indicator based on whether or not any unstored changes
                 // exist
                 setTitle(DIALOG_TITLE + (accessTable.isTableChanged(committedData, Arrays
                         .asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()})) ? CHANGE_INDICATOR : ""));
@@ -1415,8 +1397,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         {
             String admins = "";
 
-            // Update the copy of the user access level data so it can be used to determine
-            // if
+            // Update the copy of the user access level data so it can be used to determine if
             // changes are made
             storeCurrentData();
 
@@ -1432,8 +1413,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 }
             }
 
-            // Remove the trailing separator and update the project database comment with
-            // the
+            // Remove the trailing separator and update the project database comment with the
             // administrator names
             admins = CcddUtilities.removeTrailer(admins, DATABASE_ADMIN_SEPARATOR);
             dbControl.setDatabaseAdmins(admins, CcddDbManagerDialog.this);
@@ -1459,10 +1439,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // there are changes that haven't been stored. If changes exist then confirm
-        // discarding the
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been stored. If changes exist then confirm discarding the
         // changes
         if (accessTable == null
             || (accessTable.isLastCellValid()
@@ -1630,8 +1608,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             activeUsers = dbControl.queryActiveList(ccddMain.getMainFrame());
         }
 
-        // Get the array containing the database name, lock status, visible (project)
-        // name, project
+        // Get the array containing the database name, lock status, visible (project) name, project
         // creator, and description for each project to which the user has access
         String[] userDatabaseInformation = dbControl.queryDatabaseByUserList(ccddMain.getMainFrame(),
                                                                              dbControl.getUser());
@@ -1641,18 +1618,15 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         if (dialogType == DbManagerDialogType.RENAME || dialogType == DbManagerDialogType.COPY
             || dialogType == DbManagerDialogType.DELETE || dialogType == DbManagerDialogType.OWNER)
         {
-            // Get the list of databases for which the current user has administrative
-            // access
+            // Get the list of databases for which the current user has administrative access
             adminAccess = dbControl.getUserAdminAccess();
 
-            // Check if the is the database copy operation and the user has at least
-            // read/write
+            // Check if the is the database copy operation and the user has at least read/write
             // access
             if (dialogType == DbManagerDialogType.COPY && dbControl.isAccessReadWrite()
                 && !adminAccess.contains(dbControl.getDatabaseName()))
             {
-                // Add the current database to the list so that user's with read/write access
-                // can
+                // Add the current database to the list so that user's with read/write access can
                 // make a copy
                 adminAccess.add(dbControl.getDatabaseName());
             }
@@ -1661,8 +1635,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Step through each database comment
         for (String userDbInfo : userDatabaseInformation)
         {
-            // Separate the information retrieved into the database name and its comment,
-            // then
+            // Separate the information retrieved into the database name and its comment, then
             // parse the comment into its separate fields
             String[] nameAndComment = userDbInfo.split(DATABASE_COMMENT_SEPARATOR, 2);
             String comment[] = dbControl.parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
@@ -1671,12 +1644,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             boolean isLocked = comment[DatabaseComment.LOCK_STATUS.ordinal()].equals("1");
             boolean isDisabled = false;
 
-            // Check if the database is locked and that locked databases are to be disabled,
-            // if the
-            // database is unlocked and that unlocked databases are to be disabled, if the
-            // item is
-            // not specified as enabled, and this is not the rename or change owner dialog
-            // and not
+            // Check if the database is locked and that locked databases are to be disabled, if the
+            // database is unlocked and that unlocked databases are to be disabled, if the item is
+            // not specified as enabled, and this is not the rename or change owner dialog and not
             // the currently open project
             if (((isOnlyUnlocked && isLocked) || (isOnlyLocked && !isLocked))
                 && !comment[DatabaseComment.PROJECT_NAME.ordinal()].equals(enabledItem)
@@ -1688,8 +1658,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 isDisabled = true;
             }
 
-            // Check if the database isn't already disabled, this is a rename or delete
-            // dialog, and
+            // Check if the database isn't already disabled, this is a rename or delete dialog, and
             // the user doesn't have administrative access to the database
             if (!isDisabled && (adminAccess != null && !adminAccess.contains(nameAndComment[0])))
             {
@@ -1700,8 +1669,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // Store the database name as the project name
             arrayItemData[index][DB_PRJNAME] = comment[DatabaseComment.PROJECT_NAME.ordinal()];
 
-            // Check if this is an unlock dialog. The database description is replaced by
-            // the
+            // Check if this is an unlock dialog. The database description is replaced by the
             // database locked/unlocked status and the attached users
             if (dialogType == DbManagerDialogType.UNLOCK)
             {

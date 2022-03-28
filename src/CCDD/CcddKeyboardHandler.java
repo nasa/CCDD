@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddKeyboardHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for controlling keyboard input and implementing special key sequence actions.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddKeyboardHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for controlling keyboard input and implementing special key sequence actions.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ArrowFocusOption.HANDLE_ALL_ARROWS;
@@ -110,12 +106,12 @@ public class CcddKeyboardHandler
     }
 
     /**********************************************************************************************
-     * Set the references for the undo manager and table (if applicable) to those of the active modal
-     * dialog (e.g., the group manager or macro editor dialogs). Since the modal dialogs lock the user
-     * interface while active a reference to them cannot be set for the code to access as it can with
-     * the non-modal dialogs (i.e., the table editors and table type editor). The modal undo manager
-     * must be set to null after the dialog closes so that the non-modal dialogs (e.g., table and table
-     * type editors) undo managers can handle undo/redo operations
+     * Set the references for the undo manager and table (if applicable) to those of the active
+     * modal dialog (e.g., the group manager or macro editor dialogs). Since the modal dialogs lock
+     * the user interface while active a reference to them cannot be set for the code to access as
+     * it can with the non-modal dialogs (i.e., the table editors and table type editor). The modal
+     * undo manager must be set to null after the dialog closes so that the non-modal dialogs
+     * (e.g., table and table type editors) undo managers can handle undo/redo operations
      *
      * @param undoManager Modal dialog undo manager; null to disable
      *
@@ -143,17 +139,16 @@ public class CcddKeyboardHandler
             Timer releaseTimer = null;
 
             /**************************************************************************************
-             * Alter the response to the Enter key to act like the Space key to activate button and check box
-             * controls, and the arrow keys so as to mimic the Tab and Shift+Tab keys, unless the key press
-             * originates within a table or combo box. For a tabbed pane the left/right arrows are left
-             * unchanged so that these are used for traversing the tabbed panes, but the down and up arrows act
-             * like Tab and Shift+Tab respectively
+             * Alter the response to the Enter key to act like the Space key to activate button and
+             * check box controls, and the arrow keys so as to mimic the Tab and Shift+Tab keys,
+             * unless the key press originates within a table or combo box. For a tabbed pane the
+             * left/right arrows are left unchanged so that these are used for traversing the
+             * tabbed panes, but the down and up arrows act like Tab and Shift+Tab respectively
              *************************************************************************************/
             @Override
             public boolean dispatchKeyEvent(final KeyEvent ke)
             {
-                // Flag that indicates if the key event has been handled by this method (true)
-                // or
+                // Flag that indicates if the key event has been handled by this method (true) or
                 // that it still needs to be processed (false)
                 boolean handled = false;
 
@@ -383,8 +378,8 @@ public class CcddKeyboardHandler
                             SwingUtilities.invokeLater(new Runnable()
                             {
                                 /******************************************************************
-                                 * Execute after all pending Swing events are finished so that the events occur in the
-                                 * desired order
+                                 * Execute after all pending Swing events are finished so that the
+                                 * events occur in the desired order
                                  *****************************************************************/
                                 @Override
                                 public void run()
@@ -422,8 +417,8 @@ public class CcddKeyboardHandler
                             SwingUtilities.invokeLater(new Runnable()
                             {
                                 /******************************************************************
-                                 * Execute after all pending Swing events are finished so that the events occur in the
-                                 * desired order
+                                 * Execute after all pending Swing events are finished so that the
+                                 * events occur in the desired order
                                  *****************************************************************/
                                 @Override
                                 public void run()
@@ -617,7 +612,8 @@ public class CcddKeyboardHandler
                                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                     {
                                         /**********************************************************
-                                         * Enclose the selected macro name in the macro identifier character(s)
+                                         * Enclose the selected macro name in the macro identifier
+                                         * character(s)
                                          *********************************************************/
                                         @Override
                                         protected String alterText(String selectedItem)
@@ -644,7 +640,8 @@ public class CcddKeyboardHandler
                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                 {
                                     /**************************************************************
-                                     * Enclose the selected macro name in the macro identifier character(s)
+                                     * Enclose the selected macro name in the macro identifier
+                                     * character(s)
                                      *************************************************************/
                                     @Override
                                     protected String alterText(String selectedItem)
@@ -687,8 +684,7 @@ public class CcddKeyboardHandler
                         ((CcddCommonTreeHandler) comp).expandCollapseSelectedNodes();
                     }
                 }
-                // Check if Alt-Shift-V, Alt-Shift-C, or Alt-Shift-M is pressed (but not with
-                // the
+                // Check if Alt-Shift-V, Alt-Shift-C, or Alt-Shift-M is pressed (but not with the
                 // Ctrl key)
                 else if (ke.getID() == KeyEvent.KEY_PRESSED && ke.isAltDown() && ke.isShiftDown() && !ke.isControlDown()
                          && (ke.getKeyCode() == KeyEvent.VK_V || ke.getKeyCode() == KeyEvent.VK_C
@@ -742,8 +738,7 @@ public class CcddKeyboardHandler
                     // Set the flag to indicate this key press was handled
                     handled = true;
                 }
-                // Check if the Alt-Enter keys are pressed in a table cell that displays
-                // multi-line
+                // Check if the Alt-Enter keys are pressed in a table cell that displays multi-line
                 // text
                 else if (ke.getID() == KeyEvent.KEY_PRESSED && ke.isAltDown() && !ke.isControlDown()
                          && ke.getKeyCode() == KeyEvent.VK_ENTER && comp.getParent() instanceof CcddJTableHandler
@@ -834,8 +829,8 @@ public class CcddKeyboardHandler
     /**********************************************************************************************
      * Get the active table editor dialog
      *
-     * @return The active table editor dialog; null if no table editor dialog is active or no editor
-     *         dialog has focus
+     * @return The active table editor dialog; null if no table editor dialog is active or no
+     *         editor dialog has focus
      *********************************************************************************************/
     private CcddTableEditorDialog getFocusedTableEditorDialog()
     {
@@ -917,8 +912,7 @@ public class CcddKeyboardHandler
             // Get a reference to the type editor dialog to shorten subsequent calls
             CcddTableTypeEditorDialog editorDialog = ccddMain.getTableTypeEditor();
 
-            // Check if no table undo manager is applicable and the table type editor is
-            // open
+            // Check if no table undo manager is applicable and the table type editor is open
             if (undoManager == null && editorDialog != null)
             {
                 // Check if the table type editor has the keyboard focus
@@ -932,12 +926,10 @@ public class CcddKeyboardHandler
                 }
             }
 
-            // Get a reference to the data field table editor dialog to shorten subsequent
-            // calls
+            // Get a reference to the data field table editor dialog to shorten subsequent calls
             CcddFieldTableEditorDialog fieldEditor = ccddMain.getFieldTableEditor();
 
-            // Check if no table or table type undo manager is applicable, the data field
-            // table
+            // Check if no table or table type undo manager is applicable, the data field table
             // editor is open, and the editor has focus
             if (undoManager == null && fieldEditor != null && fieldEditor.isFocused())
             {
@@ -949,8 +941,7 @@ public class CcddKeyboardHandler
             // Get a reference to the script manager dialog to shorten subsequent calls
             CcddScriptManagerDialog scriptManager = ccddMain.getScriptManager();
 
-            // Check if no table or table type undo manager is applicable, the script
-            // manager is
+            // Check if no table or table type undo manager is applicable, the script manager is
             // open, and the editor has focus
             if (undoManager == null && scriptManager != null && scriptManager.isFocused())
             {
@@ -983,8 +974,7 @@ public class CcddKeyboardHandler
                     ((JTextField) focusOwner).setText(((JTextField) focusOwner).getText());
                 }
 
-                // Clear the keyboard focus so that the current data field value is registered
-                // as
+                // Clear the keyboard focus so that the current data field value is registered as
                 // an edit
                 focusManager.clearGlobalFocusOwner();
             }
@@ -994,10 +984,10 @@ public class CcddKeyboardHandler
     }
 
     /**********************************************************************************************
-     * Handle Enter and space key press events in a table in order to activate check box controls and
-     * initiate editing for editable fields. The space key would do these without this method; it is
-     * included in order to eliminate the cell background color 'flash' that occurs when a check box is
-     * toggled
+     * Handle Enter and space key press events in a table in order to activate check box controls
+     * and initiate editing for editable fields. The space key would do these without this method;
+     * it is included in order to eliminate the cell background color 'flash' that occurs when a
+     * check box is toggled
      *
      * @param comp Reference to the component where the key press event occurred
      *
@@ -1049,8 +1039,7 @@ public class CcddKeyboardHandler
                 // Set the flag to indicate that the event has been handled
                 handled = true;
             }
-            // No cell is selected; check if the table contains at least one row so that a
-            // row can
+            // No cell is selected; check if the table contains at least one row so that a row can
             // be selected
             else if (table.getRowCount() > 0)
             {
@@ -1080,9 +1069,8 @@ public class CcddKeyboardHandler
             // Get the component's parent
             Component parentComp = comp.getParent();
 
-            // Determine the table to which the component belongs. Depending on the cell
-            // editor
-            // this can be the component's parent, the parent's parent, etc.
+            // Determine the table to which the component belongs. Depending on the cell editor
+            // this can be the component's parent, the parent's parent, etc
             do
             {
                 // Check if this is the parent table
@@ -1106,8 +1094,7 @@ public class CcddKeyboardHandler
             // Check if the table cell contains an item matching combo box
             if (table.getCellEditor() instanceof ComboBoxCellEditor)
             {
-                // Set the combo box selection to the currently highlighted list item and
-                // reenable
+                // Set the combo box selection to the currently highlighted list item and reenable
                 // stopCellEditing() so that the cell is updated to the selected item
                 ((ComboBoxCellEditor) table.getCellEditor()).updateSelectedItem();
                 ((ComboBoxCellEditor) table.getCellEditor()).allowCellEdit(true);
@@ -1116,8 +1103,7 @@ public class CcddKeyboardHandler
             // Terminate editing in this cell
             table.getCellEditor().stopCellEditing();
 
-            // Select the next editable cell. If the last column in the last row is reached
-            // then
+            // Select the next editable cell. If the last column in the last row is reached then
             // terminate editing, leaving the cell selected
             do
             {
@@ -1151,8 +1137,7 @@ public class CcddKeyboardHandler
         // Check if the event was handled above
         if (handled)
         {
-            // Deselect the default button since it's no longer valid after editing is
-            // initiated
+            // Deselect the default button since it's no longer valid after editing is initiated
             table.getRootPane().setDefaultButton(null);
         }
 

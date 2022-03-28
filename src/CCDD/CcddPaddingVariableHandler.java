@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddPaddingVariableHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that adds/updates or removes the padding variables.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddPaddingVariableHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that adds/updates or removes the padding variables.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.PAD_DATA_TYPE;
@@ -92,12 +88,12 @@ public class CcddPaddingVariableHandler
         // Counter used for creating unique padding variable names within the structure
         private int padCounter;
 
-        // Running total of bytes processed in a structure while adding padding
-        // variables, limited to be within the byte alignment value
+        // Running total of bytes processed in a structure while adding padding variables, limited
+        // to be within the byte alignment value
         private int byteCount;
 
-        // Flag indicating if the structure's total size and largest member variable
-        // have been calculated
+        // Flag indicating if the structure's total size and largest member variable have been
+        // calculated
         private boolean isSizesCalculated;
 
         /******************************************************************************************
@@ -450,8 +446,7 @@ public class CcddPaddingVariableHandler
                 byteCount = largestDataType;
             }
 
-            // Calculate the number of padding variables needed to fill out the structure to
-            // the
+            // Calculate the number of padding variables needed to fill out the structure to the
             // alignment point
             numPads = (largestDataType - byteCount) % (largestDataType * largestDataType);
 
@@ -466,9 +461,9 @@ public class CcddPaddingVariableHandler
          *
          * @param padSize    Number of padding variables to insert
          *
-         * @param numPadBits Number of bits to assign to the padding variable to fill in a sequence of
-         *                   bit-packed variables. 0 if the padding variable isn't associated with
-         *                   bit-packed variables
+         * @param numPadBits Number of bits to assign to the padding variable to fill in a sequence
+         *                   of bit-packed variables. 0 if the padding variable isn't associated
+         *                   with bit-packed variables
          *
          * @return Row index below the added padding variable(s)
          *****************************************************************************************/
@@ -565,14 +560,14 @@ public class CcddPaddingVariableHandler
      *
      * @param ccddMain                    Main class reference
      *
-     * @param padOperation                PadOperationType: ADD_UPDATE to add or update the variable
-     *                                    padding; REMOVE to remove the padding variables
+     * @param padOperation                PadOperationType: ADD_UPDATE to add or update the
+     *                                    variable padding; REMOVE to remove the padding variables
      *
-     * @param selectedProtoStructTables   List of the prototype table names that will have the padding
-     *                                    altered
+     * @param selectedProtoStructTables   List of the prototype table names that will have the
+     *                                    padding altered
      *
-     * @param referencedProtoStructTables List of the prototype table names that are referenced by the
-     *                                    selected tables
+     * @param referencedProtoStructTables List of the prototype table names that are referenced by
+     *                                    the selected tables
      *
      * @param parent                      GUI component on which to center the Halt dialog
      *********************************************************************************************/
@@ -580,16 +575,14 @@ public class CcddPaddingVariableHandler
                                final List<String> selectedProtoStructTables,
                                final List<String> referencedProtoStructTables, final Component parent)
     {
-        // Check if there are uncommitted changes and if so, confirm discarding the
-        // changes before
+        // Check if there are uncommitted changes and if so, confirm discarding the changes before
         // proceeding
         if (ccddMain.ignoreUncommittedChanges("Alter Padding", "Discard changes?", false, null, parent))
         {
             this.ccddMain = ccddMain;
             this.eventLog = ccddMain.getSessionEventLog();
 
-            // Execute the commands to add/update/remove the padding variables in the
-            // background
+            // Execute the commands to add/update/remove the padding variables in the background
             CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
             {
                 /**********************************************************************************
@@ -868,8 +861,7 @@ public class CcddPaddingVariableHandler
             // alignment point
             if (padInfo.largestDataType != 0 && (padInfo.totalSize % padInfo.largestDataType) != 0)
             {
-                // Round up the total structure size to the next alignment point (padding
-                // variables
+                // Round up the total structure size to the next alignment point (padding variables
                 // will be added as needed to meet this size)
                 padInfo.totalSize += padInfo.largestDataType - (padInfo.totalSize % padInfo.largestDataType);
             }

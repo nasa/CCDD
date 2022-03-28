@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddDbCommandHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling database commands.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddDbCommandHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling database commands.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -80,8 +76,8 @@ public class CcddDbCommandHandler
     }
 
     /**********************************************************************************************
-     * Create a reference to the session event log. This can't be done initially since the event log
-     * hasn't been created when this class is instantiated
+     * Create a reference to the session event log. This can't be done initially since the event
+     * log hasn't been created when this class is instantiated
      *********************************************************************************************/
     protected void setEventLog()
     {
@@ -166,8 +162,8 @@ public class CcddDbCommandHandler
      *
      * @param component   GUI component over which to center any error dialog
      *
-     * @return Command result (content is dependent on the command type); returns null if no connection
-     *         exists to the server
+     * @return Command result (content is dependent on the command type); returns null if no
+     *         connection exists to the server
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
@@ -212,15 +208,13 @@ public class CcddDbCommandHandler
                 connection.commit();
             }
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             try
             {
-                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
-                // is enabled. Auto-commit is usually disabled, but there are instances where
-                // it's enabled so this check is required to prevent an exception
+                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit is
+                // enabled. Auto-commit is usually disabled, but there are instances where it's
+                // enabled so this check is required to prevent an exception
                 if (connection.getAutoCommit() == false)
                 {
                     try
@@ -239,9 +233,7 @@ public class CcddDbCommandHandler
                             connection.rollback(savePoint);
                         }
                     }
-                    catch (
-                        SQLException se2
-                    )
+                    catch (SQLException se2)
                     {
                         // Inform the user that rolling back the changes failed
                         eventLog.logFailEvent(component,
@@ -257,9 +249,7 @@ public class CcddDbCommandHandler
                 // Re-throw the exception so that the caller can handle it
                 throw new SQLException("Invalid SQL command; " + se.getMessage());
             }
-            catch (
-                SQLException se3
-            )
+            catch (SQLException se3)
             {
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
@@ -340,15 +330,13 @@ public class CcddDbCommandHandler
                 connection.commit();
             }
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             try
             {
-                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
-                // is enabled. Auto-commit is usually disabled, but there are instances where
-                // it's enabled so this check is required to prevent an exception
+                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit is
+                // enabled. Auto-commit is usually disabled, but there are instances where it's
+                // enabled so this check is required to prevent an exception
                 if (connection.getAutoCommit() == false)
                 {
                     try
@@ -367,9 +355,7 @@ public class CcddDbCommandHandler
                             connection.rollback(savePoint);
                         }
                     }
-                    catch (
-                        SQLException se2
-                    )
+                    catch (SQLException se2)
                     {
                         // Inform the user that rolling back the changes failed
                         eventLog.logFailEvent(component,
@@ -385,9 +371,7 @@ public class CcddDbCommandHandler
                 // Re-throw the exception so that the caller can handle it
                 throw new SQLException("Invalid SQL command; " + se.getMessage());
             }
-            catch (
-                SQLException se3
-            )
+            catch (SQLException se3)
             {
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
@@ -452,9 +436,7 @@ public class CcddDbCommandHandler
                 // Revert any changes to the database to the save point
                 connection.rollback(savePoint);
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 throw new SQLException(se);
             }
@@ -495,14 +477,11 @@ public class CcddDbCommandHandler
         {
             try
             {
-                // Release the save point. Each save point takes up shared memory, so releasing
-                // it
+                // Release the save point. Each save point takes up shared memory, so releasing it
                 // prevents a memory 'leak'
                 connection.releaseSavepoint(savePoint);
             }
-            catch (
-                SQLException se
-            )
+            catch (SQLException se)
             {
                 // Inform the user that the save point can't be released
                 eventLog.logFailEvent(component, "Cannot release save point; cause '" + se.getMessage() + "'",
@@ -517,8 +496,8 @@ public class CcddDbCommandHandler
     }
 
     /**********************************************************************************************
-     * Retrieve a list from the server or database. The command strings are set up to explicitly sort
-     * the list alphabetically, without regard to capitalization
+     * Retrieve a list from the server or database. The command strings are set up to explicitly
+     * sort the list alphabetically, without regard to capitalization
      *
      * @param listType   Type of list to be retrieved
      *
@@ -526,8 +505,8 @@ public class CcddDbCommandHandler
      *
      * @param parent     GUI component over which to center any error dialog
      *
-     * @return String array containing the requested list items in alphabetical order; an empty array if
-     *         no items exist
+     * @return String array containing the requested list items in alphabetical order; an empty
+     *         array if no items exist
      *********************************************************************************************/
     protected String[] getList(DatabaseListCommand listType, String[][] listOption, Component parent)
     {
@@ -572,9 +551,7 @@ public class CcddDbCommandHandler
 
             resultSet.close();
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the list retrieval failed
             eventLog.logFailEvent(parent, "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
@@ -585,8 +562,8 @@ public class CcddDbCommandHandler
     }
 
     /**********************************************************************************************
-     * Retrieve a 2D list from the server or database. The command strings are set up to explicitly sort
-     * the list alphabetically, without regard to capitalization
+     * Retrieve a 2D list from the server or database. The command strings are set up to explicitly
+     * sort the list alphabetically, without regard to capitalization
      *
      * @param listType   Type of list to be retrieved
      *
@@ -594,8 +571,8 @@ public class CcddDbCommandHandler
      *
      * @param parent     GUI component over which to center any error dialog
      *
-     * @return String array containing the requested list items in alphabetical order; an empty array if
-     *         no items exist
+     * @return String array containing the requested list items in alphabetical order; an empty
+     *         array if no items exist
      *********************************************************************************************/
     protected String[][] get2DList(DatabaseListCommand listType, String typeName, Component parent)
     {
@@ -642,9 +619,7 @@ public class CcddDbCommandHandler
 
             resultSet.close();
         }
-        catch (
-            SQLException se
-        )
+        catch (SQLException se)
         {
             // Inform the user that the list retrieval failed
             eventLog.logFailEvent(parent, "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",

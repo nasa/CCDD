@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddInputTypeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling data input type operations.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddInputTypeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling data input type operations.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
@@ -65,8 +61,7 @@ public class CcddInputTypeHandler
     // List of input types, both default and custom ones defined by the user
     private final List<InputType> inputTypes;
 
-    // Array containing the custom input type information. This is used by the input
-    // type editor
+    // Array containing the custom input type information. This is used by the input type editor
     private String[][] customInputTypes;
 
     // List of input type that have selection items
@@ -76,8 +71,9 @@ public class CcddInputTypeHandler
     private final Map<String, InputType> inputTypeMap;
 
     /**********************************************************************************************
-     * Variable (command) reference class; used to contain information on structure (command) tables of
-     * the same table type having a column with the variable (command) reference input type
+     * Variable (command) reference class; used to contain information on structure (command)
+     * tables of the same table type having a column with the variable (command) reference input
+     * type
      *********************************************************************************************/
     protected class InputTypeReference
     {
@@ -91,11 +87,11 @@ public class CcddInputTypeHandler
          * @param columnDb      Column name (as used in the database) having the variable (command)
          *                      reference input type
          *
-         * @param columnVisible Column name (as seen by the user) having the variable (command) reference
-         *                      input type
+         * @param columnVisible Column name (as seen by the user) having the variable (command)
+         *                      reference input type
          *
-         * @param tables        Array of prototype structure (command) tables of the table type having a
-         *                      column with the variable (command) reference input type
+         * @param tables        Array of prototype structure (command) tables of the table type
+         *                      having a column with the variable (command) reference input type
          *****************************************************************************************/
         InputTypeReference(String columnDb, String columnVisible, String[] tables)
         {
@@ -107,7 +103,8 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Get the column name as used in the database
          *
-         * @return Column name (as used in the database) having the variable (command) reference input type
+         * @return Column name (as used in the database) having the variable (command) reference
+         *         input type
          *****************************************************************************************/
         protected String getColumnDb()
         {
@@ -117,7 +114,8 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Get the column name as seen by the user
          *
-         * @return Column name (as seen by the user) having the variable (command) reference input type
+         * @return Column name (as seen by the user) having the variable (command) reference input
+         *         type
          *****************************************************************************************/
         protected String getColumnVisible()
         {
@@ -127,8 +125,8 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Get the array of prototype structure (command) tables of the same table type
          *
-         * @return Array of prototype structure (command) tables of the table type having a column with the
-         *         variable (command) reference input type
+         * @return Array of prototype structure (command) tables of the table type having a column
+         *         with the variable (command) reference input type
          *****************************************************************************************/
         protected String[] getTables()
         {
@@ -147,8 +145,8 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Input type reference check results class constructor
          *
-         * @param references       List of references in the table type and data field internal tables that
-         *                         use the input type
+         * @param references       List of references in the table type and data field internal
+         *                         tables that use the input type
          *
          * @param isRefFieldChange True to indicate that a data field is using the input type
          *****************************************************************************************/
@@ -159,11 +157,11 @@ public class CcddInputTypeHandler
         }
 
         /******************************************************************************************
-         * Get the list of references in the table type and data field internal tables that use the input
-         * type
+         * Get the list of references in the table type and data field internal tables that use the
+         * input type
          *
-         * @return List of references in the table type and data field internal tables that use the input
-         *         type
+         * @return List of references in the table type and data field internal tables that use the
+         *         input type
          *****************************************************************************************/
         protected List<InputTypeReference> getReferences()
         {
@@ -194,8 +192,7 @@ public class CcddInputTypeHandler
         this.ccddMain = ccddMain;
         dbCommand = ccddMain.getDbCommandHandler();
 
-        // Set the input type list, combining the default types and the custom types
-        // stored in the
+        // Set the input type list, combining the default types and the custom types stored in the
         // project database
         setInputTypeData(ccddMain.getDbTableCommandHandler()
                 .retrieveInformationTable(InternalTable.INPUT_TYPES, true, ccddMain.getMainFrame())
@@ -213,8 +210,7 @@ public class CcddInputTypeHandler
         inputTypes = new ArrayList<InputType>(0);
         selectionInputTypes = new ArrayList<InputType>(0);
 
-        // Set the input type list, combining the default types and the supplied custom
-        // types
+        // Set the input type list, combining the default types and the supplied custom types
         setInputTypeData(inputTypesArray);
     }
 
@@ -305,8 +301,7 @@ public class CcddInputTypeHandler
                 selectionInputTypes.add(inputType);
             }
 
-            // Add the input type to the map, using the name as the key (converted to lower
-            // case to
+            // Add the input type to the map, using the name as the key (converted to lower case to
             // eliminate case sensitivity)
             inputTypeMap.put(inputType.getInputName().toLowerCase(), inputType);
         }
@@ -331,8 +326,7 @@ public class CcddInputTypeHandler
         // Check if the list is empty (no variable references)
         if (variableHandler.getAllVariableNames().isEmpty())
         {
-            // Remove the variable reference input type from the list of those having
-            // selection
+            // Remove the variable reference input type from the list of those having selection
             // items
             selectionInputTypes.remove(inputType);
         }
@@ -378,8 +372,7 @@ public class CcddInputTypeHandler
         // Check if the list is empty (no command references)
         if (commandHandler.getAllCommands().isEmpty())
         {
-            // Remove the command reference input type from the list of those having
-            // selection
+            // Remove the command reference input type from the list of those having selection
             // items
             selectionInputTypes.remove(inputType);
         }
@@ -400,9 +393,9 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Update the message references input type selection item list with the supplied message name, ID,
-     * and owner list. Based on whether or not the message list is empty, add or remove the input type
-     * from the list of those having selection items
+     * Update the message references input type selection item list with the supplied message name,
+     * ID, and owner list. Based on whether or not the message list is empty, add or remove the
+     * input type from the list of those having selection items
      *
      * @param parent GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -436,13 +429,11 @@ public class CcddInputTypeHandler
         // Check if the list is empty (no message references)
         if (msgIDs.isEmpty())
         {
-            // Remove the message references input type from the list of those having
-            // selection
+            // Remove the message references input type from the list of those having selection
             // items
             selectionInputTypes.remove(inputType);
         }
-        // Check if the list of types having selection items doesn't already contain the
-        // message
+        // Check if the list of types having selection items doesn't already contain the message
         // references input type
         else if (!selectionInputTypes.contains(inputType))
         {
@@ -456,8 +447,8 @@ public class CcddInputTypeHandler
      *
      * @param inputTypeName Input type name to match (case insensitive)
      *
-     * @return Input type with the name that matches the one specified; returns the input type for text
-     *         if the input type doesn't exist
+     * @return Input type with the name that matches the one specified; returns the input type for
+     *         text if the input type doesn't exist
      *********************************************************************************************/
     protected InputType getInputTypeByName(String inputTypeName)
     {
@@ -479,8 +470,8 @@ public class CcddInputTypeHandler
      *
      * @param defaultInputType Default input type to match (DefaultInputType)
      *
-     * @return Input type with the name that matches the one specified; returns the input type for text
-     *         if the input type doesn't exist
+     * @return Input type with the name that matches the one specified; returns the input type for
+     *         text if the input type doesn't exist
      *********************************************************************************************/
     protected InputType getInputTypeByDefaultType(DefaultInputType defaultInputType)
     {
@@ -501,8 +492,8 @@ public class CcddInputTypeHandler
      * Convert the supplied input selection item string to the corresponding input match regular
      * expression
      *
-     * @param itemString String containing the acceptable values for this input type, separated by the
-     *                   selection item list separator; null or blank if the input type doesn't
+     * @param itemString String containing the acceptable values for this input type, separated by
+     *                   the selection item list separator; null or blank if the input type doesn't
      *                   constrain the inputs to items from a list
      *
      * @return Regular expression that matches only the items in the selection list
@@ -514,8 +505,7 @@ public class CcddInputTypeHandler
         // Convert the selection item string to a list
         List<String> itemList = InputType.convertItemStringToList(itemString.trim());
 
-        // Check if the regular expression was created (null is returned if the item
-        // list string is
+        // Check if the regular expression was created (null is returned if the item list string is
         // empty)
         if (itemList != null)
         {
@@ -524,10 +514,8 @@ public class CcddInputTypeHandler
             // Step through each selection item
             for (String item : itemList)
             {
-                // Append the selection item to the regular expression. Each item is flagged as
-                // a
-                // literal string to allow special regular expression characters in the item
-                // text
+                // Append the selection item to the regular expression. Each item is flagged as a
+                // literal string to allow special regular expression characters in the item text
                 itemRegEx += Pattern.quote(item) + "|";
             }
 
@@ -549,12 +537,15 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Get an array of the input type names (all or user-defined only), excluding separators and breaks
+     * Get an array of the input type names (all or user-defined only), excluding separators and
+     * breaks, sorted alphabetically
      *
-     * @param customOnly True to only include user-defined input types; false to include all input types
+     * @param customOnly True to only include user-defined input types; false to include all input
+     *                   types
      *
-     * @return Array of all or only user-defined input type names, sorted alphabetically; an empty list
-     *         if no user-defined input types are defined and only user-defined types are requested
+     * @return Array of all or only user-defined input type names, sorted alphabetically; an empty
+     *         list if no user-defined input types are defined and only user-defined types are
+     *         requested
      *********************************************************************************************/
     protected String[] getNames(boolean customOnly)
     {
@@ -564,8 +555,7 @@ public class CcddInputTypeHandler
         // Step through each input type
         for (InputType inputType : inputTypes)
         {
-            // Check that this isn't a page format type and if either all input types are to
-            // be
+            // Check that this isn't a page format type and if either all input types are to be
             // included, or only the user-defined ones and this one is user-defined
             if (!inputType.getInputFormat().equals(InputTypeFormat.PAGE_FORMAT)
                 && (!customOnly || inputType.isCustomInput()))
@@ -582,8 +572,8 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Get an array of all of the input type descriptions, sorted based on the alphabetically sorted
-     * input names, excluding separators and breaks
+     * Get an array of all of the input type descriptions, sorted based on the alphabetically
+     * sorted input names, excluding separators and breaks
      *
      * @return Array of all of the input type descriptions
      *********************************************************************************************/
@@ -616,17 +606,17 @@ public class CcddInputTypeHandler
     }
 
     /******************************************************************************************
-     * Reformat the input value for numeric types. This adds a leading zero to floating point values if
-     * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
-     * and floating point values
+     * Reformat the input value for numeric types. This adds a leading zero to floating point
+     * values if the first character is a decimal, and removes '+' signs and unneeded leading
+     * zeroes from integer and floating point values
      *
      * @param valueS         Value, represented as a string, to reformat
      *
      * @param inputFormat    Input type format (InputTypeFormat)
      *
-     * @param preserveZeroes True to preserve leading zeroes in hexadecimal values; false to eliminate
-     *                       the extra zeroes (this is useful when comparing the text representation of
-     *                       two hexadecimal values)
+     * @param preserveZeroes True to preserve leading zeroes in hexadecimal values; false to
+     *                       eliminate the extra zeroes (this is useful when comparing the text
+     *                       representation of two hexadecimal values)
      *
      * @return Input value reformatted based on its input type
      *****************************************************************************************/
@@ -720,9 +710,7 @@ public class CcddInputTypeHandler
                         break;
                 }
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 // An error occurred formatting the supplied value as the specified format type.
                 // This is only possible for the user-defined input types. Ignore the error and
@@ -742,8 +730,8 @@ public class CcddInputTypeHandler
      *
      * @param parent        GUI component over which to center any error dialog
      *
-     * @return List containing the tables in the database that reference the specified input type name;
-     *         an empty array if no matches are found
+     * @return List containing the tables in the database that reference the specified input type
+     *         name; an empty array if no matches are found
      *********************************************************************************************/
     protected String[] searchInputTypeReferences(String inputTypeName, Component parent)
     {
@@ -763,8 +751,8 @@ public class CcddInputTypeHandler
      *
      * @param inputTypeDefinitions List of input type definitions
      *
-     * @throws CCDDException If an input type with the same same already exists and the imported type
-     *                       doesn't match
+     * @throws CCDDException If an input type with the same same already exists and the imported
+     *                       type doesn't match
      *********************************************************************************************/
     protected void updateInputTypes(List<String[]> inputTypeDefinitions) throws CCDDException
     {
@@ -780,7 +768,7 @@ public class CcddInputTypeHandler
             // Check if the input type doesn't already exist
             if (inputType == null)
             {
-                // The input type does not exist yet so add it to the list.
+                // The input type does not exist yet so add it to the list
                 newInputTypeDefinitions.add(typeDefn);
             }
             // The input type exists; check if the type information provided matches the existing
@@ -808,25 +796,24 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the results of a search for references in the table type and data field internal tables for
-     * the specified default input type
+     * Get the results of a search for references in the table type and data field internal tables
+     * for the specified default input type
      *
      * @param inputType Default input type for which to search (DefaultInputType)
      *
      * @param parent    GUI component over which to center any error dialog
      *
-     * @return Reference to the ReferenceCheckResults containing the list of references in the table
-     *         type and data field internal tables that use the specified input type (an empty list if
-     *         there are no references) and the flag that indicates if a data field is using the input
-     *         type
+     * @return Reference to the ReferenceCheckResults containing the list of references in the
+     *         table type and data field internal tables that use the specified input type (an
+     *         empty list if there are no references) and the flag that indicates if a data field
+     *         is using the input type
      *********************************************************************************************/
     protected ReferenceCheckResults getInputTypeReferences(DefaultInputType inputType, Component parent)
     {
         boolean isFieldUsesType = false;
         List<InputTypeReference> references = new ArrayList<InputTypeReference>();
 
-        // Step through each reference in the table type and data field internal tables
-        // that use
+        // Step through each reference in the table type and data field internal tables that use
         // the specified input type
         for (String typeRef : searchInputTypeReferences(inputType.getInputName(), parent))
         {
@@ -841,8 +828,7 @@ public class CcddInputTypeHandler
                 String[] refColumns = CcddUtilities
                         .splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
-                // Create the reference with the columns names (database and visible) and the
-                // names
+                // Create the reference with the columns names (database and visible) and the names
                 // of the prototype tables of this table type
                 references.add(new InputTypeReference(refColumns[TableTypesColumn.COLUMN_NAME_DB
                         .ordinal()], refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()], ccddMain

@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddGroupTreeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing the methods for creating and manipulating a table group tree. This class
-*     is an extension of the CcddInformationTreeHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddGroupTreeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing the methods for creating and manipulating a table group tree. This class
+ * is an extension of the CcddInformationTreeHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
@@ -91,8 +87,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     // Flag indicating if the group tree nodes are expanded or not
     private boolean isExpanded;
 
-    // List to contain the group definitions (groups and variable paths) retrieved
-    // from the database
+    // List to contain the group definitions (groups and variable paths) retrieved from the
+    // database
     private List<String[]> groupDefinitions;
 
     // Flag to indicate if the group tree is being built
@@ -118,10 +114,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *
      * @param undoHandler       Reference to the undo handler
      *
-     * @param scheduleRate      String value representing a schedule rate used to filter the groups that
-     *                          may be selected; null or blank if not filtering
+     * @param scheduleRate      String value representing a schedule rate used to filter the groups
+     *                          that may be selected; null or blank if not filtering
      *
-     * @param isApplicationOnly True if only groups that represent CFS applications should be displayed
+     * @param isApplicationOnly True if only groups that represent CFS applications should be
+     *                          displayed
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -185,7 +182,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Get the node level that skips any active filter nodes and accounts for the table type node level
+     * Get the node level that skips any active filter nodes and accounts for the table type node
+     * level
      *
      * @return Node level for tree nodes below the active filter nodes
      *********************************************************************************************/
@@ -202,17 +200,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     {
         List<String> groups = new ArrayList<String>();
 
-        // Store the paths of the groups selected for deletion. The paths are 'lost'
-        // when the nodes
+        // Store the paths of the groups selected for deletion. The paths are 'lost' when the nodes
         // are removed in the next step
         TreePath[] paths = getSelectionPaths();
 
-        // Remove the selected group(s) from the group tree. This is performed before
-        // removal of
-        // the group information so that an undo operation restores the group
-        // information prior to
-        // restoration of the tree node(s); this way if only a single group is restored
-        // via an undo
+        // Remove the selected group(s) from the group tree. This is performed before removal of
+        // the group information so that an undo operation restores the group information prior to
+        // restoration of the tree node(s); this way if only a single group is restored via an undo
         // then the group's description and fields are displayed in the group manager
         removeSelectedTopLevelNodes();
 
@@ -235,8 +229,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Add a new node to the tree's root node, or the application node is filtering by application is
-     * active. Add the table types as nodes to the new node depending on the supplied flag
+     * Add a new node to the tree's root node, or the application node is filtering by application
+     * is active. Add the table types as nodes to the new node depending on the supplied flag
      *
      * @param nodeName        Name of the node to add
      *
@@ -244,11 +238,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *
      * @param isApp           True if the group represents a CFS application
      *
-     * @param isAddTableTypes True if nodes with the names of the table types should be added to the new
-     *                        node
+     * @param isAddTableTypes True if nodes with the names of the table types should be added to
+     *                        the new node
      *
-     * @return Array of table type nodes added to the group node; null if the table type nodes aren't
-     *         added
+     * @return Array of table type nodes added to the group node; null if the table type nodes
+     *         aren't added
      *********************************************************************************************/
     protected ToolTipTreeNode[] addInformationNode(String nodeName, String toolTipText, boolean isApp,
                                                    boolean isAddTableTypes)
@@ -282,8 +276,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *
      * @param filterByApp       True if the tree is filtered by application status
      *
-     * @param scheduleRate      Schedule rate used to filter the groups; blank or null if not filtering
-     *                          by schedule rate
+     * @param scheduleRate      Schedule rate used to filter the groups; blank or null if not
+     *                          filtering by schedule rate
      *
      * @param isApplicationOnly True to only display groups that represent a CFS application
      *
@@ -298,31 +292,25 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         super.buildTree(isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
-        // Tree nodes for the table types if filtering by type and for application
-        // status if
-        // filtering
-        // by application
+        // Tree nodes for the table types if filtering by type and for application status if
+        // filtering by application
         ToolTipTreeNode[] typeNodes = null;
         ToolTipTreeNode[] appNodes = null;
 
         // Get the tree's root node
         root = getRootNode();
 
-        // Build the group information using the group definitions and the group data
-        // fields from
+        // Build the group information using the group definitions and the group data fields from
         // the database
         groupHandler.buildGroupInformation(groupDefinitions);
         buildFieldInformation(parent);
 
-        // Register the tool tip manager for the group tree (otherwise the tool tips
-        // aren't
+        // Register the tool tip manager for the group tree (otherwise the tool tips aren't
         // displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 
-        // Set the flag to indicate that the group tree is being built. This flag is
-        // used to
-        // inhibit actions involving tree selection value changes during the build
-        // process
+        // Set the flag to indicate that the group tree is being built. This flag is used to
+        // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
 
         // Check if the application statuses are to be used to filter the group tree
@@ -387,7 +375,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             int commentIndex = tableComments.indexOf((Object) TableInfo.getPrototypeName(table));
 
                             // Check if the table was located in the list. It's possible to import
-                            // groups containing references to tables that don't exist in the database
+                            // groups containing references to tables that don't exist in the
+                            // database
                             if (commentIndex != -1)
                             {
                                 // Get the table type for the current group table member
@@ -469,8 +458,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 // Get the tree's expansion state
                 String expState = getExpansionState();
 
-                // Change any references to the group from (to) the application node to (from)
-                // the
+                // Change any references to the group from (to) the application node to (from) the
                 // other node, and ensure the application and other nodes are expanded
                 expState = expState.replaceAll((isApplication ? OTHER_NODE : APP_NODE) + ", " + groupName,
                                                (isApplication ? APP_NODE : OTHER_NODE) + ", " + groupName)
@@ -495,8 +483,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     }
                 }
 
-                // Build the group tree with the specified group moved from/to the Application
-                // node
+                // Build the group tree with the specified group moved from/to the Application node
                 buildTree(isFilterByApp, null, false, parent);
 
                 // Restore the expansion state
@@ -540,10 +527,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     @Override
     protected void addNodeToInfoNode(ToolTipTreeNode node, Object[] sourcePath, int startIndex)
     {
-        // Check if the tree is filtered by table type and the target node is not a
-        // table type
-        // node. This occurs when transferring a node from the table tree to the group
-        // tree in the
+        // Check if the tree is filtered by table type and the target node is not a table type
+        // node. This occurs when transferring a node from the table tree to the group tree in the
         // group manager, but is not needed when building the group tree
         if (node.getLevel() <= getHeaderNodeLevel())
         {
@@ -654,8 +639,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // Step through each group's information
         for (GroupInformation grpInfo : groupHandler.getGroupInformation())
         {
-            // Add the group's name and description to the list. If the group represents a
-            // CFS
+            // Add the group's name and description to the list. If the group represents a CFS
             // application it's definition begins with a non-zero numeral
             definitions.add(new String[] {grpInfo.getName(),
                                           (grpInfo.isApplication() ? "1" : "0") + "," + grpInfo.getDescription()});
@@ -665,8 +649,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Override adding a group definition entry in order to look for and prune duplicates. Duplicates
-     * can occur if the tree is filtered by table type
+     * Override adding a group definition entry in order to look for and prune duplicates.
+     * Duplicates can occur if the tree is filtered by table type
      *********************************************************************************************/
     @Override
     protected void addLeafDefinition(List<String[]> treeDefns, String[] leafDefn, String filterValue)
@@ -680,22 +664,22 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // Check if the group names are the same
             if (leafDefn[0].equals(treeDefn[0]))
             {
-                // Check if the table path length differs and the path to add contains the
-                // existing path (that is, the added path is a superset of the existing one)
+                // Check if the table path length differs and the path to add contains the existing
+                // path (that is, the added path is a superset of the existing one)
                 if (treeDefn[1].length() != leafDefn[1].length() && leafDefn[1].startsWith(treeDefn[1] + ","))
                 {
-                    // Replace the existing definition with the added one, set the flag to
-                    // indicate the added one has been handled, and stop searching
+                    // Replace the existing definition with the added one, set the flag to indicate
+                    // the added one has been handled, and stop searching
                     treeDefns.set(index, leafDefn);
                     isFound = true;
                     break;
                 }
-                // Check if this is an identical table path or a subset (due to a table
-                // reference being pruned)
+                // Check if this is an identical table path or a subset (due to a table reference
+                // being pruned)
                 else if (treeDefn[1].equals(leafDefn[1]) || treeDefn[1].startsWith(leafDefn[1] + ","))
                 {
-                    // Ignore the added definition, set the flag to indicate the added one has
-                    // been handled, and stop searching
+                    // Ignore the added definition, set the flag to indicate the added one has been
+                    // handled, and stop searching
                     isFound = true;
                     break;
                 }
@@ -713,8 +697,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Set the node text color based on the currently selected schedule rate and the rate of the group
-     * to which the node belongs: black for a match and gray for a mismatch
+     * Set the node text color based on the currently selected schedule rate and the rate of the
+     * group to which the node belongs: black for a match and gray for a mismatch
      *
      * @param startNode Starting node for which to adjust the text and color
      *
@@ -731,13 +715,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // Get the tree level for this node
             int level = node.getLevel();
 
-            // Check that the tree has any levels. When the tree is first created this
-            // method is
+            // Check that the tree has any levels. When the tree is first created this method is
             // called when no nodes exist
             if (level > 0)
             {
-                // Get the group name from the node. The group name is the second node in the
-                // path
+                // Get the group name from the node. The group name is the second node in the path
                 // for this node
                 String groupName = removeExtraText(node.getPath()[1].toString());
 
@@ -791,8 +773,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // Step through each selected node
         for (TreePath path : getSelectionPaths())
         {
-            // Get the selected node's item nodes (including the selected node if it's an
-            // item
+            // Get the selected node's item nodes (including the selected node if it's an item
             // node)
             getItemNodes((ToolTipTreeNode) path.getLastPathComponent(), removeNodes);
         }
@@ -806,8 +787,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Add the specified node to the list of item nodes if it represents an item. If this is a header
-     * node then get the item nodes from the header's child nodes. This is a recursive method
+     * Add the specified node to the list of item nodes if it represents an item. If this is a
+     * header node then get the item nodes from the header's child nodes. This is a recursive
+     * method
      *
      * @param node      Node to add to the list if the node represents an item, or a header node
      *
@@ -838,8 +820,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Create a group tree panel. The table tree is placed in a scroll pane. A check box is added that
-     * allows tree expansion/collapse
+     * Create a group tree panel. The table tree is placed in a scroll pane. A check box is added
+     * that allows tree expansion/collapse
      *
      * @param label         Group tree title
      *
@@ -853,13 +835,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode, boolean noFilters, final Component parent)
     {
-        // Set the renderer for the tree so that custom icons can be used for the
-        // various node
+        // Set the renderer for the tree so that custom icons can be used for the various node
         // types
         setCellRenderer(new VariableTreeCellRenderer()
         {
-            // Tree node row height storage. Setting a row's preferred height to 0 causes it
-            // to not
+            // Tree node row height storage. Setting a row's preferred height to 0 causes it to not
             // be displayed
             int rowHeight = 0;
 
@@ -972,8 +952,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             @Override
             public void valueChanged(TreeSelectionEvent lse)
             {
-                // Check that a group tree (re)build isn't in progress. Building the tree
-                // triggers
+                // Check that a group tree (re)build isn't in progress. Building the tree triggers
                 // tree selection value changes that should not be processed
                 if (!isBuilding)
                 {
@@ -1048,8 +1027,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             gbc.gridy++;
             treePnl.add(appFilterChkBx, gbc);
 
-            // Create a listener for changes in selection of the application filter check
-            // box
+            // Create a listener for changes in selection of the application filter check box
             appFilterChkBx.addActionListener(new ActionListener()
             {
                 /**********************************************************************************

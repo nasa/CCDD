@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddLinkHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing methods to manipulate variable linkages.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddLinkHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing methods to manipulate variable linkages.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -49,8 +45,8 @@ public class CcddLinkHandler
     private final CcddMacroHandler macroHandler;
     private final CcddVariableHandler variableHandler;
 
-    // List to contain the link definitions (link names and variable paths)
-    // retrieved from the database
+    // List to contain the link definitions (link names and variable paths) retrieved from the
+    // database
     private final List<String[]> linkDefinitions;
 
     /**********************************************************************************************
@@ -71,8 +67,8 @@ public class CcddLinkHandler
         macroHandler = ccddMain.getMacroHandler();
         variableHandler = ccddMain.getVariableHandler();
 
-        // Remove any variable references in the link definitions that aren't found in
-        // the links tree
+        // Remove any variable references in the link definitions that aren't found in the links
+        // tree
         removeInvalidLinks();
     }
 
@@ -115,8 +111,8 @@ public class CcddLinkHandler
      *
      * @param rateName Rate column name
      *
-     * @return List containing the link names for the specified rate column name; an empty list if there
-     *         are no links associated with the rate
+     * @return List containing the link names for the specified rate column name; an empty list if
+     *         there are no links associated with the rate
      *********************************************************************************************/
     protected List<String> getLinkNamesByRate(String rateName)
     {
@@ -154,8 +150,7 @@ public class CcddLinkHandler
         // Step through the link definitions
         for (int index = 0; index < linkDefinitions.size(); index++)
         {
-            // Check if the link names match and that this is not the link's
-            // rate/description row
+            // Check if the link names match and that this is not the link's rate/description row
             if (linkRate.equals(linkDefinitions.get(index)[LinksColumn.RATE_NAME.ordinal()])
                 && linkName.equals(linkDefinitions.get(index)[LinksColumn.LINK_NAME.ordinal()])
                 && !linkDefinitions.get(index)[LinksColumn.MEMBER.ordinal()].matches("\\d.*"))
@@ -190,16 +185,13 @@ public class CcddLinkHandler
             String linkName = linkDefn[LinksColumn.LINK_NAME.ordinal()];
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if this is not a link description entry (these are indicated if the
-            // first
-            // character is a digit, which is the link rate) and if the link member matches
-            // the
+            // Check if this is not a link description entry (these are indicated if the first
+            // character is a digit, which is the link rate) and if the link member matches the
             // target variable
             if (!linkMember.matches("\\d.*")
                 && macroHandler.getMacroExpansion(variable).equals(macroHandler.getMacroExpansion(linkMember)))
             {
-                // Check if the data stream name should be returned instead of the rate column
-                // name
+                // Check if the data stream name should be returned instead of the rate column name
                 if (useDataStream)
                 {
                     // Get the rate information based on the rate column name
@@ -241,10 +233,8 @@ public class CcddLinkHandler
             // Extract the link rate/description or member
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if this is not a link description entry (these are indicated if the
-            // first
-            // character is a digit, which is the link rate), and if the link member matches
-            // the
+            // Check if this is not a link description entry (these are indicated if the first
+            // character is a digit, which is the link rate), and if the link member matches the
             // target variable and rate
             if (!linkMember.matches("\\d.*") && variable.equals(linkMember)
                 && rateName.equals(linkDefn[LinksColumn.RATE_NAME.ordinal()]))
@@ -284,22 +274,19 @@ public class CcddLinkHandler
             String linkName = linkDefn[LinksColumn.LINK_NAME.ordinal()];
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if the rate name and link name for this entry matches the target, and
-            // that
+            // Check if the rate name and link name for this entry matches the target, and that
             // this is the link information entry
             if (linkRate.equals(rateName) && linkName.equals(name) && linkMember.contains(".")
                 && !linkMember.matches("\\d.*"))
             {
-                // Get the offset of this variable relative to its root structure. A variable's
-                // bit
+                // Get the offset of this variable relative to its root structure. A variable's bit
                 // length is ignored if provided
                 int index = variableHandler.getStructureAndVariablePaths()
                         .indexOf(macroHandler.getMacroExpansion(linkMember).replaceFirst(":.+$", ""));
                 int offset = variableHandler.getStructureAndVariableOffsets().get(index);
 
                 // Check if this variable is not bit-packed with the previous one. The variables
-                // are packed together if this variable immediately follows the previous one in
-                // the
+                // are packed together if this variable immediately follows the previous one in the
                 // path list and has the same offset
                 if (!(linkRate.equals(lastRate) && linkName.equals(lastName) && index == lastIndex + 1
                       && offset == lastOffset))
@@ -344,8 +331,7 @@ public class CcddLinkHandler
             String linkName = linkDefn[LinksColumn.LINK_NAME.ordinal()];
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if the rate name and link name for this entry matches the target, and
-            // that
+            // Check if the rate name and link name for this entry matches the target, and that
             // this is the link information entry
             if (linkRate.equals(rateName) && linkName.equals(name) && linkMember.matches("\\d.*"))
             {
@@ -388,8 +374,7 @@ public class CcddLinkHandler
             String linkName = linkDefn[LinksColumn.LINK_NAME.ordinal()];
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if the rate name and link name for this entry matches the target, and
-            // that
+            // Check if the rate name and link name for this entry matches the target, and that
             // this is the link information entry
             if (linkRate.equals(rateName) && linkName.equals(name) && linkMember.matches("\\d.*"))
             {
@@ -403,12 +388,14 @@ public class CcddLinkHandler
     }
 
     /**********************************************************************************************
-     * Get the application name data field values associated with the specified link's variable members
+     * Get the application name data field values associated with the specified link's variable
+     * members
      *
      * @param applicationFieldName Name of the application name data field
      *
-     * @return Array containing the application name data field values associated with the specified
-     *         link's variable members. Each application name is listed only once in the array
+     * @return Array containing the application name data field values associated with the
+     *         specified link's variable members. Each application name is listed only once in the
+     *         array
      *********************************************************************************************/
     protected String[] getApplicationNames(String applicationFieldName)
     {
@@ -420,13 +407,11 @@ public class CcddLinkHandler
             // Extract the link rate/description or member
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if the link name for this entry matches the target and that this is not
-            // the
+            // Check if the link name for this entry matches the target and that this is not the
             // link information entry
             if (!linkMember.matches("\\d.*"))
             {
-                // Split the link definition's variable string into the parent structure name
-                // and
+                // Split the link definition's variable string into the parent structure name and
                 // variable reference string
                 String[] parentAndPath = linkMember.split(",", 2);
 
@@ -456,8 +441,8 @@ public class CcddLinkHandler
     }
 
     /**********************************************************************************************
-     * Check that the variables referenced in the link definitions exist in the data tables. Remove any
-     * invalid link definitions
+     * Check that the variables referenced in the link definitions exist in the data tables. Remove
+     * any invalid link definitions
      *********************************************************************************************/
     private void removeInvalidLinks()
     {
@@ -469,8 +454,7 @@ public class CcddLinkHandler
             // Get the link member
             String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-            // Check if this is a variable reference (and not the link definition) and that
-            // the
+            // Check if this is a variable reference (and not the link definition) and that the
             // variable isn't in the link tree
             if (linkMember.contains(".") && !linkMember.matches("\\d.*")
                 && variableHandler.getStructureAndVariablePaths().indexOf(linkMember.replaceFirst(":.+$", "")) == -1)

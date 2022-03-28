@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddApplicationSchedulerDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for assignment of applications to time slots. The dialog is built on the
-*     CcddDialogHandler class and implements the CcddSchedulerDialogInterface class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddApplicationSchedulerDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for assignment of applications to time slots. The dialog is built on the
+ * CcddDialogHandler class and implements the CcddSchedulerDialogInterface class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.AUTO_CREATE_ICON;
@@ -87,10 +83,10 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     }
 
     /**********************************************************************************************
-     * Create the application scheduler dialog. This is executed in a separate thread since it can take
-     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the application scheduler dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -113,7 +109,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 schedulerHndlr = new CcddSchedulerHandler(ccddMain, "0", CcddApplicationSchedulerDialog.this);
 
                 // Auto-fill button
-                btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill", AUTO_CREATE_ICON, KeyEvent.VK_A,
+                btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill",
+                                                                  AUTO_CREATE_ICON,
+                                                                  KeyEvent.VK_A,
                                                                   "Auto-fill the message table with the variables");
 
                 // Create a listener for the Auto-fill button
@@ -132,7 +130,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 });
 
                 // Clear Slots button
-                btnClear = CcddButtonPanelHandler.createButton("Clear Slots", UNDO_ICON, KeyEvent.VK_R,
+                btnClear = CcddButtonPanelHandler.createButton("Clear Slots",
+                                                               UNDO_ICON,
+                                                               KeyEvent.VK_R,
                                                                "Remove applications from the time slots");
                 // Add a listener for the Clear Slots button
                 btnClear.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor()
@@ -149,7 +149,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 });
 
                 // Store button
-                btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                               STORE_ICON,
+                                                               KeyEvent.VK_S,
                                                                "Store the application updates in the project database");
                 btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
@@ -178,7 +180,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 });
 
                 // Close button
-                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the application scheduler");
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor()
@@ -211,7 +215,10 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
             protected void complete()
             {
                 // Display the application scheduler dialog
-                showOptionsDialog(ccddMain.getMainFrame(), schedulerHndlr.getSchedulerPanel(), buttonPnl, btnClose,
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  schedulerHndlr.getSchedulerPanel(),
+                                  buttonPnl,
+                                  btnClose,
                                   DIALOG_TITLE, true);
             }
         });
@@ -246,7 +253,8 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         if (schedulerHndlr.getSchedulerEditor().getTable().isLastCellValid()
             && (!schedulerHndlr.getSchedulerEditor().isMessagesChanged()
                 || new CcddDialogHandler().showMessageDialog(CcddApplicationSchedulerDialog.this,
-                                                             "<html><b>Discard changes?", "Discard Changes",
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
                                                              JOptionPane.QUESTION_MESSAGE,
                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {

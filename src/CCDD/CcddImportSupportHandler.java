@@ -1,34 +1,30 @@
 /**************************************************************************************************
-/** \file CcddImportSupportHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing support methods for classes based on the CcddImportExportInterface class.
-*     The support methods handle validation and addition of table types and data fields, and for
-*     obtaining the user’s response to a non-fatal error condition. Classes utilizing these support
-*     methods must extend this class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddImportSupportHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing support methods for classes based on the CcddImportExportInterface
+ * class. The support methods handle validation and addition of table types and data fields, and
+ * for obtaining the user’s response to a non-fatal error condition. Classes utilizing these
+ * support methods must extend this class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
@@ -68,13 +64,13 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
  *************************************************************************************************/
 public class CcddImportSupportHandler
 {
-    // Names of the structure tables that represent the common header for all
-    // telemetry and command tables
+    // Names of the structure tables that represent the common header for all telemetry and command
+    // tables
     protected String tlmHeaderTable;
     protected String cmdHeaderTable;
 
-    // Telemetry and command header variable names for the application ID, and
-    // command header variable name for the command function code
+    // Telemetry and command header variable names for the application ID, and command header
+    // variable name for the command function code
     protected String applicationIDName;
     protected String cmdFuncCodeName;
 
@@ -129,8 +125,8 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Add a table type column definition after verifying the input parameters
      *
-     * @param continueOnError  Current state of the flag that indicates if all table type errors should
-     *                         be ignored
+     * @param continueOnError  Current state of the flag that indicates if all table type errors
+     *                         should be ignored
      *
      * @param tableTypeDefn    Reference to the TableTypeDefinition to which this column definition
      *                         applies
@@ -148,8 +144,10 @@ public class CcddImportSupportHandler
      * @throws CCDDException If the column name is missing or the user elects to stop the import
      *                       operation due to an invalid input type
      *********************************************************************************************/
-    protected boolean addImportedTableTypeColumnDefinition(boolean continueOnError, TableTypeDefinition tableTypeDefn,
-                                                           String[] columnDefn, String fileName,
+    protected boolean addImportedTableTypeColumnDefinition(boolean continueOnError,
+                                                           TableTypeDefinition tableTypeDefn,
+                                                           String[] columnDefn,
+                                                           String fileName,
                                                            CcddInputTypeHandler inputTypeHandler,
                                                            Component parent) throws CCDDException
     {
@@ -205,13 +203,13 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Add a data field definition after verifying the input parameters are valid (use defaults for
      * field size, input type, or applicability if these parameters that are not supplied). For
-     * project-level or table type fields, if the field already exists for this owner compare the field
-     * definition's input type, required status, applicability, and value; if a mismatch is found allow
-     * the user to determine how to proceed (this check is unnecessary for table fields since the new
-     * ones either replace existing ones or are ignored, based on the import flags)
+     * project-level or table type fields, if the field already exists for this owner compare the
+     * field definition's input type, required status, applicability, and value; if a mismatch is
+     * found allow the user to determine how to proceed (this check is unnecessary for table fields
+     * since the new ones either replace existing ones or are ignored, based on the import flags)
      *
-     * @param continueOnError  Current state of the flag that indicates if all data field errors should
-     *                         be ignored
+     * @param continueOnError  Current state of the flag that indicates if all data field errors
+     *                         should be ignored
      *
      * @param replaceExisting  Replace any existing fields
      *
@@ -230,8 +228,8 @@ public class CcddImportSupportHandler
      *
      * @return true if the user elected to ignore the data field error
      *
-     * @throws CCDDException If the data field name is missing or the user elects to stop the import
-     *                       operation due to an invalid input type
+     * @throws CCDDException If the data field name is missing or the user elects to stop the
+     *                       import operation due to an invalid input type
      *********************************************************************************************/
     protected boolean addImportedDataFieldDefinition(boolean continueOnError,
                                                      boolean replaceExisting,
@@ -343,8 +341,8 @@ public class CcddImportSupportHandler
             // Check if this field already exists
             if (fieldInfo != null)
             {
-                // Check if the field's input type, required state, applicability, or value
-                // don't match (the description and size are allowed to differ)
+                // Check if the field's input type, required state, applicability, or value don't
+                // match (the description and size are allowed to differ)
                 if (!fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
                     || !fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].equals(Integer.toString(fieldInfo.getSize()))
                     || !fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
@@ -428,8 +426,7 @@ public class CcddImportSupportHandler
             // Step through each project data field
             for (String[] dataField : dataFields)
             {
-                // Add the field definition to the list and set the flag to indicate a new field
-                // is
+                // Add the field definition to the list and set the flag to indicate a new field is
                 // added
                 fieldDefinitions.add(dataField);
                 isNewField = true;
@@ -445,7 +442,8 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Add a group's information from the supplied group definition after verifying the input parameters
+     * Add a group's information from the supplied group definition after verifying the input
+     * parameters
      *
      * @param groupDefn             Array containing the group definition
      *
@@ -457,7 +455,9 @@ public class CcddImportSupportHandler
      *
      * @throws CCDDException If the group name or member table list is missing
      *********************************************************************************************/
-    protected void addImportedGroupDefinition(String[] groupDefn, String fileName, boolean replaceExistingGroups,
+    protected void addImportedGroupDefinition(String[] groupDefn,
+                                              String fileName,
+                                              boolean replaceExistingGroups,
                                               CcddGroupHandler groupHandler) throws CCDDException
     {
         // Check if the group name is empty
@@ -468,11 +468,9 @@ public class CcddImportSupportHandler
         }
 
         // Get the reference to the data field from the existing field information
-        GroupInformation groupInfo = groupHandler
-                .getGroupInformationByName(groupDefn[GroupDefinitionColumn.NAME.ordinal()]);
+        GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupDefn[GroupDefinitionColumn.NAME.ordinal()]);
 
-        // Check if the group with this name already exists and the user has elected to
-        // replace
+        // Check if the group with this name already exists and the user has elected to replace
         // existing groups
         if (groupInfo != null && replaceExistingGroups)
         {
@@ -485,9 +483,9 @@ public class CcddImportSupportHandler
         if (groupInfo == null)
         {
             // Add the group information
-            groupInfo = groupHandler.addGroupInformation(groupDefn[GroupDefinitionColumn.NAME
-                    .ordinal()], groupDefn[GroupDefinitionColumn.DESCRIPTION.ordinal()], Boolean
-                            .parseBoolean(groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()]));
+            groupInfo = groupHandler.addGroupInformation(groupDefn[GroupDefinitionColumn.NAME.ordinal()],
+                                                         groupDefn[GroupDefinitionColumn.DESCRIPTION.ordinal()],
+                                                         Boolean.parseBoolean(groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()]));
 
             // Check if the group has any table members
             if (!groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].isEmpty())
@@ -526,8 +524,7 @@ public class CcddImportSupportHandler
                 }
             }
 
-            // Check if the existing group's table members or application status don't match
-            // (the
+            // Check if the existing group's table members or application status don't match (the
             // description is allowed to differ)
             if (isMismatch || !groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()]
                     .equals(Boolean.toString(groupInfo.isApplication())))
@@ -540,14 +537,14 @@ public class CcddImportSupportHandler
 
     /**********************************************************************************************
      * Add a script association after verifying the input parameters are valid (script file name is
-     * provided and the association doesn't already exist). If an association with the same name but
-     * different script file or members exists allow the user to determine how to proceed
+     * provided and the association doesn't already exist). If an association with the same name
+     * but different script file or members exists allow the user to determine how to proceed
      *
      * @param continueOnError             Current state of the flag that indicates if all script
      *                                    association errors should be ignored
      *
-     * @param replaceExistingAssociations True to overwrite internal associations with those from the
-     *                                    import file
+     * @param replaceExistingAssociations True to overwrite internal associations with those from
+     *                                    the import file
      *
      * @param associations                List of the current script associations
      *
@@ -561,9 +558,9 @@ public class CcddImportSupportHandler
      *
      * @return true if the user elected to ignore the data field error
      *
-     * @throws CCDDException If the script file name is missing, or an association with the same name
-     *                       but different script file or members exists and the user elects to stop the
-     *                       import operation
+     * @throws CCDDException If the script file name is missing, or an association with the same
+     *                       name but different script file or members exists and the user elects
+     *                       to stop the import operation
      *********************************************************************************************/
     protected boolean addImportedScriptAssociation(boolean continueOnError, boolean replaceExistingAssociations,
                                                    List<String[]> associations, String[] assnDefn, String fileName,
@@ -579,8 +576,7 @@ public class CcddImportSupportHandler
             throw new CCDDException("Script file name missing");
         }
 
-        // Get the index of the association having the same script file and members (-1
-        // if there is
+        // Get the index of the association having the same script file and members (-1 if there is
         // no matching association)
         int matchingIndex = CcddScriptHandler
                 .getMatchingAssociation(associations, assnDefn[AssociationsColumn.SCRIPT_FILE.ordinal()],
@@ -594,8 +590,7 @@ public class CcddImportSupportHandler
         // Check if n association name is provided
         if (!assnDefn[AssociationsColumn.NAME.ordinal()].isEmpty())
         {
-            // Set the index to indicate a name is provided but doesn't match an existing
-            // one
+            // Set the index to indicate a name is provided but doesn't match an existing one
             nameIndex = -1;
 
             // Step through the association definitions
@@ -611,17 +606,15 @@ public class CcddImportSupportHandler
             }
         }
 
-        // Check if no association name is provided but an association with matching
-        // script file
-        // and members already exists (the existing association may or may not have a
-        // name)
+        // Check if no association name is provided but an association with matching script file
+        // and members already exists (the existing association may or may not have a name)
         if (nameIndex == -2 && matchingIndex != -1)
         {
             // Set the flag to not store this association since it exists
             addAssn = false;
         }
-        // Check if the association name is in use or an association with the same
-        // script file and members exists
+        // Check if the association name is in use or an association with the same script file and
+        // members exists
         else if (nameIndex >= 0 || matchingIndex != -1)
         {
 
@@ -646,9 +639,8 @@ public class CcddImportSupportHandler
                 // Set the flag to not store this association since it exists
                 addAssn = false;
 
-                // Check if the associations with the same name and script/members don't have
-                // the same
-                // index
+                // Check if the associations with the same name and script/members don't have the
+                // same index
                 if (nameIndex != matchingIndex)
                 {
                     // Check if the error should be ignored or the import canceled
@@ -676,10 +668,10 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Set the telemetry header table name, command header table name, application ID variable name, and
-     * command function code variable name from the project database fields or default values, if not
-     * present in the import file. Based on the input flag build the project-level data fields for these
-     * names
+     * Set the telemetry header table name, command header table name, application ID variable
+     * name, and command function code variable name from the project database fields or default
+     * values, if not present in the import file. Based on the input flag build the project-level
+     * data fields for these names
      *
      * @param fieldHandler  Data field handler reference
      *
@@ -691,14 +683,17 @@ public class CcddImportSupportHandler
      * @param cmdHdrTable   Name of the structure table that represents the common header for all
      *                      command tables; null if not present in the import file
      *
-     * @param appIDName     Telemetry and command header variable names for the application ID; null if
-     *                      not present in the import file
+     * @param appIDName     Telemetry and command header variable names for the application ID;
+     *                      null if not present in the import file
      *
      * @param funcCodeName  Command header variable name for the command function code; null if not
      *                      present in the import file
      *********************************************************************************************/
-    protected void setProjectHeaderTablesAndVariables(CcddFieldHandler fieldHandler, boolean isCreateField,
-                                                      String tlmHdrTable, String cmdHdrTable, String appIDName,
+    protected void setProjectHeaderTablesAndVariables(CcddFieldHandler fieldHandler,
+                                                      boolean isCreateField,
+                                                      String tlmHdrTable,
+                                                      String cmdHdrTable,
+                                                      String appIDName,
                                                       String funcCodeName)
     {
         ProjectDefinition projectDefn = new ProjectDefinition();
@@ -714,10 +709,8 @@ public class CcddImportSupportHandler
             tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                         DefaultInputType.XML_TLM_HDR);
         }
-        // The telemetry header table name is set in the import file. Check if the
-        // project-level
-        // data fields are to be created and the telemetry header table name field
-        // doesn't already
+        // The telemetry header table name is set in the import file. Check if the project-level
+        // data fields are to be created and the telemetry header table name field doesn't already
         // exist
         else if (isCreateField && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                              DefaultInputType.XML_TLM_HDR) == null)
@@ -738,10 +731,8 @@ public class CcddImportSupportHandler
             cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                         DefaultInputType.XML_CMD_HDR);
         }
-        // The command header table name is set in the import file. Check if the
-        // project-level data
-        // fields are to be created and the command header table name field doesn't
-        // already exist
+        // The command header table name is set in the import file. Check if the project-level data
+        // fields are to be created and the command header table name field doesn't already exist
         else if (isCreateField && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                              DefaultInputType.XML_TLM_HDR) == null)
         {
@@ -754,8 +745,7 @@ public class CcddImportSupportHandler
                                                 ApplicabilityType.ALL.getApplicabilityName(), cmdHeaderTable, "false"});
         }
 
-        // Check if the application ID variable name isn't set in the project import
-        // file
+        // Check if the application ID variable name isn't set in the project import file
         if (applicationIDName == null)
         {
             // Get the application ID variable name from the project field
@@ -769,10 +759,8 @@ public class CcddImportSupportHandler
                 applicationIDName = DefaultHeaderVariableName.APP_ID.getDefaultVariableName();
             }
         }
-        // The application ID variable name is set in the import file. Check if the
-        // project-level
-        // data fields are to be created and the application ID variable name field
-        // doesn't already
+        // The application ID variable name is set in the import file. Check if the project-level
+        // data fields are to be created and the application ID variable name field doesn't already
         // exist
         else if (isCreateField && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                              DefaultInputType.XML_TLM_HDR) == null)
@@ -803,10 +791,8 @@ public class CcddImportSupportHandler
                 cmdFuncCodeName = DefaultHeaderVariableName.FUNC_CODE.getDefaultVariableName();
             }
         }
-        // The command function code variable name is set in the import file. Check if
-        // the
-        // project-level data fields are to be created and the command function code
-        // variable name
+        // The command function code variable name is set in the import file. Check if the
+        // project-level data fields are to be created and the command function code variable name
         // field doesn't already exist
         else if (isCreateField && fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                              DefaultInputType.XML_TLM_HDR) == null)
@@ -831,9 +817,9 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Display an Ignore/Ignore All/Cancel dialog in order to get the response to an error condition.
-     * The user may elect to ignore the one instance of this type of error, all instances of this type
-     * of error, or cancel the operation
+     * Display an Ignore/Ignore All/Cancel dialog in order to get the response to an error
+     * condition. The user may elect to ignore the one instance of this type of error, all
+     * instances of this type of error, or cancel the operation
      *
      * @param continueOnError  Current state of the flag that indicates if all errors of this type
      *                         should be ignored
@@ -844,7 +830,8 @@ public class CcddImportSupportHandler
      *
      * @param ignoreToolTip    Ignore button tool tip text; null if no tool tip is to be displayed
      *
-     * @param ignoreAllToolTip Ignore All button tool tip text; null if no tool tip is to be displayed
+     * @param ignoreAllToolTip Ignore All button tool tip text; null if no tool tip is to be
+     *                         displayed
      *
      * @param cancelToolTip    Cancel button tool tip text; null if no tool tip is to be displayed
      *
@@ -863,9 +850,9 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Display an Ignore/Ignore All/Cancel or Ignore All/Cancel dialog in order to get the response to
-     * an error condition. The user may elect to ignore the one instance of this type of error, all
-     * instances of this type of error, or cancel the operation
+     * Display an Ignore/Ignore All/Cancel or Ignore All/Cancel dialog in order to get the response
+     * to an error condition. The user may elect to ignore the one instance of this type of error,
+     * all instances of this type of error, or cancel the operation
      *
      * @param continueOnError  Current state of the flag that indicates if all errors of this type
      *                         should be ignored
@@ -876,7 +863,8 @@ public class CcddImportSupportHandler
      *
      * @param ignoreToolTip    Ignore button tool tip text; null if no tool tip is to be displayed
      *
-     * @param ignoreAllToolTip Ignore All button tool tip text; null if no tool tip is to be displayed
+     * @param ignoreAllToolTip Ignore All button tool tip text; null if no tool tip is to be
+     *                         displayed
      *
      * @param cancelToolTip    Cancel button tool tip text; null if no tool tip is to be displayed
      *
@@ -922,8 +910,8 @@ public class CcddImportSupportHandler
      *
      * @param inputTypeDefn Array containing the input type definition
      *
-     * @return The input type definition, with the regular expression built if the definition contains a
-     *         selection item list
+     * @return The input type definition, with the regular expression built if the definition
+     *         contains a selection item list
      *
      * @throws CCDDException If an invalid input type parameter is detected
      *********************************************************************************************/
@@ -947,8 +935,7 @@ public class CcddImportSupportHandler
         // Check if the input type selection item list is provided
         if (!inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty())
         {
-            // Convert the items in the selection list to the corresponding regular
-            // expression
+            // Convert the items in the selection list to the corresponding regular expression
             inputTypeDefn[InputTypesColumn.MATCH.ordinal()] = CcddInputTypeHandler
                     .convertItemsToRegEx(inputTypeDefn[InputTypesColumn.ITEMS.ordinal()]);
         }
@@ -966,9 +953,7 @@ public class CcddImportSupportHandler
             // Validate the regular expression by attempting to compile it
             Pattern.compile(inputTypeDefn[InputTypesColumn.MATCH.ordinal()]);
         }
-        catch (
-            PatternSyntaxException pse
-        )
+        catch (PatternSyntaxException pse)
         {
             throw new CCDDException("Input type '" + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
                                     + "' regular expression invalid; cause '</b>" + pse.getMessage() + "<b>'");
@@ -982,8 +967,7 @@ public class CcddImportSupportHandler
             // Check if the format is recognized
             if (type.getFormatName().equals(inputTypeDefn[InputTypesColumn.FORMAT.ordinal()]))
             {
-                // Check if the format type is user-selectable (i.e., not an internal-only
-                // format),
+                // Check if the format type is user-selectable (i.e., not an internal-only format),
                 // and the format is valid with selection item if the items are provided
                 if (type.isUserSelectable()
                     && (inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty() || type.isValidWithItems()))
@@ -1094,8 +1078,8 @@ public class CcddImportSupportHandler
      *
      * @param dataTypeHandler Reference to the data type handler
      *
-     * @return Base primitive data type corresponding to the specified primitive data type; null if no
-     *         match
+     * @return Base primitive data type corresponding to the specified primitive data type; null if
+     *         no match
      *********************************************************************************************/
     protected static BasePrimitiveDataType getBaseDataType(String dataType, CcddDataTypeHandler dataTypeHandler)
     {
@@ -1135,10 +1119,13 @@ public class CcddImportSupportHandler
      *
      * @param dataTypeHandler Reference to the data type handler
      *
-     * @return The name of the data type from the existing data type definitions that matches the input
-     *         criteria; null if there is no match
+     * @return The name of the data type from the existing data type definitions that matches the
+     *         input criteria; null if there is no match
      *********************************************************************************************/
-    protected String getMatchingDataType(long sizeInBytes, boolean isInteger, boolean isUnsigned, boolean isFloat,
+    protected String getMatchingDataType(long sizeInBytes,
+                                         boolean isInteger,
+                                         boolean isUnsigned,
+                                         boolean isFloat,
                                          boolean isString, CcddDataTypeHandler dataTypeHandler)
     {
         String dataType = null;
@@ -1176,21 +1163,20 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Replace each invalid character with an underscore and move any leading underscores to the end of
-     * each path segment
+     * Replace each invalid character with an underscore and move any leading underscores to the
+     * end of each path segment
      *
      * @param path System path in the form {@literal <</>path1</path2<...>>}
      *
-     * @return Path with each invalid character replaced with an underscore and any leading underscores
-     *         moved to the end of each path segment
+     * @return Path with each invalid character replaced with an underscore and any leading
+     *         underscores moved to the end of each path segment
      *********************************************************************************************/
     protected static String cleanSystemPath(String path)
     {
         // Check if the path exists
         if (path != null)
         {
-            // Replace each space with an underscore and move any leading underscores to the
-            // end of
+            // Replace each space with an underscore and move any leading underscores to the end of
             // each path segment
             path = path.replaceAll("\\]", "").replaceAll("[^A-Za-z0-9_\\-\\/]", "_").replaceAll("(^|/)_([^/]*)",
                                                                                                 "$1$2_");
@@ -1204,7 +1190,8 @@ public class CcddImportSupportHandler
      *
      * @param NewMacroDefns A list of string arrays containing informatino
      *
-     * @return Pair containing a list of unique values and a Boolean indicating if the set was unique
+     * @return Pair containing a list of unique values and a Boolean indicating if the set was
+     *         unique
      *********************************************************************************************/
     protected ImmutablePair<Boolean, List<String[]>> convertToUniqueList(List<String[]> NewMacroDefns)
     {

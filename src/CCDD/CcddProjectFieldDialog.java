@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddProjectFieldDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that creates and manages project-level data fields. The dialog is built on the
-*     CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddProjectFieldDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that creates and manages project-level data fields. The dialog is built on the
+ * CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
@@ -107,7 +103,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Perform the steps needed following execution of a project description or data field modification
+     * Perform the steps needed following execution of a project description or data field
+     * modification
      *
      * @param commandError False if the database commands successfully completed; true if an error
      *                     occurred and the changes were not made
@@ -128,8 +125,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 ccddMain.getFieldTableEditor().getTable().loadAndFormatData();
             }
 
-            // Store the updated description and fields for comparison with a subsequent
-            // store
+            // Store the updated description and fields for comparison with a subsequent store
             // operation
             committedDescription = fieldPnlHndlr.getDescription();
             committedFieldInformation = CcddFieldHandler
@@ -144,10 +140,10 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the project data field manager dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the project data field manager dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -220,8 +216,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 // Get the project description
                 committedDescription = dbControl.getDatabaseDescription(dbControl.getDatabaseName());
 
-                // Set the undo/redo manager and handler for the description and data field
-                // values
+                // Set the undo/redo manager and handler for the description and data field values
                 fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
 
                 // Set the data field handler reference in the undo handler so that data field
@@ -240,8 +235,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 // Enable the project description only if the user has administrative access
                 fieldPnlHndlr.enableDescriptionField(dbControl.isAccessAdmin(), committedDescription);
 
-                // Set the modal undo manager in the keyboard handler while the project data
-                // field manager is active
+                // Set the modal undo manager in the keyboard handler while the project data field
+                // manager is active
                 ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
 
                 // Create the project data field manager dialog labels and fields
@@ -419,8 +414,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnManageFields);
                 buttonPnl.add(btnUndo);
                 buttonPnl.add(btnStoreFields);
@@ -444,8 +438,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                         SwingUtilities.invokeLater(new Runnable()
                         {
                             /**********************************************************************
-                             * Since the size returned by get___Size() can lag the actual size, use invokeLater to let
-                             * the sizes "catch up"
+                             * Since the size returned by get___Size() can lag the actual size, use
+                             * invokeLater to let the sizes "catch up"
                              *********************************************************************/
                             @Override
                             public void run()
@@ -481,7 +475,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Check if the project description or data fields differ from those last committed to the database
+     * Check if the project description or data fields differ from those last committed to the
+     * database
      *
      * @return true if the project description or data field definitions have changed
      *********************************************************************************************/

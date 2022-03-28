@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddSearchDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to perform text string searches of the project database data tables
-*     and stored scripts. The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddSearchDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to perform text string searches of the project database data tables
+ * and stored scripts. The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
@@ -137,12 +133,12 @@ public class CcddSearchDialog extends CcddFrameHandler
     private String prevFilter;
     private String prevColumns;
 
-    // String containing the names of columns, separated by commas, to which to
-    // constrain a table search
+    // String containing the names of columns, separated by commas, to which to constrain a table
+    // search
     private String searchColumns;
 
-    // Row index to match if this is an event log entry search on a table that
-    // displays only a single log entry; null otherwise
+    // Row index to match if this is an event log entry search on a table that displays only a
+    // single log entry; null otherwise
     private final Long targetRow;
 
     // Search dialog type
@@ -277,8 +273,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         dlgLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         inputPnl.add(dlgLbl, gbc);
 
-        // Create the auto-completion search field and add it to the dialog panel. The
-        // search list
+        // Create the auto-completion search field and add it to the dialog panel. The search list
         // is initially empty as it is updated whenever a key is pressed
         searchFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
         searchFld.setCaseSensitive(true);
@@ -596,7 +591,8 @@ public class CcddSearchDialog extends CcddFrameHandler
                         SwingUtilities.invokeLater(new Runnable()
                         {
                             /**********************************************************************
-                             * Allow the first setSize() to complete before setting the dialog back to its original size
+                             * Allow the first setSize() to complete before setting the dialog back
+                             * to its original size
                              *********************************************************************/
                             @Override
                             public void run()
@@ -611,8 +607,7 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
         }
 
-        // Add the inputs panel, containing the search field and check boxes, to the
-        // upper panel
+        // Add the inputs panel, containing the search field and check boxes, to the upper panel
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.fill = GridBagConstraints.BOTH;
@@ -741,8 +736,8 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
 
             /**************************************************************************************
-             * Override the table layout so that extra width is apportioned unequally between the columns when
-             * the table is resized
+             * Override the table layout so that extra width is apportioned unequally between the
+             * columns when the table is resized
              *************************************************************************************/
             @Override
             public void doLayout()
@@ -839,8 +834,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         // Check if this is an event log search
         if (searchDlgType == SearchDialogType.LOG)
         {
-            // Add the input (search criteria) and lower (search results) panels to the
-            // dialog
+            // Add the input (search criteria) and lower (search results) panels to the dialog
             gbc.weighty = 0.0;
             dialogPnl.add(inputPnl, gbc);
             gbc.weighty = 1.0;
@@ -850,8 +844,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         // This is a table or script search
         else
         {
-            // Add the upper (search criteria) and lower (search results) panels in a split
-            // pane to
+            // Add the upper (search criteria) and lower (search results) panels in a split pane to
             // the dialog
             JSeparator resultsSep = new JSeparator();
             resultsSep.setForeground(dialogPnl.getBackground().darker());

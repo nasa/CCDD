@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddRateParameterHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles retrieval from and storage to the project database of the rate parameter
-*     values, and calculation of the sample rates based on the rate parameters.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddRateParameterHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles retrieval from and storage to the project database of the rate
+ * parameter values, and calculation of the sample rates based on the rate parameters.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
@@ -118,10 +114,11 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Get the value of the flag that indicates if unevenly time-space sample rates are to be included
+     * Get the value of the flag that indicates if unevenly time-space sample rates are to be
+     * included
      *
-     * @return true if unevenly time-spaced sample rate values are included; false if only sample rates
-     *         that are evenly time-spaced are included
+     * @return true if unevenly time-spaced sample rate values are included; false if only sample
+     *         rates that are evenly time-spaced are included
      *********************************************************************************************/
     protected boolean isIncludeUneven()
     {
@@ -161,8 +158,7 @@ public class CcddRateParameterHandler
         // Check if rate information with this name doesn't already exist
         if (rateInfo == null)
         {
-            // Create the specified rate, adjust the rate counter, and set the flag to
-            // indicate a
+            // Create the specified rate, adjust the rate counter, and set the flag to indicate a
             // rate is added
             rateInformation.add(new RateInformation(rateName));
         }
@@ -175,10 +171,10 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Change the rate column name for in the rate information list. If the original rate column name
-     * matches one in another table type then create a new rate entry instead of renaming the existing
-     * one. If the new rate column name matches one in another table type then merge it with the
-     * existing one and delete the original
+     * Change the rate column name for in the rate information list. If the original rate column
+     * name matches one in another table type then create a new rate entry instead of renaming the
+     * existing one. If the new rate column name matches one in another table type then merge it
+     * with the existing one and delete the original
      *
      * @param oldRateName Current rate column name
      *
@@ -267,7 +263,8 @@ public class CcddRateParameterHandler
      *
      * @param rateColumnName Rate column name
      *
-     * @return Rate information with the specified rate column; null if the rate column doesn't exist
+     * @return Rate information with the specified rate column; null if the rate column doesn't
+     *         exist
      *********************************************************************************************/
     protected RateInformation getRateInformationByRateName(String rateColumnName)
     {
@@ -350,8 +347,8 @@ public class CcddRateParameterHandler
      *
      * @param streamName Stream name
      *
-     * @return Index of the rate information with the specified stream name; -1 if no rate information
-     *         has this stream name
+     * @return Index of the rate information with the specified stream name; -1 if no rate
+     *         information has this stream name
      *********************************************************************************************/
     protected int getRateInformationIndexByStreamName(String streamName)
     {
@@ -479,8 +476,7 @@ public class CcddRateParameterHandler
                 throw new Exception("missing rate value");
             }
 
-            // Convert the rate parameters to integers and set the flag for whether or not
-            // unevenly
+            // Convert the rate parameters to integers and set the flag for whether or not unevenly
             // time-spaced rates should be included
             maxSecPerMsg = Integer.valueOf(rateValues[RateParameter.MAXIMUM_SECONDS_PER_MESSAGE.ordinal()]);
             maxMsgsPerSec = Integer.valueOf(rateValues[RateParameter.MAXIMUM_MESSAGES_PER_SECOND.ordinal()]);
@@ -533,9 +529,7 @@ public class CcddRateParameterHandler
                 }
             }
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
             // Inform the user that calculating the rate parameters failed
             ccddMain.getSessionEventLog()
@@ -574,14 +568,14 @@ public class CcddRateParameterHandler
      *
      * @param streamName      Array containing the stream name per stream
      *
-     * @param maxMsgsPerCycle Array containing the maximum number of messages that can be downlinked
-     *                        before repeating the message list per stream
+     * @param maxMsgsPerCycle Array containing the maximum number of messages that can be
+     *                        downlinked before repeating the message list per stream
      *
-     * @param maxBytesPerSec  Array containing the maximum number of bytes that can be downlinked in one
-     *                        second per stream
+     * @param maxBytesPerSec  Array containing the maximum number of bytes that can be downlinked
+     *                        in one second per stream
      *
-     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to only
-     *                        include sample rates that are evenly time-spaced
+     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to
+     *                        only include sample rates that are evenly time-spaced
      *
      * @param parent          Component calling this method, used for positioning any error dialogs
      *********************************************************************************************/
@@ -611,8 +605,8 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Build the array of valid sample rates for all rate columns based on the current rate parameters.
-     * Update open table editors that have a Rate column
+     * Build the array of valid sample rates for all rate columns based on the current rate
+     * parameters. Update open table editors that have a Rate column
      *********************************************************************************************/
     private void calculateSampleRates()
     {
@@ -644,11 +638,11 @@ public class CcddRateParameterHandler
      *
      * @param maxMsgsPerSec   Maximum number of messages that can be downlinked in one second
      *
-     * @param maxMsgsPerCycle Maximum number of messages that can be downlinked before repeating the
-     *                        message list per stream
+     * @param maxMsgsPerCycle Maximum number of messages that can be downlinked before repeating
+     *                        the message list per stream
      *
-     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to only
-     *                        include sample rates that are evenly time-spaced
+     * @param includeUneven   True to include unevenly time-spaced sample rate values; false to
+     *                        only include sample rates that are evenly time-spaced
      *
      * @return Array containing the valid sample rates
      *********************************************************************************************/
@@ -676,8 +670,7 @@ public class CcddRateParameterHandler
         {
             int index = 0;
 
-            // Step through the potential factors, beginning with 1. The loop termination
-            // criteria
+            // Step through the potential factors, beginning with 1. The loop termination criteria
             // accounts for not needing to check a factor's companion value
             for (int div = 1; div <= maxMsgsPerCycle / div; div++)
             {
@@ -715,10 +708,10 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Format a rate value as the specified number of samples over the specified number of seconds. Use
-     * whole numbers if possible; otherwise use the format '1/x', where 'x' is the number of seconds
-     * rounded to 5 decimal places. Remove any extra trailing zeroes after the decimal and the decimal
-     * if no zeroes remain for both the numerator and denominator
+     * Format a rate value as the specified number of samples over the specified number of seconds.
+     * Use whole numbers if possible; otherwise use the format '1/x', where 'x' is the number of
+     * seconds rounded to 5 decimal places. Remove any extra trailing zeroes after the decimal and
+     * the decimal if no zeroes remain for both the numerator and denominator
      *
      * @param samples Number of samples
      *
@@ -766,22 +759,23 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Get the array of the sample rate values for the specified rate column name with those rates not
-     * assigned to any telemetry parameter in the structure tables grayed out
+     * Get the array of the sample rate values for the specified rate column name with those rates
+     * not assigned to any telemetry parameter in the structure tables grayed out
      *
      * @param rateName Rate column name
      *
      * @param parent   GUI component over which to center any error dialog
      *
-     * @return Array of the sample rate values for the specified rate column name with those rates not
-     *         assigned to any telemetry parameter in the structure tables grayed out; an empty array if
-     *         the rate name isn't valid
+     * @return Array of the sample rate values for the specified rate column name with those rates
+     *         not assigned to any telemetry parameter in the structure tables grayed out; an empty
+     *         array if the rate name isn't valid
      *********************************************************************************************/
     protected String[] getRatesInUse(String rateName, Component parent)
     {
         String[] availableRates = new String[0];
 
-        // Create the string array list using the second column (rate values) for comparison purposes
+        // Create the string array list using the second column (rate values) for comparison
+        // purposes
         ArrayListMultiple ratesInUse = new ArrayListMultiple(1);
 
         // Get the rate information for the specified rate
@@ -791,8 +785,8 @@ public class CcddRateParameterHandler
         if (rateInfo != null)
         {
             // Get a copy of the array of sample rates for this rate. If a copy isn't used then the
-            // stored sample rates can be altered to show as disabled below; subsequent
-            // calls to get the sample rates will have the disable tags
+            // stored sample rates can be altered to show as disabled below; subsequent calls to
+            // get the sample rates will have the disable tags
             availableRates = Arrays.copyOf(rateInfo.getSampleRates(), rateInfo.getSampleRates().length);
 
             // Query the database for those values of the specified rate that are in use in all

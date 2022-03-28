@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddGroupHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling table grouping operations.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddGroupHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling table grouping operations.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
@@ -51,8 +47,8 @@ public class CcddGroupHandler
     /**********************************************************************************************
      * Group handler class constructor
      *
-     * @param undoHandler Reference to the undo handler; null if undo/redo operations are not needed for
-     *                    the groups
+     * @param undoHandler Reference to the undo handler; null if undo/redo operations are not
+     *                    needed for the groups
      *********************************************************************************************/
     CcddGroupHandler(CcddUndoHandler undoHandler)
     {
@@ -158,7 +154,8 @@ public class CcddGroupHandler
     }
 
     /**********************************************************************************************
-     * Build the group information using the group definitions and the field information in the database
+     * Build the group information using the group definitions and the field information in the
+     * database
      *
      * @param groupDefinitions List of group definitions
      *********************************************************************************************/
@@ -210,10 +207,11 @@ public class CcddGroupHandler
     }
 
     /**********************************************************************************************
-     * Get the reference to a specified group's information from the supplied list of group information
+     * Get the reference to a specified group's information from the supplied list of group
+     * information
      *
-     * @param groupInformationList List of group information from which to extract the specific group's
-     *                             information
+     * @param groupInformationList List of group information from which to extract the specific
+     *                             group's information
      *
      * @param name                 Group name
      *
@@ -278,9 +276,9 @@ public class CcddGroupHandler
                  *
                  * @param grpInfo2 Second group's information
                  *
-                 * @return -1 if the first group's name is lexically less than the second group's name; 0 if the two
-                 *         group names are the same; 1 if the first group's name is lexically greater than the
-                 *         second group's name
+                 * @return -1 if the first group's name is lexically less than the second group's
+                 *         name; 0 if the two group names are the same; 1 if the first group's name
+                 *         is lexically greater than the second group's name
                  *********************************************************************************/
                 @Override
                 public int compare(Object grpInfo1, Object grpInfo2)
@@ -316,8 +314,7 @@ public class CcddGroupHandler
     {
         List<String> groupNames = new ArrayList<String>();
 
-        // Check if this list applies for application and non-application groups and if
-        // the name of
+        // Check if this list applies for application and non-application groups and if the name of
         // the pseudo-group containing all tables should be included
         if (includeAllGroup && !applicationOnly)
         {
@@ -328,8 +325,7 @@ public class CcddGroupHandler
         // Step through each group
         for (GroupInformation groupInfo : groupInformation)
         {
-            // Check if all groups are to be returned or if not, that this is an application
-            // group
+            // Check if all groups are to be returned or if not, that this is an application group
             if (!applicationOnly || groupInfo.isApplication())
             {
                 // Add the group name to the list
@@ -345,8 +341,8 @@ public class CcddGroupHandler
      *
      * @param groupName Group name
      *
-     * @return Description for the specified group; blank if the group has no description or the group
-     *         doesn't exist
+     * @return Description for the specified group; blank if the group has no description or the
+     *         group doesn't exist
      *********************************************************************************************/
     protected String getGroupDescription(String groupName)
     {

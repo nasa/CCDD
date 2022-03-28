@@ -1,31 +1,28 @@
 /**************************************************************************************************
-/** \file CcddFieldEditorDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling data field operations. The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddFieldEditorDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling data field operations. The dialog is built on the CcddDialogHandler
+ * class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.BREAK_ICON;
@@ -105,8 +102,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private JButton btnUpdate;
     private JButton btnClose;
 
-    // Table name, including the path if this is a structure type table, or group
-    // name
+    // Table name, including the path if this is a structure type table, or group name
     private final String ownerName;
 
     // Flag that indicates if the applicability column should be displayed
@@ -115,10 +111,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     // Index for the data field editor's input type column
     private int inputTypeIndex;
 
-    // Table instance model data array. Current copy of the table information as it
-    // exists in the
-    // table editor. This is used to determine what changes have been made to the
-    // table since the
+    // Table instance model data array. Current copy of the table information as it exists in the
+    // table editor. This is used to determine what changes have been made to the table since the
     // previous field editor update
     private Object[][] currentData;
 
@@ -135,8 +129,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *
      * @param fieldPnlHandler      Description and data field panel reference
      *
-     * @param ownerName            Table name, including the path if this is a structure type table, or
-     *                             group name
+     * @param ownerName            Table name, including the path if this is a structure type
+     *                             table, or group name
      *
      * @param fieldInformation     List of the owner's current field information
      *
@@ -155,8 +149,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         inputTypeHandler = ccddMain.getInputTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
 
-        // Set the field information in the undo handler in case an undo or redo is
-        // performed
+        // Set the field information in the undo handler in case an undo or redo is performed
         fieldPnlHandler.getUndoFieldPanel()
                 .setUndoFieldInformation(CcddFieldHandler.getFieldInformationCopy(fieldInformation));
 
@@ -174,8 +167,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Assign unique IDs to the data fields
         CcddFieldHandler.assignFieldIDs(fieldInformation);
 
-        // Convert the owner's current field information into the format for the editor
-        // table
+        // Convert the owner's current field information into the format for the editor table
         currentData = CcddFieldHandler.getFieldEditorDefinition(fieldInformation);
 
         // Define the table data field editor JTable
@@ -225,7 +217,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override isCellEditable so that all columns except the line separators and breaks can be edited
+             * Override isCellEditable so that all columns except the line separators and breaks
+             * can be edited
              *************************************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
@@ -265,8 +258,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to prevent deleting the contents of the cell at the
-             * specified row and column
+             * Override the CcddJTableHandler method to prevent deleting the contents of the cell
+             * at the specified row and column
              *
              * @param row    Table row index in view coordinates
              *
@@ -299,8 +292,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              *
              * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-             *                    a single input is being entered
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked;
+             *                    false if only a single input is being entered
              *
              * @return Always returns false
              ************************************************************************************/
@@ -355,9 +348,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                 .valueOf(newValueS.replaceAll(DefaultInputType.INT_POSITIVE.getInputMatch(), "$1"));
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -379,7 +370,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Load the table data field definition values into the table and format the table cells
+             * Load the table data field definition values into the table and format the table
+             * cells
              *************************************************************************************/
             @Override
             protected void loadAndFormatData()
@@ -399,8 +391,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
-                // Check if the cell isn't already selected (selection highlighting overrides
-                // the
+                // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
                 if (!(isFocusOwner() && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
@@ -465,8 +456,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to produce an array containing empty values for a new row
-             * in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *************************************************************************************/
@@ -482,8 +473,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether or not any unstored
-                // changes
+                // Add or remove the change indicator based on whether or not any unstored changes
                 // exist
                 setTitle(DIALOG_TITLE + ": " + ownerName
                          + (fieldTable.isTableChanged(currentData) ? CHANGE_INDICATOR : ""));
@@ -505,8 +495,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a drop-down combo box to display the available field input types
         setUpInputTypeColumn();
 
-        // Create a drop-down combo box to display the available field applicability
-        // types
+        // Create a drop-down combo box to display the available field applicability types
         setUpApplicabilityColumn();
 
         // Define the editor panel to contain the table
@@ -519,8 +508,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        // Create an outer panel to put the editor panel in (the border doesn't appear
-        // without
+        // Create an outer panel to put the editor panel in (the border doesn't appear without
         // this)
         outerPanel = new JPanel(new GridBagLayout());
         outerPanel.add(editorPanel, gbc);
@@ -680,8 +668,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                // Check if no required columns are empty, the currently editing cell's contents
-                // is
+                // Check if no required columns are empty, the currently editing cell's contents is
                 // valid (if a cell is being edited), and that there are changes to update
                 if (!checkForMissingColumns() && fieldTable.isLastCellValid() && fieldTable.isTableChanged(currentData))
                 {
@@ -709,8 +696,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             }
         });
 
-        // Add buttons in the order in which they'll appear (left to right, top to
-        // bottom)
+        // Add buttons in the order in which they'll appear (left to right, top to bottom)
         buttonPnl.add(btnInsertRow);
         buttonPnl.add(btnMoveUp);
         buttonPnl.add(btnSeparator);
@@ -725,8 +711,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Distribute the buttons across two rows
         setButtonRows(2);
 
-        // Set the modal undo manager and table references in the keyboard handler while
-        // the data
+        // Set the modal undo manager and table references in the keyboard handler while the data
         // field editor is active
         keyboardHandler.setModalDialogReference(fieldTable.getUndoManager(), fieldTable);
 
@@ -734,10 +719,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         showOptionsDialog(fieldPnlHndlr.getOwner(), outerPanel, buttonPnl, btnClose, DIALOG_TITLE + ": " + ownerName,
                           true);
 
-        // Clear the modal dialog references in the keyboard handler since the data
-        // field editor is
-        // no longer active. The component that called this editor, if a modal dialog,
-        // must set
+        // Clear the modal dialog references in the keyboard handler since the data field editor is
+        // no longer active. The component that called this editor, if a modal dialog, must set
         // these parameters again once control is returned to it from this editor
         keyboardHandler.setModalDialogReference(null, null);
     }
@@ -749,15 +732,12 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void recreateDataFieldPanel(int minDialogWidth)
     {
-        // Get the data field information as it is currently displayed in the table
-        // editor and
-        // update the current data array to reflect the updates so that subsequent
-        // changes are
+        // Get the data field information as it is currently displayed in the table editor and
+        // update the current data array to reflect the updates so that subsequent changes are
         // correctly identified
         currentData = fieldTable.getTableData(true);
 
-        // Clear the current field information. This is done so the the variable's
-        // reference isn't
+        // Clear the current field information. This is done so the the variable's reference isn't
         // changed
         fieldInformation.clear();
 
@@ -768,8 +748,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             fieldInformation.add(fieldInfo);
         }
 
-        // Rebuild the data field panel in the table editor using the current text field
-        // contents
+        // Rebuild the data field panel in the table editor using the current text field contents
         fieldPnlHndlr.createDataFieldPanel(true, fieldInformation, false);
 
         // Update the dialog title to remove the change indicator
@@ -778,8 +757,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Update the change indicator for the owner of this edit panel
         fieldPnlHndlr.updateOwnerChangeIndicator();
 
-        // Update the undo manager so that all data field editor edits up to the press
-        // of the
+        // Update the undo manager so that all data field editor edits up to the press of the
         // Update button can be undone/redone
         fieldTable.getUndoManager().endEditSequence();
     }
@@ -790,10 +768,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // there are changes that haven't been applied. If changes exist then confirm
-        // discarding
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been applied. If changes exist then confirm discarding
         // the changes
         if (fieldTable.isLastCellValid()
             && (!fieldTable.isTableChanged(currentData)
@@ -807,8 +783,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set up the combo box containing the available field input input types for display in the table's
-     * Input Type cells
+     * Set up the combo box containing the available field input input types for display in the
+     * table's Input Type cells
      *********************************************************************************************/
     private void setUpInputTypeColumn()
     {

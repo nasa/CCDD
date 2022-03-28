@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddTableTypeEditorHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class that handles the commands associated with a specific table type editor. This class
-*     is an extension of the CcddInputFieldPanelHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTableTypeEditorHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class that handles the commands associated with a specific table type editor. This class
+ * is an extension of the CcddInputFieldPanelHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -236,8 +232,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Check if the table type has uncommitted changes
         if (isTableChanged())
         {
-            // Send a change event so that the editor tab name reflects that the table type
-            // has changed
+            // Send a change event so that the editor tab name reflects that the table type has
+            // changed
             table.getUndoManager().ownerHasChanged();
         }
     }
@@ -364,8 +360,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             committedCmdArgStruct = cmdArgStructureCbx.isSelected();
             setCommittedInformation();
 
-            // Send a change event so that the editor tab name reflects that the table has
-            // changed
+            // Send a change event so that the editor tab name reflects that the table has changed
             table.getUndoManager().ownerHasChanged();
 
             // Clear the undo/redo cell edits stack
@@ -410,9 +405,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Update the field information with the current text field values
                 updateFieldValueFromComponent(getPanelFieldInformation());
 
-                // Set the flag if the number of fields, field attributes, or field contents
-                // have changed
-                boolean isFieldChanged = fieldHandler.isFieldChanged(getPanelFieldInformation(), committedFieldInfo,
+                // Set the flag if the number of fields, field attributes, or field contents have
+                // changed
+                boolean isFieldChanged = fieldHandler.isFieldChanged(getPanelFieldInformation(),
+                                                                     committedFieldInfo,
                                                                      true);
 
                 return isFieldChanged || !committedDescription.equals(getDescription())
@@ -473,8 +469,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             {
                 boolean isEditable = true;
 
-                // Check if the table is displayable (to prevent corruption of the cell editor),
-                // if the table model exists, and if the table has at least one row
+                // Check if the table is displayable (to prevent corruption of the cell editor), if
+                // the table model exists, and if the table has at least one row
                 if (isDisplayable() && getModel() != null && getModel().getRowCount() != 0)
                 {
                     // Create storage for the row of table data
@@ -537,8 +533,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 column == TableTypeEditorColumnInfo.NAME.ordinal()
                        || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal() || typeDefinition == null
 
-                // This isn't the structure allowed column, or it is and the input type is one
-                // that allows the structure allowed property to be changed
+                // This isn't the structure allowed column, or it is and the input type is one that
+                // allows the structure allowed property to be changed
                        || ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() || isAllowed)
 
                            // ... and this isn't the pointer allowed column, or it is and the input
@@ -547,8 +543,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to prevent deleting the contents of the cell at the
-             * specified row and column
+             * Override the CcddJTableHandler method to prevent deleting the contents of the cell
+             * at the specified row and column
              *
              * @param row    Table row index in view coordinates
              *
@@ -577,8 +573,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              *
              * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-             *                    a single input is being entered
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked;
+             *                    false if only a single input is being entered
              *
              * @return Always returns false
              *************************************************************************************/
@@ -626,7 +622,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                             // Check if this row isn't the one being edited,
                             if (otherRow != row)
                             {
-                                // Check if the column name matches the one being added (case insensitive)
+                                // Check if the column name matches the one being added (case
+                                // insensitive)
                                 if (newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString()))
                                 {
                                     throw new CCDDException("Column name '</b>" + newValueS + "<b>' already in use");
@@ -638,7 +635,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                             tableTypeHandler.convertVisibleToDatabase(tableData
                                                                     .get(otherRow)[TableTypeEditorColumnInfo.NAME
                                                                             .ordinal()]
-                                                                                    .toString(), tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(), isStructure)))
+                                                                                    .toString(), tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
+                                                                                                      isStructure)))
                                 {
                                     throw new CCDDException("Column name '</b>" + newValueS
                                                             + "<b>' already in use (database)");
@@ -646,7 +644,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                             }
                         }
                     }
-                    // Check if a non-boolean value is being put into a cell that expects a boolean value
+                    // Check if a non-boolean value is being put into a cell that expects a boolean
+                    // value
                     else if ((column == TableTypeEditorColumnInfo.UNIQUE.ordinal()
                               || column == TableTypeEditorColumnInfo.REQUIRED.ordinal())
                              && !newValue.equals(true) && !newValue.equals(false))
@@ -670,9 +669,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         }
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -707,7 +704,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                              null, TableTypeEditorColumnInfo.getToolTips(), true, true,
                                                              true);
 
-                // Get the minimum width needed to display all columns, but no wider than the display
+                // Get the minimum width needed to display all columns, but no wider than the
+                // display
                 int width = Math.min(totalWidth + LAF_SCROLL_BAR_WIDTH, GraphicsEnvironment
                         .getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
 
@@ -728,8 +726,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
-                // Check if the cell doesn't have the focus or is selected. The focus and
-                // selection highlight colors override the invalid highlight color
+                // Check if the cell doesn't have the focus or is selected. The focus and selection
+                // highlight colors override the invalid highlight color
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
                     && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor())
                 {
@@ -755,7 +753,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                             // in case this item is displayed as disabled
                             if (CcddUtilities.removeHTMLTags(comboBox.getItemAt(index)).equals(value))
                             {
-                                // Set the flag indicating that the cell value is valid and stop searching
+                                // Set the flag indicating that the cell value is valid and stop
+                                // searching
                                 found = true;
                                 break;
                             }
@@ -789,8 +788,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to produce an array containing empty values for a new row
-             * in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *************************************************************************************/
@@ -888,8 +887,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Create a drop-down combo box to display the available table type input types
         setUpInputTypeColumn();
 
-        // Set the reference to the editor's data field handler in the undo handler so
-        // that data field value changes can be undone/redone correctly
+        // Set the reference to the editor's data field handler in the undo handler so that data
+        // field value changes can be undone/redone correctly
         table.getUndoHandler().setFieldHandler(fieldHandler);
 
         // Set the undo/redo manager and handler for the description and data field values
@@ -905,12 +904,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                            typeDefinition.isCommandArgumentStructure());
         cmdArgStructureCbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         cmdArgStructureCbx.setBorder(BorderFactory.createEmptyBorder());
-        cmdArgStructureCbx.setToolTipText(CcddUtilities
-                .wrapText("Structures based on this type contain refernces to command arguments",
-                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        cmdArgStructureCbx.setToolTipText(CcddUtilities.wrapText("Structures based on this type contain refernces to command arguments",
+                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-        // Tables of type 'Structure' can be command argument structures, but the actual 'Structure'
-        // table type can not.
+        // Tables of type 'Structure' can be command argument structures, but the actual
+        // 'Structure' table type can not
         if (tableTypeName.contentEquals(TYPE_STRUCTURE))
         {
             cmdArgStructureCbx.setSelected(false);
@@ -941,13 +939,13 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Get the table type based on the column definition input types
      *
-     * @return Table type: TYPE_STRUCTURE for a structure table, TYPE_COMMAND for a command table, or
-     *         TYPE_OTHER for any other table type
+     * @return Table type: TYPE_STRUCTURE for a structure table, TYPE_COMMAND for a command table,
+     *         or TYPE_OTHER for any other table type
      *********************************************************************************************/
     private String getTypeOfTable()
     {
-        // Set the flags that indicate if the table type currently represents a
-        // structure or a command
+        // Set the flags that indicate if the table type currently represents a structure or a
+        // command
         boolean isStructure = true;
         boolean isCommand = true;
 
@@ -957,8 +955,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             // Step through each of the default columns
             for (DefaultColumn defColumn : DefaultColumn.values())
             {
-                // Check if this column belongs to the target table type and that it is a
-                // protected column
+                // Check if this column belongs to the target table type and that it is a protected
+                // column
                 if (defColumn.getTableType().equals(tableType) && defColumn.isProtected())
                 {
                     boolean isFound = false;
@@ -966,7 +964,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     // Step through each row in the table
                     for (int tableRow = 0; tableRow < table.getModel().getRowCount(); tableRow++)
                     {
-                        // Check if the input type column value matches the target table type input type
+                        // Check if the input type column value matches the target table type input
+                        // type
                         if (table.getModel().getValueAt(tableRow, TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
                                 .toString().equals(defColumn.getInputType().getInputName()))
                         {
@@ -1077,8 +1076,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Set up the combo box containing the available table type input types for display in the table's
-     * Input Type cells
+     * Set up the combo box containing the available table type input types for display in the
+     * table's Input Type cells
      *********************************************************************************************/
     private void setUpInputTypeColumn()
     {
@@ -1102,8 +1101,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Determine if any changes have been made compared to the most recently committed table data
      *
-     * @return true if any cell in the table has been changed, if the column order has changed, or if
-     *         the table description has changed
+     * @return true if any cell in the table has been changed, if the column order has changed, or
+     *         if the table description has changed
      *********************************************************************************************/
     protected boolean isTableChanged()
     {
@@ -1115,8 +1114,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * changed values necessary to update the table definitions table in the database to match the
      * current values
      *
-     * @throws CCDDException If a data field name will cause an existing table's field to be renamed and
-     *                       the user elects to cancel the update
+     * @throws CCDDException If a data field name will cause an existing table's field to be
+     *                       renamed and the user elects to cancel the update
      *********************************************************************************************/
     protected void buildUpdates() throws CCDDException
     {
@@ -1128,11 +1127,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
         // Create/replace the type definition. The description is prepended with a '0' is the table
         // type doesn't represent a command argument structure, and a '1' if it does
-        tableTypeHandler
-                .createReplaceTypeDefinition(tableTypeName,
-                                             (cmdArgStructureCbx != null && cmdArgStructureCbx.isSelected() ? "1" : "0")
-                                                            + getDescription(),
-                                             typeData);
+        tableTypeHandler.createReplaceTypeDefinition(tableTypeName,
+                                                     (cmdArgStructureCbx != null && cmdArgStructureCbx.isSelected() ? "1" : "0") + getDescription(),
+                                                     typeData);
 
         // Remove existing changes, if any
         typeAdditions.clear();
@@ -1170,8 +1167,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     // Set the flag indicating this row has a match
                     matchFound = true;
 
-                    // Copy the current row's index into the empty comparison row so that the otherwise
-                    // blank index doesn't register as a difference when comparing the rows below
+                    // Copy the current row's index into the empty comparison row so that the
+                    // otherwise blank index doesn't register as a difference when comparing the
+                    // rows below
                     emptyRow[TableTypeEditorColumnInfo.INDEX
                             .ordinal()] = typeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
 
@@ -1195,13 +1193,15 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         String newInputType = typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
                                 .toString();
 
-                        // Check if the column name changed or if the input type changed to/from a rate
+                        // Check if the column name changed or if the input type changed to/from a
+                        // rate
                         if (!prevColumnName.equals(currColumnName)
                             || ((newInputType.equals(DefaultInputType.RATE.getInputName())
                                  || oldInputType.equals(DefaultInputType.RATE.getInputName()))
                                 && !newInputType.equals(oldInputType)))
                         {
-                            // The column name is changed. Add the old and new column names and input types to the list
+                            // The column name is changed. Add the old and new column names and
+                            // input types to the list
                             typeModifications
                                     .add(new String[] {prevColumnName, currColumnName, oldInputType, newInputType});
                         }
@@ -1215,7 +1215,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             // Check if no match was made with the committed data for the current table row
             if (!matchFound)
             {
-                // The column definition is being added; add the column name and input type to the list
+                // The column definition is being added; add the column name and input type to the
+                // list
                 typeAdditions.add(new String[] {currColumnName,
                                                 typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
                                                         .toString()});
@@ -1228,7 +1229,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             // Check if no matching row was found with the current data
             if (!rowModified[comRow])
             {
-                // The column definition has been deleted; add the column name and input type to the list
+                // The column definition has been deleted; add the column name and input type to
+                // the list
                 typeDeletions.add(new String[] {committedData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()]
                         .toString(), committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }

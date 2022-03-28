@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddLinkManagerDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to create, modify, or delete variable links, and to assign variables
-*     to the links. The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddLinkManagerDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to create, modify, or delete variable links, and to assign variables
+ * to the links. The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
@@ -166,10 +162,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the variable link manager dialog. This is executed in a separate thread since it can take
-     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the variable link manager dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -457,8 +453,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnNewLink);
                 buttonPnl.add(btnRenameLink);
                 buttonPnl.add(btnUndo);
@@ -493,8 +488,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      * @param isSingleLinkSelected     True to enable the those buttons that are valid when only a
      *                                 single link is selected
      *
-     * @param isOneOrMoreLinksSelected True to enable those buttons that are valid if one or more links
-     *                                 is selected
+     * @param isOneOrMoreLinksSelected True to enable those buttons that are valid if one or more
+     *                                 links is selected
      *********************************************************************************************/
     protected void setLinkButtonsEnabled(boolean isSingleLinkSelected, boolean isOneOrMoreLinksSelected)
     {
@@ -597,10 +592,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         if (linkInfoDialog.showOptionsDialog(CcddLinkManagerDialog.this, createPnl, "New Link",
                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
-            // Disable automatically ending the edit sequence. This allows all of the
-            // deleted links
-            // to be grouped into a single sequence so that if undone, all fields are
-            // restored
+            // Disable automatically ending the edit sequence. This allows all of the deleted links
+            // to be grouped into a single sequence so that if undone, all fields are restored
             activeHandler.getUndoHandler().setAutoEndEditSequence(false);
 
             // Add the new link information
@@ -616,8 +609,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Update the link dialog's change indicator
             updateChangeIndicator();
 
-            // Re-enable automatic edit sequence ending, then end the edit sequence to group
-            // the
+            // Re-enable automatic edit sequence ending, then end the edit sequence to group the
             // deleted links
             activeHandler.getUndoHandler().setAutoEndEditSequence(true);
             activeHandler.getUndoManager().endEditSequence();
@@ -632,25 +624,21 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         // Check that a node is selected in the link tree
         if (activeHandler.getLinkTree().getSelectionCount() != 0)
         {
-            // Disable automatically ending the edit sequence. This allows all of the
-            // deleted links
-            // to be grouped into a single sequence so that if undone, all fields are
-            // restored
+            // Disable automatically ending the edit sequence. This allows all of the deleted links
+            // to be grouped into a single sequence so that if undone, all fields are restored
             activeHandler.getUndoHandler().setAutoEndEditSequence(false);
 
             // Remove the selected link(s) information
             activeHandler.getLinkTree().removeSelectedLinks();
 
-            // Update the variable tree to enable any variables no longer assigned due to
-            // the
+            // Update the variable tree to enable any variables no longer assigned due to the
             // deleted link
             activeHandler.getVariableTree().setExcludedVariables(activeHandler.getLinkTree().getLinkVariables(null));
 
             // Update the link dialog's change indicator
             updateChangeIndicator();
 
-            // Re-enable automatic edit sequence ending, then end the edit sequence to group
-            // the
+            // Re-enable automatic edit sequence ending, then end the edit sequence to group the
             // deleted links
             activeHandler.getUndoHandler().setAutoEndEditSequence(true);
             activeHandler.getUndoManager().endEditSequence();
@@ -696,8 +684,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             if (linkDlg.showOptionsDialog(CcddLinkManagerDialog.this, dialogPnl, "Rename Link",
                                           DialogOption.RENAME_OPTION, true) == OK_BUTTON)
             {
-                // Disable automatically ending the edit sequence. This allows all of the
-                // deleted
+                // Disable automatically ending the edit sequence. This allows all of the deleted
                 // links to be grouped into a single sequence so that if undone, all fields are
                 // restored
                 activeHandler.getUndoHandler().setAutoEndEditSequence(false);
@@ -732,10 +719,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Copy the selected link(s) to one or more data streams. If a target stream already has a link by
-     * the same name, or does not support the rate of the copied link, then the link is not copied to
-     * that stream. Additionally, if a variable's rate isn't the same in the target stream then the
-     * variable is removed from the link
+     * Copy the selected link(s) to one or more data streams. If a target stream already has a link
+     * by the same name, or does not support the rate of the copied link, then the link is not
+     * copied to that stream. Additionally, if a variable's rate isn't the same in the target
+     * stream then the variable is removed from the link
      *********************************************************************************************/
     private void copyLink()
     {
@@ -767,13 +754,11 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Add the index of the current data stream to the list of disabled selections
             disabledItems.add(tabbedPane.getSelectedIndex());
 
-            // Get the name(s) of the link(s) to be copied, minus any HTML tags and
-            // rate/size
+            // Get the name(s) of the link(s) to be copied, minus any HTML tags and rate/size
             // information
             String linkNames = currentTree.removeExtraText(Arrays.toString(selected).replaceAll("^\\[|\\]$", ""));
 
-            // Create a panel containing a grid of check boxes representing the data streams
-            // from
+            // Create a panel containing a grid of check boxes representing the data streams from
             // which to choose
             if (addCheckBoxes(null, arrayItemData, disabledItems, "Select target data stream(s)", false, streamPnl))
             {
@@ -1001,7 +986,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                             }
 
                             /**********************************************************************
-                             * Load the link & members not copied data into the table and format the table cells
+                             * Load the link & members not copied data into the table and format
+                             * the table cells
                              *********************************************************************/
                             @Override
                             protected void loadAndFormatData()
@@ -1016,8 +1002,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                             }
 
                             /**********************************************************************
-                             * Override the table layout so that extra width is apportioned unequally between the
-                             * columns when the table is resized
+                             * Override the table layout so that extra width is apportioned
+                             * unequally between the columns when the table is resized
                              *********************************************************************/
                             @Override
                             public void doLayout()
@@ -1104,12 +1090,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         // Step through each data stream
         for (CcddLinkManagerHandler linkHandler : linkMgrs)
         {
-            // Add the links for this stream to the list containing the links for all data
-            // streams
+            // Add the links for this stream to the list containing the links for all data streams
             currentLinks.addAll(linkHandler.getCurrentLinks());
 
-            // Update the list of link variables that are invalid due to the addition of one
-            // or
+            // Update the list of link variables that are invalid due to the addition of one or
             // more variables to a link
             invalidatedLinkVars.addAll(linkHandler.getInvalidatedLinkMembers());
         }
@@ -1167,8 +1151,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Verify that the contents of the link name field is valid. For a link copy operation also verify
-     * that a data stream is selected
+     * Verify that the contents of the link name field is valid. For a link copy operation also
+     * verify that a data stream is selected
      *
      * @param isCopy True to if this verification is for a link copy operation
      *
@@ -1184,8 +1168,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Check if this is not a copy operation
             if (!isCopy)
             {
-                // Get the link name, remove leading & trailing white space characters, and
-                // store
+                // Get the link name, remove leading & trailing white space characters, and store
                 // the 'cleaned' name back in the field
                 String linkName = linkNameFld.getText().trim();
                 linkNameFld.setText(linkName);
@@ -1227,9 +1210,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 }
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this, "<html><b>" + ce.getMessage(),
@@ -1258,8 +1239,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             // Check if the links changed for this stream
             if (linkHandler.isLinksChanged())
             {
-                // Set the flag indicating a change exists, but keep searching so that the
-                // current
+                // Set the flag indicating a change exists, but keep searching so that the current
                 // links are updated for all data streams
                 isChanged = true;
             }
@@ -1279,8 +1259,8 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the change indicator for the specified link manager
      *
-     * @param index Index for the tab containing the data stream to update; an invalid tab number causes
-     *              the active tab to be selected
+     * @param index Index for the tab containing the data stream to update; an invalid tab number
+     *              causes the active tab to be selected
      *********************************************************************************************/
     private void updateChangeIndicator(int index)
     {

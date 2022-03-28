@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddClassesDataTable.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Collection of common classes used by other CCDD classes. These classes, in general, are used to
-*     manipulate and contain information with respect to the data tables.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddClassesDataTable.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Collection of common classes used by other CCDD classes. These classes, in general, are
+ * used to manipulate and contain information with respect to the data tables.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
@@ -132,16 +128,16 @@ public class CcddClassesDataTable
     /**********************************************************************************************
      * Table information class
      *
-     * A table can be one (or possibly more) of the following: prototype, root, parent, and child. A
-     * prototype table is produced whenever the Data | New table(s) menu command is used to create a
-     * table. The prototype becomes a 'rubber stamp' for creating other table instances that initially
-     * contain the same information as the prototype. A root table is a prototype that is not referenced
-     * from within another table (making it a top level table). Therefore a root table is always a
-     * prototype table, but the reverse isn't necessarily true. Other tables may be referenced within
-     * the root table - these referenced tables are known as child tables. A table's parent table is the
-     * table in which the child table is directly referenced. The parent table can itself be a child
-     * table, or the parent and root tables are the same in the case where the child is referenced
-     * directly in the root table
+     * A table can be one (or possibly more) of the following: prototype, root, parent, and child.
+     * A prototype table is produced whenever the Data | New table(s) menu command is used to
+     * create a table. The prototype becomes a 'rubber stamp' for creating other table instances
+     * that initially contain the same information as the prototype. A root table is a prototype
+     * that is not referenced from within another table (making it a top level table). Therefore a
+     * root table is always a prototype table, but the reverse isn't necessarily true. Other tables
+     * may be referenced within the root table - these referenced tables are known as child tables.
+     * A table's parent table is the table in which the child table is directly referenced. The
+     * parent table can itself be a child table, or the parent and root tables are the same in the
+     * case where the child is referenced directly in the root table
      *********************************************************************************************/
     protected static class TableInfo
     {
@@ -160,21 +156,27 @@ public class CcddClassesDataTable
          * @param tableType   Table type
          *
          * @param tablePath   Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                    .variable2[,...]]]. The table path for a non-structure table is simply the
-         *                    root table name. For a structure table the root table is the top level
-         *                    structure table from which this table descends. The first data type/variable
-         *                    name pair is from the root table, with each succeeding pair coming from the
-         *                    next level down in the structure's hierarchy
+         *                    .variable2[,...]]]. The table path for a non-structure table is
+         *                    simply the root table name. For a structure table the root table is
+         *                    the top level structure table from which this table descends. The
+         *                    first data type/variable name pair is from the root table, with each
+         *                    succeeding pair coming from the next level down in the structure's
+         *                    hierarchy
          *
          * @param data        Two-dimensional table data array (rows x columns)
          *
-         * @param columnOrder Table column display order in the format column#0[:column#1[:...[:column#N]]].
-         *                    The column numbers are based on the position of the column's definition in the
-         *                    table's type definition
+         * @param columnOrder Table column display order in the format
+         *                    column#0[:column#1[:...[:column#N]]]. The column numbers are based on
+         *                    the position of the column's definition in the table's type
+         *                    definition
          *
          * @param description Table description
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, Object[][] data, String columnOrder, String description)
+        TableInfo(String tableType,
+                  String tablePath,
+                  Object[][] data,
+                  String columnOrder,
+                  String description)
         {
             this.tableType = tableType;
             this.tablePath = tablePath;
@@ -191,21 +193,27 @@ public class CcddClassesDataTable
          * @param tableType   Table type
          *
          * @param tablePath   Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                    .variable2[,...]]]. The table path for a non-structure table is simply the
-         *                    root table name. For a structure table the root table is the top level
-         *                    structure table from which this table descends. The first data type/variable
-         *                    name pair is from the root table, with each succeeding pair coming from the
-         *                    next level down in the structure's hierarchy
+         *                    .variable2[,...]]]. The table path for a non-structure table is
+         *                    simply the root table name. For a structure table the root table is
+         *                    the top level structure table from which this table descends. The
+         *                    first data type/variable name pair is from the root table, with each
+         *                    succeeding pair coming from the next level down in the structure's
+         *                    hierarchy
          *
          * @param data        Two-dimensional table data array (rows x columns)
          *
-         * @param columnOrder Table column display order in the format column#0[:column#1[:...[:column#N]]].
-         *                    The column numbers are based on the position of the column's definition in the
-         *                    table's type definition
+         * @param columnOrder Table column display order in the format
+         *                    column#0[:column#1[:...[:column#N]]]. The column numbers are based on
+         *                    the position of the column's definition in the table's type
+         *                    definition
          *
          * @param description Table description
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, List<Object[]> data, String columnOrder, String description)
+        TableInfo(String tableType,
+                  String tablePath,
+                  List<Object[]> data,
+                  String columnOrder,
+                  String description)
         {
             this.tableType = tableType;
             this.tablePath = tablePath;
@@ -222,17 +230,19 @@ public class CcddClassesDataTable
          * @param tableType   Table type
          *
          * @param tablePath   Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                    .variable2[,...]]]. The table path for a non-structure table is simply the
-         *                    root table name. For a structure table the root table is the top level
-         *                    structure table from which this table descends. The first data type/variable
-         *                    name pair is from the root table, with each succeeding pair coming from the
-         *                    next level down in the structure's hierarchy
+         *                    .variable2[,...]]]. The table path for a non-structure table is
+         *                    simply the root table name. For a structure table the root table is
+         *                    the top level structure table from which this table descends. The
+         *                    first data type/variable name pair is from the root table, with each
+         *                    succeeding pair coming from the next level down in the structure's
+         *                    hierarchy
          *
          * @param data        List of String[] containing the table data
          *
-         * @param columnOrder Table column display order in the format column#0[:column#1[:...[:column#N]]].
-         *                    The column numbers are based on the position of the column's definition in the
-         *                    table's type definition
+         * @param columnOrder Table column display order in the format
+         *                    column#0[:column#1[:...[:column#N]]]. The column numbers are based on
+         *                    the position of the column's definition in the table's type
+         *                    definition
          *
          * @param description Table description
          *****************************************************************************************/
@@ -247,29 +257,37 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Table information class constructor. Used when the array of field definitions are retrieved from
-         * the database. These are converted to a list of FieldInformation references
+         * Table information class constructor. Used when the array of field definitions are
+         * retrieved from the database. These are converted to a list of FieldInformation
+         * references
          *
          * @param tableType        Table type
          *
-         * @param tablePath        Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                         .variable2[,...]]]. The table path for a non-structure table is simply
-         *                         the root table name. For a structure table the root table is the top
-         *                         level structure table from which this table descends. The first data
-         *                         type/variable name pair is from the root table, with each succeeding pair
-         *                         coming from the next level down in the structure's hierarchy
+         * @param tablePath        Table path in the format
+         *                         rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]].
+         *                         The table path for a non-structure table is simply the root
+         *                         table name. For a structure table the root table is the top
+         *                         level structure table from which this table descends. The first
+         *                         data type/variable name pair is from the root table, with each
+         *                         succeeding pair coming from the next level down in the
+         *                         structure's hierarchy
          *
          * @param tableData        Two-dimensional table data array (rows x columns)
          *
          * @param columnOrder      Table column display order in the format
-         *                         column#0[:column#1[:...[:column#N]]]. The column numbers are based on the
-         *                         position of the column's definition in the table's type definition
+         *                         column#0[:column#1[:...[:column#N]]]. The column numbers are
+         *                         based on the position of the column's definition in the table's
+         *                         type definition
          *
          * @param description      Table description
          *
          * @param fieldInformation List of field information
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, Object[][] tableData, String columnOrder, String description,
+        TableInfo(String tableType,
+                  String tablePath,
+                  Object[][] tableData,
+                  String columnOrder,
+                  String description,
                   List<FieldInformation> fieldInformation)
         {
             this(tableType, tablePath, tableData, columnOrder, description);
@@ -282,29 +300,37 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Table information class constructor. Used when the array of field definitions are retrieved from
-         * the database. These are converted to a list of FieldInformation references
+         * Table information class constructor. Used when the array of field definitions are
+         * retrieved from the database. These are converted to a list of FieldInformation
+         * references
          *
          * @param tableType        Table type
          *
-         * @param tablePath        Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                         .variable2[,...]]]. The table path for a non-structure table is simply
-         *                         the root table name. For a structure table the root table is the top
-         *                         level structure table from which this table descends. The first data
-         *                         type/variable name pair is from the root table, with each succeeding pair
-         *                         coming from the next level down in the structure's hierarchy
+         * @param tablePath        Table path in the format
+         *                         rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]].
+         *                         The table path for a non-structure table is simply the root
+         *                         table name. For a structure table the root table is the top
+         *                         level structure table from which this table descends. The first
+         *                         data type/variable name pair is from the root table, with each
+         *                         succeeding pair coming from the next level down in the
+         *                         structure's hierarchy
          *
          * @param tableData        Two-dimensional table data array (rows x columns)
          *
          * @param columnOrder      Table column display order in the format
-         *                         column#0[:column#1[:...[:column#N]]]. The column numbers are based on the
-         *                         position of the column's definition in the table's type definition
+         *                         column#0[:column#1[:...[:column#N]]]. The column numbers are
+         *                         based on the position of the column's definition in the table's
+         *                         type definition
          *
          * @param description      Table description
          *
          * @param fieldInformation List of field information
          *****************************************************************************************/
-        TableInfo(String tableType, String tablePath, List<Object[]> tableData, String columnOrder, String description,
+        TableInfo(String tableType,
+                  String tablePath,
+                  List<Object[]> tableData,
+                  String columnOrder,
+                  String description,
                   List<FieldInformation> fieldInformation)
         {
             this(tableType, tablePath, tableData, columnOrder, description);
@@ -317,14 +343,15 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Table information class constructor for a table that couldn't be loaded from the database
+         * Table information class constructor for a table that couldn't be loaded from the
+         * database
          *
          * @param tablePath Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                  .variable2[,...]]]. The table path for a non-structure table is simply the root
-         *                  table name. For a structure table the root table is the top level structure
-         *                  table from which this table descends. The first data type/variable name pair is
-         *                  from the root table, with each succeeding pair coming from the next level down
-         *                  in the structure's hierarchy
+         *                  .variable2[,...]]]. The table path for a non-structure table is simply
+         *                  the root table name. For a structure table the root table is the top
+         *                  level structure table from which this table descends. The first data
+         *                  type/variable name pair is from the root table, with each succeeding
+         *                  pair coming from the next level down in the structure's hierarchy
          *****************************************************************************************/
         TableInfo(String tablePath)
         {
@@ -353,9 +380,10 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table name in the form prototypeName.variableName, where prototypeName is the name of the
-         * prototype structure for this table, and variableName is the name of this particular instantiation
-         * of the prototype table. variableName is blank for a top level structure or non-structure table
+         * Get the table name in the form prototypeName.variableName, where prototypeName is the
+         * name of the prototype structure for this table, and variableName is the name of this
+         * particular instantiation of the prototype table. variableName is blank for a top level
+         * structure or non-structure table
          *
          * @return Table prototype name + variable name
          *****************************************************************************************/
@@ -365,12 +393,13 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table name from the supplied table path in the form prototypeName.variableName, where
-         * prototypeName is the name of the prototype structure for this table, and variableName is the name
-         * of this particular instantiation of the prototype table. variableName is blank for a top level
-         * structure or non-structure table
+         * Get the table name from the supplied table path in the form prototypeName.variableName,
+         * where prototypeName is the name of the prototype structure for this table, and
+         * variableName is the name of this particular instantiation of the prototype table.
+         * variableName is blank for a top level structure or non-structure table
          *
-         * @param path Table path in the format rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]
+         * @param path Table path in the format rootTable[,dataType1.variable1[,dataType2
+         *             .variable2[,...]]]
          *
          * @return Table prototype name + variable name
          *****************************************************************************************/
@@ -392,7 +421,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the table's prototype table name from the supplied path
          *
-         * @param path Table path in the format rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]]
+         * @param path Table path in the format rootTable[,dataType1.variable1[,dataType2
+         *             .variable2[,...]]]
          *
          * @return Table's prototype table name
          *****************************************************************************************/
@@ -415,11 +445,11 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table's path in the format rootTable[,dataType1.variable1[,dataType2 .variable2[,...]]].
-         * The table path for a non-structure table is simply the root table name. For a structure table the
-         * root table is the top level structure table from which this table descends. The first data
-         * type/variable name pair is from the root table, with each succeeding pair coming from the next
-         * level down in the structure's hierarchy
+         * Get the table's path in the format rootTable[,dataType1.variable1[,dataType2
+         * .variable2[,...]]]. The table path for a non-structure table is simply the root table
+         * name. For a structure table the root table is the top level structure table from which
+         * this table descends. The first data type/variable name pair is from the root table, with
+         * each succeeding pair coming from the next level down in the structure's hierarchy
          *
          * @return Table path
          *****************************************************************************************/
@@ -432,11 +462,11 @@ public class CcddClassesDataTable
          * Set the table path
          *
          * @param tablePath Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *                  .variable2[,...]]]. The table path for a non-structure table is simply the root
-         *                  table name. For a structure table the root table is the top level structure
-         *                  table from which this table descends. The first data type/variable name pair is
-         *                  from the root table, with each succeeding pair coming from the next level down
-         *                  in the structure's hierarchy
+         *                  .variable2[,...]]]. The table path for a non-structure table is simply
+         *                  the root table name. For a structure table the root table is the top
+         *                  level structure table from which this table descends. The first data
+         *                  type/variable name pair is from the root table, with each succeeding
+         *                  pair coming from the next level down in the structure's hierarchy
          *****************************************************************************************/
         protected void setTablePath(String tablePath)
         {
@@ -445,9 +475,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table's parent table name. The parent table is the structure table for which the table
-         * represented by this class instance is a direct member. The parent and root tables are the same if
-         * this table is a direct child of the root table
+         * Get the table's parent table name. The parent table is the structure table for which the
+         * table represented by this class instance is a direct member. The parent and root tables
+         * are the same if this table is a direct child of the root table
          *
          * @return Table's parent table name; blank if this is a prototype or root table
          *****************************************************************************************/
@@ -457,16 +487,16 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table's parent table name. The parent table is the structure table for which the table
-         * represented by this class instance is an immediate descendant (child). The parent and root tables
-         * are the same if this table is a child of a root table
+         * Get the table's parent table name. The parent table is the structure table for which the
+         * table represented by this class instance is an immediate descendant (child). The parent
+         * and root tables are the same if this table is a child of a root table
          *
          * @param path Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *             .variable2[,...]]]. The table path for a non-structure table is simply the root table
-         *             name. For a structure table the root table is the top level structure table from
-         *             which this table descends. The first data type/variable name pair is from the root
-         *             table, with each succeeding pair coming from the next level down in the structure's
-         *             hierarchy
+         *             .variable2[,...]]]. The table path for a non-structure table is simply the
+         *             root table name. For a structure table the root table is the top level
+         *             structure table from which this table descends. The first data type/variable
+         *             name pair is from the root table, with each succeeding pair coming from the
+         *             next level down in the structure's hierarchy
          *
          * @return Table's parent table name; blank if this is a prototype or root table
          *****************************************************************************************/
@@ -488,9 +518,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table's root table name. For a structure table the root table is the top level table from
-         * which the table represented by this class instance descends. For a non-structure table the root
-         * table is the table name
+         * Get the table's root table name. For a structure table the root table is the top level
+         * table from which the table represented by this class instance descends. For a
+         * non-structure table the root table is the table name
          *
          * @return Table's root table name
          *****************************************************************************************/
@@ -500,16 +530,16 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table's root table name. For a structure table the root table is the top level table from
-         * which the table represented by this class instance descends. For a non-structure table the root
-         * table is the table name
+         * Get the table's root table name. For a structure table the root table is the top level
+         * table from which the table represented by this class instance descends. For a
+         * non-structure table the root table is the table name
          *
          * @param path Table path in the format rootTable[,dataType1.variable1[,dataType2
-         *             .variable2[,...]]]. The table path for a non-structure table is simply the root table
-         *             name. For a structure table the root table is the top level structure table from
-         *             which this table descends. The first data type/variable name pair is from the root
-         *             table, with each succeeding pair coming from the next level down in the structure's
-         *             hierarchy
+         *             .variable2[,...]]]. The table path for a non-structure table is simply the
+         *             root table name. For a structure table the root table is the top level
+         *             structure table from which this table descends. The first data type/variable
+         *             name pair is from the root table, with each succeeding pair coming from the
+         *             next level down in the structure's hierarchy
          *
          * @return Table's root table name
          *****************************************************************************************/
@@ -519,9 +549,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Set the table's root table name. For a structure table the root table is the top level table from
-         * which the table represented by this class instance descends. For a non-structure table the root
-         * table is the table name
+         * Set the table's root table name. For a structure table the root table is the top level
+         * table from which the table represented by this class instance descends. For a
+         * non-structure table the root table is the table name
          *
          * @param rootTable Root table name
          *****************************************************************************************/
@@ -531,7 +561,7 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table data as a list of String[]
+         * Get the table data as a list of Object[]
          *
          * @return Table data array
          *****************************************************************************************/
@@ -687,8 +717,12 @@ public class CcddClassesDataTable
          *
          * @param rates         List of the rates associated with the variables
          *****************************************************************************************/
-        TableMembers(String name, String type, List<String> dataTypes, List<String> variableNames,
-                     List<String> bitLengths, List<String[]> rates)
+        TableMembers(String name,
+                     String type,
+                     List<String> dataTypes,
+                     List<String> variableNames,
+                     List<String> bitLengths,
+                     List<String[]> rates)
         {
             this.name = name;
             this.type = type;
@@ -763,8 +797,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the full variable name (in the format dataType.variableName:bitLength) at the specified
-         * index, including the bit length, if present
+         * Get the full variable name (in the format dataType.variableName:bitLength) at the
+         * specified index, including the bit length, if present
          *
          * @param index Index into this member's variable information lists
          *
@@ -804,25 +838,31 @@ public class CcddClassesDataTable
          *
          * @param rowData         Row of data from the table containing the changes
          *
-         * @param originalRowData Original contents of the row of data from the table containing the changes
+         * @param originalRowData Original contents of the row of data from the table containing
+         *                        the changes
          *
-         * @param variableColumn  Index of the column containing the variable name; -1 if no variable name
-         *                        column exists
+         * @param variableColumn  Index of the column containing the variable name; -1 if no
+         *                        variable name column exists
          *
-         * @param dataTypeColumn  Index of the column containing the data type name; -1 if no data type
-         *                        column exists
+         * @param dataTypeColumn  Index of the column containing the data type name; -1 if no data
+         *                        type column exists
          *
-         * @param arraySizeColumn Index of the column containing the array size; -1 if no array size column
-         *                        exists
+         * @param arraySizeColumn Index of the column containing the array size; -1 if no array
+         *                        size column exists
          *
-         * @param bitLengthColumn Index of the column containing the bit length; -1 if no bit length column
-         *                        exists
+         * @param bitLengthColumn Index of the column containing the bit length; -1 if no bit
+         *                        length column exists
          *
-         * @param rateColumn      Indices of the columns containing the sample rates; null if no rate column
-         *                        exists
+         * @param rateColumn      Indices of the columns containing the sample rates; null if no
+         *                        rate column exists
          *****************************************************************************************/
-        protected TableModification(Object[] rowData, Object[] originalRowData, int variableColumn, int dataTypeColumn,
-                                    int arraySizeColumn, int bitLengthColumn, List<Integer> rateColumn)
+        protected TableModification(Object[] rowData,
+                                    Object[] originalRowData,
+                                    int variableColumn,
+                                    int dataTypeColumn,
+                                    int arraySizeColumn,
+                                    int bitLengthColumn,
+                                    List<Integer> rateColumn)
         {
             this.rowData = rowData;
             this.originalRowData = originalRowData;
@@ -850,19 +890,22 @@ public class CcddClassesDataTable
          *
          * @param rowData         Row of data from the macro table
          *
-         * @param variableColumn  Index of the column containing the variable name; -1 if no variable name
-         *                        column exists
+         * @param variableColumn  Index of the column containing the variable name; -1 if no
+         *                        variable name column exists
          *
-         * @param dataTypeColumn  Index of the column containing the data type name; -1 if no data type
-         *                        column exists
+         * @param dataTypeColumn  Index of the column containing the data type name; -1 if no data
+         *                        type column exists
          *
-         * @param arraySizeColumn Index of the column containing the array size; -1 if no array size column
-         *                        exists
+         * @param arraySizeColumn Index of the column containing the array size; -1 if no array
+         *                        size column exists
          *
-         * @param bitLengthColumn Index of the column containing the bit length; -1 if no bit length column
-         *                        exists
+         * @param bitLengthColumn Index of the column containing the bit length; -1 if no bit
+         *                        length column exists
          *****************************************************************************************/
-        protected TableModification(Object[] rowData, int variableColumn, int dataTypeColumn, int arraySizeColumn,
+        protected TableModification(Object[] rowData,
+                                    int variableColumn,
+                                    int dataTypeColumn,
+                                    int arraySizeColumn,
                                     int bitLengthColumn)
         {
             this(rowData, null, variableColumn, dataTypeColumn, arraySizeColumn, bitLengthColumn, null);
@@ -931,8 +974,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the rate column index
          *
-         * @return List containing the rate column indices; null for an addition or deletion, and an empty
-         *         list if no rate column exists for a modification
+         * @return List containing the rate column indices; null for an addition or deletion, and
+         *         an empty list if no rate column exists for a modification
          *****************************************************************************************/
         protected List<Integer> getRateColumn()
         {
@@ -1115,7 +1158,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Remove a data field definition from the list of table data fields located at the given index
+         * Remove a data field definition from the list of table data fields located at the given
+         * index
          *
          * @param index Location to remove the field from
          *****************************************************************************************/
@@ -1162,8 +1206,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Does a field with the current name already exist? if so return the index of the field. If not
-         * return -1
+         * Does a field with the current name already exist? if so return the index of the field.
+         * If not return -1
          *
          * @param fieldDefn Data field definition
          *
@@ -1189,10 +1233,11 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Check if the table name/path is in the expected format. Macros aren't expanded; the delimiters
-         * are simply removed
+         * Check if the table name/path is in the expected format. Macros aren't expanded; the
+         * delimiters are simply removed
          *
-         * @param tablePath Table path in the format {@literal rootName<,childStructure.childName<,...>>}
+         * @param tablePath Table path in the format
+         *                  {@literal rootName<,childStructure.childName<,...>>}
          *
          * @return true if the table name/path is not in the expected format
          *****************************************************************************************/
@@ -1208,8 +1253,7 @@ public class CcddClassesDataTable
                 // the data type portion
                 String[] dataTypeAndVariable = child.split("\\.");
 
-                // Check if the data type and (if present) variable name are in the correct
-                // format.
+                // Check if the data type and (if present) variable name are in the correct format.
                 // Embedded macros are accounted for by simply removing the associated macro
                 // identifiers prior to checking the name
                 if (!dataTypeAndVariable[0].matches(DefaultInputType.VARIABLE.getInputMatch())
@@ -1232,7 +1276,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Check if the table name/path is in the expected format
          *
-         * @param tablePath Table path in the format {@literal rootName<,childStructure.childName<,...>>}
+         * @param tablePath Table path in the format
+         *                  {@literal rootName<,childStructure.childName<,...>>}
          *
          * @throws CCDDException If the table name/path is not in the expected format
          *****************************************************************************************/
@@ -1248,8 +1293,8 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Table type definition class. Contains the information necessary to construct a table type from
-     * information derived from a CSV, EDS, JSON, or XTCE import file
+     * Table type definition class. Contains the information necessary to construct a table type
+     * from information derived from a CSV, EDS, JSON, or XTCE import file
      *********************************************************************************************/
     protected static class TableTypeDefinition
     {
@@ -1367,18 +1412,22 @@ public class CcddClassesDataTable
          *
          * @param inputMatch       Regular expression match for the input type
          *
-         * @param inputItems       String containing the acceptable values for this input type, separated by
-         *                         the selection item list separator; null or blank if the input type
-         *                         doesn't constrain the inputs to items from a list. The list is used to
-         *                         create the contents of the combo box in the table column with this input
-         *                         type
+         * @param inputItems       String containing the acceptable values for this input type,
+         *                         separated by the selection item list separator; null or blank if
+         *                         the input type doesn't constrain the inputs to items from a
+         *                         list. The list is used to create the contents of the combo box
+         *                         in the table column with this input type
          *
          * @param inputFormat      Input type format
          *
          * @param isInputCustom    True if the input type is user-defined
          *****************************************************************************************/
-        InputType(String inputName, String inputDescription, String inputMatch, String inputItems,
-                  InputTypeFormat inputFormat, boolean isInputCustom)
+        InputType(String inputName,
+                  String inputDescription,
+                  String inputMatch,
+                  String inputItems,
+                  InputTypeFormat inputFormat,
+                  boolean isInputCustom)
         {
             this.inputName = inputName;
             this.inputDescription = inputDescription;
@@ -1421,7 +1470,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the input type selection items
          *
-         * @return List of input type selection items; null if the input type has no selection items
+         * @return List of input type selection items; null if the input type has no selection
+         *         items
          *****************************************************************************************/
         protected List<String> getInputItems()
         {
@@ -1431,9 +1481,9 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the input type selection items
          *
-         * @param inputItems List of input type selection items (an empty item is automatically prepended to
-         *                   the list to allow blanking the selection); null if the input type has no
-         *                   selection items
+         * @param inputItems List of input type selection items (an empty item is automatically
+         *                   prepended to the list to allow blanking the selection); null if the
+         *                   input type has no selection items
          *****************************************************************************************/
         protected void setInputItems(List<String> inputItems)
         {
@@ -1480,8 +1530,8 @@ public class CcddClassesDataTable
          *
          * @param formatName Input format name
          *
-         * @return Input type format associated with the supplied input format name; 'Text' format if the
-         *         name supplied is invalid
+         * @return Input type format associated with the supplied input format name; 'Text' format
+         *         if the name supplied is invalid
          *****************************************************************************************/
         protected static InputTypeFormat getInputFormatByName(String formatName)
         {
@@ -1504,9 +1554,10 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to floating point values if
-         * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
-         * and floating point values. Leading zeroes are preserved for hexadecimal values
+         * Reformat the input value for numeric types. This adds a leading zero to floating point
+         * values if the first character is a decimal, and removes '+' signs and unneeded leading
+         * zeroes from integer and floating point values. Leading zeroes are preserved for
+         * hexadecimal values
          *
          * @param valueS Value, represented as a string, to reformat
          *
@@ -1518,15 +1569,15 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to floating point values if
-         * the first character is a decimal, and removes '+' signs and unneeded leading zeroes from integer
-         * and floating point values
+         * Reformat the input value for numeric types. This adds a leading zero to floating point
+         * values if the first character is a decimal, and removes '+' signs and unneeded leading
+         * zeroes from integer and floating point values
          *
          * @param valueS         Value, represented as a string, to reformat
          *
-         * @param preserveZeroes True to preserve leading zeroes in hexadecimal values; false to eliminate
-         *                       the extra zeroes (this is useful when comparing the text representation of
-         *                       two hexadecimal values)
+         * @param preserveZeroes True to preserve leading zeroes in hexadecimal values; false to
+         *                       eliminate the extra zeroes (this is useful when comparing the text
+         *                       representation of two hexadecimal values)
          *
          * @return Input value reformatted based on its input type
          *****************************************************************************************/
@@ -1538,10 +1589,10 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Convert the input selection items from a single string to a list
          *
-         * @param inputItemsString String containing the acceptable values for this input type, separated by
-         *                         the selection item list separator (a blank item is automatically
-         *                         prepended to the list); null or blank if the input type doesn't constrain
-         *                         the inputs to items from a list
+         * @param inputItemsString String containing the acceptable values for this input type,
+         *                         separated by the selection item list separator (a blank item is
+         *                         automatically prepended to the list); null or blank if the input
+         *                         type doesn't constrain the inputs to items from a list
          *
          * @return Input items, converted to a list; null if the input type has no items
          *****************************************************************************************/
@@ -1555,11 +1606,12 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Convert the input selection items from a list to a single string
          *
-         * @param inputItemsList List containing the acceptable values for this input type; null or blank if
-         *                       the input type doesn't constrain the inputs to items from a list
+         * @param inputItemsList List containing the acceptable values for this input type; null or
+         *                       blank if the input type doesn't constrain the inputs to items from
+         *                       a list
          *
-         * @return Input items, converted to a string, separated by the selection item list separator; blank
-         *         if the input type has no items
+         * @return Input items, converted to a string, separated by the selection item list
+         *         separator; blank if the input type has no items
          *****************************************************************************************/
         protected static String convertItemListToString(List<String> inputItemsList)
         {
@@ -1587,9 +1639,9 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Project definition class. Contains the information necessary to construct the project-level data
-     * fields derived from a CSV, EDS, JSON, or XTCE import file, or group data fields derived from a
-     * CSV or JSON import file
+     * Project definition class. Contains the information necessary to construct the project-level
+     * data fields derived from a CSV, EDS, JSON, or XTCE import file, or group data fields derived
+     * from a CSV or JSON import file
      *********************************************************************************************/
     protected static class ProjectDefinition
     {
@@ -1626,8 +1678,8 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Data type and enumeration column pairing class. Contains associated data type and enumeration
-     * column indices
+     * Data type and enumeration column pairing class. Contains associated data type and
+     * enumeration column indices
      *********************************************************************************************/
     public static class DataTypeEnumPair
     {
@@ -1669,8 +1721,8 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Minimum and maximum column pairing class. Contains associated minimum value and maximum value
-     * column indices
+     * Minimum and maximum column pairing class. Contains associated minimum value and maximum
+     * value column indices
      *********************************************************************************************/
     protected static class MinMaxPair
     {
@@ -1731,8 +1783,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Data field information class constructor
          *
-         * @param ownerName     Name of the table, including the path if this table represents a structure,
-         *                      or group for which the field is a member
+         * @param ownerName     Name of the table, including the path if this table represents a
+         *                      structure, or group for which the field is a member
          *
          * @param fieldName     Field name
          *
@@ -1744,22 +1796,30 @@ public class CcddClassesDataTable
          *
          * @param isRequired    True if a value is required for this field
          *
-         * @param applicability Field applicability type; all tables, parent tables only, or child tables
-         *                      only
+         * @param applicability Field applicability type; all tables, parent tables only, or child
+         *                      tables only
          *
          * @param value         Field value
          *
-         * @param isInherited   True if the field is inherited from its owner table's type definition
-         *                      (ignored if the field does not belong to a table)
+         * @param isInherited   True if the field is inherited from its owner table's type
+         *                      definition (ignored if the field does not belong to a table)
          *
-         * @param inputFld      Reference to the field's UndoableTextField or UndoableCheckBox; null if
-         *                      creating the data field without specifying the input field
+         * @param inputFld      Reference to the field's UndoableTextField or UndoableCheckBox;
+         *                      null if creating the data field without specifying the input field
          *
          * @param id            ID for the row defining the field; -1 for a new field
          *****************************************************************************************/
-        FieldInformation(String ownerName, String fieldName, String description, InputType inputType, int charSize,
-                         boolean isRequired, ApplicabilityType applicability, String value, boolean isInherited,
-                         Component inputFld, int id)
+        FieldInformation(String ownerName,
+                         String fieldName,
+                         String description,
+                         InputType inputType,
+                         int charSize,
+                         boolean isRequired,
+                         ApplicabilityType applicability,
+                         String value,
+                         boolean isInherited,
+                         Component inputFld,
+                         int id)
         {
             this.ownerName = ownerName;
             this.fieldName = fieldName;
@@ -1917,8 +1977,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Check if the field is inherited from the owner table's type definition
          *
-         * @return true if the field is inherited from the owner table's type definition (ignored if the
-         *         field does not belong to a table)
+         * @return true if the field is inherited from the owner table's type definition (ignored
+         *         if the field does not belong to a table)
          *****************************************************************************************/
         protected boolean isInherited()
         {
@@ -1926,10 +1986,11 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Set the flag that indicates if the field is inherited from the owner table's type definition
+         * Set the flag that indicates if the field is inherited from the owner table's type
+         * definition
          *
-         * @param isInherited True if the field is inherited from the owner table's type definition (ignored
-         *                    if the field does not belong to a table)
+         * @param isInherited True if the field is inherited from the owner table's type definition
+         *                    (ignored if the field does not belong to a table)
          *****************************************************************************************/
         protected void setInherited(boolean isInherited)
         {
@@ -2012,8 +2073,8 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Group information class. Associates group names in the database with their respective tables and
-     * data fields
+     * Group information class. Associates group names in the database with their respective tables
+     * and data fields
      *********************************************************************************************/
     protected static class GroupInformation
     {
@@ -2050,8 +2111,8 @@ public class CcddClassesDataTable
          *
          * @param isApplication    Flag indicating if the group represents a CFS application
          *
-         * @param tables           List of tables (with full paths( belonging to this group; null if
-         *                         creating a new, empty group
+         * @param tables           List of tables (with full paths( belonging to this group; null
+         *                         if creating a new, empty group
          *
          * @param fieldInformation Data field information
          *****************************************************************************************/
@@ -2149,9 +2210,11 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the group table list that includes the member tables and all of their ancestor tables
+         * Get the group table list that includes the member tables and all of their ancestor
+         * tables
          *
-         * @return Group table list that includes the member tables and all of their ancestor tables
+         * @return Group table list that includes the member tables and all of their ancestor
+         *         tables
          *****************************************************************************************/
         protected List<String> getTablesAndAncestors()
         {
@@ -2159,8 +2222,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the list of table members (root tables and parent.child table table pairs) belonging to this
-         * group
+         * Get the list of table members (root tables and parent.child table table pairs) belonging
+         * to this group
          *
          * @return List of table members (parent.child table table pairs) belonging to this group
          *****************************************************************************************/
@@ -2170,8 +2233,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Add the specified group table to the lists that include each parent.child table pair and the
-         * member table along with its ancestor tables
+         * Add the specified group table to the lists that include each parent.child table pair and
+         * the member table along with its ancestor tables
          *
          * @param table Group table member (full table path)
          *****************************************************************************************/
@@ -2211,8 +2274,7 @@ public class CcddClassesDataTable
             // Check if the root table isn't already added to the list
             if (!tablesAndAncestors.contains(table))
             {
-                // Add the root table to the list. Since the members are extracted from the end
-                // of
+                // Add the root table to the list. Since the members are extracted from the end of
                 // the path and working up the path, insert the root ahead of the previously
                 // inserted child so that the table appear in the correct order
                 // (root->child1->child2...) in the list
@@ -2327,7 +2389,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the link rate in samples per second
          *
-         * @param sampleRate Link rate in samples per second; "0" if no rate is assigned to this link
+         * @param sampleRate Link rate in samples per second; "0" if no rate is assigned to this
+         *                   link
          *****************************************************************************************/
         protected void setSampleRate(String sampleRate)
         {
@@ -2391,8 +2454,7 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         protected static String removeStringSize(String variableName)
         {
-            // Get the index of the last array index, which represents the string size for a
-            // string
+            // Get the index of the last array index, which represents the string size for a string
             // variable
             int index = variableName.lastIndexOf('[');
 
@@ -2470,17 +2532,19 @@ public class CcddClassesDataTable
          *
          * @param arrayInfo String representing the dimensions of the array. Example = "4" or "2,2"
          *
-         * @return An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d array. The
-         *         second represents the number of indexes in the internal 1d arrays. The third represents
-         *         the total number of 1d arrays. The fourth represents the number of 2d arrays.
+         * @return An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d
+         *         array. The second represents the number of indexes in the internal 1d arrays.
+         *         The third represents the total number of 1d arrays. The fourth represents the
+         *         number of 2d arrays.
          *
-         *         Examples: If we have a single array with size 6 this function will return [1, 6, -1, -1]
+         *         Examples: If we have a single array with size 6 this function will return [1, 6,
+         *         -1, -1]
          *
-         *         If we have a 2d array of size 3 with each 1d array having a size of 6 the function will
-         *         return [2, 6, 3, -1]
+         *         If we have a 2d array of size 3 with each 1d array having a size of 6 the
+         *         function will return [2, 6, 3, -1]
          *
-         *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with each 1d
-         *         array having a size of 6 then the function will return [3, 6, 3, 2]
+         *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with
+         *         each 1d array having a size of 6 then the function will return [3, 6, 3, 2]
          *****************************************************************************************/
         protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo)
         {
@@ -2517,11 +2581,13 @@ public class CcddClassesDataTable
                     {
                         result[0] = 2;
 
-                        // Get the size of each internal array ,If this is a macro it will need to be expanded
+                        // Get the size of each internal array ,If this is a macro it will need to
+                        // be expanded
                         result[1] = Integer
                                 .parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
 
-                        // Get the total number of 2d arrays. If this is a macro it will need to be expanded
+                        // Get the total number of 2d arrays. If this is a macro it will need to be
+                        // expanded
                         result[2] = Integer
                                 .parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
                     }
@@ -2536,15 +2602,18 @@ public class CcddClassesDataTable
                     {
                         result[0] = 3;
 
-                        // Get the size of each internal array. If this is a macro it will need to be expanded
+                        // Get the size of each internal array. If this is a macro it will need to
+                        // be expanded
                         result[1] = Integer
                                 .parseInt(newMacroHandler.getMacroExpansion(info[2], new ArrayList<String>()));
 
-                        // Get the total number of 2d arrays. If this is a macro it will need to be expanded
+                        // Get the total number of 2d arrays. If this is a macro it will need to be
+                        // expanded
                         result[2] = Integer
                                 .parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
 
-                        // Get the total number of 3d arrays. If this is a macro it will need to be expanded
+                        // Get the total number of 3d arrays. If this is a macro it will need to be
+                        // expanded
                         result[3] = Integer
                                 .parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
 
@@ -2593,10 +2662,11 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Parse an array size into an array of integers representing each array index
          *
-         * @param arrayString Array size value in the format {@literal [#]<[#]<...>> or #<,#<,...>>}
+         * @param arrayString Array size value in the format
+         *                    {@literal [#]<[#]<...>> or #<,#<,...>>}
          *
-         * @return Array of integers representing each array index. An empty array is returned if the array
-         *         size cell is blank
+         * @return Array of integers representing each array index. An empty array is returned if
+         *         the array size cell is blank
          *****************************************************************************************/
         protected static int[] getArrayIndexFromSize(String arrayString)
         {
@@ -2605,8 +2675,7 @@ public class CcddClassesDataTable
             // Check if the array size is in the format containing brackets
             if (arrayString.contains("["))
             {
-                // Reformat the array size string without the brackets, replacing internal
-                // bracket
+                // Reformat the array size string without the brackets, replacing internal bracket
                 // pairs (][) with commas and removing the outermost brackets
                 arrayString = arrayString.replaceAll("\\]\\[", ",").replaceAll("[\\]\\[]", "");
             }
@@ -2676,9 +2745,9 @@ public class CcddClassesDataTable
          *
          * @param arrayVariable2 Second array variable member to compare
          *
-         * @return 0 if the array members are the same, -1 if the first array member occurs prior to the
-         *         second array member (based the their array dimension value(s), and 1 if the first array
-         *         member occurs after the second array member
+         * @return 0 if the array members are the same, -1 if the first array member occurs prior
+         *         to the second array member (based the their array dimension value(s), and 1 if
+         *         the first array member occurs after the second array member
          *****************************************************************************************/
         protected static int compareTo(String arrayVariable1, String arrayVariable2)
         {
@@ -2688,8 +2757,7 @@ public class CcddClassesDataTable
             int[] varIndex1 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable1));
             int[] varIndex2 = getArrayIndexFromSize(getVariableArrayIndex(arrayVariable2));
 
-            // Step through each array dimension, beginning with the leftmost one (this
-            // accounts
+            // Step through each array dimension, beginning with the leftmost one (this accounts
             // for arrays with any number of dimensions)
             for (int index = 0; index < varIndex1.length; index++)
             {
@@ -2702,8 +2770,7 @@ public class CcddClassesDataTable
                     result = -1;
                     break;
                 }
-                // Check if the value of the array dimension of the first variable is greater
-                // than
+                // Check if the value of the array dimension of the first variable is greater than
                 // that of the same dimension in the second variable
                 else if (varIndex1[index] > varIndex2[index])
                 {
@@ -2767,8 +2834,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Set default values for the stream name, maximum messages per cycle, and maximum bytes per second
-         * rate parameters
+         * Set default values for the stream name, maximum messages per cycle, and maximum bytes
+         * per second rate parameters
          *****************************************************************************************/
         protected void setDefaultValues()
         {
@@ -2890,11 +2957,11 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Table row indices for bit-packed variables class constructor
          *
-         * @param firstIndex Table row index for the first member in a group of bit-packed variables, model
-         *                   coordinates
+         * @param firstIndex Table row index for the first member in a group of bit-packed
+         *                   variables, model coordinates
          *
-         * @param lastIndex  Table row index for the last member in a group of bit-packed variables, model
-         *                   coordinates
+         * @param lastIndex  Table row index for the last member in a group of bit-packed
+         *                   variables, model coordinates
          *****************************************************************************************/
         BitPackRowIndex(int firstIndex, int lastIndex)
         {
@@ -2905,7 +2972,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the table row index for the first member in a group of bit-packed variable
          *
-         * @return Table row index for the first member in a group of bit-packed variable, model coordinates
+         * @return Table row index for the first member in a group of bit-packed variable, model
+         *         coordinates
          *****************************************************************************************/
         protected int getFirstIndex()
         {
@@ -2915,7 +2983,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the table row index for the last member in a group of bit-packed variable
          *
-         * @return Table row index for the last member in a group of bit-packed variable, model coordinates
+         * @return Table row index for the last member in a group of bit-packed variable, model
+         *         coordinates
          *****************************************************************************************/
         protected int getLastIndex()
         {
@@ -2935,11 +3004,13 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Table tree node indices for bit-packed variables class constructor
          *
-         * @param firstIndex Tree node index for the first member in a group of bit-packed variables
+         * @param firstIndex Tree node index for the first member in a group of bit-packed
+         *                   variables
          *
          * @param lastIndex  Tree node index for the last member in a group of bit-packed variables
          *
-         * @param tableIndex Tree node index for the selected member in a group of bit-packed variables
+         * @param tableIndex Tree node index for the selected member in a group of bit-packed
+         *                   variables
          *****************************************************************************************/
         BitPackNodeIndex(int firstIndex, int lastIndex, int tableIndex)
         {
@@ -2988,8 +3059,8 @@ public class CcddClassesDataTable
         private final List<Variable> associates;
 
         /******************************************************************************************
-         * Associated variables class constructor. Variables are considered 'associated' if they are
-         * bit-wise variables that are packed together or are members of a string
+         * Associated variables class constructor. Variables are considered 'associated' if they
+         * are bit-wise variables that are packed together or are members of a string
          *
          * @param totalSize  Node index for the first member in a group of bit-packed variable
          *
@@ -3046,8 +3117,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Create list of variables based on the path and rate passed in. If the path is a unlinked variable
-         * it will return a list of one, else it will return a list of the link's variables
+         * Create list of variables based on the path and rate passed in. If the path is a unlinked
+         * variable it will return a list of one, else it will return a list of the link's
+         * variables
          *
          * @param path Tree path to the variable
          *
@@ -3149,8 +3221,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the full path and name of the variable. This includes the root structure and all of the
-         * variables in this variable's path
+         * Get the full path and name of the variable. This includes the root structure and all of
+         * the variables in this variable's path
          *
          * @return Variable's full path and name
          *****************************************************************************************/
@@ -3214,9 +3286,9 @@ public class CcddClassesDataTable
          *
          * @param compVar Variable to be compared
          *
-         * @return 0 if the sizes are the same; -1 if the comparison variable's size if greater than this
-         *         variable's size; 1 if this variable's size is greater than the comparison variable's size
-         *         *
+         * @return 0 if the sizes are the same; -1 if the comparison variable's size if greater
+         *         than this variable's size; 1 if this variable's size is greater than the
+         *         comparison variable's size *
          *****************************************************************************************/
         @Override
         public int compareTo(Variable compVar)
@@ -3236,8 +3308,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the name of the link to which the item belongs. Override this function if the sub-class can
-         * have linked data
+         * Get the name of the link to which the item belongs. Override this function if the
+         * sub-class can have linked data
          *
          * @return Link name; null if the item is not a link member
          *****************************************************************************************/
@@ -3287,8 +3359,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the name of the link for which this variable is a member
          *
-         * @return Name of the link for which this variable is a member; null if the variable is not a
-         *         member of a link
+         * @return Name of the link for which this variable is a member; null if the variable is
+         *         not a member of a link
          *****************************************************************************************/
         @Override
         protected String getLink()
@@ -3299,8 +3371,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the name of the link for which this variable is a member
          *
-         * @param link Name of the link for which this variable is a member; null if the variable is not a
-         *             member of a link
+         * @param link Name of the link for which this variable is a member; null if the variable
+         *             is not a member of a link
          *****************************************************************************************/
         protected void setLink(String link)
         {
@@ -3341,8 +3413,15 @@ public class CcddClassesDataTable
          *
          * @param schGroup        Application schedule group
          *****************************************************************************************/
-        ApplicationData(String name, float rate, int runTime, int priority, int messageRate, String wakeUpMessage,
-                        int hkSendRate, String hkWakeUpMessage, String schGroup)
+        ApplicationData(String name,
+                        float rate,
+                        int runTime,
+                        int priority,
+                        int messageRate,
+                        String wakeUpMessage,
+                        int hkSendRate,
+                        String hkWakeUpMessage,
+                        String schGroup)
         {
             // Call the variable constructor
             super(runTime, name, rate);
@@ -3511,7 +3590,11 @@ public class CcddClassesDataTable
          *
          * @param subMessages   Sub-message initialization; null if this is not a parent message
          *****************************************************************************************/
-        Message(String messageName, String messageID, int totalBytes, Message parentMessage, List<Message> subMessages)
+        Message(String messageName,
+                String messageID,
+                int totalBytes,
+                Message parentMessage,
+                List<Message> subMessages)
         {
             name = messageName;
             id = messageID;
@@ -3690,8 +3773,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the number of sub-messages
          *
-         * @return Number of sub-messages; 0 if there are no sub-messages (i.e., this isn't a parent
-         *         message; parent messages always have at least one sub-message)
+         * @return Number of sub-messages; 0 if there are no sub-messages (i.e., this isn't a
+         *         parent message; parent messages always have at least one sub-message)
          *****************************************************************************************/
         protected int getNumberOfSubMessages()
         {
@@ -3750,8 +3833,8 @@ public class CcddClassesDataTable
          *
          * @param name Name of the variable
          *
-         * @return Variable object with the specified name; null if the variable is not a member of the
-         *         message or any of its sub-messages
+         * @return Variable object with the specified name; null if the variable is not a member of
+         *         the message or any of its sub-messages
          *****************************************************************************************/
         protected Variable getVariable(String name)
         {
@@ -3792,7 +3875,8 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the list of all the variables including those within the sub-messages (if applicable)
+         * Get the list of all the variables including those within the sub-messages (if
+         * applicable)
          *
          * @return All variables including sub-message variables
          *****************************************************************************************/
@@ -3873,13 +3957,12 @@ public class CcddClassesDataTable
          *
          * @param variable Variable to add
          *
-         * @param index    Position in the variable list to insert the variable; -1 to append the variable
-         *                 to the end of the list
+         * @param index    Position in the variable list to insert the variable; -1 to append the
+         *                 variable to the end of the list
          *****************************************************************************************/
         protected void addVariable(Variable variable, int index)
         {
-            // Check if the index indicates that the variable should be added to the end of
-            // the
+            // Check if the index indicates that the variable should be added to the end of the
             // list
             if (index == -1)
             {
@@ -3963,8 +4046,7 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         private int getSmallestSubMessageBytesRemaining()
         {
-            // Initialize the smallest value to the parent's bytes remaining - a
-            // sub-message's byte
+            // Initialize the smallest value to the parent's bytes remaining - a sub-message's byte
             // count can't be greater than the parent's, only the same or smaller
             int smallest = bytesRemaining;
 
@@ -4100,17 +4182,17 @@ public class CcddClassesDataTable
     }
 
     /**********************************************************************************************
-     * Table opener class. Used by dialogs with a table open button to open the selected table(s) into a
-     * table editor
+     * Table opener class. Used by dialogs with a table open button to open the selected table(s)
+     * into a table editor
      *********************************************************************************************/
     protected static class TableOpener
     {
         /******************************************************************************************
-         * Check if the table is applicable for opening. Override this method to include criteria that the
-         * table must meet or to alter the specified table name
+         * Check if the table is applicable for opening. Override this method to include criteria
+         * that the table must meet or to alter the specified table name
          *
-         * @param tableName The raw value from the table cell specified as the table name column in the
-         *                  openTables() method
+         * @param tableName The raw value from the table cell specified as the table name column in
+         *                  the openTables() method
          *
          * @return true if the table should be added to the list of ones to open
          *****************************************************************************************/
@@ -4122,8 +4204,8 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Override this method to perform any clean up actions on the raw table name value
          *
-         * @param tableName The raw value from the table cell specified as the table name column in the
-         *                  openTables() method
+         * @param tableName The raw value from the table cell specified as the table name column in
+         *                  the openTables() method
          *
          * @param row       Table row index containing the raw table name value
          *
@@ -4161,8 +4243,8 @@ public class CcddClassesDataTable
                         // Clean up the table name, if needed
                         tableName = cleanUpTableName(tableName, row);
 
-                        // The table name will sometimes have a variable name appended to the end. This
-                        // needs to be trimmed off before attempting to open the table.
+                        // The table name will sometimes have a variable name appended to the end.
+                        // This needs to be trimmed off before attempting to open the table
                         if (StringUtils.countMatches(tableName, ",") >= 2)
                         {
                             tableName = tableName.substring(0, tableName.indexOf(",", tableName.indexOf(",") + 1));

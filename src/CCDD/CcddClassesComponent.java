@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddClassesComponent.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Collection of common classes used by other CCDD classes. These classes, in general, override
-*     existing Java component classes or introduce new ones.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddClassesComponent.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Collection of common classes used by other CCDD classes. These classes, in general,
+ * override existing Java component classes or introduce new ones.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
@@ -148,16 +144,17 @@ public class CcddClassesComponent
 
     /**********************************************************************************************
      * Action listener to validate the contents of the table cell currently being edited prior to
-     * performing an action. This prevents the action from being performed when the cell's contents is
-     * invalid (which causes a warning dialog to appear), allowing the invalid value to be corrected
+     * performing an action. This prevents the action from being performed when the cell's contents
+     * is invalid (which causes a warning dialog to appear), allowing the invalid value to be
+     * corrected
      *********************************************************************************************/
     abstract static class ValidateCellActionListener implements ActionListener
     {
         private final CcddJTableHandler table;
 
         /******************************************************************************************
-         * Validate cell action listener. getTable should be overridden to provide the specific table to
-         * validate. If no table is specified then the action is performed
+         * Validate cell action listener. getTable should be overridden to provide the specific
+         * table to validate. If no table is specified then the action is performed
          *****************************************************************************************/
         protected ValidateCellActionListener()
         {
@@ -167,8 +164,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Validate cell action listener
          *
-         * @param table Reference to the CcddJTableHandler table to check for cell validation; null perform
-         *              the action with no validation check
+         * @param table Reference to the CcddJTableHandler table to check for cell validation; null
+         *              perform the action with no validation check
          *****************************************************************************************/
         protected ValidateCellActionListener(CcddJTableHandler table)
         {
@@ -176,14 +173,13 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Perform the specified action if no cell is currently being edited, or if the contents of the cell
-         * currently being edited is valid
+         * Perform the specified action if no cell is currently being edited, or if the contents of
+         * the cell currently being edited is valid
          *****************************************************************************************/
         @Override
         public void actionPerformed(ActionEvent ae)
         {
-            // Check if no table is specified, or if the contents of the last cell edited in
-            // the
+            // Check if no table is specified, or if the contents of the last cell edited in the
             // specified table is validated
             if (getTable() == null || getTable().isLastCellValid())
             {
@@ -277,10 +273,11 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Custom combo box with item matching, padding for the list items, and tool tip text. The combo box
-     * may have a list of selection items defined by an input type. One or more characters may be typed
-     * into the combo box's data table cell or data field; the combo box list is pruned so that only
-     * items that match the character(s) are displayed (wildcard characters are allowed).
+     * Custom combo box with item matching, padding for the list items, and tool tip text. The
+     * combo box may have a list of selection items defined by an input type. One or more
+     * characters may be typed into the combo box's data table cell or data field; the combo box
+     * list is pruned so that only items that match the character(s) are displayed (wildcard
+     * characters are allowed).
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class PaddedComboBox extends JComboBox<String>
@@ -291,8 +288,7 @@ public class CcddClassesComponent
         // Flag that indicates if item matching is enable for this combo box
         private boolean isItemMatchEnabled = false;
 
-        // Flag that indicates that the auto-completion characters are being entered by
-        // the user
+        // Flag that indicates that the auto-completion characters are being entered by the user
         private boolean isPrefixChanging = false;
 
         // Item matching the user's input criteria or list selection
@@ -342,7 +338,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Override in order to set the flag indicating a layout is in progress for when getSize() is called
+         * Override in order to set the flag indicating a layout is in progress for when getSize()
+         * is called
          *****************************************************************************************/
         @Override
         public void doLayout()
@@ -378,8 +375,7 @@ public class CcddClassesComponent
                     listWidth -= LAF_SCROLL_BAR_WIDTH / 2;
                 }
 
-                // Get the maximum of the width returned by the call to the default getSize()
-                // and
+                // Get the maximum of the width returned by the call to the default getSize() and
                 // the adjusted preferred width
                 dim.width = Math.max(dim.width, listWidth);
             }
@@ -388,9 +384,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Override in order to keep the combo box width to that of the longest list item. If item matching
-         * is enabled then base the width on the longest item in the full list, not the reduced list
-         * constrained by the item matching
+         * Override in order to keep the combo box width to that of the longest list item. If item
+         * matching is enabled then base the width on the longest item in the full list, not the
+         * reduced list constrained by the item matching
          *****************************************************************************************/
         @Override
         public Dimension getPreferredSize()
@@ -424,14 +420,12 @@ public class CcddClassesComponent
         private void setListItemCharacteristics(final String[] toolTips, Font font)
         {
             // Create the padded border for the list items
-            final Border paddedBorder = BorderFactory
-                    .createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
-                                       ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() / 2,
-                                       ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
-                                       ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() / 2);
+            final Border paddedBorder = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
+                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() / 2,
+                                                                        ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
+                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() / 2);
 
-            // Set the foreground color, background color, and font for the list items, and
-            // the
+            // Set the foreground color, background color, and font for the list items, and the
             // maximum number of items to display
             setForeground(Color.BLACK);
             setBackground(Color.WHITE);
@@ -442,12 +436,15 @@ public class CcddClassesComponent
             setRenderer(new DefaultListCellRenderer()
             {
                 /**********************************************************************************
-                 * Override so that tool tip text can be displayed for each list item and padding is added to the
-                 * items
+                 * Override so that tool tip text can be displayed for each list item and padding
+                 * is added to the items
                  *********************************************************************************/
                 @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                              boolean isSelected, boolean cellHasFocus)
+                public Component getListCellRendererComponent(JList<?> list,
+                                                              Object value,
+                                                              int index,
+                                                              boolean isSelected,
+                                                              boolean cellHasFocus)
                 {
                     // Check if the combo box list item is null or a blank
                     if (value == null || value.toString().isEmpty())
@@ -458,7 +455,10 @@ public class CcddClassesComponent
                         value = " ";
                     }
 
-                    JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,
+                    JLabel lbl = (JLabel) super.getListCellRendererComponent(list,
+                                                                             value,
+                                                                             index,
+                                                                             isSelected,
                                                                              cellHasFocus);
 
                     // Add padding to the list item
@@ -505,14 +505,15 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Enable text matching in the combo box. When enabled, iIn addition to selecting an item directly
-         * from the list, the user may type in one or more characters to constrain the list to those items
-         * that match the text entered. Wildcard characters are allowed: a '?' matches a single character
-         * and a '*' matches one or more characters. Trailing characters are automatically assumed to be
-         * included (i.e., the result is the same as if an asterisk terminates the match text)
+         * Enable text matching in the combo box. When enabled, iIn addition to selecting an item
+         * directly from the list, the user may type in one or more characters to constrain the
+         * list to those items that match the text entered. Wildcard characters are allowed: a '?'
+         * matches a single character and a '*' matches one or more characters. Trailing characters
+         * are automatically assumed to be included (i.e., the result is the same as if an asterisk
+         * terminates the match text)
          *
-         * @param table Reference to the table in which the combo box is a cell editor; null if the combo
-         *              box isn't in a table cell
+         * @param table Reference to the table in which the combo box is a cell editor; null if the
+         *              combo box isn't in a table cell
          *****************************************************************************************/
         protected void enableItemMatching(final CcddJTableHandler table)
         {
@@ -554,13 +555,11 @@ public class CcddClassesComponent
                 cleanInputItems = inputItems;
             }
 
-            // Set the combo box to be editable so that characters can be typed for item
-            // matching
+            // Set the combo box to be editable so that characters can be typed for item matching
             // purposes
             setEditable(true);
 
-            // Create the text field used as the editor for the combo box. Set the size so
-            // that it
+            // Create the text field used as the editor for the combo box. Set the size so that it
             // doesn't change as the user's text input constrains the list contents
             final JTextField matchFld = new JTextField("");
 
@@ -568,7 +567,8 @@ public class CcddClassesComponent
             setEditor(new ComboBoxEditor()
             {
                 /**********************************************************************************
-                 * Override so that the item matching text field can be returned as the editor component
+                 * Override so that the item matching text field can be returned as the editor
+                 * component
                  *********************************************************************************/
                 @Override
                 public Component getEditorComponent()
@@ -638,13 +638,13 @@ public class CcddClassesComponent
                 }
             });
 
-            // Add a key listener to the combo box editor (item matching text field) to
-            // capture the
+            // Add a key listener to the combo box editor (item matching text field) to capture the
             // match text entered by the user
             getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Override to capture key press events. Only those keys that alter the prefix need be processed
+                 * Override to capture key press events. Only those keys that alter the prefix need
+                 * be processed
                  *********************************************************************************/
                 @Override
                 public void keyPressed(final KeyEvent ke)
@@ -661,9 +661,9 @@ public class CcddClassesComponent
                         SwingUtilities.invokeLater(new Runnable()
                         {
                             /**********************************************************************
-                             * Modifying the combo box list causes an illegal state exception if the listener is still
-                             * active; use invokeLater to allow the listener to complete prior to making the list
-                             * changes
+                             * Modifying the combo box list causes an illegal state exception if
+                             * the listener is still active; use invokeLater to allow the listener
+                             * to complete prior to making the list changes
                              *********************************************************************/
                             @Override
                             public void run()
@@ -730,10 +730,8 @@ public class CcddClassesComponent
                 }
             });
 
-            // Add a focus listener to the combo box editor (item matching text field) to
-            // update
-            // the combo box's contents with the currently matched item from the combo box
-            // list
+            // Add a focus listener to the combo box editor (item matching text field) to update
+            // the combo box's contents with the currently matched item from the combo box list
             matchFld.addFocusListener(new FocusAdapter()
             {
                 /**********************************************************************************
@@ -837,9 +835,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Override so that calls to stop editing can be intercepted and disabled. This is necessary to
-         * allow the combo box item matching to operate in a table cell the same way it operates in a data
-         * field
+         * Override so that calls to stop editing can be intercepted and disabled. This is
+         * necessary to allow the combo box item matching to operate in a table cell the same way
+         * it operates in a data field
          *****************************************************************************************/
         @Override
         public boolean stopCellEditing()
@@ -856,9 +854,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Set the flag that determines if calls to stop cell editing are allowed to proceed. This is
-         * necessary to allow the combo box item matching to operate in a table cell the same way it
-         * operates in a data field
+         * Set the flag that determines if calls to stop cell editing are allowed to proceed. This
+         * is necessary to allow the combo box item matching to operate in a table cell the same
+         * way it operates in a data field
          *
          * @param enable True to allow calls to stopCellEditing() to proceed normally
          *****************************************************************************************/
@@ -868,8 +866,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Update the combo box's selected item to the currently highlighted list item. This is used by the
-         * keyboard handler when the Enter key is pressed so that the cell reflects the selected item
+         * Update the combo box's selected item to the currently highlighted list item. This is
+         * used by the keyboard handler when the Enter key is pressed so that the cell reflects the
+         * selected item
          *****************************************************************************************/
         protected void updateSelectedItem()
         {
@@ -879,8 +878,8 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Pop-up combo box class. Display a pop-up PaddedComboBox containing the supplied selection items.
-     * When the user selects an item insert it into the supplied text component
+     * Pop-up combo box class. Display a pop-up PaddedComboBox containing the supplied selection
+     * items. When the user selects an item insert it into the supplied text component
      *********************************************************************************************/
     static class PopUpComboBox
     {
@@ -894,8 +893,8 @@ public class CcddClassesComponent
          *
          * @param owner    Dialog owning the pop-up combo box
          *
-         * @param textComp Text component over which to display the pop-up combo box and insert the selected
-         *                 item
+         * @param textComp Text component over which to display the pop-up combo box and insert the
+         *                 selected item
          *
          * @param selItems List of selection items
          *
@@ -911,13 +910,13 @@ public class CcddClassesComponent
          *
          * @param owner    Dialog owning the pop-up combo box
          *
-         * @param textComp Text component over which to display the pop-up combo box and insert the selected
-         *                 item
+         * @param textComp Text component over which to display the pop-up combo box and insert the
+         *                 selected item
          *
          * @param selItems List of selection items
          *
-         * @param toolTips List of selection item tool tips; null if no tool tip text is associated with the
-         *                 item
+         * @param toolTips List of selection item tool tips; null if no tool tip text is associated
+         *                 with the item
          *
          * @param font     Modifiable font reference
          *****************************************************************************************/
@@ -935,7 +934,8 @@ public class CcddClassesComponent
 
                 // Create the pop-up combo box
                 popUpCbox = new PaddedComboBox(selItems.toArray(new String[0]),
-                                               (toolTips != null ? toolTips.toArray(new String[0]) : null), font);
+                                               (toolTips != null ? toolTips.toArray(new String[0]) : null),
+                                               font);
 
                 // Enable item matching for the combo box
                 popUpCbox.enableItemMatching(null);
@@ -958,8 +958,7 @@ public class CcddClassesComponent
                     }
                 });
 
-                // Add a listener for action (specifically mouse button) events in the pop-up
-                // combo
+                // Add a listener for action (specifically mouse button) events in the pop-up combo
                 // box
                 popUpCbox.addActionListener(new ActionListener()
                 {
@@ -998,7 +997,8 @@ public class CcddClassesComponent
                     }
 
                     /******************************************************************************
-                     * Handle a combo box cancel event. This occurs if the mouse is clicked outside the combo box
+                     * Handle a combo box cancel event. This occurs if the mouse is clicked outside
+                     * the combo box
                      *****************************************************************************/
                     @Override
                     public void popupMenuCanceled(PopupMenuEvent pme)
@@ -1028,7 +1028,8 @@ public class CcddClassesComponent
                         SwingUtilities.invokeLater(new Runnable()
                         {
                             /**********************************************************************
-                             * Delay showing the pop-up; if this isn't done then the pop-up isn't expanded consistently
+                             * Delay showing the pop-up; if this isn't done then the pop-up isn't
+                             * expanded consistently
                              *********************************************************************/
                             @Override
                             public void run()
@@ -1069,8 +1070,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Position the dialog containing the pop-up combo box at the text cursor position in the text
-         * component
+         * Position the dialog containing the pop-up combo box at the text cursor position in the
+         * text component
          *
          * @param textComp Text component over which to display the pop-up combo box
          *****************************************************************************************/
@@ -1084,9 +1085,7 @@ public class CcddClassesComponent
                 // Position the pop-up at the text cursor position
                 popUpDlg.setLocation(textComp.getLocationOnScreen().x + popUp.x, textComp.getLocationOnScreen().y);
             }
-            catch (
-                BadLocationException ble
-            )
+            catch (BadLocationException ble)
             {
                 // Position the pop-up at the left end of the text component
                 popUpDlg.setLocation(textComp.getLocationOnScreen().x, textComp.getLocationOnScreen().y);
@@ -1094,15 +1093,15 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Get the text of the specified text component with the selected item inserted at the current
-         * selection point
+         * Get the text of the specified text component with the selected item inserted at the
+         * current selection point
          *
          * @param text     Reference
          *
          * @param textComp Text component over which the pop-up combo box is displayed
          *
-         * @return Text of the specified text component with the selected item inserted at the current
-         *         selection point
+         * @return Text of the specified text component with the selected item inserted at the
+         *         current selection point
          *****************************************************************************************/
         private String getInsertedReference(String text, JTextComponent textComp)
         {
@@ -1135,8 +1134,8 @@ public class CcddClassesComponent
                     // Get the starting index of the selected text in the component
                     int start = textComp.getSelectionStart();
 
-                    // Insert the item into the text component's existing text, overwriting any
-                    // of the text that is highlighted
+                    // Insert the item into the text component's existing text, overwriting any of
+                    // the text that is highlighted
                     textComp.setText(getInsertedReference(selectedItem, textComp));
                     textComp.setSelectionStart(start);
 
@@ -1156,14 +1155,14 @@ public class CcddClassesComponent
         private final String fontIdentifier;
 
         /******************************************************************************************
-         * Modifiable font class constructor. Allows assigning an identifier to the font for the purpose of
-         * identifying those Swing components that utilize the font in the event the font's characteristics
-         * are changed
+         * Modifiable font class constructor. Allows assigning an identifier to the font for the
+         * purpose of identifying those Swing components that utilize the font in the event the
+         * font's characteristics are changed
          *
-         * @param fontIdentifier Font identifier. The identifier must be unique for each modifiable font
-         *                       since this name is used to identify the font as being used by a particular
-         *                       Swing component. The program preferences key for the modifiable font
-         *                       information is used as the identifier
+         * @param fontIdentifier Font identifier. The identifier must be unique for each modifiable
+         *                       font since this name is used to identify the font as being used by
+         *                       a particular Swing component. The program preferences key for the
+         *                       modifiable font information is used as the identifier
          *
          * @param fontFamily     Font family
          *
@@ -1200,14 +1199,15 @@ public class CcddClassesComponent
         private final String colorIdentifier;
 
         /******************************************************************************************
-         * Modifiable color class constructor. Allows assigning an identifier to the color for the purpose
-         * of identifying those Swing components that utilize the color in the event the color's
-         * characteristics are changed
+         * Modifiable color class constructor. Allows assigning an identifier to the color for the
+         * purpose of identifying those Swing components that utilize the color in the event the
+         * color's characteristics are changed
          *
-         * @param colorIdentifier Color identifier. The identifier must be unique for each modifiable color
-         *                        since this name is used to identify the color as being used by a
-         *                        particular Swing component. The program preferences key for the modifiable
-         *                        color information is used as the identifier
+         * @param colorIdentifier Color identifier. The identifier must be unique for each
+         *                        modifiable color since this name is used to identify the color as
+         *                        being used by a particular Swing component. The program
+         *                        preferences key for the modifiable color information is used as
+         *                        the identifier
          *
          * @param red             Red color component
          *
@@ -1236,8 +1236,8 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Create a color selection component based on a check box. In place of the check box a color box is
-     * displayed
+     * Create a color selection component based on a check box. In place of the check box a color
+     * box is displayed
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class ColorCheckBox extends JCheckBox
@@ -1258,10 +1258,8 @@ public class CcddClassesComponent
             // Set the check box icon color
             setIconColor(color);
 
-            // Create a label for the button. Adjust the label so that only the initial
-            // character
-            // is capitalized. The initial caps version is used when displaying the color
-            // selection
+            // Create a label for the button. Adjust the label so that only the initial character
+            // is capitalized. The initial caps version is used when displaying the color selection
             // dialog
             text = text.toLowerCase();
             text = Character.toUpperCase(text.charAt(0)) + text.substring(1);
@@ -1290,13 +1288,11 @@ public class CcddClassesComponent
             // Store the selected color
             checkBoxColor = color;
 
-            // Create the icon for when the check box does not have the keyboard focus and
-            // the
+            // Create the icon for when the check box does not have the keyboard focus and the
             // mouse cursor is not positioned over the check box
             noFocusIcon = createIcon(Color.BLACK);
 
-            // Create the icon for when the check box has the keyboard focus and the mouse
-            // cursor
+            // Create the icon for when the check box has the keyboard focus and the mouse cursor
             // is not positioned over the check box
             focusIcon = createIcon(Color.WHITE);
 
@@ -1304,8 +1300,7 @@ public class CcddClassesComponent
             setRolloverIcon(createIcon(Color.LIGHT_GRAY));
             setRolloverSelectedIcon(createIcon(Color.LIGHT_GRAY));
 
-            // Select the icons created for use with the check box. This ensures the color
-            // check
+            // Select the icons created for use with the check box. This ensures the color check
             // boxes are drawn as color check boxes and not regular check boxes initially
             setIconFocus(false);
         }
@@ -1361,22 +1356,24 @@ public class CcddClassesComponent
     protected static class CustomSplitPane extends JSplitPane
     {
         /******************************************************************************************
-         * Custom split pane class constructor. Create a horizontally or vertically divided split pane using
-         * the specified components. If no divider component is provided then the divider blends in with the
-         * dialog background. If a component is specified then the divider is displayed using the supplied
-         * component
+         * Custom split pane class constructor. Create a horizontally or vertically divided split
+         * pane using the specified components. If no divider component is provided then the
+         * divider blends in with the dialog background. If a component is specified then the
+         * divider is displayed using the supplied component
          *
          * @param leftUpperComp  Component to display in the left or upper side of the split pane
          *
          * @param rightLowerComp Component to display in the right or lower side of the split pane
          *
-         * @param dividerComp    Component to display in place of the divider; null to create a hidden
-         *                       divider
+         * @param dividerComp    Component to display in place of the divider; null to create a
+         *                       hidden divider
          *
          * @param orientation    JSplitPane.HORIZONTAL_SPLIT to split the pane horizontally or
          *                       JSplitPane.VERTICAL_SPLIT to split the pane vertically
          *****************************************************************************************/
-        protected CustomSplitPane(Component leftUpperComp, Component rightLowerComp, final Component dividerComp,
+        protected CustomSplitPane(Component leftUpperComp,
+                                  Component rightLowerComp,
+                                  final Component dividerComp,
                                   int orientation)
         {
             super(orientation, true, leftUpperComp, rightLowerComp);
@@ -1385,7 +1382,8 @@ public class CcddClassesComponent
             setUI(new BasicSplitPaneUI()
             {
                 /**********************************************************************************
-                 * Override so that the divider isn't displayed or is replaced with the specified component
+                 * Override so that the divider isn't displayed or is replaced with the specified
+                 * component
                  *********************************************************************************/
                 @Override
                 public BasicSplitPaneDivider createDefaultDivider()
@@ -1402,20 +1400,21 @@ public class CcddClassesComponent
                         }
 
                         /**************************************************************************
-                         * Override so that the divider size can be set to the divider component, if applicable
+                         * Override so that the divider size can be set to the divider component,
+                         * if applicable
                          *************************************************************************/
                         @Override
                         public int getDividerSize()
                         {
-                            int size = orientation == JSplitPane.HORIZONTAL_SPLIT ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                    .getSpacing() / 2 : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                            int size = orientation == JSplitPane.HORIZONTAL_SPLIT ? ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2
+                                                                                  : ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
 
                             // Check if a component is provided to represent the divider
                             if (dividerComp != null)
                             {
                                 // Set the size to the divider component's preferred width
-                                size = orientation == JSplitPane.HORIZONTAL_SPLIT ? dividerComp
-                                        .getPreferredSize().width : dividerComp.getPreferredSize().height;
+                                size = orientation == JSplitPane.HORIZONTAL_SPLIT ? dividerComp.getPreferredSize().width
+                                                                                  : dividerComp.getPreferredSize().height;
                             }
 
                             return size;
@@ -1478,8 +1477,8 @@ public class CcddClassesComponent
          *
          * @param envVarMap Environment variable map
          *
-         * @return File path with any environment variables replaced with the variable's value; blank if the
-         *         file path is null or blank
+         * @return File path with any environment variables replaced with the variable's value;
+         *         blank if the file path is null or blank
          *****************************************************************************************/
         protected static String expandEnvVars(String pathName, Map<String, String> envVarMap)
         {
@@ -1514,16 +1513,16 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Replace any portions of the specified file path that match an environment variable value in the
-         * supplied map with the corresponding variable name
+         * Replace any portions of the specified file path that match an environment variable value
+         * in the supplied map with the corresponding variable name
          *
          * @param pathName  File path
          *
          * @param envVarMap Map containing environment variables and their corresponding values
          *
-         * @return File path with any portions that match an environment variable value in the supplied map
-         *         replaced with the corresponding variable name; blank if the supplied file path is null of
-         *         blank
+         * @return File path with any portions that match an environment variable value in the
+         *         supplied map replaced with the corresponding variable name; blank if the
+         *         supplied file path is null of blank
          *****************************************************************************************/
         protected static String restoreEnvVars(String pathName, Map<String, String> envVarMap)
         {
@@ -1551,12 +1550,13 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Get a map of the environment variables and their corresponding value in the supplied file path
+         * Get a map of the environment variables and their corresponding value in the supplied
+         * file path
          *
          * @param pathName File path
          *
-         * @return Map containing the environment variables and corresponding values in the supplied file
-         *         path
+         * @return Map containing the environment variables and corresponding values in the
+         *         supplied file path
          *****************************************************************************************/
         protected static Map<String, String> getEnvVars(String pathName)
         {
@@ -1593,7 +1593,8 @@ public class CcddClassesComponent
         private int column;
 
         /******************************************************************************************
-         * Selected table cell class constructor. An instance is created for each selected cell in the table
+         * Selected table cell class constructor. An instance is created for each selected cell in
+         * the table
          *
          * @param row    Cell row in view coordinates
          *
@@ -1650,7 +1651,8 @@ public class CcddClassesComponent
          *
          * @param checkRow    Row index in view coordinates to compare to this cell's row index
          *
-         * @param checkColumn Column index in view coordinates to compare to this cell's column index
+         * @param checkColumn Column index in view coordinates to compare to this cell's column
+         *                    index
          *
          * @return true if the cell's row and column indices match the specified ones
          *****************************************************************************************/
@@ -1715,8 +1717,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Add the cell, specified by the supplied coordinates, to the list of selected cells if it s not
-         * already in the list
+         * Add the cell, specified by the supplied coordinates, to the list of selected cells if it
+         * s not already in the list
          *
          * @param row    Cell row in view coordinates
          *
@@ -1755,8 +1757,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Remove any cells in the selected cells list, then add the cell, specified by the supplied
-         * coordinates, to the list
+         * Remove any cells in the selected cells list, then add the cell, specified by the
+         * supplied coordinates, to the list
          *
          * @param row    Cell row in view coordinates
          *
@@ -1805,9 +1807,10 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Array list class with string arrays. The array column for use with the indexOf(), contains(), and
-     * sort() methods can be specified (defaults to column 0). Multiple column indices can be provided
-     * so that a sort() is based on the first column, and if the same the second column, etc.
+     * Array list class with string arrays. The array column for use with the indexOf(),
+     * contains(), and sort() methods can be specified (defaults to column 0). Multiple column
+     * indices can be provided so that a sort() is based on the first column, and if the same the
+     * second column, etc.
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class ArrayListMultiple extends ArrayList<String[]>
@@ -1817,10 +1820,10 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Array list class constructor with string arrays; sets the comparison column
          *
-         * @param compareColumn Index of the column for indexOf(), contains(), and sort() comparisons. If
-         *                      multiple columns are specified only the first is used for indexOf() and
-         *                      contains() calls; the sort() is based on the items in the column sequence
-         *                      provided
+         * @param compareColumn Index of the column for indexOf(), contains(), and sort()
+         *                      comparisons. If multiple columns are specified only the first is
+         *                      used for indexOf() and contains() calls; the sort() is based on the
+         *                      items in the column sequence provided
          ******************************************************************************************/
         protected ArrayListMultiple(int... compareColumn)
         {
@@ -1828,8 +1831,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Array list class constructor with string arrays; assumes the first column is the comparison
-         * column
+         * Array list class constructor with string arrays; assumes the first column is the
+         * comparison column
          ******************************************************************************************/
         protected ArrayListMultiple()
         {
@@ -1839,10 +1842,10 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the comparison column(s)
          *
-         * @param compareColumn Index of the column for indexOf(), contains(), and sort() comparisons. If
-         *                      multiple columns are specified only the first is used for indexOf() and
-         *                      contains() calls; the sort() is based on the items in the column sequence
-         *                      provided
+         * @param compareColumn Index of the column for indexOf(), contains(), and sort()
+         *                      comparisons. If multiple columns are specified only the first is
+         *                      used for indexOf() and contains() calls; the sort() is based on the
+         *                      items in the column sequence provided
          ******************************************************************************************/
         protected void setComparisonColumn(int... compareColumn)
         {
@@ -1889,11 +1892,11 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Sort the list based on the comparison column, and convert the column value based on the specified
-         * sort type
+         * Sort the list based on the comparison column, and convert the column value based on the
+         * specified sort type
          *
-         * @param sortType ArrayListMultipleSortType conversion type; determines how the values are compared
-         *                 (string (case insensitive) or hexadecimal)
+         * @param sortType ArrayListMultipleSortType conversion type; determines how the values are
+         *                 compared (string (case insensitive) or hexadecimal)
          *****************************************************************************************/
         protected void sort(final ArrayListMultipleSortType sortType)
         {
@@ -1939,18 +1942,18 @@ public class CcddClassesComponent
     /**********************************************************************************************
      * WrapLayout layout manager class (by Rob Camick; tips4java.wordpress.com; public domain)
      *
-     * This open source code modifies the standard FlowLayout manager to include wrapping components to
-     * new lines if the container is resized smaller than that needed to display the components. The
-     * original code is reformatted and amended to account for a scroll pane sharing the container in
-     * which the WrapLayout container is located; without the update the wrapping is negated whenever
-     * the scroll pane's horizontal scroll bar appears
+     * This open source code modifies the standard FlowLayout manager to include wrapping
+     * components to new lines if the container is resized smaller than that needed to display the
+     * components. The original code is reformatted and amended to account for a scroll pane
+     * sharing the container in which the WrapLayout container is located; without the update the
+     * wrapping is negated whenever the scroll pane's horizontal scroll bar appears
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class WrapLayout extends FlowLayout
     {
         /******************************************************************************************
-         * WrapLayout constructor. Creates a new WrapLayout with a left alignment and a default 5-unit
-         * horizontal and vertical gap.
+         * WrapLayout constructor. Creates a new WrapLayout with a left alignment and a default
+         * 5-unit horizontal and vertical gap.
          *****************************************************************************************/
         WrapLayout()
         {
@@ -1958,8 +1961,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Constructs a new FlowLayout with the specified alignment and a default 5-unit horizontal and
-         * vertical gap. The value of the alignment argument must be one of WrapLayout.LEFT,
+         * Constructs a new FlowLayout with the specified alignment and a default 5-unit horizontal
+         * and vertical gap. The value of the alignment argument must be one of WrapLayout.LEFT,
          * WrapLayout.RIGHT, or WrapLayout.CENTER
          *
          * @param align The alignment value
@@ -1970,8 +1973,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Returns the preferred dimensions for this layout given the visible components in the specified
-         * target container
+         * Returns the preferred dimensions for this layout given the visible components in the
+         * specified target container
          *
          * @param target The component which needs to be laid out
          *
@@ -1984,8 +1987,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Returns the minimum dimensions needed to layout the visible components contained in the specified
-         * target container
+         * Returns the minimum dimensions needed to layout the visible components contained in the
+         * specified target container
          *
          * @param target The component which needs to be laid out
          *
@@ -1994,8 +1997,7 @@ public class CcddClassesComponent
         @Override
         public Dimension minimumLayoutSize(Container target)
         {
-            // CCDD: Updated the flag in this call to true in order to force use of the
-            // preferred
+            // CCDD: Updated the flag in this call to true in order to force use of the preferred
             // size
             Dimension minimum = layoutSize(target, true);
             minimum.width -= (getHgap() + 1);
@@ -2015,10 +2017,8 @@ public class CcddClassesComponent
         {
             synchronized (target.getTreeLock())
             {
-                // Each row must fit with the width allocated to the container. When the
-                // container
-                // width = 0, the preferred width of the container has not yet been calculated
-                // so
+                // Each row must fit with the width allocated to the container. When the container
+                // width = 0, the preferred width of the container has not yet been calculated so
                 // get the maximum
                 int targetWidth = target.getSize().width;
                 Container container = target;
@@ -2053,14 +2053,12 @@ public class CcddClassesComponent
 
                     if (m.isVisible())
                     {
-                        // CCDD: Added separator handling
-                        // Check if the component is a JSeparator
+                        // CCDD: Added separator handling Check if the component is a JSeparator
                         if (m instanceof JSeparator)
                         {
                             m.setPreferredSize(new Dimension(maxWidth, ((JSeparator) m)
                                     .getOrientation() == SwingConstants.HORIZONTAL ? 3
-                                                                                   : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                                           .getSpacing()
+                                                                                   : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
                                                                                      * 2 / 3 - 1));
                             m.setSize(m.getPreferredSize());
                         }
@@ -2093,8 +2091,7 @@ public class CcddClassesComponent
 
                 // When using a scroll pane or the DecoratedLookAndFeel we need to make sure the
                 // preferred size is less than the size of the target container so shrinking the
-                // container size works correctly. Removing the horizontal gap is an easy way to
-                // do
+                // container size works correctly. Removing the horizontal gap is an easy way to do
                 // this
                 Container scrollPane = SwingUtilities.getAncestorOfClass(JScrollPane.class, target);
 
@@ -2108,8 +2105,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * A new row has been completed. Use the dimensions of this row to update the preferred size for the
-         * container.
+         * A new row has been completed. Use the dimensions of this row to update the preferred
+         * size for the container.
          *
          * @param dim       Update the width and height when appropriate
          *
@@ -2131,8 +2128,8 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Multiple line label class. This uses a JTextArea to mimic a JLabel, but wraps the text to another
-     * line as needed based on the size of the component
+     * Multiple line label class. This uses a JTextArea to mimic a JLabel, but wraps the text to
+     * another line as needed based on the size of the component
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class MultilineLabel extends JTextArea
@@ -2154,8 +2151,7 @@ public class CcddClassesComponent
         {
             super(text);
 
-            // Set the text area characteristics so as to mimic a JLabel, but with the
-            // ability to
+            // Set the text area characteristics so as to mimic a JLabel, but with the ability to
             // wrap the text as needed
             setEditable(false);
             setCursor(null);
@@ -2166,8 +2162,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Get the number of rows required to display the label text based on the specified maximum label
-         * width
+         * Get the number of rows required to display the label text based on the specified maximum
+         * label width
          *
          * @param maxWidth Maximum label width in pixels
          *
@@ -2177,13 +2173,11 @@ public class CcddClassesComponent
         {
             int numRows = 0;
 
-            // Get the label's font metrics s that the text length in pixels can be
-            // determined
+            // Get the label's font metrics s that the text length in pixels can be determined
             BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             FontMetrics fm = image.getGraphics().getFontMetrics(getFont());
 
-            // Step through each portion of the text, separating on line-feeds if any are
-            // present
+            // Step through each portion of the text, separating on line-feeds if any are present
             for (String part : getText().split("\n"))
             {
                 // Calculate the number of rows required to display this portion of the text and
@@ -2197,36 +2191,38 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * JTextField with auto-completion class. This is a modified version of Java2sAutoTextField, which
-     * carries the following copyright notice:
+     * JTextField with auto-completion class. This is a modified version of Java2sAutoTextField,
+     * which carries the following copyright notice:
      *
      * Copyright (c) 2006 Sun Microsystems, Inc. All Rights Reserved.
      *
-     * Redistribution and use in source and binary forms, with or without modification, are permitted
-     * provided that the following conditions are met:
+     * Redistribution and use in source and binary forms, with or without modification, are
+     * permitted provided that the following conditions are met:
      *
-     * -Redistribution of source code must retain the above copyright notice, this list of conditions
-     * and the following disclaimer.
+     * -Redistribution of source code must retain the above copyright notice, this list of
+     * conditions and the following disclaimer.
      *
-     * -Redistribution in binary form must reproduce the above copyright notice, this list of conditions
-     * and the following disclaimer in the documentation and/or other materials provided with the
-     * distribution.
+     * -Redistribution in binary form must reproduce the above copyright notice, this list of
+     * conditions and the following disclaimer in the documentation and/or other materials provided
+     * with the distribution.
      *
-     * Neither the name of Sun Microsystems, Inc. or the names of contributors may be used to endorse or
-     * promote products derived from this software without specific prior written permission.
+     * Neither the name of Sun Microsystems, Inc. or the names of contributors may be used to
+     * endorse or promote products derived from this software without specific prior written
+     * permission.
      *
      * This software is provided "AS IS," without a warranty of any kind. ALL EXPRESS OR IMPLIED
-     * CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY,
-     * FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC.
-     * ("SUN") AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF
-     * USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES. IN NO EVENT WILL SUN OR ITS
-     * LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL,
-     * CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF
-     * LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS BEEN
-     * ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+     * CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF
+     * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED.
+     * SUN MIDROSYSTEMS, INC. ("SUN") AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES
+     * SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS
+     * DERIVATIVES. IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR
+     * DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES,
+     * HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF THE USE OF OR
+     * INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+     * DAMAGES.
      *
-     * You acknowledge that this software is not designed, licensed or intended for use in the design,
-     * construction, operation or maintenance of any nuclear facility.
+     * You acknowledge that this software is not designed, licensed or intended for use in the
+     * design, construction, operation or maintenance of any nuclear facility.
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class AutoCompleteTextField extends JTextField
@@ -2267,7 +2263,8 @@ public class CcddClassesComponent
              * Insert text into the text field
              *************************************************************************************/
             @Override
-            public void insertString(int startIndex, String insertTxt,
+            public void insertString(int startIndex,
+                                     String insertTxt,
                                      AttributeSet attributeset) throws BadLocationException
             {
                 if (insertTxt != null && !insertTxt.isEmpty())
@@ -2327,10 +2324,11 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * JTextField auto-completion class constructor. Assume 10 items are stored in the auto-complete
-         * list
+         * JTextField auto-completion class constructor. Assume 10 items are stored in the
+         * auto-complete list
          *
-         * @param autoCompList List containing the strings from which the auto-completion text is extracted
+         * @param autoCompList List containing the strings from which the auto-completion text is
+         *                     extracted
          *****************************************************************************************/
         AutoCompleteTextField(List<String> autoCompList)
         {
@@ -2350,7 +2348,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * JTextField auto-completion class constructor
          *
-         * @param autoCompList List containing the strings from which the auto-completion text is extracted
+         * @param autoCompList List containing the strings from which the auto-completion text is
+         *                     extracted
          *
          * @param maxItems     Maximum number of items to maintain in the auto-complete list
          *****************************************************************************************/
@@ -2360,8 +2359,7 @@ public class CcddClassesComponent
             this.maxItems = maxItems;
             noAutoComp = false;
 
-            // Initialize with case sensitivity disabled and allowing text other than that
-            // in the
+            // Initialize with case sensitivity disabled and allowing text other than that in the
             // auto-completion list from being entered
             isCaseSensitive = false;
             isOnlyFromList = false;
@@ -2370,8 +2368,9 @@ public class CcddClassesComponent
             addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle backspace and delete key presses. This allows these keys to removed one or more characters
-                 * and not invoke auto-completion afterwards (changing the text otherwise enables auto-completion)
+                 * Handle backspace and delete key presses. This allows these keys to removed one
+                 * or more characters and not invoke auto-completion afterwards (changing the text
+                 * otherwise enables auto-completion)
                  *********************************************************************************/
                 @Override
                 public void keyPressed(KeyEvent ke)
@@ -2418,9 +2417,7 @@ public class CcddClassesComponent
                                 ((PlainDocument) getDocument()).replace(startIndex, length, null, null);
                             }
                         }
-                        catch (
-                            BadLocationException ble
-                        )
+                        catch (BadLocationException ble)
                         {
                             // Ignore the exception
                         }
@@ -2447,7 +2444,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Set the auto-complete list
          *
-         * @param autoCompList List containing the strings from which the auto-completion text is extracted
+         * @param autoCompList List containing the strings from which the auto-completion text is
+         *                     extracted
          *****************************************************************************************/
         protected void setList(List<String> autoCompList)
         {
@@ -2465,11 +2463,11 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Set the flag that determines if text other than the auto-completion strings can be entered into
-         * the text field
+         * Set the flag that determines if text other than the auto-completion strings can be
+         * entered into the text field
          *
-         * @param isOnlyFromList True to only allow text from he auto-completion strings to be entered into
-         *                       the text field
+         * @param isOnlyFromList True to only allow text from he auto-completion strings to be
+         *                       entered into the text field
          *****************************************************************************************/
         protected void setOnlyFromList(boolean isOnlyFromList)
         {
@@ -2481,7 +2479,8 @@ public class CcddClassesComponent
          *
          * @param inputTxt Text for which to find a match
          *
-         * @return First auto-completion list string that matches the input text; null if no match is found
+         * @return First auto-completion list string that matches the input text; null if no match
+         *         is found
          *****************************************************************************************/
         private String getMatch(String inputTxt)
         {
@@ -2519,9 +2518,7 @@ public class CcddClassesComponent
                 int length = Math.max(getCaret().getDot(), getCaret().getMark()) - startIndex;
                 ((AutoDocument) getDocument()).replace(startIndex, length, selectedTxt, null);
             }
-            catch (
-                Exception exception
-            )
+            catch (Exception exception)
             {
                 // Ignore the exception
             }
@@ -2530,9 +2527,9 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Update the list of auto-completion items with the specified string
          *
-         * @param text Item to add to the auto-completion list. The item is placed at the head of the list.
-         *             The list size is constrained to the maximum number specified when the field was
-         *             created
+         * @param text Item to add to the auto-completion list. The item is placed at the head of
+         *             the list. The list size is constrained to the maximum number specified when
+         *             the field was created
          *****************************************************************************************/
         protected void updateList(String text)
         {
@@ -2542,8 +2539,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the list of auto-completion items as a single, delimited string
          *
-         * @return String containing the items from which the auto-completion text is extracted, separated
-         *         by delimiter characters
+         * @return String containing the items from which the auto-completion text is extracted,
+         *         separated by delimiter characters
          *****************************************************************************************/
         protected String getListAsString()
         {
@@ -2566,26 +2563,28 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Font chooser class. This open source class allows creation and manipulation of a dialog component
-     * for selection of a font based on family, style, and size. The code has modifications to the
-     * original source code taken from https://sourceforge.net/projects/jfontchooser
+     * Font chooser class. This open source class allows creation and manipulation of a dialog
+     * component for selection of a font based on family, style, and size. The code has
+     * modifications to the original source code taken from
+     * https://sourceforge.net/projects/jfontchooser
      *
      * Copyright 2004-2008 Masahiko SAWAI All Rights Reserved.
      *
-     * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-     * associated documentation files (the "Software"), to deal in the Software without restriction,
-     * including without limitation the rights to use, copy, modify, merge, publish, distribute,
-     * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-     * furnished to do so, subject to the following conditions:
+     * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+     * software and associated documentation files (the "Software"), to deal in the Software
+     * without restriction, including without limitation the rights to use, copy, modify, merge,
+     * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+     * to whom the Software is furnished to do so, subject to the following conditions:
      *
      * The above copyright notice and this permission notice shall be included in all copies or
      * substantial portions of the Software.
      *
-     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-     * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-     * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-     * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-     * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+     * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+     * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+     * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+     * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+     * DEALINGS IN THE SOFTWARE.
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class JFontChooser extends JComponent
@@ -2629,7 +2628,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Font chooser constructor
          *
-         * @param fontSizeStrings Array containing the available font sizes; null to use the default sizes
+         * @param fontSizeStrings Array containing the available font sizes; null to use the
+         *                        default sizes
          *****************************************************************************************/
         JFontChooser(String[] fontSizeStrings)
         {
@@ -2640,22 +2640,21 @@ public class CcddClassesComponent
 
             this.fontSizeStrings = fontSizeStrings;
 
-            borderPnl = BorderFactory
-                    .createEmptyBorder(0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2);
-            borderLbl = BorderFactory
-                    .createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2, 0,
-                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2, 0);
-            borderFld = BorderFactory
-                    .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+            borderPnl = BorderFactory.createEmptyBorder(0,
+                                                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2);
+            borderLbl = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        0,
+                                                        ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        0);
+            borderFld = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                          Color.LIGHT_GRAY,
                                                                           Color.GRAY),
-                                          BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                  .getSpacing(), ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                  .getSpacing(),
-                                                                          ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                  .getSpacing()));
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
             JPanel selectPanel = new JPanel();
             selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));
@@ -2689,8 +2688,7 @@ public class CcddClassesComponent
                 fontFamilyTextField.setBorder(borderFld);
                 fontFamilyTextField.addFocusListener(new TextFieldFocusHandlerForTextSelection(fontFamilyTextField));
                 fontFamilyTextField.addKeyListener(new TextFieldKeyHandlerForListSelectionUpDown(getFontFamilyList()));
-                fontFamilyTextField.getDocument()
-                        .addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontFamilyList()));
+                fontFamilyTextField.getDocument().addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontFamilyList()));
                 fontFamilyTextField.setFont(DEFAULT_FONT);
             }
 
@@ -2710,8 +2708,7 @@ public class CcddClassesComponent
                 fontStyleTextField.setBorder(borderFld);
                 fontStyleTextField.addFocusListener(new TextFieldFocusHandlerForTextSelection(fontStyleTextField));
                 fontStyleTextField.addKeyListener(new TextFieldKeyHandlerForListSelectionUpDown(getFontStyleList()));
-                fontStyleTextField.getDocument()
-                        .addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontStyleList()));
+                fontStyleTextField.getDocument().addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontStyleList()));
                 fontStyleTextField.setFont(DEFAULT_FONT);
             }
 
@@ -2731,8 +2728,7 @@ public class CcddClassesComponent
                 fontSizeTextField.setBorder(borderFld);
                 fontSizeTextField.addFocusListener(new TextFieldFocusHandlerForTextSelection(fontSizeTextField));
                 fontSizeTextField.addKeyListener(new TextFieldKeyHandlerForListSelectionUpDown(getFontSizeList()));
-                fontSizeTextField.getDocument()
-                        .addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontSizeList()));
+                fontSizeTextField.getDocument().addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontSizeList()));
                 fontSizeTextField.setFont(DEFAULT_FONT);
             }
 
@@ -2877,9 +2873,7 @@ public class CcddClassesComponent
                     fontSize = Integer.parseInt(fontSizeString);
                     break;
                 }
-                catch (
-                    NumberFormatException nfe
-                )
+                catch (NumberFormatException nfe)
                 {
                     fontSizeString = getFontSizeList().getSelectedValue();
                     getFontSizeTextField().setText(fontSizeString);
@@ -3156,9 +3150,7 @@ public class CcddClassesComponent
                     Document doc = de.getDocument();
                     newValue = doc.getText(0, doc.getLength());
                 }
-                catch (
-                    BadLocationException ble
-                )
+                catch (BadLocationException ble)
                 {
                     CcddUtilities.displayException(ble, ccddMain.getMainFrame());
                 }
@@ -3300,10 +3292,10 @@ public class CcddClassesComponent
         {
             JPanel samplePnl = new JPanel();
             samplePnl.setLayout(new BorderLayout());
-            samplePnl.setBorder(BorderFactory
-                    .createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2, 0,
-                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2));
+            samplePnl.setBorder(BorderFactory.createEmptyBorder(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                0,
+                                                                ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2));
             JLabel sampleLbl = new JLabel(("Sample"));
             sampleLbl.setBorder(borderLbl);
             sampleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -3312,8 +3304,10 @@ public class CcddClassesComponent
             sampleLbl.setLabelFor(getFontSizeTextField());
             samplePnl.add(sampleLbl, BorderLayout.NORTH);
             samplePnl.add(getSampleTextField(), BorderLayout.CENTER);
-            samplePnl.setPreferredSize(new Dimension(samplePnl.getPreferredSize().width, samplePnl
-                    .getFontMetrics(new Font("DejaVu Sans", Font.BOLD, 72)).getHeight() * 3 / 2));
+            samplePnl.setPreferredSize(new Dimension(samplePnl.getPreferredSize().width,
+                                                     samplePnl.getFontMetrics(new Font("DejaVu Sans",
+                                                                                       Font.BOLD,
+                                                                                       72)).getHeight() * 3 / 2));
             return samplePnl;
         }
 
@@ -3660,8 +3654,7 @@ public class CcddClassesComponent
                                              && sourceData.getTabIndex() >= 0)
                                             || (DnDTabbedPane.this != sourceData.getTabbedPane()
                                                 && DnDTabbedPane.this.compatibleTarget != null
-                                                && DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane()
-                                                        .getCompatibleTarget()));
+                                                && DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane().getCompatibleTarget()));
                         }
                     }
                 }
@@ -3715,7 +3708,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Drag and drop glass pane class. The glass pane is used to display an image of the tab being moved
+         * Drag and drop glass pane class. The glass pane is used to display an image of the tab
+         * being moved
          *****************************************************************************************/
         public static class DnDGlassPane extends JPanel
         {
@@ -3783,17 +3777,21 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * JTabbedPane with drag and drop of tabs within and between tabbed panes class constructor. This
-         * constructor is configurable so that dropping the tab outside its parent container is allowable
+         * JTabbedPane with drag and drop of tabs within and between tabbed panes class
+         * constructor. This constructor is configurable so that dropping the tab outside its
+         * parent container is allowable
          *
-         * @param tabPlacement     Determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
-         *                         JTabbedPane.BOTTOM, JTabbedPane.LEFT, or JTabbedPane.RIGHT
+         * @param tabPlacement     Determines the location of the tabs on the tabbed pane:
+         *                         JTabbedPane.TOP, JTabbedPane.BOTTOM, JTabbedPane.LEFT, or
+         *                         JTabbedPane.RIGHT
          *
-         * @param compatibleTarget Reference to the type of class that tabs from this class can be dropped
-         *                         onto; null if dropping outside the original container isn't allowed
+         * @param compatibleTarget Reference to the type of class that tabs from this class can be
+         *                         dropped onto; null if dropping outside the original container
+         *                         isn't allowed
          *
-         * @param isSpawnAllowed   True if a new container is created when the tab is dropped outside of a
-         *                         compatible target; false to ignore drops outside compatible containers
+         * @param isSpawnAllowed   True if a new container is created when the tab is dropped
+         *                         outside of a compatible target; false to ignore drops outside
+         *                         compatible containers
          *****************************************************************************************/
         public DnDTabbedPane(int tabPlacement, Class<?> compatibleTarget, final boolean isSpawnAllowed)
         {
@@ -3872,9 +3870,9 @@ public class CcddClassesComponent
                 }
 
                 /**********************************************************************************
-                 * Handle the end of the drag and drop operation. If the dragged tab wasn't dropped on an acceptable
-                 * container and the tab allows creation of a new container in which to place it then create the new
-                 * container for the tab
+                 * Handle the end of the drag and drop operation. If the dragged tab wasn't dropped
+                 * on an acceptable container and the tab allows creation of a new container in
+                 * which to place it then create the new container for the tab
                  *********************************************************************************/
                 @Override
                 public void dragDropEnd(DragSourceDropEvent dsde)
@@ -3949,9 +3947,7 @@ public class CcddClassesComponent
                             dge.startDrag(DragSource.DefaultMoveDrop,
                                           new TabTransferable(DnDTabbedPane.this, dragTabIndex), dsl);
                         }
-                        catch (
-                            InvalidDnDOperationException idoe
-                        )
+                        catch (InvalidDnDOperationException idoe)
                         {
                             CcddUtilities.displayException(idoe, ccddMain.getMainFrame());
                         }
@@ -3966,9 +3962,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * JTabbedPane with drag and drop of tabs within and between tabbed panes class constructor. The
-         * tabs are placed at the top of the tabbed pane and dropping a tab outside of its parent container
-         * isn't allowed
+         * JTabbedPane with drag and drop of tabs within and between tabbed panes class
+         * constructor. The tabs are placed at the top of the tabbed pane and dropping a tab
+         * outside of its parent container isn't allowed
          *****************************************************************************************/
         public DnDTabbedPane()
         {
@@ -3976,11 +3972,13 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * JTabbedPane with drag and drop of tabs within and between tabbed panes class constructor. This
-         * constructor doesn't allow dropping a tab outside of its parent container
+         * JTabbedPane with drag and drop of tabs within and between tabbed panes class
+         * constructor. This constructor doesn't allow dropping a tab outside of its parent
+         * container
          *
-         * @param tabPlacement Determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
-         *                     JTabbedPane.BOTTOM, JTabbedPane.LEFT, or JTabbedPane.RIGHT
+         * @param tabPlacement Determines the location of the tabs on the tabbed pane:
+         *                     JTabbedPane.TOP, JTabbedPane.BOTTOM, JTabbedPane.LEFT, or
+         *                     JTabbedPane.RIGHT
          *****************************************************************************************/
         DnDTabbedPane(int tabPlacement)
         {
@@ -3990,8 +3988,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the compatible drop target class
          *
-         * @return The compatible drop target class; null if the tab isn't allowed to be dropped outside of
-         *         its parent container
+         * @return The compatible drop target class; null if the tab isn't allowed to be dropped
+         *         outside of its parent container
          *****************************************************************************************/
         protected Class<?> getCompatibleTarget()
         {
@@ -4011,7 +4009,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Placeholder for method to do any other operations related to moving the tab
          *
-         * @param oldTabIndex Original tab index; -1 if the tab didn't originate in this tabbed pane
+         * @param oldTabIndex Original tab index; -1 if the tab didn't originate in this tabbed
+         *                    pane
          *
          * @param newTabIndex New tab index; -1 if the tab is being moved to another tabbed pane
          *
@@ -4050,9 +4049,7 @@ public class CcddClassesComponent
             {
                 data = (TabTransferData) dtde.getTransferable().getTransferData(flavor);
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 CcddUtilities.displayException(e, ccddMain.getMainFrame());
             }
@@ -4075,9 +4072,7 @@ public class CcddClassesComponent
             {
                 data = (TabTransferData) dtde.getTransferable().getTransferData(flavor);
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 CcddUtilities.displayException(e, ccddMain.getMainFrame());
             }
@@ -4100,9 +4095,7 @@ public class CcddClassesComponent
             {
                 data = (TabTransferData) dsde.getDragSourceContext().getTransferable().getTransferData(flavor);
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 CcddUtilities.displayException(e, ccddMain.getMainFrame());
             }
@@ -4125,9 +4118,7 @@ public class CcddClassesComponent
             {
                 data = (TabTransferData) dsde.getDragSourceContext().getTransferable().getTransferData(flavor);
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 CcddUtilities.displayException(e, ccddMain.getMainFrame());
             }
@@ -4140,8 +4131,8 @@ public class CcddClassesComponent
          *
          * @param dropPoint Location of the tab in the drop component's coordinates
          *
-         * @return Tab index if the tab is dropped at the current location; after the last tab in the pane
-         *         if the drop point isn't within a tab's boundaries
+         * @return Tab index if the tab is dropped at the current location; after the last tab in
+         *         the pane if the drop point isn't within a tab's boundaries
          *****************************************************************************************/
         private int getTargetTabIndex(Point dropPoint)
         {
@@ -4161,7 +4152,9 @@ public class CcddClassesComponent
                     int y = tabBounds.y - tabBounds.height / 2;
 
                     // Check if the drop point is within the tab's bounds
-                    if (dropPoint.x >= x && dropPoint.x <= x + tabBounds.width && dropPoint.y >= y
+                    if (dropPoint.x >= x
+                        && dropPoint.x <= x + tabBounds.width
+                        && dropPoint.y >= y
                         && dropPoint.y <= y + tabBounds.height)
                     {
                         // Set the index of the insertion point and stop searching
@@ -4281,8 +4274,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Draw the tab insertion point indicator for tabbed panes where the tabs appear at the top or
-         * bottom of the pane
+         * Draw the tab insertion point indicator for tabbed panes where the tabs appear at the top
+         * or bottom of the pane
          *
          * @param targetIndex Index of the tab if dropped at the current location
          *
@@ -4290,8 +4283,7 @@ public class CcddClassesComponent
          *****************************************************************************************/
         private void drawTargetLineToSide(int targetIndex, TabTransferData data)
         {
-            // Check if the target index precedes the first tab, the pane has no tabs, or
-            // the
+            // Check if the target index precedes the first tab, the pane has no tabs, or the
             // target is for the tab being dragged
             if (targetIndex < 0 || getTabCount() == 0
                 || (data.getTabbedPane() == this
@@ -4328,8 +4320,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Draw the tab insertion point indicator for tabbed panes where the tabs appear at the left or
-         * right of the pane
+         * Draw the tab insertion point indicator for tabbed panes where the tabs appear at the
+         * left or right of the pane
          *
          * @param targetIndex Index of the tab if dropped at the current location
          *
@@ -4337,8 +4329,7 @@ public class CcddClassesComponent
          *****************************************************************************************/
         private void drawTargetLineAboveBelow(int targetIndex, TabTransferData data)
         {
-            // Check if the target index precedes the first tab, the pane has no tabs, or
-            // the
+            // Check if the target index precedes the first tab, the pane has no tabs, or the
             // target is for the tab being dragged
             if (targetIndex < 0 || getTabCount() == 0
                 || (data.getTabbedPane() == this
@@ -4374,8 +4365,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Adjust the glass pane location to stay within the bounds set by the tabs in the supplied tabbed
-         * pane
+         * Adjust the glass pane location to stay within the bounds set by the tabs in the supplied
+         * tabbed pane
          *
          * @param location Current position of the dragged glass pane
          *
@@ -4471,9 +4462,7 @@ public class CcddClassesComponent
             {
                 super.paintComponent(g);
             }
-            catch (
-                Exception e
-            )
+            catch (Exception e)
             {
                 // Ignore the exception
             }
@@ -4490,9 +4479,9 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * The standard JSONObject uses a HashMap and does not retain the order in which the key:value pairs
-     * are stored. This custom JSON object uses a LinkedHashMap, so it maintains the key:value pairs in
-     * the same order in which they were stored
+     * The standard JSONObject uses a HashMap and does not retain the order in which the key:value
+     * pairs are stored. This custom JSON object uses a LinkedHashMap, so it maintains the
+     * key:value pairs in the same order in which they were stored
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class OrderedJSONObject extends LinkedHashMap<Object, Object>
@@ -4507,8 +4496,8 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Convert the key:value pair map into a string. The standard JSONObject toJSONString() method can
-         * be used since the map is ordered at this point
+         * Convert the key:value pair map into a string. The standard JSONObject toJSONString()
+         * method can be used since the map is ordered at this point
          *
          * @return JSON key:value pair map converted to a string
          *****************************************************************************************/

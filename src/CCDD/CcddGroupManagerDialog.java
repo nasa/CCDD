@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddGroupManagerDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to create, alter, or delete table groups. The dialog is built on the
-*     CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddGroupManagerDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to create, alter, or delete table groups. The dialog is built on the
+ * CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -137,8 +133,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     // Node selection change in progress flag
     private boolean isNodeSelectionChanging;
 
-    // Currently selected group in the group tree; null if none, or more than one
-    // group is selected
+    // Currently selected group in the group tree; null if none, or more than one group is selected
     private GroupInformation selectedGroup;
 
     // List containing the data field list for groups with data field updates
@@ -147,8 +142,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     // List containing the names of any groups that are deleted
     private List<String> deletedGroups;
 
-    // Flag that indicates if the group manager dialog is undergoing initialization
-    // or the group
+    // Flag that indicates if the group manager dialog is undergoing initialization or the group
     // tree is rebuilding
     private boolean isInitializing;
 
@@ -226,8 +220,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Remove the group dialog's change indicator
             setTitle(DIALOG_TITLE);
 
-            // Update the message ID names combo boxes in any open table editors in case the
-            // group
+            // Update the message ID names combo boxes in any open table editors in case the group
             // has a message ID name or message ID data field that may have changed
             dbTable.updateInputTypeColumns(null, groupMgr);
         }
@@ -249,8 +242,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
-            // Create a copy of the group information and store it in the committed group
-            // list
+            // Create a copy of the group information and store it in the committed group list
             committedGroupInfo.add(new GroupInformation(groupInfo.getName(), null, null, null, CcddFieldHandler
                     .getFieldInformationCopy(groupInfo.getFieldInformation())));
         }
@@ -258,9 +250,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Create the group manager dialog. This is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to continue
-     * to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -407,8 +399,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     }
 
                     /******************************************************************************
-                     * Set the table type and application node enable enable state following an undo or redo operation
-                     * that adds or removes a node
+                     * Set the table type and application node enable enable state following an
+                     * undo or redo operation that adds or removes a node
                      *****************************************************************************/
                     @Override
                     protected void nodeAddRemoveCleanup()
@@ -437,8 +429,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // tree. These are used to shorten subsequent calls
                 groupHandler = groupTree.getGroupHandler();
 
-                // Set the data field handler and group tree references in the undo handler so
-                // that
+                // Set the data field handler and group tree references in the undo handler so that
                 // data field and tree edits can be undone/redone
                 undoHandler.setFieldHandler(fieldHandler);
                 undoHandler.setTree(groupTree);
@@ -480,7 +471,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     }
                 };
 
-                // Create a table tree panel and add it to another panel (in order to control spacing)
+                // Create a table tree panel and add it to another panel (in order to control
+                // spacing)
                 gbc.insets.top = 0;
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.weighty = 1.0;
@@ -515,8 +507,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     }
                 };
 
-                // Set the undo/redo manager and handler for the description and data field
-                // values
+                // Set the undo/redo manager and handler for the description and data field values
                 fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
 
                 // Set the modal undo manager in the keyboard handler while the group manager is
@@ -867,8 +858,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Set the initial enable status of the buttons
                 setGroupButtonsEnabled(false);
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnNewGroup);
                 buttonPnl.add(btnRenameGroup);
                 buttonPnl.add(btnManageFields);
@@ -901,18 +891,17 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set/clear the selected group, add/remove the data fields, enable/disable the description field,
-     * and enable/disable the dialog's buttons that apply only if a single group is selected based on if
-     * a valid group name is provided
+     * Set/clear the selected group, add/remove the data fields, enable/disable the description
+     * field, and enable/disable the dialog's buttons that apply only if a single group is selected
+     * based on if a valid group name is provided
      *
-     * @param groupName Name of the selected group; null if no group or more than one group is selected
+     * @param groupName Name of the selected group; null if no group or more than one group is
+     *                  selected
      *********************************************************************************************/
     private void setGroupAndFields(String groupName)
     {
-        // Check if the edit sequence is set to be automatically terminated. During an
-        // undo or redo
-        // operation the edit sequence termination is handled manually in order to group
-        // the tree
+        // Check if the edit sequence is set to be automatically terminated. During an undo or redo
+        // operation the edit sequence termination is handled manually in order to group the tree
         // and group information updates into a single compound edit
         if (undoHandler.isAutoEndEditSequence())
         {
@@ -920,8 +909,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             undoManager.endEditSequence();
         }
 
-        // Initialize the description and application status assuming a single group
-        // isn't selected
+        // Initialize the description and application status assuming a single group isn't selected
         String description = "";
         boolean isApplication = false;
         boolean enable = false;
@@ -938,8 +926,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             enable = true;
         }
 
-        // Rebuild the data field panel for the selected group (or remove any fields if
-        // no group is
+        // Rebuild the data field panel for the selected group (or remove any fields if no group is
         // selected), and update the dialog's size
         fieldPnlHndlr.setOwnerName(CcddFieldHandler.getFieldGroupName(groupName));
         recreateDataFieldPanel(false);
@@ -950,8 +937,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Display and enable the group's CFS application status
         enableApplicationCheckBox(enable, isApplication);
 
-        // Set the enable state of the buttons that apply only when one group is
-        // selected
+        // Set the enable state of the buttons that apply only when one group is selected
         setGroupButtonsEnabled(enable);
     }
 
@@ -966,14 +952,14 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Update the group manager dialog's size following additions or deletions to the data field panel
+     * Update the group manager dialog's size following additions or deletions to the data field
+     * panel
      *
      * @param undoable True if the update can be undone/redone
      *********************************************************************************************/
     private void recreateDataFieldPanel(boolean undoable)
     {
-        // Rebuild the data field panel using the data fields for the selected group
-        // (display an
+        // Rebuild the data field panel using the data fields for the selected group (display an
         // empty field panel if a single group isn't selected)
         fieldPnlHndlr.createDataFieldPanel(undoable,
                                            (selectedGroup != null ? selectedGroup.getFieldInformation() : null), false);
@@ -991,8 +977,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Enable or disable the check box based on the input flag
         applicationCb.setEnabled(enable);
 
-        // Use the model so that the check box selection action isn't stored on the
-        // undo/redo stack
+        // Use the model so that the check box selection action isn't stored on the undo/redo stack
         ((UndoableToggleButtonModel) applicationCb.getModel()).setSelected((enable ? isApplication : false), false);
     }
 
@@ -1082,19 +1067,17 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Add the selected table(s) in the table tree to the selected group definition(s) in the group tree
+     * Add the selected table(s) in the table tree to the selected group definition(s) in the group
+     * tree
      *********************************************************************************************/
     private void addTableToGroupDefinition()
     {
-        // Set the flag to prevent calls to update the dialog change indicator while
-        // adding tables
+        // Set the flag to prevent calls to update the dialog change indicator while adding tables
         // to the group
         isInitializing = true;
 
-        // Disable automatically ending the edit sequence. This allows all of the added
-        // group
-        // members to be grouped into a single sequence so that if undone, all members
-        // are removed
+        // Disable automatically ending the edit sequence. This allows all of the added group
+        // members to be grouped into a single sequence so that if undone, all members are removed
         // together
         undoHandler.setAutoEndEditSequence(false);
 
@@ -1114,8 +1097,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Update the group dialog's change indicator
         updateChangeIndicator();
 
-        // Re-enable automatic edit sequence ending, then end the edit sequence to group
-        // the added
+        // Re-enable automatic edit sequence ending, then end the edit sequence to group the added
         // members
         undoHandler.setAutoEndEditSequence(true);
         undoManager.endEditSequence();
@@ -1126,15 +1108,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void removeTableFromGroup()
     {
-        // Set the flag to prevent calls to update the dialog change indicator while
-        // adding tables
+        // Set the flag to prevent calls to update the dialog change indicator while adding tables
         // to the group
         isInitializing = true;
 
-        // Disable automatically ending the edit sequence. This allows all of the
-        // deleted group
-        // members to be grouped into a single sequence so that if undone, all members
-        // are restored
+        // Disable automatically ending the edit sequence. This allows all of the deleted group
+        // members to be grouped into a single sequence so that if undone, all members are restored
         // together
         undoHandler.setAutoEndEditSequence(false);
 
@@ -1169,8 +1148,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Update the group dialog's change indicator
         updateChangeIndicator();
 
-        // Re-enable automatic edit sequence ending, then end the edit sequence to group
-        // the
+        // Re-enable automatic edit sequence ending, then end the edit sequence to group the
         // removed members
         undoHandler.setAutoEndEditSequence(true);
         undoManager.endEditSequence();
@@ -1246,8 +1224,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Display a dialog for the user to provide a group name and description
         if (groupDlg.showOptionsDialog(groupMgr, dialogPnl, "New Group", DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
-            // Disable automatically ending the edit sequence. This allows the added group's
-            // edits
+            // Disable automatically ending the edit sequence. This allows the added group's edits
             // to be grouped into a single sequence so that if undone, all edits are removed
             // together
             undoHandler.setAutoEndEditSequence(false);
@@ -1261,8 +1238,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Hide the group's empty table type nodes
             groupTree.setHeaderNodeEnable();
 
-            // Check if the check box indicating this group represents an application is
-            // selected
+            // Check if the check box indicating this group represents an application is selected
             if (appCb.isSelected())
             {
                 // Get the field information and data fields for the new group
@@ -1282,8 +1258,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Update the group dialog's change indicator
             updateChangeIndicator();
 
-            // Re-enable automatic edit sequence ending, then end the edit sequence to group
-            // the
+            // Re-enable automatic edit sequence ending, then end the edit sequence to group the
             // added group's edits
             undoHandler.setAutoEndEditSequence(true);
             undoManager.endEditSequence();
@@ -1298,8 +1273,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Check that a node is selected in the group tree
         if (groupTree.getSelectionCount() != 0)
         {
-            // Disable automatically ending the edit sequence. This allows all of the
-            // deleted
+            // Disable automatically ending the edit sequence. This allows all of the deleted
             // groups to be grouped into a single sequence so that if undone, all groups are
             // restored together
             undoHandler.setAutoEndEditSequence(false);
@@ -1313,8 +1287,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Update the group dialog's change indicator
             updateChangeIndicator();
 
-            // Re-enable automatic edit sequence ending, then end the edit sequence to group
-            // the
+            // Re-enable automatic edit sequence ending, then end the edit sequence to group the
             // deleted groups
             undoHandler.setAutoEndEditSequence(true);
             undoManager.endEditSequence();
@@ -1357,10 +1330,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             if (groupDlg.showOptionsDialog(groupMgr, dialogPnl, "Rename Group", DialogOption.RENAME_OPTION,
                                            true) == OK_BUTTON)
             {
-                // Disable automatically ending the edit sequence. This allows all of the
-                // renamed
-                // group's edits to be grouped into a single sequence so that if undone, the
-                // edits
+                // Disable automatically ending the edit sequence. This allows all of the renamed
+                // group's edits to be grouped into a single sequence so that if undone, the edits
                 // are restored together
                 undoHandler.setAutoEndEditSequence(false);
 
@@ -1431,8 +1402,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                            true) == OK_BUTTON)
             {
                 // Disable automatically ending the edit sequence. This allows all of the copied
-                // group's edits to be grouped into a single sequence so that if undone, all of
-                // the
+                // group's edits to be grouped into a single sequence so that if undone, all of the
                 // group's edits are restored together
                 undoHandler.setAutoEndEditSequence(false);
 
@@ -1528,8 +1498,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         try
         {
-            // Get the group name; remove leading & trailing white space characters and
-            // store the
+            // Get the group name; remove leading & trailing white space characters and store the
             // 'cleaned' name in the input field
             String groupName = groupNameFld.getText().trim();
             groupNameFld.setText(groupName);
@@ -1556,9 +1525,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 }
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(groupMgr, "<html><b>" + ce.getMessage(), "Missing/Invalid Input",
@@ -1572,8 +1539,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Update the currently selected group's application flag, description, and data fields in the main
-     * group information list
+     * Update the currently selected group's application flag, description, and data fields in the
+     * main group information list
      *********************************************************************************************/
     private void updateSelectedGroupInformation()
     {
@@ -1608,8 +1575,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Get the current group definitions from the group tree
         currentGroupDefns = groupTree.createDefinitionsFromTree();
 
-        // Initialize the change flag to true if the number of current and committed
-        // group
+        // Initialize the change flag to true if the number of current and committed group
         // definitions differ
         boolean hasChanges = currentGroupDefns.size() != committedGroupDefns.size();
 
@@ -1649,8 +1615,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Check if the group isn't new
             if (committedInfo != null)
             {
-                // Set the flag if the number of fields, field attributes, or field contents
-                // have
+                // Set the flag if the number of fields, field attributes, or field contents have
                 // changed
                 isDiffers = fieldHandler.isFieldChanged(currentInfo.getFieldInformation(),
                                                         committedInfo.getFieldInformation(), true);
@@ -1658,8 +1623,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // This is a new group
             else
             {
-                // Set the flag indicating that the new group's data fields should be added to
-                // the
+                // Set the flag indicating that the new group's data fields should be added to the
                 // change list
                 isDiffers = true;
             }
@@ -1685,16 +1649,16 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the unsaved changes to an open data field table editor should be ignored
      *
-     * @return true if the there are no unsaved data field table editor changes or if the user chooses
-     *         to ignore the changes; false if the group has no data field changes, the data field table
-     *         editor isn't open, or the user chooses to not ignore the unsaved changes
+     * @return true if the there are no unsaved data field table editor changes or if the user
+     *         chooses to ignore the changes; false if the group has no data field changes, the
+     *         data field table editor isn't open, or the user chooses to not ignore the unsaved
+     *         changes
      *********************************************************************************************/
     private boolean ignoreFieldTableChanges()
     {
         boolean ignoreChanges = true;
 
-        // Check if changes to the group data fields exist, that the data field table
-        // editor is
+        // Check if changes to the group data fields exist, that the data field table editor is
         // open and has unsaved changes, and that the user elects to cancel the update
         if (!updateFields.isEmpty() && fldTblEditor != null && fldTblEditor.isShowing()
             && fldTblEditor.isFieldTableChanged()
@@ -1719,7 +1683,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Select the group in the group tree for which the selected table in the table tree is a member
+     * Select the group in the group tree for which the selected table in the table tree is a
+     * member
      *********************************************************************************************/
     private void selectGroupByTable()
     {

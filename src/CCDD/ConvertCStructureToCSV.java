@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file ConvertCStructureToCSV.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class containing methods that can be used to convert a C header file to CSV format
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file ConvertCStructureToCSV.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class containing methods that can be used to convert a C header file to CSV format
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.io.BufferedReader;
@@ -54,7 +50,8 @@ public class ConvertCStructureToCSV
     private List<String> structDataOut;
     private List<String> macrosFoundInHeaderFiles; // All macros found in the imported header files
     private List<String> currentMacros; // All macros currently defined in the database
-    private List<String[]> newMacros; // Macros that were found and currently do not exist in this database
+    private List<String[]> newMacros; // Macros that were found and currently do not exist in this
+                                      // database
 
     private String description;
 
@@ -123,8 +120,8 @@ public class ConvertCStructureToCSV
                     // Check if this line is a continuation of the previous one
                     if (continueLine)
                     {
-                        // Prepend the previous line to this line and remove the previous line
-                        // from the input list
+                        // Prepend the previous line to this line and remove the previous line from
+                        // the input list
                         int index = structDataIn.size() - 1;
                         inLine = structDataIn.get(index).substring(0, structDataIn.get(index).length() - 1) + inLine;
                         structDataIn.remove(index);
@@ -154,7 +151,7 @@ public class ConvertCStructureToCSV
                 String structName = "";
                 boolean isTypeDef = false;
 
-                // Check if this is a type, structure or macro definition.
+                // Check if this is a type, structure or macro definition
                 if (structDataIn.get(row).matches("\\s*typedef\\s+struct\\s*\\{?\\s*(?:$||/\\*.*|//.*)"))
                 {
                     // Set the flag indicating this is a type definition
@@ -267,7 +264,8 @@ public class ConvertCStructureToCSV
                                 // Check if a variable has been found for this structure
                                 if (!variableName.isEmpty())
                                 {
-                                    // Update the variable's description with the additional comment text
+                                    // Update the variable's description with the additional
+                                    // comment text
                                     structDataOut.set(structDataOut.size() - 1,
                                                       "\"" + dataType + "\",\"" + variableName + "\",\"" + arraySize
                                                                                 + "\",\"" + bitLength + "\",\""
@@ -286,7 +284,8 @@ public class ConvertCStructureToCSV
                                 // Store the data type continuation state
                                 boolean continueDataTypeFromPreviousRow = continueDataTypeOnNextRow;
 
-                                // Separate the data type + variable name and the description (if any)
+                                // Separate the data type + variable name and the description (if
+                                // any)
                                 String[] varDefnAndDesc = structDataIn.get(row).split("\\s*;\\s*", 2);
 
                                 // Check if the semi-colon is contained within a comment, and so
@@ -295,12 +294,14 @@ public class ConvertCStructureToCSV
                                 if (varDefnAndDesc.length == 2
                                     && (varDefnAndDesc[0].contains("/*") || varDefnAndDesc[0].contains("//")))
                                 {
-                                    // Reset the variable definition and description to the entire row contents
+                                    // Reset the variable definition and description to the entire
+                                    // row contents
                                     varDefnAndDesc = new String[] {structDataIn.get(row)};
                                 }
 
                                 // Remove excess white space characters around array and bit length
-                                // designators, and every multiple white space instance with a space
+                                // designators, and every multiple white space instance with a
+                                // space
                                 varDefnAndDesc[0] = varDefnAndDesc[0].replaceAll("\\s*(\\[|:)\\s*", "$1")
                                         .replaceAll("\\s+", " ");
 
@@ -309,7 +310,8 @@ public class ConvertCStructureToCSV
                                 // or absence of a semi-colon
                                 continueDataTypeOnNextRow = varDefnAndDesc.length == 1;
 
-                                // Check if this row doesn't end the variable declarations for the current data type
+                                // Check if this row doesn't end the variable declarations for the
+                                // current data type
                                 if (continueDataTypeOnNextRow)
                                 {
                                     // Separate the variable name(s) from the description (if any)
@@ -323,30 +325,35 @@ public class ConvertCStructureToCSV
                                     }
                                 }
 
-                                // Check if this is a variable declaration for the data type on a previous row
+                                // Check if this is a variable declaration for the data type on a
+                                // previous row
                                 if (continueDataTypeFromPreviousRow)
                                 {
-                                    // Set the variable name starting index to the beginning or the row
+                                    // Set the variable name starting index to the beginning or the
+                                    // row
                                     varNameStart = -1;
                                 }
                                 // The data type is included on this line
                                 else
                                 {
-                                    // Get the index of the last space in the variable definition (prior to the
-                                    // first comma, if multiple variables are defined on this row)
+                                    // Get the index of the last space in the variable definition
+                                    // (prior to the first comma, if multiple variables are defined
+                                    // on this row)
                                     varNameStart = (varDefnAndDesc[0]
                                             .indexOf(",") == -1 ? varDefnAndDesc[0]
                                                                 : varDefnAndDesc[0].replaceAll("\\s*,.+", ""))
                                                                         .lastIndexOf(" ");
 
-                                    // Get the index of the first array definition or bit length (the result is
-                                    // -1 if the row contains no array or bit-wise variable)
+                                    // Get the index of the first array definition or bit length
+                                    // (the result is -1 if the row contains no array or bit-wise
+                                    // variable)
                                     int arrayStart = varDefnAndDesc[0].indexOf("[");
                                     int bitStart = varDefnAndDesc[0].indexOf(":");
                                     int arrayOrBit = arrayStart > bitStart ? (bitStart == -1 ? arrayStart : bitStart)
                                                                            : (arrayStart == -1 ? bitStart : arrayStart);
 
-                                    // Check if an array size of bit length variable is defined on this row
+                                    // Check if an array size of bit length variable is defined on
+                                    // this row
                                     if (arrayOrBit != -1 && arrayOrBit < varNameStart)
                                     {
                                         // An array or bit length variable exists; these may
@@ -366,7 +373,8 @@ public class ConvertCStructureToCSV
                                 // Check if a description exists for the variable
                                 if (varDefnAndDesc.length == 2 && !varDefnAndDesc[1].trim().isEmpty())
                                 {
-                                    // Get the variable's description from this and (if applicable) subsequent rows
+                                    // Get the variable's description from this and (if applicable)
+                                    // subsequent rows
                                     row = getDescription(row, varDefnAndDesc[1].trim());
                                 }
 
@@ -403,7 +411,8 @@ public class ConvertCStructureToCSV
                                             // Was the macro defined within the file?
                                             if (!macrosFoundInHeaderFiles.contains(macroName))
                                             {
-                                                // If not was the macro already defined within the database?
+                                                // If not was the macro already defined within the
+                                                // database?
                                                 if (!currentMacros.contains(macroName))
                                                 {
                                                     // If not store the macro with a value of 2
@@ -418,25 +427,27 @@ public class ConvertCStructureToCSV
                                         // Separate the variable name and bit length
                                         String[] nameAndBits = variableName.split("\\s*:\\s*");
 
-                                        // Set the variable name and bit length. Evaluate and adjust the bit length for
-                                        // macros
+                                        // Set the variable name and bit length. Evaluate and
+                                        // adjust the bit length for macros
                                         variableName = nameAndBits[0];
                                         bitLength = getMacros(nameAndBits[1]);
                                     }
 
-                                    // Check if the variable hasn't already been added to this structure
+                                    // Check if the variable hasn't already been added to this
+                                    // structure
                                     if (!variableNames.contains(variableName))
                                     {
                                         // Check if the variable is a pointer
                                         if (variableName.startsWith("*"))
                                         {
-                                            // Remove the asterisk from the variable name and append it to the data type
+                                            // Remove the asterisk from the variable name and
+                                            // append it to the data type
                                             variableName = variableName.replaceFirst("\\*\\s*", "");
                                             ptr = " *";
                                         }
 
-                                        // Add the variable name to the list. This prevents inclusion of duplicate
-                                        // variables
+                                        // Add the variable name to the list. This prevents
+                                        // inclusion of duplicate variables
                                         variableNames.add(variableName);
 
                                         // Add the variable's definition to the output
@@ -496,11 +507,9 @@ public class ConvertCStructureToCSV
                 newDataFile.add(outFile);
             }
         }
-        catch (
-            Exception e
-        )
+        catch (Exception e)
         {
-            e.printStackTrace();
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
 
         // Update the macros
@@ -512,7 +521,8 @@ public class ConvertCStructureToCSV
         dbTable.storeInformationTable(InternalTable.MACROS,
                                       CcddUtilities.removeArrayListColumn(macroHandler.getMacroData(),
                                                                           MacrosColumn.OID.ordinal()),
-                                      null, ccddMain.getMainFrame());
+                                      null,
+                                      ccddMain.getMainFrame());
 
         return newDataFile.toArray(new FileEnvVar[0]);
     }
@@ -582,8 +592,8 @@ public class ConvertCStructureToCSV
     }
 
     /**********************************************************************************************
-     * Detect each macro in the supplied string, bound it with the macro identifier, and add the macro
-     * to the macro definitions
+     * Detect each macro in the supplied string, bound it with the macro identifier, and add the
+     * macro to the macro definitions
      *
      * @param inputString String potentially containing a macro or macro expression
      *

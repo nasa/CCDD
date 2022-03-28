@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddInformationTreeHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Generic utility class for manipulating information trees. This class is an extension of the
-*     CcddCommonTreeHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddInformationTreeHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Generic utility class for manipulating information trees. This class is an extension of
+ * the CcddCommonTreeHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.awt.Component;
@@ -61,12 +57,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     // Flags to indicate if the tree should be filtered by application
     private boolean isFilterByApp;
 
-    // String value that may be used to modify the tree building method; null or
-    // blank if not filtering
+    // String value that may be used to modify the tree building method; null or blank if not
+    // filtering
     private String filterValue;
 
-    // List of all tree paths in the table tree in the order to be maintained in the
-    // information tree
+    // List of all tree paths in the table tree in the order to be maintained in the information
+    // tree
     private List<String> treePathOrder;
 
     // Information tree child node insertion order, relative to the sibling nodes
@@ -86,16 +82,18 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param infoType        Internal table type
      *
-     * @param infoDefinitions List of string arrays containing each node name and associated tool tip
+     * @param infoDefinitions List of string arrays containing each node name and associated tool
+     *                        tip
      *
-     * @param filterValue     String value that may be used to modify the tree building method; null or
-     *                        blank if not filtering
+     * @param filterValue     String value that may be used to modify the tree building method;
+     *                        null or blank if not filtering
      *
      * @param filterFlag      Flag used to filter the tree content
      *
-     * @param treePathOrder   List containing all of the items that potentially can appear in the tree
-     *                        in the order in which they appear when added to the tree; null if no order
-     *                        is specified (the order can be specified later, if needed)
+     * @param treePathOrder   List containing all of the items that potentially can appear in the
+     *                        tree in the order in which they appear when added to the tree; null
+     *                        if no order is specified (the order can be specified later, if
+     *                        needed)
      *
      * @param parent          GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -116,14 +114,13 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Create the tree's root node
             root = new ToolTipTreeNode("", "");
 
-            // Set the tree model and hide the root node from view. Use the undoable tree
-            // model if
-            // an undo handler is provided; otherwise use the default (non-undoable) tree
-            // model
+            // Set the tree model and hide the root node from view. Use the undoable tree model if
+            // an undo handler is provided; otherwise use the default (non-undoable) tree model
             infoTreeModel = undoHandler != null ? undoHandler.new UndoableTreeModel(root)
             {
                 /***********************************************
-                 * Perform any actions needed following an undo or redo operation that adds or removes a node
+                 * Perform any actions needed following an undo or redo operation that adds or
+                 * removes a node
                  *********************************************/
                 @Override
                 protected void nodeAddRemoveCleanup()
@@ -132,8 +129,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 }
 
                 /**********************************************
-                 * Perform any actions needed following an undo or redo operation that affects a node's user object
-                 * (name) filter nodes
+                 * Perform any actions needed following an undo or redo operation that affects a
+                 * node's user object (name) filter nodes
                  *
                  * @param wasValue Node user object value prior to the undo/redo operation
                  *
@@ -148,8 +145,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             setModel(infoTreeModel);
             setRootVisible(false);
 
-            // Perform any initialization steps needed for this information table prior to
-            // building
+            // Perform any initialization steps needed for this information table prior to building
             // its tree
             initialize(ccddMain, undoHandler, infoDefinitions);
 
@@ -167,14 +163,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param infoType      Internal table type
      *
-     * @param filterValue   String value that may be used to modify the tree building method; null or
-     *                      blank if not filtering
+     * @param filterValue   String value that may be used to modify the tree building method; null
+     *                      or blank if not filtering
      *
      * @param filterFlag    Flag used to filter the tree content
      *
-     * @param treePathOrder List containing all of the items that potentially can appear in the tree in
-     *                      the order in which they appear when added to the tree; null if no order is
-     *                      specified (the order can be specified later, if needed)
+     * @param treePathOrder List containing all of the items that potentially can appear in the
+     *                      tree in the order in which they appear when added to the tree; null if
+     *                      no order is specified (the order can be specified later, if needed)
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -192,7 +188,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param ccddMain        Main class
      *
-     * @param infoDefinitions List of string arrays containing each node name and associated tool tip
+     * @param infoDefinitions List of string arrays containing each node name and associated tool
+     *                        tip
      *
      * @param parent          GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -202,16 +199,16 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Placeholder for performing any actions needed following an undo or redo operation that adds or
-     * removes a node
+     * Placeholder for performing any actions needed following an undo or redo operation that adds
+     * or removes a node
      *********************************************************************************************/
     protected void nodeAddRemoveCleanup()
     {
     }
 
     /**********************************************************************************************
-     * Placeholder for performing any actions needed following an undo or redo operation that affects a
-     * node's user object (name) filter nodes
+     * Placeholder for performing any actions needed following an undo or redo operation that
+     * affects a node's user object (name) filter nodes
      *
      * @param wasValue Node user object value prior to the undo/redo operation
      *
@@ -233,8 +230,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get the node level that skips any active filter nodes and other header nodes. The default number
-     * of header nodes is 2; this method can be overridden to adjust the header levels
+     * Get the node level that skips any active filter nodes and other header nodes. The default
+     * number of header nodes is 2; this method can be overridden to adjust the header levels
      *
      * @return Node level for tree nodes below the filter and header nodes
      *********************************************************************************************/
@@ -296,8 +293,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param isFilterByApp True if the tree is filtered by application status
      *
-     * @param filterValue   String value that may be used to modify the tree building method; null or
-     *                      blank if not filtering
+     * @param filterValue   String value that may be used to modify the tree building method; null
+     *                      or blank if not filtering
      *
      * @param filterFlag    Flag used to filter the tree content
      *
@@ -323,11 +320,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Set the list of all tree paths in the table tree in the order to be used when placing a path in
-     * the information tree
+     * Set the list of all tree paths in the table tree in the order to be used when placing a path
+     * in the information tree
      *
-     * @param treePathOrder List of all paths in the table tree in the order to be maintained in the
-     *                      information tree
+     * @param treePathOrder List of all paths in the table tree in the order to be maintained in
+     *                      the information tree
      *********************************************************************************************/
     protected void setTreePathOrder(List<String> treePathOrder)
     {
@@ -343,8 +340,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param toolTipText Tool tip text for the new node
      *
-     * @param order       Order in which the added node should be placed relative to the child nodes
-     *                    already preset
+     * @param order       Order in which the added node should be placed relative to the child
+     *                    nodes already preset
      *
      * @return Reference to the newly added child node
      *********************************************************************************************/
@@ -386,8 +383,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 path.addAll(Arrays.asList(parentNode.getPath()));
                 path.addAll(Arrays.asList(childNode.getPath()));
 
-                // Set the insertion point to the end of the tree in the event the child isn't
-                // in
+                // Set the insertion point to the end of the tree in the event the child isn't in
                 // the path order list
                 index = parentNode.getChildCount();
 
@@ -448,8 +444,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add a new node to the tree's root node, or the application node is filtering by application is
-     * active
+     * Add a new node to the tree's root node, or the application node is filtering by application
+     * is active
      *
      * @param nodeName    Name of the node to add
      *
@@ -466,19 +462,21 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add the specified nodes(s) from the source tree to the specified node(s) in the information tree
+     * Add the specified nodes(s) from the source tree to the specified node(s) in the information
+     * tree
      *
-     * @param sourcePaths     List containing the node paths for the selected nodes in the source tree
+     * @param sourcePaths     List containing the node paths for the selected nodes in the source
+     *                        tree
      *
-     * @param startIndex      Tree level at which the desired node names first appear in the source tree
+     * @param startIndex      Tree level at which the desired node names first appear in the source
+     *                        tree
      *
-     * @param onlyIfPrimitive True to only include nodes that end with a reference to primitive data
-     *                        type; false to include all nodes
+     * @param onlyIfPrimitive True to only include nodes that end with a reference to primitive
+     *                        data type; false to include all nodes
      *********************************************************************************************/
     protected void addSourceNodesToTargetNode(List<Object[]> sourcePaths, int startIndex, boolean onlyIfPrimitive)
     {
-        // Check that at least one node is selected in the source tree and at least one
-        // node is
+        // Check that at least one node is selected in the source tree and at least one node is
         // selected in the information tree
         if (sourcePaths != null && getSelectionCount() != 0)
         {
@@ -490,8 +488,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Get the top level node for this path
                 ToolTipTreeNode infoNode = (ToolTipTreeNode) infoPath.getPathComponent(getGroupNodeLevel());
 
-                // Check if this top level node has already been modified. This can occur if
-                // more
+                // Check if this top level node has already been modified. This can occur if more
                 // than one node in the top level node's tree is selected
                 if (!infoNodes.contains(infoNode))
                 {
@@ -585,8 +582,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Remove the specified child node, and its ancestors until a node with other children or the top
-     * level node is reached
+     * Remove the specified child node, and its ancestors until a node with other children or the
+     * top level node is reached
      *
      * @param removeNode Node at which to start the removal
      *********************************************************************************************/
@@ -605,8 +602,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Remove the currently selected top level node(s) and all of its child nodes from the information
-     * tree
+     * Remove the currently selected top level node(s) and all of its child nodes from the
+     * information tree
      *********************************************************************************************/
     protected void removeSelectedTopLevelNodes()
     {
@@ -687,8 +684,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the top-level node path(s) associated with the selected node path(s)
      *
-     * @return Array containing the top-level node path(s) associated with the selected node path(s); an
-     *         empty array if no node is selected
+     * @return Array containing the top-level node path(s) associated with the selected node
+     *         path(s); an empty array if no node is selected
      *********************************************************************************************/
     protected TreePath[] getTopLevelSelectedPaths()
     {
@@ -770,8 +767,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Get the path for the row
             TreePath path = getPathForRow(row);
 
-            // Check if this node represents a top level name and that the name matches the
-            // target
+            // Check if this node represents a top level name and that the name matches the target
             if (path.getPathCount() == 2 && path.getLastPathComponent().toString().equals(originalName))
             {
                 // Store the information for the copy
@@ -788,7 +784,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Placeholder for method to add a copy of the specified information object to the information list
+     * Placeholder for method to add a copy of the specified information object to the information
+     * list
      *
      * @param information Information object to copy
      *
@@ -831,8 +828,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // Initialize the definitions list
         treeDefinitions = createDefinitionsFromInformation();
 
-        // Start with the root node and step through the tree to find the child nodes
-        // and their
+        // Start with the root node and step through the tree to find the child nodes and their
         // member variable paths and add these to the definition list
         buildDefinitionFromTree(root);
 
@@ -847,7 +843,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     protected abstract List<String[]> createDefinitionsFromInformation();
 
     /**********************************************************************************************
-     * Remove any unwanted text from the node names. The object array is converted to a string array
+     * Remove any unwanted text from the node names. The object array is converted to a string
+     * array
      *
      * @param nodePath Path array
      *
@@ -876,8 +873,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *********************************************************************************************/
     private void buildDefinitionFromTree(ToolTipTreeNode node)
     {
-        // Check if this is the last node in this path (i.e., the 'leaf', which is a
-        // table or
+        // Check if this is the last node in this path (i.e., the 'leaf', which is a table or
         // primitive variable depending on the internal table type)
         if (node.getChildCount() == 0 && node.getLevel() > 1 + getHeaderNodeLevel())
         {
@@ -912,14 +908,16 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add the specified leaf definition to the tree definition list. Override this method to insert
-     * other information into the leaf definition prior to adding it to the tree definition list
+     * Add the specified leaf definition to the tree definition list. Override this method to
+     * insert other information into the leaf definition prior to adding it to the tree definition
+     * list
      *
      * @param treeDefns   List to which to add the leaf definition
      *
      * @param leafDefn    Leaf definition to add to the list
      *
-     * @param filterValue String value that may be used to modify the tree; null or blank if not used
+     * @param filterValue String value that may be used to modify the tree; null or blank if not
+     *                    used
      *********************************************************************************************/
     protected void addLeafDefinition(List<String[]> treeDefns, String[] leafDefn, String filterValue)
     {
@@ -928,8 +926,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Convert the array describing the leaf node path into a single string, with the nodes separated by
-     * commas
+     * Convert the array describing the leaf node path into a single string, with the nodes
+     * separated by commas
      *
      * @param path Array describing the tree path to construct
      *
@@ -941,8 +939,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Convert the array describing the leaf node path into a single string, with the nodes separated by
-     * commas
+     * Convert the array describing the leaf node path into a single string, with the nodes
+     * separated by commas
      *
      * @param path        Array describing the tree path to construct
      *

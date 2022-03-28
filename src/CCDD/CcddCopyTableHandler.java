@@ -1,31 +1,27 @@
 /**************************************************************************************************
-/** \file CcddCopyTableHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class for handling copy table operations.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddCopyTableHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class for handling copy table operations.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import java.util.ArrayList;
@@ -81,8 +77,8 @@ public class CcddCopyTableHandler
      *
      * @param headerSize         Size of the packet header in bytes
      *
-     * @param messageIDNameField Name of the structure table data field containing the message ID name.
-     *                           If provided this is used instead of the tlmMessageIDs list
+     * @param messageIDNameField Name of the structure table data field containing the message ID
+     *                           name. If provided this is used instead of the tlmMessageIDs list
      *
      * @param tlmMessageIDs      List containing string array entries giving the structure table
      *                           path+name and the table's associated message ID name. Used if
@@ -94,8 +90,12 @@ public class CcddCopyTableHandler
      *
      * @return Array containing the copy table entries
      *********************************************************************************************/
-    protected String[][] createCopyTable(CcddLinkHandler linkHandler, String dataStreamName, int headerSize,
-                                         String messageIDNameField, ArrayListMultiple tlmMessageIDs, boolean optimize,
+    protected String[][] createCopyTable(CcddLinkHandler linkHandler,
+                                         String dataStreamName,
+                                         int headerSize,
+                                         String messageIDNameField,
+                                         ArrayListMultiple tlmMessageIDs,
+                                         boolean optimize,
                                          boolean expandMacros)
     {
         List<String[]> messageTable = new ArrayList<String[]>();
@@ -133,8 +133,7 @@ public class CcddCopyTableHandler
                     if (messageIDNameField != null)
                     {
                         // Get the field information for the message ID name field
-                        FieldInformation msgIDNameFieldInfo = fieldHandler
-                                .getFieldInformationByName(parentAndPath[0], messageIDNameField);
+                        FieldInformation msgIDNameFieldInfo = fieldHandler.getFieldInformationByName(parentAndPath[0], messageIDNameField);
 
                         // Check that the message ID name field exists for the specified table
                         if (msgIDNameFieldInfo != null)
@@ -165,8 +164,10 @@ public class CcddCopyTableHandler
                         // underscore), output offset (initialized to a blank; the value is
                         // computed later), variable size, variable root table, and variable path
                         messageTable.add(new String[] {tlmMsgID, String.valueOf(structureOffset),
-                                                       subMsg.getName().replace(".", "_"), "",
-                                                       String.valueOf(variable.getSize()), parentAndPath[0],
+                                                       subMsg.getName().replace(".", "_"),
+                                                       "",
+                                                       String.valueOf(variable.getSize()),
+                                                       parentAndPath[0],
                                                        parentAndPath[1]});
                     }
                 }
@@ -200,8 +201,8 @@ public class CcddCopyTableHandler
      *
      * @param streamName Data stream name
      *
-     * @return String array containing the message ID names and ID values; returns blank if there are no
-     *         entries for the specified data stream or if data stream name is invalid
+     * @return String array containing the message ID names and ID values; returns blank if there
+     *         are no entries for the specified data stream or if data stream name is invalid
      *********************************************************************************************/
     protected String[][] getTelemetryMessageIDs(String streamName)
     {
@@ -258,8 +259,8 @@ public class CcddCopyTableHandler
     }
 
     /**********************************************************************************************
-     * Remove bit-packed variables, other than the leading one, from the specified message's copy table
-     * entries
+     * Remove bit-packed variables, other than the leading one, from the specified message's copy
+     * table entries
      *
      * @param messageTable Message copy table
      *********************************************************************************************/
@@ -271,28 +272,23 @@ public class CcddCopyTableHandler
         // Step through the message's copy table entries
         for (String[] current : messageTable)
         {
-            // Check if this variable is bit-packed with the previous one. This is indicated
-            // by the
-            // variable containing a bit length, and by having matching root structures and
-            // input
+            // Check if this variable is bit-packed with the previous one. This is indicated by the
+            // variable containing a bit length, and by having matching root structures and input
             // offsets
             if (initial != null && current[CopyTableEntry.VARIABLE_NAME.ordinal()].contains(":")
                 && current[CopyTableEntry.INPUT_OFFSET.ordinal()].equals(initial[CopyTableEntry.INPUT_OFFSET.ordinal()])
-                && current[CopyTableEntry.VARIABLE_ROOT.ordinal()]
-                        .equals(initial[CopyTableEntry.VARIABLE_ROOT.ordinal()]))
+                && current[CopyTableEntry.VARIABLE_ROOT.ordinal()].equals(initial[CopyTableEntry.VARIABLE_ROOT.ordinal()]))
             {
                 // Append the subsequent packed variable's name to the initial packed variable's
                 // name
                 initial[CopyTableEntry.VARIABLE_NAME.ordinal()] += " + "
                                                                    + current[CopyTableEntry.VARIABLE_NAME.ordinal()];
 
-                // Add the subsequent bit-packed variable to the list of variables to remove
-                // from
+                // Add the subsequent bit-packed variable to the list of variables to remove from
                 // the copy table
                 removedVars.add(current);
             }
-            // This is the first entry or else the initial and current entries offsets and
-            // root
+            // This is the first entry or else the initial and current entries offsets and root
             // structures don't match
             else
             {
@@ -318,15 +314,12 @@ public class CcddCopyTableHandler
         // Step through the message's copy table entries
         for (String[] current : messageTable)
         {
-            // Check if this variable follows in the same structure immediately after the
-            // previous
+            // Check if this variable follows in the same structure immediately after the previous
             // entry's variable
             if (initial != null
-                && current[CopyTableEntry.VARIABLE_ROOT.ordinal()]
-                        .equals(initial[CopyTableEntry.VARIABLE_ROOT.ordinal()])
-                && Integer.valueOf(current[CopyTableEntry.INPUT_OFFSET
-                        .ordinal()]) == Integer.valueOf(initial[CopyTableEntry.INPUT_OFFSET.ordinal()])
-                                        + Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()]))
+                && current[CopyTableEntry.VARIABLE_ROOT.ordinal()].equals(initial[CopyTableEntry.VARIABLE_ROOT.ordinal()])
+                && Integer.valueOf(current[CopyTableEntry.INPUT_OFFSET.ordinal()]) == Integer.valueOf(initial[CopyTableEntry.INPUT_OFFSET.ordinal()])
+                                                                                      + Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()]))
             {
                 // Add the size in bytes of the current variable to the initial one
                 initial[CopyTableEntry.VARIABLE_BYTES.ordinal()] = String
@@ -334,15 +327,15 @@ public class CcddCopyTableHandler
                                  + Integer.valueOf(current[CopyTableEntry.VARIABLE_BYTES.ordinal()]));
 
                 // Append the subsequent variable's name to the initial variable's name
-                initial[CopyTableEntry.VARIABLE_NAME.ordinal()] = initial[CopyTableEntry.VARIABLE_NAME.ordinal()] + "; "
+                initial[CopyTableEntry.VARIABLE_NAME.ordinal()] = initial[CopyTableEntry.VARIABLE_NAME.ordinal()]
+                                                                  + "; "
                                                                   + current[CopyTableEntry.VARIABLE_NAME.ordinal()];
 
                 // Add the subsequent variable to the list of variables to remove from the copy
                 // table
                 removedVars.add(current);
             }
-            // This is the first entry, or else the initial and current entries root
-            // structures
+            // This is the first entry, or else the initial and current entries root structures
             // don't match or the variables are not consecutive
             else
             {
@@ -371,8 +364,7 @@ public class CcddCopyTableHandler
         for (String[] entry : messageTable)
         {
             // Add the header size to the message's entries input location
-            entry[CopyTableEntry.INPUT_OFFSET.ordinal()] = String
-                    .valueOf(headerSize + Integer.valueOf(entry[CopyTableEntry.INPUT_OFFSET.ordinal()]));
+            entry[CopyTableEntry.INPUT_OFFSET.ordinal()] = String.valueOf(headerSize + Integer.valueOf(entry[CopyTableEntry.INPUT_OFFSET.ordinal()]));
 
             // Add the output offset to the message's entries output location
             entry[CopyTableEntry.OUTPUT_OFFSET.ordinal()] = String.valueOf(offset);

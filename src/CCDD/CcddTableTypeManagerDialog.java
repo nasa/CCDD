@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddTableTypeManagerDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to create, edit, copy, rename, and delete table types. The dialog is
-*     built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddTableTypeManagerDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to create, edit, copy, rename, and delete table types. The dialog is
+ * built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -118,8 +114,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Perform the steps needed following execution of a table type management operation
      *
-     * @param commandError     False if the database commands successfully completed; true if an error
-     *                         occurred and the changes were not made
+     * @param commandError     False if the database commands successfully completed; true if an
+     *                         error occurred and the changes were not made
      *
      * @param fieldDefinitions List of field definitions; null if this is not a copy operation
      *
@@ -130,8 +126,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Rebuild the data field information, accounting for the renamed, copied, or
-            // deleted
+            // Rebuild the data field information, accounting for the renamed, copied, or deleted
             // data fields
             fieldHandler.setFieldInformationFromDefinitions(fieldDefinitions);
 
@@ -225,12 +220,10 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         switch (dialogType)
         {
             case NEW:
-                // Create the type creation dialog label and field and add it to the dialog
-                // panel
+                // Create the type creation dialog label and field and add it to the dialog panel
                 addTypeNameField("Enter the new type's name", "", dialogPnl, gbc);
 
-                // Create a panel containing allowing addition of default columns to the new
-                // table
+                // Create a panel containing allowing addition of default columns to the new table
                 // type and add it to the dialog
                 JPanel radioBtns = new JPanel(new GridBagLayout());
                 addRadioButtons("None", true, new String[][] {{"None", ""}, {TYPE_STRUCTURE, ""}, {TYPE_COMMAND, ""}},
@@ -246,12 +239,19 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                             .getDefaultColumnDefinitions(getRadioButtonSelected(), true));
 
                     // Add the new table type to the project database
-                    dbTable.modifyTableTypeInBackground(typeNameFld.getText(), null, OverwriteFieldValueType.NONE,
-                                                        new ArrayList<String[]>(0), new ArrayList<String[]>(0),
-                                                        new ArrayList<String[]>(0), false, null,
+                    dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
+                                                        null,
+                                                        OverwriteFieldValueType.NONE,
+                                                        new ArrayList<String[]>(0),
+                                                        new ArrayList<String[]>(0),
+                                                        new ArrayList<String[]>(0),
+                                                        false,
+                                                        null,
                                                         new ArrayList<TableModification>(0),
                                                         new ArrayList<TableModification>(0),
-                                                        new ArrayList<TableModification>(0), editorDialog, null);
+                                                        new ArrayList<TableModification>(0),
+                                                        editorDialog,
+                                                        null);
 
                     // Display an new, empty type editor
                     editorDialog.addTypePanes(new String[] {typeNameFld.getText()});
@@ -431,13 +431,13 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     break;
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddTableTypeManagerDialog.this, "<html><b>" + ce.getMessage(),
-                                                      "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+            new CcddDialogHandler().showMessageDialog(CcddTableTypeManagerDialog.this,
+                                                      "<html><b>" + ce.getMessage(),
+                                                      "Missing/Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
 
             // Set the flag to indicate the dialog input is invalid

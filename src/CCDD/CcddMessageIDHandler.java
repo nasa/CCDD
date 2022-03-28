@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddMessageIDHandler.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Class used to determined which message IDs are currently used in tables, data fields, and
-*     telemetry messages, and to determine if any references are duplicated.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddMessageIDHandler.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Class used to determined which message IDs are currently used in tables, data fields, and
+ * telemetry messages, and to determine if any references are duplicated.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
@@ -66,8 +62,8 @@ public class CcddMessageIDHandler
     private final CcddMacroHandler macroHandler;
     private final CcddRateParameterHandler rateHandler;
 
-    // Lists of the names (with paths) of tables that represent structures,
-    // commands, and other table types
+    // Lists of the names (with paths) of tables that represent structures, commands, and other
+    // table types
     private List<String> structureTables;
     private List<String> commandTables;
     private List<String> otherTables;
@@ -148,11 +144,11 @@ public class CcddMessageIDHandler
      * Separate the message name and ID in the supplied string
      *
      * @param nameID Message name and ID in the format {@literal <}name{@literal >}
-     *               {@literal <}ID{@literal >}. A null, blank input, or an input containing only the
-     *               name or ID is accepted
+     *               {@literal <}ID{@literal >}. A null, blank input, or an input containing only
+     *               the name or ID is accepted
      *
-     * @return Array containing the message name and ID. The name, ID,or both the name and ID can be
-     *         blank
+     * @return Array containing the message name and ID. The name, ID,or both the name and ID can
+     *         be blank
      *********************************************************************************************/
     protected static String[] getMessageNameAndID(String nameID)
     {
@@ -196,8 +192,8 @@ public class CcddMessageIDHandler
      * Get the message name from the message name and ID in the supplied string
      *
      * @param nameID Message name and ID in the format {@literal <}name{@literal >}
-     *               {@literal <}ID{@literal >}. A blank input, or an input containing only the ID is
-     *               accepted
+     *               {@literal <}ID{@literal >}. A blank input, or an input containing only the ID
+     *               is accepted
      *
      * @return Message name from the supplied message name and ID (may be blank)
      *********************************************************************************************/
@@ -210,8 +206,8 @@ public class CcddMessageIDHandler
      * Get the message ID from the message name and ID in the supplied string
      *
      * @param nameID Message name and ID in the format {@literal <}name{@literal >}
-     *               {@literal <}ID{@literal >}. A blank input, or an input containing only the ID is
-     *               accepted
+     *               {@literal <}ID{@literal >}. A blank input, or an input containing only the ID
+     *               is accepted
      *
      * @return Message ID from the supplied message name and ID (may be blank)
      *********************************************************************************************/
@@ -229,23 +225,23 @@ public class CcddMessageIDHandler
      * @param includeCommands      True to include message IDs assigned to tables that represent
      *                             commands
      *
-     * @param includeOthers        True to include message IDs assigned to tables that do not represent
-     *                             structures or commands
+     * @param includeOthers        True to include message IDs assigned to tables that do not
+     *                             represent structures or commands
      *
      * @param includeGroups        True to include message IDs assigned to groups
      *
-     * @param useTlmMsgIDsFromDb   True to include message IDs assigned to telemetry messages stored in
-     *                             the project database; false to use the IDs from the currently open
-     *                             telemetry scheduler
+     * @param useTlmMsgIDsFromDb   True to include message IDs assigned to telemetry messages
+     *                             stored in the project database; false to use the IDs from the
+     *                             currently open telemetry scheduler
      *
-     * @param isOverwriteTlmMsgIDs True to allow overwriting the telemetry message IDs for the currently
-     *                             selected data stream in the open telemetry scheduler; false to not
-     *                             allow overwriting. This value is only used if useTlmMsgIDsFromDb is
-     *                             false
+     * @param isOverwriteTlmMsgIDs True to allow overwriting the telemetry message IDs for the
+     *                             currently selected data stream in the open telemetry scheduler;
+     *                             false to not allow overwriting. This value is only used if
+     *                             useTlmMsgIDsFromDb is false
      *
-     * @param tlmSchedulerDlg      Reference to the currently open telemetry scheduler. This value is
-     *                             only used if useTlmMsgIDsFromDb is false, in which case it can be set
-     *                             to null
+     * @param tlmSchedulerDlg      Reference to the currently open telemetry scheduler. This value
+     *                             is only used if useTlmMsgIDsFromDb is false, in which case it
+     *                             can be set to null
      *
      * @param isGetDuplicates      True to create a list of duplicate IDs. The flags for including
      *                             tables and for using the telemetry message IDs from the database
@@ -316,7 +312,8 @@ public class CcddMessageIDHandler
             // Get the message ID from the message name and ID
             String msgID = getMessageID(tblAndFldMsg[1]);
 
-            // Replace any macro in the message ID with the corresponding text and format the ID as hexadecimal
+            // Replace any macro in the message ID with the corresponding text and format the ID as
+            // hexadecimal
             msgID = CcddInputTypeHandler.formatInput(macroHandler.getMacroExpansion(msgID), InputTypeFormat.HEXADECIMAL,
                                                      true);
 
@@ -331,10 +328,12 @@ public class CcddMessageIDHandler
                 // list (if the flag is set)
                 updateUsageAndDuplicates("Table", new String[] {owner, msgID}, isGetDuplicates);
             }
-            // Check if the message ID data field is assigned to a group and the group IDs are to be included
+            // Check if the message ID data field is assigned to a group and the group IDs are to
+            // be included
             else if (includeGroups && owner.startsWith(GROUP_DATA_FIELD_IDENT))
             {
-                // Get the IDs in use in the group data fields, and update the duplicates list (if the flag is set)
+                // Get the IDs in use in the group data fields, and update the duplicates list (if
+                // the flag is set)
                 updateUsageAndDuplicates("Group", new String[] {owner, msgID}, isGetDuplicates);
             }
         }
@@ -361,14 +360,15 @@ public class CcddMessageIDHandler
                 // Check if the list of duplicate message IDs is to be created
                 if (isGetDuplicates)
                 {
-                    // Replace the rate name with its corresponding stream name when displaying duplicate IDs
+                    // Replace the rate name with its corresponding stream name when displaying
+                    // duplicate IDs
                     String rateName = tlmMsgNameAndID[0].replaceFirst(",.*", "");
                     String streamName = rateHandler.getRateInformationByRateName(rateName).getStreamName();
                     tlmMsgNameAndID[0] = tlmMsgNameAndID[0].replaceFirst(rateName, streamName);
                 }
 
-                // Update the IDs in use in the telemetry messages, and update the duplicates list (if the flag is
-                // set)
+                // Update the IDs in use in the telemetry messages, and update the duplicates list
+                // (if the flag is set)
                 updateUsageAndDuplicates("Message", tlmMsgNameAndID, isGetDuplicates);
             }
         }
@@ -413,8 +413,8 @@ public class CcddMessageIDHandler
     }
 
     /**********************************************************************************************
-     * Get the message ID, minus the auto-assign protection flag (if present), from the supplied message
-     * ID
+     * Get the message ID, minus the auto-assign protection flag (if present), from the supplied
+     * message ID
      *
      * @param msgID Message ID
      *
@@ -427,15 +427,15 @@ public class CcddMessageIDHandler
 
     /**********************************************************************************************
      * Get the list containing every message owner, name, and ID from every table cell, data field
-     * (table or group), and telemetry message. Message names and IDs are determined by the input type
-     * assigned to the table column or data field
+     * (table or group), and telemetry message. Message names and IDs are determined by the input
+     * type assigned to the table column or data field
      *
      * @param sortOrder          Order in which to sort the message ID list: BY_OWNER or BY_NAME
      *                           (MessageIDSortOrder)
      *
-     * @param hideProtectionFlag True to not display the flag character that protects a message ID from
-     *                           being changed by the auto-update methods; false to allow the flag to
-     *                           remain
+     * @param hideProtectionFlag True to not display the flag character that protects a message ID
+     *                           from being changed by the auto-update methods; false to allow the
+     *                           flag to remain
      *
      * @param parent             GUI component over which to center any error dialog
      *
@@ -463,8 +463,8 @@ public class CcddMessageIDHandler
             }
         }
 
-        // Get the list of all message name & ID data field values for project, group,
-        // or table data fields (ignore fields assigned to table types)
+        // Get the list of all message name & ID data field values for project, group, or table
+        // data fields (ignore fields assigned to table types)
         tblAndFldMsgs.addAll(dbTable
                 .queryDatabase(new StringBuilder("SELECT ").append(FieldsColumn.OWNER_NAME.getColumnName()).append(", ")
                         .append(FieldsColumn.FIELD_VALUE.getColumnName()).append(" FROM ")
@@ -484,8 +484,8 @@ public class CcddMessageIDHandler
             // Separate the message name (if present) from the ID
             String[] nameAndID = getMessageNameAndID(tblAndFldMsg[1]);
 
-            // Replace any macro in the message ID with the corresponding text and format
-            // the ID as hexadecimal
+            // Replace any macro in the message ID with the corresponding text and format the ID as
+            // hexadecimal
             nameAndID[1] = CcddInputTypeHandler.formatInput(macroHandler.getMacroExpansion(nameAndID[1]),
                                                             InputTypeFormat.HEXADECIMAL, true);
 
@@ -493,9 +493,10 @@ public class CcddMessageIDHandler
             ownersNamesAndIDs.add(new String[] {owner, nameAndID[0], nameAndID[1]});
         }
 
-        // Get the telemetry rates, message ID names, and IDs assigned in the telemetry scheduler table.
-        // This query returns only those the message names with the sub-message index appended, so for
-        // parent messages without any sub-messages this retrieves the 'default' sub-message name
+        // Get the telemetry rates, message ID names, and IDs assigned in the telemetry scheduler
+        // table. This query returns only those the message names with the sub-message index
+        // appended, so for parent messages without any sub-messages this retrieves the 'default'
+        // sub-message name
         ArrayListMultiple tlmMsgs = new ArrayListMultiple(1);
         tlmMsgs.addAll(dbTable.queryDatabase(new StringBuilder("SELECT DISTINCT ON (3,2) 'Tlm:' || ")
                 .append(InternalTable.TLM_SCHEDULER.getColumnName(TlmSchedulerColumn.RATE_NAME.ordinal()))
@@ -553,27 +554,26 @@ public class CcddMessageIDHandler
     }
 
     /**********************************************************************************************
-     * Update the list of message IDs in use and, based on the input flag, update the duplicate IDs list
+     * Update the list of message IDs in use and, based on the input flag, update the duplicate IDs
+     * list
      *
      * @param ownerType       Message ID owner type (Table or Message)
      *
-     * @param ownerAndID      Array where the first member is the owner (table name or telemetry message
-     *                        name) and the second element is the message ID
+     * @param ownerAndID      Array where the first member is the owner (table name or telemetry
+     *                        message name) and the second element is the message ID
      *
      * @param isGetDuplicates True to create a list of duplicate IDs
      *********************************************************************************************/
     private void updateUsageAndDuplicates(String ownerType, String[] ownerAndID, boolean isGetDuplicates)
     {
-        // Convert the message ID from a hexadecimal string to an integer. Remove the
-        // protection
+        // Convert the message ID from a hexadecimal string to an integer. Remove the protection
         // flag if present so that the ID can be converted to an integer
         int msgID = Integer.decode(ownerAndID[1].replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, ""));
 
         // Check if the list of duplicate message IDs is to be created
         if (isGetDuplicates)
         {
-            // Prepend the owner type to the owner name and reformat the message ID to
-            // remove extra
+            // Prepend the owner type to the owner name and reformat the message ID to remove extra
             // leading zeroes
             ownerAndID[0] = ownerType + ": " + ownerAndID[0].replaceFirst(".*:", "");
             ownerAndID[1] = "0x" + Integer.toHexString(msgID);
@@ -593,13 +593,11 @@ public class CcddMessageIDHandler
                 potentialDuplicates.add(ownerAndID);
             }
         }
-        // The message ID is already in the list; check if the list of duplicate message
-        // IDs is to
+        // The message ID is already in the list; check if the list of duplicate message IDs is to
         // be created
         else if (isGetDuplicates)
         {
-            // Get the index of the owner and ID pair with a matching message ID, if one
-            // exists
+            // Get the index of the owner and ID pair with a matching message ID, if one exists
             int index = duplicates.indexOf((Object) ownerAndID[1]);
 
             // Check if this ID isn't already in the list
@@ -614,8 +612,8 @@ public class CcddMessageIDHandler
                     // list
                     duplicates.add(potentialDuplicates.get(pdIndex));
 
-                    // Check if the owner of this occurrence of the ID differs from the owner of the
-                    // first occurrence
+                    // Check if the owner of this occurrence of the ID differs from the owner of
+                    // the first occurrence
                     if (!ownerAndID[0].equals(potentialDuplicates.get(pdIndex)[0]))
                     {
                         // Append this owner to the other owner(s) of this duplicate ID
@@ -624,8 +622,7 @@ public class CcddMessageIDHandler
                 }
 
             }
-            // The ID is already in the list of duplicates; check if this owner isn't
-            // already
+            // The ID is already in the list of duplicates; check if this owner isn't already
             // included
             else if (!duplicates.get(index)[0].matches("(?:^|.*\\\n)" + ownerAndID[0] + "(?:\\\n.*|$)"))
             {

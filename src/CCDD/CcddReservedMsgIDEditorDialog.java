@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddReservedMsgIDEditorDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for the user to create, modify, or delete reserved message ID and ID ranges and
-*     descriptions. The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddReservedMsgIDEditorDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for the user to create, modify, or delete reserved message ID and ID ranges and
+ * descriptions. The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
@@ -124,8 +120,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             // Update the reserved message ID handler with the changes
             rsvMsgIDHandler.setReservedMsgIDData(getUpdatedData());
 
-            // Update the copy of the reserved message ID data so it can be used to
-            // determine if changes are made
+            // Update the copy of the reserved message ID data so it can be used to determine if
+            // changes are made
             storeCurrentData();
 
             // Accept all edits for this table
@@ -153,10 +149,10 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the reserved message ID editor dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+     * Create the reserved message ID editor dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -344,8 +340,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to right, top to
-                // bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -432,8 +427,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
              *
              * @param showMessage True to display the invalid input dialog, if applicable
              *
-             * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if only
-             *                    a single input is being entered
+             * @param isMultiple  True if this is one of multiple cells to be entered and checked;
+             *                    false if only a single input is being entered
              *
              * @return Always returns false
              ************************************************************************************/
@@ -513,9 +508,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                         }
                     }
                 }
-                catch (
-                    CCDDException ce
-                )
+                catch (CCDDException ce)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -539,7 +532,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Load the table reserved message ID definition values into the table and format the table cells
+             * Load the table reserved message ID definition values into the table and format the
+             * table cells
              *************************************************************************************/
             @Override
             protected void loadAndFormatData()
@@ -559,8 +553,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             {
                 JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
-                // Check if the cell isn't already selected (selection highlighting overrides
-                // the
+                // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
                 if (!(isFocusOwner() && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
@@ -588,8 +581,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             }
 
             /**************************************************************************************
-             * Override the CcddJTableHandler method to produce an array containing empty values for a new row
-             * in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *************************************************************************************/
@@ -605,8 +598,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether or not any unstored
-                // changes
+                // Add or remove the change indicator based on whether or not any unstored changes
                 // exist
                 setTitle(DIALOG_TITLE + (msgIDTable.isTableChanged(committedData) ? CHANGE_INDICATOR : ""));
 
@@ -633,10 +625,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that
-        // there are changes that haven't been stored. If changes exist then confirm
-        // discarding the
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been stored. If changes exist then confirm discarding the
         // changes
         if (msgIDTable.isLastCellValid() && (!msgIDTable.isTableChanged(committedData) || new CcddDialogHandler()
                 .showMessageDialog(CcddReservedMsgIDEditorDialog.this, "<html><b>Discard changes?", "Discard Changes",

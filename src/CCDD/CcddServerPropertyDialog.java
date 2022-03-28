@@ -1,32 +1,28 @@
 /**************************************************************************************************
-/** \file CcddServerPropertyDialog.java
-*
-*   \author Kevin Mccluney
-*           Bryan Willis
-*
-*   \brief
-*     Dialog for changing the user name and password, and the PostgreSQL server host and port.
-*     The dialog is built on the CcddDialogHandler class.
-*
-*   \copyright
-*     MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
-*
-*     Copyright (c) 2016-2021 United States Government as represented by the
-*     Administrator of the National Aeronautics and Space Administration.  All Rights Reserved.
-*
-*     This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
-*     distributed and modified only pursuant to the terms of that agreement.  See the License for
-*     the specific language governing permissions and limitations under the
-*     License at https://software.nasa.gov/.
-*
-*     Unless required by applicable law or agreed to in writing, software distributed under the
-*     License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-*     either expressed or implied.
-*
-*   \par Limitations, Assumptions, External Events and Notes:
-*     - TBD
-*
-**************************************************************************************************/
+ * /** \file CcddServerPropertyDialog.java
+ *
+ * \author Kevin Mccluney Bryan Willis
+ *
+ * \brief Dialog for changing the user name and password, and the PostgreSQL server host and port.
+ * The dialog is built on the CcddDialogHandler class.
+ *
+ * \copyright MSC-26167-1, "Core Flight System (cFS) Command and Data Dictionary (CCDD)"
+ *
+ * Copyright (c) 2016-2021 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ *
+ * This software is governed by the NASA Open Source Agreement (NOSA) License and may be used,
+ * distributed and modified only pursuant to the terms of that agreement. See the License for the
+ * specific language governing permissions and limitations under the License at
+ * https://software.nasa.gov/.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * expressed or implied.
+ *
+ * \par Limitations, Assumptions, External Events and Notes: - TBD
+ *
+ **************************************************************************************************/
 package CCDD;
 
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
@@ -83,15 +79,13 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     private JTextField portFld;
     private AutoCompleteTextField hostFld;
 
-    // Flag indicating if the default database should be used after changing the
-    // log-in credentials
+    // Flag indicating if the default database should be used after changing the log-in credentials
     private final boolean useActiveDatabase;
 
     // Flag that indicates if the login dialog is resizable
     private boolean allowResize;
 
-    // Flag that indicates if the password was successfully set in the Password
-    // dialog
+    // Flag that indicates if the password was successfully set in the Password dialog
     private boolean isPasswordSet;
 
     /**********************************************************************************************
@@ -99,14 +93,14 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *
      * @param ccddMain          Main class
      *
-     * @param useActiveDatabase True to use the active database; false to use the default database. This
-     *                          is only used when opening the database after changing the login
-     *                          credentials
+     * @param useActiveDatabase True to use the active database; false to use the default database.
+     *                          This is only used when opening the database after changing the
+     *                          login credentials
      *
      * @param dialogType        Database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
      *
-     * @param errorMessage      Message to display following an unsuccessful login; null if no error has
-     *                          occurred or this isn't the login dialog
+     * @param errorMessage      Message to display following an unsuccessful login; null if no
+     *                          error has occurred or this isn't the login dialog
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain, boolean useActiveDatabase, ServerPropertyDialogType dialogType,
                              String errorMessage)
@@ -137,8 +131,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the password was successfully set in the Password dialog
      *
-     * @return true if the password is set in the Password dialog; false if Cancel was selected or the
-     *         dialog type is not Password
+     * @return true if the password is set in the Password dialog; false if Cancel was selected or
+     *         the dialog type is not Password
      *********************************************************************************************/
     protected boolean isPasswordSet()
     {
@@ -259,8 +253,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 break;
 
             case DB_SERVER:
-                // Create the database server host, using the list of remembered servers from
-                // the
+                // Create the database server host, using the list of remembered servers from the
                 // program preferences, the port dialog labels and fields, and the check box for
                 // enabling an SSL connection
                 JLabel hostLbl = new JLabel("Host");
@@ -372,18 +365,17 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *
      * @param border    Border with which to surround the input fields
      *
-     * @return true if at least one user exists in the server or if the user can be entered manually
+     * @return true if at least one user exists in the server or if the user can be entered
+     *         manually
      *********************************************************************************************/
     private boolean addLoginPanel(JPanel selectPnl, GridBagConstraints gbc, Border border)
     {
-        // Initialize the flags that indicates if a user name is available and if the
-        // dialog should
+        // Initialize the flags that indicates if a user name is available and if the dialog should
         // be resizable
         boolean isUsers = false;
         allowResize = false;
 
-        // Add the server host to the dialog so that the user knows what credentials are
-        // required
+        // Add the server host to the dialog so that the user knows what credentials are required
         JLabel serverLbl1 = new JLabel("Enter credentials for server: ");
         serverLbl1.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         serverLbl1.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -431,8 +423,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
             isUsers = addRadioButtons(dbControl.getUser(), false, userInfo, Arrays.asList(userIndex), "Select user",
                                       false, selectPnl, gbc);
 
-            // Allow resizing the dialog if the number of users to choose from exceeds the
-            // initial number of viewable rows (i.e., the scroll bar is displayed)
+            // Allow resizing the dialog if the number of users to choose from exceeds the initial
+            // number of viewable rows (i.e., the scroll bar is displayed)
             allowResize = users.length > ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize();
 
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
@@ -584,9 +576,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     break;
             }
         }
-        catch (
-            CCDDException ce
-        )
+        catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddServerPropertyDialog.this, "<html><b>" + ce.getMessage(),
