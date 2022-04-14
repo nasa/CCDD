@@ -1108,8 +1108,6 @@ public class CcddTableTypeHandler
      *
      * @param eTypeName The name of the existing table type. If it is found it will be removed from
      *                  the list
-     *
-     * @return None
      *********************************************************************************************/
     protected void removeTypeDefinition(String eTypeName)
     {
@@ -1504,9 +1502,6 @@ public class CcddTableTypeHandler
      * two are the same (ignoring the column descriptions)
      *
      * @param tableTypeDefinitions List of table type definitions
-     *
-     * @return null if all of the table types are created or match existing ones; the name of the
-     *         table type that matches an existing one but the type definitions differ
      *
      * @throws CCDDException If an imported data field name will cause an existing table's field to
      *                       be renamed and the user elects to cancel the update
