@@ -63,7 +63,9 @@ public class ConvertCStructureToCSV
      *
      * @param dataFiles List of C files that need to be converted
      *
-     * @param parent    CCDD component that called this function
+     * @param ccddMain  Main class
+     *
+     * @return Files converted to CSV format
      *********************************************************************************************/
     public FileEnvVar[] convertFile(FileEnvVar[] dataFiles, CcddMain ccddMain)
     {

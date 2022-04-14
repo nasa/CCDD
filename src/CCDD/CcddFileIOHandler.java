@@ -3555,6 +3555,8 @@ public class CcddFileIOHandler
      * @param replaceMacros           True to replace macros with their corresponding values; false
      *                                to leave the macros intact
      *
+     * @param deleteTargetDirectory   True to delete the target directory contents
+     *
      * @param includeAllTableTypes    True to include the all table type definitions in the export
      *                                file
      *
@@ -3991,7 +3993,6 @@ public class CcddFileIOHandler
                                                                variableHandler,
                                                                separators,
                                                                addEOFMarker,
-                                                               outputType,
                                                                parent);
                         }
                         else
@@ -4052,7 +4053,6 @@ public class CcddFileIOHandler
                                                            variableHandler,
                                                            separators,
                                                            addEOFMarker,
-                                                           outputType,
                                                            parent);
                     }
                     else
@@ -5333,7 +5333,7 @@ public class CcddFileIOHandler
      *
      * @param filePath Path to the file
      *********************************************************************************************/
-    public void writeToFile(Object outPut, String filePath)
+    public void writeToFile(Object output, String filePath)
     {
         // Create a set of writers for the output file
         FileWriter fw = null;
@@ -5342,7 +5342,7 @@ public class CcddFileIOHandler
 
         try
         {
-            if (outPut != null)
+            if (output != null)
             {
                 fw = new FileWriter(filePath, false);
                 bw = new BufferedWriter(fw);
@@ -5350,7 +5350,7 @@ public class CcddFileIOHandler
 
                 try
                 {
-                    pw.print((String) outPut);
+                    pw.print((String) output);
                 }
                 catch (Exception e)
                 {
@@ -5471,9 +5471,6 @@ public class CcddFileIOHandler
      * @param replaceMacros           True to replace any embedded macros with their corresponding
      *                                values
      *
-     * @param includeReservedMsgIDs   True to include the contents of the reserved message ID table
-     *                                in the export file
-     *
      * @param includeVariablePaths    True to include the variable path for each variable in a
      *                                structure table, both in application format and using the
      *                                user-defined separator characters
@@ -5505,7 +5502,6 @@ public class CcddFileIOHandler
                                                   CcddVariableHandler variableHandler,
                                                   String[] separators,
                                                   boolean addEOFMarker,
-                                                  String outputType,
                                                   Component parent) throws CCDDException, Exception
     {
 
@@ -5894,6 +5890,8 @@ public class CcddFileIOHandler
      * Return the clone of a list
      *
      * @param list The list to be cloned
+     *
+     * @return Cloned list
      *********************************************************************************************/
     public static List<Object[]> cloneList(List<Object[]> list)
     {

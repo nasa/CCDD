@@ -81,7 +81,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -188,6 +187,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     {
         ALL, PROTOTYPE_ONLY, INSTANCE_ONLY
     }
+
+    // buildNodes() parameters
+    long recursionCounter = 0;
+    long recursionAccumulator = 0;
 
     private final int GROUP_HEADER_LEVEL = 2;
     private boolean buildGroupTree;
@@ -300,14 +303,35 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param addHiddenCheckbox True to add a hidden check box under the filter check boxes for
      *                          alignment purposes
      *
+     * @param skipMemberTables  True to skip member tables
+     *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddTableTreeHandler(CcddMain ccddMain, CcddGroupHandler groupHandler, TableTreeType treeType,
-                         boolean showGroupFilter, boolean addHiddenCheckbox, boolean skipMemberTables, Component parent)
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         boolean showGroupFilter,
+                         boolean addHiddenCheckbox,
+                         boolean skipMemberTables,
+                         Component parent)
     {
         // Build the table tree
-        this(ccddMain, groupHandler, treeType, true, true, showGroupFilter, true, addHiddenCheckbox, null, null, null,
-             false, DEFAULT_PROTOTYPE_NODE_NAME, DEFAULT_INSTANCE_NODE_NAME, skipMemberTables, parent);
+        this(ccddMain,
+             groupHandler,
+             treeType,
+             true,
+             true,
+             showGroupFilter,
+             true,
+             addHiddenCheckbox,
+             null,
+             null,
+             null,
+             false,
+             DEFAULT_PROTOTYPE_NODE_NAME,
+             DEFAULT_INSTANCE_NODE_NAME,
+             skipMemberTables,
+             parent);
     }
 
     /**********************************************************************************************
@@ -335,13 +359,33 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddTableTreeHandler(CcddMain ccddMain, CcddGroupHandler groupHandler, TableTreeType treeType, String rateName,
-                         String rateFilter, List<String> excludedVariables, String prototypeNodeName,
-                         String instanceNodeName, Component parent)
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         String rateName,
+                         String rateFilter,
+                         List<String> excludedVariables,
+                         String prototypeNodeName,
+                         String instanceNodeName,
+                         Component parent)
     {
         // Build the table tree
-        this(ccddMain, groupHandler, treeType, true, false, true, false, false, rateName, rateFilter, excludedVariables,
-             false, prototypeNodeName, instanceNodeName, false, parent);
+        this(ccddMain,
+             groupHandler,
+             treeType,
+             true,
+             false,
+             true,
+             false,
+             false,
+             rateName,
+             rateFilter,
+             excludedVariables,
+             false,
+             prototypeNodeName,
+             instanceNodeName,
+             false,
+             parent);
     }
 
     /**********************************************************************************************
@@ -421,6 +465,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the table member by name
      *
+     * @param tableName Table name
+     *
      * @return Table member by name
      *********************************************************************************************/
     protected TableMembers getTableMemberByName(String tableName)
@@ -435,6 +481,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 break;
             }
         }
+
         return tableMember;
     }
 
@@ -593,19 +640,24 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * (Re)build the table tree from the currently table information
      *
-     * @param isExpanded True if all tree nodes should be expanded, false to collapse all nodes,
-     *                   and null to use the current status of the expansion check box (if present;
-     *                   if not present then use false)
+     * @param isExpanded       True if all tree nodes should be expanded, false to collapse all
+     *                         nodes, and null to use the current status of the expansion check box
+     *                         (if present; if not present then use false)
      *
-     * @param rateName   Rate column name used to filter the table tree for variables with rates;
-     *                   null if the tree is not filtered by data rate
+     * @param rateName         Rate column name used to filter the table tree for variables with
+     *                         rates; null if the tree is not filtered by data rate
      *
-     * @param rateFilter Data rate used to filter the table tree for variables with rates; null if
-     *                   the tree is not filtered by data rate
+     * @param rateFilter       Data rate used to filter the table tree for variables with rates;
+     *                         null if the tree is not filtered by data rate
      *
-     * @param parent     Component building this table tree
+     * @param isByGroupChanged true if isByGroup changed
+     *
+     * @param parent           Component building this table tree
      *********************************************************************************************/
-    protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter, boolean isByGroupChanged,
+    protected void buildTableTree(Boolean isExpanded,
+                                  String rateName,
+                                  String rateFilter,
+                                  boolean isByGroupChanged,
                                   Component parent)
     {
         if ((buildGroupTree == false) && (isByGroupChanged) && (isByGroup))
@@ -1161,7 +1213,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
-    private void buildTopLevelNodes(List<String> validTables, ToolTipTreeNode instNode, ToolTipTreeNode protoNode,
+    private void buildTopLevelNodes(List<String> validTables,
+                                    ToolTipTreeNode instNode,
+                                    ToolTipTreeNode protoNode,
                                     Component parent)
     {
         // Check if the descriptions are needed (i.e., if building a visible table tree) and
@@ -1340,10 +1394,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param childNode  New child node to add to the working node
      *********************************************************************************************/
-    long recursionCounter = 0;
-    long recursionAccumulator = 0;
-
-    private void buildNodes(TableMembers thisMember, ToolTipTreeNode parentNode, ToolTipTreeNode childNode)
+    private void buildNodes(TableMembers thisMember,
+                            ToolTipTreeNode parentNode,
+                            ToolTipTreeNode childNode)
     {
         recursionCounter++;
         // Step through each node in the parent's path
@@ -2710,6 +2763,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Returns preLoadedGroupRoot. THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler
      * INSTANTIATED IN ccddMain.java
+     *
+     * @return reference to preLoadedGroupRoot
      *********************************************************************************************/
     public ToolTipTreeNode getPreLoadedGroupRoot()
     {

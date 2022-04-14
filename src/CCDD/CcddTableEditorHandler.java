@@ -5281,6 +5281,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**********************************************************************************************
      * Update the primary key indices to match the current row order
+     *
+     * @param committedData Array containing the committed data
      *********************************************************************************************/
     private void updatePrimaryKeyIndices(Object[][] committedData)
     {

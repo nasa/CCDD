@@ -3063,29 +3063,31 @@ public abstract class CcddJTableHandler extends JTable
      * column determines the column alignment for the pasted data. Pasted column data beyond the
      * table boundaries are discarded
      *
-     * @param cellData            Array of cell values to be inserted
+     * @param cellData                Array of cell values to be inserted
      *
-     * @param numColumns          Number of columns represented by the cell data array
+     * @param numColumns              Number of columns represented by the cell data array
      *
-     * @param isInsert            True to add new rows to contain the pasted data; false to
-     *                            overwrite existing cells in the paste range and only add rows if
-     *                            needed
+     * @param isInsert                True to add new rows to contain the pasted data; false to
+     *                                overwrite existing cells in the paste range and only add rows
+     *                                if needed
      *
-     * @param isAddIfNeeded       True to add new rows if the pasted data doesn't fit; false to
-     *                            discard excess rows
+     * @param isAddIfNeeded           True to add new rows if the pasted data doesn't fit; false to
+     *                                discard excess rows
      *
-     * @param startFirstColumn    True if pasting of the data begins in the first column; false to
-     *                            begin pasting at the currently cell with the focus
+     * @param startFirstColumn        True if pasting of the data begins in the first column; false
+     *                                to begin pasting at the currently cell with the focus
      *
-     * @param combineAsSingleEdit True to combine the pasted data as a single edit; false to not
-     *                            alter the undo manager's handling of the edit sequence (this
-     *                            allows handling externally so that other edits may be grouped
-     *                            with the paste operation)
+     * @param combineAsSingleEdit     True to combine the pasted data as a single edit; false to
+     *                                not alter the undo manager's handling of the edit sequence
+     *                                (this allows handling externally so that other edits may be
+     *                                grouped with the paste operation)
      *
-     * @param highlightPastedData True to highlight the cells containing the pasted data
+     * @param highlightPastedData     True to highlight the cells containing the pasted data
      *
-     * @param forceOverwrite      True to overwrite cells, even if considered unalterable. This is
-     *                            only used when importing tables
+     * @param dataComingFromClipboard True if the data comes from the clipboard
+     *
+     * @param forceOverwrite          True to overwrite cells, even if considered unalterable. This
+     *                                is only used when importing tables
      *
      * @return true if the user elected to cancel pasting the data following a cell validation
      *         error

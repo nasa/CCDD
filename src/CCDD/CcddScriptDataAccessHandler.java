@@ -1991,10 +1991,13 @@ public class CcddScriptDataAccessHandler
      *
      * @param structuresMap A map containing all structures which reference another structure
      *
-     * @return Array containing the names of the columns of the table type specified
+     * @param orderedNames  List or names
+     *
+     * @param member        Member to search for in the list
      *********************************************************************************************/
     public void processStructureMemberForOrdering(HashMap<String, List<String>> structuresMap,
-                                                  List<String> orderedNames, String member)
+                                                  List<String> orderedNames,
+                                                  String member)
     {
         // If the map does not contain the key then the structure only contains primitive data
         // types
@@ -4781,6 +4784,8 @@ public class CcddScriptDataAccessHandler
 
     /**********************************************************************************************
      * Get the data associated with the provided table name which is of type ENUM
+     *
+     * @param tableName Table name
      *
      * @return Array containing the data associated with the named table
      *********************************************************************************************/

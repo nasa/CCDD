@@ -614,17 +614,20 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param importFile Import file reference
      *
-     * @throws CCDDException If the parsed json object is not of type JSONObject
+     * @throws IOException    If an import file I/O error occurs
      *
-     * @throws IOException   If an import file I/O error occurs
+     * @throws ParseException If parsing error occurs
      *
-     * @throws Exception     If an unanticipated error occurs
+     * @throws CCDDException  If the parsed json object is not of type JSONObject
      *********************************************************************************************/
-    protected void verifyJSONObjectType(FileEnvVar importFile) throws IOException, ParseException, CCDDException
+    protected void verifyJSONObjectType(FileEnvVar importFile) throws IOException,
+                                                                      ParseException,
+                                                                      CCDDException
     {
         // Create a JSON parser and use it to parse the import file contents
         JSONParser jsonParser = new JSONParser();
         FileReader jsonReader = new FileReader(importFile);
+
         // Detect the type of the parsed JSON file and only accept JSONObjects
         if (jsonParser.parse(jsonReader).getClass() != JSONObject.class)
         {
@@ -632,6 +635,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                     + " file contains data exported from CCDD. \nNote: json files generated through the CCDD"
                                     + " scripting functionality are not expected to be imported into CCDD.");
         }
+
         return;
     }
 
@@ -1104,8 +1108,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                                  + importFile.getAbsolutePath() + "<b>'",
-                                                          "File Warning", JOptionPane.WARNING_MESSAGE,
+                                                          + importFile.getAbsolutePath()
+                                                          + "<b>'",
+                                                          "File Warning",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
         }
@@ -1132,8 +1138,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase True to replace existing database internal tables
-     *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
      * @throws IOException   If an import file I/O error occurs
@@ -1149,7 +1153,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                boolean replaceExistingGroups,
                                boolean replaceExistingTables) throws CCDDException, IOException, Exception
     {
-        // Init a buffered reader
+        // Initialize a buffered reader
         BufferedReader br = null;
 
         try
@@ -1596,9 +1600,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param replaceMacros           True to replace any embedded macros with their corresponding
      *                                values
-     *
-     * @param includeReservedMsgIDs   True to include the contents of the reserved message ID table
-     *                                in the export file
      *
      * @param includeVariablePaths    True to include the variable path for each variable in a
      *                                structure table, both in application format and using the
@@ -2154,12 +2155,15 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 outputJO.put(tagName, dataFieldDefnJA);
             }
         }
+
         return outputJO;
     }
 
     /**********************************************************************************************
      * Grab the database name, description and users. Each piece of data will be separated by a
      * comma.
+     *
+     * @param outputJO JSON object from which to extract the information
      *
      * @return The database information separated by a comma.
      *********************************************************************************************/
@@ -2677,21 +2681,23 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Get the type, description, size, data, and data fields for the specified data table
      *
-     * @param tableName            Table name and path in the format
-     *                             rootTable[,dataType1.variable1[,...]]
+     * @param tableName               Table name and path in the format
+     *                                rootTable[,dataType1.variable1[,...]]
      *
-     * @param replaceMacros        True to display the macro values in place of the corresponding
-     *                             macro names; false to display the macro names
+     * @param replaceMacros           True to display the macro values in place of the
+     *                                corresponding macro names; false to display the macro names
      *
-     * @param includeVariablePaths True to include a column, 'Variable Path', showing the variable
-     *                             path for each variable in a structure table using the
-     *                             user-defined separator characters
+     * @param includeVariablePaths    True to include a column, 'Variable Path', showing the
+     *                                variable path for each variable in a structure table using
+     *                                the user-defined separator characters
      *
-     * @param variableHandler      Variable handler class reference
+     * @param includeBuildInformation True to include the build information
      *
-     * @param separators           String array containing the variable path separator
-     *                             character(s), show/hide data types flag ('true' or 'false'), and
-     *                             data type/variable name separator character(s)
+     * @param variableHandler         Variable handler class reference
+     *
+     * @param separators              String array containing the variable path separator
+     *                                character(s), show/hide data types flag ('true' or 'false'),
+     *                                and data type/variable name separator character(s)
      *
      * @return JSON encoded string containing the specified table information; null if the
      *         specified table doesn't exist or fails to load
@@ -3930,6 +3936,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param searchKey What to search for
      *
      * @param data      The string to be searched
+     *
+     * @return THe retrieved data based on the key
      *********************************************************************************************/
     public StringBuilder retrieveJSONData(String searchKey, StringBuilder data)
     {

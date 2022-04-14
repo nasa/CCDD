@@ -3298,7 +3298,7 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Update the data fields of any sub-tables that were altered due to the modified tables
      *
-     * @param structDatatype Data type of the table modification
+     * @param structDataType Data type of the table modification
      *
      * @param variablePath   The path of the variable that was modified
      *

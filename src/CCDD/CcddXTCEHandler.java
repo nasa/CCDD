@@ -4876,8 +4876,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes, boolean includeInputTypes,
-                                           boolean includeDataTypes, String outputType, boolean addEOFMarker,
+    public void exportTableInfoDefinitions(FileEnvVar exportFile,
+                                           boolean includeTableTypes,
+                                           boolean includeInputTypes,
+                                           boolean includeDataTypes,
+                                           String outputType,
+                                           boolean addEOFMarker,
                                            boolean addSOFMarker) throws CCDDException, Exception
     {
         // Placeholder
@@ -4887,7 +4891,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Export script association data, group data, macro data, telemetry scheduler data or
      * application scheduler data to the specified folder
      *
-     * @param dataType   The data type that is about to be exported
+     * @param includes   Array indicating internal file types to include
+     *
+     * @param dataTypes  The data type that is about to be exported
      *
      * @param exportFile Reference to the user-specified output file
      *
@@ -4898,8 +4904,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void exportInternalCCDDData(boolean[] includes, CcddConstants.exportDataTypes[] dataTypes,
-                                       FileEnvVar exportFile, String outputType) throws CCDDException, Exception
+    public void exportInternalCCDDData(boolean[] includes,
+                                       CcddConstants.exportDataTypes[] dataTypes,
+                                       FileEnvVar exportFile,
+                                       String outputType) throws CCDDException, Exception
     {
         // Placeholder
     }

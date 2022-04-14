@@ -985,6 +985,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *
      * @param gbc Reference to the panel's GridBagConstraints
      *
+     * @param dialogType  Dialog type: IMPORT_CSV, IMPORT_EDS, IMPORT_JSON, or IMPORT_XTCE
+     *
      * @return Import option dialog panel
      *********************************************************************************************/
     private JPanel createImportPanel(GridBagConstraints gbc, ManagerDialogType dialogType)
@@ -1245,7 +1247,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the import via table editor option dialog panel
      *
-     * @param gbc Reference to the panel's GridBagConstraints
+     * @param dialogType Dialog type: IMPORT_CSV, IMPORT_EDS, IMPORT_JSON, or IMPORT_XTCE
      *
      * @return Import option dialog panel
      *********************************************************************************************/
@@ -1257,7 +1259,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                         GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   0, 0),
+                                                                   0,
+                                                                   0),
                                                         0, 0);
 
         // Create a panel to contain the check boxes

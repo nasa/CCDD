@@ -312,6 +312,8 @@ public class CcddDbCommandHandler
      *
      * @param component Component over which to position the error dialog
      *
+     * @return Command in the format of a PreparedStatement
+     *
      * @throws SQLException Command fails
      *********************************************************************************************/
     public PreparedStatement executePreparedStatement(StringBuilder command,

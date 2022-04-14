@@ -231,8 +231,6 @@ public class CcddVariableHandler
 
     /**********************************************************************************************
      * Update the list of structure and variable paths for valid variables as a map
-     *
-     * @return None
      *********************************************************************************************/
     protected void updateAllVariableNames()
     {

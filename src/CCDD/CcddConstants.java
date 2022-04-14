@@ -6042,7 +6042,9 @@ public class CcddConstants
         /******************************************************************************************
          * JSON data type tags constructor
          *
-         * @param tag Text describing the data
+         * @param tag          Text describing the data
+         *
+         * @param alternateTag Alternate text tag
          *****************************************************************************************/
         JSONTags(String tag, String alternateTag)
         {

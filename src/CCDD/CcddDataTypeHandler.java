@@ -123,7 +123,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Accessor function for the dataTypesMap variable
      *
-     * @return HashMap\<String, String[]\>
+     * @return HashMap<String, String[]>
      *********************************************************************************************/
     private HashMap<String, String[]> getDataTypesAsMap()
     {

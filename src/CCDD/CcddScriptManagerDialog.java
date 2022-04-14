@@ -1123,9 +1123,16 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Check to see if we ar about to undo/redo a REPLACE action
+     * Check to see if we are about to undo/redo a REPLACE action
+     *
+     * @param preScriptAssocNames  Pre-list of script association names
+     *
+     * @param postScriptAssocNames Post-list of script association names
+     *
+     * @return true if duplicate caused by REPLACE command
      *********************************************************************************************/
-    protected boolean wasReplacePerformed(List<String> preScriptAssocNames, List<String> postScriptAssocNames)
+    protected boolean wasReplacePerformed(List<String> preScriptAssocNames,
+                                          List<String> postScriptAssocNames)
     {
         boolean result = false;
 
