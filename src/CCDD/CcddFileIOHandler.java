@@ -2934,7 +2934,7 @@ public class CcddFileIOHandler
         }
         catch (Exception e)
         {
-            System.out.println("Internal _groups table could not be updated.");
+            System.out.println("Internal _groups table could not be updated"); // TODO
         }
 
         // Retrieve the updated group information

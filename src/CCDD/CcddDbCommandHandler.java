@@ -115,7 +115,8 @@ public class CcddDbCommandHandler
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    protected ResultSet executeDbQuery(StringBuilder command, Component component) throws SQLException
+    protected ResultSet executeDbQuery(StringBuilder command,
+                                       Component component) throws SQLException
     {
         return (ResultSet) executeDbStatement(DbCommandType.QUERY, command, component);
     }
@@ -131,7 +132,8 @@ public class CcddDbCommandHandler
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    protected int executeDbUpdate(StringBuilder command, Component component) throws SQLException
+    protected int executeDbUpdate(StringBuilder command,
+                                  Component component) throws SQLException
     {
         return (Integer) executeDbStatement(DbCommandType.UPDATE, command, component);
     }
@@ -148,7 +150,8 @@ public class CcddDbCommandHandler
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    protected boolean executeDbCommand(StringBuilder command, Component component) throws SQLException
+    protected boolean executeDbCommand(StringBuilder command,
+                                       Component component) throws SQLException
     {
         return (Boolean) executeDbStatement(DbCommandType.COMMAND, command, component);
     }
@@ -167,7 +170,8 @@ public class CcddDbCommandHandler
      *
      * @throws SQLException If no connection exists to the server
      *********************************************************************************************/
-    private Object executeDbStatement(DbCommandType commandType, StringBuilder command,
+    private Object executeDbStatement(DbCommandType commandType,
+                                      StringBuilder command,
                                       Component component) throws SQLException
     {
         Object result = null;
@@ -237,7 +241,9 @@ public class CcddDbCommandHandler
                     {
                         // Inform the user that rolling back the changes failed
                         eventLog.logFailEvent(component,
-                                              "Cannot revert changes to project; cause '" + se2.getMessage() + "'",
+                                              "Cannot revert changes to project; cause '"
+                                              + se2.getMessage()
+                                              + "'",
                                               "<html><b>Cannot revert changes to project");
                     }
                     finally
@@ -272,8 +278,9 @@ public class CcddDbCommandHandler
                         else if (new CcddDialogHandler()
                                 .showMessageDialog(ccddMain.getMainFrame(),
                                                    "<html><b>Server connection lost and "
-                                                                            + "reconnection attempt failed; try again?",
-                                                   "Server Connection Lost", JOptionPane.QUESTION_MESSAGE,
+                                                   + "reconnection attempt failed; try again?",
+                                                   "Server Connection Lost",
+                                                   JOptionPane.QUESTION_MESSAGE,
                                                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
                             System.out.println("     user quit; throw");
@@ -301,7 +308,8 @@ public class CcddDbCommandHandler
     /**********************************************************************************************
      * Execute a command that is in the format of a PreparedStatement and return the result
      *********************************************************************************************/
-    public PreparedStatement executePreparedStatement(StringBuilder command, Component component) throws SQLException
+    public PreparedStatement executePreparedStatement(StringBuilder command,
+                                                      Component component) throws SQLException
     {
         PreparedStatement result = null;
 
@@ -359,7 +367,8 @@ public class CcddDbCommandHandler
                     {
                         // Inform the user that rolling back the changes failed
                         eventLog.logFailEvent(component,
-                                              "Cannot revert changes to project; cause '" + se2.getMessage() + "'",
+                                              "Cannot revert changes to project; cause '"
+                                              + se2.getMessage() + "'",
                                               "<html><b>Cannot revert changes to project");
                     }
                     finally
@@ -394,8 +403,9 @@ public class CcddDbCommandHandler
                         else if (new CcddDialogHandler()
                                 .showMessageDialog(ccddMain.getMainFrame(),
                                                    "<html><b>Server connection lost and "
-                                                                            + "reconnection attempt failed; try again?",
-                                                   "Server Connection Lost", JOptionPane.QUESTION_MESSAGE,
+                                                   + "reconnection attempt failed; try again?",
+                                                   "Server Connection Lost",
+                                                   JOptionPane.QUESTION_MESSAGE,
                                                    DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
                             System.out.println("     user quit; throw");
@@ -484,7 +494,8 @@ public class CcddDbCommandHandler
             catch (SQLException se)
             {
                 // Inform the user that the save point can't be released
-                eventLog.logFailEvent(component, "Cannot release save point; cause '" + se.getMessage() + "'",
+                eventLog.logFailEvent(component,
+                                      "Cannot release save point; cause '"  + se.getMessage() + "'",
                                       "<html><b>Cannot release save point");
             }
             finally
@@ -508,7 +519,8 @@ public class CcddDbCommandHandler
      * @return String array containing the requested list items in alphabetical order; an empty
      *         array if no items exist
      *********************************************************************************************/
-    protected String[] getList(DatabaseListCommand listType, String[][] listOption, Component parent)
+    protected String[] getList(DatabaseListCommand listType,
+                               String[][] listOption, Component parent)
     {
         // Create a list to contain the query results
         List<String> list = new ArrayList<String>();
@@ -554,7 +566,8 @@ public class CcddDbCommandHandler
         catch (SQLException se)
         {
             // Inform the user that the list retrieval failed
-            eventLog.logFailEvent(parent, "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
+            eventLog.logFailEvent(parent,
+                                  "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
                                   "<html><b>Cannot retrieve " + listType + " list");
         }
 
@@ -574,7 +587,8 @@ public class CcddDbCommandHandler
      * @return String array containing the requested list items in alphabetical order; an empty
      *         array if no items exist
      *********************************************************************************************/
-    protected String[][] get2DList(DatabaseListCommand listType, String typeName, Component parent)
+    protected String[][] get2DList(DatabaseListCommand listType,
+                                   String typeName, Component parent)
     {
         // Create a list to contain the query results
         List<String[]> list = new ArrayList<String[]>();
@@ -622,7 +636,8 @@ public class CcddDbCommandHandler
         catch (SQLException se)
         {
             // Inform the user that the list retrieval failed
-            eventLog.logFailEvent(parent, "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
+            eventLog.logFailEvent(parent,
+                                  "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
                                   "<html><b>Cannot retrieve " + listType + " list");
         }
 

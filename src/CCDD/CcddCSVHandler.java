@@ -1341,8 +1341,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    // TODO STOPPED REFORMATTING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-
     /**********************************************************************************************
      * Import project database information from a provided csv file
      *
@@ -1403,9 +1401,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 FinalOutput += Chars.DOUBLE_QUOTE.getValue() + comment[1] + Chars.DOUBLE_QUOTE_AND_COMMA.getValue();
 
                 // Add the user access level information
-                String[][] usersAndAcessLevel = dbTable
-                        .retrieveInformationTable(InternalTable.USERS, true, ccddMain.getMainFrame())
-                        .toArray(new String[0][0]);
+                String[][] usersAndAcessLevel = dbTable.retrieveInformationTable(InternalTable.USERS,
+                                                                                 true,
+                                                                                 ccddMain.getMainFrame()).toArray(new String[0][0]);
 
                 String usersAndAcessLevelDataToExport = Chars.EMPTY_STRING.getValue();
 
@@ -1413,7 +1411,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // "user1:accessLevel,user2:accessLevel"
                 for (int index = 0; index < usersAndAcessLevel.length; index++)
                 {
-                    usersAndAcessLevelDataToExport += usersAndAcessLevel[index][0] + Chars.COLON.getValue()
+                    usersAndAcessLevelDataToExport += usersAndAcessLevel[index][0]
+                                                      + Chars.COLON.getValue()
                                                       + usersAndAcessLevel[index][1];
                     if (index != usersAndAcessLevel.length - 1)
                     {
@@ -1422,7 +1421,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
 
                 // Add the database users
-                FinalOutput += Chars.DOUBLE_QUOTE.getValue() + usersAndAcessLevelDataToExport
+                FinalOutput += Chars.DOUBLE_QUOTE.getValue()
+                               + usersAndAcessLevelDataToExport
                                + Chars.DOUBLE_QUOTE_AND_COMMA.getValue();
 
                 // Add the database description
@@ -1509,7 +1509,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         line = br.readLine();
                     }
                     else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                            .equals(CSVTags.COLUMN_DATA.getTag()))
+                                 .equals(CSVTags.COLUMN_DATA.getTag()))
                     {
                         readingNameType = false;
                         readingColumnData = true;
@@ -1517,7 +1517,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         line = br.readLine();
                     }
                     else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                            .equals(CSVTags.DATA_FIELD.getTag()))
+                                 .equals(CSVTags.DATA_FIELD.getTag()))
                     {
                         readingNameType = false;
                         readingColumnData = false;
@@ -1556,8 +1556,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             {
                                 // Get the table's type definition. If importing into an existing
                                 // table then use its type definition
-                                typeDefn = importType == ImportType.IMPORT_ALL ? tableTypeHandler
-                                        .getTypeDefinition(columnValues[1]) : targetTypeDefn;
+                                typeDefn = importType == ImportType.IMPORT_ALL ? tableTypeHandler.getTypeDefinition(columnValues[1])
+                                                                               : targetTypeDefn;
 
                                 // Check if the table type doesn't exist
                                 if (typeDefn == null)
@@ -1598,8 +1598,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                     for (int index = 0; index < columnValues.length; index++)
                                     {
                                         // Get the index for this column name
-                                        columnIndex[index] = typeDefn
-                                                .getVisibleColumnIndexByUserName(columnValues[index]);
+                                        columnIndex[index] = typeDefn.getVisibleColumnIndexByUserName(columnValues[index]);
 
                                         // Check if the column name in the file matches that of a
                                         // column in the table
@@ -1615,12 +1614,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             // Check if the error should be ignored or the import
                                             // canceled
                                             ignoreErrors = getErrorResponse(ignoreErrors,
-                                                                            "<html><b>Table '</b>" + tableDefn.getName()
-                                                                                          + "<b>' column name '</b>"
-                                                                                          + columnValues[index]
-                                                                                          + "<b>' unrecognized in import file '</b>"
-                                                                                          + importFile.getAbsolutePath()
-                                                                                          + "<b>'; continue?",
+                                                                            "<html><b>Table '</b>"
+                                                                             + tableDefn.getName()
+                                                                             + "<b>' column name '</b>"
+                                                                             + columnValues[index]
+                                                                             + "<b>' unrecognized in import file '</b>"
+                                                                             + importFile.getAbsolutePath()
+                                                                             + "<b>'; continue?",
                                                                             "Column Error",
                                                                             "Ignore this invalid column name",
                                                                             "Ignore this and any remaining invalid column names",
@@ -1679,18 +1679,22 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                             // Add the data field definition, checking for (and if possible,
                             // correcting) errors
-                            ignoreErrors = addImportedDataFieldDefinition(ignoreErrors, replaceExistingTables,
-                                                                          tableDefn, new String[] {tableDefn
-                                                                                  .getName(), columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                                                                   columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
+                            ignoreErrors = addImportedDataFieldDefinition(ignoreErrors,
+                                                                          replaceExistingTables,
+                                                                          tableDefn,
+                                                                          new String[] {tableDefn.getName(),
+                                                                                        columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                                                        columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
                                                                           importFile.getAbsolutePath(),
-                                                                          inputTypeHandler, fieldHandler, parent);
+                                                                          inputTypeHandler,
+                                                                          fieldHandler,
+                                                                          parent);
                         }
                     }
                 }
@@ -1747,7 +1751,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                boolean ignoreErrors,
                                boolean replaceExistingMacros,
                                boolean replaceExistingGroups,
-                               boolean replaceExistingTables) throws CCDDException, IOException, Exception
+                               boolean replaceExistingTables) throws CCDDException,
+                                                                     IOException,
+                                                                     Exception
     {
         BufferedReader br = null;
 
@@ -1764,7 +1770,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 if (importType == ImportType.IMPORT_ALL)
                 {
-                    importGroupData(br, importFile, ignoreErrors, projectDefn, replaceExistingGroups);
+                    importGroupData(br,
+                                    importFile,
+                                    ignoreErrors,
+                                    projectDefn,
+                                    replaceExistingGroups);
                 }
             }
             /*************** RESERVED MSG IDS ***************/
@@ -1794,11 +1804,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             }
             /*************** TABLE DEFINITIONS ***************/
             else if (!importFile.getName().equals(FileNames.TABLE_INFO.CSV())
-                    && !importFile.getName().equals(FileNames.MACROS.CSV())
-                    && !importFile.getName().equals(FileNames.SCRIPT_ASSOCIATION.CSV())
-                    && !importFile.getName().equals(FileNames.TELEM_SCHEDULER.CSV())
-                    && !importFile.getName().equals(FileNames.APP_SCHEDULER.CSV())
-                    && !importFile.getName().equals(FileNames.DBU_INFO.CSV()))
+                     && !importFile.getName().equals(FileNames.MACROS.CSV())
+                     && !importFile.getName().equals(FileNames.SCRIPT_ASSOCIATION.CSV())
+                     && !importFile.getName().equals(FileNames.TELEM_SCHEDULER.CSV())
+                     && !importFile.getName().equals(FileNames.APP_SCHEDULER.CSV())
+                     && !importFile.getName().equals(FileNames.DBU_INFO.CSV()))
             {
                 importTableDefinitions(br,
                                        importFile,
@@ -1828,8 +1838,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                                  + importFile.getAbsolutePath() + "<b>'",
-                                                          "File Warning", JOptionPane.WARNING_MESSAGE,
+                                                          + importFile.getAbsolutePath() + "<b>'",
+                                                          "File Warning",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
         }
@@ -1909,20 +1920,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Store the table's name, type, description, data, and data fields
                     outputData.append(Chars.NEW_LINE.getValue()).append(CSVTags.NAME_TYPE.getTag())
                             .append(Chars.NEW_LINE.getValue())
-                            .append(CcddUtilities
-                                    .addEmbeddedQuotesAndCommas(tableDefs.get(counter).getTablePath(),
-                                                                tableDefs.get(counter).getType(),
-                                                                fieldHandler
-                                                                        .getFieldValue(tableDefs.get(counter)
-                                                                                .getTablePath(), DefaultInputType.SYSTEM_PATH)));
+                            .append(CcddUtilities.addEmbeddedQuotesAndCommas(tableDefs.get(counter).getTablePath(),
+                                                                             tableDefs.get(counter).getType(),
+                                                                             fieldHandler.getFieldValue(tableDefs.get(counter).getTablePath(),
+                                                                                                        DefaultInputType.SYSTEM_PATH)));
 
                     // Check if the table has a description
                     if (!tableDefs.get(counter).getDescription().isEmpty())
                     {
                         // Output the table description tag and description
-                        outputData.append(Chars.NEW_LINE.getValue()).append(CSVTags.DESCRIPTION.getTag())
-                                .append(Chars.NEW_LINE.getValue())
-                                .append(CcddUtilities.addEmbeddedQuotes(tableDefs.get(counter).getDescription()));
+                        outputData.append(Chars.NEW_LINE.getValue())
+                                  .append(CSVTags.DESCRIPTION.getTag())
+                                  .append(Chars.NEW_LINE.getValue())
+                                  .append(CcddUtilities.addEmbeddedQuotes(tableDefs.get(counter).getDescription()));
                     }
 
                     // Get the column names for this table's type definition
@@ -1933,9 +1943,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     List<Integer> booleanColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.BOOLEAN);
 
                     // Output the column data tag and column names
-                    outputData.append(Chars.NEW_LINE.getValue()).append(CSVTags.COLUMN_DATA.getTag())
-                            .append(Chars.NEW_LINE.getValue())
-                            .append(CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
+                    outputData.append(Chars.NEW_LINE.getValue())
+                              .append(CSVTags.COLUMN_DATA.getTag())
+                              .append(Chars.NEW_LINE.getValue())
+                              .append(CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
 
                     // Step through each row in the table
                     for (int row = 0; row < tableDefs.get(counter).getData().size(); row++)
@@ -1952,12 +1963,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         }
 
                         // Output the table row data, skipping the hidden columns
-                        outputData.append(Chars.NEW_LINE.getValue())
-                                .append(CcddUtilities.addEmbeddedQuotesAndCommas(Arrays
-                                        .copyOfRange(CcddUtilities
-                                                .convertObjectToString(tableDefs.get(counter).getData().get(row)),
-                                                     NUM_HIDDEN_COLUMNS,
-                                                     tableDefs.get(counter).getData().get(row).length)));
+                        outputData.append(Chars.NEW_LINE.getValue()).append(CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableDefs.get(counter).getData().get(row)),
+                                                                                                                                        NUM_HIDDEN_COLUMNS,
+                                                                                                                                        tableDefs.get(counter).getData().get(row).length)));
 
                         // Step through each column in the row
                         for (int column = 0; column < columnNames.length; column++)
@@ -1966,8 +1974,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                             // Get the column indices for all columns that can contain a primitive
                             // data type
-                            dataTypeColumns
-                                    .addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
+                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
                             dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
 
                             // Check if variable paths are to be output and if this table
@@ -1975,25 +1982,25 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             if (includeVariablePaths && typeDefn.isStructure())
                             {
                                 // Get the variable path
-                                String variablePath = tableDefs.get(counter).getTablePath() + Chars.COMMA.getValue()
-                                                      + tableDefs.get(counter).getData().get(row)[typeDefn
-                                                              .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
+                                String variablePath = tableDefs.get(counter).getTablePath()
+                                                      + Chars.COMMA.getValue()
+                                                      + tableDefs.get(counter).getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
                                                       + Chars.PERIOD.getValue()
-                                                      + tableDefs.get(counter).getData().get(row)[typeDefn
-                                                              .getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+                                                      + tableDefs.get(counter).getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                                 // Add the path, in both application and user-defined formats, to
                                 // the list to be output
-                                variablePaths.add(new String[] {variablePath, variableHandler
-                                        .getFullVariableName(variablePath, separators[0],
-                                                             Boolean.parseBoolean(separators[1]), separators[2])});
+                                variablePaths.add(new String[] {variablePath,
+                                                                variableHandler.getFullVariableName(variablePath,
+                                                                                                    separators[0],
+                                                                                                    Boolean.parseBoolean(separators[1]),
+                                                                                                    separators[2])});
                             }
                         }
                     }
 
                     // Grab the data field info
-                    List<FieldInformation> fieldInformation = fieldHandler
-                            .getFieldInformationByOwner(tableDefs.get(counter).getTablePath());
+                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(tableDefs.get(counter).getTablePath());
 
                     // Get the visible column names based on the table's type
                     String[] fieldColumnNames = new String[FieldsColumn.values().length - 2];
@@ -2009,21 +2016,23 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     if (!fieldInformation.isEmpty())
                     {
                         // Output the data field marker
-                        outputData.append(Chars.NEW_LINE.getValue()).append(CSVTags.DATA_FIELD.getTag())
-                                .append(Chars.NEW_LINE.getValue())
-                                .append(CcddUtilities.addEmbeddedQuotesAndCommas(fieldColumnNames));
+                        outputData.append(Chars.NEW_LINE.getValue())
+                                  .append(CSVTags.DATA_FIELD.getTag())
+                                  .append(Chars.NEW_LINE.getValue())
+                                  .append(CcddUtilities.addEmbeddedQuotesAndCommas(fieldColumnNames));
 
                         // Step through each data field
                         for (FieldInformation fieldInfo : fieldInformation)
                         {
                             // Output the field information
-                            outputData.append(Chars.NEW_LINE.getValue()).append(CcddUtilities
-                                    .addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(), fieldInfo.getDescription(),
-                                                                Integer.toString(fieldInfo.getSize()),
-                                                                fieldInfo.getInputType().getInputName(),
-                                                                Boolean.toString(fieldInfo.isRequired()),
-                                                                fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                fieldInfo.getValue()));
+                            outputData.append(Chars.NEW_LINE.getValue())
+                                      .append(CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                                                                       fieldInfo.getDescription(),
+                                                                                       Integer.toString(fieldInfo.getSize()),
+                                                                                       fieldInfo.getInputType().getInputName(),
+                                                                                       Boolean.toString(fieldInfo.isRequired()),
+                                                                                       fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                                       fieldInfo.getValue()));
                         }
                     }
 
@@ -2039,15 +2048,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 if (includeVariablePaths && !variablePaths.isEmpty())
                 {
                     // Output the variable path marker
-                    outputData.append(Chars.NEW_LINE.getValue()).append(CSVTags.VARIABLE_PATHS.getTag())
-                            .append(Chars.NEW_LINE.getValue());
+                    outputData.append(Chars.NEW_LINE.getValue())
+                              .append(CSVTags.VARIABLE_PATHS.getTag())
+                              .append(Chars.NEW_LINE.getValue());
 
                     // Step through each variable path
                     for (String[] variablePath : variablePaths)
                     {
                         // Output the variable path in application and user-defined formats
-                        outputData.append("%s").append(Chars.NEW_LINE.getValue())
-                                .append(CcddUtilities.addEmbeddedQuotesAndCommas(variablePath[0], variablePath[1]));
+                        outputData.append("%s")
+                                  .append(Chars.NEW_LINE.getValue())
+                                  .append(CcddUtilities.addEmbeddedQuotesAndCommas(variablePath[0],
+                                                                                   variablePath[1]));
                     }
                 }
 
@@ -2092,8 +2104,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Inform the user that the data file cannot be closed
                     new CcddDialogHandler().showMessageDialog(parent,
                                                               "<html><b>Cannot close export file '</b>"
-                                                                      + exportFile.getAbsolutePath() + "<b>'",
-                                                              "File Warning", JOptionPane.WARNING_MESSAGE,
+                                                              + exportFile.getAbsolutePath() + "<b>'",
+                                                              "File Warning",
+                                                              JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
                     break;
                 }
@@ -2128,8 +2141,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Inform the user that the data file cannot be closed
                     new CcddDialogHandler().showMessageDialog(parent,
                                                               "<html><b>Cannot export file '</b>"
-                                                                      + exportFile.getAbsolutePath() + "<b>'",
-                                                              "File Warning", JOptionPane.WARNING_MESSAGE,
+                                                              + exportFile.getAbsolutePath() + "<b>'",
+                                                              "File Warning",
+                                                              JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
                     break;
                 }
@@ -2149,7 +2163,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         dataToReturn.append(Chars.NEW_LINE.getValue());
 
         // Retrieve the information stored in the Telemetry Scheduler table
-        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.TLM_SCHEDULER, false,
+        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.TLM_SCHEDULER,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
         // Check if there was any data stored in the telemetry scheduler
@@ -2161,15 +2176,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             for (String[] data : storedData)
             {
                 // Add the table column values to the output
-                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(data[TlmSchedulerColumn.RATE_NAME.ordinal()])
-                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
-                        .append(data[TlmSchedulerColumn.MESSAGE_NAME.ordinal()])
-                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
-                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(data[TlmSchedulerColumn.MESSAGE_ID.ordinal()])
-                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
-                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(data[TlmSchedulerColumn.MEMBER.ordinal()])
-                        .append(Chars.DOUBLE_QUOTE.getValue()).append(Chars.NEW_LINE.getValue());
+                            .append(data[TlmSchedulerColumn.RATE_NAME.ordinal()])
+                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(data[TlmSchedulerColumn.MESSAGE_NAME.ordinal()])
+                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(data[TlmSchedulerColumn.MESSAGE_ID.ordinal()])
+                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(data[TlmSchedulerColumn.MEMBER.ordinal()])
+                            .append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(Chars.NEW_LINE.getValue());
             }
         }
 
@@ -2181,13 +2200,17 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // There are three parameters that will be required by each rate; add them to the
             // output
-            dataToReturn.append(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag()).append(Chars.NEW_LINE.getValue());
-            dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[0])
-                    .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
-            dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[1])
-                    .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
-            dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[2])
-                    .append(Chars.DOUBLE_QUOTE.getValue());
+            dataToReturn.append(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag())
+                        .append(Chars.NEW_LINE.getValue());
+            dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                        .append(comments[0])
+                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+            dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                        .append(comments[1])
+                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+            dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                        .append(comments[2])
+                        .append(Chars.DOUBLE_QUOTE.getValue());
 
             // Check if there is any rate information stored in the table comment
             if (comments.length > 3)
@@ -2198,8 +2221,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // Start of iteration, since we already stored the first three values of the array
                 int count = 3;
 
-                dataToReturn.append(Chars.NEW_LINE.getValue()).append(CSVTags.RATE_INFO.getTag())
-                        .append(Chars.NEW_LINE.getValue());
+                dataToReturn.append(Chars.NEW_LINE.getValue())
+                            .append(CSVTags.RATE_INFO.getTag())
+                            .append(Chars.NEW_LINE.getValue());
 
                 // Step through each group of rate information for each rate
                 for (int index = 0; index < groups; index++)
@@ -2213,24 +2237,27 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         {
                             case 0:
                                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
-                                        .append(comments[count].substring(1, comments[count].length() - 1))
-                                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                                            .append(comments[count].substring(1, comments[count].length() - 1))
+                                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                                 count++;
                                 break;
                             case 1:
                                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
-                                        .append(comments[count].substring(1, comments[count].length() - 1))
-                                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                                            .append(comments[count].substring(1, comments[count].length() - 1))
+                                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                                 count++;
                                 break;
                             case 2:
-                                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[count])
-                                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                                            .append(comments[count])
+                                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                                 count++;
                                 break;
                             case 3:
-                                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[count])
-                                        .append(Chars.DOUBLE_QUOTE.getValue()).append(Chars.NEW_LINE.getValue());
+                                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                                            .append(comments[count])
+                                            .append(Chars.DOUBLE_QUOTE.getValue())
+                                            .append(Chars.NEW_LINE.getValue());
                                 count++;
                                 break;
                         }
@@ -2252,7 +2279,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         dataToReturn.append(Chars.NEW_LINE.getValue());
 
         // Retrieve the information stored at the app Scheduler table
-        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.APP_SCHEDULER, false,
+        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.APP_SCHEDULER,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
         if (!storedData.isEmpty())
@@ -2262,10 +2290,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             for (String[] data : storedData)
             {
                 // Add the table column values to the output
-                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(data[AppSchedulerColumn.TIME_SLOT.ordinal()])
-                        .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
-                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(data[AppSchedulerColumn.APP_INFO.ordinal()])
-                        .append(Chars.DOUBLE_QUOTE.getValue()).append(Chars.NEW_LINE.getValue());
+                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(data[AppSchedulerColumn.TIME_SLOT.ordinal()])
+                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(data[AppSchedulerColumn.APP_INFO.ordinal()])
+                            .append(Chars.DOUBLE_QUOTE.getValue())
+                            .append(Chars.NEW_LINE.getValue());
             }
         }
 
@@ -2280,13 +2311,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 if (index != comments.length - 1)
                 {
-                    dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[index])
-                            .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
+                    dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                                .append(comments[index])
+                                .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                 }
                 else
                 {
-                    dataToReturn.append(Chars.DOUBLE_QUOTE.getValue()).append(comments[index])
-                            .append(Chars.DOUBLE_QUOTE.getValue()).append(Chars.NEW_LINE.getValue());
+                    dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
+                                .append(comments[index])
+                                .append(Chars.DOUBLE_QUOTE.getValue())
+                                .append(Chars.NEW_LINE.getValue());
                 }
             }
         }
@@ -2398,9 +2432,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                     // Append the group name, description and rather or not it
                                     // represents an application
-                                    groupData.append("\"").append(groupInfo.getName()).append("\",\"")
-                                            .append(groupInfo.getDescription()).append("\",\"")
-                                            .append(groupInfo.isApplication()).append("\"");
+                                    groupData.append("\"").append(groupInfo.getName())
+                                             .append("\",\"")
+                                             .append(groupInfo.getDescription())
+                                             .append("\",\"")
+                                             .append(groupInfo.isApplication())
+                                             .append("\"");
 
                                     // Check rather or not this group contains any members
                                     List<String> tableMembers = groupInfo.getTablesAndAncestors();
@@ -2428,8 +2465,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                     }
 
                                     // Retrieve this groups data fields
-                                    List<FieldInformation> groupFieldInfo = fieldHandler
-                                            .getFieldInformationByOwner("Group:" + groupInfo.getName());
+                                    List<FieldInformation> groupFieldInfo = fieldHandler.getFieldInformationByOwner("Group:" + groupInfo.getName());
 
                                     // Does this group have any data fields?
                                     if (groupFieldInfo != null && groupFieldInfo.size() > 0)
@@ -2441,13 +2477,21 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         for (FieldInformation fieldInfo : groupFieldInfo)
                                         {
                                             // Add all of the fields info
-                                            groupData.append("\"").append(fieldInfo.getFieldName()).append("\",\"")
-                                                    .append(fieldInfo.getDescription()).append("\",\"")
-                                                    .append(fieldInfo.getSize()).append("\",\"")
-                                                    .append(fieldInfo.getInputType().getInputName()).append("\",\"")
-                                                    .append(fieldInfo.isRequired()).append("\",\"")
-                                                    .append(fieldInfo.getApplicabilityType().getApplicabilityName())
-                                                    .append("\",\"").append(fieldInfo.getValue()).append("\"\n");
+                                            groupData.append("\"")
+                                                     .append(fieldInfo.getFieldName())
+                                                     .append("\",\"")
+                                                     .append(fieldInfo.getDescription())
+                                                     .append("\",\"")
+                                                     .append(fieldInfo.getSize())
+                                                     .append("\",\"")
+                                                     .append(fieldInfo.getInputType().getInputName())
+                                                     .append("\",\"")
+                                                     .append(fieldInfo.isRequired())
+                                                     .append("\",\"")
+                                                     .append(fieldInfo.getApplicabilityType().getApplicabilityName())
+                                                     .append("\",\"")
+                                                     .append(fieldInfo.getValue())
+                                                     .append("\"\n");
                                         }
                                     }
                                     else
@@ -2500,11 +2544,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 for (String[] association : scriptAssociations)
                                 {
                                     String member = association[AssociationsColumn.MEMBERS.ordinal()].replace(";\n", " + ");
-                                    associationData.append("\"").append(association[AssociationsColumn.NAME.ordinal()])
-                                            .append("\",").append("\"")
-                                            .append(association[AssociationsColumn.DESCRIPTION.ordinal()]).append("\",")
-                                            .append("\"").append(association[AssociationsColumn.SCRIPT_FILE.ordinal()])
-                                            .append("\",").append("\"").append(member).append("\"\n");
+                                    associationData.append("\"")
+                                                   .append(association[AssociationsColumn.NAME.ordinal()])
+                                                   .append("\",")
+                                                   .append("\"")
+                                                   .append(association[AssociationsColumn.DESCRIPTION.ordinal()])
+                                                   .append("\",")
+                                                   .append("\"")
+                                                   .append(association[AssociationsColumn.SCRIPT_FILE.ordinal()])
+                                                   .append("\",")
+                                                   .append("\"")
+                                                   .append(member)
+                                                   .append("\"\n");
                                 }
                             }
 
@@ -2539,10 +2590,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 for (String[] reservedMsgID : rsvMsgIDHandler.getReservedMsgIDData())
                                 {
                                     // Output the reserved message ID definition
-                                    finalOutput.append(CcddUtilities
-                                            .addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID
-                                                    .ordinal()], reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]))
-                                            .append("\n");
+                                    finalOutput.append(CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
+                                                                                                reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()])).append("\n");
                                 }
                             }
 
@@ -2550,8 +2599,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                         case PROJECT_FIELDS:
                             // Build the data field information for the project
-                            List<FieldInformation> fieldInformation = fieldHandler
-                                    .getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
+                            List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
 
                             // Check if the project contains any data fields
                             if (!fieldInformation.isEmpty())
@@ -2563,16 +2611,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 for (FieldInformation fieldInfo : fieldInformation)
                                 {
                                     // Output the field information
-                                    finalOutput.append(CcddUtilities
-                                            .addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
-                                                                        fieldInfo.getDescription(),
-                                                                        Integer.toString(fieldInfo.getSize()),
-                                                                        fieldInfo.getInputType().getInputName(),
-                                                                        Boolean.toString(fieldInfo.isRequired()),
-                                                                        fieldInfo.getApplicabilityType()
-                                                                                .getApplicabilityName(),
-                                                                        fieldInfo.getValue()))
-                                            .append("\n");
+                                    finalOutput.append(CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                                                                                fieldInfo.getDescription(),
+                                                                                                Integer.toString(fieldInfo.getSize()),
+                                                                                                fieldInfo.getInputType().getInputName(),
+                                                                                                Boolean.toString(fieldInfo.isRequired()),
+                                                                                                fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                                                fieldInfo.getValue())).append("\n");
                                 }
                             }
 
@@ -2823,8 +2868,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file '</b>"
-                                                                  + exportFile.getAbsolutePath() + "<b>'",
-                                                          "File Warning", JOptionPane.WARNING_MESSAGE,
+                                                          + exportFile.getAbsolutePath() + "<b>'",
+                                                          "File Warning",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
         }

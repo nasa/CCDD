@@ -182,17 +182,20 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             JButton btnClose;
 
             // Set the initial layout manager characteristics
-            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+            GridBagConstraints gbc = new GridBagConstraints(0,
+                                                            0,
+                                                            1,
+                                                            1,
+                                                            1.0,
+                                                            0.0,
+                                                            GridBagConstraints.LINE_START,
                                                             GridBagConstraints.BOTH,
-                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                    .getSpacing(),
-                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                               .getSpacing(),
-                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                               .getSpacing(),
-                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                               .getSpacing()),
-                                                            0, 0);
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                            0,
+                                                            0);
 
             /**************************************************************************************
              * Build the project database manager dialog
@@ -211,12 +214,19 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         case CREATE:
                             // Create a panel containing a grid of radio buttons representing the
                             // roles from which to choose
-                            if (!addRadioButtons(null, false, getRoleInformation(), null, "Select project owner", false,
-                                                 selectPnl, gbc))
+                            if (!addRadioButtons(null,
+                                                 false,
+                                                 getRoleInformation(),
+                                                 null,
+                                                 "Select project owner",
+                                                 false,
+                                                 selectPnl,
+                                                 gbc))
                             {
                                 // Inform the user that no roles exist on the server
                                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                          "<html><b>No role exists", "Create Project",
+                                                                          "<html><b>No role exists",
+                                                                          "Create Project",
                                                                           JOptionPane.WARNING_MESSAGE,
                                                                           DialogOption.OK_OPTION);
                                 errorFlag = true;
@@ -231,10 +241,15 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of radio buttons representing the
                             // projects from which to choose
-                            if (!addRadioButtons((dbControl
-                                    .getDatabaseName() == DEFAULT_DATABASE ? null : dbControl.getDatabaseName()), false,
-                                                 arrayItemData, disabledItems, "Select a project to open", false,
-                                                 selectPnl, gbc))
+                            if (!addRadioButtons((dbControl.getDatabaseName() == DEFAULT_DATABASE ? null
+                                                                                                  : dbControl.getDatabaseName()),
+                                                 false,
+                                                 arrayItemData,
+                                                 disabledItems,
+                                                 "Select a project to open",
+                                                 false,
+                                                 selectPnl,
+                                                 gbc))
                             {
                                 throw new CCDDException("Open");
                             }
@@ -247,8 +262,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of radio buttons representing the
                             // projects from which to choose
-                            if (addRadioButtons(null, false, arrayItemData, disabledItems, "Select a project to rename",
-                                                false, selectPnl, gbc))
+                            if (addRadioButtons(null,
+                                                false,
+                                                arrayItemData,
+                                                disabledItems,
+                                                "Select a project to rename",
+                                                false,
+                                                selectPnl,
+                                                gbc))
                             {
                                 // Create the rename project name and description labels and fields
                                 addDatabaseInputFields("New project name", selectPnl, false, gbc);
@@ -267,8 +288,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of radio buttons representing the
                             // projects from which to choose
-                            if (addRadioButtons(null, false, arrayItemData, disabledItems, "Select a project to copy",
-                                                false, selectPnl, gbc))
+                            if (addRadioButtons(null,
+                                                false,
+                                                arrayItemData,
+                                                disabledItems,
+                                                "Select a project to copy",
+                                                false,
+                                                selectPnl,
+                                                gbc))
                             {
                                 // Create the copy project name and description labels and fields
                                 addDatabaseInputFields("Project copy name", selectPnl, false, gbc);
@@ -296,8 +323,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                         if (((JCheckBox) ae.getSource()).isSelected())
                                         {
                                             // Get the current date and time stamp
-                                            timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss")
-                                                    .format(Calendar.getInstance().getTime());
+                                            timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
                                             isCopy = nameFld.getText().endsWith(COPY_APPEND);
 
@@ -334,7 +360,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of check boxes representing the
                             // projects from which to choose
-                            if (!addCheckBoxes(null, arrayItemData, disabledItems, "Select a project to delete", false,
+                            if (!addCheckBoxes(null,
+                                               arrayItemData,
+                                               disabledItems,
+                                               "Select a project to delete",
+                                               false,
                                                selectPnl))
                             {
                                 throw new CCDDException("Delete");
@@ -348,7 +378,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of check boxes representing the
                             // projects from which to choose
-                            if (!addCheckBoxes(null, arrayItemData, disabledItems, "Select a project to unlock", true,
+                            if (!addCheckBoxes(null,
+                                               arrayItemData,
+                                               disabledItems,
+                                               "Select a project to unlock",
+                                               true,
                                                selectPnl))
                             {
                                 throw new CCDDException("Unlock");
@@ -362,8 +396,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of radio buttons representing the
                             // projects from which to choose
-                            if (!addRadioButtons(null, true, arrayItemData, disabledItems,
-                                                 "Select a project for which to change ownership", true, selectPnl,
+                            if (!addRadioButtons(null,
+                                                 true,
+                                                 arrayItemData,
+                                                 disabledItems,
+                                                 "Select a project for which to change ownership",
+                                                 true,
+                                                 selectPnl,
                                                  gbc))
                             {
                                 throw new CCDDException("Owner");
@@ -374,13 +413,21 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                             // Create a panel containing a grid of radio buttons representing the
                             // roles from which to choose
-                            if (!addRadioButtons(null, false, getRoleInformation(), null, "Select new owner", false,
-                                                 selectPnl, gbc))
+                            if (!addRadioButtons(null,
+                                                 false,
+                                                 getRoleInformation(),
+                                                 null,
+                                                 "Select new owner",
+                                                 false,
+                                                 selectPnl,
+                                                 gbc))
                             {
                                 // Inform the user that no roles exist on the server
                                 new CcddDialogHandler()
-                                        .showMessageDialog(ccddMain.getMainFrame(), "<html><b>No role exists",
-                                                           "Change Project Owner", JOptionPane.WARNING_MESSAGE,
+                                        .showMessageDialog(ccddMain.getMainFrame(),
+                                                           "<html><b>No role exists",
+                                                           "Change Project Owner",
+                                                           JOptionPane.WARNING_MESSAGE,
                                                            DialogOption.OK_OPTION);
                                 errorFlag = true;
                                 throw new CCDDException();
@@ -390,10 +437,17 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         case ACCESS:
                             // Set the initial layout manager characteristics
-                            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+                            GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                            0,
+                                                                            1,
+                                                                            1,
+                                                                            1.0,
+                                                                            1.0,
                                                                             GridBagConstraints.LINE_START,
                                                                             GridBagConstraints.BOTH,
-                                                                            new Insets(0, 0, 0, 0), 0, 0);
+                                                                            new Insets(0, 0, 0, 0),
+                                                                            0,
+                                                                            0);
 
                             // Create a copy of the user access level data so it can be used to
                             // determine if changes are made
@@ -416,9 +470,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                                                   accessTable);
 
                             // New button
-                            JButton btnInsertRow = CcddButtonPanelHandler
-                                    .createButton("Ins Row", INSERT_ICON, KeyEvent.VK_I,
-                                                  "Insert a new row into the table");
+                            JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                                                       INSERT_ICON,
+                                                                                       KeyEvent.VK_I,
+                                                                                       "Insert a new row into the table");
 
                             // Create a listener for the Insert Row button
                             btnInsertRow.addActionListener(new ValidateCellActionListener(accessTable)
@@ -434,9 +489,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             });
 
                             // Delete button
-                            JButton btnDeleteRow = CcddButtonPanelHandler
-                                    .createButton("Del Row", DELETE_ICON, KeyEvent.VK_D,
-                                                  "Delete the selected row(s) from the table");
+                            JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                                                       DELETE_ICON,
+                                                                                       KeyEvent.VK_D,
+                                                                                       "Delete the selected row(s) from the table");
 
                             // Create a listener for the Delete row button
                             btnDeleteRow.addActionListener(new ValidateCellActionListener(accessTable)
@@ -452,7 +508,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             });
 
                             // Move Up button
-                            JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up", UP_ICON, KeyEvent.VK_U,
+                            JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                                                    UP_ICON,
+                                                                                    KeyEvent.VK_U,
                                                                                     "Move the selected row(s) up");
 
                             // Create a listener for the Move Up button
@@ -469,7 +527,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             });
 
                             // Move Down button
-                            JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down", DOWN_ICON, KeyEvent.VK_W,
+                            JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                                                      DOWN_ICON,
+                                                                                      KeyEvent.VK_W,
                                                                                       "Move the selected row(s) down");
 
                             // Create a listener for the Move Down button
@@ -486,7 +546,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             });
 
                             // Undo button
-                            JButton btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z,
+                            JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                                  UNDO_ICON,
+                                                                                  KeyEvent.VK_Z,
                                                                                   "Undo the last edit");
 
                             // Create a listener for the Undo button
@@ -503,7 +565,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             });
 
                             // Redo button
-                            JButton btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+                            JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                                  REDO_ICON,
+                                                                                  KeyEvent.VK_Y,
                                                                                   "Redo the last undone edit");
 
                             // Create a listener for the Redo button
@@ -520,7 +584,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             });
 
                             // Store the user access levels button
-                            JButton btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                            JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                                   STORE_ICON,
+                                                                                   KeyEvent.VK_S,
                                                                                    "Store the user access levels");
                             btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
@@ -537,22 +603,26 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                     // has changed, none of the required columns is missing a
                                     // value, and the user confirms the action
                                     if (accessTable.isTableChanged(committedData) && !checkForMissingColumns()
-                                        && new CcddDialogHandler()
-                                                .showMessageDialog(CcddDbManagerDialog.this,
-                                                                   "<html><b>Store changes in project database?",
-                                                                   "Store Changes", JOptionPane.QUESTION_MESSAGE,
-                                                                   DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                        && new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
+                                                                                     "<html><b>Store changes in project database?",
+                                                                                     "Store Changes",
+                                                                                     JOptionPane.QUESTION_MESSAGE,
+                                                                                     DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                                     {
                                         // Store the updated user access level table
-                                        dbTable.storeInformationTableInBackground(InternalTable.USERS, CcddUtilities
-                                                .removeArrayListColumn(getUpdatedData(), UsersColumn.OID.ordinal()),
-                                                                                  null, CcddDbManagerDialog.this);
+                                        dbTable.storeInformationTableInBackground(InternalTable.USERS,
+                                                                                  CcddUtilities.removeArrayListColumn(getUpdatedData(),
+                                                                                                                      UsersColumn.OID.ordinal()),
+                                                                                  null,
+                                                                                  CcddDbManagerDialog.this);
                                     }
                                 }
                             });
 
                             // Close button
-                            btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                            btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                           CLOSE_ICON,
+                                                                           KeyEvent.VK_C,
                                                                            "Close the user access level editor");
 
                             // Create a listener for the Close button
@@ -622,11 +692,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             addDatabaseInputFields("New project name", selectPnl, true, gbc);
 
                             // Display the project creation dialog
-                            if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Create Project",
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Create Project",
                                                   DialogOption.CREATE_OPTION) == OK_BUTTON)
                             {
                                 // Create the project
-                                dbControl.createDatabaseInBackground(nameFld.getText(), getRadioButtonSelected(),
+                                dbControl.createDatabaseInBackground(nameFld.getText(),
+                                                                     getRadioButtonSelected(),
                                                                      getRadioButtonSelected(),
                                                                      descriptionFld.getText());
                             }
@@ -637,9 +710,15 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             // Display the project selection dialog. If the currently open project
                             // has uncommitted changes then confirm discarding the changes before
                             // proceeding
-                            if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Open Project",
-                                                  DialogOption.OPEN_OPTION, true) == OK_BUTTON
-                                && ccddMain.ignoreUncommittedChanges("Open Project", "Discard changes?", true, null,
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Open Project",
+                                                  DialogOption.OPEN_OPTION,
+                                                  true) == OK_BUTTON
+                                && ccddMain.ignoreUncommittedChanges("Open Project",
+                                                                     "Discard changes?",
+                                                                     true,
+                                                                     null,
                                                                      CcddDbManagerDialog.this))
                             {
                                 // Open the selected project
@@ -653,8 +732,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             // Display the rename project dialog. Only the description can be
                             // altered for the currently open project. The description and names
                             // can be altered for all other projects
-                            int chosenButton = showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Rename Project",
-                                                                 DialogOption.RENAME_UPDATE_OPTIONS, true);
+                            int chosenButton = showOptionsDialog(ccddMain.getMainFrame(),
+                                                                 selectPnl,
+                                                                 "Rename Project",
+                                                                 DialogOption.RENAME_UPDATE_OPTIONS,
+                                                                 true);
 
                             String selectedProject = getRadioButtonSelected();
 
@@ -663,9 +745,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                 break;
 
                             boolean isDifferentDataBaseSelected = !selectedProject.equals(dbControl.getDatabaseName());
-                            boolean isIgnoringUncommittedChanges = ccddMain
-                                    .ignoreUncommittedChanges("Rename Project", "Discard changes?", true, null,
-                                                              CcddDbManagerDialog.this);
+                            boolean isIgnoringUncommittedChanges = ccddMain.ignoreUncommittedChanges("Rename Project",
+                                                                                                     "Discard changes?",
+                                                                                                     true,
+                                                                                                     null,
+                                                                                                     CcddDbManagerDialog.this);
 
                             String dbCurrentName = selectedProject;
                             String dbNewName = "";
@@ -693,7 +777,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             if (updateDb)
                             {
                                 // Update the Description
-                                dbControl.renameDatabaseInBackground(dbCurrentName, dbNewName,
+                                dbControl.renameDatabaseInBackground(dbCurrentName,
+                                                                     dbNewName,
                                                                      descriptionFld.getText());
                             }
 
@@ -703,15 +788,22 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             // Display the copy project dialog. If the currently open database is
                             // being copied and there are uncommitted changes then confirm
                             // discarding the changes before proceeding
-                            if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Copy Project",
-                                                  DialogOption.COPY_OPTION, true) == OK_BUTTON
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Copy Project",
+                                                  DialogOption.COPY_OPTION,
+                                                  true) == OK_BUTTON
                                 && (!getRadioButtonSelected().equals(dbControl.getDatabaseName())
                                     || (getRadioButtonSelected().equals(dbControl.getDatabaseName())
-                                        && ccddMain.ignoreUncommittedChanges("Copy Project", "Discard changes?", true,
-                                                                             null, CcddDbManagerDialog.this))))
+                                        && ccddMain.ignoreUncommittedChanges("Copy Project",
+                                                                             "Discard changes?",
+                                                                             true,
+                                                                             null,
+                                                                             CcddDbManagerDialog.this))))
                             {
                                 // Copy the project
-                                dbControl.copyDatabaseInBackground(getRadioButtonSelected(), nameFld.getText(),
+                                dbControl.copyDatabaseInBackground(getRadioButtonSelected(),
+                                                                   nameFld.getText(),
                                                                    descriptionFld.getText());
                             }
 
@@ -719,8 +811,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         case DELETE:
                             // Display the project deletion dialog
-                            if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Delete Project(s)",
-                                                  DialogOption.DELETE_OPTION, true) == OK_BUTTON)
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Delete Project(s)",
+                                                  DialogOption.DELETE_OPTION,
+                                                  true) == OK_BUTTON)
                             {
                                 // Step through each selected project name
                                 for (String name : getCheckBoxSelected())
@@ -734,8 +829,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         case UNLOCK:
                             // Display the project unlock dialog
-                            if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Unlock Project(s)",
-                                                  DialogOption.UNLOCK_OPTION, true) == OK_BUTTON)
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Unlock Project(s)",
+                                                  DialogOption.UNLOCK_OPTION,
+                                                  true) == OK_BUTTON)
                             {
                                 // Step through each selected project name
                                 for (String name : getCheckBoxSelected())
@@ -749,19 +847,28 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         case OWNER:
                             // Display the change project owner dialog
-                            if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Change Project Owner",
-                                                  DialogOption.OWNER_OPTION, true) == OK_BUTTON)
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Change Project Owner",
+                                                  DialogOption.OWNER_OPTION,
+                                                  true) == OK_BUTTON)
                             {
                                 // Change the project owner
-                                dbControl.changeProjectOwner(getRadioButtonSelected(0), currentOwner,
-                                                             getRadioButtonSelected(1), CcddDbManagerDialog.this);
+                                dbControl.changeProjectOwner(getRadioButtonSelected(0),
+                                                             currentOwner,
+                                                             getRadioButtonSelected(1),
+                                                             CcddDbManagerDialog.this);
                             }
 
                             break;
 
                         case ACCESS:
                             // Display the user access level editor dialog
-                            showOptionsDialog(ccddMain.getMainFrame(), selectPnl, buttonPnl, btnClose, DIALOG_TITLE,
+                            showOptionsDialog(ccddMain.getMainFrame(),
+                                              selectPnl,
+                                              buttonPnl,
+                                              btnClose,
+                                              DIALOG_TITLE,
                                               true);
                             break;
                     }
@@ -781,8 +888,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // access
         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                   "<html><b>No project exists for which user '</b>"
-                                                                           + dbControl.getUser() + "<b>' has access",
-                                                  action + " Project", JOptionPane.WARNING_MESSAGE,
+                                                  + dbControl.getUser()
+                                                  + "<b>' has access",
+                                                  action
+                                                  + " Project",
+                                                  JOptionPane.WARNING_MESSAGE,
                                                   DialogOption.OK_OPTION);
     }
 
@@ -797,30 +907,36 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *
      * @param dialogGbc Dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
-    private void addDatabaseInputFields(String nameText, JPanel dialogPnl, boolean enabled,
+    private void addDatabaseInputFields(String nameText,
+                                        JPanel dialogPnl,
+                                        boolean enabled,
                                         GridBagConstraints dialogGbc)
     {
         // Create a border for the fields
         Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
+                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+Color.LIGHT_GRAY,
                                                                       Color.GRAY),
                                       BorderFactory
                                               .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                  ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                  ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, 1, 1.0, 0.0,
-                                                        GridBagConstraints.LINE_START, GridBagConstraints.HORIZONTAL,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(), 0,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        GridBagConstraints.REMAINDER,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.HORIZONTAL,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(), 0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create the name label and field
         final JLabel nameLbl = new JLabel(nameText);
@@ -1085,8 +1201,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this, "<html><b>" + ce.getMessage(),
-                                                      "Invalid Input", JOptionPane.WARNING_MESSAGE,
+            new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
+                                                      "<html><b>"
+                                                      + ce.getMessage(),
+                                                      "Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
 
             // Set the flag to indicate the dialog input is invalid
@@ -1137,9 +1256,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return !getModel()
-                        .getValueAt(convertRowIndexToModel(row), AccessLevelEditorColumnInfo.USER_NAME.ordinal())
-                        .toString().equals(dbControl.getUser());
+                return !getModel().getValueAt(convertRowIndexToModel(row),
+                                              AccessLevelEditorColumnInfo.USER_NAME.ordinal()).toString().equals(dbControl.getUser());
             }
 
             /**************************************************************************************
@@ -1210,8 +1328,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
              * @return Always returns false
              *************************************************************************************/
             @Override
-            protected Boolean validateCellContent(List<Object[]> tableData, int row, int column, Object oldValue,
-                                                  Object newValue, Boolean showMessage, boolean isMultiple)
+            protected Boolean validateCellContent(List<Object[]> tableData,
+                                                  int row,
+                                                  int column,
+                                                  Object oldValue,
+                                                  Object newValue,
+                                                  Boolean showMessage,
+                                                  boolean isMultiple)
             {
                 // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
@@ -1233,9 +1356,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             {
                                 // Check if this row isn't the one being edited, and if the user
                                 // name matches the one being added
-                                if (otherRow != row && newValueS
-                                        .equals(tableData.get(otherRow)[AccessLevelEditorColumnInfo.USER_NAME.ordinal()]
-                                                .toString()))
+                                if (otherRow != row
+                                    && newValueS.equals(tableData.get(otherRow)[AccessLevelEditorColumnInfo.USER_NAME.ordinal()].toString()))
                                 {
                                     throw new CCDDException("User name already in use");
                                 }
@@ -1258,8 +1380,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
-                                                                  "<html><b>" + ce.getMessage(), "Invalid Input",
-                                                                  JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                                                                  "<html><b>"
+                                                                  + ce.getMessage(),
+                                                                  "Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
                     }
 
                     // Restore the cell contents to its original value and pop the edit from the
@@ -1281,8 +1406,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(committedData, AccessLevelEditorColumnInfo.getColumnNames(), null,
-                                            AccessLevelEditorColumnInfo.getToolTips(), true, true, true);
+                setUpdatableCharacteristics(committedData,
+                                            AccessLevelEditorColumnInfo.getColumnNames(),
+                                            null,
+                                            AccessLevelEditorColumnInfo.getToolTips(),
+                                            true,
+                                            true,
+                                            true);
             }
 
             /**************************************************************************************
@@ -1376,10 +1506,16 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         JScrollPane scrollPane = new JScrollPane(accessTable);
 
         // Set common table parameters and characteristics
-        accessTable.setFixedCharacteristics(scrollPane, true, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                            TableSelectionMode.SELECT_BY_CELL, false,
-                                            ModifiableColorInfo.TABLE_BACK.getColor(), true, true,
-                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+        accessTable.setFixedCharacteristics(scrollPane,
+                                            true,
+                                            ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                            TableSelectionMode.SELECT_BY_CELL,
+                                            false,
+                                            ModifiableColorInfo.TABLE_BACK.getColor(),
+                                            true,
+                                            true,
+                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                            true);
 
         return scrollPane;
     }
@@ -1429,7 +1565,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private void storeCurrentData()
     {
         // Store the user access level information
-        committedData = dbTable.retrieveInformationTable(InternalTable.USERS, true, CcddDbManagerDialog.this)
+        committedData = dbTable.retrieveInformationTable(InternalTable.USERS,
+                                                         true,
+                                                         CcddDbManagerDialog.this)
                 .toArray(new String[0][0]);
     }
 
@@ -1444,11 +1582,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // changes
         if (accessTable == null
             || (accessTable.isLastCellValid()
-                && (!accessTable
-                        .isTableChanged(committedData,
-                                        Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()}))
-                    || new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this, "<html><b>Discard changes?",
-                                                                 "Discard Changes", JOptionPane.QUESTION_MESSAGE,
+                && (!accessTable.isTableChanged(committedData,
+                                                Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()}))
+                    || new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
+                                                                 "<html><b>Discard changes?",
+                                                                 "Discard Changes",
+                                                                 JOptionPane.QUESTION_MESSAGE,
                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)))
         {
             // Close the dialog
@@ -1545,9 +1684,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         if (new CcddDialogHandler()
                                 .showMessageDialog(CcddDbManagerDialog.this,
                                                    "<html><b>Data must be provided for column '</b>"
-                                                                             + accessTable.getColumnName(column)
-                                                                             + "<b>' [row </b>" + (row + 1) + "<b>]",
-                                                   "Missing Data", JOptionPane.WARNING_MESSAGE,
+                                                   + accessTable.getColumnName(column)
+                                                   + "<b>' [row </b>"
+                                                   + (row + 1)
+                                                   + "<b>]",
+                                                   "Missing Data",
+                                                   JOptionPane.WARNING_MESSAGE,
                                                    DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
                             // Set the stop flag to prevent further error checking
@@ -1594,7 +1736,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *
      * @param enabledItem    Name of an item to be enabled; null if none
      *********************************************************************************************/
-    private void getDatabaseInformation(boolean isOnlyUnlocked, boolean isOnlyLocked, String enabledItem)
+    private void getDatabaseInformation(boolean isOnlyUnlocked,
+                                        boolean isOnlyLocked,
+                                        String enabledItem)
     {
         int index = 0;
         disabledItems = new ArrayList<Integer>();
@@ -1728,8 +1872,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             else if (dialogType == DbManagerDialogType.OWNER)
             {
                 // Set the information field to the database owner
-                arrayItemData[index][DB_INFO] = dbControl
-                        .getProjectOwner(comment[DatabaseComment.PROJECT_NAME.ordinal()], ccddMain.getMainFrame());
+                arrayItemData[index][DB_INFO] = dbControl.getProjectOwner(comment[DatabaseComment.PROJECT_NAME.ordinal()],
+                                                                          ccddMain.getMainFrame());
             }
             // Not the unlock or change owner dialog
             else
@@ -1741,9 +1885,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 if (!comment[DatabaseComment.ADMINS.ordinal()].isEmpty())
                 {
                     // Append the project administrator(s) to the information field
-                    arrayItemData[index][DB_INFO] += (arrayItemData[index][DB_INFO].isEmpty() ? "" : "\n") + ADMIN_LIST
-                                                     + comment[DatabaseComment.ADMINS.ordinal()]
-                                                             .replaceAll(DATABASE_ADMIN_SEPARATOR, ", ")
+                    arrayItemData[index][DB_INFO] += (arrayItemData[index][DB_INFO].isEmpty() ? "" : "\n")
+                                                     + ADMIN_LIST
+                                                     + comment[DatabaseComment.ADMINS.ordinal()].replaceAll(DATABASE_ADMIN_SEPARATOR, ", ")
                                                      + "]";
                 }
             }

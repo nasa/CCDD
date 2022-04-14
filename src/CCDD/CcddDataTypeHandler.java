@@ -437,7 +437,6 @@ public class CcddDataTypeHandler
             {
                 dataTypeSize = Integer.valueOf(macroHandler.getMacroExpansion(dataType[DataTypesColumn.SIZE.ordinal()],
                                                                               new ArrayList<String>()));
-
             }
             else
             {
@@ -702,10 +701,11 @@ public class CcddDataTypeHandler
         }
 
         // Get the references in the prototype tables that match the specified data type name
-        List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand
-                .getList(DatabaseListCommand.SEARCH,
-                         new String[][] {{"_search_text_", "(" + searchCriteria + ")"}, {"_case_insensitive_", "true"},
-                                         {"_allow_regex_", "true"}, {"_selected_tables_", SearchType.PROTO.toString()},
+        List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand.getList(DatabaseListCommand.SEARCH,
+                                                                                     new String[][] {{"_search_text_", "(" + searchCriteria + ")"},
+                                                                                                     {"_case_insensitive_", "true"},
+                                                                                                     {"_allow_regex_", "true"},
+                                                                                                     {"_selected_tables_", SearchType.PROTO.toString()},
                                          {"_columns_", ""}},
                          parent)));
 
