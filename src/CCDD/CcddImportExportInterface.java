@@ -114,6 +114,11 @@ public interface CcddImportExportInterface
      *
      * @param importFile              Import file reference
      *
+     * @param importType              ImportType.IMPORT_ALL to import the table type, data type,
+     *                                and macro definitions, and the data from all the table
+     *                                definitions; ImportType.FIRST_DATA_ONLY to load only the data
+     *                                for the first table defined
+     *
      * @param ignoreErrors            True to ignore all errors in the import file
      *
      * @param replaceExistingMacros   True to replace existing macros
@@ -141,6 +146,11 @@ public interface CcddImportExportInterface
      * Build the information from the input and data type definition(s) in the current file
      *
      * @param importFile               Import file reference
+     *
+     * @param importType               ImportType.IMPORT_ALL to import the table type, data type,
+     *                                 and macro definitions, and the data from all the table
+     *                                 definitions; ImportType.FIRST_DATA_ONLY to load only the
+     *                                 data for the first table defined
      *
      * @param ignoreErrors             True to ignore all errors in the import file
      *
@@ -227,6 +237,9 @@ public interface CcddImportExportInterface
      *
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
+     * @param outputType              String representing rather the output is going to a single
+     *                                file or multiple files. Should be "Single" or "Multiple"
+     *
      * @param extraInfo               Extra parameters dependent on the export format
      *
      * @throws JAXBException If an error occurs marshaling the project
@@ -280,7 +293,9 @@ public interface CcddImportExportInterface
      * Export script association data, group data, macro data, telemetry scheduler data or
      * application scheduler data to the specified folder
      *
-     * @param dataType   The data type that is about to be exported
+     * @param includes   Array indicating internal file types to include
+     *
+     * @param dataTypes  The data type that is about to be exported
      *
      * @param exportFile Reference to the user-specified output file
      *

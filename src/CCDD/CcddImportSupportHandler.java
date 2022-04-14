@@ -115,7 +115,7 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Set the macro handler
      *
-     * @param None
+     * @param macroHandler Macro handler
      *********************************************************************************************/
     void setMacroHandler(CcddMacroHandler macroHandler)
     {

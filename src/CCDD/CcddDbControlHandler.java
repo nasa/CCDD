@@ -2463,9 +2463,6 @@ public class CcddDbControlHandler
      * @param createFunctions     True to create the database functions; false if reopening a
      *                            database (so the functions already exist)
      *
-     * @param addDefaultDataTypes Should the default data type be added to the database? This is
-     *                            normally false only when restoring a database from JSON or CSV
-     *
      * @return true if an error occurred opening the database; false if the database successfully
      *         opened
      *********************************************************************************************/

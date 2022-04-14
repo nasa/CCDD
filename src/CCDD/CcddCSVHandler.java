@@ -1736,8 +1736,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase True to replace existing database internal tables
-     *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
      * @throws IOException   If an import file I/O error occurs
@@ -1858,9 +1856,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param replaceMacros           True to replace any embedded macros with their corresponding
      *                                values
-     *
-     * @param includeReservedMsgIDs   True to include the contents of the reserved message ID table
-     *                                in the export file
      *
      * @param includeVariablePaths    True to include the variable path for each variable in a
      *                                structure table, both in application format and using the
@@ -2332,7 +2327,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * Export script association data, group data, macro data, telemetry scheduler data or
      * application scheduler data to the specified folder
      *
-     * @param dataType   The data type that is about to be exported
+     * @param includes   Array indicating internal file types to include
+     *
+     * @param dataTypes  The data type that is about to be exported
      *
      * @param exportFile Reference to the user-specified output file
      *
@@ -2882,6 +2879,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param searchKey What to search for
      *
      * @param data      The string to be searched
+     *
+     * @return Portion of CSV data indicated by the key
      *********************************************************************************************/
     public StringBuilder retrieveCSVData(String searchKey, StringBuilder data)
     {

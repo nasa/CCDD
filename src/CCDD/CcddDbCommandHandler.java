@@ -307,6 +307,12 @@ public class CcddDbCommandHandler
 
     /**********************************************************************************************
      * Execute a command that is in the format of a PreparedStatement and return the result
+     *
+     * @param command   Command string
+     *
+     * @param component Component over which to position the error dialog
+     *
+     * @throws SQLException Command fails
      *********************************************************************************************/
     public PreparedStatement executePreparedStatement(StringBuilder command,
                                                       Component component) throws SQLException
@@ -578,17 +584,18 @@ public class CcddDbCommandHandler
      * Retrieve a 2D list from the server or database. The command strings are set up to explicitly
      * sort the list alphabetically, without regard to capitalization
      *
-     * @param listType   Type of list to be retrieved
+     * @param listType Type of list to be retrieved
      *
-     * @param listOption Array containing replacement text within a command; null if none is needed
+     * @param typeName Table type name
      *
-     * @param parent     GUI component over which to center any error dialog
+     * @param parent   GUI component over which to center any error dialog
      *
      * @return String array containing the requested list items in alphabetical order; an empty
      *         array if no items exist
      *********************************************************************************************/
     protected String[][] get2DList(DatabaseListCommand listType,
-                                   String typeName, Component parent)
+                                   String typeName,
+                                   Component parent)
     {
         // Create a list to contain the query results
         List<String[]> list = new ArrayList<String[]>();

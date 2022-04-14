@@ -234,14 +234,18 @@ public class CcddFileIOHandler
      *
      * @param path1            Path to the first file to compare
      *
-     * @param path3            Path to the second file to compare
+     * @param path2            Path to the second file to compare
      *
      * @param ignoreIfContains Text that, if contained in both of the lines being compared, causes
      *                         the lines to be skipped
      *
+     *@throws IOException Error occurred reading file(s)
+     *
      * @return true if the files match, false otherwise
      *********************************************************************************************/
-    public static boolean compareFiles(Path path1, Path path2, String ignoreIfContains) throws IOException
+    public static boolean compareFiles(Path path1,
+                                       Path path2,
+                                       String ignoreIfContains) throws IOException
     {
         try (BufferedReader bf1 = Files.newBufferedReader(path1); BufferedReader bf2 = Files.newBufferedReader(path2))
         {
@@ -326,6 +330,8 @@ public class CcddFileIOHandler
      * @param dialogType                  What type of file is being imported
      *
      * @param parent                      GUI component over which to center any error dialog
+     *
+     * @return true if an error occurred importing
      *********************************************************************************************/
     protected boolean prepareJSONOrCSVImport(FileEnvVar[] dataFiles,
                                              final boolean importingEntireDatabase,
@@ -1731,6 +1737,10 @@ public class CcddFileIOHandler
      * @param dialogType                  The type of file import being performed
      *
      * @param parent                      GUI component over which to center any error dialog
+     *
+     * @param usersAndAccessLevel         List of users and their access levels
+     *
+     * @return true if an error occurred while importing
      *********************************************************************************************/
     protected boolean importFileInBackground(final FileEnvVar[] dataFile,
                                              final boolean importingEntireDatabase,
@@ -1913,6 +1923,9 @@ public class CcddFileIOHandler
      *
      * @param replaceExistingDataTypes    True to replace existing data types that share a name
      *                                    with an imported data type
+     *
+     * @param fileType                    Import file type: IMPORT_CSV, IMPORT_EDS,IMPORT_JSON, or
+     *                                    IMPORT_XTCE
      *
      * @param parent                      GUI component over which to center any error dialog
      *
@@ -3177,6 +3190,10 @@ public class CcddFileIOHandler
     /**********************************************************************************************
      * Import the contents of a file selected by the user into the specified existing table
      *
+     * @param dialogType   Import file type: IMPORT_CSV, IMPORT_EDS,IMPORT_JSON, or IMPORT_XTCE
+     *
+     * @param dialogPanel  Import dialog panel
+     *
      * @param tableHandler Reference to the table handler for the table into which to import the
      *                     data
      *********************************************************************************************/
@@ -3560,6 +3577,12 @@ public class CcddFileIOHandler
      *
      * @param includeAssociations     True to include the script associations in the export file
      *
+     * @param includeTlmSched         True to include the telemetry scheduler entries in the export
+     *                                file
+     *
+     * @param includeAppSched         True to include the application scheduler entries in the
+     *                                export file
+     *
      * @param includeVariablePaths    True to include the variable path for each variable in a
      *                                structure table, both in application format and using the
      *                                user-defined separator characters
@@ -3597,6 +3620,8 @@ public class CcddFileIOHandler
      *                                methods (XTCE only); ignored if useExternal is false
      *
      * @param parent                  GUI component over which to center any error dialog
+     *
+     * @return true if an error occurred while exporting
      *********************************************************************************************/
     protected boolean exportSelectedTablesInBackground(final String filePath,
                                                        final String[] tablePaths,
@@ -3697,8 +3722,7 @@ public class CcddFileIOHandler
      * in a separate file. The user supplied file name is used if multiple tables are stored in a
      * single file
      *
-     * @param filePath                Path to the folder in which to store the exported tables.
-     *                                Includes the name if storing the tables to a single file
+     * @param originalFilePath        Original file path
      *
      * @param tablePaths              Table path for each table to load
      *
@@ -3713,6 +3737,8 @@ public class CcddFileIOHandler
      *
      * @param replaceMacros           True to replace macros with their corresponding values; false
      *                                to leave the macros intact
+     *
+     * @param deleteTargetDirectory   True to delete the target directory contents
      *
      * @param includeAllTableTypes    True to include the all table type definitions in the export
      *                                file
@@ -3735,6 +3761,12 @@ public class CcddFileIOHandler
      *                                in the export file
      *
      * @param includeAssociations     True to include the script associations in the export file
+     *
+     * @param includeTlmSched         True to include the telemetry scheduler entries in the export
+     *                                file
+     *
+     * @param includeAppSched         True to include the application scheduler entries in the
+     *                                export file
      *
      * @param includeVariablePaths    True to include the variable path for each variable in a
      *                                structure table, both in application format and using the
@@ -3776,7 +3808,7 @@ public class CcddFileIOHandler
      *
      * @return true if the export completes successfully
      *********************************************************************************************/
-    protected boolean exportSelectedTables(final String OriginalFilePath,
+    protected boolean exportSelectedTables(final String originalFilePath,
                                            final String[] tablePaths,
                                            final boolean overwriteFile,
                                            final boolean singleFile,
@@ -3831,7 +3863,7 @@ public class CcddFileIOHandler
 
         // Converting the file path to a FileEnvVar object will expand any environment variables
         // within the path
-        FileEnvVar modifiedFilePath = new FileEnvVar(OriginalFilePath);
+        FileEnvVar modifiedFilePath = new FileEnvVar(originalFilePath);
         String filePath = modifiedFilePath.getAbsolutePath();
 
         // Remove the trailing period if present
@@ -4595,7 +4627,17 @@ public class CcddFileIOHandler
      * Create the snapshot directory which can be used as a temporary export location for file
      * comparisons
      *
-     * @param printWriter Output file PrintWriter object
+     * @param tablePaths           Table path for each table to load
+     *
+     * @param exportEntireDatabase true if exporting the entire database
+     *
+     * @param importFileType       Import file type
+     *
+     * @param singleFile           true if importing to a single file
+     *
+     * @param parent               GUI component over which to center any error dialog
+     *
+     * @return List of files in snapshot directory
      *********************************************************************************************/
     public List<File> compareToSnapshotDirectory(String[] tablePaths,
                                                  boolean exportEntireDatabase,
@@ -5358,6 +5400,10 @@ public class CcddFileIOHandler
      * @param fileExt       The extension type of the files that are going to be exported
      *
      * @param directoryPath Path to the directory that is going to be cleaned
+     *
+     * @param singleFile    true if exporting to a single file
+     *
+     * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
     public void CleanExportDirectory(FileExtension fileExt,
                                      String directoryPath,
@@ -5413,7 +5459,9 @@ public class CcddFileIOHandler
     /**********************************************************************************************
      * Prepare the project for a JSON or CSV export
      *
-     * @param exportFile              Reference to the user-specified output file
+     * @param path                    File path
+     *
+     * @param fileExt                 File extension
      *
      * @param tableNames              Array of table names to convert
      *
@@ -5440,6 +5488,8 @@ public class CcddFileIOHandler
      *
      * @param addEOFMarker            Is this the last data to be added to the file?
      *
+     * @param parent                  GUI component over which to center any error dialog
+     *
      * @return List containing the definition(s) of the table(s) to export
      *
      * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
@@ -5447,8 +5497,8 @@ public class CcddFileIOHandler
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     public List<TableInfo> prepareJSONOrCSVExport(String path,
-                                                  FileExtension
-                                                  fileExt, String[] tableNames,
+                                                  FileExtension fileExt,
+                                                  String[] tableNames,
                                                   boolean includeBuildInformation,
                                                   boolean replaceMacros,
                                                   boolean includeVariablePaths,

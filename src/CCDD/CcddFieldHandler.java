@@ -762,7 +762,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Take a list of FieldInformation objects and convert it to a list of strings
      *
-     * @param List<FieldInformation> The Field information that needs to be converted
+     * @param fieldInformation The Field information that needs to be converted
      *
      * @return String list containing all of the data field definitions
      *********************************************************************************************/

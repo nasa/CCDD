@@ -227,8 +227,6 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Table information class constructor
          *
-         * @param tableType   Table type
-         *
          * @param tablePath   Table path in the format rootTable[,dataType1.variable1[,dataType2
          *                    .variable2[,...]]]. The table path for a non-structure table is
          *                    simply the root table name. For a structure table the root table is
@@ -237,14 +235,11 @@ public class CcddClassesDataTable
          *                    succeeding pair coming from the next level down in the structure's
          *                    hierarchy
          *
-         * @param data        List of String[] containing the table data
-         *
-         * @param columnOrder Table column display order in the format
-         *                    column#0[:column#1[:...[:column#N]]]. The column numbers are based on
-         *                    the position of the column's definition in the table's type
-         *                    definition
+         * @param tableType   Table type
          *
          * @param description Table description
+         *
+         * @param data        List of String[] containing the table data
          *****************************************************************************************/
         TableInfo(String tablePath, String tableType, String description, List<Object[]> data)
         {
@@ -1170,8 +1165,6 @@ public class CcddClassesDataTable
 
         /******************************************************************************************
          * Remove all data field definitions from the list of table data fields
-         *
-         * @param index Location to remove the field from
          *****************************************************************************************/
         protected void removeDataFields()
         {
@@ -1209,9 +1202,9 @@ public class CcddClassesDataTable
          * Does a field with the current name already exist? if so return the index of the field.
          * If not return -1
          *
-         * @param fieldDefn Data field definition
+         * @param fieldName Data field name
          *
-         * @param index     Location to add the definition
+         * @return Index of the data field. -1 if field not found
          *****************************************************************************************/
         protected int contains(String fieldName)
         {
@@ -2529,6 +2522,8 @@ public class CcddClassesDataTable
 
         /******************************************************************************************
          * Get the array size of 1d, 2d or 3d arrays
+         *
+         * @param newMacroHandler Macro handler
          *
          * @param arrayInfo String representing the dimensions of the array. Example = "4" or "2,2"
          *

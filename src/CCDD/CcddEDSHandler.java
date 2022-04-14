@@ -393,8 +393,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param replaceExistingTables   True to replace existing tables or table fields
      *
-     * @param importingEntireDatabase True to replace existing database internal tables
-     *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
      * @throws IOException   If an import file I/O error occurs
@@ -2228,7 +2226,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Build the name spaces for the list of tables specified
      *
-     * @param tableNames List of table definitions to convert
+     * @param tableDefs List of table definitions to convert
      *********************************************************************************************/
     private void buildNamespaces(List<TableInfo> tableDefs)
     {
@@ -3562,8 +3560,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void exportTableInfoDefinitions(FileEnvVar exportFile, boolean includeTableTypes, boolean includeInputTypes,
-                                           boolean includeDataTypes, String outputType, boolean addEOFMarker,
+    public void exportTableInfoDefinitions(FileEnvVar exportFile,
+                                           boolean includeTableTypes,
+                                           boolean includeInputTypes,
+                                           boolean includeDataTypes,
+                                           String outputType,
+                                           boolean addEOFMarker,
                                            boolean addSOFMarker) throws CCDDException, Exception
     {
         // Placeholder
@@ -3573,19 +3575,23 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Export script association data, group data, macro data, telemetry scheduler data or
      * application scheduler data to the specified folder
      *
-     * @param dataType   The data type that is about to be exported
+     * @param includes   Array indicating internal file types to include
+     *
+     * @param dataTypes  The data type that is about to be exported
      *
      * @param exportFile Reference to the user-specified output file
      *
      * @param outputType String representing rather the output is going to a single file or
      *                   multiple files. Should be "Single" or "Multiple"
      *
-     * @throws CCDDException If a file I/O or parsing error occurs
+     * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public void exportInternalCCDDData(boolean[] includes, CcddConstants.exportDataTypes[] dataTypes,
-                                       FileEnvVar exportFile, String outputType) throws CCDDException, Exception
+    public void exportInternalCCDDData(boolean[] includes,
+                                       CcddConstants.exportDataTypes[] dataTypes,
+                                       FileEnvVar exportFile,
+                                       String outputType) throws CCDDException, Exception
     {
         // Placeholder
     }

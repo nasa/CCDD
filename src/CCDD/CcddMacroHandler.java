@@ -860,7 +860,7 @@ public class CcddMacroHandler
      *
      * @param array Array of strings containing macro names
      *
-     * @return String array with any embedded macro names replaced with the associated macro values
+     * @return List array with any embedded macro names replaced with the associated macro values
      *********************************************************************************************/
     protected List<Object[]> replaceAllMacros(List<Object[]> array)
     {
@@ -882,12 +882,14 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
-     * Replace any macro names embedded in the supplied string array with the associated macro
+     * Replace any macro names embedded in the supplied table information data with the associated
+     * macro
      * values
      *
-     * @param array Array of strings containing macro names
+     * @param data Table information reference
      *
-     * @return String array with any embedded macro names replaced with the associated macro values
+     * @return Table information reference with any embedded macro names replaced with the
+     *         associated macro values
      *********************************************************************************************/
     protected TableInfo replaceAllMacros(TableInfo data)
     {

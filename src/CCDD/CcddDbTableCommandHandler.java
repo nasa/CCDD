@@ -649,7 +649,9 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Retrieve a list of table type data from the database.
      *
-     * @param parent GUI component over which to center any error dialog
+     * @param typeName Table type name
+     *
+     * @param parent   GUI component over which to center any error dialog
      *
      * @return String array containing the table types in alphabetical order
      *********************************************************************************************/
@@ -3298,9 +3300,9 @@ public class CcddDbTableCommandHandler
      *
      * @param structDatatype Data type of the table modification
      *
-     * @param tableMod       Data for the table modification
-     *
      * @param variablePath   The path of the variable that was modified
+     *
+     * @param tableMod       Data for the table modification
      *
      * @param ignoreErrors   true if errors should be ignored
      *
@@ -3912,6 +3914,8 @@ public class CcddDbTableCommandHandler
      * @param varRefChkResults   Results of the variable reference input type search
      *
      * @param cmdRefChkResults   Results of the command reference input type search
+     *
+     * @param parent             GUI component over which to center any error dialog
      *
      * @return Table row modification command
      *********************************************************************************************/
@@ -4969,6 +4973,8 @@ public class CcddDbTableCommandHandler
      * @param varRefChkResults   Results of the variable reference input type search
      *
      * @param cmdRefChkResults   Results of the command reference input type search
+     *
+     * @param parent             GUI component over which to center any error dialog
      *
      * @return Table row deletion command
      *********************************************************************************************/
@@ -6172,6 +6178,8 @@ public class CcddDbTableCommandHandler
      *
      * @param msgIDRefChkResults Results of the message name and ID reference input type search
      *
+     * @param parent             GUI component over which to center any error dialog
+     *
      * @return Message name and ID cells and fields update command
      *********************************************************************************************/
     private boolean updateMessageNameAndIDReference(TableInfo tableInfo,
@@ -7050,7 +7058,7 @@ public class CcddDbTableCommandHandler
      * @param fieldInformation Project data field information; null to delete the fields for the
      *                         specified project
      *
-     * @param editorDialog     Reference to the project field editor dialog
+     * @param parent           GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void modifyProjectFields(String description,
                                        List<FieldInformation> fieldInformation,

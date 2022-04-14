@@ -74,6 +74,8 @@ public class CcddDataTypeHandler
      *
      * @param dataTypes List of string arrays containing data type names and the corresponding data
      *                  type definitions
+     *
+     * @param ccddMain  Main class
      *********************************************************************************************/
     CcddDataTypeHandler(List<String[]> dataTypes, CcddMain ccddMain)
     {
@@ -121,7 +123,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Accessor function for the dataTypesMap variable
      *
-     * @return HashMap<String, String[]>
+     * @return HashMap\<String, String[]\>
      *********************************************************************************************/
     private HashMap<String, String[]> getDataTypesAsMap()
     {
@@ -147,7 +149,7 @@ public class CcddDataTypeHandler
     /**********************************************************************************************
      * Set/Replace the MacroHandler
      *
-     * @return None
+     * @param macroHandler Macro handler
      *********************************************************************************************/
     protected void setMacroHandler(CcddMacroHandler macroHandler)
     {
