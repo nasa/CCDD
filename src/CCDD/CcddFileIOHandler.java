@@ -4117,6 +4117,10 @@ public class CcddFileIOHandler
             // All of the exports below apply only to the JSON/CSV export
             if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV))
             {
+                // Get directory where all the individual files will be exported or the individual
+                // file that all data will be exported to
+                FileEnvVar exportDirectoryOrFile = new FileEnvVar(filePath);
+
                 // Export table info if needed
                 if (includeAllTableTypes || includeAllInputTypes || includeAllDataTypes)
                 {
@@ -4148,7 +4152,7 @@ public class CcddFileIOHandler
                         addSOFMarker = false;
                     }
 
-                    ioHandler.exportTableInfoDefinitions(file,
+                    ioHandler.exportTableInfoDefinitions(exportDirectoryOrFile,
                                                          includeAllTableTypes,
                                                          includeAllInputTypes,
                                                          includeAllDataTypes,
@@ -4168,7 +4172,7 @@ public class CcddFileIOHandler
                                                exportDataTypes.PROJECT_FIELDS,
                                                exportDataTypes.DBU_INFO};
 
-                ioHandler.exportInternalCCDDData(includes, dataTypes, file, outputType);
+                ioHandler.exportInternalCCDDData(includes, dataTypes, exportDirectoryOrFile, outputType);
             }
 
             // Check if any tables were skipped
@@ -4204,7 +4208,7 @@ public class CcddFileIOHandler
             // Inform the user that the export operation failed
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot export to file '</b>"
-                                                      + file.getAbsolutePath()
+                                                      + (file != null ? file.getAbsolutePath() : filePath)
                                                       + "<b>': "
                                                       + jce.getMessage(),
                                                       "Export Error",

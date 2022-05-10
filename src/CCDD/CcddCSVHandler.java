@@ -2808,18 +2808,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 pw.printf("\n" + CSVTags.DATA_TYPE.getTag() + "\n");
 
                 // Step through each data type
-                for (String[] dataType : dataTypeHandler.getDataTypeData())
+                for (String dataTypeName : referencedDataTypes)
                 {
-                    // Check if the data type is referenced in the table
-                    if (referencedDataTypes.contains(CcddDataTypeHandler.getDataTypeName(dataType)))
-                    {
-                        // Output the data type definition
-                        pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(dataType[DataTypesColumn.USER_NAME.ordinal()],
-                                                                           dataType[DataTypesColumn.C_NAME.ordinal()],
-                                                                           dataType[DataTypesColumn.SIZE.ordinal()],
-                                                                           dataType[DataTypesColumn.BASE_TYPE.ordinal()]));
-                    }
+                    String[] dataType = dataTypeHandler.getDataTypeByName(dataTypeName);
+
+                    // Output the data type definition
+                    pw.printf("%s\n",
+                              CcddUtilities.addEmbeddedQuotesAndCommas(dataType[DataTypesColumn.USER_NAME.ordinal()],
+                                                                       dataType[DataTypesColumn.C_NAME.ordinal()],
+                                                                       dataType[DataTypesColumn.SIZE.ordinal()],
+                                                                       dataType[DataTypesColumn.BASE_TYPE.ordinal()]));
                 }
             }
 
