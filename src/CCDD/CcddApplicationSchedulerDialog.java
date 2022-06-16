@@ -169,7 +169,8 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                         // storing the changes
                         if (schedulerHndlr.getSchedulerEditor().isMessagesChanged()
                             && new CcddDialogHandler().showMessageDialog(CcddApplicationSchedulerDialog.this,
-                                                                         "<html><b>Store changes?", "Store Changes",
+                                                                         "<html><b>Store changes?",
+                                                                         "Store Changes",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                         {
@@ -327,7 +328,8 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     @Override
     public void updateChangeIndicator()
     {
-        setTitle(DIALOG_TITLE + (schedulerHndlr.getSchedulerEditor().isMessagesChanged() ? CHANGE_INDICATOR : ""));
+        setTitle(DIALOG_TITLE
+                 + (schedulerHndlr.getSchedulerEditor().isMessagesChanged() ? CHANGE_INDICATOR : ""));
     }
 
     /**********************************************************************************************

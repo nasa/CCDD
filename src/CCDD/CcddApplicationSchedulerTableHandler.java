@@ -191,7 +191,7 @@ public class CcddApplicationSchedulerTableHandler
             public int compare(Variable var, Variable otherVar)
             {
                 return Integer.decode(((ApplicationData) var).getWakeUpID())
-                        .compareTo(Integer.decode(((ApplicationData) otherVar).getWakeUpID()));
+                              .compareTo(Integer.decode(((ApplicationData) otherVar).getWakeUpID()));
             }
         });
 
@@ -313,8 +313,16 @@ public class CcddApplicationSchedulerTableHandler
             ccddMain.getSessionEventLog()
                     .logFailEvent(ccddMain.getMainFrame(),
                                   "Application Error",
-                                  "Invalid " + type + " detected; " + numInvalid + " removed",
-                                  "<html><b>Invalid " + type + " detected; " + numInvalid + " removed");
+                                  "Invalid "
+                                  + type
+                                  + " detected; "
+                                  + numInvalid
+                                  + " removed",
+                                  "<html><b>Invalid "
+                                  + type
+                                  + " detected; "
+                                  + numInvalid
+                                  + " removed");
         }
     }
 
@@ -329,7 +337,9 @@ public class CcddApplicationSchedulerTableHandler
         List<Variable> removedApps = new ArrayList<Variable>();
 
         // Create a group tree
-        CcddGroupTreeHandler groupTree = new CcddGroupTreeHandler(ccddMain, null, ccddMain.getMainFrame());
+        CcddGroupTreeHandler groupTree = new CcddGroupTreeHandler(ccddMain,
+                                                                  null,
+                                                                  ccddMain.getMainFrame());
 
         // Get a list of the current group's names
         String[] groupNames = groupTree.getGroupHandler().getGroupNames(true);

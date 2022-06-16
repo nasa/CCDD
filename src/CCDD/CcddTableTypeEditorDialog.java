@@ -262,7 +262,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
         // Set the menu item based on the input flag and if there are any data fields assigned to
         // the table type
-        mntmClearValues.setEnabled(enable && activeEditor != null && !activeEditor.getPanelFieldInformation().isEmpty());
+        mntmClearValues.setEnabled(enable
+                                   && activeEditor != null
+                                   && !activeEditor.getPanelFieldInformation().isEmpty());
     }
 
     /**********************************************************************************************
@@ -303,8 +305,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     if (Arrays.asList(tableNames).contains(editor.getTableInformation().getTablePath()))
                     {
                         // Load the data for the table
-                        TableInfo tableInfo = dbTable.loadTableData(editor.getTableInformation().getTablePath(), true,
-                                                                    true, false, CcddTableTypeEditorDialog.this);
+                        TableInfo tableInfo = dbTable.loadTableData(editor.getTableInformation().getTablePath(),
+                                                                    true,
+                                                                    true,
+                                                                    false,
+                                                                    CcddTableTypeEditorDialog.this);
 
                         // Check that no error occurred loading the table's data
                         if (!tableInfo.isErrorFlag())
@@ -327,10 +332,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             }
 
                             // Update the editor tab's tool tip text in case the type name changed
-                            editorDialog.getTabbedPane()
-                                    .setToolTipTextAt(tabIndex, CcddUtilities
-                                            .wrapText(editor.getTableToolTip(),
-                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                            editorDialog.getTabbedPane().setToolTipTextAt(tabIndex,
+                                                                          CcddUtilities.wrapText(editor.getTableToolTip(),
+                                                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
                         // An error occurred loading the table's data
                         else
@@ -383,74 +387,46 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create the File menu and menu items
                 mnFile = ccddMain.createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
                 mntmNewType = ccddMain.createMenuItem(mnFile, "New type", KeyEvent.VK_N, 1, "Create a new table type");
-                mntmCopyType = ccddMain.createMenuItem(mnFile, "Copy type", KeyEvent.VK_O, 1,
-                                                       "Copy the current table type");
-                mntmRenameType = ccddMain.createMenuItem(mnFile, "Rename type", KeyEvent.VK_R, 1,
-                                                         "Rename the current table type");
-                mntmDeleteType = ccddMain.createMenuItem(mnFile, "Delete type", KeyEvent.VK_D, 1,
-                                                         "Delete the current table type");
+                mntmCopyType = ccddMain.createMenuItem(mnFile, "Copy type", KeyEvent.VK_O, 1, "Copy the current table type");
+                mntmRenameType = ccddMain.createMenuItem(mnFile, "Rename type", KeyEvent.VK_R, 1, "Rename the current table type");
+                mntmDeleteType = ccddMain.createMenuItem(mnFile, "Delete type", KeyEvent.VK_D, 1, "Delete the current table type");
                 mnFile.addSeparator();
-                mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_U, 1,
-                                                    "Store changes to the curent table type in the database");
-                mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1,
-                                                       "Store changes to all table types in the database");
+                mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_U, 1, "Store changes to the curent table type in the database");
+                mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1, "Store changes to all table types in the database");
                 mnFile.addSeparator();
-                mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1,
-                                                    "Print the current table type information");
-                mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/replace", KeyEvent.VK_F, 1,
-                                                          "Find/replace text in the active table type table");
+                mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current table type information");
+                mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/replace", KeyEvent.VK_F, 1, "Find/replace text in the active table type table");
                 mnFile.addSeparator();
                 mntmClose = ccddMain.createMenuItem(mnFile, "Close", KeyEvent.VK_C, 1, "Close the table type editor");
 
                 // Create the Edit menu and menu items
                 JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", 1, KeyEvent.VK_E, null);
-                mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_O, 1,
-                                                   "Copy the currently selected cell(s) to the clipboard");
-                mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste (Ctrl-V)", KeyEvent.VK_V, 1,
-                                                    "Paste the clipboard contents at the current focus location");
-                mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, 1,
-                                                     "Insert the clipboard contents at the current focus location");
+                mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_O, 1, "Copy the currently selected cell(s) to the clipboard");
+                mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste (Ctrl-V)", KeyEvent.VK_V, 1, "Paste the clipboard contents at the current focus location");
+                mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, 1, "Insert the clipboard contents at the current focus location");
                 mnEdit.addSeparator();
-                mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo (Ctrl-Z)", KeyEvent.VK_Z, 1,
-                                                   "Undo the last edit operation");
-                mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1,
-                                                   "Redo the last undone edit operation");
+                mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo (Ctrl-Z)", KeyEvent.VK_Z, 1, "Undo the last edit operation");
+                mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
                 mnEdit.addSeparator();
-                mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, 1,
-                                                    "Clear the current table type contents");
+                mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, 1, "Clear the current table type contents");
 
                 // Create the Row menu and menu items
                 JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
-                mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, 1,
-                                                        "Insert a row below the current focus location");
-                mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row(s)", KeyEvent.VK_D, 1,
-                                                        "Delete the currently selected row(s)");
+                mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, 1, "Insert a row below the current focus location");
+                mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row(s)", KeyEvent.VK_D, 1, "Delete the currently selected row(s)");
                 mnRow.addSeparator();
-                mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move up", KeyEvent.VK_U, 1,
-                                                     "Move the currently selected row(s) up one row");
-                mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move down", KeyEvent.VK_N, 1,
-                                                       "Move the currently selected row(s) down one row");
+                mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move up", KeyEvent.VK_U, 1, "Move the currently selected row(s) up one row");
+                mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move down", KeyEvent.VK_N, 1, "Move the currently selected row(s) down one row");
 
                 // Create the Field menu and menu items
                 JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_L, 1, null);
-                mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1,
-                                                           "Open the data field manager");
-                mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1,
-                                                          "Clear the data field values");
+                mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1, "Open the data field manager");
+                mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1, "Clear the data field values");
                 JMenu mnOverwrite = ccddMain.createSubMenu(mnField, "Overwrite values", KeyEvent.VK_O, 1, null);
-                mntmOverwriteAll = ccddMain
-                        .createRadioButtonMenuItem(mnOverwrite, "All", KeyEvent.VK_A, 1,
-                                                   "Overwrite all table field values with the default value", false);
-                mntmOverwriteSame = ccddMain
-                        .createRadioButtonMenuItem(mnOverwrite, "If same", KeyEvent.VK_S, 3,
-                                                   "Overwrite only matching table field values with the default value",
-                                                   false);
-                mntmOverwriteEmpty = ccddMain
-                        .createRadioButtonMenuItem(mnOverwrite, "If empty", KeyEvent.VK_E, 3,
-                                                   "Overwrite only empty table field values with the default value",
-                                                   false);
-                mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite, "None", KeyEvent.VK_N, 1,
-                                                                       "Do not overwrite table field values", true);
+                mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite, "All", KeyEvent.VK_A, 1, "Overwrite all table field values with the default value", false);
+                mntmOverwriteSame = ccddMain.createRadioButtonMenuItem(mnOverwrite, "If same", KeyEvent.VK_S, 3, "Overwrite only matching table field values with the default value", false);
+                mntmOverwriteEmpty = ccddMain.createRadioButtonMenuItem(mnOverwrite, "If empty", KeyEvent.VK_E, 3, "Overwrite only empty table field values with the default value", false);
+                mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite, "None", KeyEvent.VK_N, 1, "Do not overwrite table field values", true);
                 ButtonGroup rbtnGroup = new ButtonGroup();
                 rbtnGroup.add(mntmOverwriteAll);
                 rbtnGroup.add(mntmOverwriteSame);
@@ -466,7 +442,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        new CcddTableTypeManagerDialog(ccddMain, CcddTableTypeEditorDialog.this, ManagerDialogType.NEW);
+                        new CcddTableTypeManagerDialog(ccddMain,
+                                                       CcddTableTypeEditorDialog.this,
+                                                       ManagerDialogType.NEW);
                     }
 
                     /******************************************************************************
@@ -490,7 +468,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        new CcddTableTypeManagerDialog(ccddMain, CcddTableTypeEditorDialog.this,
+                        new CcddTableTypeManagerDialog(ccddMain,
+                                                       CcddTableTypeEditorDialog.this,
                                                        ManagerDialogType.COPY);
                     }
 
@@ -515,7 +494,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        new CcddTableTypeManagerDialog(ccddMain, CcddTableTypeEditorDialog.this,
+                        new CcddTableTypeManagerDialog(ccddMain,
+                                                       CcddTableTypeEditorDialog.this,
                                                        ManagerDialogType.RENAME);
                     }
 
@@ -540,7 +520,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        new CcddTableTypeManagerDialog(ccddMain, CcddTableTypeEditorDialog.this,
+                        new CcddTableTypeManagerDialog(ccddMain,
+                                                       CcddTableTypeEditorDialog.this,
                                                        ManagerDialogType.DELETE);
                     }
 
@@ -565,9 +546,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        activeEditor.getTable().printTable("Table Type: " + activeEditor.getTypeName(),
+                        activeEditor.getTable().printTable("Table Type: "
+                                                           + activeEditor.getTypeName(),
                                                            activeEditor.getPanelFieldInformation(),
-                                                           CcddTableTypeEditorDialog.this, PageFormat.LANDSCAPE);
+                                                           CcddTableTypeEditorDialog.this,
+                                                           PageFormat.LANDSCAPE);
                     }
 
                     /******************************************************************************
@@ -725,10 +708,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         if (isTypesChanged()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
                                                                          "<html><b>Store changes for all?",
-                                                                         "Store Changes", JOptionPane.QUESTION_MESSAGE,
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                            && ccddMain.ignoreUncommittedChanges("Store Changes", "Discard table changes?", false,
-                                                                 changedTypes, CcddTableTypeEditorDialog.this))
+                            && ccddMain.ignoreUncommittedChanges("Store Changes",
+                                                                 "Discard table changes?",
+                                                                 false,
+                                                                 changedTypes,
+                                                                 CcddTableTypeEditorDialog.this))
                         {
                             // Commit the changes for all of the editors
                             storeAllChanges();
@@ -756,11 +743,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        new CcddFieldEditorDialog(ccddMain, activeEditor,
+                        new CcddFieldEditorDialog(ccddMain,
+                                                  activeEditor,
                                                   CcddFieldHandler.getFieldTypeName(activeEditor.getTypeName()),
                                                   activeEditor.getInputFieldPanelHandler().getPanelFieldInformation(),
-                                                  tableTypeHandler.getTypeDefinition(activeEditor.getTypeName())
-                                                          .isStructure(),
+                                                  tableTypeHandler.getTypeDefinition(activeEditor.getTypeName()).isStructure(),
                                                   MIN_WINDOW_WIDTH);
 
                         // Enable/disable the Clear values command depending on if any data fields
@@ -810,7 +797,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 });
 
                 // Insert new row button
-                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row", INSERT_ICON, KeyEvent.VK_I,
+                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                                           INSERT_ICON,
+                                                                           KeyEvent.VK_I,
                                                                            "Insert a new row into the table");
 
                 // Create a listener for the Insert Row command
@@ -842,7 +831,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmInsertRow.addActionListener(insertAction);
 
                 // Delete row button
-                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row", DELETE_ICON, KeyEvent.VK_D,
+                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                                           DELETE_ICON,
+                                                                           KeyEvent.VK_D,
                                                                            "Delete the selected row(s) from the table");
 
                 // Create a listener for the Delete Row command
@@ -874,7 +865,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmDeleteRow.addActionListener(deleteAction);
 
                 // Move Up button
-                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up", UP_ICON, KeyEvent.VK_U,
+                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                                        UP_ICON,
+                                                                        KeyEvent.VK_U,
                                                                         "Move the selected row(s) up");
 
                 // Create a listener for the Move Up command
@@ -906,7 +899,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmMoveUp.addActionListener(moveUpAction);
 
                 // Move Down button
-                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down", DOWN_ICON, KeyEvent.VK_N,
+                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                                          DOWN_ICON,
+                                                                          KeyEvent.VK_N,
                                                                           "Move the selected row(s) down");
 
                 // Create a listener for the Move Down command
@@ -938,7 +933,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmMoveDown.addActionListener(moveDownAction);
 
                 // Undo button
-                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z,
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
                                                                       "Undo the last edit action");
 
                 // Create a listener for the Undo command
@@ -973,7 +970,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 btnUndo.addActionListener(undoAction);
 
                 // Redo button
-                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
                                                                       "Redo the last undone edit action");
 
                 // Create a listener for the Redo command
@@ -1008,7 +1007,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 btnRedo.addActionListener(redoAction);
 
                 // Store button
-                btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                               STORE_ICON,
+                                                               KeyEvent.VK_S,
                                                                "Store the table type updates in the database");
 
                 // Create a listener for the Store command
@@ -1028,14 +1029,19 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         // none of the required columns is missing a value, no duplicate input
                         // types exists for types defined as unique, and the user confirms the
                         // action
-                        if (activeEditor.isTableChanged() && !activeEditor.checkForMissingColumns()
+                        if (activeEditor.isTableChanged()
+                            && !activeEditor.checkForMissingColumns()
                             && !activeEditor.isInvalidInputTypes()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
                                                                          "<html><b>Store changes in project database?",
-                                                                         "Store Changes", JOptionPane.QUESTION_MESSAGE,
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                            && ccddMain.ignoreUncommittedChanges("Store Changes", "Discard table changes?", false,
-                                                                 changedTypes, CcddTableTypeEditorDialog.this))
+                            && ccddMain.ignoreUncommittedChanges("Store Changes",
+                                                                 "Discard table changes?",
+                                                                 false,
+                                                                 changedTypes,
+                                                                 CcddTableTypeEditorDialog.this))
                         {
                             // Store the changes for the currently displayed editor in the database
                             storeChanges(activeEditor);
@@ -1071,7 +1077,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmStore.addActionListener(storeAction);
 
                 // Close button
-                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the table type editor");
 
                 // Add a listener for the Close table type editor command
@@ -1210,7 +1218,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             protected void complete()
             {
                 // Display the table type editor dialog
-                createFrame(ccddMain.getMainFrame(), tabbedPane, buttonPnl, null, "Table Type Editor", null);
+                createFrame(ccddMain.getMainFrame(),
+                            tabbedPane,
+                            buttonPnl,
+                            null,
+                            "Table Type Editor",
+                            null);
 
                 // Enable the editor controls
                 setControlsEnabled(true);
@@ -1274,9 +1287,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // that there are no uncommitted changes. If a change exists then confirm discarding the
         // changes
         if (activeEditor == null
-            || (activeEditor.getTable().isLastCellValid() && (!isTablesChanged() || new CcddDialogHandler()
-                    .showMessageDialog(CcddTableTypeEditorDialog.this, "<html><b>Discard changes?", "Discard Changes",
-                                       JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)))
+            || (activeEditor.getTable().isLastCellValid()
+                && (!isTablesChanged()
+                    || new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
+                                                                 "<html><b>Discard changes?",
+                                                                 "Discard Changes",
+                                                                 JOptionPane.QUESTION_MESSAGE,
+                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)))
         {
             // Close the editor dialog
             closeFrame();
@@ -1306,7 +1323,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // Inform the user that key presses cannot be simulated
             new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
                                                       "<html><b>Platform does not allow key press simulation",
-                                                      "Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                      "Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
     }
@@ -1320,12 +1338,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     private OverwriteFieldValueType getOverwriteFieldType()
     {
-        return mntmOverwriteAll
-                .isSelected() ? OverwriteFieldValueType.ALL
-                              : mntmOverwriteSame.isSelected() ? OverwriteFieldValueType.SAME
-                                                               : mntmOverwriteEmpty
-                                                                       .isSelected() ? OverwriteFieldValueType.EMPTY
-                                                                                     : OverwriteFieldValueType.NONE;
+        return mntmOverwriteAll.isSelected() ? OverwriteFieldValueType.ALL
+                                             : mntmOverwriteSame.isSelected() ? OverwriteFieldValueType.SAME
+                                                                              : mntmOverwriteEmpty.isSelected() ? OverwriteFieldValueType.EMPTY
+                                                                                                                : OverwriteFieldValueType.NONE;
     }
 
     /**********************************************************************************************
@@ -1429,7 +1445,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             typeEditors.add(editor);
 
             // Create a tab for each table type
-            tabbedPane.addTab(editor.getTypeName(), null, editor.getFieldPanel(),
+            tabbedPane.addTab(editor.getTypeName(),
+                              null,
+                              editor.getFieldPanel(),
                               (editor.getDescription().isEmpty() ? null : editor.getDescription()));
         }
 
@@ -1464,8 +1482,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         if (index != -1)
         {
             // Replace the tab name, appending the change indicator if changes exist
-            tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, "")
-                                         + (typeEditor.isTableChanged() ? CHANGE_INDICATOR : ""));
+            tabbedPane.setTitleAt(index,
+                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, "")
+                                  + (typeEditor.isTableChanged() ? CHANGE_INDICATOR : ""));
         }
     }
 

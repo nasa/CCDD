@@ -70,7 +70,11 @@ public class CcddUtilities
         // The order of the HTML enumerations prevents accidental conversion of special characters
         // within a tag from being interpreted as a tag character (e.g., the '<' in '<br>' would be
         // converted to a '&lt;' if the break tag appears prior to the less than tag in the list)
-        AMP("&amp;", "&"), LESS("&lt;", "<"), GREAT("&gt;", ">"), SPACE("&#160;", " "), HTML("<html>", ""),
+        AMP("&amp;", "&"),
+        LESS("&lt;", "<"),
+        GREAT("&gt;", ">"),
+        SPACE("&#160;", " "),
+        HTML("<html>", ""),
         BREAK("<br>", "\n");
 
         private final String htmlTag;
@@ -553,7 +557,7 @@ public class CcddUtilities
 
         // Check if the enumeration is in the expected format
         if (enumeration
-                .matches("^\\s*\\d+\\s*" + enumValueSeparator + "\\s*.+\\d+\\s*" + enumValueSeparator + "\\s*.+$"))
+.matches("^\\s*\\d+\\s*" + enumValueSeparator + "\\s*.+\\d+\\s*" + enumValueSeparator + "\\s*.+$"))
         {
             // Separate the enumeration at the value+enumerated value separator characters
             String[] parts = enumeration.split("\\s*\\d+\\s*" + Pattern.quote(enumValueSeparator));
@@ -1048,10 +1052,13 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String removeHTMLTags(String text, boolean preserveBreaks)
     {
-        return text.replaceAll(HTMLTag.BREAK.getHTMLTag(), (preserveBreaks ? "\n" : " ")).replaceAll("<[^>]*>", "")
-                .replaceAll(HTMLTag.SPACE.getHTMLTag(), " ").replaceAll(HTMLTag.AMP.getHTMLTag(), "&")
-                .replaceAll(HTMLTag.GREAT.getHTMLTag(), ">").replaceAll(HTMLTag.LESS.getHTMLTag(), "<")
-                .replaceAll("&.+;", "");
+        return text.replaceAll(HTMLTag.BREAK.getHTMLTag(), (preserveBreaks ? "\n" : " "))
+                   .replaceAll("<[^>]*>", "")
+                   .replaceAll(HTMLTag.SPACE.getHTMLTag(), " ")
+                   .replaceAll(HTMLTag.AMP.getHTMLTag(), "&")
+                   .replaceAll(HTMLTag.GREAT.getHTMLTag(), ">")
+                   .replaceAll(HTMLTag.LESS.getHTMLTag(), "<")
+                   .replaceAll("&.+;", "");
     }
 
     /**********************************************************************************************
@@ -1079,8 +1086,9 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String escapePostgreSQLReservedChars(String text)
     {
-        return text.replaceAll("\\\\", "\\\\\\\\\\\\\\\\").replaceAll("\n", "\\\\\\\\n")
-                .replaceAll(POSTGRESQL_RESERVED_CHARS, "$1\\\\\\\\$2$3");
+        return text.replaceAll("\\\\", "\\\\\\\\\\\\\\\\")
+                   .replaceAll("\n", "\\\\\\\\n")
+                   .replaceAll(POSTGRESQL_RESERVED_CHARS, "$1\\\\\\\\$2$3");
     }
 
     /**********************************************************************************************
@@ -1258,7 +1266,8 @@ public class CcddUtilities
                                     // Remove the tag from the input string, substituting a
                                     // character in place of the tag so that the line wrap accounts
                                     // for the character
-                                    inputText = inputText.substring(0, tagIndex) + tagInfo.getSpecialCharPlaceholder()
+                                    inputText = inputText.substring(0, tagIndex)
+                                                + tagInfo.getSpecialCharPlaceholder()
                                                 + inputText.substring(tagIndex + tagInfo.getHTMLTag().length());
 
                                     isFound = true;
@@ -1451,7 +1460,8 @@ public class CcddUtilities
                 }
 
                 // Insert the tag into the output string at the indicated index
-                outputText = outputText.substring(0, tagIndex - skipSpaceAdjust) + tag.getTag()
+                outputText = outputText.substring(0, tagIndex - skipSpaceAdjust)
+                             + tag.getTag()
                              + outputText.substring(tagIndex + scAdjust - skipSpaceAdjust, outputText.length());
             }
         }
@@ -1473,7 +1483,8 @@ public class CcddUtilities
         {
             // Create the tag using the data type highlight color
             String highlightOn = "<font color="
-                                 + String.format("#%02x%02x%02x", ModifiableColorInfo.DATA_TYPE.getColor().getRed(),
+                                 + String.format("#%02x%02x%02x",
+                                                 ModifiableColorInfo.DATA_TYPE.getColor().getRed(),
                                                  ModifiableColorInfo.DATA_TYPE.getColor().getGreen(),
                                                  ModifiableColorInfo.DATA_TYPE.getColor().getBlue())
                                  + ">";
@@ -1488,9 +1499,9 @@ public class CcddUtilities
 
             // Add HTML tags to highlight the data type portion and replace each line feed
             // character with a line break
-            path = path
-                    .replaceAll("(<html>.*?,|,|<html>)(.*?)(\\..*?)", "$1" + highlightOn + "$2" + highlightOff + "$3")
-                    .replaceAll("\\n", "<br>");
+            path = path.replaceAll("(<html>.*?,|,|<html>)(.*?)(\\..*?)",
+                                   "$1" + highlightOn + "$2" + highlightOff + "$3")
+                       .replaceAll("\\n", "<br>");
         }
 
         return path;
@@ -1509,7 +1520,9 @@ public class CcddUtilities
      *
      * @return true if the supplied text contains a match to the specified search pattern
      *********************************************************************************************/
-    protected static boolean highlightSearchText(Component component, String text, Color hightlightColor,
+    protected static boolean highlightSearchText(Component component,
+                                                 String text,
+                                                 Color hightlightColor,
                                                  Pattern searchPattern)
     {
         boolean hasHighlight = false;
@@ -1572,7 +1585,8 @@ public class CcddUtilities
     protected static void displayException(Exception e, Component parent)
     {
         // Build the dialog message
-        String message = "<html><b>An unanticipated error occurred; cause '</b>" + e.getMessage()
+        String message = "<html><b>An unanticipated error occurred; cause '</b>"
+                         + e.getMessage()
                          + "<b>'<br><br>Error trace:</b><br>";
 
         // Step through each element in the stack trace
@@ -1583,13 +1597,21 @@ public class CcddUtilities
             if (ste.getClassName().startsWith("CCDD"))
             {
                 // Add the trace information to the message
-                message += "&#160;&#160;" + ste.getClassName().replaceFirst("CCDD\\.", "").replaceFirst("\\$\\d*", "")
-                           + ": " + ste.getMethodName() + "() line " + ste.getLineNumber() + "<br>";
+                message += "&#160;&#160;"
+                           + ste.getClassName().replaceFirst("CCDD\\.", "").replaceFirst("\\$\\d*", "")
+                           + ": "
+                           + ste.getMethodName()
+                           + "() line "
+                           + ste.getLineNumber()
+                           + "<br>";
             }
         }
 
         // Display a dialog showing the stack trace
-        new CcddDialogHandler().showMessageDialog(parent, message, "CCDD Error", JOptionPane.ERROR_MESSAGE,
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  message,
+                                                  "CCDD Error",
+                                                  JOptionPane.ERROR_MESSAGE,
                                                   DialogOption.OK_OPTION);
     }
 

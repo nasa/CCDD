@@ -101,7 +101,13 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                               List<String> treePathOrder,
                               Component parent)
     {
-        super(ccddMain, null, InternalTable.TLM_SCHEDULER, rateMsgFilter, false, treePathOrder, parent);
+        super(ccddMain,
+              null,
+              InternalTable.TLM_SCHEDULER,
+              rateMsgFilter,
+              false,
+              treePathOrder,
+              parent);
 
         this.linkHandler = linkHandler;
     }
@@ -139,7 +145,9 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * @param assignDefinitions List containing the assignment definitions
      *********************************************************************************************/
     @Override
-    protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> assignDefinitions)
+    protected void initialize(CcddMain ccddMain,
+                              CcddUndoHandler undoHandler,
+                              List<String[]> assignDefinitions)
     {
         this.assignDefinitions = assignDefinitions;
 
@@ -160,7 +168,10 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByApp, String filterValue, boolean filterFlag, Component parent)
+    protected void buildTree(boolean filterByApp,
+                             String filterValue,
+                             boolean filterFlag,
+                             Component parent)
     {
         // Store the tree's current expansion state
         String expState = getExpansionState();
@@ -343,7 +354,9 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         msg[TlmSchedulerColumn.RATE_NAME.ordinal()] = rateName;
         msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
         msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
-        msg[TlmSchedulerColumn.MEMBER.ordinal()] = variable.getRate() + TLM_SCH_SEPARATOR + variable.getFullName().trim();
+        msg[TlmSchedulerColumn.MEMBER.ordinal()] = variable.getRate()
+                                                   + TLM_SCH_SEPARATOR
+                                                   + variable.getFullName().trim();
 
         // Add the variable assignment to the list of definitions
         assignDefinitions.add(msg);
@@ -382,9 +395,11 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                 if (leaf)
                 {
                     // Set the icon for the variable node
-                    setVariableNodeIcon(this, (ToolTipTreeNode) value, row, linkHandler
-                            .getVariableLink(getFullVariablePath(((ToolTipTreeNode) value).getPath()),
-                                             rateName) != null);
+                    setVariableNodeIcon(this,
+                                        (ToolTipTreeNode) value,
+                                        row,
+                                        linkHandler.getVariableLink(getFullVariablePath(((ToolTipTreeNode) value).getPath()),
+                                                                    rateName) != null);
                 }
 
                 return this;
@@ -419,14 +434,13 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 
         // Create the tree scroll pane
         JScrollPane treeScroll = new JScrollPane(this);
-        treeScroll.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                      Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+        treeScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                Color.LIGHT_GRAY,
+                                                                                                Color.GRAY),
+                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Add the tree to the panel
         treePnl.add(treeScroll, gbc);

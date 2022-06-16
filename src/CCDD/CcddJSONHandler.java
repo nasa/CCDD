@@ -1167,10 +1167,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             ProjectDefinition projectDefn = new ProjectDefinition();
             tableDefinitions = new ArrayList<TableDefinition>();
 
-            /*************** RESERVED MESSAGE IDS ***************/
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
+                /*************** RESERVED MESSAGE IDS ***************/
                 List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
                 // Get the reserved message ID definitions JSON object
@@ -1977,8 +1977,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The table data in OrderedJSONObject format
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected OrderedJSONObject convertTableData(TableInfo tableInfo, boolean replaceMacros,
-                                                 boolean includeVariablePaths, CcddVariableHandler variableHandler,
+    protected OrderedJSONObject convertTableData(TableInfo tableInfo,
+                                                 boolean replaceMacros,
+                                                 boolean includeVariablePaths,
+                                                 CcddVariableHandler variableHandler,
                                                  String[] separators)
     {
         JSONArray tableDataJA = null;

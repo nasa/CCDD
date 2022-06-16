@@ -156,6 +156,7 @@ public class CcddDbCommandHandler
         return (Boolean) executeDbStatement(DbCommandType.COMMAND, command, component);
     }
 
+
     /**********************************************************************************************
      * Execute a database update statement and log the command to the session log
      *
@@ -260,48 +261,37 @@ public class CcddDbCommandHandler
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
                 {
-                    System.out.println("   no connection");
                     // Execute at least once; continue to execute as long as the user elects to
                     // attempt to reconnect
                     while (true)
                     {
-                        System.out.println("    attempt reconnect");
                         // Check if the attempt to reconnect to the server is successful
                         if (!ccddMain.getDbControlHandler().reconnectToDatabase())
                         {
-                            System.out.println("     reconnected -> resend");
                             // Send the command again
                             return executeDbStatement(commandType, command, component);
                         }
                         // The connection attempt failed. Check if the user elects to try
                         // reconnecting again
-                        else if (new CcddDialogHandler()
-                                .showMessageDialog(ccddMain.getMainFrame(),
-                                                   "<html><b>Server connection lost and "
-                                                   + "reconnection attempt failed; try again?",
-                                                   "Server Connection Lost",
-                                                   JOptionPane.QUESTION_MESSAGE,
-                                                   DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                        else if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                           "<html><b>Server connection lost and "
+                                                                           + "reconnection attempt failed; try again?",
+                                                                           "Server Connection Lost",
+                                                                           JOptionPane.QUESTION_MESSAGE,
+                                                                           DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
-                            System.out.println("     user quit; throw");
                             throw new SQLException("Connection to server lost");
                         }
-
-                        System.out.println("     try again");
                     }
                 }
                 // The server is connected. Shouldn't be able to get to this
                 else
                 {
-                    if (!command.substring(0, 20).contentEquals("DROP TABLE IF EXISTS"))
-                    {
-                        System.out.println("Command that failed: " + command.toString());
-                    }
-
                     throw new SQLException(se3.getMessage());
                 }
             }
         }
+
         return result;
     }
 
@@ -334,6 +324,7 @@ public class CcddDbCommandHandler
         {
             // Execute the prepared statement
             PreparedStatement prepState = connection.prepareStatement(command.toString());
+
             if (prepState.execute())
             {
                 result = prepState;
@@ -376,7 +367,8 @@ public class CcddDbCommandHandler
                         // Inform the user that rolling back the changes failed
                         eventLog.logFailEvent(component,
                                               "Cannot revert changes to project; cause '"
-                                              + se2.getMessage() + "'",
+                                              + se2.getMessage()
+                                              + "'",
                                               "<html><b>Cannot revert changes to project");
                     }
                     finally
@@ -393,47 +385,37 @@ public class CcddDbCommandHandler
                 // Check if the server is no longer connected
                 if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
                 {
-                    System.out.println("   no connection");
                     // Execute at least once; continue to execute as long as the user elects to
                     // attempt to reconnect
                     while (true)
                     {
-                        System.out.println("    attempt reconnect");
                         // Check if the attempt to reconnect to the server is successful
                         if (!ccddMain.getDbControlHandler().reconnectToDatabase())
                         {
-                            System.out.println("     reconnected -> resend");
                             // Send the command again
                             return executePreparedStatement(command, component);
                         }
                         // The connection attempt failed. Check if the user elects to try
                         // reconnecting again
-                        else if (new CcddDialogHandler()
-                                .showMessageDialog(ccddMain.getMainFrame(),
-                                                   "<html><b>Server connection lost and "
-                                                   + "reconnection attempt failed; try again?",
-                                                   "Server Connection Lost",
-                                                   JOptionPane.QUESTION_MESSAGE,
-                                                   DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                        else if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                           "<html><b>Server connection lost and "
+                                                                           + "reconnection attempt failed; try again?",
+                                                                           "Server Connection Lost",
+                                                                           JOptionPane.QUESTION_MESSAGE,
+                                                                           DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
-                            System.out.println("     user quit; throw");
                             throw new SQLException("Connection to server lost");
                         }
-
-                        System.out.println("     try again");
                     }
                 }
                 // The server is connected. Shouldn't be able to get to this
                 else
                 {
-                    if (!command.substring(0, 20).contentEquals("DROP TABLE IF EXISTS"))
-                    {
-                        System.out.println("Command that failed: " + command.toString());
-                    }
                     throw new SQLException(se3.getMessage());
                 }
             }
         }
+
         return result;
     }
 
@@ -503,7 +485,9 @@ public class CcddDbCommandHandler
             {
                 // Inform the user that the save point can't be released
                 eventLog.logFailEvent(component,
-                                      "Cannot release save point; cause '"  + se.getMessage() + "'",
+                                      "Cannot release save point; cause '"
+                                      + se.getMessage()
+                                      + "'",
                                       "<html><b>Cannot release save point");
             }
             finally
@@ -528,7 +512,8 @@ public class CcddDbCommandHandler
      *         array if no items exist
      *********************************************************************************************/
     protected String[] getList(DatabaseListCommand listType,
-                               String[][] listOption, Component parent)
+                               String[][] listOption,
+                               Component parent)
     {
         // Create a list to contain the query results
         List<String> list = new ArrayList<String>();
@@ -536,7 +521,8 @@ public class CcddDbCommandHandler
         try
         {
             // Execute the command and obtain the results
-            ResultSet resultSet = executeDbQuery(new StringBuilder(listType.getListCommand(listOption)), parent);
+            ResultSet resultSet = executeDbQuery(new StringBuilder(listType.getListCommand(listOption)),
+                                                 parent);
 
             // Check if the query failed
             if (resultSet == null)
@@ -575,8 +561,14 @@ public class CcddDbCommandHandler
         {
             // Inform the user that the list retrieval failed
             eventLog.logFailEvent(parent,
-                                  "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
-                                  "<html><b>Cannot retrieve " + listType + " list");
+                                  "Cannot retrieve "
+                                  + listType
+                                  + " list; cause '"
+                                  + se.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot retrieve "
+                                  + listType
+                                  + " list");
         }
 
         return list.toArray(new String[0]);
@@ -626,15 +618,21 @@ public class CcddDbCommandHandler
                 if (listType == DatabaseListCommand.TABLE_TYPE_DESCRIPTIONS)
                 {
                     String[] results = {resultSet.getString(1), resultSet.getString(2)};
+
                     // Add the results
                     list.add(results);
                 }
                 else
                 {
                     // Get the result
-                    String[] results = {Integer.toString(counter), resultSet.getString(1), resultSet.getString(2),
-                                        resultSet.getString(3), resultSet.getString(4), resultSet.getString(5),
-                                        resultSet.getString(6), resultSet.getString(7)};
+                    String[] results = {Integer.toString(counter),
+                                        resultSet.getString(1),
+                                        resultSet.getString(2),
+                                        resultSet.getString(3),
+                                        resultSet.getString(4),
+                                        resultSet.getString(5),
+                                        resultSet.getString(6),
+                                        resultSet.getString(7)};
                     list.add(results);
                     counter++;
                 }
@@ -646,8 +644,14 @@ public class CcddDbCommandHandler
         {
             // Inform the user that the list retrieval failed
             eventLog.logFailEvent(parent,
-                                  "Cannot retrieve " + listType + " list; cause '" + se.getMessage() + "'",
-                                  "<html><b>Cannot retrieve " + listType + " list");
+                                  "Cannot retrieve "
+                                  + listType
+                                  + " list; cause '"
+                                  + se.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot retrieve "
+                                  + listType
+                                  + " list");
         }
 
         return list.toArray(new String[0][0]);

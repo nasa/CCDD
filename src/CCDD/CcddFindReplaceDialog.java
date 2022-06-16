@@ -166,29 +166,30 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         setAlwaysOnTop(true);
 
         // Create a borders for the dialog components
-        Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.FIRST_LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create panels to hold the components of the dialog
         JPanel inputPnl = new JPanel(new GridBagLayout());
@@ -227,16 +228,18 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             public void keyPressed(KeyEvent ke)
             {
                 // Check if this is a visible character
-                if (!ke.isActionKey() && ke.getKeyCode() != KeyEvent.VK_ENTER && !ke.isControlDown() && !ke.isAltDown()
-                    && !ke.isMetaDown() && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
+                if (!ke.isActionKey()
+                    && ke.getKeyCode() != KeyEvent.VK_ENTER && !ke.isControlDown()
+                    && !ke.isAltDown()
+                    && !ke.isMetaDown()
+                    && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
                 {
                     // Get the list of remembered searches from the program preferences. This is
                     // done as a key press occurs so that the list is updated to the latest one. If
                     // multiple find/replace dialogs are open this allows them to 'share' the list
                     // rather than overwriting each other
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
-                    searches.addAll(Arrays
-                            .asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
+                    searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
                 }
             }
@@ -327,9 +330,11 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         inputPnl.add(replaceFld, gbc);
 
         // Find forward button
-        JButton btnFindNext = CcddButtonPanelHandler
-                .createButton("Find next", SEARCH_ICON, KeyEvent.VK_F,
-                              "Search forwards from the current cell for a cell containing a match");
+        JButton btnFindNext = CcddButtonPanelHandler.createButton("Find next",
+                                                                  SEARCH_ICON,
+                                                                  KeyEvent.VK_F,
+                                                                  "Search forwards from the current cell "
+                                                                  + "for a cell containing a match");
 
         // Add a listener for the Find next button
         btnFindNext.addActionListener(new ActionListener()
@@ -347,9 +352,11 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         // Find backward button
-        JButton btnFindPrevious = CcddButtonPanelHandler
-                .createButton("Find previous", SEARCH_PREVIOUS_ICON, KeyEvent.VK_P,
-                              "Search backwards from the current cell for a cell containing a match");
+        JButton btnFindPrevious = CcddButtonPanelHandler.createButton("Find previous",
+                                                                      SEARCH_PREVIOUS_ICON,
+                                                                      KeyEvent.VK_P,
+                                                                      "Search backwards from the current "
+                                                                      + "cell for a cell containing a match");
 
         // Add a listener for the Find previous button
         btnFindPrevious.addActionListener(new ActionListener()
@@ -367,10 +374,11 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         // Replace/find matching text button
-        btnReplaceFind = CcddButtonPanelHandler
-                .createButton("Replace/find", REPLACE_FIND_ICON, KeyEvent.VK_L,
-                              "Replace the matching text in the currently selected cell, "
-                                                                                + "then select the next cell containing a match");
+        btnReplaceFind = CcddButtonPanelHandler.createButton("Replace/find",
+                                                             REPLACE_FIND_ICON,
+                                                             KeyEvent.VK_L,
+                                                             "Replace the matching text in the currently selected cell, "
+                                                             + "then select the next cell containing a match");
 
         // Add a listener for the Replace/find button
         btnReplaceFind.addActionListener(new ActionListener()
@@ -388,7 +396,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         // Replace matching text button
-        btnReplace = CcddButtonPanelHandler.createButton("Replace", REPLACE_ICON, KeyEvent.VK_R,
+        btnReplace = CcddButtonPanelHandler.createButton("Replace",
+                                                         REPLACE_ICON,
+                                                         KeyEvent.VK_R,
                                                          "Replace the matching text in the currently selected cell");
 
         // Add a listener for the Replace button
@@ -405,7 +415,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         // Replace all matching text button
-        btnReplaceAll = CcddButtonPanelHandler.createButton("Replace all", REPLACE_ALL_ICON, KeyEvent.VK_A,
+        btnReplaceAll = CcddButtonPanelHandler.createButton("Replace all",
+                                                            REPLACE_ALL_ICON,
+                                                            KeyEvent.VK_A,
                                                             "Replace the matching text in all table cells");
 
         // Add a listener for the Replace all button
@@ -426,7 +438,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         setReplaceEnable(false);
 
         // Close find/replace dialog button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the find/replace dialog");
 
         // Add a listener for the Close button
@@ -556,7 +570,15 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         // Display the find/replace dialog
-        createDialog(editorDialog, inputPnl, buttonPnl, btnFindNext, "Find/Replace", null, null, true, false);
+        createDialog(editorDialog,
+                     inputPnl,
+                     buttonPnl,
+                     btnFindNext,
+                     "Find/Replace",
+                     null,
+                     null,
+                     true,
+                     false);
 
         // Except for its initial appearance, don't set the focus to the find/replace dialog each
         // time it reappears due to the table editor dialog regaining focus
@@ -569,7 +591,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     private void searchTable()
     {
         // Check if the search criteria changed
-        if (!searchFld.getText().equals(prevSearchText) || ignoreCaseCb.isSelected() != prevIgnoreCase
+        if (!searchFld.getText().equals(prevSearchText)
+            || ignoreCaseCb.isSelected() != prevIgnoreCase
             || allowRegexCb.isSelected() != prevAllowRegex)
         {
             // Store the search criteria
@@ -578,7 +601,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             prevAllowRegex = allowRegexCb.isSelected();
 
             // Create the match pattern from the search criteria
-            searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(), ignoreCaseCb.isSelected(),
+            searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                  ignoreCaseCb.isSelected(),
                                                                   allowRegexCb.isSelected(),
                                                                   CcddFindReplaceDialog.this);
 
@@ -680,11 +704,16 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
      * @return true to indicate that subsequent errors should be displayed; false if subsequent
      *         errors should not be displayed; null if the replace operation should be canceled
      *********************************************************************************************/
-    private Boolean replaceMatchInCell(List<Object[]> tableData, int row, int column, Boolean isContinue,
+    private Boolean replaceMatchInCell(List<Object[]> tableData,
+                                       int row,
+                                       int column,
+                                       Boolean isContinue,
                                        boolean isMultiple)
     {
         // Check if the column is visible and alterable
-        if (!table.isColumnHidden(column) && table.isDataAlterable(tableData.get(row), row, column))
+        if (!table.isColumnHidden(column) && table.isDataAlterable(tableData.get(row),
+                                                                   row,
+                                                                   column))
         {
             // Get the cell value prior to any changes
             Object oldValue = table.getModel().getValueAt(row, column).toString();
@@ -700,7 +729,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                 // assumed to be valid, so the flag indicating the last cell is valid is set
                 Object newValue = matcher.replaceFirst(replaceFld.getText());
                 table.getModel().setValueAt(newValue, row, column);
-                isContinue = table.validateCellContent(tableData, row, column, oldValue, newValue, isContinue,
+                isContinue = table.validateCellContent(tableData,
+                                                       row,
+                                                       column,
+                                                       oldValue,
+                                                       newValue,
+                                                       isContinue,
                                                        isMultiple);
                 table.setLastCellValid(true);
                 isReplaced = true;

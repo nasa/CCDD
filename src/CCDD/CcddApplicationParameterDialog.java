@@ -99,17 +99,17 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
-                                                        0, 0);
+                                                        0,
+                                                        0);
 
         // Create a border for the input fields
-        Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                      Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Create a panel to contain the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -183,7 +183,9 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         dialogPnl.add(maxMsgsPerCycleFld, gbc);
 
         // Get the user's input
-        if (showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, "Application Parameters",
+        if (showOptionsDialog(ccddMain.getMainFrame(),
+                              dialogPnl,
+                              "Application Parameters",
                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
             appHandler.setApplicationParameters(Integer.valueOf(maxMsgsPerSecFld.getText()),
@@ -214,8 +216,10 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
             numTimeSlotsFld.setText(numTimeSlotsFld.getText().trim());
 
             // Check if any parameter is blank
-            if (maxMsgsPerTimeSlotFld.getText().isEmpty() || maxMsgsPerSecFld.getText().isEmpty()
-                || maxMsgsPerCycleFld.getText().isEmpty() || numTimeSlotsFld.getText().isEmpty())
+            if (maxMsgsPerTimeSlotFld.getText().isEmpty()
+                || maxMsgsPerSecFld.getText().isEmpty()
+                || maxMsgsPerCycleFld.getText().isEmpty()
+                || numTimeSlotsFld.getText().isEmpty())
             {
                 // Inform the user that a parameter is missing
                 throw new Exception("All application parameters must be entered");
@@ -241,7 +245,8 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddApplicationParameterDialog.this,
-                                                      "<html><b>" + e.getMessage(),
+                                                      "<html><b>"
+                                                      + e.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

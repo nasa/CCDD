@@ -58,7 +58,9 @@ public class CcddCopyTableHandler
     {
         fieldHandler = ccddMain.getFieldHandler();
         rateHandler = ccddMain.getRateParameterHandler();
-        schedulerDb = new CcddSchedulerDbIOHandler(ccddMain, SchedulerType.TELEMETRY_SCHEDULER, null);
+        schedulerDb = new CcddSchedulerDbIOHandler(ccddMain,
+                                                   SchedulerType.TELEMETRY_SCHEDULER,
+                                                   null);
         macroHandler = ccddMain.getMacroHandler();
         variableHandler = ccddMain.getVariableHandler();
 
@@ -163,7 +165,8 @@ public class CcddCopyTableHandler
                         // sub-message separator character, a period, is replaced with an
                         // underscore), output offset (initialized to a blank; the value is
                         // computed later), variable size, variable root table, and variable path
-                        messageTable.add(new String[] {tlmMsgID, String.valueOf(structureOffset),
+                        messageTable.add(new String[] {tlmMsgID,
+                                                       String.valueOf(structureOffset),
                                                        subMsg.getName().replace(".", "_"),
                                                        "",
                                                        String.valueOf(variable.getSize()),
@@ -232,7 +235,8 @@ public class CcddCopyTableHandler
                             // Add the sub-message ID name and ID value to the list. Replace the
                             // period in the sub-message name with an underscore so that it is a
                             // valid name
-                            messageIDs.add(new String[] {subMsg.getName().replaceFirst("\\.", "_"), subMsg.getID()});
+                            messageIDs.add(new String[] {subMsg.getName().replaceFirst("\\.", "_"),
+                                                         subMsg.getID()});
                         }
                     }
                 }
@@ -275,7 +279,8 @@ public class CcddCopyTableHandler
             // Check if this variable is bit-packed with the previous one. This is indicated by the
             // variable containing a bit length, and by having matching root structures and input
             // offsets
-            if (initial != null && current[CopyTableEntry.VARIABLE_NAME.ordinal()].contains(":")
+            if (initial != null
+                && current[CopyTableEntry.VARIABLE_NAME.ordinal()].contains(":")
                 && current[CopyTableEntry.INPUT_OFFSET.ordinal()].equals(initial[CopyTableEntry.INPUT_OFFSET.ordinal()])
                 && current[CopyTableEntry.VARIABLE_ROOT.ordinal()].equals(initial[CopyTableEntry.VARIABLE_ROOT.ordinal()]))
             {
@@ -322,9 +327,8 @@ public class CcddCopyTableHandler
                                                                                       + Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()]))
             {
                 // Add the size in bytes of the current variable to the initial one
-                initial[CopyTableEntry.VARIABLE_BYTES.ordinal()] = String
-                        .valueOf(Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()])
-                                 + Integer.valueOf(current[CopyTableEntry.VARIABLE_BYTES.ordinal()]));
+                initial[CopyTableEntry.VARIABLE_BYTES.ordinal()] = String.valueOf(Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()])
+                                 +                                                                Integer.valueOf(current[CopyTableEntry.VARIABLE_BYTES.ordinal()]));
 
                 // Append the subsequent variable's name to the initial variable's name
                 initial[CopyTableEntry.VARIABLE_NAME.ordinal()] = initial[CopyTableEntry.VARIABLE_NAME.ordinal()]
@@ -364,7 +368,8 @@ public class CcddCopyTableHandler
         for (String[] entry : messageTable)
         {
             // Add the header size to the message's entries input location
-            entry[CopyTableEntry.INPUT_OFFSET.ordinal()] = String.valueOf(headerSize + Integer.valueOf(entry[CopyTableEntry.INPUT_OFFSET.ordinal()]));
+            entry[CopyTableEntry.INPUT_OFFSET.ordinal()] = String.valueOf(headerSize
+                                                                          + Integer.valueOf(entry[CopyTableEntry.INPUT_OFFSET.ordinal()]));
 
             // Add the output offset to the message's entries output location
             entry[CopyTableEntry.OUTPUT_OFFSET.ordinal()] = String.valueOf(offset);

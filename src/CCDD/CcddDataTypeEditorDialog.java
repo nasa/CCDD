@@ -130,7 +130,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             this.dataTypeName = dataTypeName;
 
             // Get the references to the specified data type in the prototype tables
-            references = dataTypeHandler.searchDataTypeReferences(dataTypeName, CcddDataTypeEditorDialog.this);
+            references = dataTypeHandler.searchDataTypeReferences(dataTypeName,
+                                                                  CcddDataTypeEditorDialog.this);
         }
 
         /******************************************************************************************
@@ -741,6 +742,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     String username = tableData.get(otherRow)[DataTypeEditorColumnInfo.USER_NAME.ordinal()].toString();
                                     String cname = tableData.get(otherRow)[DataTypeEditorColumnInfo.C_NAME.ordinal()].toString();
                                     boolean isNewNameSame = newValueS.equals(CcddDataTypeHandler.getDataTypeName(username, cname));
+
                                     if (isRowDiff && isNewNameSame)
                                     {
                                         throw new CCDDException("Type Name \""
@@ -1006,7 +1008,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                  "<html><b>" + ce.getMessage(),
+                                                                  "<html><b>"
+                                                                  + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1034,7 +1037,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(committedData, DataTypeEditorColumnInfo.getColumnNames(),
+                setUpdatableCharacteristics(committedData,
+                                            DataTypeEditorColumnInfo.getColumnNames(),
                                             null,
                                             DataTypeEditorColumnInfo.getToolTips(),
                                             true,
@@ -1322,7 +1326,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         if (isChangedColumn)
                         {
                             // Store the row modification information
-                            modifications.add(new TableModification(tableData[tblRow], committedData[comRow]));
+                            modifications.add(new TableModification(tableData[tblRow],
+                                                                    committedData[comRow]));
                         }
                     }
                 }

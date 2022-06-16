@@ -190,7 +190,8 @@ public class CcddButtonPanelHandler
 
             // Calculate the button width based on the width of the icon, gap between the icon and
             // text, width of the text, left and right margins, and the button border
-            int width = button.getIcon().getIconWidth() + button.getIconTextGap()
+            int width = button.getIcon().getIconWidth()
+                        + button.getIconTextGap()
                         + (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont())
                                       .getStringBounds(button.getText(), button.getGraphics())
                                       .getWidth()
@@ -208,8 +209,8 @@ public class CcddButtonPanelHandler
 
             // Get the height of the button text
             int height = (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont())
-                                    .getStringBounds(button.getText(), button.getGraphics())
-                                    .getHeight();
+                                     .getStringBounds(button.getText(), button.getGraphics())
+                                     .getHeight();
 
             // Check if the button's icon height is greater than the text height
             if (button.getIcon().getIconHeight() > height)
@@ -274,10 +275,12 @@ public class CcddButtonPanelHandler
     protected static JButton createButton(String buttonText, String iconName, int key, String toolTip)
     {
         // Create button
-        JButton button = new JButton(buttonText, new ImageIcon(CcddButtonPanelHandler.class.getResource(iconName)));
+        JButton button = new JButton(buttonText,
+                                     new ImageIcon(CcddButtonPanelHandler.class.getResource(iconName)));
         button.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
         button.setMnemonic(key);
-        button.setToolTipText(CcddUtilities.wrapText(toolTip, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        button.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                     ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Change the button padding
         setButtonMargins(button);
@@ -330,7 +333,8 @@ public class CcddButtonPanelHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        boolean isDirectWindowClose = !(BUTTON_VALUE == CANCEL_BUTTON || BUTTON_VALUE == OK_BUTTON);
+                        boolean isDirectWindowClose = !(BUTTON_VALUE == CANCEL_BUTTON
+                                                        || BUTTON_VALUE == OK_BUTTON);
 
                         if (isDirectWindowClose)
                         {

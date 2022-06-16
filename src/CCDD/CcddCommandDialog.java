@@ -256,9 +256,8 @@ public class CcddCommandDialog extends CcddDialogHandler
                             TableModel tableModel = getModel();
 
                             // Get the contents of the command name column
-                            String commandName = tableModel
-                                    .getValueAt(rowModel, CommandInformationTableColumnInfo.COMMAND_NAME.ordinal())
-                                    .toString();
+                            String commandName = tableModel.getValueAt(rowModel,
+                                                                       CommandInformationTableColumnInfo.COMMAND_NAME.ordinal()).toString();
 
                             // Step through each row in the table
                             for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
@@ -340,11 +339,10 @@ public class CcddCommandDialog extends CcddDialogHandler
                                                                        "Print the command information");
 
                 // Open table(s) button
-                JButton btnOpen = CcddButtonPanelHandler
-                        .createButton("Open",
-                                      TABLE_ICON,
-                                      KeyEvent.VK_O,
-                                      "Open the table(s) associated with the selected search result(s)");
+                JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                                      TABLE_ICON,
+                                                                      KeyEvent.VK_O,
+                                                                      "Open the table(s) associated with the selected search result(s)");
 
                 // Add a listener for the Open button
                 btnOpen.addActionListener(new ActionListener()
@@ -368,7 +366,9 @@ public class CcddCommandDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        commandTable.printTable("Project '" + ccddMain.getDbControlHandler().getDatabaseName() + "' Commands",
+                        commandTable.printTable("Project '"
+                                                + ccddMain.getDbControlHandler().getDatabaseName()
+                                                + "' Commands",
                                                 null,
                                                 CcddCommandDialog.this,
                                                 PageFormat.LANDSCAPE);

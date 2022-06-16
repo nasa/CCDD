@@ -322,7 +322,8 @@ public class CcddFieldHandler
      *         doesn't exist
      *********************************************************************************************/
     protected static FieldInformation getFieldInformationByName(List<FieldInformation> fieldInformationList,
-                                                                String ownerName, String fieldName)
+                                                                String ownerName,
+                                                                String fieldName)
     {
         FieldInformation fieldInfo = null;
 
@@ -354,7 +355,8 @@ public class CcddFieldHandler
      * @return Reference to the data field information for the first field that matches the owner
      *         and input type; null if the no match is found
      *********************************************************************************************/
-    protected FieldInformation getFieldInformationByInputType(String ownerName, InputType inputType)
+    protected FieldInformation getFieldInformationByInputType(String ownerName,
+                                                              InputType inputType)
     {
         FieldInformation fieldInfo = null;
 
@@ -560,7 +562,9 @@ public class CcddFieldHandler
      *
      * @return true if the field is applicable to the owner
      *********************************************************************************************/
-    protected boolean isFieldApplicable(String ownerName, String applicability, Boolean isRootStruct)
+    protected boolean isFieldApplicable(String ownerName,
+                                        String applicability,
+                                        Boolean isRootStruct)
     {
         // Set the flag to indicate if the owner is a table type, group, or project
         boolean isTypeGroupProject = ownerName.startsWith(TYPE_DATA_FIELD_IDENT)
@@ -581,7 +585,8 @@ public class CcddFieldHandler
             isRootStruct = dbTable.isRootStructure(ownerName);
         }
 
-        return isTypeGroupProject || applicability.isEmpty()
+        return isTypeGroupProject
+               || applicability.isEmpty()
                || applicability.equals(ApplicabilityType.ALL.getApplicabilityName())
                || (isRootStruct && applicability.equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName()))
                || (!isRootStruct && applicability.equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()));
@@ -625,8 +630,7 @@ public class CcddFieldHandler
                     || compFieldInfoA.get(index).getSize() != compFieldInfoB.get(index).getSize()
                     || !compFieldInfoA.get(index).getValue().equals(compFieldInfoB.get(index).getValue())
                     || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired()
-                    || compFieldInfoA.get(index).getApplicabilityType() != compFieldInfoB.get(index)
-                            .getApplicabilityType())
+                    || compFieldInfoA.get(index).getApplicabilityType() != compFieldInfoB.get(index).getApplicabilityType())
                 {
                     // Set the flag indicating a field is changed and stop searching
                     isFieldChanged = true;
@@ -650,7 +654,8 @@ public class CcddFieldHandler
      *
      * @return List of data field information created from the supplied field definitions
      *********************************************************************************************/
-    protected List<FieldInformation> getFieldInformationFromData(Object[][] fieldData, String ownerName)
+    protected List<FieldInformation> getFieldInformationFromData(Object[][] fieldData,
+                                                                 String ownerName)
     {
         List<FieldInformation> fieldInfo = new ArrayList<FieldInformation>();
         boolean ownerNameInArray = false;
@@ -677,17 +682,16 @@ public class CcddFieldHandler
                     }
                 }
                 // Add the field information for this data field to the list
-                fieldInfo
-                        .add(new FieldInformation(ownerName, data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
-                                                  data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                                  inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
-                                                  Integer.valueOf(data[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
-                                                  Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
-                                                  ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
-                                                  data[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
-                                                  Boolean.valueOf(data[FieldEditorColumnInfo.INHERITED.ordinal()].toString()),
-                                                  null,
-                                                  -1));
+                fieldInfo.add(new FieldInformation(ownerName, data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                   data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                   inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                   Integer.valueOf(data[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                                   Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                   ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                                   data[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
+                                                   Boolean.valueOf(data[FieldEditorColumnInfo.INHERITED.ordinal()].toString()),
+                                                   null,
+                                                   -1));
             }
         }
 
@@ -775,10 +779,14 @@ public class CcddFieldHandler
         for (FieldInformation fieldInfo : fieldInformation)
         {
             // Add the field definition to the list
-            definitions.add(getFieldDefinitionArray(fieldInfo.getOwnerName(), fieldInfo.getFieldName(),
-                                                    fieldInfo.getDescription(), fieldInfo.getInputType(),
-                                                    fieldInfo.getSize(), fieldInfo.isRequired(),
-                                                    fieldInfo.getApplicabilityType(), fieldInfo.getValue(),
+            definitions.add(getFieldDefinitionArray(fieldInfo.getOwnerName(),
+                                                    fieldInfo.getFieldName(),
+                                                    fieldInfo.getDescription(),
+                                                    fieldInfo.getInputType(),
+                                                    fieldInfo.getSize(),
+                                                    fieldInfo.isRequired(),
+                                                    fieldInfo.getApplicabilityType(),
+                                                    fieldInfo.getValue(),
                                                     fieldInfo.isInherited()));
         }
 
@@ -906,7 +914,9 @@ public class CcddFieldHandler
             // Check if the table isn't a child structure (all fields are stored for prototypes,
             // even if not displayed) or the field is applicable to this child table
             if (!tablePath.contains(".")
-                || isFieldApplicable(tablePath, typeFldInfo.getApplicabilityType().getApplicabilityName(), null))
+                || isFieldApplicable(tablePath,
+                                     typeFldInfo.getApplicabilityType().getApplicabilityName(),
+                                     null))
             {
                 // Add the data field to the table
                 fieldInformationList
@@ -945,18 +955,17 @@ public class CcddFieldHandler
                 alterFieldName(fieldInformationList, tablePath, typeFldInfo.getFieldName());
 
                 // Add the data field to the table
-                fieldInformationList
-                        .add(new FieldInformation(tablePath,
-                                                  typeFldInfo.getFieldName(),
-                                                  typeFldInfo.getDescription(),
-                                                  typeFldInfo.getInputType(),
-                                                  typeFldInfo.getSize(),
-                                                  typeFldInfo.isRequired(),
-                                                  typeFldInfo.getApplicabilityType(),
-                                                  typeFldInfo.getValue(),
-                                                  true,
-                                                  null,
-                                                  -1));
+                fieldInformationList.add(new FieldInformation(tablePath,
+                                                              typeFldInfo.getFieldName(),
+                                                              typeFldInfo.getDescription(),
+                                                              typeFldInfo.getInputType(),
+                                                              typeFldInfo.getSize(),
+                                                              typeFldInfo.isRequired(),
+                                                              typeFldInfo.getApplicabilityType(),
+                                                              typeFldInfo.getValue(),
+                                                              true,
+                                                              null,
+                                                              -1));
             }
         }
     }
@@ -982,7 +991,9 @@ public class CcddFieldHandler
                                            String matchName)
     {
         // Get the reference to the field
-        FieldInformation existingField = getFieldInformationByName(fieldInformationList, ownerName, matchName);
+        FieldInformation existingField = getFieldInformationByName(fieldInformationList,
+                                                                   ownerName,
+                                                                   matchName);
 
         // Check if the field exists
         if (existingField != null)

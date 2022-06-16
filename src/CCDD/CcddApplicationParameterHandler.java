@@ -126,11 +126,11 @@ public class CcddApplicationParameterHandler
         catch (Exception e)
         {
             // Inform the user that the application parameters are invalid
-            ccddMain.getSessionEventLog()
-                    .logFailEvent(ccddMain.getMainFrame(),
-                                  "Invalid application parameter(s): using default values instead; cause '"
-                                  + e.getMessage() + "'",
-                                  "<html><b>Invalid application parameter(s): using default values instead");
+            ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+                                                       "Invalid application parameter(s): using default values instead; cause '"
+                                                       + e.getMessage()
+                                                       + "'",
+                                                       "<html><b>Invalid application parameter(s): using default values instead");
 
             // Use default values
             maxMsgsPerTimeSlot = 1;
@@ -168,7 +168,13 @@ public class CcddApplicationParameterHandler
 
         // Update the the stored application parameters
         dbTable.setTableComment(InternalTable.APP_SCHEDULER.getTableName(),
-                                maxMsgsPerTimeSlot + "," + maxMsgsPerSec + "," + maxMsgsPerCycle + "," + numberOfTimeSlots,
+                                maxMsgsPerTimeSlot
+                                + ","
+                                + maxMsgsPerSec
+                                + ","
+                                + maxMsgsPerCycle
+                                + ","
+                                + numberOfTimeSlots,
                                 parent);
     }
 }

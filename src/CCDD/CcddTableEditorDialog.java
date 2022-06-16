@@ -232,9 +232,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private void setTabText(int tabIndex, String tabName, String tabToolTip)
     {
         tabbedPane.setTitleAt(tabIndex, tabName);
-        tabbedPane
-                .setToolTipTextAt(tabIndex,
-                                  CcddUtilities.wrapText(tabToolTip, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        tabbedPane.setToolTipTextAt(tabIndex,
+                                    CcddUtilities.wrapText(tabToolTip,
+                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
     }
 
     /**********************************************************************************************
@@ -377,10 +377,13 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param isMsgNameIDChange True is a message name or ID changed and a cell or field uses the
      *                          message name and ID input type
      *********************************************************************************************/
-    protected static void doTableModificationComplete(CcddMain main, TableInfo tableInfo,
+    protected static void doTableModificationComplete(CcddMain main,
+                                                      TableInfo tableInfo,
                                                       List<TableModification> modifications,
-                                                      List<TableModification> deletions, boolean forceUpdate,
-                                                      boolean isRefFieldChange, boolean isMsgNameIDChange)
+                                                      List<TableModification> deletions,
+                                                      boolean forceUpdate,
+                                                      boolean isRefFieldChange,
+                                                      boolean isMsgNameIDChange)
     {
         // Get references to shorten subsequent calls. Can't use global references since this is a
         // static method
@@ -407,12 +410,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Add the pattern that matches the table editor tab names for the modified
                 // structure. The pattern is [parent structure].__,[original structure data
                 // type].[original structure variable name][,__]
-                invalidatedEditors.add(
-                                       new String[] {tableInfo
-                                               .getPrototypeName(),
-                                                     mod.getOriginalRowData()[mod.getDataTypeColumn()].toString() + "."
-                                                                    + mod.getOriginalRowData()[mod.getVariableColumn()]
-                                                                            .toString()});
+                invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
+                                                     mod.getOriginalRowData()[mod.getDataTypeColumn()].toString()
+                                                     + "."
+                                                     + mod.getOriginalRowData()[mod.getVariableColumn()].toString()});
             }
         }
 
@@ -426,10 +427,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Add the pattern that matches the table editor tab names for the deleted
                 // structure. The pattern is [parent structure].__,[structure data type].[structure
                 // variable name][,__]
-                invalidatedEditors
-                        .add(new String[] {tableInfo
-                                .getPrototypeName(),
-                                           del.getRowData()[del.getDataTypeColumn()].toString() + "."
+                invalidatedEditors.add(new String[] {tableInfo.getPrototypeName(),
+                                                     del.getRowData()[del.getDataTypeColumn()].toString()
+                                                     + "."
                                                      + del.getRowData()[del.getVariableColumn()].toString()});
             }
         }
@@ -448,9 +448,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Flag that indicates if the updated table is a prototype and the editor is for an
                 // instance of the updated table
-                boolean applyToInstance = tableInfo.isPrototype() && !editor.getTableInformation().isPrototype()
-                                          && tableInfo.getPrototypeName()
-                                                  .equals((editor.getTableInformation().getPrototypeName()));
+                boolean applyToInstance = tableInfo.isPrototype()
+                                          && !editor.getTableInformation().isPrototype()
+                                          && tableInfo.getPrototypeName().equals((editor.getTableInformation().getPrototypeName()));
 
                 // Check if a data field exists that uses the variable (command) reference input
                 // type and if table wasn't already updated above
@@ -466,12 +466,14 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // table is a prototype)
                 if (applyToInstance
                     || editor.getTableInformation().getProtoVariableName().equals(tableInfo.getProtoVariableName())
-                    || (isMsgNameIDChange && editor.getTableTypeDefinition()
-                            .getColumnIndexByInputType(DefaultInputType.MESSAGE_REFERENCE) != -1))
+                    || (isMsgNameIDChange
+                        && editor.getTableTypeDefinition().getColumnIndexByInputType(DefaultInputType.MESSAGE_REFERENCE) != -1))
                 {
                     // Load the table from the database
-                    TableInfo updateInfo = main.getDbTableCommandHandler()
-                            .loadTableData(editor.getTableInformation().getTablePath(), true, true, false,
+                    TableInfo updateInfo = main.getDbTableCommandHandler().loadTableData(editor.getTableInformation().getTablePath(),
+                                                                                         true,
+                                                                                         true,
+                                                                                         false,
                                            editorDialog);
 
                     // Store the updates as the committed changes in the table (so that other
@@ -522,9 +524,13 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *
      * @param editor          Current editor to which the changes are compared
      *********************************************************************************************/
-    protected static void updateTableNames(CcddMain main, String oldPrototype, String newPrototype,
-                                           String oldVariableName, String newVariableName,
-                                           CcddTableEditorDialog editorDialog, CcddTableEditorHandler editor)
+    protected static void updateTableNames(CcddMain main,
+                                           String oldPrototype,
+                                           String newPrototype,
+                                           String oldVariableName,
+                                           String newVariableName,
+                                           CcddTableEditorDialog editorDialog,
+                                           CcddTableEditorHandler editor)
     {
         CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
 
@@ -533,7 +539,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         String protoVarName = editor.getOwnerName().substring(editor.getOwnerName().indexOf(" ") + 1);
 
         // Set flag to true if the prototype changed and isn't/wasn't a primitive variable
-        boolean isRename = !oldPrototype.equals(newPrototype) && !dtHandler.isPrimitive(oldPrototype)
+        boolean isRename = !oldPrototype.equals(newPrototype)
+                           && !dtHandler.isPrimitive(oldPrototype)
                            && !dtHandler.isPrimitive(newPrototype);
 
         // Check if the prototype name changed
@@ -561,7 +568,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
             // Update the tab in the editor dialog for this table with the new name and tool tip
             // text
-            editorDialog.setTabText(editorDialog.getTableEditors().indexOf(editor), editor.getOwnerName(),
+            editorDialog.setTabText(editorDialog.getTableEditors().indexOf(editor),
+                                    editor.getOwnerName(),
                                     editor.getTableToolTip());
 
             // Check if this table's editor is the active one for this editor dialog (the active
@@ -710,7 +718,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Open a table and add it to the tabbed pane. This calls TableSelectDialog, but
                 // doesn't spawn a separate editor
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.EDIT, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EDIT,
+                                           CcddTableEditorDialog.this);
             }
         });
 
@@ -747,7 +757,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_JSON, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.IMPORT_JSON,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -769,7 +781,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_CSV, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.IMPORT_CSV,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -791,7 +805,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_XTCE, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.IMPORT_XTCE,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -813,7 +829,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.IMPORT_EDS, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.IMPORT_EDS,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -835,7 +853,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.EXPORT_CSV, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EXPORT_CSV,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -857,7 +877,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.EXPORT_EDS, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EXPORT_EDS,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -879,7 +901,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.EXPORT_JSON, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EXPORT_JSON,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -901,7 +925,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                new CcddTableManagerDialog(ccddMain, ManagerDialogType.EXPORT_XTCE, CcddTableEditorDialog.this);
+                new CcddTableManagerDialog(ccddMain,
+                                           ManagerDialogType.EXPORT_XTCE,
+                                           CcddTableEditorDialog.this);
             }
 
             /**************************************************************************************
@@ -925,7 +951,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Print the table
                 activeEditor.getTable().printTable("Table: " + activeEditor.getOwnerName(),
-                                                   activeEditor.getPanelFieldInformation(), CcddTableEditorDialog.this,
+                                                   activeEditor.getPanelFieldInformation(),
+                                                   CcddTableEditorDialog.this,
                                                    PageFormat.LANDSCAPE);
             }
 
@@ -1192,7 +1219,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // action
                 if (isTablesChanged()
                     && new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
-                                                                 "<html><b>Store changes for all?", "Store Changes",
+                                                                 "<html><b>Store changes for all?",
+                                                                 "Store Changes",
                                                                  JOptionPane.QUESTION_MESSAGE,
                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
@@ -1248,7 +1276,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                         .setFieldInformation(activeEditor.getInputFieldPanelHandler().getPanelFieldInformation());
 
                 // Create the field editor dialog showing the fields for this table
-                new CcddFieldEditorDialog(ccddMain, activeEditor, activeEditor.getTableInformation().getTablePath(),
+                new CcddFieldEditorDialog(ccddMain,
+                                          activeEditor,
+                                          activeEditor.getTableInformation().getTablePath(),
                                           activeEditor.getTableInformation().getFieldInformation(),
                                           (activeEditor.getTableTypeDefinition().isStructure()
                                            && !activeEditor.getTableInformation().getTablePath().contains(",")),
@@ -1256,8 +1286,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
                 // Update the field information stored in the table information with the fields as
                 // updated by the field editor
-                activeEditor.getTableInformation()
-                        .setFieldInformation(activeEditor.getInputFieldPanelHandler().getPanelFieldInformation());
+                activeEditor.getTableInformation().setFieldInformation(activeEditor.getInputFieldPanelHandler().getPanelFieldInformation());
 
                 // Enable/disable the Clear values command depending on if any data fields remain
                 mntmClearValues.setEnabled(!activeEditor.getTableInformation().getFieldInformation().isEmpty());
@@ -1304,7 +1333,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         JPanel buttonPnl = new JPanel();
 
         // Define the buttons for the lower panel: New button
-        btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row", INSERT_ICON, KeyEvent.VK_I,
+        btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                           INSERT_ICON,
+                                                           KeyEvent.VK_I,
                                                            "Insert a new row into the table");
 
         // Create a listener for the Insert Row command
@@ -1334,7 +1365,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmInsertRow.addActionListener(insertAction);
 
         // Delete button
-        btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row", DELETE_ICON, KeyEvent.VK_D,
+        btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                           DELETE_ICON,
+                                                           KeyEvent.VK_D,
                                                            "Delete the selected row(s) from the table");
 
         // Create a listener for the Delete Row command
@@ -1387,7 +1420,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         });
 
         // Move Up button
-        btnMoveUp = CcddButtonPanelHandler.createButton("Up", UP_ICON, KeyEvent.VK_U, "Move the selected row(s) up");
+        btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                        UP_ICON,
+                                                        KeyEvent.VK_U,
+                                                        "Move the selected row(s) up");
 
         // Create a listener for the Move Up command
         ActionListener moveUpAction = new ValidateCellActionListener()
@@ -1416,7 +1452,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveUp.addActionListener(moveUpAction);
 
         // Move Down button
-        btnMoveDown = CcddButtonPanelHandler.createButton("Down", DOWN_ICON, KeyEvent.VK_N,
+        btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                          DOWN_ICON,
+                                                          KeyEvent.VK_N,
                                                           "Move the selected row(s) down");
 
         // Create a listener for the Move Down command
@@ -1446,7 +1484,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveDown.addActionListener(moveDownAction);
 
         // Move Left button
-        btnMoveLeft = CcddButtonPanelHandler.createButton("Left", LEFT_ICON, KeyEvent.VK_L,
+        btnMoveLeft = CcddButtonPanelHandler.createButton("Left",
+                                                          LEFT_ICON,
+                                                          KeyEvent.VK_L,
                                                           "Move the selected column(s) left");
 
         // Create a listener for the Move Left command
@@ -1476,7 +1516,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveLeft.addActionListener(moveLeftAction);
 
         // Move Right button
-        btnMoveRight = CcddButtonPanelHandler.createButton("Right", RIGHT_ICON, KeyEvent.VK_R,
+        btnMoveRight = CcddButtonPanelHandler.createButton("Right",
+                                                           RIGHT_ICON,
+                                                           KeyEvent.VK_R,
                                                            "Move the selected column(s) right");
 
         // Create a listener for the Move Right command
@@ -1506,7 +1548,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveRight.addActionListener(moveRightAction);
 
         // Undo button
-        btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z, "Undo the last edit action");
+        btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                      UNDO_ICON,
+                                                      KeyEvent.VK_Z,
+                                                      "Undo the last edit action");
 
         // Create a listener for the Undo command
         ActionListener undoAction = new ValidateCellActionListener()
@@ -1538,7 +1583,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         btnUndo.addActionListener(undoAction);
 
         // Redo button
-        btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+        btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                      REDO_ICON,
+                                                      KeyEvent.VK_Y,
                                                       "Redo the last undone edit action");
 
         // Create a listener for the Redo command
@@ -1571,7 +1618,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         btnRedo.addActionListener(redoAction);
 
         // Store button
-        btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+        btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                       STORE_ICON,
+                                                       KeyEvent.VK_S,
                                                        "Store the table updates in the database");
 
         // Create a listener for the Store command
@@ -1585,10 +1634,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Only update the table in the database if a cell's content has changed, no
                 // required columns are empty, and the user confirms the action
-                if (activeEditor.isTableChanged() && !activeEditor.checkForMissingColumns()
+                if (activeEditor.isTableChanged()
+                    && !activeEditor.checkForMissingColumns()
                     && new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
                                                                  "<html><b>Store changes in project database?",
-                                                                 "Store Changes", JOptionPane.QUESTION_MESSAGE,
+                                                                 "Store Changes",
+                                                                 JOptionPane.QUESTION_MESSAGE,
                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
                     // Store the changes for the currently displayed editor in the database
@@ -1611,7 +1662,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmStore.addActionListener(storeAction);
 
         // Close button
-        btnCloseActive = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+        btnCloseActive = CcddButtonPanelHandler.createButton("Close",
+                                                             CLOSE_ICON,
+                                                             KeyEvent.VK_C,
                                                              "Close the table editor");
 
         // Add a listener for the Close active table command
@@ -1629,7 +1682,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 if (activeEditor.getTable().isLastCellValid()
                     && (!activeEditor.isTableChanged()
                         || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
-                                                                     "<html><b>Discard changes?", "Discard Changes",
+                                                                     "<html><b>Discard changes?",
+                                                                     "Discard Changes",
                                                                      JOptionPane.QUESTION_MESSAGE,
                                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
                 {
@@ -1728,7 +1782,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     editor.setEditorDialog(CcddTableEditorDialog.this);
 
                     // Add the table editor reference at the specified location
-                    tableEditors.add(newTabIndex - (oldTabIndex != -1 && newTabIndex > oldTabIndex ? 1 : 0), editor);
+                    tableEditors.add(newTabIndex
+                                     - (oldTabIndex != -1 && newTabIndex > oldTabIndex ? 1 : 0),
+                                     editor);
                 }
 
                 // Check if the last editor was removed from the dialog
@@ -1755,8 +1811,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             {
                 // Create a new table editor dialog and place the editor from the other dialog into
                 // it
-                ccddMain.getTableEditorDialogs()
-                        .add(new CcddTableEditorDialog(ccddMain, (CcddTableEditorHandler) tabContents));
+                ccddMain.getTableEditorDialogs().add(new CcddTableEditorDialog(ccddMain,
+                                                                               (CcddTableEditorHandler) tabContents));
 
                 // Update the command menu items so that the new editor has the recent tables menu
                 // items
@@ -1811,7 +1867,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         activeEditor = tableEditors.get(0);
 
         // Display the table editor dialog
-        createFrame(ccddMain.getMainFrame(), tabbedPane, buttonPnl, null, activeEditor.getOwnerName(), null);
+        createFrame(ccddMain.getMainFrame(),
+                    tabbedPane,
+                    buttonPnl,
+                    null,
+                    activeEditor.getOwnerName(),
+                    null);
 
         // Enable the editor controls
         setControlsEnabled(true);
@@ -1869,7 +1930,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Inform the user that key presses cannot be simulated
             new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
                                                       "<html><b>Platform does not allow key press simulation",
-                                                      "Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                      "Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
     }
@@ -1885,9 +1947,17 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         editor.buildUpdates();
 
         // Perform the changes to the table in the database
-        dbTable.modifyTableDataInBackground(editor.getTableInformation(), editor.getAdditions(),
-                                            editor.getModifications(), editor.getDeletions(), false, false, true, true,
-                                            true, null, CcddTableEditorDialog.this);
+        dbTable.modifyTableDataInBackground(editor.getTableInformation(),
+                                            editor.getAdditions(),
+                                            editor.getModifications(),
+                                            editor.getDeletions(),
+                                            false,
+                                            false,
+                                            true,
+                                            true,
+                                            true,
+                                            null,
+                                            CcddTableEditorDialog.this);
     }
 
     /**********************************************************************************************
@@ -1917,9 +1987,20 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                         editor.buildUpdates();
 
                         // Perform the changes to the table in the database
-                        dbTable.modifyTableData(editor.getTableInformation(), editor.getAdditions(),
-                                                editor.getModifications(), editor.getDeletions(), false, false, true,
-                                                true, true, null, true, true, false, CcddTableEditorDialog.this);
+                        dbTable.modifyTableData(editor.getTableInformation(),
+                                                editor.getAdditions(),
+                                                editor.getModifications(),
+                                                editor.getDeletions(),
+                                                false,
+                                                false,
+                                                true,
+                                                true,
+                                                true,
+                                                null,
+                                                true,
+                                                true,
+                                                false,
+                                                CcddTableEditorDialog.this);
                     }
                 }
             }
@@ -1957,7 +2038,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             tableEditors.add(editor);
 
             // Create a tab for the editor
-            tabbedPane.addTab(editor.getOwnerName(), null, editor.getFieldPanel(), editor.getTableToolTip());
+            tabbedPane.addTab(editor.getOwnerName(),
+                              null,
+                              editor.getFieldPanel(),
+                              editor.getTableToolTip());
 
             // Refresh the editor's change indicator, in case it's added while having unstored
             // changes
@@ -1975,7 +2059,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 tableEditors.add(editor);
 
                 // Create a tab for each table
-                tabbedPane.addTab(editor.getOwnerName(), null, editor.getFieldPanel(), editor.getTableToolTip());
+                tabbedPane.addTab(editor.getOwnerName(),
+                                  null,
+                                  editor.getFieldPanel(),
+                                  editor.getTableToolTip());
             }
         }
 
@@ -2025,8 +2112,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         if (index != -1)
         {
             // Replace the tab name, appending the change indicator if changes exist
-            tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, "")
-                                         + (tableEditor.isTableChanged() ? CHANGE_INDICATOR : ""));
+            tabbedPane.setTitleAt(index,
+                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, "")
+                                  + (tableEditor.isTableChanged() ? CHANGE_INDICATOR : ""));
         }
     }
 
@@ -2110,8 +2198,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // confirm discarding the changes
         if (activeEditor.getTable().isLastCellValid()
             && (!isTablesChanged()
-                || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this, "<html><b>Discard changes?",
-                                                             "Discard Changes", JOptionPane.QUESTION_MESSAGE,
+                || new CcddDialogHandler().showMessageDialog(CcddTableEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the editor dialog

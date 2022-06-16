@@ -639,40 +639,39 @@ public class CcddCommonTreeHandler extends JTree
                 boolean matchesEither = path.matches(Pattern.quote(prefix) + groupPattern + typePattern + termPattern);
 
                 // Set the flag to true if the path contains a group node but no type node
-                boolean matchesGroup = groupPattern
-                        .equals("(())") ? false
-                                        : typePattern.equals("(())")
-                                                                     ? path.matches(Pattern.quote(prefix)
-                                                                                    + groupPattern
-                                                                                    + termPattern)
-                                                                       || path.matches(Pattern.quote(prefix)
-                                                                                       + termPattern)
-                                                                     : path.matches(Pattern.quote(prefix)
-                                                                                    + groupPattern
-                                                                                    + "[^" + typePattern + "]"
-                                                                                    + termPattern)
-                                                                       || path.matches(Pattern.quote(prefix)
-                                                                                       + typePattern
-                                                                                       + termPattern);
+                boolean matchesGroup = groupPattern.equals("(())") ? false
+                                                                   : typePattern.equals("(())")
+                                                                                                ? path.matches(Pattern.quote(prefix)
+                                                                                                               + groupPattern
+                                                                                                               + termPattern)
+                                                                                                  || path.matches(Pattern.quote(prefix)
+                                                                                                                  + termPattern)
+                                                                                                : path.matches(Pattern.quote(prefix)
+                                                                                                               + groupPattern
+                                                                                                               + "[^" + typePattern + "]"
+                                                                                                               + termPattern)
+                                                                                                  || path.matches(Pattern.quote(prefix)
+                                                                                                                  + typePattern
+                                                                                                                  + termPattern);
 
                 // Set the flag to true if the path contains a type node but no group node
-                boolean matchesType = typePattern
-                        .equals("(())") ? false
-                                        : groupPattern.equals("(())")
-                                                                      ? path.matches(Pattern.quote(prefix)
-                                                                                     + typePattern
-                                                                                     + termPattern)
-                                                                        || path.matches(Pattern.quote(prefix)
-                                                                                        + termPattern)
-                                                                      : path.matches(Pattern.quote(prefix)
-                                                                                     + "[^"
-                                                                                     + groupPattern
-                                                                                     + "]"
-                                                                                     + typePattern
-                                                                                     + termPattern)
-                                                                        || path.matches(Pattern.quote(prefix)
-                                                                                        + groupPattern
-                                                                                        + termPattern);
+                boolean matchesType = typePattern.equals("(())") ? false
+                                                                 : groupPattern.equals("(())")
+                                                                                               ? path.matches(Pattern.quote(prefix)
+                                                                                                              + typePattern
+                                                                                                              + termPattern)
+                                                                                                 || path.matches(Pattern.quote(prefix)
+                                                                                                                 + termPattern)
+                                                                                               : path.matches(Pattern.quote(prefix)
+                                                                                                              + "[^"
+                                                                                                              + groupPattern
+                                                                                                              + "]"
+                                                                                                              + typePattern
+                                                                                                              + termPattern)
+                                                                                                 || path.matches(Pattern.quote(prefix)
+                                                                                                                 + groupPattern
+                                                                                                                 + termPattern);
+
                 // Check if the path contains a group or type node
                 if (matchesEither)
                 {
@@ -699,14 +698,24 @@ public class CcddCommonTreeHandler extends JTree
                                 {
                                     // Update the node path with the group name and append it to
                                     // new path
-                                    newPath += path.replaceAll(Pattern.quote(prefix) + typePattern + termPattern,
-                                                               prefix + ", " + grpInfo.getName() + "$3");
+                                    newPath += path.replaceAll(Pattern.quote(prefix)
+                                                               + typePattern
+                                                               + termPattern,
+                                                               prefix
+                                                               + ", "
+                                                               + grpInfo.getName()
+                                                               + "$3");
                                 }
 
                                 // Update the node path with the group name and append it to new
                                 // path
-                                newPath += path.replaceAll(Pattern.quote(prefix) + typePattern + termPattern,
-                                                           prefix + ", " + grpInfo.getName() + "$1$3");
+                                newPath += path.replaceAll(Pattern.quote(prefix)
+                                                           + typePattern
+                                                           + termPattern,
+                                                           prefix
+                                                           + ", "
+                                                           + grpInfo.getName()
+                                                           + "$1$3");
                             }
 
                             // Check if type filtering is enabled and that the path contains a type
@@ -740,8 +749,13 @@ public class CcddCommonTreeHandler extends JTree
                         for (String type : tableTypeHandler.getTableTypeNames())
                         {
                             // Modify the existing path to include the new type node
-                            newPath += path.replaceAll(Pattern.quote(prefix) + groupPattern + termPattern,
-                                                       prefix + "$1, " + type + "$3");
+                            newPath += path.replaceAll(Pattern.quote(prefix)
+                                                       + groupPattern
+                                                       + termPattern,
+                                                       prefix
+                                                       + "$1, "
+                                                       + type
+                                                       + "$3");
                         }
 
                         // Add the new type nodes to the path
@@ -751,8 +765,12 @@ public class CcddCommonTreeHandler extends JTree
                     else if (!isByType && isByTypeChanged)
                     {
                         // Remove the type name form the path
-                        path = path.replaceAll(Pattern.quote(prefix) + groupPattern + typePattern + termPattern,
-                                               prefix + "$1$5");
+                        path = path.replaceAll(Pattern.quote(prefix)
+                                               + groupPattern
+                                               + typePattern
+                                               + termPattern,
+                                               prefix
+                                               + "$1$5");
                     }
 
                     break;

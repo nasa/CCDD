@@ -63,7 +63,7 @@ public final class CcddBackupName
         if (chosenBackupFileName.isEmpty())
             return null;
 
-        // Get the chosen file name and remove all whatespace chars
+        // Get the chosen file name and remove all whitespace chars
         String selectedFileName = chosenBackupFileName.replaceAll("\"", "");
 
         // Reconstruct the resultant full file name
@@ -113,7 +113,7 @@ public final class CcddBackupName
         // Remove the extension
         selectedFileName = selectedFileName.replaceFirst(extension, "");
 
-        // If the timestamp was added, remove it
+        // If the time stamp was added, remove it
         if (isTimeDateStamped)
         {
             String exampleTimeStamp = "_"

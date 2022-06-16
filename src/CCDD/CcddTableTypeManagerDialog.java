@@ -85,7 +85,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      *
      * @param dialogType   Type manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
      *********************************************************************************************/
-    CcddTableTypeManagerDialog(CcddMain ccddMain, CcddTableTypeEditorDialog editorDialog, ManagerDialogType dialogType)
+    CcddTableTypeManagerDialog(CcddMain ccddMain,
+                               CcddTableTypeEditorDialog editorDialog,
+                               ManagerDialogType dialogType)
     {
         this.editorDialog = editorDialog;
         this.dialogType = dialogType;
@@ -121,7 +123,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      *
      * @param tableNames       Array of deleted table names; null if this is not a delete operation
      *********************************************************************************************/
-    protected void doTypeOperationComplete(boolean commandError, List<String[]> fieldDefinitions, String[] tableNames)
+    protected void doTypeOperationComplete(boolean commandError,
+                                           List<String[]> fieldDefinitions,
+                                           String[] tableNames)
     {
         // Check that no error occurred performing the database commands
         if (!commandError)
@@ -134,7 +138,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
             switch (dialogType)
             {
                 case RENAME:
-                    // Update the table type editor and any open table editors afftecd by the type
+                    // Update the table type editor and any open table editors affected by the type
                     // name change
                     editorDialog.doTypeModificationComplete(commandError, null, tableNames);
 
@@ -204,14 +208,20 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     private void initialize()
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2, 0,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing() / 2,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    0),
-                                                        0, 0);
+                                                        0,
+                                                        0);
 
         // Create a panel to contain the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -226,17 +236,30 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 // Create a panel containing allowing addition of default columns to the new table
                 // type and add it to the dialog
                 JPanel radioBtns = new JPanel(new GridBagLayout());
-                addRadioButtons("None", true, new String[][] {{"None", ""}, {TYPE_STRUCTURE, ""}, {TYPE_COMMAND, ""}},
-                                null, "Add columns required for table type", false, radioBtns, gbc);
+                addRadioButtons("None",
+                                true,
+                                new String[][] {{"None", ""},
+                                                {TYPE_STRUCTURE, ""},
+                                                {TYPE_COMMAND, ""}},
+                                null,
+                                "Add columns required for table type",
+                                false,
+                                radioBtns,
+                                gbc);
                 gbc.gridy++;
                 dialogPnl.add(radioBtns, gbc);
 
                 // Get the user's input
                 if (showOptionsDialog(editorDialog, dialogPnl, "New Type", DialogOption.CREATE_OPTION) == OK_BUTTON)
                 {
-                    // Add the table type definition
-                    tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(), "", DefaultColumn
-                            .getDefaultColumnDefinitions(getRadioButtonSelected(), true));
+                    // Add the table type definition. The description must contain the character
+                    // that identifies whether or not the type is a command argument structure (0
+                    // indicates it is not; this can be changed by the user after the type is
+                    // created)
+                    tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
+                                                                 "0",
+                                                                 DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected(),
+                                                                                                           true));
 
                     // Add the new table type to the project database
                     dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
@@ -289,8 +312,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                         // Copy the selected type using the supplied name. The current type data
                         // and description is copied, which may differ from the committed data and
                         // description if the user has made uncommitted changes
-                        tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(), editorDialog.getTypeEditor()
-                                .getDescription(), editorDialog.getTypeEditor().getTable().getTableData(true));
+                        tableTypeHandler.createReplaceTypeDefinition(typeNameFld.getText(),
+                                                                     editorDialog.getTypeEditor().getDescription(),
+                                                                     editorDialog.getTypeEditor().getTable().getTableData(true));
 
                         // Copy the table type to the new type name
                         dbTable.copyTableType(activeTypeName, typeNameFld.getText(), CcddTableTypeManagerDialog.this);
@@ -301,8 +325,12 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
             case DELETE:
                 // Check that the user confirms deletion of the table type
-                if (showMessageDialog(editorDialog, "<html><b>Delete table type '</b>" + activeTypeName + "<b>'?",
-                                      "Delete Type", JOptionPane.QUESTION_MESSAGE,
+                if (showMessageDialog(editorDialog,
+                                      "<html><b>Delete table type '</b>"
+                                      + activeTypeName
+                                      + "<b>'?",
+                                      "Delete Type",
+                                      JOptionPane.QUESTION_MESSAGE,
                                       DialogOption.DELETE_OPTION) == OK_BUTTON)
                 {
                     // Store a copy of the deleted type definition in the event an error occurs or
@@ -334,15 +362,20 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     private void addTypeNameField(String labelText, String intialName, JPanel dialogPnl, GridBagConstraints dialogGbc)
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(), 0,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create the type name label and field
         JLabel label = new JLabel(labelText);
@@ -355,15 +388,13 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         typeNameFld.setEditable(true);
         typeNameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         typeNameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        typeNameFld.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+        typeNameFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                 Color.LIGHT_GRAY,
+                                                                                                 Color.GRAY),
+                                                                 BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Add the label to the dialog panel
         gbc.gridy++;
@@ -435,7 +466,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddTableTypeManagerDialog.this,
-                                                      "<html><b>" + ce.getMessage(),
+                                                      "<html><b>"
+                                                      + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

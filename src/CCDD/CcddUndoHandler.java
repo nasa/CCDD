@@ -234,7 +234,11 @@ public class CcddUndoHandler
             {
                 // Create the edit event
                 new UndoableEditEvent(this,
-                                      new ListEdit<E>(UndoableArrayList.this, -1, listItem, null, ListEditType.ADD));
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      -1,
+                                                      listItem,
+                                                      null,
+                                                      ListEditType.ADD));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -273,8 +277,12 @@ public class CcddUndoHandler
             if (isAllowUndo && undoable)
             {
                 // Create the edit event
-                new UndoableEditEvent(this, new ListEdit<E>(UndoableArrayList.this, listIndex, listItem, null,
-                                                            ListEditType.ADD_INDEX));
+                new UndoableEditEvent(this,
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      listIndex,
+                                                      listItem,
+                                                      null,
+                                                      ListEditType.ADD_INDEX));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -316,8 +324,12 @@ public class CcddUndoHandler
             if (isAllowUndo && undoable)
             {
                 // Create the edit event
-                new UndoableEditEvent(this, new ListEdit<E>(UndoableArrayList.this, -1, null, (Collection<E>) listItems,
-                                                            ListEditType.ADD_ALL));
+                new UndoableEditEvent(this,
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      -1,
+                                                      null,
+                                                      (Collection<E>) listItems,
+                                                      ListEditType.ADD_ALL));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -359,8 +371,12 @@ public class CcddUndoHandler
             if (isAllowUndo && undoable)
             {
                 // Create the edit event
-                new UndoableEditEvent(this, new ListEdit<E>(UndoableArrayList.this, -1, (E) listItem, null,
-                                                            ListEditType.REMOVE));
+                new UndoableEditEvent(this,
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      -1,
+                                                      (E) listItem,
+                                                      null,
+                                                      ListEditType.REMOVE));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -399,8 +415,12 @@ public class CcddUndoHandler
             if (isAllowUndo && undoable)
             {
                 // Create the edit event
-                new UndoableEditEvent(this, new ListEdit<E>(UndoableArrayList.this, index, get(index), null,
-                                                            ListEditType.REMOVE_INDEX));
+                new UndoableEditEvent(this,
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      index,
+                                                      get(index),
+                                                      null,
+                                                      ListEditType.REMOVE_INDEX));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -442,8 +462,12 @@ public class CcddUndoHandler
             if (isAllowUndo && undoable)
             {
                 // Create the edit event
-                new UndoableEditEvent(this, new ListEdit<E>(UndoableArrayList.this, -1, null, (Collection<E>) listItems,
-                                                            ListEditType.REMOVE_ALL));
+                new UndoableEditEvent(this,
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      -1,
+                                                      null,
+                                                      (Collection<E>) listItems,
+                                                      ListEditType.REMOVE_ALL));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -482,7 +506,11 @@ public class CcddUndoHandler
 
                 // Create the edit event
                 new UndoableEditEvent(this,
-                                      new ListEdit<E>(UndoableArrayList.this, -1, null, removed, ListEditType.CLEAR));
+                                      new ListEdit<E>(UndoableArrayList.this,
+                                                      -1,
+                                                      null,
+                                                      removed,
+                                                      ListEditType.CLEAR));
 
                 // Check if the flag is set that allows automatically ending the edit sequence
                 if (isAutoEndEditSequence)
@@ -530,7 +558,10 @@ public class CcddUndoHandler
          *                          specified index from the list; ListEditType.CLEAR if removing
          *                          all items from the list
          *****************************************************************************************/
-        ListEdit(UndoableArrayList<T> undoableArrayList, int listIndex, T listItem, Collection<T> listItems,
+        ListEdit(UndoableArrayList<T> undoableArrayList,
+                 int listIndex,
+                 T listItem,
+                 Collection<T> listItems,
                  ListEditType type)
         {
             this.arrayList = undoableArrayList;
@@ -716,8 +747,10 @@ public class CcddUndoHandler
                         // Create the edit event to be passed to the listeners
                         UndoableEditEvent editEvent = new UndoableEditEvent(this,
                                                                             new CheckBoxEdit(UndoableCheckBox.this,
-                                                                                             oldValue, isSelected(),
-                                                                                             fieldOwner, fieldName));
+                                                                                             oldValue,
+                                                                                             isSelected(),
+                                                                                             fieldOwner,
+                                                                                             fieldName));
 
                         // Step through the registered listeners
                         for (UndoableEditListener listener : listeners)
@@ -837,7 +870,11 @@ public class CcddUndoHandler
          * @param fieldName  Name of the data field to which the check box belongs; null if the
          *                   check box is not a data field
          *****************************************************************************************/
-        CheckBoxEdit(UndoableCheckBox checkBox, boolean oldValue, boolean newValue, String fieldOwner, String fieldName)
+        CheckBoxEdit(UndoableCheckBox checkBox,
+                     boolean oldValue,
+                     boolean newValue,
+                     String fieldOwner,
+                     String fieldName)
         {
             this.checkBox = checkBox;
             this.oldValue = oldValue;
@@ -1028,8 +1065,10 @@ public class CcddUndoHandler
                     // Create the edit event to be passed to the listeners
                     UndoableEditEvent editEvent = new UndoableEditEvent(this,
                                                                         new ComboBoxEdit(UndoableComboBox.this,
-                                                                                         oldValue, selection,
-                                                                                         fieldOwner, fieldName));
+                                                                                         oldValue,
+                                                                                         selection,
+                                                                                         fieldOwner,
+                                                                                         fieldName));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -1079,7 +1118,11 @@ public class CcddUndoHandler
          * @param fieldName  Name of the data field to which the combo box belongs; null if the
          *                   combo box is not a data field
          *****************************************************************************************/
-        ComboBoxEdit(UndoableComboBox comboBox, Object oldValue, Object newValue, String fieldOwner, String fieldName)
+        ComboBoxEdit(UndoableComboBox comboBox,
+                     Object oldValue,
+                     Object newValue,
+                     String fieldOwner,
+                     String fieldName)
         {
             this.comboBox = comboBox;
             this.oldValue = oldValue;
@@ -1331,7 +1374,9 @@ public class CcddUndoHandler
                     // Create the edit event to be passed to the listeners
                     UndoableEditEvent editEvent = new UndoableEditEvent(this,
                                                                         new TextFieldEdit(UndoableTextField.this,
-                                                                                          oldValue, text, fieldOwner,
+                                                                                          oldValue,
+                                                                                          text,
+                                                                                          fieldOwner,
                                                                                           fieldName));
 
                     // Step through the registered listeners
@@ -1385,7 +1430,10 @@ public class CcddUndoHandler
          * @param fieldName  Name of the data field to which the text field belongs; null if the
          *                   text field is not a data field
          *****************************************************************************************/
-        TextFieldEdit(UndoableTextField textField, String oldValue, String newValue, String fieldOwner,
+        TextFieldEdit(UndoableTextField textField,
+                      String oldValue,
+                      String newValue,
+                      String fieldOwner,
                       String fieldName)
         {
             this.textField = textField;
@@ -1658,8 +1706,10 @@ public class CcddUndoHandler
                 if (listeners.length != 0)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new TextAreaEdit(UndoableTextArea.this,
-                                                                                               oldValue, newValue));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new TextAreaEdit(UndoableTextArea.this,
+                                                                                         oldValue,
+                                                                                         newValue));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -1885,8 +1935,12 @@ public class CcddUndoHandler
                     if (listeners.length != 0)
                     {
                         // Create the edit event to be passed to the listeners
-                        UndoableEditEvent editEvent = new UndoableEditEvent(this, new CellEdit(this, oldValue, value,
-                                                                                               row, column));
+                        UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                            new CellEdit(this,
+                                                                                         oldValue,
+                                                                                         value,
+                                                                                         row,
+                                                                                         column));
 
                         // Step through the registered listeners
                         for (UndoableEditListener listener : listeners)
@@ -1978,8 +2032,13 @@ public class CcddUndoHandler
                 if (listeners.length != 0)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new RowEdit(this, values, row, 0, 0,
-                                                                                          TableEditType.INSERT));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new RowEdit(this,
+                                                                                    values,
+                                                                                    row,
+                                                                                    0,
+                                                                                    0,
+                                                                                    TableEditType.INSERT));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -2034,8 +2093,13 @@ public class CcddUndoHandler
                     }
 
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new RowEdit(this, values, row, 0, 0,
-                                                                                          TableEditType.DELETE));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new RowEdit(this,
+                                                                                    values,
+                                                                                    row,
+                                                                                    0,
+                                                                                    0,
+                                                                                    TableEditType.DELETE));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -2090,8 +2154,13 @@ public class CcddUndoHandler
                 if (listeners.length != 0 && start != to)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new RowEdit(this, null, to, start, end,
-                                                                                          TableEditType.MOVE));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new RowEdit(this,
+                                                                                    null,
+                                                                                    to,
+                                                                                    start,
+                                                                                    end,
+                                                                                    TableEditType.MOVE));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -2137,7 +2206,9 @@ public class CcddUndoHandler
                 if (listeners.length != 0)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent sortEvent = new UndoableEditEvent(this, new RowSort(oldSortKeys, newSortKeys));
+                    UndoableEditEvent sortEvent = new UndoableEditEvent(this,
+                                                                        new RowSort(oldSortKeys,
+                                                                                    newSortKeys));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -2464,8 +2535,10 @@ public class CcddUndoHandler
                 {
                     // Request focus in the table and select the specified cell
                     table.requestFocusInWindow();
-                    table.changeSelection(table.convertRowIndexToView(row), table.convertColumnIndexToView(column),
-                                          false, false);
+                    table.changeSelection(table.convertRowIndexToView(row),
+                                          table.convertColumnIndexToView(column),
+                                          false,
+                                          false);
                 }
             });
         }
@@ -2530,7 +2603,9 @@ public class CcddUndoHandler
                 {
                     // Create the edit event to be passed to the listeners
                     UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new ColumnEdit(this, columnIndex, newIndex,
+                                                                        new ColumnEdit(this,
+                                                                                       columnIndex,
+                                                                                       newIndex,
                                                                                        TableEditType.MOVE));
 
                     // Step through the registered listeners
@@ -2689,7 +2764,10 @@ public class CcddUndoHandler
             if (listeners != null)
             {
                 // Create the edit event to be passed to the listeners
-                UndoableEditEvent editEvent = new UndoableEditEvent(this, new CellSelectEdit(row, column, isSelected));
+                UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                    new CellSelectEdit(row,
+                                                                                       column,
+                                                                                       isSelected));
 
                 // Step through the registered listeners
                 for (UndoableEditListener listener : listeners)
@@ -2826,7 +2904,9 @@ public class CcddUndoHandler
                 if (listeners != null)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new TreePathSelectEdit(oldPaths, paths));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new TreePathSelectEdit(oldPaths,
+                                                                                               paths));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -3007,7 +3087,9 @@ public class CcddUndoHandler
                 {
                     // Create the edit event to be passed to the listeners
                     UndoableEditEvent editEvent = new UndoableEditEvent(this,
-                                                                        new UndoableNodeAddEdit(parent, child, index));
+                                                                        new UndoableNodeAddEdit(parent,
+                                                                                                child,
+                                                                                                index));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -3050,8 +3132,10 @@ public class CcddUndoHandler
                 if (listeners.length != 0)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new UndoableNodeChangeEdit(path, oldValue,
-                                                                                                         newValue));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new UndoableNodeChangeEdit(path,
+                                                                                                   oldValue,
+                                                                                                   newValue));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -3094,8 +3178,10 @@ public class CcddUndoHandler
                 if (listeners.length != 0)
                 {
                     // Create the edit event to be passed to the listeners
-                    UndoableEditEvent editEvent = new UndoableEditEvent(this, new UndoableNodeRemoveEdit(parent, child,
-                                                                                                         index));
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new UndoableNodeRemoveEdit(parent,
+                                                                                                   child,
+                                                                                                   index));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -3569,7 +3655,8 @@ public class CcddUndoHandler
          *
          * @param newFieldInfo    List containing the new state of the data field information
          *****************************************************************************************/
-        DataFieldPanelEdit(CcddInputFieldPanelHandler fieldPnlHandler, List<FieldInformation> oldFieldInfo,
+        DataFieldPanelEdit(CcddInputFieldPanelHandler fieldPnlHandler,
+                           List<FieldInformation> oldFieldInfo,
                            List<FieldInformation> newFieldInfo)
         {
             this.fieldPnlHandler = fieldPnlHandler;

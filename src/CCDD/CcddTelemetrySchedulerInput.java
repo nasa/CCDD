@@ -124,8 +124,11 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      * @param allVariableTreePaths List containing the paths to all elements in the allVariableTree
      *                             tree
      *********************************************************************************************/
-    CcddTelemetrySchedulerInput(CcddMain ccddMain, CcddTelemetrySchedulerDialog schedulerDlg, String rateName,
-                                CcddTableTreeHandler allVariableTree, List<String> allVariableTreePaths)
+    CcddTelemetrySchedulerInput(CcddMain ccddMain,
+                                CcddTelemetrySchedulerDialog schedulerDlg,
+                                String rateName,
+                                CcddTableTreeHandler allVariableTree,
+                                List<String> allVariableTreePaths)
     {
         this.ccddMain = ccddMain;
         this.schedulerDlg = schedulerDlg;
@@ -172,10 +175,9 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // rates; otherwise choose the first rate if any rates exist, and if none exist set the
         // rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
-        selectedRate = availableRates
-                .contains("1") ? "1"
-                               : (!availableRates.isEmpty() ? CcddUtilities.removeHTMLTags(availableRates.get(0))
-                                                            : "0");
+        selectedRate = availableRates.contains("1") ? "1"
+                                                      : (!availableRates.isEmpty() ? CcddUtilities.removeHTMLTags(availableRates.get(0))
+                                                                                   : "0");
 
         // Build a link tree
         linkTree = new CcddLinkTreeHandler(ccddMain, null, rateName, ccddMain.getMainFrame());
@@ -186,10 +188,17 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // Build the variable tree that shows tables and their variables for the selected rate. Use
         // the first rate in the available rates array to determine which variables to display in
         // the tree, or, if none, create the tree showing no variables
-        variableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES, rateName,
-                                                selectedRate, excludedVars, DEFAULT_PROTOTYPE_NODE_NAME,
-                                                UNLINKED_VARIABLES_NODE_NAME, ccddMain.getMainFrame())
+        variableTree = new CcddTableTreeHandler(ccddMain,
+                                                new CcddGroupHandler(ccddMain,
+                                                                     null,
+                                                                     ccddMain.getMainFrame()),
+                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
+                                                rateName,
+                                                selectedRate,
+                                                excludedVars,
+                                                DEFAULT_PROTOTYPE_NODE_NAME,
+                                                UNLINKED_VARIABLES_NODE_NAME,
+                                                ccddMain.getMainFrame())
         {
             /**************************************************************************************
              * Respond to changes in selection of a node in the variable tree. This replaces the
@@ -224,17 +233,20 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
              * Override building the table tree so that the links can be added
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter,
-                                          boolean isByGroupChanged, Component parent)
+            protected void buildTableTree(Boolean isExpanded,
+                                          String rateName,
+                                          String rateFilter,
+                                          boolean isByGroupChanged,
+                                          Component parent)
             {
                 // Call to the super to build the tree
                 super.buildTableTree(isExpanded, rateName, rateFilter, false, parent);
 
                 // Create a tree showing the links that contain variables with a sample rate
                 // matching the currently selected rate
-                ToolTipTreeNode validLinks = linkTree
-                        .getLinksMatchingRate(LINKED_VARIABLES_NODE_NAME,
-                                              "Links containing variables with a sample rate of " + selectedRate);
+                ToolTipTreeNode validLinks = linkTree.getLinksMatchingRate(LINKED_VARIABLES_NODE_NAME,
+                                                                           "Links containing variables with a sample rate of "
+                                                                           + selectedRate);
 
                 // Insert the valid links tree into the variable tree
                 ((DefaultTreeModel) getModel()).insertNodeInto(validLinks, getRootNode(), 0);
@@ -252,12 +264,24 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 
         // Create the variable and link trees panels with buttons in between and add them to the
         // panel
-        treePnl.add(variableTree.createTreePanel("Variables", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
+        treePnl.add(variableTree.createTreePanel("Variables",
+                                                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                 false,
                                                  ccddMain.getMainFrame()),
-                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START, GridBagConstraints.BOTH,
-                                           new Insets(0, 0,
-                                                      ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2, 0),
-                                           0, 0));
+                    new GridBagConstraints(0,
+                                           0,
+                                           1,
+                                           1,
+                                           1.0,
+                                           1.0,
+                                           GridBagConstraints.LINE_START,
+                                           GridBagConstraints.BOTH,
+                                           new Insets(0,
+                                                      0,
+                                                      ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                      0),
+                                           0,
+                                           0));
     }
 
     /**********************************************************************************************
@@ -276,8 +300,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             for (Variable variable : message.getVariablesWithParent())
             {
                 // Set the link for the variable (null if the variable is not a link member)
-                ((TelemetryData) variable)
-                        .setLink(linkTree.getLinkHandler().getVariableLink(variable.getFullName(), rateName));
+                ((TelemetryData) variable).setLink(linkTree.getLinkHandler().getVariableLink(variable.getFullName(), rateName));
             }
         }
     }
@@ -313,8 +336,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 insertIndex = 0;
             }
             // Check if the target isn't after the last existing variable in the list
-            else if (targetVarTreeIndex < allVariableTreePaths
-                    .indexOf(existingVariables.get(existingVariables.size() - 1).getFullName()))
+            else if (targetVarTreeIndex < allVariableTreePaths.indexOf(existingVariables.get(existingVariables.size() - 1).getFullName()))
             {
                 // Get the position in in the variable list where the new variable should be
                 // inserted
@@ -459,12 +481,13 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             else
             {
                 // Inform the user if there is a rate assignment issue
-                new CcddDialogHandler()
-                        .showMessageDialog(schedulerDlg.getDialog(),
-                                           "<html><b> Auto-fill detected mismatched "
-                                                                     + "rates for variable(s) associated with </b>"
-                                                                     + variables.get(0).getFullName(),
-                                           "Assign Failure", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                          "<html><b> Auto-fill detected mismatched "
+                                                          + "rates for variable(s) associated with </b>"
+                                                          + variables.get(0).getFullName(),
+                                                          "Assign Failure",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
             }
         }
 
@@ -503,8 +526,9 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             if (pathParts[1].trim().equals(LINKED_VARIABLES_NODE_NAME))
             {
                 // Create the variable
-                TelemetryData variable = VariableGenerator
-                        .generateTelemetryData(Arrays.copyOfRange(pathParts, 3, pathParts.length),
+                TelemetryData variable = VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
+                                                                                                    3,
+                                                                                                    pathParts.length),
 
                                                rateVal);
 
@@ -518,8 +542,10 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             else
             {
                 // Create the variable and add it to the list of variables
-                varList.add(VariableGenerator.generateTelemetryData(Arrays
-                        .copyOfRange(pathParts, variableTree.getHeaderNodeLevel(), pathParts.length), rateVal));
+                varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(pathParts,
+                                                                                       variableTree.getHeaderNodeLevel(),
+                                                                                       pathParts.length),
+                                                                    rateVal));
             }
         }
 
@@ -586,26 +612,24 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     if (isLinked)
                     {
                         // Gets the link's definitions
-                        List<String[]> definitions = linkTree.getLinkHandler()
-                                .getLinkDefinitionsByName(path[2].toString(), rateName);
+                        List<String[]> definitions = linkTree.getLinkHandler().getLinkDefinitionsByName(path[2].toString(), rateName);
 
                         // Step through the link's definitions
                         for (int defnIndex = 0; defnIndex < definitions.size(); defnIndex++)
                         {
                             // Add each variable in the link by first creating the variable
-                            varList.add(VariableGenerator
-                                    .generateTelemetryData(definitions.get(defnIndex)[LinksColumn.MEMBER.ordinal()]
-                                            .split(","), CcddUtilities.convertStringToFloat(selectedRate)));
+                            varList.add(VariableGenerator.generateTelemetryData(definitions.get(defnIndex)[LinksColumn.MEMBER.ordinal()]
+                                                         .split(","), CcddUtilities.convertStringToFloat(selectedRate)));
                         }
                     }
                     // Not linked
                     else
                     {
                         // Add the variable to the variable list
-                        varList.add(VariableGenerator
-                                .generateTelemetryData(Arrays.copyOfRange(path, variableTree.getHeaderNodeLevel(),
-                                                                          path.length),
-                                                       CcddUtilities.convertStringToFloat(selectedRate)));
+                        varList.add(VariableGenerator.generateTelemetryData(Arrays.copyOfRange(path,
+                                                                                               variableTree.getHeaderNodeLevel(),
+                                                                                               path.length),
+                                                                            CcddUtilities.convertStringToFloat(selectedRate)));
                     }
                 }
             }
@@ -774,8 +798,10 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                         option = message.getName();
 
                         // Select the message in the Scheduler table
-                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable()
-                                .changeSelection(row, SchedulerColumn.NAME.ordinal(), true, false);
+                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().changeSelection(row,
+                                                                                                           SchedulerColumn.NAME.ordinal(),
+                                                                                                           true,
+                                                                                                           false);
                     }
                     // Check if the message has any sub-messages
                     else if (message.getNumberOfSubMessages() > 1)
@@ -793,8 +819,10 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                 option += (column - 2) + ", ";
 
                                 // Select the sub-message in the Scheduler table
-                                schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable()
-                                        .changeSelection(row, column, true, false);
+                                schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().changeSelection(row,
+                                                                                                                   column,
+                                                                                                                   true,
+                                                                                                                   false);
                             }
 
                             column++;

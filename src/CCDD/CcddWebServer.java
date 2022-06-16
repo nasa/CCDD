@@ -132,7 +132,8 @@ public class CcddWebServer
                         {
                             // Attempt to connect to the database using the supplied user and
                             // password
-                            DriverManager.getConnection(dbControl.getDatabaseURL(dbControl.getDatabaseName()), user,
+                            DriverManager.getConnection(dbControl.getDatabaseURL(dbControl.getDatabaseName()),
+                                                        user,
                                                         passwordS);
 
                             // Store the authenticated user and password for future login requests
@@ -193,8 +194,11 @@ public class CcddWebServer
         catch (Exception e)
         {
             // Inform the user that creating the web server failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
-                                  "Cannot create web server; cause '" + e.getMessage() + "'",
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
+                                  "Cannot create web server; cause '"
+                                  + e.getMessage()
+                                  + "'",
                                   "<html><b>Cannot create web server");
         }
     }
@@ -211,14 +215,16 @@ public class CcddWebServer
 
             // Inform the user that the web server started
             eventLog.logEvent(EventLogMessageType.SERVER_MSG,
-                              new StringBuilder("Web server started; listening on port ")
-                                      .append(((ServerConnector) server.getConnectors()[0]).getLocalPort()));
+                              new StringBuilder("Web server started; listening on port ").append(((ServerConnector) server.getConnectors()[0]).getLocalPort()));
         }
         catch (Exception e)
         {
             // Inform the user that starting the web server failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
-                                  "Web server failed to start; cause '" + e.getMessage() + "'",
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
+                                  "Web server failed to start; cause '"
+                                  + e.getMessage()
+                                  + "'",
                                   "<html><b>Web server failed to start");
         }
     }
@@ -239,8 +245,11 @@ public class CcddWebServer
         catch (Exception e)
         {
             // Inform the user that stopping the web server failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(), "Web Server Error",
-                                  "Web server failed to stop; cause '" + e.getMessage() + "'",
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Web Server Error",
+                                  "Web server failed to stop; cause '"
+                                  + e.getMessage()
+                                  + "'",
                                   "<html><b>Web server failed to stop");
         }
     }
@@ -294,7 +303,8 @@ public class CcddWebServer
             if (!message.isEmpty())
             {
                 // Output the server message to the event log
-                eventLog.logEvent(EventLogMessageType.SERVER_MSG, new StringBuilder(type).append(": ").append(message));
+                eventLog.logEvent(EventLogMessageType.SERVER_MSG,
+                                  new StringBuilder(type).append(": ").append(message));
             }
         }
 

@@ -292,7 +292,6 @@ public class CcddPatchHandler
     {
         CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
         CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
-        CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
 
         // Get all existing type definitions
         List<TypeDefinition> typeDefinitions = tableTypeHandler.getTypeDefinitions();
@@ -377,19 +376,10 @@ public class CcddPatchHandler
             }
 
             // Update the table types table in the database
-            try
-            {
-                dbCommand.executeDbCommand(new StringBuilder(dbTable.storeTableTypesInfoTableCommand()),
-                                           ccddMain.getMainFrame());
+            dbTable.storeTableTypesInfoTable(ccddMain.getMainFrame());
 
-                // Update the fieldHandler
-                ccddMain.getFieldHandler().buildFieldInformation(ccddMain.getMainFrame());
-
-            }
-            catch (SQLException e)
-            {
-                CcddUtilities.displayException(e, ccddMain.getMainFrame());
-            }
+            // Update the fieldHandler
+            ccddMain.getFieldHandler().buildFieldInformation(ccddMain.getMainFrame());
         }
     }
 
@@ -1515,18 +1505,17 @@ public class CcddPatchHandler
 
                             for (int index = 0; index < commandTableNames.size(); index++)
                             {
-                                dbCommand.executeDbCommand(
-                                                           new StringBuilder("UPDATE __orders SET column_order = ")
-                                                                   .append(columnOrder).append(" WHERE table_path = '")
-                                                                   .append(commandTableNames.get(index)).append("';"),
+                                dbCommand.executeDbCommand(new StringBuilder("UPDATE __orders SET column_order = ").append(columnOrder)
+                                                                                                                   .append(" WHERE table_path = '")
+                                                                                                                   .append(commandTableNames.get(index))
+                                                                                                                   .append("';"),
                                                            ccddMain.getMainFrame());
                             }
                         }
                     }
 
                     // Update the table types table in the database
-                    dbCommand.executeDbCommand(new StringBuilder(dbTable.storeTableTypesInfoTableCommand()),
-                                               ccddMain.getMainFrame());
+                    dbTable.storeTableTypesInfoTable(ccddMain.getMainFrame());
 
                     // Clean up the lists to reflect the changes to the database
                     dbTable.updateListsAndReferences(ccddMain.getMainFrame());

@@ -238,7 +238,8 @@ public class CcddTableTypeHandler
                 // Convert the column name to the database equivalent. This bounds the name in
                 // double quotes if it matches a PostgreSQL reserved word
                 String dbColName = convertVisibleToDatabase(columnNamesDatabase.get(row),
-                                                            columnInputType.get(row).getInputName(), isStructure);
+                                                            columnInputType.get(row).getInputName(),
+                                                            isStructure);
 
                 // Store the name with quotes (if needed) and without quotes (if present)
                 columnNamesDatabaseQuoted.set(row, dbColName);
@@ -263,7 +264,8 @@ public class CcddTableTypeHandler
          *****************************************************************************************/
         protected String[] getColumnNamesVisible()
         {
-            return Arrays.copyOfRange(columnNamesUser.toArray(new String[0]), NUM_HIDDEN_COLUMNS,
+            return Arrays.copyOfRange(columnNamesUser.toArray(new String[0]),
+                                      NUM_HIDDEN_COLUMNS,
                                       columnNamesUser.size());
         }
 
@@ -334,7 +336,8 @@ public class CcddTableTypeHandler
          *****************************************************************************************/
         protected InputType[] getInputTypesVisible()
         {
-            return Arrays.copyOfRange(columnInputType.toArray(new InputType[0]), NUM_HIDDEN_COLUMNS,
+            return Arrays.copyOfRange(columnInputType.toArray(new InputType[0]),
+                                      NUM_HIDDEN_COLUMNS,
                                       columnInputType.size());
         }
 
@@ -754,9 +757,15 @@ public class CcddTableTypeHandler
          *
          * @param isPointer        True if the the column applies to pointer data types
          *****************************************************************************************/
-        protected void addColumn(int index, String databaseName, String visibleName, String comment,
-                                 InputType inputType, Boolean isRowValueUnique, Boolean isColumnRequired,
-                                 Boolean isStructure, Boolean isPointer)
+        protected void addColumn(int index,
+                                 String databaseName,
+                                 String visibleName,
+                                 String comment,
+                                 InputType inputType,
+                                 Boolean isRowValueUnique,
+                                 Boolean isColumnRequired,
+                                 Boolean isStructure,
+                                 Boolean isPointer)
         {
             columnIndex.add(index);
             columnNamesDatabase.add(databaseName);
@@ -839,9 +848,9 @@ public class CcddTableTypeHandler
             {
                 // Check if this column belongs to the target table type, that it is a protected
                 // column, and the column input type doesn't exist in this table type
-                if (column.getTableType().equals(typeName) && column.isProtected()
-                    && getColumnIndicesByInputType(inputTypeHandler.getInputTypeByDefaultType(column.getInputType()))
-                            .isEmpty())
+                if (column.getTableType().equals(typeName)
+                    && column.isProtected()
+                    && getColumnIndicesByInputType(inputTypeHandler.getInputTypeByDefaultType(column.getInputType())).isEmpty())
                 {
                     // Set the flag to indicate that this table type doesn't have all of the target
                     // type's columns and stop searching
@@ -980,7 +989,8 @@ public class CcddTableTypeHandler
         }
 
         // Read the stored types from the database
-        List<String[]> committedTypes = dbTable.retrieveInformationTable(InternalTable.TABLE_TYPES, false,
+        List<String[]> committedTypes = dbTable.retrieveInformationTable(InternalTable.TABLE_TYPES,
+                                                                         false,
                                                                          ccddMain.getMainFrame());
 
         // Step through each type entry
@@ -1003,8 +1013,7 @@ public class CcddTableTypeHandler
                                typeData[TableTypesColumn.COLUMN_NAME_DB.ordinal()].toString(),
                                typeData[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()].toString(),
                                typeData[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()].toString(),
-                               inputTypeHandler
-                                       .getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
+                               inputTypeHandler.getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
                                typeData[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()].equals("t") ? true : false,
                                typeData[TableTypesColumn.COLUMN_REQUIRED.ordinal()].equals("t") ? true : false,
                                typeData[TableTypesColumn.STRUCTURE_ALLOWED.ordinal()].equals("t") ? true : false,
@@ -1168,9 +1177,7 @@ public class CcddTableTypeHandler
             typeDefn.addColumn(row, (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()],
-                               inputTypeHandler
-                                       .getInputTypeByName(typeData[row][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                               .toString()),
+                               inputTypeHandler.getInputTypeByName(typeData[row][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.UNIQUE.ordinal()],
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.REQUIRED.ordinal()],
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()],
@@ -1434,8 +1441,8 @@ public class CcddTableTypeHandler
             if (typeDefn.isStructure())
             {
                 // Step through each of the table's enumeration columns
-                for (int enumIndex : typeDefn.getColumnIndicesByInputTypeFormat(inputTypeHandler
-                        .getInputTypeByName(DefaultInputType.ENUMERATION.getInputName()).getInputFormat()))
+                for (int enumIndex : typeDefn.getColumnIndicesByInputTypeFormat(inputTypeHandler.getInputTypeByName(DefaultInputType.ENUMERATION.getInputName())
+                                                                                                .getInputFormat()))
                 {
                     // Get the name of the column
                     String name = useDbName ? typeDefn.getColumnNamesDatabase()[enumIndex]
@@ -1548,7 +1555,9 @@ public class CcddTableTypeHandler
         }
 
         // Store the data field table with the additional fields
-        dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null,
+        dbTable.storeInformationTable(InternalTable.FIELDS,
+                                      fieldHandler.getFieldDefnsFromInfo(),
+                                      null,
                                       ccddMain.getMainFrame());
     }
 
@@ -1590,15 +1599,15 @@ public class CcddTableTypeHandler
             }
 
             // Update the fieldHandler
-            fieldHandler.replaceFieldInformationByOwner("Type:" + tableTypeDefn.getTypeName(), fieldHandler
-                    .getFieldInformationFromDefinitions(tableTypeDefn.getDataFields()));
+            fieldHandler.replaceFieldInformationByOwner("Type:"
+                                                        + tableTypeDefn.getTypeName(),
+                                                        fieldHandler.getFieldInformationFromDefinitions(tableTypeDefn.getDataFields()));
         }
         else
         {
             // A table type with this name already exists Get a list of all of the table type names
             // and descriptions
-            String[][] tableTypeNamesAndDescriptions = dbTable
-                    .queryTableTypeNamesAndDescriptions(ccddMain.getMainFrame());
+            String[][] tableTypeNamesAndDescriptions = dbTable.queryTableTypeNamesAndDescriptions(ccddMain.getMainFrame());
 
             // Check if the description differs
             for (String[] entry : tableTypeNamesAndDescriptions)
@@ -1620,8 +1629,7 @@ public class CcddTableTypeHandler
                 // Add the table type with a different name and get a reference to it
                 TypeDefinition altTypeDefn = createReplaceTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
                                                                          tableTypeDefn.getDescription(),
-                                                                         tableTypeDefn.getColumns()
-                                                                                 .toArray(new Object[0][0]));
+                                                                         tableTypeDefn.getColumns().toArray(new Object[0][0]));
 
                 // See if the same number of columns exists, but subtract 2 from typeDefn due to
                 // the key and index being included
@@ -1645,8 +1653,7 @@ public class CcddTableTypeHandler
                         int index = typeDefn.getColumnIndexByUserName(columnName);
 
                         // Check if the column definitions differ
-                        if (!typeDefn.getInputTypes()[index].getInputName()
-                                .equals(altTypeDefn.getInputTypes()[altIndex].getInputName())
+                        if (!typeDefn.getInputTypes()[index].getInputName().equals(altTypeDefn.getInputTypes()[altIndex].getInputName())
                             || !typeDefn.isRowValueUnique()[index].equals(altTypeDefn.isRowValueUnique()[altIndex])
                             || !typeDefn.isRequired()[index].equals(altTypeDefn.isRequired()[altIndex])
                             || !typeDefn.isStructureAllowed()[index].equals(altTypeDefn.isStructureAllowed()[altIndex])
@@ -1691,18 +1698,12 @@ public class CcddTableTypeHandler
 
                         // Check if the existing field's input type, required state, applicability,
                         // or value don't match (the description and size are allowed to differ)
-                        if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()]
-                                .equals(currentDataFields.get(i).getInputType().getInputName())
-                            || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()]
-                                    .equalsIgnoreCase(Boolean.toString(currentDataFields.get(i).isRequired()))
-                            || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                                    .equals(currentDataFields.get(i).getApplicabilityType().getApplicabilityName())
-                            || !dataField[FieldsColumn.FIELD_VALUE.ordinal()]
-                                    .equals(currentDataFields.get(i).getValue())
-                            || !dataField[FieldsColumn.FIELD_DESC.ordinal()]
-                                    .equals(currentDataFields.get(i).getDescription())
-                            || Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]) != currentDataFields
-                                    .get(i).getSize())
+                        if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(currentDataFields.get(i).getInputType().getInputName())
+                            || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(currentDataFields.get(i).isRequired()))
+                            || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(currentDataFields.get(i).getApplicabilityType().getApplicabilityName())
+                            || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(currentDataFields.get(i).getValue())
+                            || !dataField[FieldsColumn.FIELD_DESC.ordinal()].equals(currentDataFields.get(i).getDescription())
+                            || Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]) != currentDataFields.get(i).getSize())
                         {
                             // Set the flag indicating a mismatch exists and stop searching
                             typeUpdate = TableTypeUpdate.MISMATCH;
@@ -1722,7 +1723,6 @@ public class CcddTableTypeHandler
      * current values
      *
      * @param newTableTypeDefn Table type definition
-     *
      *********************************************************************************************/
     private void buildAndExecuteUpdates(TableTypeDefinition newTableTypeDefn)
     {
@@ -1746,9 +1746,11 @@ public class CcddTableTypeHandler
         // Create a 2d Object array for the old type data
         String[][] tempArray = dbTable.queryTableTypeDataList(newTableTypeDefn.getTypeName(), ccddMain.getMainFrame());
         Object[][] oldTypeData = new Object[tempArray.length][tempArray[0].length];
+
         for (int i = 0; i < tempArray.length; i++)
         {
             Object[] row = new Object[tempArray[0].length];
+
             for (int x = 0; x < tempArray[0].length; x++)
             {
                 if (newTypeData[0][x] instanceof Integer)
@@ -1771,6 +1773,7 @@ public class CcddTableTypeHandler
                     row[x] = tempArray[i][x];
                 }
             }
+
             oldTypeData[i] = row;
         }
 
@@ -1799,8 +1802,8 @@ public class CcddTableTypeHandler
 
                 // Check if the committed row hasn't already been matched and if the current and
                 // committed column indices are the same
-                if (!rowModified[comRow] && newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()]
-                        .equals(oldTypeData[comRow][TableTypeEditorColumnInfo.INDEX.ordinal()]))
+                if (!rowModified[comRow]
+                    && newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()].equals(oldTypeData[comRow][TableTypeEditorColumnInfo.INDEX.ordinal()]))
                 {
                     // Set the flag indicating this row has a match
                     matchFound = true;
@@ -1808,8 +1811,7 @@ public class CcddTableTypeHandler
                     // Copy the current row's index into the empty comparison row so that the
                     // otherwise blank index doesn't register as a difference when comparing the
                     // rows below
-                    emptyRow[TableTypeEditorColumnInfo.INDEX
-                            .ordinal()] = newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
+                    emptyRow[TableTypeEditorColumnInfo.INDEX.ordinal()] = newTypeData[tblRow][TableTypeEditorColumnInfo.INDEX.ordinal()];
 
                     // Check if the row is not now empty (if empty then the change is processed as
                     // a row deletion instead of a modification)
@@ -1826,10 +1828,8 @@ public class CcddTableTypeHandler
                         }
 
                         // Get the original and current input type
-                        String oldInputType = oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                .toString();
-                        String newInputType = newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                .toString();
+                        String oldInputType = oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+                        String newInputType = newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
 
                         // Check if the column name changed or if the input type changed to/from a
                         // rate
@@ -1840,8 +1840,10 @@ public class CcddTableTypeHandler
                         {
                             // The column name is changed. Add the old and new column names and
                             // input types to the list
-                            typeModifications
-                                    .add(new String[] {prevColumnName, currColumnName, oldInputType, newInputType});
+                            typeModifications.add(new String[] {prevColumnName,
+                                                                currColumnName,
+                                                                oldInputType,
+                                                                newInputType});
                         }
 
                         // Stop searching since a match exists
@@ -1856,8 +1858,7 @@ public class CcddTableTypeHandler
                 // The column definition is being added; add the column name and input type to the
                 // list
                 typeAdditions.add(new String[] {currColumnName,
-                                                newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                                        .toString()});
+                                                newTypeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }
         }
 
@@ -1869,8 +1870,8 @@ public class CcddTableTypeHandler
             {
                 // The column definition has been deleted; add the column name and input type to
                 // the list
-                typeDeletions.add(new String[] {oldTypeData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()]
-                        .toString(), oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
+                typeDeletions.add(new String[] {oldTypeData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
+                                                oldTypeData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }
         }
 
@@ -1891,15 +1892,18 @@ public class CcddTableTypeHandler
 
         // Get the new data fields
         List<String[]> newDataFields = newTableTypeDefn.getDataFields();
+
         // Convert the new data fields information into a list of FieldInformation objects that can
         // be passed to the modifyTable() function
         List<FieldInformation> newDataFieldInformation = new ArrayList<FieldInformation>();
+
         for (int i = 0; i < newDataFields.size(); i++)
         {
             // input_type offset by 1 to account for owner name
             InputType inputType = new InputType(newDataFields.get(i)[FieldEditorColumnInfo.INPUT_TYPE.ordinal() + 1],
                                                 "", "", "", null, false);
             ApplicabilityType appType = ApplicabilityType.ALL;
+
             if (newDataFields.get(i)[6].equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName()))
             {
                 appType = ApplicabilityType.ROOT_ONLY;
@@ -1911,26 +1915,17 @@ public class CcddTableTypeHandler
 
             // All FieldColumns offset by 1 to account for owner name which is the first index of
             // each row of newDataFields
-            FieldInformation currentFieldInformation = new FieldInformation(newDataFields.get(i)[0], newDataFields
-                    .get(i)[FieldEditorColumnInfo.NAME.ordinal() + 1],
-                                                                            newDataFields
-                                                                                    .get(i)[FieldEditorColumnInfo.DESCRIPTION
-                                                                                            .ordinal() + 1],
+            FieldInformation currentFieldInformation = new FieldInformation(newDataFields.get(i)[0],
+                                                                            newDataFields.get(i)[FieldEditorColumnInfo.NAME.ordinal() + 1],
+                                                                            newDataFields.get(i)[FieldEditorColumnInfo.DESCRIPTION.ordinal() + 1],
                                                                             inputType,
-                                                                            Integer.parseInt(newDataFields
-                                                                                    .get(i)[FieldEditorColumnInfo.CHAR_SIZE
-                                                                                            .ordinal() + 1]),
-                                                                            Boolean.parseBoolean(newDataFields
-                                                                                    .get(i)[FieldEditorColumnInfo.REQUIRED
-                                                                                            .ordinal() + 1]),
+                                                                            Integer.parseInt(newDataFields.get(i)[FieldEditorColumnInfo.CHAR_SIZE.ordinal() + 1]),
+                                                                            Boolean.parseBoolean(newDataFields.get(i)[FieldEditorColumnInfo.REQUIRED.ordinal() + 1]),
                                                                             appType,
-                                                                            newDataFields
-                                                                                    .get(i)[FieldEditorColumnInfo.VALUE
-                                                                                            .ordinal() + 1],
-                                                                            Boolean.parseBoolean(newDataFields
-                                                                                    .get(i)[FieldEditorColumnInfo.INHERITED
-                                                                                            .ordinal() + 1]),
-                                                                            null, -1);
+                                                                            newDataFields.get(i)[FieldEditorColumnInfo.VALUE.ordinal() + 1],
+                                                                            Boolean.parseBoolean(newDataFields.get(i)[FieldEditorColumnInfo.INHERITED .ordinal() + 1]),
+                                                                            null,
+                                                                            -1);
 
             newDataFieldInformation.add(currentFieldInformation);
         }
@@ -1964,6 +1959,7 @@ public class CcddTableTypeHandler
                 // if we reach this point no match was found and this is an addition
                 fieldAdditions.add(new TableModification(newFieldData[i], null));
             }
+
             fieldProcessed = false;
         }
 
@@ -1980,9 +1976,17 @@ public class CcddTableTypeHandler
         }
 
         // Update the table types within the database
-        dbTable.modifyTableType(newTableTypeDefn.getTypeName(), newDataFieldInformation, OverwriteFieldValueType.NONE,
-                                typeAdditions, typeModifications, typeDeletions, columnOrderChange, typeDefn,
-                                newDataFields, null, null);
+        dbTable.modifyTableType(newTableTypeDefn.getTypeName(),
+                                newDataFieldInformation,
+                                OverwriteFieldValueType.NONE,
+                                typeAdditions,
+                                typeModifications,
+                                typeDeletions,
+                                columnOrderChange,
+                                typeDefn,
+                                newDataFields,
+                                null,
+                                null);
 
         // Update the fieldHandler
         fieldHandler.replaceFieldInformationByOwner("Type:" + newTableTypeDefn.getTypeName(), newDataFieldInformation);

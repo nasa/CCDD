@@ -286,6 +286,7 @@ public class CcddClassesDataTable
                   List<FieldInformation> fieldInformation)
         {
             this(tableType, tablePath, tableData, columnOrder, description);
+
             // Check if the data field information is provided
             if (fieldInformation != null)
             {
@@ -329,6 +330,7 @@ public class CcddClassesDataTable
                   List<FieldInformation> fieldInformation)
         {
             this(tableType, tablePath, tableData, columnOrder, description);
+
             // Check if the data field information is provided
             if (fieldInformation != null)
             {
@@ -903,7 +905,13 @@ public class CcddClassesDataTable
                                     int arraySizeColumn,
                                     int bitLengthColumn)
         {
-            this(rowData, null, variableColumn, dataTypeColumn, arraySizeColumn, bitLengthColumn, null);
+            this(rowData,
+                 null,
+                 variableColumn,
+                 dataTypeColumn,
+                 arraySizeColumn,
+                 bitLengthColumn,
+                 null);
         }
 
         /******************************************************************************************
@@ -2057,9 +2065,15 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         protected String[] toStringArray()
         {
-            String[] fieldData = {ownerName, fieldName, description, Integer.toString(charSize),
-                                  inputType.getInputName(), String.valueOf(isRequired),
-                                  applicability.getApplicabilityName(), value, String.valueOf(isInherited)};
+            String[] fieldData = {ownerName,
+                                  fieldName,
+                                  description,
+                                  Integer.toString(charSize),
+                                  inputType.getInputName(),
+                                  String.valueOf(isRequired),
+                                  applicability.getApplicabilityName(),
+                                  value,
+                                  String.valueOf(isInherited)};
 
             return fieldData;
         }
@@ -2089,7 +2103,9 @@ public class CcddClassesDataTable
          *
          * @param fieldInformation Data field information
          *****************************************************************************************/
-        GroupInformation(String name, String description, Boolean isApplication,
+        GroupInformation(String name,
+                         String description,
+                         Boolean isApplication,
                          List<FieldInformation> fieldInformation)
         {
             this(name, description, isApplication, null, fieldInformation);
@@ -2109,7 +2125,10 @@ public class CcddClassesDataTable
          *
          * @param fieldInformation Data field information
          *****************************************************************************************/
-        GroupInformation(String name, String description, Boolean isApplication, List<String> tables,
+        GroupInformation(String name,
+                         String description,
+                         Boolean isApplication,
+                         List<String> tables,
                          List<FieldInformation> fieldInformation)
         {
             tablesAndAncestors = new ArrayList<String>();
@@ -2541,7 +2560,8 @@ public class CcddClassesDataTable
          *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with
          *         each 1d array having a size of 6 then the function will return [3, 6, 3, 2]
          *****************************************************************************************/
-        protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler, String arrayInfo)
+        protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler,
+                                                         String arrayInfo)
         {
             int[] result = {-1, -1, -1, -1};
 
@@ -2565,7 +2585,8 @@ public class CcddClassesDataTable
                     result[0] = 1;
 
                     // Get the size. If this is a macro it will need to be expanded
-                    result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>()));
+                    result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo,
+                                                                                   new ArrayList<String>()));
                 }
                 else if (count == 1)
                 {
@@ -2578,13 +2599,13 @@ public class CcddClassesDataTable
 
                         // Get the size of each internal array ,If this is a macro it will need to
                         // be expanded
-                        result[1] = Integer
-                                .parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1],
+                                                                                       new ArrayList<String>()));
 
                         // Get the total number of 2d arrays. If this is a macro it will need to be
                         // expanded
-                        result[2] = Integer
-                                .parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
+                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0],
+                                                                                       new ArrayList<String>()));
                     }
                 }
                 else if (count == 2)
@@ -2599,21 +2620,22 @@ public class CcddClassesDataTable
 
                         // Get the size of each internal array. If this is a macro it will need to
                         // be expanded
-                        result[1] = Integer
-                                .parseInt(newMacroHandler.getMacroExpansion(info[2], new ArrayList<String>()));
+                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[2],
+                                                                                       new ArrayList<String>()));
 
                         // Get the total number of 2d arrays. If this is a macro it will need to be
                         // expanded
-                        result[2] = Integer
-                                .parseInt(newMacroHandler.getMacroExpansion(info[1], new ArrayList<String>()));
+                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1],
+                                                                                       new ArrayList<String>()));
 
                         // Get the total number of 3d arrays. If this is a macro it will need to be
                         // expanded
-                        result[3] = Integer
-                                .parseInt(newMacroHandler.getMacroExpansion(info[0], new ArrayList<String>()));
+                        result[3] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0],
+                                                                                       new ArrayList<String>()));
 
                     }
                 }
+
                 // If it did not fall into the if or the else statement then the input was invalid
                 // and [-1,-1,-1] will be returned
             }

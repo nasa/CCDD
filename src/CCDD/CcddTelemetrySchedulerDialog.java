@@ -147,7 +147,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 schedulerDb.loadStoredData();
 
                 // Auto-fill button
-                btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill", AUTO_CREATE_ICON, KeyEvent.VK_F,
+                btnAutoFill = CcddButtonPanelHandler.createButton("Auto-fill",
+                                                                  AUTO_CREATE_ICON,
+                                                                  KeyEvent.VK_F,
                                                                   "Auto-fill the message table with the variables");
 
                 // Create a listener for the Auto-fill button
@@ -175,9 +177,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Clear Rate button
-                btnClearRate = CcddButtonPanelHandler
-                        .createButton("Clear Rate", UNDO_ICON, KeyEvent.VK_R,
-                                      "Remove the variables of the currently selected rate from all messages");
+                btnClearRate = CcddButtonPanelHandler.createButton("Clear Rate",
+                                                                   UNDO_ICON,
+                                                                   KeyEvent.VK_R,
+                                                                   "Remove the variables of the currently selected rate from all messages");
 
                 // Add a listener for the Clear Rate button
                 btnClearRate.addActionListener(new ValidateCellActionListener()
@@ -189,8 +192,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        activeSchHandler.getSchedulerEditor()
-                                .clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
+                        activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
                     }
 
                     /******************************************************************************
@@ -204,7 +206,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Clear Msgs button
-                btnClear = CcddButtonPanelHandler.createButton("Clear Msgs", UNDO_ICON, KeyEvent.VK_R,
+                btnClear = CcddButtonPanelHandler.createButton("Clear Msgs",
+                                                               UNDO_ICON,
+                                                               KeyEvent.VK_R,
                                                                "Remove the variables from all messages");
 
                 // Add a listener for the Clear Msgs button
@@ -230,9 +234,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Add Sub-msg button
-                btnAddSubMessage = CcddButtonPanelHandler
-                        .createButton("Add Sub-msg", INSERT_ICON, KeyEvent.VK_A,
-                                      "Add a sub-message to the currently selected message");
+                btnAddSubMessage = CcddButtonPanelHandler.createButton("Add Sub-msg",
+                                                                       INSERT_ICON,
+                                                                       KeyEvent.VK_A,
+                                                                       "Add a sub-message to the currently selected message");
 
                 // Create a listener for the Add Sub-msg button
                 btnAddSubMessage.addActionListener(new ValidateCellActionListener()
@@ -257,7 +262,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Del Sub-msg button
-                btnDeleteSubMessage = CcddButtonPanelHandler.createButton("Del Sub-msg", DELETE_ICON, KeyEvent.VK_D,
+                btnDeleteSubMessage = CcddButtonPanelHandler.createButton("Del Sub-msg",
+                                                                          DELETE_ICON,
+                                                                          KeyEvent.VK_D,
                                                                           "Delete the currently selected sub-message");
 
                 // Create a listener for the Del Sub-msg button
@@ -283,9 +290,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Assign message names and IDs button
-                btnAssign = CcddButtonPanelHandler
-                        .createButton("Assign Msgs", AUTO_CREATE_ICON, KeyEvent.VK_M,
-                                      "Automatically assign message names and/or IDs to the messages and sub-messages");
+                btnAssign = CcddButtonPanelHandler.createButton("Assign Msgs",
+                                                                AUTO_CREATE_ICON,
+                                                                KeyEvent.VK_M,
+                                                                "Automatically assign message names and/or IDs to the messages and sub-messages");
 
                 // Add a listener for the Assign Msgs button
                 btnAssign.addActionListener(new ValidateCellActionListener()
@@ -312,7 +320,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Store button
-                btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                               STORE_ICON,
+                                                               KeyEvent.VK_S,
                                                                "Store the message updates in the project database");
                 btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
@@ -329,7 +339,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                         // storing the changes
                         if (isChanges()
                             && new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
-                                                                         "<html><b>Store changes?", "Store Changes",
+                                                                         "<html><b>Store changes?",
+                                                                         "Store Changes",
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                         {
@@ -349,7 +360,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 });
 
                 // Create a button to close the dialog
-                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the telemetry scheduler");
 
                 // Add a listener for the Close button
@@ -401,9 +414,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
 
                         // Re-order the rate information based on the new tab order Re-order the
                         // rate information based on the new tab order
-                        RateInformation[] rateInfoArray = rateHandler.getRateInformation()
-                                .toArray(new RateInformation[0]);
-                        rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex,
+                        RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
+                        rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray,
+                                                                                          oldTabIndex,
                                                                                           newTabIndex);
                         List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
                         rateInfoList.addAll(Arrays.asList(rateInfoArray));
@@ -459,7 +472,11 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             protected void complete()
             {
                 // Display the telemetry scheduler dialog
-                showOptionsDialog(ccddMain.getMainFrame(), tabbedPane, buttonPnl, btnClose, "Telemetry Scheduler",
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  tabbedPane,
+                                  buttonPnl,
+                                  btnClose,
+                                  "Telemetry Scheduler",
                                   true);
             }
         });
@@ -477,8 +494,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             schHandlers.add(new CcddSchedulerHandler(ccddMain, rateInfo.getRateName(), this));
 
             // Add each table as a tab in the editor window tabbed pane
-            tabbedPane.addTab(rateInfo.getStreamName(), null,
-                              schHandlers.get(schHandlers.size() - 1).getSchedulerPanel(), null);
+            tabbedPane.addTab(rateInfo.getStreamName(),
+                              null,
+                              schHandlers.get(schHandlers.size() - 1).getSchedulerPanel(),
+                              null);
         }
     }
 
@@ -631,8 +650,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR, "")
-                                         + (schHandlers.get(index).getSchedulerEditor()
-                                                 .isMessagesChanged() ? CHANGE_INDICATOR : ""));
+                                  + (schHandlers.get(index).getSchedulerEditor().isMessagesChanged() ? CHANGE_INDICATOR
+                                                                                                     : ""));
         }
     }
 

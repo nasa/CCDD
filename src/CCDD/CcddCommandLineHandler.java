@@ -655,7 +655,8 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                ccddMain.getSessionEventLog().setFilter(EventLogMessageType.SELECT_ALL, (Boolean) parmVal);
+                ccddMain.getSessionEventLog().setFilter(EventLogMessageType.SELECT_ALL,
+                                                        (Boolean) parmVal);
             }
         });
 
@@ -693,7 +694,8 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                ccddMain.getSessionEventLog().setFilter(EventLogMessageType.SUCCESS_MSG, (Boolean) parmVal);
+                ccddMain.getSessionEventLog().setFilter(EventLogMessageType.SUCCESS_MSG,
+                                                        (Boolean) parmVal);
             }
         });
 
@@ -730,7 +732,8 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                ccddMain.getSessionEventLog().setFilter(EventLogMessageType.STATUS_MSG, (Boolean) parmVal);
+                ccddMain.getSessionEventLog().setFilter(EventLogMessageType.STATUS_MSG,
+                                                        (Boolean) parmVal);
             }
         });
 
@@ -931,7 +934,8 @@ public class CcddCommandLineHandler
                     // the script-member separator character (which may be a special character on
                     // the operating system path; e.g. the colon following a drive letter in a
                     // Windows path)
-                    if (nameSepIndex == -1 || nameSepIndex < associationString.indexOf(SCRIPT_MEMBER_SEPARATOR))
+                    if (nameSepIndex == -1
+                        || nameSepIndex < associationString.indexOf(SCRIPT_MEMBER_SEPARATOR))
                     {
                         // No special handling is required; break the supplied association into the
                         // script or script association name, and table(s)/group(s) (if any)
@@ -966,8 +970,8 @@ public class CcddCommandLineHandler
                         {
                             // Set the association tables. If multiple tables are provided then
                             // separate these with the expected separator string
-                            association[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler
-                                    .convertAssociationMembersFormat(scriptAndTable[1], true);
+                            association[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler.convertAssociationMembersFormat(scriptAndTable[1],
+                                                                                                                                  true);
                         }
 
                         // Add the association to the list
@@ -990,8 +994,12 @@ public class CcddCommandLineHandler
                         {
                             // Inform the user that the association name is invalid
                             ccddMain.getSessionEventLog().logFailEvent(null,
-                                                                       "Unrecognized association name '" + name + "'",
-                                                                       "<html><b>Unrecognized association name '</b>" + name + "<b>'");
+                                                                       "Unrecognized association name '"
+                                                                       + name
+                                                                       + "'",
+                                                                       "<html><b>Unrecognized association name '</b>"
+                                                                       + name
+                                                                       + "<b>'");
                         }
                     }
                 }
@@ -1003,7 +1011,10 @@ public class CcddCommandLineHandler
                     // execution the script output path is restored to the program start-up value.
                     // Therefore it's set to the value as updated via command line command prior to
                     // each execution command
-                    CcddFileIOHandler.storePath(ccddMain, scriptOutPath, false, ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+                    CcddFileIOHandler.storePath(ccddMain,
+                                                scriptOutPath,
+                                                false,
+                                                ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
 
                     // Check if the GUI isn't displayed
                     if (ccddMain.isGUIHidden())
@@ -1038,8 +1049,8 @@ public class CcddCommandLineHandler
 
         // Import one or more tables
         argument.add(new CommandHandler("import",
-                                        "Import tables, etc. from a CSV, "
-                                        + "EDS,\n" + "  JSON, XTCE or C header file",
+                                        "Import tables, etc. from a CSV, EDS,\n"
+                                        + "  JSON, XTCE or C header file",
                                         "'<import sub-commands>'",
                                         CommandLineType.NAME,
                                         CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1,
@@ -1163,7 +1174,8 @@ public class CcddCommandLineHandler
                         else
                         {
                             // Display the error message
-                            throw new Exception("Import disabled; user did not provide an import file type/extension for '"
+                            throw new Exception("Import disabled; user did not provide an "
+                                                + "import file type/extension for '"
                                                 + ccddMain.getDbControlHandler().getProjectName()
                                                 + "'");
                         }
@@ -1199,7 +1211,8 @@ public class CcddCommandLineHandler
                 {
                     // Display the error message
                     throw new Exception("Import disabled; user lacks write access for project '"
-                                        + ccddMain.getDbControlHandler().getProjectName() + "'");
+                                        + ccddMain.getDbControlHandler().getProjectName()
+                                        + "'");
                 }
             }
         });
@@ -1246,8 +1259,9 @@ public class CcddCommandLineHandler
                             dataFile.add(file);
 
                             // Extract the file's path
-                            path = file.getAbsolutePath()
-                                    .substring(0, file.getAbsolutePath().length() - file.getName().length());
+                            path = file.getAbsolutePath().substring(0,
+                                                                    file.getAbsolutePath().length()
+                                                                    - file.getName().length());
                         }
                         // The path has been determined by the first file
                         else
@@ -1585,7 +1599,8 @@ public class CcddCommandLineHandler
 
                 // Check if a required export sub-command is missing
                 if ((filePath.isEmpty()
-                     && (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE
+                     && (fileExtn == FileExtension.EDS
+                         || fileExtn == FileExtension.XTCE
                          || (singleFile && (fileExtn == FileExtension.CSV || fileExtn == FileExtension.JSON))))
                     || tablePaths == null)
                 {
@@ -1610,7 +1625,9 @@ public class CcddCommandLineHandler
                 if ((exportFullDatabase == true) || (tablePaths[0].equals("all")))
                 {
                     // Select all current tables in the database and prepare them for export
-                    CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, null);
+                    CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
+                                                                              TableTreeType.TABLES,
+                                                                              null);
                     tableTree.setSelectionInterval(0, tableTree.getRowCount());
                     List<String> tablePathsList = tableTree.getSelectedTablesWithChildren();
                     tablePaths = tablePathsList.toArray(new String[0]);
@@ -1624,38 +1641,37 @@ public class CcddCommandLineHandler
                 if (ccddMain.isGUIHidden())
                 {
                     // Export the specified table(s); check if the export operation fails
-                    if (ccddMain.getFileIOHandler()
-                            .exportSelectedTables(filePath,
-                                                  tablePaths,
-                                                  overwriteFile,
-                                                  singleFile,
-                                                  includeBuildInformation,
-                                                  replaceMacros,
-                                                  clearTargetDirectory,
-                                                  includeAllTableTypes,
-                                                  includeAllDataTypes,
-                                                  includeAllInputTypes,
-                                                  includeAllMacros,
-                                                  includeReservedMsgIDs,
-                                                  includeProjectFields,
-                                                  includeGroups,
-                                                  includeAssociations,
-                                                  includeTlmSched,
-                                                  includeAppSched,
-                                                  includeVariablePaths,
-                                                  ccddMain.getVariableHandler(),
-                                                  separators,
-                                                  fileExtn,
-                                                  endianess,
-                                                  isHeaderBigEndian,
-                                                  version,
-                                                  validationStatus,
-                                                  classification1,
-                                                  classification2,
-                                                  classification3,
-                                                  scriptFileName != null,
-                                                  scriptFileName,
-                                                  null))
+                    if (ccddMain.getFileIOHandler().exportSelectedTables(filePath,
+                                                                         tablePaths,
+                                                                         overwriteFile,
+                                                                         singleFile,
+                                                                         includeBuildInformation,
+                                                                         replaceMacros,
+                                                                         clearTargetDirectory,
+                                                                         includeAllTableTypes,
+                                                                         includeAllDataTypes,
+                                                                         includeAllInputTypes,
+                                                                         includeAllMacros,
+                                                                         includeReservedMsgIDs,
+                                                                         includeProjectFields,
+                                                                         includeGroups,
+                                                                         includeAssociations,
+                                                                         includeTlmSched,
+                                                                         includeAppSched,
+                                                                         includeVariablePaths,
+                                                                         ccddMain.getVariableHandler(),
+                                                                         separators,
+                                                                         fileExtn,
+                                                                         endianess,
+                                                                         isHeaderBigEndian,
+                                                                         version,
+                                                                         validationStatus,
+                                                                         classification1,
+                                                                         classification2,
+                                                                         classification3,
+                                                                         scriptFileName != null,
+                                                                         scriptFileName,
+                                                                         null))
                     {
                         throw new Exception();
                     }
@@ -1667,38 +1683,37 @@ public class CcddCommandLineHandler
                     CcddFileIOHandler.storePath(ccddMain, filePath, false, ModifiablePathInfo.TABLE_EXPORT_PATH);
 
                     // Export the specified table(s) in a background thread
-                    ccddMain.getFileIOHandler()
-                            .exportSelectedTablesInBackground(filePath,
-                                                              tablePaths,
-                                                              overwriteFile,
-                                                              singleFile,
-                                                              includeBuildInformation,
-                                                              replaceMacros,
-                                                              clearTargetDirectory,
-                                                              includeAllTableTypes,
-                                                              includeAllDataTypes,
-                                                              includeAllInputTypes,
-                                                              includeAllMacros,
-                                                              includeReservedMsgIDs,
-                                                              includeProjectFields,
-                                                              includeGroups,
-                                                              includeAssociations,
-                                                              includeTlmSched,
-                                                              includeAppSched,
-                                                              includeVariablePaths,
-                                                              ccddMain.getVariableHandler(),
-                                                              separators,
-                                                              fileExtn,
-                                                              endianess,
-                                                              isHeaderBigEndian,
-                                                              version,
-                                                              validationStatus,
-                                                              classification1,
-                                                              classification2,
-                                                              classification3,
-                                                              scriptFileName != null,
-                                                              scriptFileName,
-                                                              ccddMain.getMainFrame());
+                    ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath,
+                                                                                 tablePaths,
+                                                                                 overwriteFile,
+                                                                                 singleFile,
+                                                                                 includeBuildInformation,
+                                                                                 replaceMacros,
+                                                                                 clearTargetDirectory,
+                                                                                 includeAllTableTypes,
+                                                                                 includeAllDataTypes,
+                                                                                 includeAllInputTypes,
+                                                                                 includeAllMacros,
+                                                                                 includeReservedMsgIDs,
+                                                                                 includeProjectFields,
+                                                                                 includeGroups,
+                                                                                 includeAssociations,
+                                                                                 includeTlmSched,
+                                                                                 includeAppSched,
+                                                                                 includeVariablePaths,
+                                                                                 ccddMain.getVariableHandler(),
+                                                                                 separators,
+                                                                                 fileExtn,
+                                                                                 endianess,
+                                                                                 isHeaderBigEndian,
+                                                                                 version,
+                                                                                 validationStatus,
+                                                                                 classification1,
+                                                                                 classification2,
+                                                                                 classification3,
+                                                                                 scriptFileName != null,
+                                                                                 scriptFileName,
+                                                                                 ccddMain.getMainFrame());
                 }
             }
         });
@@ -1753,14 +1768,14 @@ public class CcddCommandLineHandler
                     // Parse the converted table path list. The paths are handled the same as those
                     // for script associations (hence the need for the conversion above); this
                     // includes expanding group references
-                    tablePaths = ccddMain.getScriptHandler()
-                            .getAssociationTablePaths(internalFormat,
-                                                      new CcddGroupHandler(ccddMain,
-                                                                           null,
-                                                                           (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame())),
-                                                      true,
-                                                      (ccddMain.isGUIHidden() ? null : ccddMain.getMainFrame()))
-                            .toArray(new String[0]);
+                    tablePaths = ccddMain.getScriptHandler().getAssociationTablePaths(internalFormat,
+                                                                                      new CcddGroupHandler(ccddMain,
+                                                                                                           null,
+                                                                                                           (ccddMain.isGUIHidden() ? null
+                                                                                                                                   : ccddMain.getMainFrame())),
+                                                                                      true,
+                                                                                      (ccddMain.isGUIHidden() ? null
+                                                                                                              : ccddMain.getMainFrame())).toArray(new String[0]);
                 }
             };
         });
@@ -1806,13 +1821,13 @@ public class CcddCommandLineHandler
         });
 
         // Export command - include all table type definitions
-        exportArgument
-                .add(new CommandHandler("includeAllTableTypes",
-                                        "Include all table type definitions\n" + " (CSV, JSON)",
-                                        "true or false (default: false)",
-                                        CommandLineType.OPTION, 0,
-                                        new Object[] {true, false},
-                                        new String[] {"true", "false"})
+        exportArgument .add(new CommandHandler("includeAllTableTypes",
+                                               "Include all table type definitions\n"
+                                               + " (CSV, JSON)",
+                                               "true or false (default: false)",
+                                               CommandLineType.OPTION, 0,
+                                               new Object[] {true, false},
+                                               new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the table type definitions
@@ -1827,7 +1842,8 @@ public class CcddCommandLineHandler
         // Export command - include all data type definitions
         exportArgument
                 .add(new CommandHandler("includeAllDataTypes",
-                                        "Include all data type definitions\n" + " (CSV, JSON)",
+                                        "Include all data type definitions\n"
+                                        + " (CSV, JSON)",
                                         "true or false (default: false)",
                                         CommandLineType.OPTION, 0,
                                         new Object[] {true, false},
@@ -1845,7 +1861,8 @@ public class CcddCommandLineHandler
 
         // Export command - include all user-defined input type definitions
         exportArgument.add(new CommandHandler("includeAllInputTypes",
-                                              "Include all user-defined input type\n" + "  definitions (CSV, JSON)",
+                                              "Include all user-defined input type\n"
+                                              + "  definitions (CSV, JSON)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1864,7 +1881,8 @@ public class CcddCommandLineHandler
 
         // Export command - include all macro definitions
         exportArgument.add(new CommandHandler("includeAllMacros",
-                                              "Include all macro definitions\n" + "  (CSV, JSON)",
+                                              "Include all macro definitions\n"
+                                              + "  (CSV, JSON)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1883,7 +1901,8 @@ public class CcddCommandLineHandler
 
         // Export command - include build information
         exportArgument.add(new CommandHandler("includeBuildInformation",
-                                              "Include the CCDD version, project,\n" + "  host, and user information",
+                                              "Include the CCDD version, project,\n"
+                                              + "  host, and user information",
                                               "true or false (default: true)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1922,7 +1941,8 @@ public class CcddCommandLineHandler
         // Export command - include reserved message IDs
         exportArgument
                 .add(new CommandHandler("includeReservedMsgIDs",
-                                        "Include reserved message ID list\n" + " (CSV, JSON)",
+                                        "Include reserved message ID list\n"
+                                        + " (CSV, JSON)",
                                         "true or false (default: false)",
                                         CommandLineType.OPTION,
                                         0,
@@ -1980,7 +2000,8 @@ public class CcddCommandLineHandler
         // Export command - include groups
         exportArgument
                 .add(new CommandHandler("includeGroups",
-                                        "Include group definitions and data\n" + " fields (CSV, JSON)",
+                                        "Include group definitions and data\n"
+                                        + " fields (CSV, JSON)",
                                         "true or false (default: false)",
                                         CommandLineType.OPTION,
                                         0,
@@ -1999,7 +2020,8 @@ public class CcddCommandLineHandler
 
         // Export command - include script associations
         exportArgument.add(new CommandHandler("includeAssociations",
-                                              "Include script associations\n" + " (CSV, JSON)",
+                                              "Include script associations\n"
+                                              + " (CSV, JSON)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -2018,7 +2040,8 @@ public class CcddCommandLineHandler
 
         // Export command - include telemetry scheduler table
         exportArgument.add(new CommandHandler("includeTlmSched",
-                                              "Include telemetry scheduler table\n" + " (CSV, JSON)",
+                                              "Include telemetry scheduler table\n"
+                                              + " (CSV, JSON)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -2038,7 +2061,8 @@ public class CcddCommandLineHandler
         // Export command - include application scheduler table
         exportArgument
                 .add(new CommandHandler("includeAppSched",
-                                        "Include application scheduler table\n" + " (CSV, JSON)",
+                                        "Include application scheduler table\n"
+                                        + " (CSV, JSON)",
                                         "true or false (default: false)",
                                         CommandLineType.OPTION,
                                         0,
@@ -2093,7 +2117,8 @@ public class CcddCommandLineHandler
 
         // Export command - data type/variable name separator
         exportArgument.add(new CommandHandler("typeNameSep",
-                                              "Data type/variable name separator\n" + " character(s)",
+                                              "Data type/variable name separator\n"
+                                              + " character(s)",
                                               "default: .",
                                               CommandLineType.NAME,
                                               0)
@@ -2110,7 +2135,8 @@ public class CcddCommandLineHandler
 
         // Export command - hide data type
         exportArgument.add(new CommandHandler("hideDataType",
-                                              "Hide the data type in the variable\n" + " paths",
+                                              "Hide the data type in the variable\n"
+                                              + " paths",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -2130,7 +2156,8 @@ public class CcddCommandLineHandler
         // Export command - file extension
         exportArgument.add(new CommandHandler("format",
                                               "Export file format",
-                                              "csv, eds, json, or xtce\n" + " (default: csv)",
+                                              "csv, eds, json, or xtce\n"
+                                              + " (default: csv)",
                                               CommandLineType.OPTION,
                                               0,
                                               new Object[] {FileExtension.CSV,
@@ -2151,7 +2178,8 @@ public class CcddCommandLineHandler
 
         // Export command - clear target directory
         exportArgument.add(new CommandHandler("clearTargetDirectory",
-                                              "Clear target directory of all contents\n" + " (true, false)",
+                                              "Clear target directory of all contents\n"
+                                              + " (true, false)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -2173,7 +2201,8 @@ public class CcddCommandLineHandler
                                               "big or little (default: big)",
                                               CommandLineType.OPTION,
                                               0,
-                                              new Object[] {EndianType.BIG_ENDIAN, EndianType.LITTLE_ENDIAN},
+                                              new Object[] {EndianType.BIG_ENDIAN,
+                                                            EndianType.LITTLE_ENDIAN},
                                               new String[] {"big", "little"})
         {
             /**************************************************************************************
@@ -2188,7 +2217,8 @@ public class CcddCommandLineHandler
 
         // Export command - telemetry and command headers endianess
         exportArgument.add(new CommandHandler("isHeaderBigEndian",
-                                              "Force telemetry & command header to\n" + "big endian (EDS, XTCE)",
+                                              "Force telemetry & command header to\n"
+                                              + "big endian (EDS, XTCE)",
                                               "true or false (default: true)",
                                               CommandLineType.OPTION,
                                               0,
@@ -2292,7 +2322,8 @@ public class CcddCommandLineHandler
 
         // Export command - external export script file name
         exportArgument.add(new CommandHandler("externalFileName",
-                                              "External export script file name\n" + "(EDS, XTCE)",
+                                              "External export script file name\n"
+                                              + "(EDS, XTCE)",
                                               "external export script file name",
                                               CommandLineType.NAME,
                                               0)
@@ -2322,7 +2353,10 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal) throws Exception
             {
                 // Parse the create project database sub-commands
-                parseCommand(-1, -1, CcddUtilities.parseCommandLine(parmVal.toString()), getSubArgument());
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
+                             getSubArgument());
 
                 // Check if a required create sub-command is missing or blank
                 if (createName == null || createName.isEmpty())
@@ -2397,21 +2431,19 @@ public class CcddCommandLineHandler
                                 File firstFile = directory.listFiles()[0];
                                 if (firstFile.getName().endsWith(".json"))
                                 {
-                                    ccddMain.getFileIOHandler()
-                                            .restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
-                                                                          createName,
-                                                                          createOwner,
-                                                                          createDescription,
-                                                                          createRestore);
+                                    ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
+                                                                                             createName,
+                                                                                             createOwner,
+                                                                                             createDescription,
+                                                                                             createRestore);
                                 }
                                 else if (firstFile.getName().endsWith(".csv"))
                                 {
-                                    ccddMain.getFileIOHandler()
-                                            .restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
-                                                                          createName,
-                                                                          createOwner,
-                                                                          createDescription,
-                                                                          createRestore);
+                                    ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
+                                                                                             createName,
+                                                                                             createOwner,
+                                                                                             createDescription,
+                                                                                             createRestore);
                                 }
                             }
                         }
@@ -2508,7 +2540,10 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal) throws Exception
             {
                 // Parse the delete project database sub-commands
-                parseCommand(-1, -1, CcddUtilities.parseCommandLine(parmVal.toString()), getSubArgument());
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
+                             getSubArgument());
 
                 // Check if a required create sub-command is missing or blank
                 if (deleteName == null || deleteName.isEmpty())
@@ -2539,11 +2574,11 @@ public class CcddCommandLineHandler
                         String projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
                         String dbName = dbControl.convertProjectNameToDatabase(projectName);
                         boolean isNameMatch = dbName.equals(deleteName) || projectName.equals(deleteName);
+
                         if (isNameMatch)
                         {
                             // Check if the user has administrative level access for the project
-                            if (dbControl.getUserAdminAccess()
-                                    .contains(dbControl.convertProjectNameToDatabase(deleteName)))
+                            if (dbControl.getUserAdminAccess().contains(dbControl.convertProjectNameToDatabase(deleteName)))
                             {
                                 // Attempt to delete the specified project database. The user must
                                 // be an administrator for the project to perform this operation
@@ -2601,7 +2636,8 @@ public class CcddCommandLineHandler
 
         // Delete project command - continue executing commands if the project doesn't exist
         deleteArgument.add(new CommandHandler("continueIfMissing",
-                                              "Continue to process commands if the\n" + "  project doesn't exist",
+                                              "Continue to process commands if the\n"
+                                              + "  project doesn't exist",
                                               "",
                                               CommandLineType.NONE,
                                               0)
@@ -2656,7 +2692,9 @@ public class CcddCommandLineHandler
      *
      * @param commandArgument List of valid command line commands
      *********************************************************************************************/
-    private void parseCommand(int startPriority, int endPriority, String[] cmdLnArgs,
+    private void parseCommand(int startPriority,
+                              int endPriority,
+                              String[] cmdLnArgs,
                               List<CommandHandler> commandArgument)
     {
         try
@@ -2921,15 +2959,17 @@ public class CcddCommandLineHandler
         String dash = new String(dashes);
 
         // Initialize the usage information
-        String usage = String
-                .format("usage:\n" + "java -classpath <class_paths> CCDD.CcddMain [[<- or />]<command> <value> [...]]\n"
-                        + " Command line arguments:\n" + format + format,
-                        "Command",
-                        "Value",
-                        "Description",
-                        dash,
-                        dash,
-                        dash);
+        String usage = String.format("usage:\n"
+                                     + "java -classpath <class_paths> CCDD.CcddMain [[<- or />]<command> <value> [...]]\n"
+                                     + " Command line arguments:\n"
+                                     + format
+                                     + format,
+                                     "Command",
+                                     "Value",
+                                     "Description",
+                                     dash,
+                                     dash,
+                                     dash);
 
         // Step through each command
         for (CommandHandler cmd : argument)
@@ -2941,7 +2981,8 @@ public class CcddCommandLineHandler
             for (int index = 0; index < Math.max(description.length, value.length); index++)
             {
                 // Append the command's usage text
-                usage += String.format(format, (index == 0 ? cmd.command : ""),
+                usage += String.format(format,
+                                       (index == 0 ? cmd.command : ""),
                                        (index < value.length ? value[index] : ""),
                                        (index < description.length ? description[index] : ""));
             }
@@ -2954,7 +2995,12 @@ public class CcddCommandLineHandler
                 usage += "   "
                          + subCmdHdr
                          + "\n   "
-                         + String.format("%-" + subCmdHdr.length() + "." + subCmdHdr.length() + "s\n", dash);
+                         + String.format("%-"
+                                         + subCmdHdr.length()
+                                         + "."
+                                         + subCmdHdr.length()
+                                         + "s\n",
+                                         dash);
 
                 // Step through each sub-command
                 for (CommandHandler subCmd : cmd.getSubArgument())
@@ -2966,7 +3012,8 @@ public class CcddCommandLineHandler
                     for (int index = 0; index < Math.max(description.length, value.length); index++)
                     {
                         // Append the command's usage text
-                        usage += String.format(format, (index == 0 ? "  " + subCmd.command : ""),
+                        usage += String.format(format,
+                                               (index == 0 ? "  " + subCmd.command : ""),
                                                (index < value.length ? value[index] : ""),
                                                (index < description.length ? description[index] : ""));
                     }

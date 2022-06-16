@@ -118,30 +118,30 @@ public class CcddVariableDialog extends CcddDialogHandler
             protected void execute()
             {
                 // Create borders for the dialog components
-                Border border = BorderFactory
-                        .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                              Color.GRAY),
-                                              BorderFactory.createEmptyBorder(
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing()));
+                Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                   Color.LIGHT_GRAY,
+                                                                                                   Color.GRAY),
+                                                                   BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                   ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
                 Border emptyBorder = BorderFactory.createEmptyBorder();
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                0.0,
+                                                                0.0,
                                                                 GridBagConstraints.FIRST_LINE_START,
                                                                 GridBagConstraints.NONE,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                        .getSpacing() / 2, 0,
-                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                                   .getSpacing() / 2,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           0,
+                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                            0),
-                                                                0, 0);
+                                                                0,
+                                                                0);
 
                 // Create panels to hold the components of the dialog
                 JPanel upperPnl = new JPanel(new GridBagLayout());
@@ -223,9 +223,13 @@ public class CcddVariableDialog extends CcddDialogHandler
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
                 tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()),
-                                                     TableTreeType.STRUCTURE_TABLES, DEFAULT_PROTOTYPE_NODE_NAME,
-                                                     DEFAULT_INSTANCE_NODE_NAME, ccddMain.getMainFrame());
+                                                     new CcddGroupHandler(ccddMain,
+                                                                          null,
+                                                                          ccddMain.getMainFrame()),
+                                                     TableTreeType.STRUCTURE_TABLES,
+                                                     DEFAULT_PROTOTYPE_NODE_NAME,
+                                                     DEFAULT_INSTANCE_NODE_NAME,
+                                                     ccddMain.getMainFrame());
 
                 // Add the tree to the upper panel
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -236,7 +240,8 @@ public class CcddVariableDialog extends CcddDialogHandler
                 gbc.weighty = 1.0;
                 gbc.gridx++;
                 upperPnl.add(tableTree.createTreePanel("Structure Tables",
-                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
+                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                       false,
                                                        ccddMain.getMainFrame()),
                              gbc);
                 gbc.gridwidth = 1;
@@ -295,8 +300,13 @@ public class CcddVariableDialog extends CcddDialogHandler
                         // the editors and renderers for the table cells, set up the table grid
                         // lines, and calculate the minimum width required to display the table
                         // information
-                        setUpdatableCharacteristics(tableData, VariablePathTableColumnInfo.getColumnNames(), null,
-                                                    VariablePathTableColumnInfo.getToolTips(), false, true, true);
+                        setUpdatableCharacteristics(tableData,
+                                                    VariablePathTableColumnInfo.getColumnNames(),
+                                                    null,
+                                                    VariablePathTableColumnInfo.getToolTips(),
+                                                    false,
+                                                    true,
+                                                    true);
                     }
                 };
 
@@ -307,10 +317,16 @@ public class CcddVariableDialog extends CcddDialogHandler
                 JScrollPane scrollPane = new JScrollPane(variableTable);
 
                 // Set common table parameters and characteristics
-                variableTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                                      TableSelectionMode.SELECT_BY_CELL, true,
-                                                      ModifiableColorInfo.TABLE_BACK.getColor(), true, false,
-                                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+                variableTable.setFixedCharacteristics(scrollPane,
+                                                      false,
+                                                      ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                                      TableSelectionMode.SELECT_BY_CELL,
+                                                      true,
+                                                      ModifiableColorInfo.TABLE_BACK.getColor(),
+                                                      true,
+                                                      false,
+                                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                                      true);
 
                 // Define the panel to contain the table
                 JPanel variablesTblPnl = new JPanel();
@@ -374,11 +390,11 @@ public class CcddVariableDialog extends CcddDialogHandler
                             || (!hideDataTypeCb.isSelected() && typeNameSepFld.getText().matches(".*[\\[\\]].*")))
                         {
                             // Inform the user that the input value is invalid
-                            new CcddDialogHandler()
-                                    .showMessageDialog(CcddVariableDialog.this,
-                                                       "<html><b>Invalid character(s) in separator field(s)",
-                                                       "Invalid Input", JOptionPane.WARNING_MESSAGE,
-                                                       DialogOption.OK_OPTION);
+                            new CcddDialogHandler().showMessageDialog(CcddVariableDialog.this,
+                                                                      "<html><b>Invalid character(s) in separator field(s)",
+                                                                      "Invalid Input",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
                         }
                         // The separator fields are valid
                         else
@@ -392,9 +408,10 @@ public class CcddVariableDialog extends CcddDialogHandler
                 });
 
                 // Open table(s) button
-                JButton btnOpen = CcddButtonPanelHandler
-                        .createButton("Open", TABLE_ICON, KeyEvent.VK_O,
-                                      "Open the table(s) associated with the selected variable(s)");
+                JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                                      TABLE_ICON,
+                                                                      KeyEvent.VK_O,
+                                                                      "Open the table(s) associated with the selected variable(s)");
 
                 // Add a listener for the Open button
                 btnOpen.addActionListener(new ActionListener()
@@ -410,7 +427,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                 });
 
                 // Print variable paths button
-                JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
+                JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
+                                                                       PRINT_ICON,
+                                                                       KeyEvent.VK_P,
                                                                        "Print the variable paths list");
 
                 // Add a listener for the Print button
@@ -422,15 +441,19 @@ public class CcddVariableDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        variableTable.printTable("Project '" + ccddMain.getDbControlHandler().getDatabaseName()
-                                                 + "' Variables", null, CcddVariableDialog.this, PageFormat.LANDSCAPE);
+                        variableTable.printTable("Project '"
+                                                 + ccddMain.getDbControlHandler().getDatabaseName()
+                                                 + "' Variables",
+                                                 null,
+                                                 CcddVariableDialog.this,
+                                                 PageFormat.LANDSCAPE);
                     }
                 });
 
                 // Store separators button
-                JButton btnStore = CcddButtonPanelHandler
-                        .createButton("Store", STORE_ICON, KeyEvent.VK_S,
-                                      "Store the variable path separators and hide data types flag");
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON, KeyEvent.VK_S,
+                                                                       "Store the variable path separators and hide data types flag");
                 btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
@@ -461,7 +484,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                 });
 
                 // Close variables dialog button
-                JButton btnCancel = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                JButton btnCancel = CcddButtonPanelHandler.createButton("Close",
+                                                                        CLOSE_ICON,
+                                                                        KeyEvent.VK_C,
                                                                         "Close the variables dialog");
 
                 // Add a listener for the Close button
@@ -498,7 +523,12 @@ public class CcddVariableDialog extends CcddDialogHandler
             protected void complete()
             {
                 // Display the variable name dialog
-                showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnShow, "Variable Paths & Names",
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  dialogPnl,
+                                  buttonPnl,
+                                  btnShow,
+                                  ""
+                                  + "Variable Paths & Names",
                                   true);
             }
         });
@@ -525,11 +555,11 @@ public class CcddVariableDialog extends CcddDialogHandler
             if (filterTables.isEmpty())
             {
                 // Add the variable to the list
-                variableList
-                        .add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                           variableHandler.getFullVariableName(variableName, varPathSepFld.getText(),
-                                                                               hideDataTypeCb.isSelected(),
-                                                                               typeNameSepFld.getText())});
+                variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
+                                                variableHandler.getFullVariableName(variableName,
+                                                                                    varPathSepFld.getText(),
+                                                                                    hideDataTypeCb.isSelected(),
+                                                                                    typeNameSepFld.getText())});
             }
             // One or more tables are selected for use as filters
             else
@@ -551,9 +581,11 @@ public class CcddVariableDialog extends CcddDialogHandler
                 if (filterTables.contains(variablePath))
                 {
                     // Add the variable to the list
-                    variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName), variableHandler
-                            .getFullVariableName(variableName, varPathSepFld.getText(), hideDataTypeCb.isSelected(),
-                                                 typeNameSepFld.getText())});
+                    variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
+                                                   variableHandler.getFullVariableName(variableName,
+                                                                                       varPathSepFld.getText(),
+                                                                                       hideDataTypeCb.isSelected(),
+                                                                                       typeNameSepFld.getText())});
                 }
             }
         }

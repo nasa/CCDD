@@ -527,7 +527,8 @@ public class CcddDataTypeHandler
         BaseDataTypeInfo baseDataType = getBaseDataType(dataTypeName);
 
         // Set the flag to true if the base data type is an integer (signed or unsigned)
-        isInteger = baseDataType == BaseDataTypeInfo.UNSIGNED_INT || baseDataType == BaseDataTypeInfo.SIGNED_INT;
+        isInteger = baseDataType == BaseDataTypeInfo.UNSIGNED_INT
+                    || baseDataType == BaseDataTypeInfo.SIGNED_INT;
 
         return isInteger;
     }
@@ -589,7 +590,8 @@ public class CcddDataTypeHandler
      *********************************************************************************************/
     protected boolean isString(String dataTypeName)
     {
-        return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER && getDataTypeSize(dataTypeName) > 1;
+        return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER
+                                                && getDataTypeSize(dataTypeName) > 1;
     }
 
     /**********************************************************************************************
@@ -635,7 +637,9 @@ public class CcddDataTypeHandler
         else if (isFloat(dataTypeName))
         {
             // Use the Java float and double minimum values
-            minimum = bytes == 4 ? (float) -Float.MAX_VALUE : bytes == 8 ? (double) -Double.MAX_VALUE : 0;
+            minimum = bytes == 4 ? (float) -Float.MAX_VALUE
+                                 : bytes == 8 ? (double) -Double.MAX_VALUE
+                                              : 0;
         }
 
         return minimum;
@@ -673,7 +677,9 @@ public class CcddDataTypeHandler
         else if (isFloat(dataTypeName))
         {
             // Use the Java float and double maximum values
-            maximum = bytes == 4 ? (float) Float.MAX_VALUE : bytes == 8 ? (double) Double.MAX_VALUE : 0;
+            maximum = bytes == 4 ? (float) Float.MAX_VALUE
+                                 : bytes == 8 ? (double) Double.MAX_VALUE
+                                              : 0;
         }
 
         return maximum;
@@ -708,8 +714,8 @@ public class CcddDataTypeHandler
                                                                                                      {"_case_insensitive_", "true"},
                                                                                                      {"_allow_regex_", "true"},
                                                                                                      {"_selected_tables_", SearchType.PROTO.toString()},
-                                         {"_columns_", ""}},
-                         parent)));
+                                                                                                     {"_columns_", ""}},
+                                                                                     parent)));
 
         // Remove any references to the data type that appear in an array size column for an array
         // member (the reference in the array's definition is all that's needed)
@@ -802,7 +808,9 @@ public class CcddDataTypeHandler
             {
                 // Highlight the matching text. Adjust the highlight color to account for the cell
                 // selection highlighting so that the sizeof() call is easily readable
-                ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(), matcher.end(), painter);
+                ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
+                                                                           matcher.end(),
+                                                                           painter);
             }
             catch (BadLocationException ble)
             {

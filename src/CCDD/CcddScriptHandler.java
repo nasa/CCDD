@@ -844,8 +844,10 @@ public class CcddScriptHandler
      *
      * @return List containing the tables (path+name) from the association member string
      *********************************************************************************************/
-    protected List<String> getAssociationTablePaths(String associationMembers, CcddGroupHandler groupHandler,
-                                                    boolean isForExport, Component parent)
+    protected List<String> getAssociationTablePaths(String associationMembers,
+                                                    CcddGroupHandler groupHandler,
+                                                    boolean isForExport,
+                                                    Component parent)
     {
         List<String> tablePaths = new ArrayList<String>();
         CcddTableTreeHandler tableTree = null;

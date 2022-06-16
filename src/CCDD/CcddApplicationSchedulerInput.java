@@ -105,7 +105,11 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         selectedRate = "0";
 
         // Create the application tree
-        applicationTree = new CcddGroupTreeHandler(ccddMain, null, selectedRate, true, ccddMain.getMainFrame())
+        applicationTree = new CcddGroupTreeHandler(ccddMain,
+                                                   null,
+                                                   selectedRate,
+                                                   true,
+                                                   ccddMain.getMainFrame())
         {
             /**************************************************************************************
              * Respond to changes in selection of a node in the application tree
@@ -156,14 +160,16 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                                       0,
                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                       0),
-                                           0, 0));
+                                           0,
+                                           0));
 
         // Initialize the currently selected rate to 1 Hz if present in the list of available
         // rates; otherwise choose the first rate if any rates exist, and if none exist set the
         // rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
         updateVariableTree(availableRates.contains("1") ? "1"
-                                                        : (!availableRates.isEmpty() ? availableRates.get(0) : "0"));
+                                                        : (!availableRates.isEmpty() ? availableRates.get(0)
+                                                                                     : "0"));
     }
 
     /**********************************************************************************************
@@ -289,7 +295,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             // Check that the group represents a CFS application, the target rate matches the field
             // value, and the application isn't in the exclusion list
             if (grpInfo.isApplication()
-                && rate.equals(getDataFieldValue(grpInfo.getName(), DefaultApplicationField.SCHEDULE_RATE))
+                && rate.equals(getDataFieldValue(grpInfo.getName(),
+                                                 DefaultApplicationField.SCHEDULE_RATE))
                 && !excludedList.contains(grpInfo.getName()))
             {
                 // Add the application name to the list

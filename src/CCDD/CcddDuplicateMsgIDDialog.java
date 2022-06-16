@@ -86,15 +86,20 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         duplicates.sort(ArrayListMultipleSortType.HEXADECIMAL);
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create panels to hold the components of the dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -131,8 +136,12 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(duplicates.toArray(new String[0][0]),
-                                            DuplicateMsgIDColumnInfo.getColumnNames(), "1:0",
-                                            DuplicateMsgIDColumnInfo.getToolTips(), true, true, true);
+                                            DuplicateMsgIDColumnInfo.getColumnNames(),
+                                            "1:0",
+                                            DuplicateMsgIDColumnInfo.getToolTips(),
+                                            true,
+                                            true,
+                                            true);
             }
         };
 
@@ -140,10 +149,16 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         JScrollPane scrollPane = new JScrollPane(duplicatesTable);
 
         // Set up the field table parameters
-        duplicatesTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                                TableSelectionMode.SELECT_BY_CELL, true,
-                                                ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
-                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
+        duplicatesTable.setFixedCharacteristics(scrollPane,
+                                                false,
+                                                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                                TableSelectionMode.SELECT_BY_CELL,
+                                                true,
+                                                ModifiableColorInfo.TABLE_BACK.getColor(),
+                                                false,
+                                                true,
+                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
+                                                true);
 
         // Define the panel to contain the table
         JPanel resultsTblPnl = new JPanel();
@@ -159,6 +174,10 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(resultsTblPnl, gbc);
 
-        showOptionsDialog(parent, dialogPnl, "Duplicate Message IDs", DialogOption.PRINT_OPTION, true);
+        showOptionsDialog(parent,
+                          dialogPnl,
+                          "Duplicate Message IDs",
+                          DialogOption.PRINT_OPTION,
+                          true);
     }
 }

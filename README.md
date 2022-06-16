@@ -27,6 +27,12 @@ Version 2 redefines the behavior of command tables.  Command arguments are no lo
 
 When version 2 attempts to open a version 1.x.x version project database then a dialog appears asking to convert the project.  Unlike previous patches, this patch alters user-defined tables and table definitions, and creates new ones.  The argument columns in any command tables are replaced with the argument structure reference column, and the argument structure is created and populated using the original argument information.  Many of the command table script data access methods no longer exist, so existing scripts may need to be updated. Before this patch is applied to the version 1.x.x database a backup will be performed to ensure no data loss on the chance that something does not work as anticipated. 
 
+*** Version 2.0.32 has been released ***
+
+Below is a brief description of what has changed in version 2.0.32
+* Improvements in speed have been made in handling SQL commands for table updates. This can significantly improve the time it takes to complete an update for large tables
+* Maximum SQL command length is based on a user-specified (Preferences) value
+
 *** Version 2.0.31 has been released ***
 
 Below is a brief description of what has changed in version 2.0.31

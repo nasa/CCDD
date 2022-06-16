@@ -226,9 +226,13 @@ public class CcddConstants
 
     // Main window initial and minimum window size
     protected static final int INIT_WINDOW_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment()
-            .getDefaultScreenDevice().getDisplayMode().getWidth() / 2;
+                                                                      .getDefaultScreenDevice()
+                                                                      .getDisplayMode()
+                                                                      .getWidth() / 2;
     protected static final int INIT_WINDOW_HEIGHT = GraphicsEnvironment.getLocalGraphicsEnvironment()
-            .getDefaultScreenDevice().getDisplayMode().getHeight() / 2;
+                                                                       .getDefaultScreenDevice()
+                                                                       .getDisplayMode()
+                                                                       .getHeight() / 2;
     protected static final int MIN_WINDOW_WIDTH = Math.min(Math.min(Math.max(INIT_WINDOW_WIDTH,
                                                                              ModifiableSizeInfo.MIN_WINDOW_WIDTH.getSize()),
                                                                     ModifiableSizeInfo.MIN_WINDOW_WIDTH.getSize()),
@@ -925,7 +929,12 @@ public class CcddConstants
                         // Set the font for the header specified by the column to the modifiable
                         // font
                         setModifiableFont(((JTable) comp).getColumnModel().getColumn(column).getHeaderRenderer()
-                                                         .getTableCellRendererComponent((JTable) comp, "", false, false, -1, column));
+                                                         .getTableCellRendererComponent((JTable) comp,
+                                                                                        "",
+                                                                                        false,
+                                                                                        false,
+                                                                                        -1,
+                                                                                        column));
 
                         // Step through each row in the table
                         for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
@@ -933,7 +942,12 @@ public class CcddConstants
                             // Set the font for the cell specified by the row and column to the
                             // modifiable font
                             setModifiableFont(((JTable) comp).getCellRenderer(row, column)
-                                                             .getTableCellRendererComponent((JTable) comp, "", false, false, row, column));
+                                                             .getTableCellRendererComponent((JTable) comp,
+                                                                                            "",
+                                                                                            false,
+                                                                                            false,
+                                                                                            row,
+                                                                                            column));
                         }
                     }
                 }
@@ -1280,7 +1294,12 @@ public class CcddConstants
                             // Set the font for the cell specified by the row and column to the
                             // modifiable color
                             setModifiableColor(((JTable) comp).getCellRenderer(row, column)
-                                                              .getTableCellRendererComponent((JTable) comp, "", false, false, row, column));
+                                                              .getTableCellRendererComponent((JTable) comp,
+                                                                                             "",
+                                                                                             false,
+                                                                                             false,
+                                                                                             row,
+                                                                                             column));
                         }
                     }
                 }
@@ -1340,6 +1359,7 @@ public class CcddConstants
     protected static enum ModifiableSizeInfo
     {
         MAX_LOG_MESSAGE_LENGTH("Maximum log message length", "Maximum number of characters to display in the session event log", "MaximumLogMessageLength", 250, 10, 1000),
+        MAX_SQL_COMMAND_LENGTH("Maximum SQL command length", "Value used to limit the length of concatenated SQL commands", "MaximumSqlCommandLength", 40000, 1000, 1000000),
         NUM_REMEMBERED_SEARCHES("Maximum remembered search strings", "Maximum number of remembered search strings", "NumberOfRememberedSearches", 30, 1, 100),
         NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
         NUM_REMEMBERED_PROJECTS("Maximum remembered project names", "Maximum number of remembered project names", "NumberOfRememberedProjects", 4, 1, 10),
@@ -3054,7 +3074,8 @@ public class CcddConstants
                     // structure
                     if (defCol.tableType.isEmpty()
                         || (type[0].equals(defCol.tableType)
-                            && (!defCol.inputType.equals(DefaultInputType.RATE) || type[1].equals(STRUCT_TELEMETRY))))
+                            && (!defCol.inputType.equals(DefaultInputType.RATE)
+                                || type[1].equals(STRUCT_TELEMETRY))))
                     {
                         String typeDescription = defCol.description;
 
@@ -3312,14 +3333,18 @@ public class CcddConstants
 
         // Data table types
         TABLE_TYPES("table_types",
-                new String[][] {{TableTypesColumn.TYPE_NAME.columnName, TableTypesColumn.TYPE_NAME.dataType},
-                                {TableTypesColumn.INDEX.columnName, TableTypesColumn.INDEX.dataType},
-                                {TableTypesColumn.COLUMN_NAME_DB.columnName, TableTypesColumn.COLUMN_NAME_DB.dataType},
+                new String[][] {{TableTypesColumn.TYPE_NAME.columnName,
+                                 TableTypesColumn.TYPE_NAME.dataType},
+                                {TableTypesColumn.INDEX.columnName,
+                                 TableTypesColumn.INDEX.dataType},
+                                {TableTypesColumn.COLUMN_NAME_DB.columnName,
+                                 TableTypesColumn.COLUMN_NAME_DB.dataType},
                                 {TableTypesColumn.COLUMN_NAME_VISIBLE.columnName,
                                  TableTypesColumn.COLUMN_NAME_VISIBLE.dataType},
                                 {TableTypesColumn.COLUMN_DESCRIPTION.columnName,
                                  TableTypesColumn.COLUMN_DESCRIPTION.dataType},
-                                {TableTypesColumn.INPUT_TYPE.columnName, TableTypesColumn.INPUT_TYPE.dataType},
+                                {TableTypesColumn.INPUT_TYPE.columnName,
+                                 TableTypesColumn.INPUT_TYPE.dataType},
                                 {TableTypesColumn.ROW_VALUE_UNIQUE.columnName,
                                  TableTypesColumn.ROW_VALUE_UNIQUE.dataType},
                                 {TableTypesColumn.COLUMN_REQUIRED.columnName,
@@ -3334,8 +3359,8 @@ public class CcddConstants
                 "CREATE UNIQUE INDEX " + INTERNAL_TABLE_PREFIX + "table_types_idx ON " + INTERNAL_TABLE_PREFIX + "table_types (type, index); "
 
                 // Create default table definition for the telemetry and command table types
-                             + "INSERT INTO " + INTERNAL_TABLE_PREFIX + "table_types VALUES "
-                             + DefaultColumn.getColumnDefinitions()),
+                + "INSERT INTO " + INTERNAL_TABLE_PREFIX + "table_types VALUES "
+                + DefaultColumn.getColumnDefinitions()),
 
         // Telemetry scheduler
         TLM_SCHEDULER("tlm_scheduler",
@@ -3344,8 +3369,8 @@ public class CcddConstants
                                 {TlmSchedulerColumn.MESSAGE_ID.columnName, TlmSchedulerColumn.MESSAGE_ID.dataType},
                                 {TlmSchedulerColumn.MEMBER.columnName, TlmSchedulerColumn.MEMBER.dataType}},
                 "WITH OIDS",
-                "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "tlm_scheduler IS '1,1,false,\"" + DefaultColumn.RATE
-                        .getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
+                "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "tlm_scheduler IS '1,1,false,\""
+                        + DefaultColumn.RATE.getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
 
         // User authorization
         USERS("users", new String[][] {{UsersColumn.USER_NAME.columnName, UsersColumn.USER_NAME.dataType},
@@ -4480,7 +4505,10 @@ public class CcddConstants
          *
          * @param isRequired   True if a value is required in this column
          *****************************************************************************************/
-        MacroEditorColumnInfo(String columnName, String toolTip, String initialValue, boolean isRequired)
+        MacroEditorColumnInfo(String columnName,
+                              String toolTip,
+                              String initialValue,
+                              boolean isRequired)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
@@ -6080,45 +6108,59 @@ public class CcddConstants
     {
         // Get the list of data tables only, extracted from the table comments to retain their
         // original capitalization, sorted alphabetically
-        DATA_TABLES("SELECT name FROM (SELECT split_part(obj_description, ',', " + (TableCommentIndex.NAME.ordinal() + 1)
-                    + ") AS name FROM (SELECT obj_description(oid) " + "FROM pg_class WHERE substr(relname, 1, "
-                    + INTERNAL_TABLE_PREFIX.length() + ") != '" + INTERNAL_TABLE_PREFIX + "' AND relkind = 'r' "
-                    + "AND obj_description(oid) != '') AS alias1) AS alias2 " + "ORDER BY name ASC;"),
+        DATA_TABLES("SELECT name FROM (SELECT split_part(obj_description, ',', "
+                    + (TableCommentIndex.NAME.ordinal() + 1)
+                    + ") AS name FROM (SELECT obj_description(oid) FROM pg_class WHERE substr(relname, 1, "
+                    + INTERNAL_TABLE_PREFIX.length()
+                    + ") != '"
+                    + INTERNAL_TABLE_PREFIX
+                    + "' AND relkind = 'r' AND obj_description(oid) != '') AS alias1) AS alias2 ORDER BY name ASC;"),
 
         // Get the list containing the user-viewable table name, database table name, and table
         // type for all prototype data tables, sorted alphabetically
         DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type AS visname_dbname_type "
                               + "FROM (SELECT split_part(obj_description, ',', 1) AS name, "
-                              + "lower(split_part(obj_description, ',', 2)) AS type,"
-                              + " relname FROM (SELECT obj_description(oid), relname"
-                              + " FROM pg_class WHERE substr(relname, 1, " + INTERNAL_TABLE_PREFIX.length() + ") != '"
-                              + INTERNAL_TABLE_PREFIX + "' AND relkind = 'r' AND obj_description(oid) != '') "
-                              + "AS alias1) AS alias2 ORDER BY name ASC;"),
+                              + "lower(split_part(obj_description, ',', 2)) AS type, "
+                              + "relname FROM (SELECT obj_description(oid), relname "
+                              + "FROM pg_class WHERE substr(relname, 1, "
+                              + INTERNAL_TABLE_PREFIX.length()
+                              + ") != '"
+                              + INTERNAL_TABLE_PREFIX
+                              + "' AND relkind = 'r' AND obj_description(oid) != '') AS alias1) AS "
+                              + "alias2 ORDER BY name ASC;"),
 
         // Check if a specific table exists in the database (case insensitive)
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
         // Get the list of CCDD databases (in the form 'database name,lock status,visible (project)
         // name,admin(s),description'), sorted alphabetically
-        DATABASES("SELECT datname || E'" + DATABASE_COMMENT_SEPARATOR + "' || substr(description, length('"
-                  + CCDD_PROJECT_IDENTIFIER + "') + 1) AS db_lck_prj_adm_desc FROM pg_database "
-                  + "d LEFT JOIN pg_shdescription ON pg_shdescription.objoid = "
-                  + "d.oid WHERE d.datistemplate = false AND description LIKE '" + CCDD_PROJECT_IDENTIFIER
+        DATABASES("SELECT datname || E'"
+                  + DATABASE_COMMENT_SEPARATOR
+                  + "' || substr(description, length('"
+                  + CCDD_PROJECT_IDENTIFIER
+                  + "') + 1) AS db_lck_prj_adm_desc FROM pg_database d LEFT JOIN pg_shdescription ON "
+                  + "pg_shdescription.objoid = d.oid WHERE d.datistemplate = false AND description LIKE '"
+                  + CCDD_PROJECT_IDENTIFIER
                   + "%' ORDER BY datname ASC;"),
 
         // Get the list of CCDD databases (in the form 'database name;lock status;visible (project)
         // name;admin(s);description'), sorted alphabetically, for which the user has access.
         // '_user_' must be replaced by the user name
-        DATABASES_BY_USER("SELECT datname || E'" + DATABASE_COMMENT_SEPARATOR + "' || substr(description, length('"
-                          + CCDD_PROJECT_IDENTIFIER + "') + 1) AS db_lck_prj_adm_desc FROM pg_database "
-                          + "d LEFT JOIN pg_shdescription ON pg_shdescription.objoid = "
-                          + "d.oid WHERE d.datistemplate = false AND description LIKE '" + CCDD_PROJECT_IDENTIFIER
-                          + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
-                          + "d.datdba), 'member') = 't' ORDER BY datname ASC;"),
+        DATABASES_BY_USER("SELECT datname || E'"
+                          + DATABASE_COMMENT_SEPARATOR
+                          + "' || substr(description, length('"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "') + 1) AS db_lck_prj_adm_desc FROM pg_database d LEFT JOIN "
+                          + "pg_shdescription ON pg_shdescription.objoid = d.oid WHERE "
+                          + "d.datistemplate = false AND description LIKE '"
+                          + CCDD_PROJECT_IDENTIFIER
+                          + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid(d.datdba), "
+                          + "'member') = 't' ORDER BY datname ASC;"),
 
         // Get the list of active database connections by user. The database and user names are
         // concatenated (separated by a comma) in order to use the getList method
-        ACTIVE_BY_USER("select distinct datname || ',' || usename " + "AS names from pg_stat_activity ORDER BY names ASC;"),
+        ACTIVE_BY_USER("select distinct datname || ',' || usename AS names from pg_stat_activity "
+                       + "ORDER BY names ASC;"),
 
         // Get the list of users, sorted alphabetically
         USERS("SELECT u.usename FROM pg_catalog.pg_user u ORDER BY u.usename ASC;"),
@@ -6128,71 +6170,111 @@ public class CcddConstants
 
         // Get the owner of the specified database. '_db_name_' must be replaced by the database
         // name
-        DATABASE_OWNER("SELECT pg_catalog.pg_get_userbyid(d.datdba) AS owner " + "FROM pg_catalog.pg_database d "
-                       + "WHERE d.datname = '_db_name_';"),
+        DATABASE_OWNER("SELECT pg_catalog.pg_get_userbyid(d.datdba) AS owner FROM "
+                       + "pg_catalog.pg_database d WHERE d.datname = '_db_name_';"),
 
         // Get the list of PostgreSQL keywords
         KEYWORDS("SELECT * FROM pg_get_keywords()"),
 
         // Get the list of tables of type '_type_', sorted alphabetically. '_type_' must be
         // replaced by the type of table for which to search. _type_ is case insensitive
-        TABLES_OF_TYPE("SELECT name FROM (SELECT split_part(obj_description, ',', " + (TableCommentIndex.NAME.ordinal() + 1)
-                       + ") AS name, lower(split_part(obj_description, ',', " + (TableCommentIndex.TYPE.ordinal() + 1)
+        TABLES_OF_TYPE("SELECT name FROM (SELECT split_part(obj_description, ',', "
+                       + (TableCommentIndex.NAME.ordinal() + 1)
+                       + ") AS name, lower(split_part(obj_description, ',', "
+                       + (TableCommentIndex.TYPE.ordinal() + 1)
                        + ")) AS type FROM (SELECT obj_description(oid) FROM pg_class "
                        + "WHERE relkind = 'r' AND obj_description(oid) != '') alias1) "
                        + "alias2 WHERE type = '_type_' ORDER BY name ASC;"),
 
         // Get the list of table types, sorted alphabetically
-        TABLE_TYPES("SELECT DISTINCT " + TableTypesColumn.TYPE_NAME.getColumnName() + " FROM "
-                    + InternalTable.TABLE_TYPES.getTableName() + " ORDER BY "
-                    + TableTypesColumn.TYPE_NAME.getColumnName() + ";"),
+        TABLE_TYPES("SELECT DISTINCT "
+                    + TableTypesColumn.TYPE_NAME.getColumnName()
+                    + " FROM "
+                    + InternalTable.TABLE_TYPES.getTableName()
+                    + " ORDER BY "
+                    + TableTypesColumn.TYPE_NAME.getColumnName()
+                    + ";"),
 
         // Get all table type names and their descriptions
-        TABLE_TYPE_DESCRIPTIONS("SELECT " + TableTypesColumn.TYPE_NAME.getColumnName() + ", "
-                                + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName() + " FROM "
-                                + InternalTable.TABLE_TYPES.getTableName() + " WHERE "
-                                + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName() + " LIKE '"
-                                + DefaultColumn.PRIMARY_KEY.getName() + "';"),
+        TABLE_TYPE_DESCRIPTIONS("SELECT "
+                                + TableTypesColumn.TYPE_NAME.getColumnName()
+                                + ", "
+                                + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
+                                + " FROM "
+                                + InternalTable.TABLE_TYPES.getTableName()
+                                + " WHERE "
+                                + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName()
+                                + " LIKE '"
+                                + DefaultColumn.PRIMARY_KEY.getName()
+                                + "';"),
 
         // Get table type data
-        TABLE_TYPE_DATA("SELECT " + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName() + ", "
-                        + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName() + ", "
-                        + TableTypesColumn.INPUT_TYPE.getColumnName() + ", "
-                        + TableTypesColumn.ROW_VALUE_UNIQUE.getColumnName() + ", "
-                        + TableTypesColumn.COLUMN_REQUIRED.getColumnName() + ", "
-                        + TableTypesColumn.STRUCTURE_ALLOWED.getColumnName() + ", "
-                        + TableTypesColumn.POINTER_ALLOWED.getColumnName() + " FROM "
-                        + InternalTable.TABLE_TYPES.getTableName() + " WHERE "
-                        + TableTypesColumn.COLUMN_NAME_DB.getColumnName() + " NOT LIKE '%"
-                        + DefaultColumn.PRIMARY_KEY.getName().toLowerCase() + "%' AND "
-                        + TableTypesColumn.COLUMN_NAME_DB.getColumnName() + " NOT LIKE '%"
-                        + DefaultColumn.ROW_INDEX.getName().toLowerCase() + "%' AND "
-                        + TableTypesColumn.TYPE_NAME.getColumnName() + " LIKE '"),
+        TABLE_TYPE_DATA("SELECT "
+                        + TableTypesColumn.COLUMN_NAME_VISIBLE.getColumnName()
+                        + ", "
+                        + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
+                        + ", "
+                        + TableTypesColumn.INPUT_TYPE.getColumnName()
+                        + ", "
+                        + TableTypesColumn.ROW_VALUE_UNIQUE.getColumnName()
+                        + ", "
+                        + TableTypesColumn.COLUMN_REQUIRED.getColumnName()
+                        + ", "
+                        + TableTypesColumn.STRUCTURE_ALLOWED.getColumnName()
+                        + ", "
+                        + TableTypesColumn.POINTER_ALLOWED.getColumnName()
+                        + " FROM "
+                        + InternalTable.TABLE_TYPES.getTableName()
+                        + " WHERE "
+                        + TableTypesColumn.COLUMN_NAME_DB.getColumnName()
+                        + " NOT LIKE '%"
+                        + DefaultColumn.PRIMARY_KEY.getName().toLowerCase()
+                        + "%' AND "
+                        + TableTypesColumn.COLUMN_NAME_DB.getColumnName()
+                        + " NOT LIKE '%"
+                        + DefaultColumn.ROW_INDEX.getName().toLowerCase()
+                        + "%' AND "
+                        + TableTypesColumn.TYPE_NAME.getColumnName()
+                        + " LIKE '"),
 
         // Get the list of table names, variable paths, and descriptions (only for those tables
         // with descriptions), sorted alphabetically
-        TABLE_DESCRIPTIONS("SELECT " + ValuesColumn.TABLE_PATH.getColumnName() + " || E'"
-                           + Matcher.quoteReplacement(TABLE_DESCRIPTION_SEPARATOR) + "' || "
-                           + ValuesColumn.VALUE.getColumnName() + " AS description FROM "
-                           + InternalTable.VALUES.getTableName() + " WHERE " + ValuesColumn.COLUMN_NAME.getColumnName()
-                           + " = '' AND " + ValuesColumn.VALUE.getColumnName() + " != '' ORDER BY "
-                           + ValuesColumn.TABLE_PATH.getColumnName() + " ASC;"),
+        TABLE_DESCRIPTIONS("SELECT "
+                           + ValuesColumn.TABLE_PATH.getColumnName()
+                           + " || E'"
+                           + Matcher.quoteReplacement(TABLE_DESCRIPTION_SEPARATOR)
+                           + "' || "
+                           + ValuesColumn.VALUE.getColumnName()
+                           + " AS description FROM "
+                           + InternalTable.VALUES.getTableName()
+                           + " WHERE "
+                           + ValuesColumn.COLUMN_NAME.getColumnName()
+                           + " = '' AND "
+                           + ValuesColumn.VALUE.getColumnName()
+                           + " != '' ORDER BY "
+                           + ValuesColumn.TABLE_PATH.getColumnName()
+                           + " ASC;"),
 
         // Get the list of data tables and their comments, sorted alphabetically
-        TABLE_COMMENTS("SELECT description FROM (SELECT obj_description "
-                       + "AS description FROM (SELECT obj_description(oid) " + "FROM pg_class WHERE relkind = 'r' AND "
-                       + "obj_description(oid) != '' AND substr(relname, 1, " + INTERNAL_TABLE_PREFIX.length()
-                       + ") != '" + INTERNAL_TABLE_PREFIX + "') alias1) alias2 ORDER BY description ASC;"),
+        TABLE_COMMENTS("SELECT description FROM (SELECT obj_description AS description FROM "
+                       + "(SELECT obj_description(oid) " + "FROM pg_class WHERE relkind = 'r' "
+                       + "AND obj_description(oid) != '' AND substr(relname, 1, "
+                       + INTERNAL_TABLE_PREFIX.length()
+                       + ") != '"
+                       + INTERNAL_TABLE_PREFIX
+                       + "') alias1) alias2 ORDER BY description ASC;"),
 
         // Get the list of table name, data type, and variable names for the specified table
         // type(s) in the format tableName,dataType.variableName
         TABLE_DATA_VAR_NAMES("SELECT * from find_command_arguments('{_table_types_}');"),
 
         // Get the list of stored scripts, sorted alphabetically
-        SCRIPTS("SELECT script_name FROM (SELECT obj_description AS "
-                + "script_name FROM (SELECT obj_description(oid) FROM "
-                + "pg_class WHERE relkind = 'r' AND obj_description(oid) " + "!= '' AND substr(relname, 1, "
-                + InternalTable.SCRIPT.getTableName().length() + ") = '" + InternalTable.SCRIPT.getTableName()
+        SCRIPTS("SELECT script_name FROM (SELECT obj_description AS script_name FROM "
+                + "(SELECT obj_description(oid) FROM pg_class WHERE relkind = 'r' AND "
+                + "obj_description(oid) " + "!= '' AND substr(relname, 1, "
+                + InternalTable.SCRIPT.getTableName().length()
+                + ") = '"
+                + InternalTable.SCRIPT.getTableName()
                 + "') alias1) alias2 ORDER BY script_name ASC;"),
 
         // Get the list of table and column names that contain the specified search text. Replace
@@ -6202,8 +6284,12 @@ public class CcddConstants
         // '_selected_tables_' with the text representation of one of the SearchType enumeration
         // values, and '_columns_' with the column name(s) (database version) to which to limit the
         // search (empty to allow a match in any column)
-        SEARCH("SELECT table_name::text || E'" + TABLE_DESCRIPTION_SEPARATOR + "' || column_name || E'"
-               + TABLE_DESCRIPTION_SEPARATOR + "' || table_description || E'" + TABLE_DESCRIPTION_SEPARATOR
+        SEARCH("SELECT table_name::text || E'"
+               + TABLE_DESCRIPTION_SEPARATOR
+               + "' || column_name || E'"
+               + TABLE_DESCRIPTION_SEPARATOR
+               + "' || table_description || E'"
+               + TABLE_DESCRIPTION_SEPARATOR
                + "' || column_value AS search_result " + "FROM search_tables(E'_search_text_', "
                + "_case_insensitive_, _allow_regex_, " + "'_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
@@ -6211,28 +6297,33 @@ public class CcddConstants
         // Get the list of table paths and values from the custom values table that match the
         // specified column name(s). Replace '_match_column_name_' with the match criteria (e.g.,
         // column_name = 'Variable Path')
-        VAR_PATH("SELECT " + ValuesColumn.TABLE_PATH.getColumnName() + " || E'\\\\' || "
-                 + ValuesColumn.VALUE.getColumnName() + " FROM " + InternalTable.VALUES.getTableName()
-                 + " AS variable_path WHERE _match_column_name_ ORDER BY " + ValuesColumn.TABLE_PATH.getColumnName()
+        VAR_PATH("SELECT "
+                 + ValuesColumn.TABLE_PATH.getColumnName()
+                 + " || E'\\\\' || "
+                 + ValuesColumn.VALUE.getColumnName()
+                 + " FROM "
+                 + InternalTable.VALUES.getTableName()
+                 + " AS variable_path WHERE _match_column_name_ ORDER BY "
+                 + ValuesColumn.TABLE_PATH.getColumnName()
                  + ";"),
 
         // ////////////////////////////////////////////////////////////////////////////////////////
         // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
         // ////////////////////////////////////////////////////////////////////////////////////////
         // Get the list of all tables (data and information), sorted alphabetically
-        ALL_TABLES("SELECT tablename FROM pg_tables " + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),
+        ALL_TABLES("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename ASC;"),
 
         // Get the list of columns for a table, sorted alphabetically. '___' should be replaced by
         // the table to search
-        TABLE_COLUMNS("SELECT column_name FROM information_schema.columns "
-                      + "WHERE table_name = '___' ORDER BY column_name ASC;"),
+        TABLE_COLUMNS("SELECT column_name FROM information_schema.columns WHERE table_name = '___' "
+                      + "ORDER BY column_name ASC;"),
 
         // Get the tables that are members of the specified table. '___' should be replaced by the
         // table to search
-        TABLE_MEMBERS("SELECT DISTINCT ON (data_type) " + "CASE WHEN EXISTS "
-                      + "(SELECT 1 FROM pg_catalog.pg_attribute " + "WHERE attrelid = '___'::regclass "
-                      + "AND attname = 'data_type' " + "AND NOT attisdropped AND attnum > 0) "
-                      + "THEN data_type::text ELSE ''::text END " + "AS data_type FROM ___ AS data_type;");
+        TABLE_MEMBERS("SELECT DISTINCT ON (data_type) " + "CASE WHEN EXISTS (SELECT 1 FROM "
+                      + "pg_catalog.pg_attribute " + "WHERE attrelid = '___'::regclass AND "
+                      + "attname = 'data_type' " + "AND NOT attisdropped AND attnum > 0) THEN "
+                      + "data_type::text ELSE ''::text END " + "AS data_type FROM ___ AS data_type;");
 
         private final String listCommand;
 

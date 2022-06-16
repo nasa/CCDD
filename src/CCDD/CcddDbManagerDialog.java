@@ -913,15 +913,13 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                         GridBagConstraints dialogGbc)
     {
         // Create a border for the fields
-        Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -1004,7 +1002,8 @@ Color.LIGHT_GRAY,
                 if (pce.getPropertyName().equals(RADIO_BUTTON_CHANGE_EVENT))
                 {
                     // Check if this is a rename or copy type dialog
-                    if (dialogType == DbManagerDialogType.RENAME || dialogType == DbManagerDialogType.COPY)
+                    if (dialogType == DbManagerDialogType.RENAME
+                        || dialogType == DbManagerDialogType.COPY)
                     {
                         // Get the name of the selected database and assume the description is
                         // blank
@@ -1019,7 +1018,10 @@ Color.LIGHT_GRAY,
                             {
                                 // Store the item description (without the administrator name(s))
                                 // and stop searching
-                                desc = data[DB_INFO].replaceFirst("\\s*" + Pattern.quote(ADMIN_LIST) + ".*\\]$", "");
+                                desc = data[DB_INFO].replaceFirst("\\s*"
+                                                                  + Pattern.quote(ADMIN_LIST)
+                                                                  + ".*\\]$",
+                                                                  "");
                                 break;
                             }
                         }
@@ -1051,7 +1053,8 @@ Color.LIGHT_GRAY,
                         if (nameLbl.getText().substring(0, 16).equals("New project name"))
                         {
                             nameLbl.setText(isAlterable ? "New project name"
-                                                        : "New project name (Note: Please close this project if you wish to rename it.)");
+                                                        : "New project name (Note: Please close this "
+                                                          + "project if you wish to rename it)");
                         }
 
                         descriptionFld.setEditable(true);
@@ -1099,7 +1102,9 @@ Color.LIGHT_GRAY,
                         String target = (dialogType == DbManagerDialogType.CREATE) ? " Owner" : "";
 
                         // Inform the user that the project or owner isn't selected
-                        throw new CCDDException("Project" + target.toLowerCase() + " must be selected");
+                        throw new CCDDException("Project"
+                                                + target.toLowerCase()
+                                                + " must be selected");
                     }
 
                     // Check if the database name is blank
@@ -1157,7 +1162,8 @@ Color.LIGHT_GRAY,
                     if (getCheckBoxSelected().length == 0)
                     {
                         // Get the string describing the action to perform
-                        String action = dialogType == DbManagerDialogType.DELETE ? "delete" : "unlock";
+                        String action = dialogType == DbManagerDialogType.DELETE ? "delete"
+                                                                                   : "unlock";
 
                         // Inform the user that a project must be selected
                         throw new CCDDException("Must select a project to " + action);
@@ -1494,8 +1500,9 @@ Color.LIGHT_GRAY,
             {
                 // Add or remove the change indicator based on whether or not any unstored changes
                 // exist
-                setTitle(DIALOG_TITLE + (accessTable.isTableChanged(committedData, Arrays
-                        .asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()})) ? CHANGE_INDICATOR : ""));
+                setTitle(DIALOG_TITLE + (accessTable.isTableChanged(committedData,
+                                                                    Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()})) ? CHANGE_INDICATOR
+                                                                                                                                              : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed
                 repaint();
@@ -1567,8 +1574,7 @@ Color.LIGHT_GRAY,
         // Store the user access level information
         committedData = dbTable.retrieveInformationTable(InternalTable.USERS,
                                                          true,
-                                                         CcddDbManagerDialog.this)
-                .toArray(new String[0][0]);
+                                                         CcddDbManagerDialog.this).toArray(new String[0][0]);
     }
 
     /**********************************************************************************************

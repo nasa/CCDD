@@ -255,7 +255,10 @@ public class CcddClassesComponent
             {
                 // Amend the tool tip text to include the macro expansion of the node name
                 toolTipText = toolTipText == null || toolTipText.isEmpty() ? expanded
-                                                                           : "(" + expanded + ") " + toolTipText;
+                                                                           : "("
+                                                                             + expanded
+                                                                             + ") "
+                                                                             + toolTipText;
             }
 
             this.toolTipText = CcddUtilities.wrapText(toolTipText, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize());
@@ -276,7 +279,7 @@ public class CcddClassesComponent
      * Custom combo box with item matching, padding for the list items, and tool tip text. The
      * combo box may have a list of selection items defined by an input type. One or more
      * characters may be typed into the combo box's data table cell or data field; the combo box
-     * list is pruned so that only items that match the character(s) are displayed (wildcard
+     * list is pruned so that only items that match the character(s) are displayed (wild card
      * characters are allowed).
      *********************************************************************************************/
     @SuppressWarnings("serial")
@@ -507,7 +510,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Enable text matching in the combo box. When enabled, iIn addition to selecting an item
          * directly from the list, the user may type in one or more characters to constrain the
-         * list to those items that match the text entered. Wildcard characters are allowed: a '?'
+         * list to those items that match the text entered. Wild card characters are allowed: a '?'
          * matches a single character and a '*' matches one or more characters. Trailing characters
          * are automatically assumed to be included (i.e., the result is the same as if an asterisk
          * terminates the match text)
@@ -693,8 +696,9 @@ public class CcddClassesComponent
                                 // Finally, a condition is added so that any characters following
                                 // the user's text is also matched
                                 String typedChars = matchFld.getText()
-                                        .replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])", "\\\\$1")
-                                        .replaceAll("\\?", ".").replaceAll("\\*", ".*?") + ".*";
+                                                            .replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])", "\\\\$1")
+                                                            .replaceAll("\\?", ".")
+                                                            .replaceAll("\\*", ".*?") + ".*";
 
                                 // Step through each item in the input list, skipping the initial
                                 // blank (which is retained when removing the existing items above)
@@ -721,7 +725,8 @@ public class CcddClassesComponent
 
                                 // Get the first matching item. This is used as the selected item
                                 // if the focus is changed from the input field
-                                selection = getItemCount() > 1 && !matchFld.getText().isEmpty() ? getItemAt(1) : "";
+                                selection = getItemCount() > 1
+                                            && !matchFld.getText().isEmpty() ? getItemAt(1) : "";
 
                                 isPrefixChanging = false;
                             }
@@ -900,7 +905,10 @@ public class CcddClassesComponent
          *
          * @param font     Modifiable font reference
          *****************************************************************************************/
-        PopUpComboBox(Window owner, final JTextComponent textComp, List<String> selItems, ModifiableFont font)
+        PopUpComboBox(Window owner,
+                      final JTextComponent textComp,
+                      List<String> selItems,
+                      ModifiableFont font)
         {
             this(owner, textComp, selItems, null, font);
         }
@@ -920,7 +928,10 @@ public class CcddClassesComponent
          *
          * @param font     Modifiable font reference
          *****************************************************************************************/
-        PopUpComboBox(Window owner, JTextComponent textComp, List<String> selItems, List<String> toolTips,
+        PopUpComboBox(Window owner,
+                      JTextComponent textComp,
+                      List<String> selItems,
+                      List<String> toolTips,
                       ModifiableFont font)
         {
             // Check if any selection items exist
@@ -934,7 +945,8 @@ public class CcddClassesComponent
 
                 // Create the pop-up combo box
                 popUpCbox = new PaddedComboBox(selItems.toArray(new String[0]),
-                                               (toolTips != null ? toolTips.toArray(new String[0]) : null),
+                                               (toolTips != null ? toolTips.toArray(new String[0])
+                                                                 : null),
                                                font);
 
                 // Enable item matching for the combo box
@@ -950,7 +962,8 @@ public class CcddClassesComponent
                     public void keyPressed(KeyEvent ke)
                     {
                         // Check if the enter or escape key is pressed
-                        if (ke.getKeyCode() == KeyEvent.VK_ENTER || ke.getKeyCode() == KeyEvent.VK_ESCAPE)
+                        if (ke.getKeyCode() == KeyEvent.VK_ENTER
+                            || ke.getKeyCode() == KeyEvent.VK_ESCAPE)
                         {
                             // Remove the pop-up and return to the caller
                             exitReferenceCombo();
@@ -1083,12 +1096,14 @@ public class CcddClassesComponent
                 Rectangle popUp = textComp.modelToView(textComp.getCaretPosition());
 
                 // Position the pop-up at the text cursor position
-                popUpDlg.setLocation(textComp.getLocationOnScreen().x + popUp.x, textComp.getLocationOnScreen().y);
+                popUpDlg.setLocation(textComp.getLocationOnScreen().x + popUp.x,
+                                     textComp.getLocationOnScreen().y);
             }
             catch (BadLocationException ble)
             {
                 // Position the pop-up at the left end of the text component
-                popUpDlg.setLocation(textComp.getLocationOnScreen().x, textComp.getLocationOnScreen().y);
+                popUpDlg.setLocation(textComp.getLocationOnScreen().x,
+                                     textComp.getLocationOnScreen().y);
             }
         }
 
@@ -1315,7 +1330,8 @@ public class CcddClassesComponent
         private ImageIcon createIcon(Color borderColor)
         {
             // Create an image to work with
-            BufferedImage image = new BufferedImage(LAF_CHECK_BOX_HEIGHT, LAF_CHECK_BOX_HEIGHT,
+            BufferedImage image = new BufferedImage(LAF_CHECK_BOX_HEIGHT,
+                                                    LAF_CHECK_BOX_HEIGHT,
                                                     BufferedImage.TYPE_INT_ARGB);
 
             // Create the graphics object from the image
@@ -1536,7 +1552,8 @@ public class CcddClassesComponent
                     if (envVar.getValue() != null && !envVar.getValue().isEmpty())
                     {
                         // Replace the variable value with its name
-                        pathName = pathName.replaceFirst(Pattern.quote(envVar.getValue()), "\\$" + envVar.getKey());
+                        pathName = pathName.replaceFirst(Pattern.quote(envVar.getValue()),
+                                                         "\\$" + envVar.getKey());
                     }
                 }
             }
@@ -2056,10 +2073,10 @@ public class CcddClassesComponent
                         // CCDD: Added separator handling Check if the component is a JSeparator
                         if (m instanceof JSeparator)
                         {
-                            m.setPreferredSize(new Dimension(maxWidth, ((JSeparator) m)
-                                    .getOrientation() == SwingConstants.HORIZONTAL ? 3
-                                                                                   : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
-                                                                                     * 2 / 3 - 1));
+                            m.setPreferredSize(new Dimension(maxWidth,
+                                                             ((JSeparator) m).getOrientation() == SwingConstants.HORIZONTAL ? 3
+                                                                                                                            : -ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                                                                                                              * 2 / 3 - 1));
                             m.setSize(m.getPreferredSize());
                         }
                         // CCDD: End modification
@@ -2376,7 +2393,8 @@ public class CcddClassesComponent
                 public void keyPressed(KeyEvent ke)
                 {
                     // Check if the backspace or delete key was pressed
-                    if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE || ke.getKeyCode() == KeyEvent.VK_DELETE)
+                    if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                        || ke.getKeyCode() == KeyEvent.VK_DELETE)
                     {
                         try
                         {
@@ -3592,7 +3610,8 @@ public class CcddClassesComponent
 
                 // Reposition the glass pane displaying the dragged tab
                 glassPane.setPoint(adjustGlassPaneLocation(dtde.getLocation(),
-                                                           (sourceData != null ? sourceData.getTabbedPane() : null)));
+                                                           (sourceData != null ? sourceData.getTabbedPane()
+                                                                               : null)));
                 glassPane.repaint();
             }
 
@@ -3697,8 +3716,7 @@ public class CcddClassesComponent
                                              && sourceData.getTabIndex() >= 0)
                                             || (DnDTabbedPane.this != sourceData.getTabbedPane()
                                                 && DnDTabbedPane.this.compatibleTarget != null
-                                                && DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane()
-                                                        .getCompatibleTarget()));
+                                                && DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane().getCompatibleTarget()));
                         }
                     }
                 }
@@ -3793,7 +3811,9 @@ public class CcddClassesComponent
          *                         outside of a compatible target; false to ignore drops outside
          *                         compatible containers
          *****************************************************************************************/
-        public DnDTabbedPane(int tabPlacement, Class<?> compatibleTarget, final boolean isSpawnAllowed)
+        public DnDTabbedPane(int tabPlacement,
+                             Class<?> compatibleTarget,
+                             final boolean isSpawnAllowed)
         {
             super();
 
@@ -3956,9 +3976,13 @@ public class CcddClassesComponent
             };
 
             // Create a drag gesture recognizer and drop target
-            new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE,
+            new DragSource().createDefaultDragGestureRecognizer(this,
+                                                                DnDConstants.ACTION_COPY_OR_MOVE,
                                                                 gestureListener);
-            new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new CCDDDropTargetListener(), true);
+            new DropTarget(this,
+                           DnDConstants.ACTION_COPY_OR_MOVE,
+                           new CCDDDropTargetListener(),
+                           true);
         }
 
         /******************************************************************************************
@@ -4441,7 +4465,9 @@ public class CcddClassesComponent
 
             // Get the bounds of the specified tab and create an image of it
             Rectangle rect = getBoundsAt(tabIndex);
-            BufferedImage image = new BufferedImage(comp.getWidth(), comp.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            BufferedImage image = new BufferedImage(comp.getWidth(),
+                                                    comp.getHeight(),
+                                                    BufferedImage.TYPE_INT_ARGB);
             Graphics g = image.getGraphics();
             comp.paint(g);
             image = image.getSubimage(rect.x, rect.y, rect.width, rect.height);

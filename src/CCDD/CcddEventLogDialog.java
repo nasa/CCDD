@@ -139,7 +139,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @param isSessionLog True if this is the event log for the current session
      *********************************************************************************************/
-    CcddEventLogDialog(final CcddMain ccddMain, FileEnvVar logFile, Long targetRow, boolean isSessionLog)
+    CcddEventLogDialog(final CcddMain ccddMain,
+                       FileEnvVar logFile,
+                       Long targetRow,
+                       boolean isSessionLog)
     {
         this.ccddMain = ccddMain;
         this.isSessionLog = isSessionLog;
@@ -232,7 +235,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 eventTable.setTableSortable();
 
                 // Search the event log button
-                JButton btnSearch = CcddButtonPanelHandler.createButton("Search", SEARCH_ICON, KeyEvent.VK_S,
+                JButton btnSearch = CcddButtonPanelHandler.createButton("Search",
+                                                                        SEARCH_ICON,
+                                                                        KeyEvent.VK_S,
                                                                         "Search the event log");
 
                 // Add a listener for the Search button
@@ -244,13 +249,16 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        ccddMain.showSearchDialog(SearchDialogType.LOG, targetRow, CcddEventLogDialog.this,
+                        ccddMain.showSearchDialog(SearchDialogType.LOG, targetRow,
+                                                  CcddEventLogDialog.this,
                                                   CcddEventLogDialog.this);
                     }
                 });
 
                 // Print the event log button
-                JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
+                JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
+                                                                       PRINT_ICON,
+                                                                       KeyEvent.VK_P,
                                                                        "Print the event log");
 
                 // Add a listener for the Print button
@@ -268,7 +276,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 });
 
                 // Close the event log button
-                JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                       CLOSE_ICON,
+                                                                       KeyEvent.VK_C,
                                                                        "Close the event log viewer");
 
                 // Add a listener for the Close button
@@ -292,7 +302,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 buttonPnl.add(btnClose);
 
                 // Display the event log window
-                createFrame(ccddMain.getMainFrame(), logPanel, buttonPnl, btnClose, "Event Log: " + logFile.getName(),
+                createFrame(ccddMain.getMainFrame(),
+                            logPanel,
+                            buttonPnl,
+                            btnClose,
+                            "Event Log: " + logFile.getName(),
                             null);
             }
         }
@@ -350,8 +364,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
             @Override
             protected boolean isColumnResizable(int column)
             {
-                return column == EventColumns.PROJECT.ordinal() || column == EventColumns.SERVER.ordinal()
-                       || column == EventColumns.USER.ordinal() || column == EventColumns.MESSAGE.ordinal();
+                return column == EventColumns.PROJECT.ordinal()
+                                 || column == EventColumns.SERVER.ordinal()
+                                 || column == EventColumns.USER.ordinal()
+                                 || column == EventColumns.MESSAGE.ordinal();
             }
 
             /**************************************************************************************
@@ -373,14 +389,17 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 // up the editors and renderers for the table cells, hide the table grid lines, and
                 // calculate the minimum width required to display the table information
                 int totalWidth = setUpdatableCharacteristics(eventLogList.toArray(new Object[0][0]),
-                                                             EventColumns.getColumnNames(), null,
+                                                             EventColumns.getColumnNames(),
+                                                             null,
                                                              new String[] {"Event sequence number",
                                                                            "Server hosting the project database",
                                                                            "Project to which the event applies",
                                                                            "User that invoked the event",
                                                                            "Event date and time tag",
                                                                            "Event message type", "Event message"},
-                                                             true, true, false);
+                                                             true,
+                                                             true,
+                                                             false);
 
                 // Store the table width
                 setTableWidth(totalWidth + LAF_SCROLL_BAR_WIDTH);
@@ -462,7 +481,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.15f));
 
                     // Display the CCDD logo, centered in the panel
-                    g2.drawImage(image, (getWidth() - image.getWidth()) / 2, (getHeight() - image.getHeight()) / 2,
+                    g2.drawImage(image,
+                                 (getWidth() - image.getWidth()) / 2,
+                                 (getHeight() - image.getHeight()) / 2,
                                  null);
                 }
             }
@@ -472,10 +493,16 @@ public class CcddEventLogDialog extends CcddFrameHandler
         JScrollPane scrollPane = new JScrollPane(eventTable);
 
         // Set common table parameters and characteristics
-        eventTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                           TableSelectionMode.SELECT_BY_CELL, true,
-                                           ModifiableColorInfo.TABLE_BACK.getColor(), false, false,
-                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
+        eventTable.setFixedCharacteristics(scrollPane,
+                                           false,
+                                           ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                           TableSelectionMode.SELECT_BY_CELL,
+                                           true,
+                                           ModifiableColorInfo.TABLE_BACK.getColor(),
+                                           false,
+                                           false,
+                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
+                                           true);
 
         // Store the event table model to simplify later references
         eventTableModel = (DefaultTableModel) eventTable.getModel();
@@ -500,8 +527,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     // Display the row if this message type, reflected in the type column, is
                     // selected for display. The type column text contains HTML tags that must be
                     // stripped to get the type name
-                    return isFilter(getMessageType(entry.getValue(EventColumns.TYPE.ordinal()).toString()
-                            .replaceAll("\\<.*?>", "")));
+                    return isFilter(getMessageType(entry.getValue(EventColumns.TYPE.ordinal())
+                                                        .toString()
+                                                        .replaceAll("\\<.*?>", "")));
                 }
             };
 
@@ -541,7 +569,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                         {
                             // Check if this is not the 'All' check box and that the check box
                             // isn't selected (but is visible)
-                            if (!cb.equals(filterCheckBox[EventLogMessageType.SELECT_ALL.ordinal()]) && !cb.isSelected()
+                            if (!cb.equals(filterCheckBox[EventLogMessageType.SELECT_ALL.ordinal()])
+                                && !cb.isSelected()
                                 && cb.isVisible())
                             {
                                 // Set the flag to indicate a check box isn't selected and stop
@@ -740,9 +769,12 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
                 // Create the session log file using the date and time stamp as part of the name,
                 // and the log file path if set by command line command
-                logFile = new FileEnvVar((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
-                        .isEmpty() ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath() + File.separator : "") + "CCDD-"
-                                         + getDateTimeStamp("yyyyMMdd_HHmmss") + ".log");
+                logFile = new FileEnvVar((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath().isEmpty() ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
+                                                                                                          + File.separator
+                                                                                                        : "")
+                                         + "CCDD-"
+                                         + getDateTimeStamp("yyyyMMdd_HHmmss")
+                                         + ".log");
 
                 // Get the path to the log folder
                 File logDirectory = logFile.getParentFile();
@@ -751,12 +783,13 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 if (logDirectory != null && !logDirectory.isDirectory() && logDirectory.mkdir())
                 {
                     // Inform the user that the folder was created for the log file
-                    new CcddDialogHandler()
-                            .showMessageDialog(ccddMain.getMainFrame(),
-                                               "<html><b>Folder '</b>" + logDirectory.getAbsolutePath()
-                                                                        + "<b>' created for event log file",
-                                               "Create Log Folder", JOptionPane.INFORMATION_MESSAGE,
-                                               DialogOption.OK_OPTION);
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Folder '</b>"
+                                                              + logDirectory.getAbsolutePath()
+                                                              + "<b>' created for event log file",
+                                                              "Create Log Folder",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
                 }
 
                 // Attempt to create the log file and check if it can be written to
@@ -786,22 +819,27 @@ public class CcddEventLogDialog extends CcddFrameHandler
             {
                 // Inform the user that an error occurred creating the log file
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>Cannot create event log file", "Log Error",
-                                                          JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                                                          "<html><b>Cannot create event log file",
+                                                          "Log Error",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
             }
         }
         // Open an existing log file
         else
         {
             // Allow the user to select the event log file path + name to read from
-            FileEnvVar[] file = new CcddDialogHandler()
-                    .choosePathFile(ccddMain, ccddMain.getMainFrame(), null, null,
-                                    new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.LOG
-                                            .getDescription(), FileExtension.LOG.getExtensionName())},
-                                    false, "Open Event Log",
-                                    ccddMain.getProgPrefs()
-                                            .get(ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey(), null),
-                                    DialogOption.OPEN_OPTION);
+            FileEnvVar[] file = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                       ccddMain.getMainFrame(),
+                                                                       null,
+                                                                       null,
+                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.LOG.getDescription(),
+                                                                                                                                  FileExtension.LOG.getExtensionName())},
+                                                                       false,
+                                                                       "Open Event Log",
+                                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey(),
+                                                                                                   null),
+                                                                       DialogOption.OPEN_OPTION);
 
             // Check if a file was chosen
             if (file != null && file[0] != null)
@@ -810,11 +848,13 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 if (!file[0].exists())
                 {
                     // Inform the user that the event log file cannot be located
-                    new CcddDialogHandler()
-                            .showMessageDialog(ccddMain.getMainFrame(),
-                                               "<html><b>Cannot locate event log file '</b>" + file[0].getAbsolutePath()
-                                                                        + "<b>'",
-                                               "File Error", JOptionPane.ERROR_MESSAGE, DialogOption.OK_OPTION);
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Cannot locate event log file '</b>"
+                                                              + file[0].getAbsolutePath()
+                                                              + "<b>'",
+                                                              "File Error",
+                                                              JOptionPane.ERROR_MESSAGE,
+                                                              DialogOption.OK_OPTION);
                 }
                 // The event log file exists
                 else
@@ -827,7 +867,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     logFile = file[0];
 
                     // Store the log path path in the program preferences backing store
-                    CcddFileIOHandler.storePath(ccddMain, logFile.getAbsolutePathWithEnvVars(), true,
+                    CcddFileIOHandler.storePath(ccddMain,
+                                                logFile.getAbsolutePathWithEnvVars(),
+                                                true,
                                                 ModifiablePathInfo.READ_LOG_FILE_PATH);
                 }
             }
@@ -873,8 +915,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                    parts[EventColumns.USER.ordinal() - 1],
                                                    getDateTimeStampLog(parts[EventColumns.TIME.ordinal() - 1]),
                                                    getMessageType(parts[EventColumns.TYPE.ordinal() - 1]).getTypeMsg(),
-                                                   (targetRow == null ? truncateLogMessage(parts[EventColumns.MESSAGE
-                                                           .ordinal() - 1])
+                                                   (targetRow == null ? truncateLogMessage(parts[EventColumns.MESSAGE.ordinal() - 1])
                                                                       : parts[EventColumns.MESSAGE.ordinal() - 1])});
 
                     // Check if a target time stamp is provided (i.e., only a single log entry is
@@ -898,8 +939,11 @@ public class CcddEventLogDialog extends CcddFrameHandler
         catch (Exception e)
         {
             // Inform the user that an error occurred reading the log
-            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), "<html><b>Cannot read event log file",
-                                                      "Log Error", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Cannot read event log file",
+                                                      "Log Error",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
         }
     }
 
@@ -953,8 +997,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
     {
         // Get the server, database, and user responsible for the event
         final String server = dbControl.getServer();
-        final String database = dbControl.isDatabaseConnected() ? dbControl
-                .getProjectName() : (dbControl.isServerConnected() ? "*server*" : "*none*");
+        final String database = dbControl.isDatabaseConnected() ? dbControl.getProjectName()
+                                                                : (dbControl.isServerConnected() ? "*server*"
+                                                                                                   : "*none*");
         final String user = dbControl.getUser();
 
         // Get the current date and time stamp
@@ -1013,16 +1058,21 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @param dialogMessage Error dialog message
      *********************************************************************************************/
-    protected void logFailEvent(Component parent, String dialogTitle, String logMessage, String dialogMessage)
+    protected void logFailEvent(Component parent,
+                                String dialogTitle,
+                                String logMessage,
+                                String dialogMessage)
     {
         // Append the failure message to the event log
         logEvent(FAIL_MSG, new StringBuilder(logMessage));
 
         // Display an error dialog
-        new CcddDialogHandler()
-                .showMessageDialog(parent,
-                                   (ccddMain.isGUIHidden() ? CcddUtilities.removeHTMLTags(logMessage) : dialogMessage),
-                                   dialogTitle, JOptionPane.ERROR_MESSAGE, DialogOption.OK_OPTION);
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  (ccddMain.isGUIHidden() ? CcddUtilities.removeHTMLTags(logMessage)
+                                                                          : dialogMessage),
+                                                  dialogTitle,
+                                                  JOptionPane.ERROR_MESSAGE,
+                                                  DialogOption.OK_OPTION);
     }
 
     /**********************************************************************************************
@@ -1040,17 +1090,26 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @param logMessage New event's log message
      *********************************************************************************************/
-    private void addMessageToLog(String server, String database, String user, EventLogMessageType type,
-                                 String timestamp, StringBuilder logMessage)
+    private void addMessageToLog(String server,
+                                 String database,
+                                 String user,
+                                 EventLogMessageType type,
+                                 String timestamp,
+                                 StringBuilder logMessage)
     {
         // Set the table row sorter. This is required so that command line options to filter the
         // events are handled properly
         eventTable.setTableSortable();
 
         // Insert the event at the end of the event log table
-        eventTable.insertRow(false, TableInsertionPoint.END,
-                             new Object[] {indexNum, getServerLog(server), database, user,
-                                           getDateTimeStampLog(timestamp), type.getTypeMsg(),
+        eventTable.insertRow(false,
+                             TableInsertionPoint.END,
+                             new Object[] {indexNum,
+                                           getServerLog(server),
+                                           database,
+                                           user,
+                                           getDateTimeStampLog(timestamp),
+                                           type.getTypeMsg(),
                                            truncateLogMessage(logMessage.toString())});
 
         // Update the log entry counter
@@ -1063,8 +1122,15 @@ public class CcddEventLogDialog extends CcddFrameHandler
             {
                 // Use a StringBuilder to concatenate the log message in case the message is
                 // lengthy (StringBuilder is much faster than string concatenation using '+')
-                StringBuilder logEntry = new StringBuilder(server).append("|").append(database).append("|").append(user)
-                        .append("|").append(timestamp).append("|").append(type.getTypeName()).append("|");
+                StringBuilder logEntry = new StringBuilder(server).append("|")
+                                                                  .append(database)
+                                                                  .append("|")
+                                                                  .append(user)
+                                                                  .append("|")
+                                                                  .append(timestamp)
+                                                                  .append("|")
+                                                                  .append(type.getTypeName())
+                                                                  .append("|");
 
                 // Remove any embedded line feed characters since these interfere with parsing when
                 // reading the log files
@@ -1077,8 +1143,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
             catch (Exception e)
             {
                 // Inform the user that an error occurred writing to the log
-                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), "<html><b>Cannot write to event log",
-                                                          "Log Error", JOptionPane.WARNING_MESSAGE,
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>Cannot write to event log",
+                                                          "Log Error",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
         }
@@ -1129,7 +1197,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
     protected void printEventLog()
     {
         // Output the log to the printer
-        eventTable.printTable("EventLog: " + logFile.getName(), null, CcddEventLogDialog.this, PageFormat.LANDSCAPE);
+        eventTable.printTable("EventLog: " + logFile.getName(),
+                              null,
+                              CcddEventLogDialog.this,
+                              PageFormat.LANDSCAPE);
     }
 
     /**********************************************************************************************
@@ -1183,8 +1254,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
             // Truncate the log message to the maximum length and append an ellipsis as a
             // truncation indicator
-            logMessage = logMessage.substring(0, ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize()) + " ... ("
-                         + numTruncated + ")";
+            logMessage = logMessage.substring(0, ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize())
+                         + " ... ("
+                         + numTruncated
+                         + ")";
         }
 
         return logMessage.replaceAll("\n", "");
