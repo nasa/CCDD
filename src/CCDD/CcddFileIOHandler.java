@@ -206,8 +206,10 @@ public class CcddFileIOHandler
 
                     // Get the path+name of the .jar file in a format acceptable to all OS's. The
                     // user's guide is expected to be found in the same folder as the .jar file
-                    String path = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource()
-                            .getLocation().getPath()).getAbsolutePath(), "UTF-8");
+                    String path = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain()
+                                                                           .getCodeSource()
+                                                                           .getLocation()
+                                                                           .getPath()).getAbsolutePath(), "UTF-8");
 
                     // Display the user's guide - replace the .jar file name with the user's guide
                     // name
@@ -386,29 +388,27 @@ public class CcddFileIOHandler
             importFileType = FileExtension.CSV;
         }
 
-        // Are we importing a single large file that represents the whole database?
-        if (importingEntireDatabase && (dataFiles.length == 1))
+        try
         {
-            if (dialogType == ManagerDialogType.IMPORT_JSON)
+            // Are we importing a single large file that represents the whole database?
+            if (importingEntireDatabase && (dataFiles.length == 1))
             {
-                dataFiles = processSingleJSONFileRepresentingDatabase(dataFiles[0],
-                                                                      dialogType,
-                                                                      parent);
+                if (dialogType == ManagerDialogType.IMPORT_JSON)
+                {
+                    dataFiles = processSingleJSONFileRepresentingDatabase(dataFiles[0],
+                                                                          dialogType,
+                                                                          parent);
+                }
+                else if (dialogType == ManagerDialogType.IMPORT_CSV)
+                {
+                    dataFiles = processSingleCSVFileRepresentingDatabase(dataFiles[0], parent);
+                }
             }
-            else if (dialogType == ManagerDialogType.IMPORT_CSV)
+            else if (!importingEntireDatabase && (dataFiles.length == 1)
+                     && (dialogType == ManagerDialogType.IMPORT_CSV))
             {
-                dataFiles = processSingleCSVFileRepresentingDatabase(dataFiles[0], parent);
-            }
-        }
-        else if (!importingEntireDatabase && (dataFiles.length == 1)
-                 && (dialogType == ManagerDialogType.IMPORT_CSV))
-        {
-            // Create a buffered reader to read the file
-            BufferedReader br;
-
-            try
-            {
-                br = new BufferedReader(new FileReader(dataFiles[0]));
+                // Create a buffered reader to read the file
+                BufferedReader br = new BufferedReader(new FileReader(dataFiles[0]));
 
                 // Read first line in file
                 String line = br.readLine();
@@ -419,16 +419,10 @@ public class CcddFileIOHandler
                     // Process the converted file into individual files that can be imported
                     dataFiles = processCSVConversionFile(dataFiles[0], parent);
                 }
-            }
-            catch (Exception e)
-            {
-                CcddUtilities.displayException(e, parent);
-                errorFlag = true;
-            }
-        }
 
-        try
-        {
+                br.close();
+            }
+
             // If there is only 1 file then that means that we are looking at a super file that
             // contains the information of an entire database or the user is only importing a
             // single file. Regardless there is no need for the snapshot directory or checking to
@@ -469,28 +463,20 @@ public class CcddFileIOHandler
                         // question not of the correct extension?
                         if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName()))
                         {
-                            try
+                            // Compare the two files
+                            if (compareFiles(importFiles.get(index2).toPath(),
+                                             deletedFiles.get(index).toPath(),
+                                             ignoreIfContains))
                             {
-                                // Compare the two files
-                                if (compareFiles(importFiles.get(index2).toPath(),
-                                                 deletedFiles.get(index).toPath(),
-                                                 ignoreIfContains))
-                                {
-                                    // The files are the same so nothing will be done with this
-                                    // file. Remove it from the importFiles list
-                                    importFiles.remove(index2);
-                                }
+                                // The files are the same so nothing will be done with this
+                                // file. Remove it from the importFiles list
+                                importFiles.remove(index2);
+                            }
 
-                                // The file exists so remove it from the deletedFiles list and
-                                // adjust the index since the list is now shorter
-                                deletedFiles.remove(index);
-                                index--;
-                            }
-                            catch (IOException ioe)
-                            {
-                                CcddUtilities.displayException(ioe, parent);
-                                errorFlag = true;
-                            }
+                            // The file exists so remove it from the deletedFiles list and
+                            // adjust the index since the list is now shorter
+                            deletedFiles.remove(index);
+                            index--;
 
                             break;
                         }
@@ -539,8 +525,7 @@ public class CcddFileIOHandler
 
                             for (File fileToDelete : deletedFiles)
                             {
-                                if ((fileToDelete.getName().replace(importFileType.getExtension(), ""))
-                                        .equals(pathReplace))
+                                if ((fileToDelete.getName().replace(importFileType.getExtension(), "")).equals(pathReplace))
                                 {
                                     deletePathList.add(dir);
                                 }
@@ -595,7 +580,7 @@ public class CcddFileIOHandler
                 // current database state
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                           "<html><b>The selected folder/file does "
-                                                          + "not contain any updates.</b>",
+                                                          + "not contain any updates</b>",
                                                           "No Changes Made",
                                                           JOptionPane.INFORMATION_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -612,7 +597,19 @@ public class CcddFileIOHandler
                 }
             }
         }
-        catch (NullPointerException e)
+        catch (NullPointerException | IOException npe)
+        {
+            // Inform the user that file import preparation failed
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Error preparing "
+                                                      + importFileType.getExtension()
+                                                      + " table(s) for import",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+            errorFlag = true;
+        }
+        catch (Exception e)
         {
             CcddUtilities.displayException(e, parent);
             errorFlag = true;
@@ -718,17 +715,18 @@ public class CcddFileIOHandler
             stampPnl.add(stampChkBx, gbc);
 
             // Allow the user to select the backup file path + name
-            FileEnvVar[] dataFile = dlg
-                    .choosePathFile(ccddMain,
-                                    ccddMain.getMainFrame(),
-                                    databaseName + FileExtension.DBU.getExtension(),
-                                    null,
-                                    new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                               FileExtension.DBU.getExtensionName())},
-                                    false, false, "Backup Project " + projectName,
-                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                    DialogOption.BACKUP_OPTION,
-                                    stampPnl);
+            FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
+                                                       ccddMain.getMainFrame(),
+                                                       databaseName + FileExtension.DBU.getExtension(),
+                                                       null,
+                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                                  FileExtension.DBU.getExtensionName())},
+                                                       false,
+                                                       false,
+                                                       "Backup Project " + projectName,
+                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                                       DialogOption.BACKUP_OPTION,
+                                                       stampPnl);
 
             // File name with the white space stripped
             String compliantFileName = dlg.getFileNameField().getText().replaceAll("\\s", "");
@@ -1243,16 +1241,15 @@ public class CcddFileIOHandler
                 catch (Exception e)
                 {
                     // Inform the user that the backup file cannot be read
-                    new CcddDialogHandler()
-                            .showMessageDialog(ccddMain.getMainFrame(),
-                                               "<html><b>Cannot read backup file '</b>"
-                                               + dataFile[0].getAbsolutePath()
-                                               + "<b>'; cause '</b>"
-                                               + e.getMessage()
-                                               + "<b>'",
-                                               "File Error",
-                                               JOptionPane.ERROR_MESSAGE,
-                                               DialogOption.OK_OPTION);
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Cannot read backup file '</b>"
+                                                              + dataFile[0].getAbsolutePath()
+                                                              + "<b>'; cause '</b>"
+                                                              + e.getMessage()
+                                                              + "<b>'",
+                                                              "File Error",
+                                                              JOptionPane.ERROR_MESSAGE,
+                                                              DialogOption.OK_OPTION);
                 }
                 finally
                 {
@@ -1856,12 +1853,14 @@ public class CcddFileIOHandler
                                              dataFile.length,
                                              ccddMain.getMainFrame());
 
+                haltDlg.updateProgressBar("Create snapshot", -1);
                 createSnapshotDirectory(parent);
 
                 if ((importFileType == FileExtension.JSON)
                     || (importFileType == FileExtension.CSV)
                     || (importFileType == FileExtension.C_HEADER))
                 {
+                    haltDlg.updateProgressBar("Preparing import", -1);
                     errorFlag = prepareJSONOrCSVImport(dataFile,
                                                        importingEntireDatabase,
                                                        backupFirst,
@@ -3555,7 +3554,7 @@ public class CcddFileIOHandler
                         .contentEquals(newFieldInfo.get(index)[FieldsColumn.FIELD_NAME.ordinal()]))
                 {
                     if (currentFieldInfo.get(index2)[FieldsColumn.FIELD_TYPE.ordinal()]
-                            .contentEquals(newFieldInfo.get(index)[FieldsColumn.FIELD_TYPE.ordinal()]))
+                                        .contentEquals(newFieldInfo.get(index)[FieldsColumn.FIELD_TYPE.ordinal()]))
                     {
                         // If the field does exists then set the flag and save the index
                         fieldExists = true;
@@ -4467,14 +4466,13 @@ public class CcddFileIOHandler
             catch (IOException ioe)
             {
                 // Inform the user that the file cannot be closed
-                new CcddDialogHandler()
-                        .showMessageDialog(ccddMain.getMainFrame(),
-                                           "<html><b>Cannot close script file '</b>"
-                                           + file.getAbsolutePath()
-                                           + "<b>'",
-                                           "File Warning",
-                                           JOptionPane.WARNING_MESSAGE,
-                                           DialogOption.OK_OPTION);
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>Cannot close script file '</b>"
+                                                          + file.getAbsolutePath()
+                                                          + "<b>'",
+                                                          "File Warning",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
             }
         }
     }
@@ -4657,7 +4655,7 @@ public class CcddFileIOHandler
                                                       + outputFileName + "<b>'",
                                                       "File Error",
                                                       ce.getMessageType(),
-DialogOption.OK_OPTION);
+                                                      DialogOption.OK_OPTION);
         }
         catch (Exception e)
         {
@@ -4766,33 +4764,35 @@ DialogOption.OK_OPTION);
                                                  boolean singleFile,
                                                  Component parent)
     {
-        // Check if the .snapshot directory exists
-        if (!Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH)))
+        try
         {
-            try
+            // Check if the .snapshot directory exists
+            if (!Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH)))
             {
                 // Create the .snapshot directory
                 Files.createDirectory(Paths.get(SNAP_SHOT_FILE_PATH));
             }
-            // Catch any possible exception while creating the .snapshot directory
-            catch (IOException ioe)
-            {
-                CcddUtilities.displayException(ioe, parent);
-            }
-        }
-        // If the .snapshot directory exists, delete its contents
-        else
-        {
-            try
+            // If the .snapshot directory exists, delete its contents
+            else
             {
                 File directory = new File(SNAP_SHOT_FILE_PATH);
                 FileUtils.cleanDirectory(directory);
             }
-            catch (IOException ioe)
-            {
-                CcddUtilities.displayException(ioe, parent);
-                errorFlag = true;
-            }
+        }
+        catch (IOException ioe)
+        {
+            // Inform the user that the .snapshot directory cannot be created/emptied
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Cannot create/empty temporary directory '</b>"
+                                                      + SNAP_SHOT_FILE_PATH
+                                                      + "<b>'; cause '</b>"
+                                                      + ioe.getMessage()
+                                                      + "<b>'",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+
+            errorFlag = true;
         }
 
         // Backup current database state to .snapshot directory before import
@@ -4839,33 +4839,35 @@ DialogOption.OK_OPTION);
      *********************************************************************************************/
     public void createSnapshotDirectory(Component parent)
     {
-        // Check if the .snapshot2 directory exists
-        if (!Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH_2)))
+        try
         {
-            try
+            // Check if the .snapshot2 directory exists
+            if (!Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH_2)))
             {
                 // Create the .snapshot2 directory
                 Files.createDirectory(Paths.get(SNAP_SHOT_FILE_PATH_2));
             }
-            // Catch any possible exception while creating the .snapshot directory
-            catch (IOException e)
-            {
-                CcddUtilities.displayException(e, parent);
-            }
-        }
-        // If the .snapshot2 directory exists, delete its contents
-        else
-        {
-            try
+            // If the .snapshot2 directory exists, delete its contents
+            else
             {
                 File directory = new File(SNAP_SHOT_FILE_PATH_2);
                 FileUtils.cleanDirectory(directory);
             }
-            catch (IOException ioe)
-            {
-                CcddUtilities.displayException(ioe, parent);
-                errorFlag = true;
-            }
+        }
+        catch (IOException ioe)
+        {
+            // Inform the user that the .snapshot directory cannot be created/emptied
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Cannot create/empty temporary directory '</b>"
+                                                      + SNAP_SHOT_FILE_PATH_2
+                                                      + "<b>'; cause '</b>"
+                                                      + ioe.getMessage()
+                                                      + "<b>'",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+
+            errorFlag = true;
         }
     }
 
@@ -4889,7 +4891,19 @@ DialogOption.OK_OPTION);
         }
         catch (IOException ioe)
         {
-            CcddUtilities.displayException(ioe, parent);
+            // Inform the user that the .snapshot directory cannot be created/emptied
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Cannot create/empty temporary directories '</b>"
+                                                      + SNAP_SHOT_FILE_PATH
+                                                      + "<b>' and '</b>"
+                                                      + SNAP_SHOT_FILE_PATH_2
+                                                      + "<b>'; cause '</b>"
+                                                      + ioe.getMessage()
+                                                      + "<b>'",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+
             errorFlag = true;
         }
     }
@@ -4964,7 +4978,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TABLE_INFO.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile("{\n  " + outputData + "\n}\n", filePath);
+                writeToJSONFile("{\n  " + outputData + "\n}\n", filePath);
             }
 
             /*************** MACROS ***************/
@@ -4976,7 +4990,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** GROUPS ***************/
@@ -4988,7 +5002,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.GROUPS.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** SCRIPT ASSOCIATIONS ***************/
@@ -5000,7 +5014,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.SCRIPT_ASSOCIATION.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** TLM SCHEDULER ***************/
@@ -5012,7 +5026,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TELEM_SCHEDULER.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** APP SCHEDULER ***************/
@@ -5024,7 +5038,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.APP_SCHEDULER.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** RESERVED MESSAGE IDS ***************/
@@ -5036,7 +5050,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.RESERVED_MSG_ID.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** PROJECT FIELDS ***************/
@@ -5048,7 +5062,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.PROJECT_DATA_FIELD.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** DATABASE INFORMATION ***************/
@@ -5060,7 +5074,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.DBU_INFO.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** TABLE DEFINITIONS ***************/
@@ -5102,16 +5116,16 @@ DialogOption.OK_OPTION);
                 {
                     if (i == data.length - 1)
                     {
-                        writeToFile("{\n  " + data[i] + "\n  ]\n}\n", filePath);
+                        writeToJSONFile("{\n  " + data[i] + "\n  ]\n}\n", filePath);
                     }
                     else
                     {
-                        writeToFile("{\n  " + data[i] + "]\n    }\n  ]\n}\n", filePath);
+                        writeToJSONFile("{\n  " + data[i] + "]\n    }\n  ]\n}\n", filePath);
                     }
                 }
                 else if (i == data.length - 1)
                 {
-                    writeToFile("{\n  \""
+                    writeToJSONFile("{\n  \""
                                 + JSONTags.TABLE_DEFN.getTag()
                                 + "\": [\n"
                                 + data[i]
@@ -5120,7 +5134,7 @@ DialogOption.OK_OPTION);
                 }
                 else
                 {
-                    writeToFile("{\n  \""
+                    writeToJSONFile("{\n  \""
                                 + JSONTags.TABLE_DEFN.getTag()
                                 + "\": [\n"
                                 + data[i]
@@ -5202,7 +5216,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TABLE_INFO.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** MACROS ***************/
@@ -5211,7 +5225,7 @@ DialogOption.OK_OPTION);
             filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
-            writeToFile(outputData, filePath);
+            writeToJSONFile(outputData, filePath);
 
             /*************** TABLE DEFINITIONS ***************/
             outputData = csvHandler.retrieveCSVData(CSVTags.NAME_TYPE.getTag(), content).toString();
@@ -5237,7 +5251,7 @@ DialogOption.OK_OPTION);
                     dataFiles.add(file);
 
                     // Write the data to the new file
-                    writeToFile("\n" + data[i], filePath);
+                    writeToJSONFile("\n" + data[i], filePath);
                     outputData = "";
                 }
             }
@@ -5313,7 +5327,7 @@ DialogOption.OK_OPTION);
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TABLE_INFO.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToFile(outputData, filePath);
+                writeToJSONFile(outputData, filePath);
             }
 
             /*************** MACROS ***************/
@@ -5323,7 +5337,7 @@ DialogOption.OK_OPTION);
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
-            writeToFile(outputData + "\n", filePath);
+            writeToJSONFile(outputData + "\n", filePath);
 
             /*************** GROUPS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.GROUP.getTag(), content).toString();
@@ -5332,7 +5346,7 @@ DialogOption.OK_OPTION);
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
-            writeToFile(outputData + "\n", filePath);
+            writeToJSONFile(outputData + "\n", filePath);
 
             /*************** SCRIPT ASSOCIATIONS ***************/
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(),
@@ -5342,7 +5356,7 @@ DialogOption.OK_OPTION);
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
-            writeToFile(outputData + "\n", filePath);
+            writeToJSONFile(outputData + "\n", filePath);
 
             /*************** TLM SCHEDULER ***************/
             if (outputData.contains(CSVTags.TELEM_SCHEDULER_OLD.getTag()))
@@ -5361,7 +5375,7 @@ DialogOption.OK_OPTION);
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
-            writeToFile(outputData + "\n", filePath);
+            writeToJSONFile(outputData + "\n", filePath);
 
             /*************** APP SCHEDULER ***************/
             if (outputData.contains(CSVTags.APP_SCHEDULER_OLD.getTag()))
@@ -5380,7 +5394,7 @@ DialogOption.OK_OPTION);
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
-            writeToFile(outputData + "\n", filePath);
+            writeToJSONFile(outputData + "\n", filePath);
 
             /*************** RESERVED MESSAGE IDS ***************/
             outputData = csvHandler.retrieveCSVData(CSVTags.RESERVED_MSG_IDS.getTag(),
@@ -5394,7 +5408,7 @@ DialogOption.OK_OPTION);
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
 
-                writeToFile(outputData + "\n", filePath);
+                writeToJSONFile(outputData + "\n", filePath);
             }
 
             /*************** PROJECT FIELDS ***************/
@@ -5409,7 +5423,7 @@ DialogOption.OK_OPTION);
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
 
-                writeToFile(outputData + "\n", filePath);
+                writeToJSONFile(outputData + "\n", filePath);
             }
 
             /*************** TABLE DEFINITIONS ***************/
@@ -5432,12 +5446,12 @@ DialogOption.OK_OPTION);
 
                     if (tableIndex == data.length - 1)
                     {
-                        writeToFile("\n" + CSVTags.NAME_TYPE.getTag() + "\n" + data[tableIndex],
+                        writeToJSONFile("\n" + CSVTags.NAME_TYPE.getTag() + "\n" + data[tableIndex],
                                     filePath);
                     }
                     else
                     {
-                        writeToFile("\n" + CSVTags.NAME_TYPE.getTag() + "\n" + data[tableIndex] + "\n",
+                        writeToJSONFile("\n" + CSVTags.NAME_TYPE.getTag() + "\n" + data[tableIndex] + "\n",
                                     filePath);
                     }
                 }
@@ -5454,7 +5468,7 @@ DialogOption.OK_OPTION);
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
 
-                writeToFile(outputData + "\n", filePath);
+                writeToJSONFile(outputData + "\n", filePath);
             }
         }
         catch (Exception e)
@@ -5472,7 +5486,7 @@ DialogOption.OK_OPTION);
      *
      * @param filePath Path to the file
      *********************************************************************************************/
-    public void writeToFile(Object output, String filePath)
+    public void writeToJSONFile(Object output, String filePath)
     {
         // Create a set of writers for the output file
         FileWriter fw = null;
@@ -5486,20 +5500,21 @@ DialogOption.OK_OPTION);
                 fw = new FileWriter(filePath, false);
                 bw = new BufferedWriter(fw);
                 pw = new PrintWriter(bw);
-
-                try
-                {
-                    pw.print((String) output);
-                }
-                catch (Exception e)
-                {
-
-                }
+                pw.print((String) output);
             }
         }
         catch (Exception e)
         {
-            CcddUtilities.displayException(e, ccddMain.getMainFrame());
+            // Inform the user that the output file cannot be written to
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                       "<html><b>Cannot write to JSON output file '</b>"
+                                       + filePath
+                                       + "<b>'; cause '<\b>"
+                                       + e.getMessage()
+                                       + "<b>'",
+                                       "File Warning",
+                                       JOptionPane.WARNING_MESSAGE,
+                                       DialogOption.OK_OPTION);
         }
         finally
         {
@@ -5528,7 +5543,16 @@ DialogOption.OK_OPTION);
             }
             catch (IOException ioe)
             {
-                CcddUtilities.displayException(ioe, ccddMain.getMainFrame());
+                // Inform the user that the output file cannot be closed
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                           "<html><b>Cannot close JSON output file '</b>"
+                                           + filePath
+                                           + "<b>'; cause '<\b>"
+                                           + ioe.getMessage()
+                                           + "<b>'",
+                                           "File Warning",
+                                           JOptionPane.WARNING_MESSAGE,
+                                           DialogOption.OK_OPTION);
             }
         }
     }

@@ -701,9 +701,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
                     // Check if the message name pattern isn't in the format
                     // <alphanumeric>%<0#>d<text> where # is one or more digits
-                    if (!tabInfo.getPatternFld().getText()
-                            .matches(DefaultInputType.ALPHANUMERIC.getInputMatch()
-                                     + "%(0\\d+)?d[a-zA-Z0-9_]*"))
+                    if (!tabInfo.getPatternFld().getText().matches(DefaultInputType.ALPHANUMERIC.getInputMatch()
+                                                                   + "%(0\\d+)?d[a-zA-Z0-9_]*"))
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
@@ -1032,8 +1031,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                        CcddAssignMessageIDDialog.this);
 
         // Get a copy of the data field definitions for all of the fields in the database
-        List<FieldInformation> fieldInformation = CcddFieldHandler
-                .getFieldInformationCopy(fieldHandler.getFieldInformation());
+        List<FieldInformation> fieldInformation = CcddFieldHandler.getFieldInformationCopy(fieldHandler.getFieldInformation());
 
         // Sort the field information by table name so that sequence order of the message ID values
         // is applied to the tables' alphabetical order

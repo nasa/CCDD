@@ -167,8 +167,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Get the list of table comments
         tableComments = new ArrayListMultiple(TableCommentIndex.NAME.ordinal());
-        tableComments.addAll(Arrays
-                .asList(ccddMain.getDbTableCommandHandler().queryDataTableComments(ccddMain.getMainFrame())));
+        tableComments.addAll(Arrays.asList(ccddMain.getDbTableCommandHandler().queryDataTableComments(ccddMain.getMainFrame())));
     }
 
     /**********************************************************************************************
@@ -356,8 +355,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 for (int index = 0; index < appNodes[nodeIndex].getChildCount(); index++)
                                 {
                                     // Check if the group name matches the node name
-                                    if (groupName.equals(((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index))
-                                            .getUserObject().toString()))
+                                    if (groupName.equals(((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index)).getUserObject().toString()))
                                     {
                                         // Add the indicating a match is found, and stop searching
                                         addNodeToInfoNode((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index),
@@ -396,14 +394,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                         for (int index = 0; index < sourcePath.length; index++)
                                         {
                                             // Get the comment for this table reference
-                                            commentIndex = tableComments
-                                                    .indexOf((Object) TableInfo.getPrototypeName(sourcePath[index]));
+                                            commentIndex = tableComments.indexOf((Object) TableInfo.getPrototypeName(sourcePath[index]));
 
                                             // Check if the table type for this reference doesn't
                                             // match the current table type node or if the table
                                             // type couldn't be determined
-                                            if (commentIndex == -1 || !tableType.equals(tableComments
-                                                    .get(commentIndex)[TableCommentIndex.TYPE.ordinal()]))
+                                            if (commentIndex == -1
+                                                || !tableType.equals(tableComments.get(commentIndex)[TableCommentIndex.TYPE.ordinal()]))
                                             {
                                                 // Flag the table reference as not belonging to
                                                 // this table type (the node may still appear if
@@ -476,9 +473,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     {
                         // Change the group's application status to the one supplied (but preserve
                         // the description, if any) and stop searching
-                        groupDefinitions
-                                .set(index,
-                                     new String[] {groupName, (isApplication ? "1" : "0") + groupDefn[1].substring(1)});
+                        groupDefinitions.set(index,
+                                             new String[] {groupName, (
+                                                           isApplication ? "1" : "0")
+                                                           + groupDefn[1].substring(1)});
                         break;
                     }
                 }
@@ -539,17 +537,14 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             for (int typeIndex = 0; typeIndex < node.getChildCount(); typeIndex++)
             {
                 // Get the table type represented by this node
-                String tableType = CcddUtilities
-                        .removeHTMLTags(((ToolTipTreeNode) node.getChildAt(typeIndex)).getUserObject().toString());
+                String tableType = CcddUtilities.removeHTMLTags(((ToolTipTreeNode) node.getChildAt(typeIndex)).getUserObject().toString());
 
                 // Step through each table reference in the table path
                 for (int index = startIndex; index < tablePath.length; index++)
                 {
                     // Check if the type for the table in the reference matches the table type
                     // represented by this node
-                    if (tableType.equals(tableComments.get(tableComments
-                            .indexOf((Object) TableInfo.getPrototypeName(tablePath[index])))[TableCommentIndex.TYPE
-                                    .ordinal()]))
+                    if (tableType.equals(tableComments.get(tableComments.indexOf((Object) TableInfo.getPrototypeName(tablePath[index])))[TableCommentIndex.TYPE.ordinal()]))
                     {
                         int firstValidIndex = -1;
 
@@ -562,8 +557,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         {
                             // Check if the table type for this table reference doesn't match the
                             // node's table type
-                            if (!tableType.equals(tableComments.get(tableComments.indexOf((Object) TableInfo
-                                    .getPrototypeName(tempPath[pathIndex])))[TableCommentIndex.TYPE.ordinal()]))
+                            if (!tableType.equals(tableComments.get(tableComments.indexOf((Object) TableInfo.getPrototypeName(tempPath[pathIndex])))[TableCommentIndex.TYPE.ordinal()]))
                             {
                                 // Flag the table reference as not matching the node table type
                                 tempPath[pathIndex] = INVALID_TEXT_COLOR + tempPath[pathIndex];
@@ -579,7 +573,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
                         // Add the table path to the table type node
                         super.addNodeToInfoNode((ToolTipTreeNode) node.getChildAt(typeIndex),
-                                                Arrays.copyOf(tempPath, firstValidIndex + 1), startIndex);
+                                                Arrays.copyOf(tempPath,
+                                                              firstValidIndex + 1),
+                                                startIndex);
                     }
                 }
             }
@@ -602,8 +598,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
             // Set the field information in the group handler
-            groupInfo.setFieldInformation(fieldHandler
-                    .getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldGroupName(groupInfo.getName())));
+            groupInfo.setFieldInformation(fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldGroupName(groupInfo.getName())));
         }
     }
 
@@ -618,11 +613,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     protected void addInformation(Object groupToCopy, String nameOfCopy)
     {
         // Store the group information for the copy
-        groupHandler.getGroupInformation()
-                .add(new GroupInformation(nameOfCopy, ((GroupInformation) groupToCopy).getDescription(),
-                                          ((GroupInformation) groupToCopy).isApplication(),
-                                          ((GroupInformation) groupToCopy).getTablesAndAncestors(),
-                                          ((GroupInformation) groupToCopy).getFieldInformation()));
+        groupHandler.getGroupInformation() .add(new GroupInformation(nameOfCopy,
+                                                                     ((GroupInformation) groupToCopy).getDescription(),
+                                                                     ((GroupInformation) groupToCopy).isApplication(),
+                                                                     ((GroupInformation) groupToCopy).getTablesAndAncestors(),
+                                                                     ((GroupInformation) groupToCopy).getFieldInformation()));
     }
 
     /**********************************************************************************************
@@ -642,7 +637,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             // Add the group's name and description to the list. If the group represents a CFS
             // application it's definition begins with a non-zero numeral
             definitions.add(new String[] {grpInfo.getName(),
-                                          (grpInfo.isApplication() ? "1" : "0") + "," + grpInfo.getDescription()});
+                                          (grpInfo.isApplication() ? "1" : "0")
+                                          + ","
+                                          + grpInfo.getDescription()});
         }
 
         return definitions;
@@ -740,9 +737,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     nodeName = removeExtraText(nodeName);
 
                     // Get the reference to the schedule rate field information
-                    FieldInformation rateInfo = fieldHandler
-                            .getFieldInformationByName(CcddFieldHandler.getFieldGroupName(groupName),
-                                                       DefaultApplicationField.SCHEDULE_RATE.getFieldName());
+                    FieldInformation rateInfo = fieldHandler.getFieldInformationByName(CcddFieldHandler.getFieldGroupName(groupName),
+                                                                                       DefaultApplicationField.SCHEDULE_RATE.getFieldName());
 
                     // Set the flag indicating the group is excluded if it's in the exclusion list
                     boolean isExcluded = rateInfo == null || rateInfo.getValue().isEmpty()
@@ -897,11 +893,20 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2, 0),
-                                                        0, 0);
+                                                        new Insets(0,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0),
+                                                        0,
+                                                        0);
 
         // Set the table tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
@@ -918,15 +923,13 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Create the tree scroll pane
         JScrollPane treeScroll = new JScrollPane(this);
-        treeScroll.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+        treeScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                Color.LIGHT_GRAY,
+                                                                                                Color.GRAY),
+                                      BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Check if this is the last component to add
         if (noFilters)
@@ -1059,10 +1062,12 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             for (int subIndex = 0; subIndex < root.getChildAt(index).getChildCount(); subIndex++)
                             {
                                 // Add the node name to the list of prefixes
-                                topNodePrefixes.add("[" + root.getUserObject() + ", "
-                                                    + ((ToolTipTreeNode) root.getChildAt(index)).getUserObject() + ", "
-                                                    + ((ToolTipTreeNode) root.getChildAt(index).getChildAt(subIndex))
-                                                            .getUserObject());
+                                topNodePrefixes.add("["
+                                                    + root.getUserObject()
+                                                    + ", "
+                                                    + ((ToolTipTreeNode) root.getChildAt(index)).getUserObject()
+                                                    + ", "
+                                                    + ((ToolTipTreeNode) root.getChildAt(index).getChildAt(subIndex)).getUserObject());
                             }
                         }
 
@@ -1084,13 +1089,25 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     else
                     {
                         // Remove Application and Other nodes names from the expansion paths
-                        expState = expState.replaceAll("\\[, " + APP_NODE + ", ", "[, ")
-                                .replaceAll("\\[, " + OTHER_NODE + ", ", "[, ");
+                        expState = expState.replaceAll("\\[, "
+                                                       + APP_NODE
+                                                       + ", ",
+                                                       "[, ").replaceAll("\\[, "
+                                                                         + OTHER_NODE
+                                                                         + ", ",
+                                                                         "[, ");
                     }
 
                     // Adjust the expansion state to account for the change in filtering
-                    expState = adjustExpansionState(expState, appFilterChkBx.isSelected(), true, true, false, true,
-                                                    topNodePrefixes, groupHandler, tableTypeHandler);
+                    expState = adjustExpansionState(expState,
+                                                    appFilterChkBx.isSelected(),
+                                                    true,
+                                                    true,
+                                                    false,
+                                                    true,
+                                                    topNodePrefixes,
+                                                    groupHandler,
+                                                    tableTypeHandler);
 
                     // Check if filtering by application is in effect
                     if (appFilterChkBx.isSelected())

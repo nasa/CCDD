@@ -769,11 +769,20 @@ public class CcddDbVerificationHandler
                 }
 
                 // Component owner differs from the database owner
-                issues.add(new TableIssue("Owner for " + type + " " + mismatch.getString(1) + " ("
-                                          + mismatch.getString(3) + ") does not match project database owner ("
-                                          + mismatch.getString(4) + ")",
-                                          "Database administrator must change " + type + " " + mismatch
-                                                  .getString(1) + " owner to match project database owner",
+                issues.add(new TableIssue("Owner for "
+                                          + type
+                                          + " "
+                                          + mismatch.getString(1)
+                                          + " ("
+                                          + mismatch.getString(3)
+                                          + ") does not match project database owner ("
+                                          + mismatch.getString(4)
+                                          + ")",
+                                          "Database administrator must change "
+                                          + type
+                                          + " "
+                                          + mismatch.getString(1)
+                                          + " owner to match project database owner",
                                           null));
             }
 

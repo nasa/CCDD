@@ -310,19 +310,18 @@ public class CcddApplicationSchedulerTableHandler
         if (numInvalid != 0)
         {
             // Inform the user that invalid entries exist
-            ccddMain.getSessionEventLog()
-                    .logFailEvent(ccddMain.getMainFrame(),
-                                  "Application Error",
-                                  "Invalid "
-                                  + type
-                                  + " detected; "
-                                  + numInvalid
-                                  + " removed",
-                                  "<html><b>Invalid "
-                                  + type
-                                  + " detected; "
-                                  + numInvalid
-                                  + " removed");
+            ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+                                                       "Application Error",
+                                                       "Invalid "
+                                                       + type
+                                                       + " detected; "
+                                                       + numInvalid
+                                                       + " removed",
+                                                       "<html><b>Invalid "
+                                                       + type
+                                                       + " detected; "
+                                                       + numInvalid
+                                                       + " removed");
         }
     }
 
@@ -366,9 +365,8 @@ public class CcddApplicationSchedulerTableHandler
                     String application = CcddFieldHandler.getFieldGroupName(groupInfo.getName());
 
                     // Get the application's schedule rate
-                    FieldInformation appInfo = fieldHandler
-                            .getFieldInformationByName(application,
-                                                       DefaultApplicationField.SCHEDULE_RATE.getFieldName());
+                    FieldInformation appInfo = fieldHandler.getFieldInformationByName(application,
+                                                                                      DefaultApplicationField.SCHEDULE_RATE.getFieldName());
 
                     // Check if the application's rate equals its field's rate
                     if (Float.valueOf(appInfo.getValue()) == app.getRate())

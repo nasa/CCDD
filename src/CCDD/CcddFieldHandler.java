@@ -202,8 +202,7 @@ public class CcddFieldHandler
             for (String[] fieldDefn : fieldDefinitions)
             {
                 // Get the input type from its name
-                InputType inputType = inputTypeHandler
-                        .getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
+                InputType inputType = inputTypeHandler.getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
 
                 // Get the applicability type from its name. The all tables applicability type is
                 // the default if the applicability type name is invalid
@@ -919,18 +918,17 @@ public class CcddFieldHandler
                                      null))
             {
                 // Add the data field to the table
-                fieldInformationList
-                        .add(new FieldInformation(tablePath,
-                                                  typeFldInfo.getFieldName(),
-                                                  typeFldInfo.getDescription(),
-                                                  typeFldInfo.getInputType(),
-                                                  typeFldInfo.getSize(),
-                                                  typeFldInfo.isRequired(),
-                                                  typeFldInfo.getApplicabilityType(),
-                                                  typeFldInfo.getValue(),
-                                                  true,
-                                                  null,
-                                                  -1));
+                fieldInformationList.add(new FieldInformation(tablePath,
+                                                              typeFldInfo.getFieldName(),
+                                                              typeFldInfo.getDescription(),
+                                                              typeFldInfo.getInputType(),
+                                                              typeFldInfo.getSize(),
+                                                              typeFldInfo.isRequired(),
+                                                              typeFldInfo.getApplicabilityType(),
+                                                              typeFldInfo.getValue(),
+                                                              true,
+                                                              null,
+                                                              -1));
             }
         }
         // The table has a field with the same name as the inheritable field

@@ -928,8 +928,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         }
 
         // Update the number of matches found label
-        numMatchesLbl
-                .setText(matchCount != 0 ? "  (" + matchCount + (matchCount == 1 ? " match" : " matches") + ")" : "");
+        numMatchesLbl.setText(matchCount != 0 ? "  (" + matchCount + (matchCount == 1 ? " match"
+                                                                                        : " matches") + ")"
+                                              : "");
 
         return matchCount;
     }

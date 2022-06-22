@@ -1324,8 +1324,7 @@ public class CcddConstants
                 for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
                 {
                     // Check if the component is using this color
-                    if (((ModifiableColor) comp.getForeground()).getModifiableColorIdentifier()
-                            .equals(modColor.getPreferenceKey()))
+                    if (((ModifiableColor) comp.getForeground()).getModifiableColorIdentifier().equals(modColor.getPreferenceKey()))
                     {
                         // Set the component's color to the one specified by the modifiable color
                         // and stop searching
@@ -1342,8 +1341,7 @@ public class CcddConstants
                 for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
                 {
                     // Check if the component is using this color
-                    if (((ModifiableColor) comp.getBackground()).getModifiableColorIdentifier()
-                            .equals(modColor.getPreferenceKey()))
+                    if (((ModifiableColor) comp.getBackground()).getModifiableColorIdentifier().equals(modColor.getPreferenceKey()))
                     {
                         // Set the component's color to the one specified by the modifiable color
                         // and stop searching
@@ -2475,8 +2473,7 @@ public class CcddConstants
                 + "(see Minimum)"),
 
         NUMBER("Number",
-               FLOAT
-                .getInputMatch(),
+               FLOAT.getInputMatch(),
                 InputTypeFormat.NUMBER,
                 "Integer or floating point value consisting of one or more of the numerals "
                 + "0 - 9 and a single optional decimal point (leading '+' or "

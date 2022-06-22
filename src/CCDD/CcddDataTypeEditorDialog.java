@@ -350,8 +350,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                                     // Use the type and column to get the column's input type
-                                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler()
-                                            .getTypeDefinition(refNameAndType[1]);
+                                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
 
                                     // Get the indices for all columns that can reference a data
                                     // type
@@ -385,16 +384,15 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     dataTypeTable.removeRowSelectionInterval(row, row);
 
                                     // Inform the user that the data type can't be deleted
-                                    new CcddDialogHandler()
-                                            .showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                               "<html><b>Cannot delete data type '</b>"
-                                                               + dataType
-                                                               + "<b>'; data type is referenced by table(s) '</b>"
-                                                               + CcddUtilities.convertArrayToStringTruncate(tables.toArray(new String[0]))
-                                                               + "<b>'",
-                                                               "Delete Data Type",
-                                                               JOptionPane.ERROR_MESSAGE,
-                                                               DialogOption.OK_OPTION);
+                                    new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
+                                                                              "<html><b>Cannot delete data type '</b>"
+                                                                              + dataType
+                                                                              + "<b>'; data type is referenced by table(s) '</b>"
+                                                                              + CcddUtilities.convertArrayToStringTruncate(tables.toArray(new String[0]))
+                                                                              + "<b>'",
+                                                                              "Delete Data Type",
+                                                                              JOptionPane.ERROR_MESSAGE,
+                                                                              DialogOption.OK_OPTION);
                                 }
                             }
                         }
@@ -779,8 +777,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                 String match = DefaultInputType.ALPHANUMERIC_MULTI.getInputMatch();
 
                                 // Check if the base data type is a pointer
-                                if (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()]
-                                        .equals(BaseDataTypeInfo.POINTER.getName()))
+                                if (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.POINTER.getName()))
                                 {
                                     // Check if the C type name doesn't already end with an
                                     // asterisk
@@ -871,9 +868,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             && ((column == DataTypeEditorColumnInfo.SIZE.ordinal()
                                  && Integer.valueOf(newValueS) < Integer.valueOf(oldValueS)
                                  && (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()]
-                                         .equals(BaseDataTypeInfo.SIGNED_INT.getName())
+                                               .equals(BaseDataTypeInfo.SIGNED_INT.getName())
                                      || tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()]
-                                             .equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
+                                                 .equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
 
                                 || (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal()
                                     && (oldValueS.equals(BaseDataTypeInfo.SIGNED_INT.getName())
@@ -1221,18 +1218,17 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                     // Inform the user that a row is missing required data. If Cancel is selected
                     // then do not perform checks on other columns and rows
-                    if (new CcddDialogHandler()
-                            .showMessageDialog(CcddDataTypeEditorDialog.this,
-                                               "<html><b>Data must be provided for column '</b>"
-                                               + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.USER_NAME.ordinal())
-                                               + "<b>' or '</b>"
-                                               + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_NAME.ordinal())
-                                               + "<b>' [row </b>"
-                                               + (row + 1)
-                                               + "<b>]",
-                                               "Missing Data",
-                                               JOptionPane.WARNING_MESSAGE,
-                                               DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                    if (new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
+                                                                  "<html><b>Data must be provided for column '</b>"
+                                                                  + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.USER_NAME.ordinal())
+                                                                  + "<b>' or '</b>"
+                                                                  + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_NAME.ordinal())
+                                                                  + "<b>' [row </b>"
+                                                                  + (row + 1)
+                                                                  + "<b>]",
+                                                                  "Missing Data",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                     {
                         // Set the stop flag to prevent further error checking
                         stopCheck = true;
@@ -1301,8 +1297,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
                     // Check if the index values match for these rows
-                    if (tableData[tblRow][DataTypesColumn.OID.ordinal()]
-                            .equals(committedData[comRow][DataTypesColumn.OID.ordinal()]))
+                    if (tableData[tblRow][DataTypesColumn.OID.ordinal()].equals(committedData[comRow][DataTypesColumn.OID.ordinal()]))
                     {
                         // Set the flags indicating this row has a match
                         matchFound = true;

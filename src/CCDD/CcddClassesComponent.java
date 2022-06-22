@@ -1941,7 +1941,7 @@ public class CcddClassesComponent
                                 // Compare the two hexadecimal values as integers, converted to
                                 // base 10
                                 result = Integer.decode(item1[compareColumn[index]])
-                                        .compareTo(Integer.decode(item2[compareColumn[index]]));
+                                                .compareTo(Integer.decode(item2[compareColumn[index]]));
                         }
                         index++;
                     } while (result == 0 && index < compareColumn.length && index < item1.length

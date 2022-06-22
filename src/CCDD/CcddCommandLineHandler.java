@@ -949,8 +949,7 @@ public class CcddCommandLineHandler
                         // Break the supplied association into the script or script association
                         // name, and table(s)/group(s) (if any), ignoring the first portion of the
                         // script path that contains the script-member separator character
-                        scriptAndTable = associationString.substring(nameSepIndex)
-                                .split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
+                        scriptAndTable = associationString.substring(nameSepIndex).split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
 
                         // Prepend the portion of the path that was skipped to the script path
                         scriptAndTable[0] = associationString.substring(0, nameSepIndex) + scriptAndTable[0];
@@ -1840,14 +1839,13 @@ public class CcddCommandLineHandler
                 });
 
         // Export command - include all data type definitions
-        exportArgument
-                .add(new CommandHandler("includeAllDataTypes",
-                                        "Include all data type definitions\n"
-                                        + " (CSV, JSON)",
-                                        "true or false (default: false)",
-                                        CommandLineType.OPTION, 0,
-                                        new Object[] {true, false},
-                                        new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeAllDataTypes",
+                                              "Include all data type definitions\n"
+                                              + " (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION, 0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the data type definitions
@@ -1939,15 +1937,14 @@ public class CcddCommandLineHandler
         });
 
         // Export command - include reserved message IDs
-        exportArgument
-                .add(new CommandHandler("includeReservedMsgIDs",
-                                        "Include reserved message ID list\n"
-                                        + " (CSV, JSON)",
-                                        "true or false (default: false)",
-                                        CommandLineType.OPTION,
-                                        0,
-                                        new Object[] {true, false},
-                                        new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeReservedMsgIDs",
+                                              "Include reserved message ID list\n"
+                                              + " (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the list of reserved message IDs
@@ -1998,15 +1995,14 @@ public class CcddCommandLineHandler
         });
 
         // Export command - include groups
-        exportArgument
-                .add(new CommandHandler("includeGroups",
-                                        "Include group definitions and data\n"
-                                        + " fields (CSV, JSON)",
-                                        "true or false (default: false)",
-                                        CommandLineType.OPTION,
-                                        0,
-                                        new Object[] {true, false},
-                                        new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeGroups",
+                                              "Include group definitions and data\n"
+                                              + " fields (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the group definitions and data fields
@@ -2059,15 +2055,14 @@ public class CcddCommandLineHandler
         });
 
         // Export command - include application scheduler table
-        exportArgument
-                .add(new CommandHandler("includeAppSched",
-                                        "Include application scheduler table\n"
-                                        + " (CSV, JSON)",
-                                        "true or false (default: false)",
-                                        CommandLineType.OPTION,
-                                        0,
-                                        new Object[] {true, false},
-                                        new String[] {"true", "false"})
+        exportArgument.add(new CommandHandler("includeAppSched",
+                                              "Include application scheduler table\n"
+                                              + " (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
                 {
                     /**************************************************************************************
                      * Set the flag to output the script associations

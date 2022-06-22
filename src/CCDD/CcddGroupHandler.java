@@ -95,9 +95,11 @@ public class CcddGroupHandler
         for (GroupInformation groupInfo : groupInformation)
         {
             // Add the group application status and description to the definition list
-            groupDefinitions
-                    .add(new String[] {groupInfo.getName(),
-                                       (groupInfo.isApplication() ? "1" : "0") + "," + groupInfo.getDescription()});
+            groupDefinitions.add(new String[] {groupInfo.getName(),
+                                               (groupInfo.isApplication() ? "1"
+                                                                            : "0")
+                                               + ","
+                                               + groupInfo.getDescription()});
 
             // Step through each group table member
             for (String member : groupInfo.getTablesAndAncestors())
@@ -183,8 +185,10 @@ public class CcddGroupHandler
                     String[] appAndDesc = groupMember.split(",", 2);
 
                     // Create the group with its description and application status
-                    groupInformation
-                            .add(new GroupInformation(groupName, appAndDesc[1], !appAndDesc[0].equals("0"), null));
+                    groupInformation.add(new GroupInformation(groupName,
+                                                              appAndDesc[1],
+                                                              !appAndDesc[0].equals("0"),
+                                                              null));
                 }
                 // This is a group's table path
                 else

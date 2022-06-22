@@ -115,8 +115,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                                                                   "Auto-fill the message table with the variables");
 
                 // Create a listener for the Auto-fill button
-                btnAutoFill.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor()
-                        .getTable())
+                btnAutoFill.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
                     /******************************************************************************
                      * Auto-fill the applications into the application scheduler
@@ -135,8 +134,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                                                                KeyEvent.VK_R,
                                                                "Remove applications from the time slots");
                 // Add a listener for the Clear Slots button
-                btnClear.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor()
-                        .getTable())
+                btnClear.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
                     /******************************************************************************
                      * Remove the applications from all time slots
@@ -156,8 +154,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
-                btnStore.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor()
-                        .getTable())
+                btnStore.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
                     /******************************************************************************
                      * Store the application scheduler data in the project database
@@ -186,8 +183,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                                                                KeyEvent.VK_C,
                                                                "Close the application scheduler");
                 // Add a listener for the Close button
-                btnClose.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor()
-                        .getTable())
+                btnClose.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
                     /******************************************************************************
                      * Close the application scheduler dialog

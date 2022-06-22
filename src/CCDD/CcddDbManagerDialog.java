@@ -423,12 +423,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                  gbc))
                             {
                                 // Inform the user that no roles exist on the server
-                                new CcddDialogHandler()
-                                        .showMessageDialog(ccddMain.getMainFrame(),
-                                                           "<html><b>No role exists",
-                                                           "Change Project Owner",
-                                                           JOptionPane.WARNING_MESSAGE,
-                                                           DialogOption.OK_OPTION);
+                                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                          "<html><b>No role exists",
+                                                                          "Change Project Owner",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
                                 errorFlag = true;
                                 throw new CCDDException();
                             }
@@ -1548,8 +1547,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             for (String[] userAccess : committedData)
             {
                 // Check if the user has administrative access
-                if (userAccess[AccessLevelEditorColumnInfo.ACCESS_LEVEL.ordinal()]
-                        .equals(AccessLevel.ADMIN.getDisplayName()))
+                if (userAccess[AccessLevelEditorColumnInfo.ACCESS_LEVEL.ordinal()].equals(AccessLevel.ADMIN.getDisplayName()))
                 {
                     // Add the user's name to the string
                     admins += userAccess[AccessLevelEditorColumnInfo.USER_NAME.ordinal()] + DATABASE_ADMIN_SEPARATOR;
@@ -1687,16 +1685,15 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
-                        if (new CcddDialogHandler()
-                                .showMessageDialog(CcddDbManagerDialog.this,
-                                                   "<html><b>Data must be provided for column '</b>"
-                                                   + accessTable.getColumnName(column)
-                                                   + "<b>' [row </b>"
-                                                   + (row + 1)
-                                                   + "<b>]",
-                                                   "Missing Data",
-                                                   JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                        if (new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
+                                                                      "<html><b>Data must be provided for column '</b>"
+                                                                      + accessTable.getColumnName(column)
+                                                                      + "<b>' [row </b>"
+                                                                      + (row + 1)
+                                                                      + "<b>]",
+                                                                      "Missing Data",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
                             // Set the stop flag to prevent further error checking
                             stopCheck = true;
@@ -1833,7 +1830,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                     // Check if the database name matches the one in the list
                     if (dbControl.convertProjectNameToDatabase(arrayItemData[index][DB_PRJNAME])
-                            .equals(databaseAndUser[0]))
+                                 .equals(databaseAndUser[0]))
                     {
                         // Append the user name to the status text
                         status += databaseAndUser[1] + ", ";

@@ -1288,8 +1288,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                         // Get the total number of array members for the command argument; set to 0
                         // if the argument isn't an array
-                        int numArrayMembers = arraySize != null && !arraySize.isEmpty() ? ArrayVariable
-                                .getNumMembersFromArraySize(arraySize) : 0;
+                        int numArrayMembers = arraySize != null
+                                              && !arraySize.isEmpty() ? ArrayVariable.getNumMembersFromArraySize(arraySize)
+                                                                      : 0;
 
                         // Add the row to the structure table. Multiple rows are added for an array
                         rowIndex = addVariableDefinitionToStructure(tableDefn,
@@ -1412,8 +1413,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             if (namespace.getDataTypeSet() != null)
             {
                 // Step through each data type set
-                for (RootDataType argType : namespace.getDataTypeSet()
-                        .getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
+                for (RootDataType argType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
                 {
                     // Check if this is a container data type
                     if (argType instanceof ContainerDataType)
@@ -2435,16 +2435,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                  rowData[sizeColumn].toString(),
                                                  rowData[bitColumn].toString(),
                                                  (enumColumn != -1
-                                                  && !rowData[enumColumn].toString().isEmpty() ? rowData[enumColumn]
-                                                                                                       .toString()
+                                                  && !rowData[enumColumn].toString().isEmpty() ? rowData[enumColumn].toString()
                                                                                                : null),
                                                  (unitsColumn != -1
-                                                  && !rowData[unitsColumn].toString().isEmpty() ? rowData[unitsColumn]
-                                                                                                        .toString()
+                                                  && !rowData[unitsColumn].toString().isEmpty() ? rowData[unitsColumn].toString()
                                                                                                 : null),
                                                  (descColumn != -1
-                                                  && !rowData[descColumn].toString().isEmpty() ? rowData[descColumn]
-                                                                                                       .toString()
+                                                  && !rowData[descColumn].toString().isEmpty() ? rowData[descColumn].toString()
                                                                                                : null),
                                                  (dataTypeHandler.isString(rowData[typeColumn].toString())
                                                   && !rowData[sizeColumn].toString().isEmpty() ? Integer.valueOf(rowData[sizeColumn].toString()
@@ -3437,8 +3434,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             else
                             {
                                 // Set the size in bits to the full size of the data type
-                                intEncodingType
-                                        .setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
+                                intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                             }
 
                             // Check if the data type is an unsigned integer

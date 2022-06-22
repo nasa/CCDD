@@ -243,8 +243,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
             // Create a copy of the group information and store it in the committed group list
-            committedGroupInfo.add(new GroupInformation(groupInfo.getName(), null, null, null, CcddFieldHandler
-                    .getFieldInformationCopy(groupInfo.getFieldInformation())));
+            committedGroupInfo.add(new GroupInformation(groupInfo.getName(),
+                                                        null,
+                                                        null,
+                                                        null,
+                                                        CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation())));
         }
     }
 
@@ -277,29 +280,30 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 isInitializing = true;
 
                 // Create borders for the dialog components
-                border = BorderFactory
-                        .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                              Color.GRAY),
-                                              BorderFactory.createEmptyBorder(
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing(),
-                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                                      .getSpacing()));
+                border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                            Color.LIGHT_GRAY,
+                                                                                            Color.GRAY),
+                                              BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                              ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
                 emptyBorder = BorderFactory.createEmptyBorder();
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                        .getSpacing() / 2,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                   .getSpacing() / 2,
-                                                                           0, 0),
-                                                                0, 0);
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                           0,
+                                                                           0),
+                                                                0,
+                                                                0);
 
                 // Add an undo edit manager
                 undoManager = new CcddUndoManager()
@@ -488,9 +492,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy++;
-                upperPnl.add(new CustomSplitPane(tableTreePnl, groupTree
-                        .createTreePanel("Groups", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
-                                         ccddMain.getMainFrame()), createArrowButtonPanel(),
+                upperPnl.add(new CustomSplitPane(tableTreePnl,
+                                                 groupTree.createTreePanel("Groups",
+                                                                           TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                                           false,
+                                                                           ccddMain.getMainFrame()),
+                                                 createArrowButtonPanel(),
                                                  JSplitPane.HORIZONTAL_SPLIT),
                              gbc);
 
@@ -583,8 +590,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             for (DefaultApplicationField field : DefaultApplicationField.values())
                             {
                                 // Create a new data field
-                                FieldInformation newField = field.createFieldInformation(CcddFieldHandler
-                                        .getFieldGroupName(selectedGroup.getName()), inputTypeHandler);
+                                FieldInformation newField = field.createFieldInformation(CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
+                                                                                         inputTypeHandler);
 
                                 boolean isExists = false;
 
@@ -1249,9 +1256,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 for (DefaultApplicationField field : DefaultApplicationField.values())
                 {
                     // Add the field to the group
-                    fieldInfo.add(field
-                            .createFieldInformation(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()),
-                                                    inputTypeHandler));
+                    fieldInfo.add(field.createFieldInformation(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()),
+                                                               inputTypeHandler));
                 }
             }
 
@@ -1413,8 +1419,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 GroupInformation copiedGroup = groupHandler.getGroupInformationByName(groupNameFld.getText());
 
                 // Copy the target group's data fields to the copy of the group
-                copiedGroup
-                        .setFieldInformation(CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
+                copiedGroup.setFieldInformation(CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
 
                 // Step through each data field in the copied group
                 for (FieldInformation fieldInfo : copiedGroup.getFieldInformation())
@@ -1448,19 +1453,24 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *
      * @return The GridBagConstraints used to arrange the dialog
      *********************************************************************************************/
-    private GridBagConstraints addGroupNameField(String fieldText, String currentName, JPanel dialogPnl)
+    private GridBagConstraints addGroupNameField(String fieldText,
+                                                 String currentName,
+                                                 JPanel dialogPnl)
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()
-                                                                      / 2),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
 
         // Create the group name label and add it to the dialog panel
         JLabel label = new JLabel(fieldText);
@@ -1554,8 +1564,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             groupHandler.setDescription(selectedGroup.getName(), fieldPnlHndlr.getDescription());
 
             // Store the updated data field information in the group
-            selectedGroup.setFieldInformation(CcddFieldHandler
-                    .getFieldInformationCopy(fieldPnlHndlr.getPanelFieldInformation()));
+            selectedGroup.setFieldInformation(CcddFieldHandler.getFieldInformationCopy(fieldPnlHndlr.getPanelFieldInformation()));
 
             // Store any changes made to the data field values
             fieldPnlHndlr.updateFieldValueFromComponent(selectedGroup.getFieldInformation());

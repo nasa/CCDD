@@ -644,31 +644,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 // Check if a table is selected
                                 if (!tableNames.isEmpty())
                                 {
-                                    // Convert the array of names into a single string
-                                    final String names = CcddUtilities.convertArrayToStringTruncate(tableNames.toArray(new String[0]));
-
-                                    // Have the user confirm deleting the selected table(s)
-                                    if (new CcddDialogHandler().showMessageDialog(caller,
-                                                                                  "<html><b>Delete table(s) '</b>"
-                                                                                  + names
-                                                                                  + "<b>'?<br><br><i>Warning: This action cannot be undone!",
-                                                                                  "Delete Table(s)",
-                                                                                  JOptionPane.QUESTION_MESSAGE,
-                                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                                    {
-
-                                        // Delete the table(s)
-                                        errorFlag = dbTable.deleteTable(tableNames.toArray(new String[0]),
-                                                                        true,
-                                                                        caller);
-
-                                        // Check if no error occurred deleting the table and if the
-                                        // table manager called this method
-                                        if (!errorFlag && CcddTableManagerDialog.this != null)
-                                        {
-                                            CcddTableManagerDialog.this.doTableOperationComplete();
-                                        }
-                                    }
+                                    // Delete the table(s)
+                                    dbTable.deleteTableInBackground(tableNames.toArray(new String[0]),
+                                                                    CcddTableManagerDialog.this,
+                                                                    caller);
                                 }
                             }
 

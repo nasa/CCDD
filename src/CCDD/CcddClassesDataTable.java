@@ -1260,8 +1260,11 @@ public class CcddClassesDataTable
                 if (!dataTypeAndVariable[0].matches(DefaultInputType.VARIABLE.getInputMatch())
                     || (isChild
                         && !(dataTypeAndVariable.length == 2
-                             && dataTypeAndVariable[1].replaceAll(MACRO_IDENTIFIER + "(.+?)" + MACRO_IDENTIFIER, "$1")
-                                     .matches(DefaultInputType.VARIABLE.getInputMatch() + "(?:\\[[0-9]+\\])*?"))))
+                             && dataTypeAndVariable[1].replaceAll(MACRO_IDENTIFIER
+                                                                  + "(.+?)"
+                                                                  + MACRO_IDENTIFIER,
+                                                                  "$1").matches(DefaultInputType.VARIABLE.getInputMatch()
+                                                                                + "(?:\\[[0-9]+\\])*?"))))
                 {
                     // Set the flag to indicate the path isn't valid and stop searching
                     isValid = false;

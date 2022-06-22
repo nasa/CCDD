@@ -509,13 +509,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             protected void complete()
             {
                 // Display the data field selection dialog if any fields exist
-                if (!fieldHandler.getFieldInformation().isEmpty() && selectDlg
-                        .showOptionsDialog((isVisible() ? CcddFieldTableEditorDialog.this
-                                                        : ccddMain.getMainFrame()),
-                                           selectPnl,
-                                           "Select Data Field(s)",
-                                           DialogOption.OK_CANCEL_OPTION,
-                                           true) == OK_BUTTON)
+                if (!fieldHandler.getFieldInformation().isEmpty()
+                    && selectDlg.showOptionsDialog((isVisible() ? CcddFieldTableEditorDialog.this
+                                                                : ccddMain.getMainFrame()),
+                                                   selectPnl,
+                                                   "Select Data Field(s)",
+                                                   DialogOption.OK_CANCEL_OPTION,
+                                                   true) == OK_BUTTON)
                 {
                     // Create a list for the column names. Add the default columns (table name and
                     // path)
@@ -778,11 +778,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 });
 
                 // Delete data fields button
-                JButton btnRemove = CcddButtonPanelHandler
-                        .createButton("Remove",
-                                      DELETE_ICON,
-                                      KeyEvent.VK_R,
-                                      "Remove the selected data field(s) from their table(s)");
+                JButton btnRemove = CcddButtonPanelHandler.createButton("Remove",
+                                                                        DELETE_ICON,
+                                                                        KeyEvent.VK_R,
+                                          "Remove the selected data field(s) from their table(s)");
 
                 // Add a listener for the Remove button
                 btnRemove.addActionListener(new ValidateCellActionListener(dataFieldTable)
@@ -798,11 +797,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 });
 
                 // Open tables button
-                JButton btnOpen = CcddButtonPanelHandler
-                        .createButton("Open",
-                                      TABLE_ICON,
-                                      KeyEvent.VK_O,
-                                      "Open the table(s) associated with the selected data field(s)");
+                JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                                      TABLE_ICON,
+                                                                      KeyEvent.VK_O,
+                                          "Open the table(s) associated with the selected data field(s)");
 
                 // Add a listener for the Open button
                 btnOpen.addActionListener(new ValidateCellActionListener(dataFieldTable)
@@ -1106,12 +1104,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // have the field specified by the column
                 return column != FieldTableEditorColumnInfo.OWNER.ordinal()
                        && column != FieldTableEditorColumnInfo.PATH.ordinal()
-                       && fieldHandler
-                               .getFieldInformationByName(getOwnerWithPath(getModel()
-                                       .getValueAt(row, FieldTableEditorColumnInfo.OWNER.ordinal()).toString(),
-                                                                           getModel().getValueAt(row,
-                                                                                                 FieldTableEditorColumnInfo.PATH.ordinal()).toString()),
-                                                          columnNames[column]) != null;
+                       && fieldHandler.getFieldInformationByName(getOwnerWithPath(getModel().getValueAt(row,
+                                                                                                        FieldTableEditorColumnInfo.OWNER.ordinal()).toString(),
+                                                                                  getModel().getValueAt(row,
+                                                                                                        FieldTableEditorColumnInfo.PATH.ordinal()).toString()),
+                                                                 columnNames[column]) != null;
             }
 
             /**************************************************************************************
@@ -1333,8 +1330,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                             // Get the text in the cell, formatted per its input type, but without
                             // preserving the leading zeroes for hexadecimal values
-                            String value = inputType
-                                    .formatInput(tableModel.getValueAt(rowModel, columnModel).toString(), false);
+                            String value = inputType.formatInput(tableModel.getValueAt(rowModel,
+                                                                                       columnModel).toString(),
+                                                                 false);
 
                             // Check if the value isn't blank
                             if (!value.isEmpty())
@@ -1599,8 +1597,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         else
                         {
                             // Highlight the data type(s) in the table
-                            newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = CcddUtilities
-                                    .highlightDataType(ownerName);
+                            newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = CcddUtilities.highlightDataType(ownerName);
                         }
 
                         // Insert the owner name, path, and the data field value into the new row

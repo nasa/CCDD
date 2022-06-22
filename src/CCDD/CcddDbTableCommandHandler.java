@@ -1776,14 +1776,13 @@ public class CcddDbTableCommandHandler
         final String names = CcddUtilities.convertArrayToStringTruncate(tableNames);
 
         // Have the user confirm deleting the selected table(s)
-        if (new CcddDialogHandler()
-                .showMessageDialog(parent,
-                                   "<html><b>Delete table(s) '</b>"
-                                   + names
-                                   + "<b>'?<br><br><i>Warning: This action cannot be undone!",
-                                   "Delete Table(s)",
-                                   JOptionPane.QUESTION_MESSAGE,
-                                   DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+        if (new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>Delete table(s) '</b>"
+                                                      + names
+                                                      + "<b>'?<br><br><i>Warning: This action cannot be undone!",
+                                                      "Delete Table(s)",
+                                                      JOptionPane.QUESTION_MESSAGE,
+                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
             // Execute the command in the background
             CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -3307,6 +3306,30 @@ public class CcddDbTableCommandHandler
             errorFlag = true;
         }
 
+        if (!modifications.isEmpty())
+        {
+            try
+            {
+                // Delete the index on the custom values table (if one was created)
+                dbCommand.executeDbUpdate(new StringBuilder("DROP INDEX IF EXISTS "
+                                                             + InternalTable.VALUES.getTableName()
+                                                             + "_temp_index;"),
+                                          parent);
+            }
+            catch (SQLException se)
+            {
+                eventLog.logFailEvent(parent,
+                                      "Cannot delete index table for table '"
+                                      + tableInfo.getProtoVariableName()
+                                      + "'; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot delete index table for table '</b>"
+                                      + tableInfo.getProtoVariableName()
+                                      + "<b>'");
+            }
+        }
+
         // Update the field information based on what is stored in the database
         fieldHandler.buildFieldInformation(parent);
 
@@ -3717,11 +3740,12 @@ public class CcddDbTableCommandHandler
             }
 
             // Create the insert table data command. The array of column names is converted to a string
-            addCmd.append("INSERT INTO ")
-                  .append(dbTableName)
-                  .append(" (")
-                  .append(CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabaseQuoted()))
-                  .append(") VALUES ");
+            String insertCmd = "INSERT INTO "
+                               + dbTableName
+                               + " ("
+                               +CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabaseQuoted())
+                               + ") VALUES ";
+            addCmd.append(insertCmd);
 
             // Step through each addition
             for (TableModification add : additions)
@@ -3736,11 +3760,7 @@ public class CcddDbTableCommandHandler
                     addCmd = new StringBuilder("");
 
                     // Create the insert table data command
-                    addCmd.append("INSERT INTO ")
-                          .append(dbTableName)
-                          .append(" (")
-                          .append(CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabaseQuoted()))
-                          .append(") VALUES ");
+                    addCmd.append(insertCmd);
                 }
 
                 addCmd.append("(").append(Integer.toString(nextKeyValue)).append(", ");
@@ -4089,12 +4109,67 @@ public class CcddDbTableCommandHandler
             StringBuilder tlmDelCmd = new StringBuilder("");
             List<Object[]> tablePathList = null;
             List<String> changedDataTypes = new ArrayList<String>();
+            List<StringBuilder> valDelCmd = new ArrayList<StringBuilder>();
+            List<StringBuilder> valInsCmd = new ArrayList<StringBuilder>();
+
+            valDelCmd.add(new StringBuilder(""));
+            String insertCmd = "INSERT INTO "
+                               + InternalTable.VALUES.getTableName()
+                               + " ("
+                               + ValuesColumn.TABLE_PATH.getColumnName()
+                               + ", "
+                               + ValuesColumn.COLUMN_NAME.getColumnName()
+                               + ", "
+                               + ValuesColumn.VALUE.getColumnName()
+                               + ") VALUES ";
+            valInsCmd.add(new StringBuilder(insertCmd));
+
+            // Count the number of rows in the custom values table for the table being modified
+            // (skipping the table description row, if present). If no entries are present then the
+            // commands to delete existing entries can be skipped
+            ResultSet countResult = dbCommand.executeDbQuery(new StringBuilder("SELECT "
+                                                                               + ValuesColumn.TABLE_PATH.getColumnName()
+                                                                               + " FROM "
+                                                                               + InternalTable.VALUES.getTableName()
+                                                                               + " WHERE "
+                                                                               + ValuesColumn.TABLE_PATH.getColumnName()
+                                                                               + " ~ E'^"
+                                                                               + tableInfo.getTablePath()
+                                                                               +"' AND "
+                                                                               + ValuesColumn.COLUMN_NAME.getColumnName()
+                                                                               +" != '';"),
+                                                             parent);
+            boolean needDelete = countResult.next();
+
+            // If one or more entries is found for the table in the custom values table then create
+            // an index of the table's entries (table path and affected columns). This is used to
+            // speed up locating the entries
+            if (needDelete)
+            {
+                dbCommand.executeDbUpdate(new StringBuilder("DROP INDEX IF EXISTS "
+                                                            + InternalTable.VALUES.getTableName()
+                                                            + "_temp_index; CREATE INDEX "
+                                                            + InternalTable.VALUES.getTableName()
+                                                            + "_temp_index ON "
+                                                            + InternalTable.VALUES.getTableName()
+                                                            + " ("
+                                                            + ValuesColumn.TABLE_PATH.getColumnName()
+                                                            + ", "
+                                                            + ValuesColumn.COLUMN_NAME.getColumnName()
+                                                            + ") WHERE "
+                                                            + ValuesColumn.TABLE_PATH.getColumnName()
+                                                            + " ~ '"
+                                                            + tableInfo.getTablePath()
+                                                            +"';"),
+                                          parent);
+            }
 
             // Retrieve the internal associations table data
             List<String[]> assnsData = retrieveInformationTable(InternalTable.ASSOCIATIONS, false, parent);
 
             // Create an array of all of the member tables
             String[] assnsMemberTables = new String[assnsData.size()];
+
             for (int index = 0; index < assnsMemberTables.length; index++)
             {
                 assnsMemberTables[index] = assnsData.get(index)[AssociationsColumn.MEMBERS.ordinal()];
@@ -5099,59 +5174,63 @@ public class CcddDbTableCommandHandler
                                           + "."
                                           + mod.getRowData()[mod.getVariableColumn()].toString();
 
+
                     // Step through each changed column
                     for (int column = 0; column < mod.getRowData().length; column++)
                     {
                         // Check if the column value changed
                         if (!mod.getOriginalRowData()[column].equals(mod.getRowData()[column]))
                         {
-                            // Build the command to delete the old value in the custom values table (in
-                            // case it already exists), then insert the (new) value into the custom
-                            // values table
-                            modCmd.append("DELETE FROM ")
-                                  .append(InternalTable.VALUES.getTableName())
-                                  .append(" WHERE ")
-                                  .append(ValuesColumn.TABLE_PATH.getColumnName())
-                                  .append(" = '")
-                                  .append(variablePath)
-                                  .append("' AND ")
-                                  .append(ValuesColumn.COLUMN_NAME.getColumnName())
-                                  .append(" = '")
-                                  .append(typeDefn.getColumnNamesUser()[column])
-                                  .append("';");
-
-                            // Check if the length of the command string has reached the limit
-                            if (modCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
+                            // Check if deleting existing entries is required. If no entries exist
+                            // for this table then this step is skipped
+                            if (needDelete)
                             {
-                                dbCommand.executeDbUpdate(modCmd, parent);
-                                modCmd = new StringBuilder("");
-                            }
-
-                            // Check if the new value does not begin with the flag that indicates the
-                            // existing custom value should be removed
-                            if (!mod.getRowData()[column].toString().startsWith(REPLACE_INDICATOR))
-                            {
-                                modCmd.append(" INSERT INTO ")
-                                      .append(InternalTable.VALUES.getTableName())
-                                      .append(" (")
-                                      .append(ValuesColumn.TABLE_PATH.getColumnName())
-                                      .append(", ")
-                                      .append(ValuesColumn.COLUMN_NAME.getColumnName())
-                                      .append(", ")
-                                      .append(ValuesColumn.VALUE.getColumnName())
-                                      .append(") VALUES ('")
-                                      .append(variablePath)
-                                      .append("', '")
-                                      .append(typeDefn.getColumnNamesUser()[column])
-                                      .append("', ")
-                                      .append(delimitText(mod.getRowData()[column]))
-                                      .append("); ");
+                                // Build the command to delete the existing entry in the custom
+                                // values table (in case it already exists)
+                                int lastIndex = valDelCmd.size() - 1;
+                                valDelCmd.get(lastIndex).append("DELETE FROM ")
+                                                        .append(InternalTable.VALUES.getTableName())
+                                                        .append(" WHERE ")
+                                                        .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                        .append(" = '")
+                                                        .append(variablePath)
+                                                        .append("' AND ")
+                                                        .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                                        .append(" = '")
+                                                        .append(typeDefn.getColumnNamesUser()[column])
+                                                        .append("'; ");
 
                                 // Check if the length of the command string has reached the limit
-                                if (modCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
+                                if (valDelCmd.get(lastIndex).length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
-                                    dbCommand.executeDbUpdate(modCmd, parent);
-                                    modCmd = new StringBuilder("");
+                                    // Start a new deletion command
+                                    valDelCmd.add(new StringBuilder(""));
+                                }
+                            }
+
+                            // Check if the new value does not begin with the flag that indicates
+                            // the existing custom value should be removed
+                            if (!mod.getRowData()[column].toString().startsWith(REPLACE_INDICATOR))
+                            {
+                                // Build the insertion command for this column's value
+                                int lastIndex = valInsCmd.size() - 1;
+                                valInsCmd.get(lastIndex).append("('")
+                                                        .append(variablePath)
+                                                        .append("', '")
+                                                        .append(typeDefn.getColumnNamesUser()[column])
+                                                        .append("', ")
+                                                        .append(delimitText(mod.getRowData()[column]))
+                                                        .append("), ");
+
+                                // Check if the length of the command string has reached the limit
+                                if (valInsCmd.get(lastIndex).length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
+                                {
+                                    // Start a new insertion command
+                                    valInsCmd.set(lastIndex,
+                                                  CcddUtilities.removeTrailer(valInsCmd.get(lastIndex),
+                                                                              ", "));
+                                    valInsCmd.get(lastIndex).append("; ");
+                                    valInsCmd.add(new StringBuilder(insertCmd));
                                 }
                             }
                         }
@@ -5214,7 +5293,25 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            // Send the remaining commands
+            // Execute the commands to modify the internal tables
+            for (int index = 0; index < valDelCmd.size() && valDelCmd.get(index).length() != 0; ++index)
+            {
+                dbCommand.executeDbUpdate(valDelCmd.get(index), parent);
+            }
+
+            // Check if the last custom values table insertion command contains any insertion data
+            if (valInsCmd.get(valInsCmd.size() - 1).toString().endsWith(", "))
+            {
+                // Update the termination characters for the insertion command
+                valInsCmd.set(valInsCmd.size() - 1, CcddUtilities.removeTrailer(valInsCmd.get(valInsCmd.size() - 1), ", "));
+                valInsCmd.get(valInsCmd.size() - 1).append("; ");
+            }
+
+            for (int index = 0; index < valInsCmd.size() && valInsCmd.get(index).toString().endsWith("; "); ++index)
+            {
+                dbCommand.executeDbUpdate(valInsCmd.get(index), parent);
+            }
+
             if (modCmd.length() != 0)
             {
                 dbCommand.executeDbUpdate(modCmd, parent);
@@ -5273,12 +5370,12 @@ public class CcddDbTableCommandHandler
                 result = updateTablesRecentlyConvertedToRoot(changedDataTypes, parent);
             }
         }
-        catch (SQLException e)
+        catch (SQLException se)
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(parent,
                                   "SQL command failed cause "
-                                  + e.getMessage()
+                                  + se.getMessage()
                                   + ".",
                                   "<html><b>SQL command failed</b>");
         }
@@ -6485,13 +6582,24 @@ public class CcddDbTableCommandHandler
                     if (!rootStructures.contains(table))
                     {
                         // Update references to the variable reference from the instances
-                        valuesModCmd.append("UPDATE ").append(InternalTable.VALUES.getTableName()).append(" SET ")
-                                .append(ValuesColumn.VALUE.getColumnName()).append(" = '").append(targetVar[1])
-                                .append("' WHERE ").append(ValuesColumn.TABLE_PATH.getColumnName()).append(" ~ E'^.+,")
-                                .append(table + "\\\\..*$' AND ").append(ValuesColumn.COLUMN_NAME.getColumnName())
-                                .append(" = '").append(varRef.getColumnVisible()).append("' AND ")
-                                .append(ValuesColumn.VALUE.getColumnName()).append(" = E'").append(targetVar[0])
-                                .append("'; ");
+                        valuesModCmd.append("UPDATE ")
+                                    .append(InternalTable.VALUES.getTableName())
+                                    .append(" SET ")
+                                    .append(ValuesColumn.VALUE.getColumnName())
+                                    .append(" = '")
+                                    .append(targetVar[1])
+                                    .append("' WHERE ")
+                                    .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                    .append(" ~ E'^.+,")
+                                    .append(table + "\\\\..*$' AND ")
+                                    .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                    .append(" = '")
+                                    .append(varRef.getColumnVisible())
+                                    .append("' AND ")
+                                    .append(ValuesColumn.VALUE.getColumnName())
+                                    .append(" = E'")
+                                    .append(targetVar[0])
+                                    .append("'; ");
                     }
                 }
             }

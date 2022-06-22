@@ -104,7 +104,11 @@ public class CcddPaddingVariableHandler
         StructurePaddingHandler(String structureName)
         {
             // Load the prototype structure table data from the project database
-            tableInfo = dbTable.loadTableData(structureName, false, false, false, ccddMain.getMainFrame());
+            tableInfo = dbTable.loadTableData(structureName,
+                                              false,
+                                              false,
+                                              false,
+                                              ccddMain.getMainFrame());
 
             // Check that the table loaded successfully
             if (!tableInfo.isErrorFlag())
@@ -124,9 +128,7 @@ public class CcddPaddingVariableHandler
                             // Replace the table's contents with the committed data. This
                             // eliminates for any uncommitted changes
                             List<Object[]> data = editor.getCommittedTableInformation().getData();
-
                             editor.getTable().loadDataArrayIntoTable(data.toArray(new Object[data.size()][]), false);
-
                             editor.getTable().getUndoManager().discardAllEdits();
                             isOpen = true;
                             break;
@@ -370,8 +372,7 @@ public class CcddPaddingVariableHandler
                             // Step through each of the bit-wise variables that are packed together
                             // (this includes single, unpacked bit-wise variables). Adjust the
                             // start and stop to account for any padding added above
-                            for (int bitRow = packIndex.getFirstIndex() + numPads; bitRow <= packIndex.getLastIndex()
-                                                                                             + numPads; bitRow++)
+                            for (int bitRow = packIndex.getFirstIndex() + numPads; bitRow <= packIndex.getLastIndex() + numPads; bitRow++)
                             {
                                 // Add the variable's number of bits to the pack count
                                 bitCount += Integer.valueOf(getBitLength(bitRow));
@@ -474,7 +475,8 @@ public class CcddPaddingVariableHandler
             {
                 // Create an empty row array and set the padding variable name
                 Object[] rowData = tableEditor.getTable().getEmptyRow();
-                rowData[varNameColumn] = PAD_VARIABLE.replaceFirst(Pattern.quote("[0-9]+"), String.valueOf(padCounter));
+                rowData[varNameColumn] = PAD_VARIABLE.replaceFirst(Pattern.quote("[0-9]+"),
+                                                                   String.valueOf(padCounter));
 
                 // Check if the padding variable is not for filling up one or more bit-packed
                 // variables
@@ -509,10 +511,15 @@ public class CcddPaddingVariableHandler
                     List<Object[]> tableData = tableEditor.getTable().getTableDataList(false);
 
                     // Add the padding variable array members
-                    tableEditor.adjustArrayMember(tableData, new int[] {0}, new int[] {padSize}, row, arraySizeColumn);
+                    tableEditor.adjustArrayMember(tableData,
+                                                  new int[] {0},
+                                                  new int[] {padSize},
+                                                  row,
+                                                  arraySizeColumn);
 
                     // Load the array of data into the table to reflect the added array members
-                    tableEditor.getTable().loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), false);
+                    tableEditor.getTable().loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
+                                                                  false);
 
                     // Account for the array definition row
                     row++;
@@ -548,9 +555,20 @@ public class CcddPaddingVariableHandler
             if (!tableEditor.getAdditions().isEmpty() || !tableEditor.getDeletions().isEmpty())
             {
                 // Update the table in the database
-                dbTable.modifyTableData(tableInfo, tableEditor.getAdditions(), tableEditor.getModifications(),
-                                        tableEditor.getDeletions(), false, false, false, false, false, null, true, true,
-                                        false, ccddMain.getMainFrame());
+                dbTable.modifyTableData(tableInfo,
+                                        tableEditor.getAdditions(),
+                                        tableEditor.getModifications(),
+                                        tableEditor.getDeletions(),
+                                        false,
+                                        false,
+                                        false,
+                                        false,
+                                        false,
+                                        null,
+                                        true,
+                                        true,
+                                        false,
+                                        ccddMain.getMainFrame());
             }
         }
     }
@@ -571,13 +589,19 @@ public class CcddPaddingVariableHandler
      *
      * @param parent                      GUI component on which to center the Halt dialog
      *********************************************************************************************/
-    CcddPaddingVariableHandler(final CcddMain ccddMain, final PadOperationType padOperation,
+    CcddPaddingVariableHandler(final CcddMain ccddMain,
+                               final PadOperationType padOperation,
                                final List<String> selectedProtoStructTables,
-                               final List<String> referencedProtoStructTables, final Component parent)
+                               final List<String> referencedProtoStructTables,
+                               final Component parent)
     {
         // Check if there are uncommitted changes and if so, confirm discarding the changes before
         // proceeding
-        if (ccddMain.ignoreUncommittedChanges("Alter Padding", "Discard changes?", false, null, parent))
+        if (ccddMain.ignoreUncommittedChanges("Alter Padding",
+                                              "Discard changes?",
+                                              false,
+                                              null,
+                                              parent))
         {
             this.ccddMain = ccddMain;
             this.eventLog = ccddMain.getSessionEventLog();
@@ -600,14 +624,14 @@ public class CcddPaddingVariableHandler
                     // Create the padding adjustment cancellation dialog
                     haltDlg = new CcddHaltDialog((padOperation == PadOperationType.ADD_UPDATE ? "Adding/updating"
                                                                                               : "Removing"),
-                                                 "Loading prototype tables", "padding adjustment",
-                                                 referencedProtoStructTables
-                                                         .size() * (padOperation == PadOperationType.ADD_UPDATE ? 2 : 1)
-                                                                                                   + selectedProtoStructTables
-                                                                                                           .size()
-                                                                                                     * (padOperation == PadOperationType.ADD_UPDATE ? 3
-                                                                                                                                                    : 2),
-                                                 1, parent);
+                                                 "Loading prototype tables",
+                                                 "padding adjustment",
+                                                 referencedProtoStructTables.size()
+                                                 * (padOperation == PadOperationType.ADD_UPDATE ? 2 : 1)
+                                                 + selectedProtoStructTables.size()
+                                                 * (padOperation == PadOperationType.ADD_UPDATE ? 3 : 2),
+                                                 1,
+                                                 parent);
 
                     // Step through each referenced prototype structure table
                     for (String protoStruct : referencedProtoStructTables)
@@ -751,8 +775,7 @@ public class CcddPaddingVariableHandler
                         // Add a log entry indication the padding adjustment completed
                         eventLog.logEvent(STATUS_MSG,
                                           new StringBuilder((padOperation == PadOperationType.ADD_UPDATE ? "Adding/updating"
-                                                                                                         : "Removing"))
-                                                                                                                 .append(" padding variables completed"));
+                                                                                                         : "Removing")).append(" padding variables completed"));
                         // Close the cancellation dialog
                         haltDlg.closeDialog();
                     }
@@ -761,8 +784,7 @@ public class CcddPaddingVariableHandler
                     {
                         eventLog.logEvent(EventLogMessageType.STATUS_MSG,
                                           new StringBuilder((padOperation == PadOperationType.ADD_UPDATE ? "Adding/updating"
-                                                                                                         : "Removing"))
-                                                                                                                 .append(" padding terminated by user"));
+                                                                                                         : "Removing")).append(" padding terminated by user"));
                     }
 
                     haltDlg = null;

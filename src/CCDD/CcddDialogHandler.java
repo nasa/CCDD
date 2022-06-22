@@ -1394,7 +1394,8 @@ public class CcddDialogHandler extends JDialog
         // Calculate the size of the color preview boxes based on the width of the preview label
         // text
         int previewWidth = (int) previewLabel.getFontMetrics(ModifiableFontInfo.LABEL_BOLD.getFont())
-                .getStringBounds(previewLabel.getText(), previewLabel.getGraphics()).getWidth() / 2 - 1;
+                                             .getStringBounds(previewLabel.getText(),
+                                                              previewLabel.getGraphics()).getWidth() / 2 - 1;
         Dimension previewSize = new Dimension(previewWidth, previewWidth);
 
         // Create a panel to show the original color

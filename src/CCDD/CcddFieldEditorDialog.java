@@ -909,7 +909,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             {
                 // Check if the column name matches that for the field applicability
                 if (fieldTable.getColumnName(applicabilityIndex)
-                        .equals(FieldEditorColumnInfo.APPLICABILITY.getColumnName()))
+                              .equals(FieldEditorColumnInfo.APPLICABILITY.getColumnName()))
                 {
                     // Stop searching
                     break;
@@ -922,7 +922,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
             // Set the column table editor to the combo box
             fieldTable.getColumnModel().getColumn(applicabilityIndex)
-                    .setCellEditor(new ComboBoxCellEditor(applicabilityCBox));
+                      .setCellEditor(new ComboBoxCellEditor(applicabilityCBox));
 
             // Set the default selected type
             applicabilityCBox.setSelectedItem(ApplicabilityType.ALL.getApplicabilityName());
@@ -960,16 +960,15 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
-                        if (new CcddDialogHandler()
-                                .showMessageDialog(CcddFieldEditorDialog.this,
-                                                   "<html><b>Data must be provided for column '</b>"
-                                                   + fieldTable.getColumnName(column)
-                                                   + "<b>' [row </b>"
-                                                   + (row + 1)
-                                                   + "<b>]",
-                                                   "Missing Data",
-                                                   JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                        if (new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
+                                                                      "<html><b>Data must be provided for column '</b>"
+                                                                      + fieldTable.getColumnName(column)
+                                                                      + "<b>' [row </b>"
+                                                                      + (row + 1)
+                                                                      + "<b>]",
+                                                                      "Missing Data",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
                             // Set the stop flag to prevent further error checking
                             stopCheck = true;

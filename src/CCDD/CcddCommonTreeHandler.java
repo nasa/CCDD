@@ -921,8 +921,7 @@ public class CcddCommonTreeHandler extends JTree
                                         - (nodeIndex.getTableIndex() - nodeIndex.getFirstIndex());
 
                         // Step through each packed/string variable
-                        for (int index = nodeIndex.getFirstIndex(); index <= nodeIndex
-                                .getLastIndex(); index++, treeIndex++)
+                        for (int index = nodeIndex.getFirstIndex(); index <= nodeIndex.getLastIndex(); index++, treeIndex++)
                         {
                             boolean isInList = false;
 
@@ -1103,8 +1102,7 @@ public class CcddCommonTreeHandler extends JTree
             while (curIndex < node.getSiblingCount())
             {
                 // Get the variable name from the node
-                varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject()
-                        .toString());
+                varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
 
                 // Check if this variable doesn't have a bit length or isn't the same data type as
                 // the target

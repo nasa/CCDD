@@ -200,8 +200,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                 ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
                 // Check if the target node matches the application tree node
-                if (application.getFullName()
-                        .equals(CcddUtilities.removeHTMLTags(tableNode.getUserObject().toString())))
+                if (application.getFullName().equals(CcddUtilities.removeHTMLTags(tableNode.getUserObject().toString())))
                 {
                     // The target application is located in the tree; stop searching
                     break;
@@ -222,8 +221,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                     ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
                     // Check if the target node matches the application tree node
-                    if (applications.get(insertIndex).getFullName()
-                            .equals(CcddUtilities.removeHTMLTags(tableNode.getUserObject().toString())))
+                    if (applications.get(insertIndex).getFullName().equals(CcddUtilities.removeHTMLTags(tableNode.getUserObject().toString())))
                     {
                         // The list application is located in the tree; stop searching
                         break;
@@ -570,8 +568,10 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                         option = slot.getName();
 
                         // Select the time slot in the Scheduler table
-                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable()
-                                .changeSelection(row, SchedulerColumn.NAME.ordinal(), true, false);
+                        schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().changeSelection(row,
+                                                                                                           SchedulerColumn.NAME.ordinal(),
+                                                                                                           true,
+                                                                                                           false);
                     }
 
                     // Check if a matching option was found
