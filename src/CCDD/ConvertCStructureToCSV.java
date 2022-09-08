@@ -640,7 +640,8 @@ public class ConvertCStructureToCSV
                         {
                             // Bound each instance of the macro's name with the macro identifier
                             part = part.replaceAll("(^|[^"
-                                                   + MACRO_IDENTIFIER + "])"
+                                                   + MACRO_IDENTIFIER
+                                                   + "])"
                                                    + macroName
                                                    + "([^"
                                                    + MACRO_IDENTIFIER
