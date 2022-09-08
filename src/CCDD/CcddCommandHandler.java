@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddCommandHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for building a list of project commands (including the command’s name, code,
  * command table, and argument variable names). This is used for populating the the Command

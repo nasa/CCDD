@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddImportSupportHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing support methods for classes based on the CcddImportExportInterface
  * class. The support methods handle validation and addition of table types and data fields, and
@@ -87,7 +87,8 @@ public class CcddImportSupportHandler
      *********************************************************************************************/
     protected static enum DefaultHeaderVariableName
     {
-        APP_ID("applicationID"), FUNC_CODE("functionCode");
+        APP_ID("applicationID"),
+        FUNC_CODE("functionCode");
 
         private final String defaultVariableName;
 
@@ -170,16 +171,18 @@ public class CcddImportSupportHandler
         {
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
-                                               "<html><b>Table type '</b>" + tableTypeDefn.getTypeName()
-                                                                + "<b>' definition input type '</b>"
-                                                                + columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE
-                                                                        .ordinal()]
-                                                                + "<b>' unrecognized in import file '</b>" + fileName
-                                                                + "<b>'; continue?",
+                                               "<html><b>Table type '</b>"
+                                               + tableTypeDefn.getTypeName()
+                                               + "<b>' definition input type '</b>"
+                                               + columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
+                                               + "<b>' unrecognized in import file '</b>"
+                                               + fileName
+                                               + "<b>'; continue?",
                                                "Table Type Error", "Ignore this error (default to 'Text')",
                                                "Ignore this and any remaining invalid table types (use default "
-                                                                                                            + "values where possible, or skip the affected table type)",
-                                               "Stop importing", parent);
+                                               + "values where possible, or skip the affected table type)",
+                                               "Stop importing",
+                                               parent);
 
             // Default to text
             columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = DefaultInputType.TEXT.getInputName();
@@ -192,10 +195,8 @@ public class CcddImportSupportHandler
                                               columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()],
                                               Boolean.valueOf(columnDefn[TableTypeEditorColumnInfo.UNIQUE.ordinal()]),
                                               Boolean.valueOf(columnDefn[TableTypeEditorColumnInfo.REQUIRED.ordinal()]),
-                                              Boolean.valueOf(columnDefn[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED
-                                                      .ordinal()]),
-                                              Boolean.valueOf(columnDefn[TableTypeEditorColumnInfo.POINTER_ALLOWED
-                                                      .ordinal()])});
+                                              Boolean.valueOf(columnDefn[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()]),
+                                              Boolean.valueOf(columnDefn[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal()])});
 
         return continueOnError;
     }
@@ -277,16 +278,19 @@ public class CcddImportSupportHandler
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
                                                "<html><b>Data field '</b>"
-                                                                + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                                                + "<b>' definition input type '</b>"
-                                                                + fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]
-                                                                + "<b>' for owner '</b>"
-                                                                + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
-                                                                + "<b>' unrecognized in import file '</b>" + fileName
-                                                                + "<b>'; continue?",
+                                               + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
+                                               + "<b>' definition input type '</b>"
+                                               + fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]
+                                               + "<b>' for owner '</b>"
+                                               + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                               + "<b>' unrecognized in import file '</b>"
+                                               + fileName
+                                               + "<b>'; continue?",
                                                "Data Field Error", "Ignore this data field error (default to 'Text')",
-                                               "Ignore this and any remaining invalid data fields (use default " + "values where possible, or skip the affected data field)",
-                                               "Stop importing", parent);
+                                               "Ignore this and any remaining invalid data fields (use default "
+                                               + "values where possible, or skip the affected data field)",
+                                               "Stop importing",
+                                               parent);
 
             // Default to text
             fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = DefaultInputType.TEXT.getInputName();
@@ -307,13 +311,14 @@ public class CcddImportSupportHandler
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
                                                "<html><b>Data field '</b>"
-                                                                + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                                                + "<b>' definition applicability type '</b>"
-                                                                + fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                                                                + "<b>' for owner '</b>"
-                                                                + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
-                                                                + "<b>' unrecognized in import file '</b>" + fileName
-                                                                + "<b>'; continue?",
+                                               + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
+                                               + "<b>' definition applicability type '</b>"
+                                               + fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
+                                               + "<b>' for owner '</b>"
+                                               + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                               + "<b>' unrecognized in import file '</b>"
+                                               + fileName
+                                               + "<b>'; continue?",
                                                "Data Field Error",
                                                "Ignore this data field error (default to 'All tables')",
                                                "Ignore this and any remaining invalid data fields (use default values)",
@@ -358,25 +363,25 @@ public class CcddImportSupportHandler
                         // Check if the error should be ignored or the import canceled
                         continueOnError = getErrorResponse(continueOnError,
                                                            "<html><b>Data field '</b>"
-                                                                            + fieldDefn[FieldsColumn.FIELD_NAME
-                                                                                    .ordinal()]
-                                                                            + "<b>' for owner '</b>"
-                                                                            + fieldDefn[FieldsColumn.OWNER_NAME
-                                                                                    .ordinal()]
-                                                                            + "<b>' doesn't match the existing definition in import file '</b>"
-                                                                            + fileName + "<b>'; continue?",
+                                                           + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
+                                                           + "<b>' for owner '</b>"
+                                                           + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                                           + "<b>' doesn't match the existing definition in import file '</b>"
+                                                           + fileName
+                                                           + "<b>'; continue?",
                                                            "Data Field Error",
                                                            "Ignore this data field (keep existing field)",
-                                                           "Ignore this and any remaining invalid data fields (use default values or keep existing)",
-                                                           "Stop importing", parent);
+                                                           "Ignore this and any remaining invalid data fields "
+                                                           + "(use default values or keep existing)",
+                                                           "Stop importing",
+                                                           parent);
 
                         // Keep the existing field info
                         fieldDefn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
                         fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()] = Integer.toString(fieldInfo.getSize());
                         fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
                         fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()] = Boolean.toString(fieldInfo.isRequired());
-                        fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType()
-                                .getApplicabilityName();
+                        fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
                         fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
                         fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = Boolean.toString(fieldInfo.isInherited());
                     }
@@ -529,7 +534,8 @@ public class CcddImportSupportHandler
             if (isMismatch || !groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()]
                     .equals(Boolean.toString(groupInfo.isApplication())))
             {
-                throw new CCDDException("Imported group '<b>" + groupDefn[0]
+                throw new CCDDException("Imported group '<b>"
+                                        + groupDefn[0]
                                         + "</b>' doesn't match the existing definition");
             }
         }
@@ -562,8 +568,11 @@ public class CcddImportSupportHandler
      *                       name but different script file or members exists and the user elects
      *                       to stop the import operation
      *********************************************************************************************/
-    protected boolean addImportedScriptAssociation(boolean continueOnError, boolean replaceExistingAssociations,
-                                                   List<String[]> associations, String[] assnDefn, String fileName,
+    protected boolean addImportedScriptAssociation(boolean continueOnError,
+                                                   boolean replaceExistingAssociations,
+                                                   List<String[]> associations,
+                                                   String[] assnDefn,
+                                                   String fileName,
                                                    CcddScriptHandler scriptHandler,
                                                    Component parent) throws CCDDException
     {
@@ -578,11 +587,10 @@ public class CcddImportSupportHandler
 
         // Get the index of the association having the same script file and members (-1 if there is
         // no matching association)
-        int matchingIndex = CcddScriptHandler
-                .getMatchingAssociation(associations, assnDefn[AssociationsColumn.SCRIPT_FILE.ordinal()],
-                                        assnDefn[AssociationsColumn.MEMBERS.ordinal()]
-                                                .split(Pattern.quote(ASSN_TABLE_SEPARATOR)),
-                                        -1);
+        int matchingIndex = CcddScriptHandler.getMatchingAssociation(associations,
+                                                                     assnDefn[AssociationsColumn.SCRIPT_FILE.ordinal()],
+                                                                     assnDefn[AssociationsColumn.MEMBERS.ordinal()].split(Pattern.quote(ASSN_TABLE_SEPARATOR)),
+                                                                     -1);
 
         // Set the index to indicate no name is provided
         int nameIndex = -2;
@@ -597,8 +605,7 @@ public class CcddImportSupportHandler
             for (int index = 0; index < associations.size(); index++)
             {
                 // Check if the new association's name matches an existing one's
-                if (associations.get(index)[AssociationsColumn.NAME.ordinal()]
-                        .equals(assnDefn[AssociationsColumn.NAME.ordinal()]))
+                if (associations.get(index)[AssociationsColumn.NAME.ordinal()].equals(assnDefn[AssociationsColumn.NAME.ordinal()]))
                 {
                     nameIndex = index;
                     break;
@@ -617,7 +624,6 @@ public class CcddImportSupportHandler
         // members exists
         else if (nameIndex >= 0 || matchingIndex != -1)
         {
-
             if (replaceExistingAssociations)
             {
                 // Find and then overwrite the association
@@ -626,15 +632,18 @@ public class CcddImportSupportHandler
                     if (associations.get(i)[0].equals(assnDefn[0]))
                     {
                         associations.set(i, assnDefn);
+
                         // Don't add it
                         addAssn = false;
+
                         // Stop searching
                         break;
                     }
                 }
             }
+            // Don't accept the new association
             else
-            { // Don't accept the new association
+            {
 
                 // Set the flag to not store this association since it exists
                 addAssn = false;
@@ -646,13 +655,15 @@ public class CcddImportSupportHandler
                     // Check if the error should be ignored or the import canceled
                     continueOnError = getErrorResponse(continueOnError,
                                                        "<html><b>Script association '</b>"
-                                                                        + assnDefn[AssociationsColumn.NAME.ordinal()]
-                                                                        + "<b>' doesn't match the existing assocation in import file '</b>"
-                                                                        + fileName + "<b>'; continue?",
+                                                       + assnDefn[AssociationsColumn.NAME.ordinal()]
+                                                       + "<b>' doesn't match the existing assocation in import file '</b>"
+                                                       + fileName
+                                                       + "<b>'; continue?",
                                                        "Script Association Error",
                                                        "Ignore this association (keep existing association)",
                                                        "Ignore this and any remaining invalid associations (keep existing)",
-                                                       "Stop importing", parent);
+                                                       "Stop importing",
+                                                       parent);
                 }
             }
         }
@@ -716,12 +727,15 @@ public class CcddImportSupportHandler
                                                              DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the telemetry header table name data field definition
-            projectDefn
-                    .addDataField(new String[] {CcddFieldHandler.getFieldProjectName(), "Telemetry header table name",
-                                                "Name of the structure table representing the telemetry header",
-                                                String.valueOf(Math.min(Math.max(tlmHeaderTable.length(), 5), 40)),
-                                                DefaultInputType.XML_TLM_HDR.getInputName(), "false",
-                                                ApplicabilityType.ALL.getApplicabilityName(), tlmHeaderTable, "false"});
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Telemetry header table name",
+                                                   "Name of the structure table representing the telemetry header",
+                                                   String.valueOf(Math.min(Math.max(tlmHeaderTable.length(), 5), 40)),
+                                                   DefaultInputType.XML_TLM_HDR.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   tlmHeaderTable,
+                                                   "false"});
         }
 
         // Check if the command table name isn't set in the project import file
@@ -737,12 +751,15 @@ public class CcddImportSupportHandler
                                                              DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the command header table name data field definition
-            projectDefn
-                    .addDataField(new String[] {CcddFieldHandler.getFieldProjectName(), "Command header table name",
-                                                "Name of the structure table representing the command header",
-                                                String.valueOf(Math.min(Math.max(cmdHeaderTable.length(), 5), 40)),
-                                                DefaultInputType.XML_CMD_HDR.getInputName(), "false",
-                                                ApplicabilityType.ALL.getApplicabilityName(), cmdHeaderTable, "false"});
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Command header table name",
+                                                   "Name of the structure table representing the command header",
+                                                   String.valueOf(Math.min(Math.max(cmdHeaderTable.length(), 5), 40)),
+                                                   DefaultInputType.XML_CMD_HDR.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                  cmdHeaderTable,
+                                                   "false"});
         }
 
         // Check if the application ID variable name isn't set in the project import file
@@ -766,14 +783,15 @@ public class CcddImportSupportHandler
                                                              DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the application ID variable name data field definition
-            projectDefn.addDataField(new String[] {CcddFieldHandler
-                    .getFieldProjectName(), "Application ID",
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Application ID",
                                                    "Name of the variable containing the application ID in the structure "
-                                                              + "tables representing the telemetry and command headers",
-                                                   String.valueOf(Math.min(Math.max(applicationIDName.length(), 5),
-                                                                           40)),
-                                                   DefaultInputType.XML_APP_ID.getInputName(), "false",
-                                                   ApplicabilityType.ALL.getApplicabilityName(), applicationIDName,
+                                                   + "tables representing the telemetry and command headers",
+                                                   String.valueOf(Math.min(Math.max(applicationIDName.length(), 5), 40)),
+                                                   DefaultInputType.XML_APP_ID.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   applicationIDName,
                                                    "false"});
         }
 
@@ -798,13 +816,15 @@ public class CcddImportSupportHandler
                                                              DefaultInputType.XML_TLM_HDR) == null)
         {
             // Add the application ID variable name data field definition
-            projectDefn.addDataField(new String[] {CcddFieldHandler
-                    .getFieldProjectName(), "Command function code",
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Command function code",
                                                    "Name of the variable containing the command function code in the "
-                                                                     + "structure table representing the command header",
+                                                   + "structure table representing the command header",
                                                    String.valueOf(Math.min(Math.max(cmdFuncCodeName.length(), 5), 40)),
-                                                   DefaultInputType.XML_FUNC_CODE.getInputName(), "false",
-                                                   ApplicabilityType.ALL.getApplicabilityName(), cmdFuncCodeName,
+                                                   DefaultInputType.XML_FUNC_CODE.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   cmdFuncCodeName,
                                                    "false"});
         }
 
@@ -841,11 +861,20 @@ public class CcddImportSupportHandler
      *
      * @throws CCDDException If the user selects the Cancel button
      *********************************************************************************************/
-    protected boolean getErrorResponse(boolean continueOnError, String message, String title, String ignoreToolTip,
-                                       String ignoreAllToolTip, String cancelToolTip,
+    protected boolean getErrorResponse(boolean continueOnError,
+                                       String message, String title,
+                                       String ignoreToolTip,
+                                       String ignoreAllToolTip,
+                                       String cancelToolTip,
                                        Component parent) throws CCDDException
     {
-        return getErrorResponse(continueOnError, message, title, ignoreToolTip, ignoreAllToolTip, cancelToolTip, false,
+        return getErrorResponse(continueOnError,
+                                message,
+                                title,
+                                ignoreToolTip,
+                                ignoreAllToolTip,
+                                cancelToolTip,
+                                false,
                                 parent);
     }
 
@@ -876,16 +905,25 @@ public class CcddImportSupportHandler
      *
      * @throws CCDDException If the user selects the Cancel button
      *********************************************************************************************/
-    protected boolean getErrorResponse(boolean continueOnError, String message, String title, String ignoreToolTip,
-                                       String ignoreAllToolTip, String cancelToolTip, boolean noIgnore,
+    protected boolean getErrorResponse(boolean continueOnError,
+                                       String message,
+                                       String title,
+                                       String ignoreToolTip,
+                                       String ignoreAllToolTip,
+                                       String cancelToolTip,
+                                       boolean noIgnore,
                                        Component parent) throws CCDDException
     {
         // Check if the user hasn't already elected to ignore this type of error
         if (!continueOnError)
         {
             // Inform the user that the imported item is incorrect
-            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent, message, title, ignoreToolTip,
-                                                                                ignoreAllToolTip, cancelToolTip,
+            int buttonSelected = new CcddDialogHandler().showIgnoreCancelDialog(parent,
+                                                                                message,
+                                                                                title,
+                                                                                ignoreToolTip,
+                                                                                ignoreAllToolTip,
+                                                                                cancelToolTip,
                                                                                 noIgnore);
 
             // Check if the Ignore All button was pressed
@@ -928,7 +966,8 @@ public class CcddImportSupportHandler
         if (inputTypeDefn[InputTypesColumn.FORMAT.ordinal()].isEmpty())
         {
             // Inform the user that the input type format is missing
-            throw new CCDDException("Input type '" + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
                                     + "' format missing");
         }
 
@@ -936,15 +975,15 @@ public class CcddImportSupportHandler
         if (!inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty())
         {
             // Convert the items in the selection list to the corresponding regular expression
-            inputTypeDefn[InputTypesColumn.MATCH.ordinal()] = CcddInputTypeHandler
-                    .convertItemsToRegEx(inputTypeDefn[InputTypesColumn.ITEMS.ordinal()]);
+            inputTypeDefn[InputTypesColumn.MATCH.ordinal()] = CcddInputTypeHandler.convertItemsToRegEx(inputTypeDefn[InputTypesColumn.ITEMS.ordinal()]);
         }
 
         // Check if the input type name is empty
         if (inputTypeDefn[InputTypesColumn.MATCH.ordinal()].isEmpty())
         {
             // Inform the user that the input type regular expression is missing
-            throw new CCDDException("Input type '" + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
                                     + "' regular expression missing");
         }
 
@@ -955,8 +994,11 @@ public class CcddImportSupportHandler
         }
         catch (PatternSyntaxException pse)
         {
-            throw new CCDDException("Input type '" + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
-                                    + "' regular expression invalid; cause '</b>" + pse.getMessage() + "<b>'");
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+                                    + "' regular expression invalid; cause '</b>"
+                                    + pse.getMessage()
+                                    + "<b>'");
         }
 
         boolean isValid = false;
@@ -970,7 +1012,8 @@ public class CcddImportSupportHandler
                 // Check if the format type is user-selectable (i.e., not an internal-only format),
                 // and the format is valid with selection item if the items are provided
                 if (type.isUserSelectable()
-                    && (inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty() || type.isValidWithItems()))
+                    && (inputTypeDefn[InputTypesColumn.ITEMS.ordinal()].isEmpty()
+                        || type.isValidWithItems()))
                 {
                     // Set the flag to indicate the format is valid
                     isValid = true;
@@ -984,7 +1027,8 @@ public class CcddImportSupportHandler
         if (!isValid)
         {
             // Inform the user that the input type format is invalid
-            throw new CCDDException("Input type '" + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
+            throw new CCDDException("Input type '"
+                                    + inputTypeDefn[InputTypesColumn.NAME.ordinal()]
                                     + "' format invalid");
         }
 
@@ -1012,8 +1056,7 @@ public class CcddImportSupportHandler
         }
 
         // Removing any spaces between the name and first left parenthesis
-        macroDefn[MacrosColumn.MACRO_NAME.ordinal()] = macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
-                .replaceFirst("\\s+\\(", "(");
+        macroDefn[MacrosColumn.MACRO_NAME.ordinal()] = macroDefn[MacrosColumn.MACRO_NAME.ordinal()].replaceFirst("\\s+\\(", "(");
 
         // Check if the macro name isn't valid
         if (!macroDefn[MacrosColumn.MACRO_NAME.ordinal()].matches(DefaultInputType.MACRO_NAME.getInputMatch()))
@@ -1053,9 +1096,8 @@ public class CcddImportSupportHandler
         {
             // Inform the user that the data type size is invalid
             throw new CCDDException("Data type '"
-                                    + CcddDataTypeHandler
-                                            .getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],
-                                                             dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()])
+                                    + CcddDataTypeHandler.getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],
+                                                                          dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()])
                                     + "' size invalid");
         }
 
@@ -1064,9 +1106,8 @@ public class CcddImportSupportHandler
         {
             // Inform the user that the base type is invalid
             throw new CCDDException("Data type '"
-                                    + CcddDataTypeHandler
-                                            .getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],
-                                                             dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()])
+                                    + CcddDataTypeHandler.getDataTypeName(dataTypeDefn[DataTypesColumn.C_NAME.ordinal()],
+                                                                          dataTypeDefn[DataTypesColumn.USER_NAME.ordinal()])
                                     + "' base type invalid");
         }
     }
@@ -1081,7 +1122,8 @@ public class CcddImportSupportHandler
      * @return Base primitive data type corresponding to the specified primitive data type; null if
      *         no match
      *********************************************************************************************/
-    protected static BasePrimitiveDataType getBaseDataType(String dataType, CcddDataTypeHandler dataTypeHandler)
+    protected static BasePrimitiveDataType getBaseDataType(String dataType,
+                                                           CcddDataTypeHandler dataTypeHandler)
     {
         BasePrimitiveDataType basePrimitiveDataType = null;
 
@@ -1178,8 +1220,9 @@ public class CcddImportSupportHandler
         {
             // Replace each space with an underscore and move any leading underscores to the end of
             // each path segment
-            path = path.replaceAll("\\]", "").replaceAll("[^A-Za-z0-9_\\-\\/]", "_").replaceAll("(^|/)_([^/]*)",
-                                                                                                "$1$2_");
+            path = path.replaceAll("\\]", "")
+                       .replaceAll("[^A-Za-z0-9_\\-\\/]", "_")
+                       .replaceAll("(^|/)_([^/]*)", "$1$2_");
         }
 
         return path;
@@ -1188,7 +1231,7 @@ public class CcddImportSupportHandler
     /**********************************************************************************************
      * Convert a list to a unique list and detect if there are any duplicate entries
      *
-     * @param NewMacroDefns A list of string arrays containing informatino
+     * @param NewMacroDefns A list of string arrays containing information
      *
      * @return Pair containing a list of unique values and a Boolean indicating if the set was
      *         unique

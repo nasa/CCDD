@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddSchedulerInputInterface.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that defines the interface for application and telemetry scheduler input.
  *

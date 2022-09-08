@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddWebServer.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles set up and management of the embedded Jetty web server.
  *
@@ -103,7 +103,8 @@ public class CcddWebServer
         try
         {
             // Create the web server using the currently specified port
-            server = new Server(Integer.valueOf(ccddMain.getProgPrefs().get(WEB_SERVER_PORT, DEFAULT_WEB_SERVER_PORT)));
+            server = new Server(Integer.valueOf(ccddMain.getProgPrefs().get(WEB_SERVER_PORT,
+                                                                            DEFAULT_WEB_SERVER_PORT)));
 
             // Stop the web server when the application exits
             server.setStopAtShutdown(true);

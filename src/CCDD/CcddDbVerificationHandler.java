@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDbVerificationHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that executes the database information consistency check.
  *
@@ -1263,7 +1263,7 @@ public class CcddDbVerificationHandler
                                                               + table
                                                               + "', associated with script '"
                                                               + member[1]
-                                                                      + "'",
+                                                              + "'",
                                                               "Delete script association",
                                                               "DELETE FROM "
                                                               + dbTableName
@@ -1357,7 +1357,7 @@ public class CcddDbVerificationHandler
                                                       + dbTableName
                                                       + "' references a non-existent table, '"
                                                       + member[0]
-                                                              + "'",
+                                                      + "'",
                                                       "Delete table from group",
                                                       "DELETE FROM "
                                                       + dbTableName
@@ -1446,8 +1446,7 @@ public class CcddDbVerificationHandler
                             issues.add(new TableIssue("Internal table '"
                                                       + dbTableName
                                                       + "' references a non-existent variable, '"
-                                                      + member[0].replaceFirst(".*" + Pattern.quote(TLM_SCH_SEPARATOR),
-                                                                               "")
+                                                      + member[0].replaceFirst(".*" + Pattern.quote(TLM_SCH_SEPARATOR), "")
                                                       + "'", "Delete variable from message(s)",
                                                       "DELETE FROM "
                                                       + dbTableName
@@ -1485,6 +1484,7 @@ public class CcddDbVerificationHandler
                             // Remove the bit length, if present, and store the variable in the new
                             // list
                             String path = "";
+
                             if (variablePath.contains(":"))
                             {
                                 path = variablePath.replaceFirst("\\:\\d+$", "");
@@ -1493,6 +1493,7 @@ public class CcddDbVerificationHandler
                             {
                                 path = variablePath;
                             }
+
                             cleanName.add(path);
 
                             // Check if the path represents an array member
@@ -1510,7 +1511,6 @@ public class CcddDbVerificationHandler
                                     if (arrayDims[dim] != 0)
                                     {
                                         isFirst = false;
-
                                         break;
                                     }
                                 }
@@ -1527,6 +1527,7 @@ public class CcddDbVerificationHandler
                                     // indexes was already added above at the start of this for
                                     // loop. Ensure that it is only added once
                                     String modifiedPath = path.substring(0, path.lastIndexOf("["));
+
                                     if (!cleanName.contains(modifiedPath))
                                     {
                                         cleanName.add(modifiedPath);
@@ -2645,7 +2646,11 @@ public class CcddDbVerificationHandler
                     // macros in the value. The temporary column values are stored so that macro
                     // expansion need only be done once per table cell, which speeds the comparison
                     // below
-                    columnValues[row] = !tableInfo.getData().get(row)[column].toString().isEmpty() ? macroHandler.getMacroExpansion(tableInfo.getData().get(row)[column].toString()) : "";
+                    columnValues[row] = !tableInfo.getData()
+                                                  .get(row)[column]
+                                                  .toString()
+                                                  .isEmpty() ? macroHandler.getMacroExpansion(tableInfo.getData().get(row)[column].toString())
+                                                             : "";
                 }
 
                 // Step through each row in the table

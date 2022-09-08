@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddApplicationSchedulerDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for assignment of applications to time slots. The dialog is built on the
  * CcddDialogHandler class and implements the CcddSchedulerDialogInterface class.

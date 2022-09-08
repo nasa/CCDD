@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddPreferencesDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that creates and manages the Preferences dialog used for altering the application’s
  * look & feel, fonts, colors, size values, and spacing values. The dialog is built on the
@@ -796,9 +796,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         }
 
         // Set the scroll bar scroll increment
-        colorScrollPane.getVerticalScrollBar()
-                .setUnitIncrement(colorCbox[0].getPreferredSize().height / 2
-                                  + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        colorScrollPane.getVerticalScrollBar().setUnitIncrement(colorCbox[0].getPreferredSize().height / 2
+                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
         // Calculate the maximum required height of the panel containing the color check boxes (= #
         // of rows * row height)

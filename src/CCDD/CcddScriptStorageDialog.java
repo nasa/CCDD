@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddScriptStorageDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to select script files to store to or retrieve from the database. The
  * dialog is built on the CcddDialogHandler class.
@@ -111,13 +111,14 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         {
             case STORE:
                 // Allow the user to select the script file path(s) + name(s)
-                scriptFile = new CcddDialogHandler().choosePathFile(ccddMain, ccddMain.getMainFrame(), null, "script",
-                                                                    scriptHandler.getExtensions(), true,
+                scriptFile = new CcddDialogHandler().choosePathFile(ccddMain, ccddMain.getMainFrame(),
+                                                                    null,
+                                                                    "script",
+                                                                    scriptHandler.getExtensions(),
+                                                                    true,
                                                                     "Select Script(s) to Store",
-                                                                    ccddMain.getProgPrefs()
-                                                                            .get(ModifiablePathInfo.SCRIPT_PATH
-                                                                                    .getPreferenceKey(),
-                                                                                 null),
+                                                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
+                                                                                                null),
                                                                     DialogOption.STORE_OPTION);
 
                 // Check if the Cancel button wasn't selected
@@ -128,7 +129,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     {
                         // Remove the script file name and store the script file path in the
                         // program preferences backing store
-                        CcddFileIOHandler.storePath(ccddMain, scriptFile[0].getAbsolutePathWithEnvVars(), true,
+                        CcddFileIOHandler.storePath(ccddMain,
+                                                    scriptFile[0].getAbsolutePathWithEnvVars(),
+                                                    true,
                                                     ModifiablePathInfo.SCRIPT_PATH);
 
                         // Step through each selected script
@@ -138,12 +141,13 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             // elects to overwrite the existing script table
                             if (!dbTable.isTableExists(InternalTable.SCRIPT.getTableName(file.getName()),
                                                        CcddScriptStorageDialog.this)
-                                || new CcddDialogHandler()
-                                        .showMessageDialog(ccddMain.getMainFrame(),
-                                                           "<html><b>Overwrite existing stored script '</b>"
-                                                                                    + file.getName() + "<b>'?",
-                                                           "Overwrite Script", JOptionPane.QUESTION_MESSAGE,
-                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                                || new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                             "<html><b>Overwrite existing stored script '</b>"
+                                                                             + file.getName()
+                                                                             + "<b>'?",
+                                                                             "Overwrite Script",
+                                                                             JOptionPane.QUESTION_MESSAGE,
+                                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
                                 // Store the script in the database
                                 fileIOHandler.storeScriptInDatabase(file);
@@ -156,7 +160,8 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         // Inform the user that a script file must be selected
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Must select a script to store",
-                                                                  "Store Script(s)", JOptionPane.WARNING_MESSAGE,
+                                                                  "Store Script(s)",
+                                                                  JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
                     }
                 }
@@ -166,17 +171,20 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
             case RETRIEVE:
             case DELETE:
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                1,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                        .getSpacing(),
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                   .getSpacing(),
-                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                                   .getSpacing(),
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                   .getSpacing()),
-                                                                0, 0);
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                0,
+                                                                0);
 
                 // Create the panel to contain the dialog components
                 JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -227,7 +235,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             }
                         });
 
-                        // Add the Select All checkbox to the dialog panel
+                        // Add the Select All check box to the dialog panel
                         gbc.gridx = 0;
                         gbc.gridy++;
                         gbc.insets.bottom = 0;
@@ -277,11 +285,15 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         dialogPnl.add(createPathSelectionPanel(), gbc);
 
                         // Display the script retrieval dialog
-                        if (showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, "Retrieve Script(s)",
-                                              DialogOption.RETRIEVE_OPTION, true) == OK_BUTTON)
+                        if (showOptionsDialog(ccddMain.getMainFrame(),
+                                              dialogPnl,
+                                              "Retrieve Script(s)",
+                                              DialogOption.RETRIEVE_OPTION,
+                                              true) == OK_BUTTON)
                         {
                             // Store the script file path in the program preferences backing store
-                            CcddFileIOHandler.storePath(ccddMain, scriptFile[0].getAbsolutePathWithEnvVars(), false,
+                            CcddFileIOHandler.storePath(ccddMain, scriptFile[0].getAbsolutePathWithEnvVars(),
+                                                        false,
                                                         ModifiablePathInfo.SCRIPT_PATH);
 
                             // Get an array containing the selected script names
@@ -294,7 +306,8 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                 // the selected folder
                                 fileIOHandler.retrieveScriptFromDatabase(script,
                                                                          new File(scriptFile[0].getAbsolutePath()
-                                                                                  + File.separator + script));
+                                                                                  + File.separator
+                                                                                  + script));
                             }
                         }
                     }
@@ -302,8 +315,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     else
                     {
                         // Display the database deletion dialog
-                        if (showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, "Delete Script(s)",
-                                              DialogOption.DELETE_OPTION, true) == OK_BUTTON)
+                        if (showOptionsDialog(ccddMain.getMainFrame(),
+                                              dialogPnl,
+                                              "Delete Script(s)",
+                                              DialogOption.DELETE_OPTION,
+                                              true) == OK_BUTTON)
                         {
                             // Get the array of selected scripts
                             String[] selectedScripts = getCheckBoxSelected();
@@ -325,13 +341,15 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                 {
                     // Inform the user that the project database contains no script to
                     // retrieve/delete
-                    new CcddDialogHandler()
-                            .showMessageDialog(ccddMain.getMainFrame(),
-                                               "<html><b>Project '</b>" + dbControl.getDatabaseName()
-                                                                        + "<b>' has no scripts",
-                                               (dialogType == ScriptIOType.RETRIEVE ? "Retrieve"
-                                                                                    : "Delete") + " Script(s)",
-                                               JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Project '</b>"
+                                                              + dbControl.getDatabaseName()
+                                                              + "<b>' has no scripts",
+                                                              (dialogType == ScriptIOType.RETRIEVE ? "Retrieve"
+                                                                                                   : "Delete")
+                                                              + " Script(s)",
+                                                              JOptionPane.WARNING_MESSAGE,
+                                                              DialogOption.OK_OPTION);
                 }
 
                 break;
@@ -346,15 +364,20 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
     private JPanel createPathSelectionPanel()
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2, 0,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create a panel for the path selection components
         JPanel pathPnl = new JPanel(new GridBagLayout());
@@ -371,21 +394,21 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         pathFld.setEditable(true);
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         pathFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        pathFld.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+        pathFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                             Color.LIGHT_GRAY,
+                                                                                             Color.GRAY),
+                                                             BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
 
         // Create a button for choosing an output path
-        JButton btnSelectPath = CcddButtonPanelHandler.createButton("Select...", SCRIPTS_ICON, KeyEvent.VK_S,
+        JButton btnSelectPath = CcddButtonPanelHandler.createButton("Select...",
+                                                                    SCRIPTS_ICON,
+                                                                    KeyEvent.VK_S,
                                                                     "Open the script path selection dialog");
 
         // Add a listener for the Select path button
@@ -398,12 +421,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
                 // Allow the user to select the script storage path
-                scriptFile = new CcddDialogHandler().choosePathFile(ccddMain, CcddScriptStorageDialog.this,
+                scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                    CcddScriptStorageDialog.this,
                                                                     "Select Location for Script(s)",
-                                                                    ccddMain.getProgPrefs()
-                                                                            .get(ModifiablePathInfo.SCRIPT_PATH
-                                                                                    .getPreferenceKey(),
-                                                                                 null),
+                                                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
+                                                                                                null),
                                                                     DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a script path is selected
@@ -483,8 +505,10 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddScriptStorageDialog.this, "<html><b>" + ce.getMessage(),
-                                                      "Missing Input", JOptionPane.WARNING_MESSAGE,
+            new CcddDialogHandler().showMessageDialog(CcddScriptStorageDialog.this,
+                                                      "<html><b>" + ce.getMessage(),
+                                                      "Missing Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
 
             // Set the flag to indicate the dialog input is invalid

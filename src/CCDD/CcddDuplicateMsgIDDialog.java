@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDuplicateMsgIDDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog displaying a table containing duplicate message IDs and their owners. The dialog
  * is built on the CcddDialogHandler class.

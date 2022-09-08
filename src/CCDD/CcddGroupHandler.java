@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddGroupHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling table grouping operations.
  *
@@ -78,7 +78,8 @@ public class CcddGroupHandler
     {
         this(undoHandler);
 
-        buildGroupInformation(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS, false,
+        buildGroupInformation(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS,
+                                                                                           false,
                                                                                            component));
     }
 
@@ -97,7 +98,7 @@ public class CcddGroupHandler
             // Add the group application status and description to the definition list
             groupDefinitions.add(new String[] {groupInfo.getName(),
                                                (groupInfo.isApplication() ? "1"
-                                                                            : "0")
+                                                                          : "0")
                                                + ","
                                                + groupInfo.getDescription()});
 
@@ -221,7 +222,8 @@ public class CcddGroupHandler
      *
      * @return Reference to the group's information; null if the group doesn't exist
      *********************************************************************************************/
-    protected GroupInformation getGroupInformationByName(List<GroupInformation> groupInformationList, String name)
+    protected GroupInformation getGroupInformationByName(List<GroupInformation> groupInformationList,
+                                                         String name)
     {
         GroupInformation groupInfo = null;
 

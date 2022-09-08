@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddLinkHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing methods to manipulate variable linkages.
  *
@@ -82,7 +82,9 @@ public class CcddLinkHandler
     CcddLinkHandler(CcddMain ccddMain, Component parent)
     {
         this(ccddMain,
-             ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.LINKS, false, parent));
+             ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.LINKS,
+                                                                          false,
+                                                                          parent));
     }
 
     /**********************************************************************************************
@@ -423,8 +425,8 @@ public class CcddLinkHandler
                 if (fieldInfo != null)
                 {
                     // Get the application name field information
-                    String appName = fieldHandler.getFieldInformationByName(parentAndPath[0], applicationFieldName)
-                            .getValue();
+                    String appName = fieldHandler.getFieldInformationByName(parentAndPath[0],
+                                                                            applicationFieldName).getValue();
 
                     // Check that the application name field exists for the specified table and
                     // that this name hasn't already been added to the list

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddJTableHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Generic utility class for creating and handling all of the tables created within the
  * application, including the data, type, and field tables. This class is an extension of the
@@ -724,7 +724,8 @@ public abstract class CcddJTableHandler extends JTable
 
             // Check if the end of the table hasn't been reached and the OID is blank (i.e., this
             // is a newly added row)
-            if (row < tableModel.getRowCount() && tableModel.getValueAt(row, oidColumn).toString().isEmpty())
+            if (row < tableModel.getRowCount()
+                && tableModel.getValueAt(row, oidColumn).toString().isEmpty())
             {
                 // Provide a temporary OID value so that the row can be matched when building
                 // updates
@@ -944,8 +945,13 @@ public abstract class CcddJTableHandler extends JTable
      * @return true to indicate that subsequent errors should be displayed; false if subsequent
      *         errors should not be displayed; null if the operation should be canceled
      *********************************************************************************************/
-    protected Boolean validateCellContent(List<Object[]> tableData, int row, int column, Object oldValue,
-                                          Object newValue, Boolean showMessage, boolean isMultiple)
+    protected Boolean validateCellContent(List<Object[]> tableData,
+                                          int row,
+                                          int column,
+                                          Object oldValue,
+                                          Object newValue,
+                                          Boolean showMessage,
+                                          boolean isMultiple)
     {
         return true;
     }
@@ -1103,10 +1109,16 @@ public abstract class CcddJTableHandler extends JTable
      * @param allowSort          True to enable the rows to be sorted by selecting a column header;
      *                           false to disable sorting
      ********************************************************************************************/
-    protected void setFixedCharacteristics(final JScrollPane scrollPane, boolean isRowsAlterable, int intervalSelection,
-                                           TableSelectionMode cellSelection, boolean columnDragAllowed,
-                                           ModifiableColor background, boolean selectWithoutFocus, boolean allowUndo,
-                                           Font cellFont, boolean allowSort)
+    protected void setFixedCharacteristics(final JScrollPane scrollPane,
+                                           boolean isRowsAlterable,
+                                           int intervalSelection,
+                                           TableSelectionMode cellSelection,
+                                           boolean columnDragAllowed,
+                                           ModifiableColor background,
+                                           boolean selectWithoutFocus,
+                                           boolean allowUndo,
+                                           Font cellFont,
+                                           boolean allowSort)
     {
         // Disable storage of edit operations during table creation
         undoHandler.setAllowUndo(false);
@@ -1302,8 +1314,12 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @return Combined width of all columns in pixels
      *********************************************************************************************/
-    protected int setUpdatableCharacteristics(Object[][] tableData, String[] columnNames, String columnOrder,
-                                              String[] toolTips, boolean centerText, boolean calcTotalWidth,
+    protected int setUpdatableCharacteristics(Object[][] tableData,
+                                              String[] columnNames,
+                                              String columnOrder,
+                                              String[] toolTips,
+                                              boolean centerText,
+                                              boolean calcTotalWidth,
                                               boolean showGrid)
     {
         // Initialize the hidden column list. This list remains empty if there is no hidden column
@@ -1574,8 +1590,12 @@ public abstract class CcddJTableHandler extends JTable
          * content
          *****************************************************************************************/
         @Override
-        public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
         {
             // Get the column index in model coordinates
             int modelColumn = table.convertColumnIndexToModel(column);
@@ -1662,8 +1682,12 @@ public abstract class CcddJTableHandler extends JTable
          * Override this method so that the text is displayed in the cell
          *****************************************************************************************/
         @Override
-        public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
         {
             // Set the cell to the string representation of the value
             setText(value == null ? "" : value.toString());
@@ -1715,8 +1739,12 @@ public abstract class CcddJTableHandler extends JTable
          * adjusted to fit the text
          *****************************************************************************************/
         @Override
-        public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
         {
             // Set the cell to the string representation of the value. Replace any line feed
             // place-holders with line feed characters
@@ -1728,7 +1756,8 @@ public abstract class CcddJTableHandler extends JTable
                 // Set the text area's width to the table column width. This causes the JTextArea
                 // to calculate the height required to show all of the cell's text. Subtract 1 from
                 // the width so that cell text matching the exact width doesn't have text truncated
-                setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1, jtable.getRowHeight(row));
+                setSize(jtable.getColumnModel().getColumn(column).getWidth() - 1,
+                        jtable.getRowHeight(row));
             }
 
             return this;
@@ -1769,8 +1798,12 @@ public abstract class CcddJTableHandler extends JTable
          * Override this method so that a check box is displayed in the cell
          *****************************************************************************************/
         @Override
-        public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
         {
             // Check if the value represents a boolean value
             if (value instanceof Boolean)
@@ -1842,8 +1875,12 @@ public abstract class CcddJTableHandler extends JTable
          * adjusted to fit the text
          *****************************************************************************************/
         @Override
-        public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
+        public Component getTableCellRendererComponent(JTable jtable,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
+                                                       int column)
         {
             // Check if this is the first row and column in the table and the cell is not already
             // formatted for HTML
@@ -1911,10 +1948,9 @@ public abstract class CcddJTableHandler extends JTable
                 // Set the cell renderer based on if the column supports HTML-formatted text, is
                 // displayed in multiple lines, or is displayed in a single line. HTML supports
                 // multiple lines, so takes precedence over the multiple line setting
-                tableColumn
-                        .setCellRenderer(isColumnHTML(columnModel) ? new HTMLCellRenderer()
-                                                                   : (isColumnMultiLine(columnModel) ? new MultiLineCellRenderer()
-                                                                                                     : new SingleLineCellRenderer(centerText)));
+                tableColumn.setCellRenderer(isColumnHTML(columnModel) ? new HTMLCellRenderer()
+                                                                      : (isColumnMultiLine(columnModel) ? new MultiLineCellRenderer()
+                                                                                                        : new SingleLineCellRenderer(centerText)));
             }
             // This column displays check boxes
             else
@@ -1998,7 +2034,10 @@ public abstract class CcddJTableHandler extends JTable
          * Override the method to get the cell editor's component
          *****************************************************************************************/
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+        public Component getTableCellEditorComponent(JTable table,
+                                                     Object value,
+                                                     boolean isSelected,
+                                                     int row,
                                                      int column)
         {
             // Set the cell to the string representation of the value. Replace any line feed
@@ -2093,7 +2132,8 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Set the editor so that the contents can be modified within the table cell. Use
                 // the editor appropriate for the number of cell display lines
-                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(columnModel) ? dceMulti : dceSingle);
+                getColumnModel().getColumn(column).setCellEditor(isColumnMultiLine(columnModel) ? dceMulti
+                                                                                                : dceSingle);
             }
         }
     }
@@ -2132,8 +2172,12 @@ public abstract class CcddJTableHandler extends JTable
         TableColumn tableColumn = getColumnModel().getColumn(column);
 
         // Get the component used to draw the table header cell
-        Component comp = tableColumn.getHeaderRenderer().getTableCellRendererComponent(table, getColumnName(column),
-                                                                                       false, false, -1, column);
+        Component comp = tableColumn.getHeaderRenderer().getTableCellRendererComponent(table,
+                                                                                       getColumnName(column),
+                                                                                       false,
+                                                                                       false,
+                                                                                       -1,
+                                                                                       column);
 
         // Remove any padding added to the column name (to force its width larger when setting the
         // initial column width)
@@ -2153,8 +2197,7 @@ public abstract class CcddJTableHandler extends JTable
 
             // Compare the width of the cell to the largest width found so far and store it if it's
             // larger, but no larger than a specified maximum starting width
-            minDataWidth[column] = Math.min(
-                                            Math.max(comp.getPreferredSize().width
+            minDataWidth[column] = Math.min(Math.max(comp.getPreferredSize().width
                                                      + ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() * 2,
                                                      minDataWidth[column]),
                                             ModifiableSizeInfo.MAX_INIT_CELL_WIDTH.getSize());
@@ -2565,7 +2608,10 @@ public abstract class CcddJTableHandler extends JTable
             if (startRow != -1)
             {
                 // Check if the row(s) moved and the table is sorted
-                if (rowDelta != 0 && allowSort && tableModel.getRowCount() != 0 && getRowSorter() != null
+                if (rowDelta != 0
+                    && allowSort
+                    && tableModel.getRowCount() != 0
+                    && getRowSorter() != null
                     && lastSortKeys != null)
                 {
                     // Remove the sort since row movement would appear erratic with a sort active,
@@ -2838,7 +2884,8 @@ public abstract class CcddJTableHandler extends JTable
                 SelectedCell cell = sc.get(index);
 
                 // Check if the cell's contents are allowed to be changed to a blank
-                if (isCellEditable(cell.getRow(), cell.getColumn()) && isCellBlankable(cell.getRow(), cell.getColumn()))
+                if (isCellEditable(cell.getRow(), cell.getColumn())
+                    && isCellBlankable(cell.getRow(), cell.getColumn()))
                 {
                     Object replaceChars;
 
@@ -2850,9 +2897,14 @@ public abstract class CcddJTableHandler extends JTable
                     Object oldValue = tableData.get(modelRow)[modelColumn];
 
                     // Get the cell's renderer component
-                    Component comp = getCellRenderer(cell.getRow(), cell.getColumn())
-                            .getTableCellRendererComponent(table, getValueAt(cell.getRow(), cell.getColumn()), true,
-                                                           false, cell.getRow(), cell.getColumn());
+                    Component comp = getCellRenderer(cell.getRow(),
+                                                     cell.getColumn()).getTableCellRendererComponent(table,
+                                                                                                     getValueAt(cell.getRow(),
+                                                                                                                cell.getColumn()),
+                                                                                                     true,
+                                                                                                     false,
+                                                                                                     cell.getRow(),
+                                                                                                     cell.getColumn());
 
                     // Check if the cell contains a check box
                     if (comp instanceof JCheckBox)
@@ -2902,7 +2954,13 @@ public abstract class CcddJTableHandler extends JTable
                         tableData.get(modelRow)[modelColumn] = replaceChars;
 
                         // Handle changes to the cell contents
-                        validateCellContent(tableData, modelRow, modelColumn, oldValue, replaceChars, true, false);
+                        validateCellContent(tableData,
+                                            modelRow,
+                                            modelColumn,
+                                            oldValue,
+                                            replaceChars,
+                                            true,
+                                            false);
 
                         // Check if special replacement characters are used
                         if (isReplaceSpecial)
@@ -2968,7 +3026,8 @@ public abstract class CcddJTableHandler extends JTable
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
             // Check if there is data in the clipboard
-            if (!clipboard.getContents(null).equals(null) && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
+            if (!clipboard.getContents(null).equals(null)
+                && clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
             {
                 // Flag the end of the editing sequence for undo/redo purposes
                 undoManager.endEditSequence();
@@ -3037,7 +3096,15 @@ public abstract class CcddJTableHandler extends JTable
                     }
 
                     // Paste the data from the clipboard into the table
-                    pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true, true, false);
+                    pasteData(cellData,
+                              numColumns,
+                              isInsert,
+                              isAddIfNeeded,
+                              false,
+                              true,
+                              true,
+                              true,
+                              false);
                 }
                 catch (Exception e)
                 {
@@ -3050,8 +3117,10 @@ public abstract class CcddJTableHandler extends JTable
             // Inform the user that an error occurred retrieving the clipboard values
             new CcddDialogHandler().showMessageDialog(table,
                                                       "<html><b>Cannot retrieve clipboard values; cause '</b>"
-                                                             + e.getMessage() + "<b>'",
-                                                      "Clipboard Error", JOptionPane.ERROR_MESSAGE,
+                                                       + e.getMessage()
+                                                       + "<b>'",
+                                                      "Clipboard Error",
+                                                      JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
     }
@@ -3263,8 +3332,13 @@ public abstract class CcddJTableHandler extends JTable
                             tableData.get(modelRow)[modelColumn] = newValue;
 
                             // Validate the new cell contents
-                            showMessage = validateCellContent(tableData, modelRow, modelColumn, oldValue, newValue,
-                                                              showMessage, cellData.length > 1);
+                            showMessage = validateCellContent(tableData,
+                                                              modelRow,
+                                                              modelColumn,
+                                                              oldValue,
+                                                              newValue,
+                                                              showMessage,
+                                                              cellData.length > 1);
 
                             // Check if the user selected the Cancel button following an invalid
                             // input
@@ -3304,7 +3378,10 @@ public abstract class CcddJTableHandler extends JTable
 
                 // Select the pasted cells and force the table to be redrawn so that the changes
                 // are displayed
-                setSelectedCells(startRow + rowModelDelta, endRow - 1 + rowModelDelta, startColumn, endColumnSelect);
+                setSelectedCells(startRow + rowModelDelta,
+                                 endRow - 1 + rowModelDelta,
+                                 startColumn,
+                                 endColumnSelect);
                 repaint();
             }
         }
@@ -3337,7 +3414,11 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param rowDelta Row move direction and magnitude
      *********************************************************************************************/
-    protected void performRowMove(int startRow, int endRow, int toRow, MoveCellSelection selected, int rowDelta)
+    protected void performRowMove(int startRow,
+                                  int endRow,
+                                  int toRow,
+                                  MoveCellSelection selected,
+                                  int rowDelta)
     {
         // Flag the end of the editing sequence for undo/redo purposes
         undoManager.endEditSequence();
@@ -3367,8 +3448,11 @@ public abstract class CcddJTableHandler extends JTable
         if (selected.getStartRow() > 0)
         {
             // Move the selected row(s) up
-            performRowMove(convertRowIndexToModel(selected.getStartRow()), convertRowIndexToModel(selected.getEndRow()),
-                           convertRowIndexToModel(selected.getStartRow() - 1), selected, -1);
+            performRowMove(convertRowIndexToModel(selected.getStartRow()),
+                           convertRowIndexToModel(selected.getEndRow()),
+                           convertRowIndexToModel(selected.getStartRow() - 1),
+                           selected,
+                           -1);
         }
     }
 
@@ -3384,8 +3468,11 @@ public abstract class CcddJTableHandler extends JTable
         if (selected.getStartRow() != -1 && selected.getEndRow() < getRowCount() - 1)
         {
             // Move the selected row(s) down
-            performRowMove(convertRowIndexToModel(selected.getStartRow()), convertRowIndexToModel(selected.getEndRow()),
-                           convertRowIndexToModel(selected.getStartRow() + 1), selected, 1);
+            performRowMove(convertRowIndexToModel(selected.getStartRow()),
+                           convertRowIndexToModel(selected.getEndRow()),
+                           convertRowIndexToModel(selected.getStartRow() + 1),
+                           selected,
+                           1);
         }
     }
 
@@ -3575,15 +3662,21 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Set the fore- and background colors for the non-selected row. Alternate the row
             // background colors every other row
-            comp.setForeground(index == -1 ? ModifiableColorInfo.TABLE_TEXT.getColor() : rowColor.get(index));
-            comp.setBackground(row % 2 == 0 ? getBackground() : ModifiableColorInfo.ALTERNATE_BACK.getColor());
+            comp.setForeground(index == -1 ? ModifiableColorInfo.TABLE_TEXT.getColor()
+                                           : rowColor.get(index));
+            comp.setBackground(row % 2 == 0 ? getBackground()
+                                            : ModifiableColorInfo.ALTERNATE_BACK.getColor());
         }
 
         // Check if this cell displays a text component
         if (renderer instanceof JTextComponent)
         {
             // Perform any special rendering on this cell
-            doSpecialRendering(comp, getValueAt(row, column).toString(), isCellSelected(row, column), row, column);
+            doSpecialRendering(comp,
+                               getValueAt(row, column).toString(),
+                               isCellSelected(row, column),
+                               row,
+                               column);
         }
 
         return comp;
@@ -3603,13 +3696,18 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column     Cell column, view coordinates
      *********************************************************************************************/
-    protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)
+    protected void doSpecialRendering(Component component,
+                                      String text,
+                                      boolean isSelected,
+                                      int row,
+                                      int column)
     {
         // Check if the column allows highlighting
         if (isColumnHighlight(column))
         {
             // Highlight the search text instances
-            CcddUtilities.highlightSearchText(component, text,
+            CcddUtilities.highlightSearchText(component,
+                                              text,
                                               isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                          : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor(),
                                               pattern);
@@ -4012,9 +4110,8 @@ public abstract class CcddJTableHandler extends JTable
                             if (oldValue.toString().startsWith(REPLACE_INDICATOR))
                             {
                                 // Get this cell's editor component
-                                Component comp = ((DefaultCellEditor) getCellEditor(table
-                                        .convertRowIndexToView(editRow), table.convertColumnIndexToView(editColumn)))
-                                                .getComponent();
+                                Component comp = ((DefaultCellEditor) getCellEditor(table.convertRowIndexToView(editRow),
+                                                                                    table.convertColumnIndexToView(editColumn))).getComponent();
 
                                 // Check if the cell contains a combo box
                                 if (comp instanceof JComboBox)
@@ -4156,8 +4253,14 @@ public abstract class CcddJTableHandler extends JTable
                 }
 
                 // Generate event to reset the cursor
-                header.dispatchEvent(new MouseEvent(header, MouseEvent.MOUSE_MOVED, me.getWhen(), me.getModifiers(),
-                                                    me.getX(), me.getY(), 0, false));
+                header.dispatchEvent(new MouseEvent(header,
+                                                    MouseEvent.MOUSE_MOVED,
+                                                    me.getWhen(),
+                                                    me.getModifiers(),
+                                                    me.getX(),
+                                                    me.getY(),
+                                                    0,
+                                                    false));
             }
         }
 
@@ -4227,7 +4330,9 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param orientation      Page orientation; e.g., PageFormat.LANDSCAPE or PageFormat.PORTRAIT
      *********************************************************************************************/
-    protected void printTable(String tableName, List<FieldInformation> fieldInformation, Component parent,
+    protected void printTable(String tableName,
+                              List<FieldInformation> fieldInformation,
+                              Component parent,
                               int orientation)
     {
         try
@@ -4249,7 +4354,6 @@ public abstract class CcddJTableHandler extends JTable
             // be printed
             if (defaultService != null)
             {
-
                 // Create a dummy dialog in order to obtain the print dialog's dimensions
                 JDialog dialog = new JDialog();
                 dialog.setLocationRelativeTo(null);
@@ -4284,9 +4388,11 @@ public abstract class CcddJTableHandler extends JTable
                     JTextArea fldTxtArea = new JTextArea(fields);
 
                     // Get the printable object for the text area
-                    Printable fldPrintable = fldTxtArea
-                            .getPrintable(new MessageFormat("Data Fields for " + tableName),
-                                          new MessageFormat("page " + Integer.toString(book.getNumberOfPages() + 1)));
+                    Printable fldPrintable = fldTxtArea.getPrintable(new MessageFormat("Data Fields for "
+                                                                                       + tableName),
+                                                                     new MessageFormat("page "
+                                                                                       + Integer.toString(book.getNumberOfPages()
+                                                                                                          + 1)));
 
                     // Add the fields to the book object
                     book.add(fldPrintable, pageFormat);
@@ -4299,7 +4405,8 @@ public abstract class CcddJTableHandler extends JTable
                     {
                         // Output the book object to the selected printer or file
                         printerJob.setPrintable(book);
-                        // set the attributes to the printerjob
+
+                        // set the attributes to the printerJob
                         printerJob.print(attributes);
                         printerJob.print();
                     }
@@ -4310,18 +4417,25 @@ public abstract class CcddJTableHandler extends JTable
             }
             else
             {
-                new CcddDialogHandler().showMessageDialog(parent, "<html><b>No Printer Detected!", "Print Log",
-                                                          JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                new CcddDialogHandler().showMessageDialog(parent,
+                                                          "<html><b>No Printer Detected!",
+                                                          "Print Log",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
             }
         }
         catch (Exception pe)
         {
             // Inform the user that printing failed
-            new CcddDialogHandler()
-                    .showMessageDialog(parent,
-                                       "<html><b>Table '</b>" + tableName + "<b>' printing failed; cause '</b>"
-                                               + pe.getMessage() + "<b>'",
-                                       "Print Fail", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>Table '</b>"
+                                                      + tableName
+                                                      + "<b>' printing failed; cause '</b>"
+                                                      + pe.getMessage()
+                                                      + "<b>'",
+                                                      "Print Fail",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
         }
     }
 

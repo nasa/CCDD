@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddBackgroundCommand.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for generically handling execution of code in a background thread.
  *

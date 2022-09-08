@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddScriptDataAccessHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing the methods whereby scripts can access the project database information.
  *
@@ -296,8 +296,8 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getOutputPath()
     {
-        return ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath()
-                .isEmpty() ? "" : ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath() + File.separator;
+        return ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath().isEmpty() ? ""
+                                                                         : ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath() + File.separator;
     }
 
     /**********************************************************************************************
@@ -1132,8 +1132,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the variable name
-            variableName = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)]
-                    .toString();
+            variableName = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1168,8 +1167,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the data type
-            dataType = tableInfo.getData().get(row)[typeDefn
-                    .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
+            dataType = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
         }
 
         return dataType;
@@ -1229,8 +1227,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the array size
-            arraySize = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX)]
-                    .toString();
+            arraySize = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1297,8 +1294,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the bit length
-            bitLength = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH)]
-                    .toString();
+            bitLength = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1529,6 +1525,7 @@ public class CcddScriptDataAccessHandler
                     // Expand any macros
                     enumeration = macroHandler.getMacroExpansion(enumeration);
                 }
+
                 // Add the enumeration to the list
                 enumerations.add(enumeration);
             }
@@ -1623,8 +1620,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command name
-            commandName = tableInfo.getData().get(row)[typeDefn
-                    .getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)].toString();
+            commandName = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1691,8 +1687,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command code
-            commandCode = tableInfo.getData().get(row)[typeDefn
-                    .getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)].toString();
+            commandCode = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1756,6 +1751,7 @@ public class CcddScriptDataAccessHandler
     {
         // Get the type definition so that the column names can be determined
         TypeDefinition typeDef = tableTypeHandler.getTypeDefinition(STRUCT_CMD_ARG_REF);
+
         // Get the column names, but remove the key and index
         int numColumnNames = typeDef.getColumnNamesDatabase().length;
 
@@ -1790,8 +1786,7 @@ public class CcddScriptDataAccessHandler
             TableInfo tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command argument variable name
-            commandArgument = tableInfo.getData().get(row)[typeDefn
-                    .getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)].toString();
+            commandArgument = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_ARGUMENT)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1887,8 +1882,7 @@ public class CcddScriptDataAccessHandler
                 // table for this row. Since an instance of the table must be of the same type as
                 // its prototype then matching prototypes is sufficient to establish the table's
                 // type
-                if (TableInfo.getPrototypeName(tableName)
-                        .equals(TableInfo.getPrototypeName(tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA].toString())))
+                if (TableInfo.getPrototypeName(tableName).equals(TableInfo.getPrototypeName(tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA].toString())))
                 {
                     // Store the table's type name and stop searching
                     typeName = tableInfo.getData().get(row)[tableInfo.getData().get(row).length - TYPE_COLUMN_DELTA].toString();
@@ -1995,7 +1989,8 @@ public class CcddScriptDataAccessHandler
      *
      * @param member        Member to search for in the list
      *********************************************************************************************/
-    public void processStructureMemberForOrdering(HashMap<String, List<String>> structuresMap,
+    public void processStructureMemberForOrdering(HashMap<String,
+                                                  List<String>> structuresMap,
                                                   List<String> orderedNames,
                                                   String member)
     {
@@ -2048,9 +2043,8 @@ public class CcddScriptDataAccessHandler
         for (int index = 0; index < structureNames.size(); index++)
         {
             // Determine which column represents the data type
-            String dataTypeColumn = tableTypeHandler
-                    .getColumnNameByInputType(getTypeNameByTable(structureNames.get(index)),
-                                              DefaultInputType.PRIM_AND_STRUCT);
+            String dataTypeColumn = tableTypeHandler.getColumnNameByInputType(getTypeNameByTable(structureNames.get(index)),
+                                                                              DefaultInputType.PRIM_AND_STRUCT);
 
             // Grab all rows of data from the data type column
             String[] data = getTableDataByNameAndColumn(structureNames.get(index), dataTypeColumn, false);
@@ -2144,7 +2138,10 @@ public class CcddScriptDataAccessHandler
         if (variableNameColumnName != null && dataTypeColumnName != null)
         {
             // Get the full variable name
-            fullName = getPathByRow(TYPE_STRUCTURE, row) + "," + getStructureTableData(dataTypeColumnName, row) + "."
+            fullName = getPathByRow(TYPE_STRUCTURE, row)
+                       + ","
+                       + getStructureTableData(dataTypeColumnName, row)
+                       + "."
                        + getStructureTableData(variableNameColumnName, row);
         }
 
@@ -2204,14 +2201,17 @@ public class CcddScriptDataAccessHandler
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s); returns a blank if the row is invalid
      *********************************************************************************************/
-    public String getFullVariableName(int row, String varPathSeparator, boolean excludeDataTypes,
+    public String getFullVariableName(int row,
+                                      String varPathSeparator,
+                                      boolean excludeDataTypes,
                                       String typeNameSeparator)
     {
         String fullName = "";
 
         // Get the name of the variable name column
         String tableType = getStructureTypeNameByRow(row);
-        String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(tableType, DefaultInputType.VARIABLE);
+        String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
+                                                                                  DefaultInputType.VARIABLE);
         String dataTypeColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
                                                                               DefaultInputType.PRIM_AND_STRUCT);
 
@@ -2221,9 +2221,12 @@ public class CcddScriptDataAccessHandler
             // Get the full variable name
             fullName = getFullVariableName(getPathByRow(TYPE_STRUCTURE,
                                                         row),
-                                           getStructureTableData(dataTypeColumnName, row) + "."
-                                                              + getStructureTableData(variableNameColumnName, row),
-                                           varPathSeparator, excludeDataTypes, typeNameSeparator);
+                                           getStructureTableData(dataTypeColumnName, row)
+                                           + "."
+                                           + getStructureTableData(variableNameColumnName, row),
+                                           varPathSeparator,
+                                           excludeDataTypes,
+                                           typeNameSeparator);
         }
 
         return fullName;
@@ -2294,8 +2297,11 @@ public class CcddScriptDataAccessHandler
      *         specified separator character(s); returns a blank if the variable path + name
      *         doesn't exist in the project database
      *********************************************************************************************/
-    public String getFullVariableName(String variablePath, String variableName, String varPathSeparator,
-                                      boolean excludeDataTypes, String typeNameSeparator)
+    public String getFullVariableName(String variablePath,
+                                      String variableName,
+                                      String varPathSeparator,
+                                      boolean excludeDataTypes,
+                                      String typeNameSeparator)
     {
         String fullName = "";
 
@@ -2303,7 +2309,9 @@ public class CcddScriptDataAccessHandler
         if (!variablePath.isEmpty() && variableName != null && !variableName.isEmpty())
         {
             // Get the full variable name
-            fullName = getFullVariableName(variablePath + "," + variableName, varPathSeparator, excludeDataTypes,
+            fullName = getFullVariableName(variablePath + "," + variableName,
+                                           varPathSeparator,
+                                           excludeDataTypes,
                                            typeNameSeparator);
         }
 
@@ -2332,11 +2340,15 @@ public class CcddScriptDataAccessHandler
      *         doesn't exist in the project database. Any macro embedded in the variable name is
      *         expanded
      *********************************************************************************************/
-    public String getFullVariableName(String fullName, String varPathSeparator, boolean excludeDataTypes,
+    public String getFullVariableName(String fullName,
+                                      String varPathSeparator,
+                                      boolean excludeDataTypes,
                                       String typeNameSeparator)
     {
-        return variableHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName), varPathSeparator,
-                                                   excludeDataTypes, typeNameSeparator);
+        return variableHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
+                                                   varPathSeparator,
+                                                   excludeDataTypes,
+                                                   typeNameSeparator);
     }
 
     /**********************************************************************************************
@@ -2534,7 +2546,10 @@ public class CcddScriptDataAccessHandler
      *         or the row number is invalid. Depending on the input flag, any macro is replaced by
      *         its corresponding value or left in place
      *********************************************************************************************/
-    private String getTablePathByRow(String tableType, int row, TablePathType pathType, boolean expandMacros)
+    private String getTablePathByRow(String tableType,
+                                     int row,
+                                     TablePathType pathType,
+                                     boolean expandMacros)
     {
         String structurePath = "";
 
@@ -2694,8 +2709,9 @@ public class CcddScriptDataAccessHandler
         if (structureName != null && !structureName.isEmpty())
         {
             // Get the list root table paths for which the target structure is a member
-            List<Object[]> memberPaths = tableTree
-                    .getTableTreePathArray(structureName, tableTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME), -1);
+            List<Object[]> memberPaths = tableTree.getTableTreePathArray(structureName,
+                                                                         tableTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
+                                                                         -1);
 
             // Check that the target structure appears in at least two paths
             if (memberPaths.size() > 1)
@@ -2770,8 +2786,10 @@ public class CcddScriptDataAccessHandler
         for (CommandInformation commandInfo : commandHandler.getCommandInformation())
         {
             // Add the command information to the list
-            commandList.add(new String[] {commandInfo.getCommandName(), commandInfo.getCommandCode(),
-                                          commandInfo.getCommandArgument(), commandInfo.getTable()});
+            commandList.add(new String[] {commandInfo.getCommandName(),
+                                          commandInfo.getCommandCode(),
+                                          commandInfo.getCommandArgument(),
+                                          commandInfo.getTable()});
         }
 
         return commandList.toArray(new String[0]);
@@ -3003,8 +3021,7 @@ public class CcddScriptDataAccessHandler
             fieldValue = fieldInfo.getValue();
 
             // Check if the data field contains a message name and ID
-            if (fieldInfo.getInputType()
-                    .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
             {
                 // Remove the auto-assignment protection flag, if present
                 fieldValue = CcddMessageIDHandler.removeProtectionFlag(fieldValue);
@@ -3260,8 +3277,7 @@ public class CcddScriptDataAccessHandler
                 }
 
                 // Check if the data field contains a message name and ID
-                if (typeDefn.getInputTypes()[column]
-                        .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
+                if (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
                 {
                     // Remove the auto-assignment protection flag, if present
                     tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
@@ -3328,8 +3344,7 @@ public class CcddScriptDataAccessHandler
             for (int row = 0; row < tableInfo.getData().size(); row++)
             {
                 // Check if the table name matches the target table
-                if (tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA]
-                        .equals(tablePath))
+                if (tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA].equals(tablePath))
                 {
                     // Add the row number to the list
                     tableRows.add(row);
@@ -3387,10 +3402,18 @@ public class CcddScriptDataAccessHandler
      *         corresponding value; returns null if an instance of the table type, the matching
      *         column, the data column, or the matching name doesn't exist
      *********************************************************************************************/
-    public String getTableDataByColumnName(String tableType, String tablePath, String matchColumnName, String matchName,
+    public String getTableDataByColumnName(String tableType,
+                                           String tablePath,
+                                           String matchColumnName,
+                                           String matchName,
                                            String dataColumnName)
     {
-        return getTableDataByColumnName(tableType, tablePath, matchColumnName, matchName, dataColumnName, true);
+        return getTableDataByColumnName(tableType,
+                                        tablePath,
+                                        matchColumnName,
+                                        matchName,
+                                        dataColumnName,
+                                        true);
     }
 
     /**********************************************************************************************
@@ -3409,9 +3432,15 @@ public class CcddScriptDataAccessHandler
      *         specified, with any macro name(s) left in place; returns null if an instance of the
      *         table type, the column name, or the variable name doesn't exist
      *********************************************************************************************/
-    public String getStructureDataByVariableNameWithMacros(String tablePath, String variableName, String columnName)
+    public String getStructureDataByVariableNameWithMacros(String tablePath,
+                                                           String variableName,
+                                                           String columnName)
     {
-        return getTableDataByColumnNameWithMacros(TYPE_STRUCTURE, tablePath, "Variable Name", variableName, columnName);
+        return getTableDataByColumnNameWithMacros(TYPE_STRUCTURE,
+                                                  tablePath,
+                                                  "Variable Name",
+                                                  variableName,
+                                                  columnName);
     }
 
     /**********************************************************************************************
@@ -3439,10 +3468,18 @@ public class CcddScriptDataAccessHandler
      *         returns null if an instance of the table type, the matching column, the data column,
      *         or the matching name doesn't exist
      *********************************************************************************************/
-    public String getTableDataByColumnNameWithMacros(String tableType, String tablePath, String matchColumnName,
-                                                     String matchName, String dataColumnName)
+    public String getTableDataByColumnNameWithMacros(String tableType,
+                                                     String tablePath,
+                                                     String matchColumnName,
+                                                     String matchName,
+                                                     String dataColumnName)
     {
-        return getTableDataByColumnName(tableType, tablePath, matchColumnName, matchName, dataColumnName, false);
+        return getTableDataByColumnName(tableType,
+                                        tablePath,
+                                        matchColumnName,
+                                        matchName,
+                                        dataColumnName,
+                                        false);
     }
 
     /**********************************************************************************************
@@ -3472,8 +3509,12 @@ public class CcddScriptDataAccessHandler
      *         matching name, and data column name specified; returns null if an instance of the
      *         table type, the matching column, the data column, or the matching name doesn't exist
      *********************************************************************************************/
-    private String getTableDataByColumnName(String tableType, String tablePath, String matchColumnName,
-                                            String matchName, String dataColumnName, boolean expandMacros)
+    private String getTableDataByColumnName(String tableType,
+                                            String tablePath,
+                                            String matchColumnName,
+                                            String matchName,
+                                            String dataColumnName,
+                                            boolean expandMacros)
     {
         String tableData = null;
 
@@ -3498,8 +3539,7 @@ public class CcddScriptDataAccessHandler
                 {
                     // Check if the table name matches the target table and the matching name
                     // matches that in the matching name column
-                    if (tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA]
-                            .equals(tablePath)
+                    if (tableInfo.getData().get(row)[tableInfo.getData().get(row).length - PATH_COLUMN_DELTA].equals(tablePath)
                         && tableInfo.getData().get(row)[matchColumnIndex].equals(matchName))
                     {
                         // Store the contents of the table at the specified row and column and stop
@@ -3514,8 +3554,7 @@ public class CcddScriptDataAccessHandler
                         }
 
                         // Check if the data field contains a message name and ID
-                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(inputTypeHandler
-                                .getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
+                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
                         {
                             // Remove the auto-assignment protection flag, if present
                             tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
@@ -3594,7 +3633,9 @@ public class CcddScriptDataAccessHandler
      *
      * @return array representing the data in all rows of the specified column
      *********************************************************************************************/
-    public String[] getTableDataByNameAndColumn(String tableName, String columnName, boolean expandMacros)
+    public String[] getTableDataByNameAndColumn(String tableName,
+                                                String columnName,
+                                                boolean expandMacros)
     {
         int columnIndex = -1;
 
@@ -3738,8 +3779,11 @@ public class CcddScriptDataAccessHandler
     public void showInformationDialog(String text)
     {
         // Display the supplied text in an information dialog
-        new CcddDialogHandler().showMessageDialog(parent, "<html><b>" + text, "Script Message",
-                                                  JOptionPane.INFORMATION_MESSAGE, DialogOption.OK_OPTION);
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  "<html><b>" + text,
+                                                  "Script Message",
+                                                  JOptionPane.INFORMATION_MESSAGE,
+                                                  DialogOption.OK_OPTION);
     }
 
     /**********************************************************************************************
@@ -3752,8 +3796,11 @@ public class CcddScriptDataAccessHandler
     public void showWarningDialog(String text)
     {
         // Display the supplied text in a warning dialog
-        new CcddDialogHandler().showMessageDialog(parent, "<html><b>" + text, "Script Warning",
-                                                  JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  "<html><b>" + text,
+                                                  "Script Warning",
+                                                  JOptionPane.WARNING_MESSAGE,
+                                                  DialogOption.OK_OPTION);
     }
 
     /**********************************************************************************************
@@ -3766,7 +3813,10 @@ public class CcddScriptDataAccessHandler
     public void showErrorDialog(String text)
     {
         // Display the supplied text in an error dialog
-        new CcddDialogHandler().showMessageDialog(parent, "<html><b>" + text, "Script Error", JOptionPane.ERROR_MESSAGE,
+        new CcddDialogHandler().showMessageDialog(parent,
+                                                  "<html><b>" + text,
+                                                  "Script Error",
+                                                  JOptionPane.ERROR_MESSAGE,
                                                   DialogOption.OK_OPTION);
     }
 
@@ -3784,15 +3834,20 @@ public class CcddScriptDataAccessHandler
         String input = null;
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        0.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create a panel to hold the components of the dialog
         JPanel panel = new JPanel(new GridBagLayout());
@@ -3807,20 +3862,20 @@ public class CcddScriptDataAccessHandler
         typeField.setEditable(true);
         typeField.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         typeField.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        typeField.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+        typeField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                               Color.LIGHT_GRAY,
+                                                                                               Color.GRAY),
+                                                               BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
         gbc.gridx++;
         panel.add(typeField, gbc);
 
         // Display the input dialog
-        if (new CcddDialogHandler().showOptionsDialog(parent, panel, "Input",
+        if (new CcddDialogHandler().showOptionsDialog(parent,
+                                                      panel,
+                                                      "Input",
                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
             // Get the text from the input field and remove the leading and trailing white space
@@ -3857,17 +3912,20 @@ public class CcddScriptDataAccessHandler
         String selectedButton = null;
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create a panel to hold the components of the dialog
         JPanel panel = new JPanel(new GridBagLayout());
@@ -3875,7 +3933,11 @@ public class CcddScriptDataAccessHandler
         // Create a panel containing a grid of radio buttons representing the table types from
         // which to choose and display the radio button dialog
         if (dialog.addRadioButtons(null, false, buttonInfo, null, label, false, panel, gbc)
-            && dialog.showOptionsDialog(parent, panel, "Select", DialogOption.OK_CANCEL_OPTION, true) == OK_BUTTON)
+            && dialog.showOptionsDialog(parent,
+                                        panel,
+                                        "Select",
+                                        DialogOption.OK_CANCEL_OPTION,
+                                        true) == OK_BUTTON)
         {
             // Get the text associated with the selected radio button
             selectedButton = dialog.getRadioButtonSelected();
@@ -3913,7 +3975,11 @@ public class CcddScriptDataAccessHandler
             // Create a panel containing a grid of check boxes representing the table types from
             // which to choose and display the check box dialog
             if (dialog.addCheckBoxes(null, boxInfo, null, label, false, panel)
-                && dialog.showOptionsDialog(parent, panel, "Select", DialogOption.OK_CANCEL_OPTION, true) == OK_BUTTON)
+                && dialog.showOptionsDialog(parent,
+                                            panel,
+                                            "Select",
+                                            DialogOption.OK_CANCEL_OPTION,
+                                            true) == OK_BUTTON)
             {
                 // Create storage for the check box status(es)
                 boxStatus = new boolean[boxInfo.length];
@@ -3955,7 +4021,8 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand)
     {
-        return dbTable.queryDatabase(new StringBuilder(sqlCommand), ccddMain.getMainFrame()).toArray(new String[0][0]);
+        return dbTable.queryDatabase(new StringBuilder(sqlCommand),
+                                     ccddMain.getMainFrame()).toArray(new String[0][0]);
     }
 
     /**********************************************************************************************
@@ -3966,8 +4033,11 @@ public class CcddScriptDataAccessHandler
     public void writeSuccessLogEntry(String logMessage)
     {
         // Output the message to the event log
-        eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("[script: " + scriptFileName + "] "
-                                                                             + (logMessage == null ? "" : logMessage)));
+        eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                          new StringBuilder("[script: "
+                                            + scriptFileName
+                                            + "] "
+                                            + (logMessage == null ? "" : logMessage)));
     }
 
     /**********************************************************************************************
@@ -3978,8 +4048,11 @@ public class CcddScriptDataAccessHandler
     public void writeFailLogEntry(String logMessage)
     {
         // Output the message to the event log
-        eventLog.logEvent(EventLogMessageType.FAIL_MSG, new StringBuilder("[script: " + scriptFileName + "] "
-                                                                          + (logMessage == null ? "" : logMessage)));
+        eventLog.logEvent(EventLogMessageType.FAIL_MSG,
+                          new StringBuilder("[script: "
+                                            + scriptFileName
+                                            + "] "
+                                            + (logMessage == null ? "" : logMessage)));
     }
 
     /**********************************************************************************************
@@ -3990,8 +4063,11 @@ public class CcddScriptDataAccessHandler
     public void writeStatusLogEntry(String logMessage)
     {
         // Output the message to the event log
-        eventLog.logEvent(EventLogMessageType.STATUS_MSG, new StringBuilder("[script: " + scriptFileName + "] "
-                                                                            + (logMessage == null ? "" : logMessage)));
+        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                          new StringBuilder("[script: "
+                                            + scriptFileName
+                                            + "] "
+                                            + (logMessage == null ? "" : logMessage)));
     }
 
     /**********************************************************************************************
@@ -4176,15 +4252,16 @@ public class CcddScriptDataAccessHandler
         List<String[]> projectFields = new ArrayList<String[]>();
 
         // Step through each data field belonging to the project
-        for (FieldInformation fieldInfo : fieldHandler
-                .getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName()))
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName()))
         {
             // Add the data field information to the list
-            projectFields
-                    .add(new String[] {fieldInfo.getFieldName(), fieldInfo.getDescription(),
-                                       Integer.toString(fieldInfo.getSize()), fieldInfo.getInputType().getInputName(),
-                                       Boolean.toString(fieldInfo.isRequired()),
-                                       fieldInfo.getApplicabilityType().getApplicabilityName(), fieldInfo.getValue()});
+            projectFields.add(new String[] {fieldInfo.getFieldName(),
+                                            fieldInfo.getDescription(),
+                                            Integer.toString(fieldInfo.getSize()),
+                                            fieldInfo.getInputType().getInputName(),
+                                            Boolean.toString(fieldInfo.isRequired()),
+                                            fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                            fieldInfo.getValue()});
         }
 
         return projectFields.toArray(new String[0][0]);
@@ -4435,7 +4512,8 @@ public class CcddScriptDataAccessHandler
                     .getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupName)))
             {
                 // Add the data field information to the list
-                groupFields.add(new String[] {fieldInfo.getFieldName(), fieldInfo.getDescription(),
+                groupFields.add(new String[] {fieldInfo.getFieldName(),
+                                              fieldInfo.getDescription(),
                                               Integer.toString(fieldInfo.getSize()),
                                               fieldInfo.getInputType().getInputName(),
                                               Boolean.toString(fieldInfo.isRequired()),
@@ -4484,7 +4562,9 @@ public class CcddScriptDataAccessHandler
      *         the specified data stream or if data stream name is invalid. Any macro embedded in a
      *         variable name is replaced by its corresponding value
      *********************************************************************************************/
-    public String[][] getCopyTableEntries(String streamName, int headerSize, String messageIDNameField,
+    public String[][] getCopyTableEntries(String streamName,
+                                          int headerSize,
+                                          String messageIDNameField,
                                           boolean optimize)
     {
         // Create the copy table with macros expanded
@@ -4509,7 +4589,9 @@ public class CcddScriptDataAccessHandler
      *         left in place; returns blank if there are no entries for the specified data stream
      *         or if data stream name is invalid
      *********************************************************************************************/
-    public String[][] getCopyTableEntriesWithMacros(String streamName, int headerSize, String messageIDNameField,
+    public String[][] getCopyTableEntriesWithMacros(String streamName,
+                                                    int headerSize,
+                                                    String messageIDNameField,
                                                     boolean optimize)
     {
         // Create the copy table with macros unexpanded
@@ -4535,7 +4617,10 @@ public class CcddScriptDataAccessHandler
      *         the specified data stream or if data stream name is invalid. Any macro embedded in a
      *         variable name is replaced by its corresponding value
      *********************************************************************************************/
-    public String[][] getCopyTableEntries(String streamName, int headerSize, String[][] tlmMessageIDs, boolean optimize)
+    public String[][] getCopyTableEntries(String streamName,
+                                          int headerSize,
+                                          String[][] tlmMessageIDs,
+                                          boolean optimize)
     {
         // Convert the array of structure tables and their message ID names to a list
         ArrayListMultiple tlmMessageIDsList = new ArrayListMultiple();
@@ -4564,7 +4649,9 @@ public class CcddScriptDataAccessHandler
      *         left in place; returns blank if there are no entries for the specified data stream
      *         or if data stream name is invalid
      *********************************************************************************************/
-    public String[][] getCopyTableEntriesWithMacros(String streamName, int headerSize, String[][] tlmMessageIDs,
+    public String[][] getCopyTableEntriesWithMacros(String streamName,
+                                                    int headerSize,
+                                                    String[][] tlmMessageIDs,
                                                     boolean optimize)
     {
         // Convert the array of structure tables and their message ID names to a list
@@ -4598,8 +4685,12 @@ public class CcddScriptDataAccessHandler
      * @return Array containing the copy table entries; returns blank if there are no entries for
      *         the specified data stream or if data stream name is invalid
      *********************************************************************************************/
-    private String[][] getCopyTableEntries(String streamName, int headerSize, String messageIDNameField,
-                                           ArrayListMultiple tlmMessageIDs, boolean optimize, boolean expandMacros)
+    private String[][] getCopyTableEntries(String streamName,
+                                           int headerSize,
+                                           String messageIDNameField,
+                                           ArrayListMultiple tlmMessageIDs,
+                                           boolean optimize,
+                                           boolean expandMacros)
     {
         String[][] entries = new String[0][0];
 
@@ -4621,8 +4712,13 @@ public class CcddScriptDataAccessHandler
         if (rateHandler.getRateInformationIndexByStreamName(streamName) != -1)
         {
             // Create the copy table
-            entries = copyHandler.createCopyTable(linkHandler, streamName, headerSize, messageIDNameField,
-                                                  tlmMessageIDs, optimize, expandMacros);
+            entries = copyHandler.createCopyTable(linkHandler,
+                                                  streamName,
+                                                  headerSize,
+                                                  messageIDNameField,
+                                                  tlmMessageIDs,
+                                                  optimize,
+                                                  expandMacros);
         }
 
         return entries;
@@ -4670,8 +4766,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[][] getMessageOwnersNamesAndIDs()
     {
-        return ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER, true, parent)
-                .toArray(new String[0][0]);
+        return ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER, true, parent).toArray(new String[0][0]);
     }
 
     /**********************************************************************************************
@@ -4901,8 +4996,13 @@ public class CcddScriptDataAccessHandler
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
-    public boolean xtceExport(String outputFileName, boolean isBigEndian, boolean isHeaderBigEndian, String version,
-                              String validationStatus, String classification1, String classification2,
+    public boolean xtceExport(String outputFileName,
+                              boolean isBigEndian,
+                              boolean isHeaderBigEndian,
+                              String version,
+                              String validationStatus,
+                              String classification1,
+                              String classification2,
                               String classification3)
     {
         boolean errorFlag = false;
@@ -4920,25 +5020,31 @@ public class CcddScriptDataAccessHandler
             }
 
             // Export the specified tables to the specified output file in XTCE XML format
-            xtceHandler.exportTables(new FileEnvVar(outputFileName), tableDefs, true, true, // unused
-                                                                                            // for
-                                                                                            // XTCE
-                                                                                            // export
+            xtceHandler.exportTables(new FileEnvVar(outputFileName),
+                                     tableDefs,
+                                     true,
+                                     true, // unused for XTCE export
                                      false, // unused for XTCE export
                                      null, // unused for XTCE export
                                      null, // unused for XTCE export
                                      false, // unused for XTCE export
                                      null, // unused for XTCE export
                                      (isBigEndian ? EndianType.BIG_ENDIAN : EndianType.LITTLE_ENDIAN),
-                                     isHeaderBigEndian, version, validationStatus, classification1, classification2,
+                                     isHeaderBigEndian,
+                                     version,
+                                     validationStatus,
+                                     classification1,
+                                     classification2,
                                      classification3);
         }
-        catch (
-                JAXBException | CCDDException jce)
+        catch (JAXBException | CCDDException jce)
         {
             // Inform the user that an error occurred
-            new CcddDialogHandler().showMessageDialog(parent, "<html><b>" + jce.getMessage(), "Export Error",
-                                                      JOptionPane.ERROR_MESSAGE, DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>" + jce.getMessage(),
+                                                      "Export Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
             errorFlag = true;
         }
         catch (Exception e)
@@ -4966,13 +5072,20 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceAddSpaceSystemHeader(SpaceSystemType spaceSystem, String classification, String validationStatus,
-                                         String version, String date) throws CCDDException
+    public void xtceAddSpaceSystemHeader(SpaceSystemType spaceSystem,
+                                         String classification,
+                                         String validationStatus,
+                                         String version,
+                                         String date) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.addSpaceSystemHeader(spaceSystem, classification, validationStatus, version, date);
+            xtceHandler.addSpaceSystemHeader(spaceSystem,
+                                             classification,
+                                             validationStatus,
+                                             version,
+                                             date);
         }
     }
 
@@ -5032,18 +5145,42 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceAddSpaceSystemParameters(SpaceSystemType spaceSystem, String tableName, String[][] tableData,
-                                             int varColumn, int typeColumn, int sizeColumn, int bitColumn,
-                                             int enumColumn, int descColumn, int unitsColumn, int minColumn,
-                                             int maxColumn, boolean isTlmHdrTable, String tlmHdrSysPath,
-                                             boolean isRootStructure, String applicationID) throws CCDDException
+    public void xtceAddSpaceSystemParameters(SpaceSystemType spaceSystem,
+                                             String tableName,
+                                             String[][] tableData,
+                                             int varColumn,
+                                             int typeColumn,
+                                             int sizeColumn,
+                                             int bitColumn,
+                                             int enumColumn,
+                                             int descColumn,
+                                             int unitsColumn,
+                                             int minColumn,
+                                             int maxColumn,
+                                             boolean isTlmHdrTable,
+                                             String tlmHdrSysPath,
+                                             boolean isRootStructure,
+                                             String applicationID) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.addSpaceSystemParameters(spaceSystem, tableName, tableData, varColumn, typeColumn, sizeColumn,
-                                                 bitColumn, enumColumn, descColumn, unitsColumn, minColumn, maxColumn,
-                                                 isTlmHdrTable, tlmHdrSysPath, isRootStructure, applicationID);
+            xtceHandler.addSpaceSystemParameters(spaceSystem,
+                                                 tableName,
+                                                 tableData,
+                                                 varColumn,
+                                                 typeColumn,
+                                                 sizeColumn,
+                                                 bitColumn,
+                                                 enumColumn,
+                                                 descColumn,
+                                                 unitsColumn,
+                                                 minColumn,
+                                                 maxColumn,
+                                                 isTlmHdrTable,
+                                                 tlmHdrSysPath,
+                                                 isRootStructure,
+                                                 applicationID);
         }
     }
 
@@ -5075,16 +5212,32 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceAddParameterAndType(SpaceSystemType spaceSystem, String parameterName, String dataType,
-                                        String arraySize, String bitLength, String enumeration, String units,
-                                        String minimum, String maximum, String description,
+    public void xtceAddParameterAndType(SpaceSystemType spaceSystem,
+                                        String parameterName,
+                                        String dataType,
+                                        String arraySize,
+                                        String bitLength,
+                                        String enumeration,
+                                        String units,
+                                        String minimum,
+                                        String maximum,
+                                        String description,
                                         int stringSize) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.addParameterAndType(spaceSystem, parameterName, dataType, arraySize, bitLength, enumeration,
-                                            units, minimum, maximum, description, stringSize);
+            xtceHandler.addParameterAndType(spaceSystem,
+                                            parameterName,
+                                            dataType,
+                                            arraySize,
+                                            bitLength,
+                                            enumeration,
+                                            units,
+                                            minimum,
+                                            maximum,
+                                            description,
+                                            stringSize);
         }
     }
 
@@ -5110,15 +5263,22 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public boolean xtceAddParameterSequenceEntry(SpaceSystemType spaceSystem, String parameterName, String dataType,
-                                                 String arraySize, EntryListType entryList,
+    public boolean xtceAddParameterSequenceEntry(SpaceSystemType spaceSystem,
+                                                 String parameterName,
+                                                 String dataType,
+                                                 String arraySize,
+                                                 EntryListType entryList,
                                                  boolean isTlmHdrRef) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            isTlmHdrRef = xtceHandler.addParameterSequenceEntry(spaceSystem, parameterName, dataType, arraySize,
-                                                                entryList, isTlmHdrRef);
+            isTlmHdrRef = xtceHandler.addParameterSequenceEntry(spaceSystem,
+                                                                parameterName,
+                                                                dataType,
+                                                                arraySize,
+                                                                entryList,
+                                                                isTlmHdrRef);
         }
 
         return isTlmHdrRef;
@@ -5152,16 +5312,32 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceSetParameterDataType(SpaceSystemType spaceSystem, String parameterName, String dataType,
-                                         String arraySize, String bitLength, String enumeration, String units,
-                                         String minimum, String maximum, String description,
+    public void xtceSetParameterDataType(SpaceSystemType spaceSystem,
+                                         String parameterName,
+                                         String dataType,
+                                         String arraySize,
+                                         String bitLength,
+                                         String enumeration,
+                                         String units,
+                                         String minimum,
+                                         String maximum,
+                                         String description,
                                          int stringSize) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.setParameterDataType(spaceSystem, parameterName, dataType, arraySize, bitLength, enumeration,
-                                             units, minimum, maximum, description, stringSize);
+            xtceHandler.setParameterDataType(spaceSystem,
+                                             parameterName,
+                                             dataType,
+                                             arraySize,
+                                             bitLength,
+                                             enumeration,
+                                             units,
+                                             minimum,
+                                             maximum,
+description,
+                                             stringSize);
         }
     }
 
@@ -5204,16 +5380,28 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    protected void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem, String[][] tableData, int cmdNameColumn,
-                                              int cmdCodeColumn, int cmdArgumentColumn, int cmdDescColumn,
-                                              boolean isCmdHeader, String cmdHdrSysPath,
+    protected void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem,
+                                              String[][] tableData,
+                                              int cmdNameColumn,
+                                              int cmdCodeColumn,
+                                              int cmdArgumentColumn,
+                                              int cmdDescColumn,
+                                              boolean isCmdHeader,
+                                              String cmdHdrSysPath,
                                               String applicationID) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.addSpaceSystemCommands(spaceSystem, tableData, cmdNameColumn, cmdCodeColumn, cmdArgumentColumn,
-                                               cmdDescColumn, isCmdHeader, cmdHdrSysPath, applicationID);
+            xtceHandler.addSpaceSystemCommands(spaceSystem,
+                                               tableData,
+                                               cmdNameColumn,
+                                               cmdCodeColumn,
+                                               cmdArgumentColumn,
+                                               cmdDescColumn,
+                                               isCmdHeader,
+                                               cmdHdrSysPath,
+                                               applicationID);
         }
     }
 
@@ -5245,16 +5433,32 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceAddCommand(SpaceSystemType spaceSystem, String commandName, String cmdFuncCode,
-                               String applicationID, String cmdArgStruct, boolean isCmdHeader, String cmdHdrSysPath,
-                               String[] argumentNames, String[] argDataTypes, String[] argArraySizes,
+    public void xtceAddCommand(SpaceSystemType spaceSystem,
+                               String commandName,
+                               String cmdFuncCode,
+                               String applicationID,
+                               String cmdArgStruct,
+                               boolean isCmdHeader,
+                               String cmdHdrSysPath,
+                               String[] argumentNames,
+                               String[] argDataTypes,
+                               String[] argArraySizes,
                                String description) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            xtceHandler.addCommand(spaceSystem, commandName, cmdFuncCode, applicationID, cmdArgStruct, isCmdHeader,
-                                   cmdHdrSysPath, argumentNames, argDataTypes, argArraySizes, description);
+            xtceHandler.addCommand(spaceSystem,
+                                   commandName,
+                                   cmdFuncCode,
+                                   applicationID,
+                                   cmdArgStruct,
+                                   isCmdHeader,
+                                   cmdHdrSysPath,
+                                   argumentNames,
+                                   argDataTypes,
+                                   argArraySizes,
+                                   description);
         }
     }
 
@@ -5293,10 +5497,17 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public NameDescriptionType xtceSetArgumentDataType(SpaceSystemType spaceSystem, String argumentName,
-                                                       String dataType, String arraySize, String bitLength,
-                                                       String enumeration, String units, String minimum, String maximum,
-                                                       String description, int stringSize,
+    public NameDescriptionType xtceSetArgumentDataType(SpaceSystemType spaceSystem,
+                                                       String argumentName,
+                                                       String dataType,
+                                                       String arraySize,
+                                                       String bitLength,
+                                                       String enumeration,
+                                                       String units,
+                                                       String minimum,
+                                                       String maximum,
+                                                       String description,
+                                                       int stringSize,
                                                        String uniqueID) throws CCDDException
     {
         NameDescriptionType commandDescription = null;
@@ -5304,9 +5515,18 @@ public class CcddScriptDataAccessHandler
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
-            commandDescription = xtceHandler.setArgumentDataType(spaceSystem, argumentName, dataType, arraySize,
-                                                                 bitLength, enumeration, units, minimum, maximum,
-                                                                 description, stringSize, uniqueID);
+            commandDescription = xtceHandler.setArgumentDataType(spaceSystem,
+                                                                 argumentName,
+                                                                 dataType,
+                                                                 arraySize,
+                                                                 bitLength,
+                                                                 enumeration,
+                                                                 units,
+                                                                 minimum,
+                                                                 maximum,
+                                                                 description,
+                                                                 stringSize,
+                                                                 uniqueID);
         }
 
         return commandDescription;
@@ -5327,7 +5547,9 @@ public class CcddScriptDataAccessHandler
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
-    public void xtceAddContainerReference(String parameterName, String dataType, String arraySize,
+    public void xtceAddContainerReference(String parameterName,
+                                          String dataType,
+                                          String arraySize,
                                           Object entryList) throws CCDDException
     {
         // Check if the XTCE handler exists

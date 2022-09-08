@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableTypeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling interactions with table types.
  *
@@ -1588,7 +1588,8 @@ public class CcddTableTypeHandler
             typeUpdate = TableTypeUpdate.NEW;
 
             // Add the new table type
-            createReplaceTypeDefinition(tableTypeDefn.getTypeName(), tableTypeDefn.getDescription(),
+            createReplaceTypeDefinition(tableTypeDefn.getTypeName(),
+                                        tableTypeDefn.getDescription(),
                                         tableTypeDefn.getColumns().toArray(new Object[0][0]));
 
             // Check if the table type editor is open
@@ -1599,8 +1600,7 @@ public class CcddTableTypeHandler
             }
 
             // Update the fieldHandler
-            fieldHandler.replaceFieldInformationByOwner("Type:"
-                                                        + tableTypeDefn.getTypeName(),
+            fieldHandler.replaceFieldInformationByOwner("Type:" + tableTypeDefn.getTypeName(),
                                                         fieldHandler.getFieldInformationFromDefinitions(tableTypeDefn.getDataFields()));
         }
         else
@@ -1741,10 +1741,13 @@ public class CcddTableTypeHandler
 
         // Create/replace the type definition. The description is prepended with a '0' is the table
         // type doesn't represent a command argument structure, and a '1' if it does
-        createReplaceTypeDefinition(newTableTypeDefn.getTypeName(), newTableTypeDefn.getDescription(), newTypeData);
+        createReplaceTypeDefinition(newTableTypeDefn.getTypeName(),
+                                    newTableTypeDefn.getDescription(),
+                                    newTypeData);
 
         // Create a 2d Object array for the old type data
-        String[][] tempArray = dbTable.queryTableTypeDataList(newTableTypeDefn.getTypeName(), ccddMain.getMainFrame());
+        String[][] tempArray = dbTable.queryTableTypeDataList(newTableTypeDefn.getTypeName(),
+                                                              ccddMain.getMainFrame());
         Object[][] oldTypeData = new Object[tempArray.length][tempArray[0].length];
 
         for (int i = 0; i < tempArray.length; i++)

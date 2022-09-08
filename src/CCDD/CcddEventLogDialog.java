@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddEventLogDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for displaying and updating the session and stored event logs. The dialog is built
  * on the CcddFrameHandler class.
@@ -396,7 +396,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                                                            "Project to which the event applies",
                                                                            "User that invoked the event",
                                                                            "Event date and time tag",
-                                                                           "Event message type", "Event message"},
+                                                                           "Event message type",
+                                                                           "Event message"},
                                                              true,
                                                              true,
                                                              false);

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddFieldEditorDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling data field operations. The dialog is built on the CcddDialogHandler
  * class.
@@ -206,7 +206,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             {
                 return column == FieldEditorColumnInfo.INHERITED.ordinal()
                                  || column == FieldEditorColumnInfo.VALUE.ordinal()
-                                 || (!includeApplicability && column == FieldEditorColumnInfo.APPLICABILITY.ordinal())
+                                 || (!includeApplicability
+                                     && column == FieldEditorColumnInfo.APPLICABILITY.ordinal())
                                  || column == FieldEditorColumnInfo.ID.ordinal();
             }
 
@@ -419,8 +420,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                     boolean found = true;
 
                     // Check if the row is for an inherited field
-                    if (Boolean.parseBoolean(fieldTable.getModel().getValueAt(row,
-                                                                              FieldEditorColumnInfo.INHERITED.ordinal()).toString()))
+                    if (Boolean.parseBoolean(fieldTable.getModel()
+                                                       .getValueAt(row,
+                                                                   FieldEditorColumnInfo.INHERITED.ordinal()).toString()))
                     {
                         // Indicate that the field can't be altered
                         comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
@@ -921,7 +923,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
             // Set the column table editor to the combo box
-            fieldTable.getColumnModel().getColumn(applicabilityIndex)
+            fieldTable.getColumnModel()
+                      .getColumn(applicabilityIndex)
                       .setCellEditor(new ComboBoxCellEditor(applicabilityCBox));
 
             // Set the default selected type

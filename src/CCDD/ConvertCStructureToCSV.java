@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file ConvertCStructureToCSV.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing methods that can be used to convert a C header file to CSV format
  *
@@ -83,7 +83,9 @@ public class ConvertCStructureToCSV
 
         if (!ccddMain.isGUIHidden())
         {
-            if (!(new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), message, "Notice",
+            if (!(new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                            message,
+                                                            "Notice",
                                                             JOptionPane.QUESTION_MESSAGE,
                                                             DialogOption.OK_CANCEL_OPTION) != OK_BUTTON))
             {
@@ -225,14 +227,12 @@ public class ConvertCStructureToCSV
                         if (isTypeDef)
                         {
                             // Get the structure's name
-                            structName = structDataIn.get(lastRow).replaceAll("(?:^\\s*}\\s*(?:OS_PACK\\s+)?|\\s*;.*)",
-                                                                              "");
+                            structName = structDataIn.get(lastRow).replaceAll("(?:^\\s*}\\s*(?:OS_PACK\\s+)?|\\s*;.*)", "");
                         }
 
                         // Build the structure and column tags for the CSV file
                         structDataOut.add("_name_type_\n\"" + structName + "\",\"Structure\"");
-                        structDataOut
-                                .add("_column_data_\n\"Data Type\",\"Variable Name\",\"Array Size\",\"Bit Length\",\"Description\"");
+                        structDataOut.add("_column_data_\n\"Data Type\",\"Variable Name\",\"Array Size\",\"Bit Length\",\"Description\"");
 
                         String dataType = "";
                         String variableName = "";
@@ -269,13 +269,22 @@ public class ConvertCStructureToCSV
                                     // Update the variable's description with the additional
                                     // comment text
                                     structDataOut.set(structDataOut.size() - 1,
-                                                      "\"" + dataType + "\",\"" + variableName + "\",\"" + arraySize
-                                                                                + "\",\"" + bitLength + "\",\""
-                                                                                + description + "\"");
+                                                      "\""
+                                                      + dataType
+                                                      + "\",\""
+                                                      + variableName
+                                                      + "\",\""
+                                                      + arraySize
+                                                      + "\",\""
+                                                      + bitLength
+                                                      + "\",\""
+                                                      + description
+                                                      + "\"");
                                 }
                             }
                             // Check if this is a variable definition within the structure
-                            else if (!structDataIn.get(row).isEmpty() && !structDataIn.get(row).startsWith("{")
+                            else if (!structDataIn.get(row).isEmpty()
+                                     && !structDataIn.get(row).startsWith("{")
                                      && !structDataIn.get(row).startsWith("**")
                                      && !structDataIn.get(row).startsWith("*/")
                                      && !structDataIn.get(row).startsWith("#")
@@ -341,10 +350,8 @@ public class ConvertCStructureToCSV
                                     // Get the index of the last space in the variable definition
                                     // (prior to the first comma, if multiple variables are defined
                                     // on this row)
-                                    varNameStart = (varDefnAndDesc[0]
-                                            .indexOf(",") == -1 ? varDefnAndDesc[0]
-                                                                : varDefnAndDesc[0].replaceAll("\\s*,.+", ""))
-                                                                        .lastIndexOf(" ");
+                                    varNameStart = (varDefnAndDesc[0].indexOf(",") == -1 ? varDefnAndDesc[0]
+                                                                                         : varDefnAndDesc[0].replaceAll("\\s*,.+", "")).lastIndexOf(" ");
 
                                     // Get the index of the first array definition or bit length
                                     // (the result is -1 if the row contains no array or bit-wise
@@ -400,7 +407,8 @@ public class ConvertCStructureToCSV
                                         // name. Remove any brackets, replacing back-to-back ending
                                         // + beginning brackets with a comma
                                         arraySize = variableName.substring(variableName.indexOf("["))
-                                                .replaceAll("\\]\\s*\\[", ",").replaceAll("\\[|\\]", "");
+                                                                .replaceAll("\\]\\s*\\[", ",")
+                                                                .replaceAll("\\[|\\]", "");
                                         variableName = variableName.substring(0, variableName.indexOf("["));
 
                                         // Evaluate and adjust the array size for macros
@@ -453,9 +461,18 @@ public class ConvertCStructureToCSV
                                         variableNames.add(variableName);
 
                                         // Add the variable's definition to the output
-                                        structDataOut
-                                                .add("\"" + dataType + ptr + "\",\"" + variableName + "\",\""
-                                                     + arraySize + "\",\"" + bitLength + "\",\"" + description + "\"");
+                                        structDataOut.add("\""
+                                                          + dataType
+                                                          + ptr
+                                                          + "\",\""
+                                                          + variableName
+                                                          + "\",\""
+                                                          + arraySize
+                                                          + "\",\""
+                                                          + bitLength
+                                                          + "\",\""
+                                                          + description
+                                                          + "\"");
                                     }
                                 }
                             }
@@ -622,9 +639,17 @@ public class ConvertCStructureToCSV
                         if (macroName.matches("[a-zA-Z_].*"))
                         {
                             // Bound each instance of the macro's name with the macro identifier
-                            part = part.replaceAll("(^|[^" + MACRO_IDENTIFIER + "])" + macroName + "([^"
-                                                   + MACRO_IDENTIFIER + "]|$)",
-                                                   "$1" + MACRO_IDENTIFIER + macroName + MACRO_IDENTIFIER + "$2");
+                            part = part.replaceAll("(^|[^"
+                                                   + MACRO_IDENTIFIER + "])"
+                                                   + macroName
+                                                   + "([^"
+                                                   + MACRO_IDENTIFIER
+                                                   + "]|$)",
+                                                   "$1"
+                                                   + MACRO_IDENTIFIER
+                                                   + macroName
+                                                   + MACRO_IDENTIFIER
+                                                   + "$2");
                         }
                     }
 

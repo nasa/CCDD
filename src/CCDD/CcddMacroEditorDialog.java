@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddMacroEditorDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to create, modify, or delete macros and macro values. The dialog is
  * built on the CcddDialogHandler class.
@@ -210,8 +210,17 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 macroHandler.initializeReferences();
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                1.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(0, 0, 0, 0),
+                                                                0,
+                                                                0);
 
                 // Create a copy of the macro data so it can be used to determine if changes are
                 // made
@@ -230,7 +239,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 ccddMain.getKeyboardHandler().setModalDialogReference(macroTable.getUndoManager(), macroTable);
 
                 // New button
-                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row", INSERT_ICON, KeyEvent.VK_I,
+                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                                           INSERT_ICON,
+                                                                           KeyEvent.VK_I,
                                                                            "Insert a new row into the table");
 
                 // Create a listener for the Insert Row button
@@ -247,7 +258,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Delete button
-                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row", DELETE_ICON, KeyEvent.VK_D,
+                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                                           DELETE_ICON,
+                                                                           KeyEvent.VK_D,
                                                                            "Delete the selected row(s) from the table");
 
                 // Create a listener for the Delete row button
@@ -280,16 +293,15 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                     macroTable.removeRowSelectionInterval(row, row);
 
                                     // Inform the user that the macro can't be deleted
-                                    new CcddDialogHandler()
-                                            .showMessageDialog(CcddMacroEditorDialog.this,
-                                                               "<html><b>Cannot delete macro '</b>" + macroName
-                                                                                           + "<b>'; macro is referenced by table(s) '</b>"
-                                                                                           + CcddUtilities
-                                                                                                   .convertArrayToStringTruncate(tablePaths
-                                                                                                           .toArray(new String[0]))
-                                                                                           + "<b>'",
-                                                               "Delete Macro", JOptionPane.ERROR_MESSAGE,
-                                                               DialogOption.OK_OPTION);
+                                    new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
+                                                                              "<html><b>Cannot delete macro '</b>"
+                                                                              + macroName
+                                                                              + "<b>'; macro is referenced by table(s) '</b>"
+                                                                              + CcddUtilities.convertArrayToStringTruncate(tablePaths.toArray(new String[0]))
+                                                                              + "<b>'",
+                                                                              "Delete Macro",
+                                                                              JOptionPane.ERROR_MESSAGE,
+                                                                              DialogOption.OK_OPTION);
                                 }
                             }
                         }
@@ -300,7 +312,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Move Up button
-                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up", UP_ICON, KeyEvent.VK_U,
+                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                                        UP_ICON,
+                                                                        KeyEvent.VK_U,
                                                                         "Move the selected row(s) up");
 
                 // Create a listener for the Move Up button
@@ -317,7 +331,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Move Down button
-                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down", DOWN_ICON, KeyEvent.VK_W,
+                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                                          DOWN_ICON,
+                                                                          KeyEvent.VK_W,
                                                                           "Move the selected row(s) down");
 
                 // Create a listener for the Move Down button
@@ -334,7 +350,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Undo button
-                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z,
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
                                                                       "Undo the last edit");
 
                 // Create a listener for the Undo button
@@ -351,7 +369,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Redo button
-                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
                                                                       "Redo the last undone edit");
 
                 // Create a listener for the Redo button
@@ -368,7 +388,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 });
 
                 // Store the macros button
-                JButton btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON,
+                                                                       KeyEvent.VK_S,
                                                                        "Store the macro(s)");
                 btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
@@ -384,24 +406,29 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         // Only update the table in the database if a cell's content has changed,
                         // none of the required columns is missing a value, and the user confirms
                         // the action
-                        if (macroTable.isTableChanged(committedData) && !checkForMissingColumns()
+                        if (macroTable.isTableChanged(committedData)
+                            && !checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
                                                                          "<html><b>Store changes in project database?",
-                                                                         "Store Changes", JOptionPane.QUESTION_MESSAGE,
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                         {
                             // Get a list of the macro modifications
                             buildUpdates();
 
                             // Update the tables affected by the changes to the macro(s)
-                            dbTable.modifyTablesPerDataTypeOrMacroChangesInBackground(modifications, getUpdatedData(),
+                            dbTable.modifyTablesPerDataTypeOrMacroChangesInBackground(modifications,
+                                                                                      getUpdatedData(),
                                                                                       CcddMacroEditorDialog.this);
                         }
                     }
                 });
 
                 // Close button
-                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the macro editor");
 
                 // Create a listener for the Close button
@@ -438,7 +465,12 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             protected void complete()
             {
                 // Display the macro editor dialog
-                showOptionsDialog(ccddMain.getMainFrame(), editorPnl, buttonPnl, btnClose, DIALOG_TITLE, true);
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  editorPnl,
+                                  buttonPnl,
+                                  btnClose,
+                                  DIALOG_TITLE,
+                                  true);
             }
         });
     }
@@ -467,7 +499,11 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
              * @param column     Cell column, view coordinates
              *************************************************************************************/
             @Override
-            protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)
+            protected void doSpecialRendering(Component component,
+                                              String text,
+                                              boolean isSelected,
+                                              int row,
+                                              int column)
             {
                 // Check if this is the macro values column
                 if (column == MacroEditorColumnInfo.VALUE.ordinal())
@@ -475,12 +511,14 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                     // Highlight any macro names in the table cell. Adjust the highlight color to
                     // account for the cell selection highlighting so that the macro is easily
                     // readable
-                    macroHandler.highlightMacro(component, text,
+                    macroHandler.highlightMacro(component,
+                                                text,
                                                 isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                            : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
                     // Highlight 'sizeof(data type)' instances
-                    CcddDataTypeHandler.highlightSizeof(component, text,
+                    CcddDataTypeHandler.highlightSizeof(component,
+                                                        text,
                                                         isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                                    : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
                 }
@@ -568,8 +606,13 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
              * @return Always returns false
              *************************************************************************************/
             @Override
-            protected Boolean validateCellContent(List<Object[]> tableData, int row, int column, Object oldValue,
-                                                  Object newValue, Boolean showMessage, boolean isMultiple)
+            protected Boolean validateCellContent(List<Object[]> tableData,
+                                                  int row,
+                                                  int column,
+                                                  Object oldValue,
+                                                  Object newValue,
+                                                  Boolean showMessage,
+                                                  boolean isMultiple)
             {
                 // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
@@ -614,8 +657,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         {
                             // Create a macro handler using the values currently displayed in the
                             // macro editor
-                            CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain, getUpdatedData());
-                            newMacroHandler.setHandlers(ccddMain.getVariableHandler(), ccddMain.getDataTypeHandler());
+                            CcddMacroHandler newMacroHandler = new CcddMacroHandler(ccddMain,
+                                                                                    getUpdatedData());
+                            newMacroHandler.setHandlers(ccddMain.getVariableHandler(),
+                                                        ccddMain.getDataTypeHandler());
 
                             // Get the macro's index and name
                             String index = tableData.get(row)[MacroEditorColumnInfo.OID.ordinal()].toString();
@@ -639,10 +684,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                     // of the current name in the editor, in case it's been
                                     // changed) since this is how the macro is referenced in the
                                     // data tables. Stop searching since a match was found
-                                    macroHandler.validateMacroUsage(
-                                                                    committedData[commRow][MacroEditorColumnInfo.NAME
-                                                                            .ordinal()],
-                                                                    newMacroHandler, CcddMacroEditorDialog.this);
+                                    macroHandler.validateMacroUsage(committedData[commRow][MacroEditorColumnInfo.NAME.ordinal()],
+                                                                    newMacroHandler,
+                                                                    CcddMacroEditorDialog.this);
                                     break;
                                 }
                             }
@@ -659,8 +703,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                                  "<html><b>" + ce.getMessage(), "Invalid Input",
-                                                                  JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                                                                  "<html><b>" + ce.getMessage(),
+                                                                  "Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
                     }
 
                     // Restore the cell contents to its original value and pop the edit from the
@@ -686,8 +732,13 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(committedData, MacroEditorColumnInfo.getColumnNames(), null,
-                                            MacroEditorColumnInfo.getToolTips(), true, true, true);
+                setUpdatableCharacteristics(committedData,
+                                            MacroEditorColumnInfo.getColumnNames(),
+                                            null,
+                                            MacroEditorColumnInfo.getToolTips(),
+                                            true,
+                                            true,
+                                            true);
             }
 
             /**************************************************************************************
@@ -755,10 +806,16 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         JScrollPane scrollPane = new JScrollPane(macroTable);
 
         // Set common table parameters and characteristics
-        macroTable.setFixedCharacteristics(scrollPane, true, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                           TableSelectionMode.SELECT_BY_CELL, false,
-                                           ModifiableColorInfo.TABLE_BACK.getColor(), true, true,
-                                           ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+        macroTable.setFixedCharacteristics(scrollPane,
+                                           true,
+                                           ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                           TableSelectionMode.SELECT_BY_CELL,
+                                           false,
+                                           ModifiableColorInfo.TABLE_BACK.getColor(),
+                                           true,
+                                           true,
+                                           ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                           true);
 
         return scrollPane;
     }
@@ -774,8 +831,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // changes
         if (macroTable.isLastCellValid()
             && (!macroTable.isTableChanged(committedData)
-                || new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this, "<html><b>Discard changes?",
-                                                             "Discard Changes", JOptionPane.QUESTION_MESSAGE,
+                || new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the dialog
@@ -811,16 +870,16 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             if (isExpand)
             {
                 // Store the original cell values for when the macro names are restored
-                originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()] = tableModel
-                        .getValueAt(row, MacroEditorColumnInfo.VALUE.ordinal()).toString();
+                originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()] = tableModel.getValueAt(row, MacroEditorColumnInfo.VALUE.ordinal()).toString();
             }
 
             // Replace the table cells with their original contents (i.e., show macro names in
             // place of their corresponding values)
-            tableModel.setValueAt((isExpand ? macroHandler
-                    .getMacroExpansion(originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()])
+            tableModel.setValueAt((isExpand ? macroHandler.getMacroExpansion(originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()])
                                             : originalCellData[row][MacroEditorColumnInfo.VALUE.ordinal()]),
-                                  row, MacroEditorColumnInfo.VALUE.ordinal(), false);
+                                  row,
+                                  MacroEditorColumnInfo.VALUE.ordinal(),
+                                  false);
         }
     }
 
@@ -865,13 +924,15 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
 
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
-                        if (new CcddDialogHandler()
-                                .showMessageDialog(CcddMacroEditorDialog.this,
-                                                   "<html><b>Data must be provided for column '</b>"
-                                                                               + macroTable.getColumnName(column)
-                                                                               + "<b>' [row </b>" + (row + 1) + "<b>]",
-                                                   "Missing Data", JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                        if (new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
+                                                                      "<html><b>Data must be provided for column '</b>"
+                                                                      + macroTable.getColumnName(column)
+                                                                      + "<b>' [row </b>"
+                                                                      + (row + 1)
+                                                                      + "<b>]",
+                                                                      "Missing Data",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
                             // Set the stop flag to prevent further error checking
                             stopCheck = true;
@@ -913,8 +974,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
                     // Check if the index values match for these rows
-                    if (tableData[tblRow][MacrosColumn.OID.ordinal()]
-                            .equals(committedData[comRow][MacrosColumn.OID.ordinal()]))
+                    if (tableData[tblRow][MacrosColumn.OID.ordinal()].equals(committedData[comRow][MacrosColumn.OID.ordinal()]))
                     {
                         // Set the flags indicating this row has a match
                         matchFound = true;

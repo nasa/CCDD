@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddSchedulerDialogInterface.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that defines the interface for the application and telemetry scheduler dialog
  * classes.

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddFieldHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling the data field editor.
  *
@@ -680,6 +680,7 @@ public class CcddFieldHandler
                         data[index] = data[index + 1];
                     }
                 }
+
                 // Add the field information for this data field to the list
                 fieldInfo.add(new FieldInformation(ownerName, data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                                    data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),

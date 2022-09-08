@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddInputTypeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling data input type operations.
  *
@@ -195,8 +195,10 @@ public class CcddInputTypeHandler
         // Set the input type list, combining the default types and the custom types stored in the
         // project database
         setInputTypeData(ccddMain.getDbTableCommandHandler()
-                .retrieveInformationTable(InternalTable.INPUT_TYPES, true, ccddMain.getMainFrame())
-                .toArray(new String[0][0]));
+                                 .retrieveInformationTable(InternalTable.INPUT_TYPES,
+                                                           true,
+                                                           ccddMain.getMainFrame())
+                                 .toArray(new String[0][0]));
     }
 
     /**********************************************************************************************
@@ -275,8 +277,11 @@ public class CcddInputTypeHandler
         for (DefaultInputType inputType : DefaultInputType.values())
         {
             // Add the default input type to the list of input types
-            inputTypes.add(new InputType(inputType.getInputName(), inputType.getInputDescription(),
-                                         inputType.getInputMatch(), null, inputType.getInputFormat(), false));
+            inputTypes.add(new InputType(inputType.getInputName(),
+                                         inputType.getInputDescription(),
+                                         inputType.getInputMatch(),
+                                         null, inputType.getInputFormat(),
+                                         false));
         }
 
         // Set through any custom input types defined for the project
@@ -338,8 +343,8 @@ public class CcddInputTypeHandler
             {
                 // Remove the data types from the variable path + name
                 inputType.getInputItems()
-                        .set(index,
-                             variableHandler.removeDataTypeFromVariablePath(inputType.getInputItems().get(index)));
+                         .set(index,
+                              variableHandler.removeDataTypeFromVariablePath(inputType.getInputItems().get(index)));
             }
 
             // Sort the list alphabetically (case insensitive)
@@ -408,12 +413,16 @@ public class CcddInputTypeHandler
 
         // Step through each message reference
         for (String[] msgID : ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_NAME,
-                                                                                         true, parent))
+                                                                                         true,
+                                                                                         parent))
         {
             // Get the message name, ID, and owner to display in the list
-            String item = msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()] + " (ID: "
-                          + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()] + ", owner: "
-                          + msgID[MsgIDListColumnIndex.OWNER.ordinal()] + ")";
+            String item = msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()]
+                          + " (ID: "
+                          + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
+                          + ", owner: "
+                          + msgID[MsgIDListColumnIndex.OWNER.ordinal()]
+                          + ")";
 
             // Check if the message reference isn't already in the list
             if (!msgIDs.contains(item))
@@ -620,7 +629,9 @@ public class CcddInputTypeHandler
      *
      * @return Input value reformatted based on its input type
      *****************************************************************************************/
-    protected static String formatInput(String valueS, InputTypeFormat inputFormat, boolean preserveZeroes)
+    protected static String formatInput(String valueS,
+                                        InputTypeFormat inputFormat,
+                                        boolean preserveZeroes)
     {
         // Check that the value is not blank
         if (!valueS.isEmpty())
@@ -654,7 +665,7 @@ public class CcddInputTypeHandler
                         // Remove leading hexadecimal identifier if present and the protection flag
                         // if present, then convert the value to an integer (base 16)
                         String valueSTemp = valueS.replaceFirst("^0x|^0X", "")
-                                .replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
+                                                  .replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
                         int value = Integer.valueOf(valueSTemp, 16);
 
                         // Get the leading zeroes, if any
@@ -681,8 +692,9 @@ public class CcddInputTypeHandler
                     case ARRAY:
                         // Remove all spaces, plus signs, and leading zeroes, and replace any
                         // commas with a comma and space
-                        valueS = valueS.replaceAll("[\\s+\\+]", "").replaceAll("0*([0-9]+)", "$1").replaceAll(",",
-                                                                                                              ", ");
+                        valueS = valueS.replaceAll("[\\s+\\+]", "")
+                                       .replaceAll("0*([0-9]+)", "$1")
+                                       .replaceAll(",", ", ");
                         break;
 
                     case MESSAGE_ID:
@@ -735,15 +747,19 @@ public class CcddInputTypeHandler
      *********************************************************************************************/
     protected String[] searchInputTypeReferences(String inputTypeName, Component parent)
     {
-        return dbCommand
-                .getList(DatabaseListCommand.SEARCH,
-                         new String[][] {{"_search_text_",
-                                          "^" + CcddUtilities.escapePostgreSQLReservedChars(inputTypeName) + "$"},
-                                         {"_case_insensitive_", "true"}, {"_allow_regex_", "true"},
-                                         {"_selected_tables_", SearchType.INPUT.toString()},
-                                         {"_columns_", TableTypesColumn.INPUT_TYPE.getColumnName() + ", "
-                                                       + FieldsColumn.FIELD_TYPE.getColumnName()}},
-                         parent);
+        return dbCommand.getList(DatabaseListCommand.SEARCH,
+                                 new String[][] {{"_search_text_",
+                                                  "^"
+                                                  + CcddUtilities.escapePostgreSQLReservedChars(inputTypeName)
+                                                  + "$"},
+                                                 {"_case_insensitive_", "true"},
+                                                 {"_allow_regex_", "true"},
+                                                 {"_selected_tables_", SearchType.INPUT.toString()},
+                                                 {"_columns_",
+                                                  TableTypesColumn.INPUT_TYPE.getColumnName()
+                                                  + ", "
+                                                  + FieldsColumn.FIELD_TYPE.getColumnName()}},
+                                 parent);
     }
 
     /**********************************************************************************************
@@ -776,12 +792,11 @@ public class CcddInputTypeHandler
             else if (!(inputType.getInputName().equals(typeDefn[InputTypesColumn.NAME.ordinal()])
                        && inputType.getInputDescription().equals(typeDefn[InputTypesColumn.DESCRIPTION.ordinal()])
                        && inputType.getInputMatch().equals(typeDefn[InputTypesColumn.MATCH.ordinal()])
-                       && InputType.convertItemListToString(inputType.getInputItems())
-                               .equals(typeDefn[InputTypesColumn.ITEMS.ordinal()])
-                       && inputType.getInputFormat().getFormatName()
-                               .equals(typeDefn[InputTypesColumn.FORMAT.ordinal()])))
+                       && InputType.convertItemListToString(inputType.getInputItems()).equals(typeDefn[InputTypesColumn.ITEMS.ordinal()])
+                       && inputType.getInputFormat().getFormatName().equals(typeDefn[InputTypesColumn.FORMAT.ordinal()])))
             {
-                throw new CCDDException("Imported input type '</b>" + typeDefn[InputTypesColumn.NAME.ordinal()]
+                throw new CCDDException("Imported input type '</b>"
+                                        + typeDefn[InputTypesColumn.NAME.ordinal()]
                                         + "<b>' doesn't match the existing definition");
             }
         }
@@ -830,10 +845,11 @@ public class CcddInputTypeHandler
 
                 // Create the reference with the columns names (database and visible) and the names
                 // of the prototype tables of this table type
-                references.add(new InputTypeReference(refColumns[TableTypesColumn.COLUMN_NAME_DB
-                        .ordinal()], refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()], ccddMain
-                                .getDbTableCommandHandler()
-                                .queryTablesOfTypeList(refColumns[TableTypesColumn.TYPE_NAME.ordinal()], parent)));
+                references.add(new InputTypeReference(refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()],
+                                                      refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()],
+                                                      ccddMain.getDbTableCommandHandler()
+                                                              .queryTablesOfTypeList(refColumns[TableTypesColumn.TYPE_NAME.ordinal()],
+                                                                                     parent)));
             }
             // The reference is in a data field
             else

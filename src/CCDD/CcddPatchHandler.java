@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddPatchHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class used to contain code to update the project database when a schema change is made.
  * The code is written to execute only if the database has not already been updated.
@@ -108,7 +108,8 @@ public class CcddPatchHandler
         this.ccddMain = ccddMain;
         // Add each of the patches here
         patchSet.clear();
-        String patch_06012019_dialogMsg = "<html><b>Apply patch to update the command " + "tables?<br><br></b>"
+        String patch_06012019_dialogMsg = "<html><b>Apply patch to update the command "
+                                          + "tables?<br><br></b>"
                                           + "The command table types are altered by "
                                           + "removing any argument columns and adding "
                                           + "a command argument structure reference "
@@ -247,7 +248,8 @@ public class CcddPatchHandler
         {
             // Display the password dialog and obtain the password. Note that the user can enter a
             // blank password (which may be valid)
-            CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain, ServerPropertyDialogType.PASSWORD);
+            CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain,
+                                                                           ServerPropertyDialogType.PASSWORD);
 
             // Set the flag if the user selected the Okay button in the password dialog
             isPasswordSet = dialog.isPasswordSet();
@@ -258,23 +260,21 @@ public class CcddPatchHandler
         if (isPasswordSet)
         {
             // Check if backing up the project database failed
-            if (dbControl
-                    .backupDatabase(dbControl.getProjectName(),
-                                    new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH
-                                            .getPath().isEmpty()
-                                                                 ? ""
-                                                                 : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                                   + File.separator)
-                                                   + dbControl.getDatabaseName() + "_"
-                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss")
-                                                           .format(Calendar.getInstance().getTime())
-                                                   + FileExtension.DBU.getExtension())))
+            if (dbControl.backupDatabase(dbControl.getProjectName(),
+                                         new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath().isEmpty() ? ""
+                                                                                                                     : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                         + File.separator)
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension())))
             {
                 // Inform the user that the backup failed and check if the user elects to not
                 // continue the patch operation
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Unable to back up project database, continue?",
-                                                              "Backup Project", JOptionPane.QUESTION_MESSAGE,
+                                                              "Backup Project",
+                                                              JOptionPane.QUESTION_MESSAGE,
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     throw new CCDDException("Unable to back up project database");
@@ -334,8 +334,10 @@ public class CcddPatchHandler
         if (!enumFound || !fieldFound)
         {
             // Add the table type definition, 0 added as it is not a command argument
-            tableTypeHandler.createReplaceTypeDefinition(TYPE_ENUM, "0ENUM table",
-                                                         DefaultColumn.getDefaultColumnDefinitions(TYPE_ENUM, false));
+            tableTypeHandler.createReplaceTypeDefinition(TYPE_ENUM,
+                                                         "0ENUM table",
+                                                         DefaultColumn.getDefaultColumnDefinitions(TYPE_ENUM,
+                                                                                                   false));
 
             // Update the table type handler for dbTable before calling modifyTableType
             dbTable.setTableTypeHandler();
@@ -344,8 +346,16 @@ public class CcddPatchHandler
             InputType inputType = new InputType("Text", "Size", "", "", InputTypeFormat.INTEGER, false);
 
             // Create the new field for size and add it to a list
-            FieldInformation sizeField = new FieldInformation(TYPE_ENUM, "Size (Bytes):", "Size of the Enum in bytes",
-                                                              inputType, 2, true, ApplicabilityType.ALL, "", true, null,
+            FieldInformation sizeField = new FieldInformation(TYPE_ENUM,
+                                                              "Size (Bytes):",
+                                                              "Size of the Enum in bytes",
+                                                              inputType,
+                                                              2,
+                                                              true,
+                                                              ApplicabilityType.ALL,
+                                                              "",
+                                                              true,
+                                                              null,
                                                               -1);
             List<FieldInformation> fieldInfo = Arrays.asList(sizeField);
 
@@ -354,8 +364,16 @@ public class CcddPatchHandler
             if (currTypeDefn == null)
             {
                 // Add the new table type to the project database
-                dbTable.modifyTableType(TYPE_ENUM, fieldInfo, OverwriteFieldValueType.NONE, new ArrayList<String[]>(0),
-                                        new ArrayList<String[]>(0), new ArrayList<String[]>(0), false, null, null, null,
+                dbTable.modifyTableType(TYPE_ENUM,
+                                        fieldInfo,
+                                        OverwriteFieldValueType.NONE,
+                                        new ArrayList<String[]>(0),
+                                        new ArrayList<String[]>(0),
+                                        new ArrayList<String[]>(0),
+                                        false,
+                                        null,
+                                        null,
+                                        null,
                                         null);
             }
             else
@@ -370,9 +388,17 @@ public class CcddPatchHandler
                 }
 
                 // Update the table type
-                dbTable.modifyTableType(TYPE_ENUM, fieldInfo, OverwriteFieldValueType.NONE, typeAdditions,
-                                        new ArrayList<String[]>(0), new ArrayList<String[]>(0), false, currTypeDefn,
-                                        null, null, null);
+                dbTable.modifyTableType(TYPE_ENUM,
+                                        fieldInfo,
+                                        OverwriteFieldValueType.NONE,
+                                        typeAdditions,
+                                        new ArrayList<String[]>(0),
+                                        new ArrayList<String[]>(0),
+                                        false,
+                                        currTypeDefn,
+                                        null,
+                                        null,
+                                        null);
             }
 
             // Update the table types table in the database
@@ -467,7 +493,8 @@ public class CcddPatchHandler
                 List<DbTableType> structures = new ArrayList<>();
                 // Add Structure: Cmd Arg Ref and base it off of the Structure table. Don't include
                 // the rate variable
-                structures.add(new DbTableType(CcddConstants.STRUCT_CMD_ARG_REF, CcddConstants.TYPE_STRUCTURE, false));
+                structures.add(new DbTableType(CcddConstants.STRUCT_CMD_ARG_REF,
+                                               CcddConstants.TYPE_STRUCTURE, false));
                 // Add the Command, do not include the rate
                 structures.add(new DbTableType(CcddConstants.TYPE_COMMAND, false));
 
@@ -487,13 +514,15 @@ public class CcddPatchHandler
                     }
 
                     // Pull out the column definitions for this named entry
-                    Object[][] td = DefaultColumn.getDefaultColumnDefinitions(struct.basedUpon, struct.isRateEnabled);
+                    Object[][] td = DefaultColumn.getDefaultColumnDefinitions(struct.basedUpon,
+                                                                              struct.isRateEnabled);
 
                     // Remove this structure (it if exists)
                     tableTypeHandler.removeTypeDefinition(struct.name);
 
                     // Add it (this will ensure that the type is correct and up to date)
-                    TypeDefinition cmdArgTableType = tableTypeHandler.addTypeDefinition(struct.name, struct.description,
+                    TypeDefinition cmdArgTableType = tableTypeHandler.addTypeDefinition(struct.name,
+                                                                                        struct.description,
                                                                                         td);
 
                     StringBuilder cmdRefInpTypeCmd = new StringBuilder("");
@@ -503,8 +532,8 @@ public class CcddPatchHandler
                     // Get the references in the table type and data field internal tables that use
                     // the command reference input type. If a command name, code, or argument is
                     // changed or deleted then the tables and fields may require updating
-                    ReferenceCheckResults cmdRefChkResults = inputTypeHandler
-                            .getInputTypeReferences(DefaultInputType.COMMAND_REFERENCE, ccddMain.getMainFrame());
+                    ReferenceCheckResults cmdRefChkResults = inputTypeHandler.getInputTypeReferences(DefaultInputType.COMMAND_REFERENCE,
+                                                                                                     ccddMain.getMainFrame());
 
                     // Get the number of table type definitions before any new ones are added
                     int numTypes = tableTypeHandler.getTypeDefinitions().size();
@@ -540,20 +569,15 @@ public class CcddPatchHandler
                             String command = "";
 
                             // Read the contents of the command table type
-                            ResultSet typesData = dbCommand.executeDbQuery(
-                                                                           new StringBuilder("SELECT * FROM ")
-                                                                                   .append(InternalTable.TABLE_TYPES
-                                                                                           .getTableName())
-                                                                                   .append(" WHERE ")
-                                                                                   .append(TableTypesColumn.TYPE_NAME
-                                                                                           .getColumnName())
-                                                                                   .append(" = '")
-                                                                                   .append(typeDefn.getName())
-                                                                                   .append("' ORDER BY ")
-                                                                                   .append(TableTypesColumn.INDEX
-                                                                                           .getColumnName())
-                                                                                   .append(";"),
-                                                                           ccddMain.getMainFrame());
+                            ResultSet typesData = dbCommand.executeDbQuery(new StringBuilder("SELECT * FROM ").append(InternalTable.TABLE_TYPES.getTableName())
+                                                                                                              .append(" WHERE ")
+                                                                                                              .append(TableTypesColumn.TYPE_NAME.getColumnName())
+                                                                                                              .append(" = '")
+                                                                                                              .append(typeDefn.getName())
+                                                                                                              .append("' ORDER BY ")
+                                                                                                              .append(TableTypesColumn.INDEX.getColumnName())
+                                                                                                              .append(";"),
+                                                                                                              ccddMain.getMainFrame());
 
                             int colIndex = -1;
                             int cmdIndex = 0;
@@ -596,8 +620,8 @@ public class CcddPatchHandler
 
                                         // Change the input type for the argument name to that for
                                         // a variable so that it's recognized
-                                        typeDefn.getInputTypesList().set(colIndex, inputTypeHandler
-                                                .getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
+                                        typeDefn.getInputTypesList().set(colIndex,
+                                                                         inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
 
                                         // Add the argument name column index to the list of
                                         // argument columns
@@ -613,31 +637,26 @@ public class CcddPatchHandler
                                             typesData.next();
 
                                             // Check if the column expects a command argument name
-                                            if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1)
-                                                    .equals("Argument name"))
+                                            if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1).equals("Argument name"))
                                             {
                                                 // Change the input type for the argument name to
                                                 // that for a variable so that it's recognized
                                                 typeDefn.getInputTypesList()
-                                                        .set(colIndex, inputTypeHandler
-                                                                .getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME
-                                                                        .getInputType()));
+                                                        .set(colIndex,
+                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
                                                 readNext = false;
                                                 break;
                                             }
 
                                             // Check if the column expects a primitive data type
-                                            if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1)
-                                                    .equals(DefaultInputType.PRIMITIVE.getInputName()))
+                                            if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1).equals(DefaultInputType.PRIMITIVE.getInputName()))
                                             {
                                                 // Change the input type for the primitive data
                                                 // type to that for a primitive & structure data
                                                 // type
                                                 typeDefn.getInputTypesList()
                                                         .set(colIndex,
-                                                             inputTypeHandler
-                                                                     .getInputTypeByDefaultType(DefaultColumn.DATA_TYPE
-                                                                             .getInputType()));
+                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.DATA_TYPE.getInputType()));
                                             }
                                             // Check if the column expects a command argument name
                                             else if (typesData.getString(TableTypesColumn.COLUMN_NAME_DB.ordinal() + 1)
@@ -645,26 +664,22 @@ public class CcddPatchHandler
                                             {
                                                 // Change the input type for the argument name to
                                                 // that for a variable so that it's recognized
-                                                typeDefn.getInputTypesList().set(colIndex, inputTypeHandler
-                                                        .getInputTypeByDefaultType(DefaultColumn.DESCRIPTION_STRUCT
-                                                                .getInputType()));
+                                                typeDefn.getInputTypesList().set(colIndex,
+                                                                                 inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.DESCRIPTION_STRUCT.getInputType()));
                                             }
-                                            else if (typesData.getString(TableTypesColumn.COLUMN_NAME_DB.ordinal() + 1)
-                                                    .contains("units"))
+                                            else if (typesData.getString(TableTypesColumn.COLUMN_NAME_DB.ordinal() + 1).contains("units"))
                                             {
                                                 // Change the input type for the argument name to
                                                 // that for a variable so that it's recognized
-                                                typeDefn.getInputTypesList().set(colIndex, inputTypeHandler
-                                                        .getInputTypeByDefaultType(DefaultColumn.UNITS.getInputType()));
+                                                typeDefn.getInputTypesList().set(colIndex,
+                                                                                 inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.UNITS.getInputType()));
                                             }
 
                                             // Check that this isn't the command name or command
                                             // code column (these are never part of an argument
                                             // grouping)
-                                            if (!inputTypes[colIndex].equals(inputTypeHandler
-                                                    .getInputTypeByDefaultType(DefaultInputType.COMMAND_NAME))
-                                                && !inputTypes[colIndex].equals(inputTypeHandler
-                                                        .getInputTypeByDefaultType(DefaultInputType.COMMAND_CODE)))
+                                            if (!inputTypes[colIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_NAME))
+                                                && !inputTypes[colIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_CODE)))
                                             {
                                                 // Add the command argument column index to the
                                                 // argument list
@@ -708,30 +723,30 @@ public class CcddPatchHandler
                                 if (!isCommandNameDefined)
                                 {
                                     // Add the new command name structure column definition
-                                    cmdColDefnData
-                                            .add(new Object[] {0, DefaultColumn.COMMAND_NAME.getName(),
-                                                               DefaultColumn.COMMAND_NAME.getDescription(),
-                                                               DefaultColumn.COMMAND_NAME.getInputType().getInputName(),
-                                                               DefaultColumn.COMMAND_NAME.isRowValueUnique(),
-                                                               DefaultColumn.COMMAND_NAME.isProtected(),
-                                                               DefaultColumn.COMMAND_NAME.isStructureAllowed(),
-                                                               DefaultColumn.COMMAND_NAME.isPointerAllowed()});
+                                    cmdColDefnData.add(new Object[] {0,
+                                                                     DefaultColumn.COMMAND_NAME.getName(),
+                                                                     DefaultColumn.COMMAND_NAME.getDescription(),
+                                                                     DefaultColumn.COMMAND_NAME.getInputType().getInputName(),
+                                                                     DefaultColumn.COMMAND_NAME.isRowValueUnique(),
+                                                                     DefaultColumn.COMMAND_NAME.isProtected(),
+                                                                     DefaultColumn.COMMAND_NAME.isStructureAllowed(),
+                                                                     DefaultColumn.COMMAND_NAME.isPointerAllowed()});
 
                                     // Add the new command code structure column definition
-                                    cmdColDefnData
-                                            .add(new Object[] {0, DefaultColumn.COMMAND_CODE.getName(),
-                                                               DefaultColumn.COMMAND_CODE.getDescription(),
-                                                               DefaultColumn.COMMAND_CODE.getInputType().getInputName(),
-                                                               DefaultColumn.COMMAND_CODE.isRowValueUnique(),
-                                                               DefaultColumn.COMMAND_CODE.isProtected(),
-                                                               DefaultColumn.COMMAND_CODE.isStructureAllowed(),
-                                                               DefaultColumn.COMMAND_CODE.isPointerAllowed()});
+                                    cmdColDefnData.add(new Object[] {0,
+                                                                     DefaultColumn.COMMAND_CODE.getName(),
+                                                                     DefaultColumn.COMMAND_CODE.getDescription(),
+                                                                     DefaultColumn.COMMAND_CODE.getInputType().getInputName(),
+                                                                     DefaultColumn.COMMAND_CODE.isRowValueUnique(),
+                                                                     DefaultColumn.COMMAND_CODE.isProtected(),
+                                                                     DefaultColumn.COMMAND_CODE.isStructureAllowed(),
+                                                                     DefaultColumn.COMMAND_CODE.isPointerAllowed()});
 
                                     // Add the new command description structure column definition
-                                    cmdColDefnData.add(new Object[] {0, DefaultColumn.DESCRIPTION_CMD.getName(),
+                                    cmdColDefnData.add(new Object[] {0,
+                                                                     DefaultColumn.DESCRIPTION_CMD.getName(),
                                                                      DefaultColumn.DESCRIPTION_CMD.getDescription(),
-                                                                     DefaultColumn.DESCRIPTION_CMD.getInputType()
-                                                                             .getInputName(),
+                                                                     DefaultColumn.DESCRIPTION_CMD.getInputType().getInputName(),
                                                                      DefaultColumn.DESCRIPTION_CMD.isRowValueUnique(),
                                                                      DefaultColumn.DESCRIPTION_CMD.isProtected(),
                                                                      DefaultColumn.DESCRIPTION_CMD.isStructureAllowed(),
@@ -740,22 +755,23 @@ public class CcddPatchHandler
                             }
                             // Always add this field Add the new command argument structure column
                             // definition
-                            cmdColDefnData
-                                    .add(new Object[] {0, DefaultColumn.COMMAND_ARGUMENT.getName(),
-                                                       DefaultColumn.COMMAND_ARGUMENT.getDescription(),
-                                                       DefaultColumn.COMMAND_ARGUMENT.getInputType().getInputName(),
-                                                       DefaultColumn.COMMAND_ARGUMENT.isRowValueUnique(),
-                                                       DefaultColumn.COMMAND_ARGUMENT.isProtected(),
-                                                       DefaultColumn.COMMAND_ARGUMENT.isStructureAllowed(),
-                                                       DefaultColumn.COMMAND_ARGUMENT.isPointerAllowed()});
+                            cmdColDefnData.add(new Object[] {0,
+                                                             DefaultColumn.COMMAND_ARGUMENT.getName(),
+                                                             DefaultColumn.COMMAND_ARGUMENT.getDescription(),
+                                                             DefaultColumn.COMMAND_ARGUMENT.getInputType().getInputName(),
+                                                             DefaultColumn.COMMAND_ARGUMENT.isRowValueUnique(),
+                                                             DefaultColumn.COMMAND_ARGUMENT.isProtected(),
+                                                             DefaultColumn.COMMAND_ARGUMENT.isStructureAllowed(),
+                                                             DefaultColumn.COMMAND_ARGUMENT.isPointerAllowed()});
 
                             // Create the command table type with the new command argument column
                             // and without the individual argument columns. Adjust the name so
                             // there is no conflict; the name is restored when the original table
                             // type is replaced by this one
-                            TypeDefinition newCmdTypeDefn = tableTypeHandler
-                                    .createTypeDefinition(typeDefn.getName() + "@", typeDefn.getColumnToolTips()[0],
-                                                          cmdColDefnData.toArray(new Object[0][0]));
+                            TypeDefinition newCmdTypeDefn = tableTypeHandler.createTypeDefinition(typeDefn.getName()
+                                                                                                  + "@",
+                                                                                                  typeDefn.getColumnToolTips()[0],
+                                                                                                  cmdColDefnData.toArray(new Object[0][0]));
 
                             List<InputType> defaultInputTypes = new ArrayList<InputType>();
 
@@ -768,22 +784,22 @@ public class CcddPatchHandler
                                     && !defCol.getInputType().equals(DefaultInputType.RATE))
                                 {
                                     // Add the column input type to the list
-                                    defaultInputTypes
-                                            .add(inputTypeHandler.getInputTypeByDefaultType(defCol.getInputType()));
+                                    defaultInputTypes.add(inputTypeHandler.getInputTypeByDefaultType(defCol.getInputType()));
                                 }
                             }
 
                             int counter = 0;
                             // Step through each table of this command type
-                            for (String commandTableName : dbTable.getAllTablesOfType(typeDefn.getName(), null,
+                            for (String commandTableName : dbTable.getAllTablesOfType(typeDefn.getName(),
+                                                                                      null,
                                                                                       ccddMain.getMainFrame()))
                             {
                                 // Load the command table's information
-                                TableInfo cmdTableInfo = dbTable.loadTableData(commandTableName, true, // Load
-                                                                                                       // description?
-                                                                               false, // Load
-                                                                                      // columnOrder?
-                                                                               false, ccddMain.getMainFrame());
+                                TableInfo cmdTableInfo = dbTable.loadTableData(commandTableName,
+                                                                               true, // Load description?
+                                                                               false, // Load columnOrder?
+                                                                               false,
+                                                                               ccddMain.getMainFrame());
 
                                 // Check if an error occurred loading the command table
                                 if (cmdTableInfo.isErrorFlag())
@@ -812,22 +828,26 @@ public class CcddPatchHandler
                                     // Create a command argument structure table based on the newly
                                     // create type. All of the command arguments are stored in this
                                     // table
-                                    if (dbTable
-                                            .createTable(new String[] {cmdArgRefTableName},
-                                                         "Command " + commandTableName + " argument structure references",
-                                                         STRUCT_CMD_ARG_REF, true,
-                                                         (counter == dbTable
-                                                                 .getAllTablesOfType(typeDefn.getName(), null,
-                                                                                     ccddMain.getMainFrame())
-                                                                 .size() - 1),
-                                                         ccddMain.getMainFrame()))
+                                    if (dbTable.createTable(new String[] {cmdArgRefTableName},
+                                                            "Command "
+                                                            + commandTableName
+                                                            + " argument structure references",
+                                                            STRUCT_CMD_ARG_REF,
+                                                            true,
+                                                            (counter == dbTable.getAllTablesOfType(typeDefn.getName(),
+                                                                                                   null,
+                                                                                                   ccddMain.getMainFrame()).size() - 1),
+                                                            ccddMain.getMainFrame()))
                                     {
                                         throw new CCDDException("Cannot create command argument structure reference table");
                                     }
 
                                     // Load the command argument structure table
-                                    TableInfo cmdArgTableInfo = dbTable.loadTableData(cmdArgRefTableName, false, false,
-                                                                                      false, ccddMain.getMainFrame());
+                                    TableInfo cmdArgTableInfo = dbTable.loadTableData(cmdArgRefTableName,
+                                                                                      false,
+                                                                                      false,
+                                                                                      false,
+                                                                                      ccddMain.getMainFrame());
 
                                     // Check if an error occurred loading the command argument
                                     // structure table
@@ -841,8 +861,8 @@ public class CcddPatchHandler
 
                                     // Add the default structure column definitions to the list
                                     // (minus the rate column)
-                                    typeData.addAll(Arrays
-                                            .asList(DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE, false)));
+                                    typeData.addAll(Arrays.asList(DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE,
+                                                                                                            false)));
                                     int typeDataIndex = typeData.size();
 
                                     // Step through each command argument column grouping
@@ -869,8 +889,7 @@ public class CcddPatchHandler
                                             InputType inputType = typeDefn.getInputTypes()[argCol];
 
                                             // Check if this is the enumeration input type
-                                            if (inputType.getInputName()
-                                                    .equals(DefaultInputType.ENUMERATION.getInputName()))
+                                            if (inputType.getInputName().equals(DefaultInputType.ENUMERATION.getInputName()))
                                             {
                                                 numEnum++;
 
@@ -917,18 +936,12 @@ public class CcddPatchHandler
                                                 }
                                             }
                                             // Check if the column type is not a default column
-                                            else if (!inputType.getInputName()
-                                                    .equals(DefaultInputType.VARIABLE.getInputName())
-                                                     && !inputType.getInputName()
-                                                             .equals(DefaultInputType.PRIM_AND_STRUCT.getInputName())
-                                                     && !inputType.getInputName()
-                                                             .equals(DefaultInputType.PRIMITIVE.getInputName())
-                                                     && !inputType.getInputName()
-                                                             .equals(DefaultInputType.ARRAY_INDEX.getInputName())
-                                                     && !inputType.getInputName()
-                                                             .equals(DefaultInputType.BIT_LENGTH.getInputName())
-                                                     && !typeDefn.getColumnNamesDatabase()[argCol]
-                                                             .contains("description")
+                                            else if (!inputType.getInputName().equals(DefaultInputType.VARIABLE.getInputName())
+                                                     && !inputType.getInputName().equals(DefaultInputType.PRIM_AND_STRUCT.getInputName())
+                                                     && !inputType.getInputName().equals(DefaultInputType.PRIMITIVE.getInputName())
+                                                     && !inputType.getInputName().equals(DefaultInputType.ARRAY_INDEX.getInputName())
+                                                     && !inputType.getInputName().equals(DefaultInputType.BIT_LENGTH.getInputName())
+                                                     && !typeDefn.getColumnNamesDatabase()[argCol].contains("description")
                                                      && !typeDefn.getColumnNamesDatabase()[argCol].contains("units"))
                                             {
                                                 isAdd = true;
@@ -1021,9 +1034,13 @@ public class CcddPatchHandler
 
                                                 // Add the command argument structure column
                                                 // definition
-                                                typeData.add(new Object[] {typeDataIndex, columnName, description,
-                                                                           inputType.getInputName(), isRowValueUnique,
-                                                                           isRequired, isStructureAllowed,
+                                                typeData.add(new Object[] {typeDataIndex,
+                                                                           columnName,
+                                                                           description,
+                                                                           inputType.getInputName(),
+                                                                           isRowValueUnique,
+                                                                           isRequired,
+                                                                           isStructureAllowed,
                                                                            isPointerAllowed});
                                                 typeDataIndex++;
                                             }
@@ -1090,10 +1107,9 @@ public class CcddPatchHandler
                                     {
                                         // Create a new command argument structure table type for
                                         // this command table
-                                        newCmdArgStructType = tableTypeHandler
-                                                .createReplaceTypeDefinition("Structure: Cmd Arg " + cmdArgStructSeq,
-                                                                             "1Command argument structure table definition",
-                                                                             typeData.toArray(new Object[0][0]));
+                                        newCmdArgStructType = tableTypeHandler.createReplaceTypeDefinition("Structure: Cmd Arg " + cmdArgStructSeq,
+                                                                                                           "1Command argument structure table definition",
+                                                                                                           typeData.toArray(new Object[0][0]));
                                         newCommandArgTypes.add(newCmdArgStructType);
                                         cmdArgStructSeq++;
                                     }
@@ -1124,8 +1140,10 @@ public class CcddPatchHandler
 
                                         // Create a prototype for the command argument structure
                                         // table
-                                        if (dbTable.createTable(new String[] {cmdName}, "Command argument structure",
-                                                                newCmdArgStructType.getName(), true,
+                                        if (dbTable.createTable(new String[] {cmdName},
+                                                                "Command argument structure",
+                                                                newCmdArgStructType.getName(),
+                                                                true,
                                                                 (cmdRow == cmdTableInfo.getData().size() - 1),
                                                                 ccddMain.getMainFrame()))
                                         {
@@ -1138,7 +1156,10 @@ public class CcddPatchHandler
                                         // name, dataType = the command argument structure
                                         // prototype table name, and variableName is the command
                                         // name
-                                        String argStructRef = cmdArgTableInfo.getRootTable() + "," + cmdName + "."
+                                        String argStructRef = cmdArgTableInfo.getRootTable()
+                                                              + ","
+                                                              + cmdName
+                                                              + "."
                                                               + cmdName;
 
                                         // Add the argument structure reference to the list
@@ -1146,14 +1167,15 @@ public class CcddPatchHandler
 
                                         // Add the argument variable and structure to the argument
                                         // structure reference table
-                                        cmdArgRef[cmdArgTableType
-                                                .getColumnIndexByInputType(DefaultInputType.VARIABLE)] = cmdName;
-                                        cmdArgRef[cmdArgTableType
-                                                .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)] = cmdName;
+                                        cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.VARIABLE)] = cmdName;
+                                        cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)] = cmdName;
 
                                         // Load the command argument structure table's information
-                                        TableInfo argTableInfo = dbTable.loadTableData(argStructRef, false, false,
-                                                                                       false, ccddMain.getMainFrame());
+                                        TableInfo argTableInfo = dbTable.loadTableData(argStructRef,
+                                                                                       false,
+                                                                                       false,
+                                                                                       false,
+                                                                                       ccddMain.getMainFrame());
 
                                         // Check if an error occurred loading the command argument
                                         // structure table
@@ -1179,9 +1201,7 @@ public class CcddPatchHandler
                                                 // which the value belongs
                                                 try
                                                 {
-                                                    cmdArg[newCmdArgStructType.getColumnIndexByInputType(typeDefn
-                                                            .getInputTypes()[argCol])] = cmdTableInfo.getData()
-                                                                    .get(cmdRow)[argCol];
+                                                    cmdArg[newCmdArgStructType.getColumnIndexByInputType(typeDefn.getInputTypes()[argCol])] = cmdTableInfo.getData().get(cmdRow)[argCol];
                                                 }
                                                 catch (Exception e)
                                                 {
@@ -1193,8 +1213,7 @@ public class CcddPatchHandler
                                                 // Check if this is the argument variable name and
                                                 // isn't blank
                                                 if (!cmdTableInfo.getData().get(cmdRow)[argCol].toString().isEmpty()
-                                                    && typeDefn.getInputTypes()[argCol].equals(inputTypeHandler
-                                                            .getInputTypeByDefaultType(DefaultInputType.VARIABLE)))
+                                                    && typeDefn.getInputTypes()[argCol].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE)))
                                                 {
                                                     // Add the argument variable name to the string
                                                     argNameString += cmdTableInfo.getData().get(cmdRow)[argCol] + ", ";
@@ -1227,15 +1246,13 @@ public class CcddPatchHandler
                                             if (!cmdArg[DefaultColumn.ARRAY_SIZE.ordinal()].toString().isEmpty())
                                             {
                                                 Object[] cmdArgArrayMember;
-                                                for (int i = 0; i < Integer
-                                                        .parseInt(cmdArg[DefaultColumn.ARRAY_SIZE.ordinal()]
-                                                                .toString()); i++)
+                                                for (int i = 0; i < Integer.parseInt(cmdArg[DefaultColumn.ARRAY_SIZE.ordinal()].toString()); i++)
                                                 {
                                                     cmdArgArrayMember = cmdArg.clone();
-                                                    cmdArgArrayMember[DefaultColumn.VARIABLE_NAME
-                                                            .ordinal()] = cmdArgArrayMember[DefaultColumn.VARIABLE_NAME
-                                                                    .ordinal()].toString() + "[" + Integer.toString(i)
-                                                                          + "]";
+                                                    cmdArgArrayMember[DefaultColumn.VARIABLE_NAME.ordinal()] = cmdArgArrayMember[DefaultColumn.VARIABLE_NAME.ordinal()].toString()
+                                                                                                               + "["
+                                                                                                               + Integer.toString(i)
+                                                                                                               + "]";
                                                     argTableData.add(cmdArgArrayMember);
                                                 }
                                             }
@@ -1245,9 +1262,8 @@ public class CcddPatchHandler
 
                                         // Add the command argument name string and number to the
                                         // list
-                                        argNamesAndNumber
-                                                .add(new String[] {CcddUtilities.removeTrailer(argNameString, ", "),
-                                                                   String.valueOf(argTableData.size())});
+                                        argNamesAndNumber.add(new String[] {CcddUtilities.removeTrailer(argNameString, ", "),
+                                                                            String.valueOf(argTableData.size())});
 
                                         // Set the argument structure's table data
                                         argTableInfo.setData(argTableData.toArray(new Object[0][0]));
@@ -1273,17 +1289,24 @@ public class CcddPatchHandler
                                         {
                                             // Begin building the command to populate the argument
                                             // structure table
-                                            argCommand += "INSERT INTO " + cmdName.toLowerCase() + " (" + argColumnNames
-                                                          + ") VALUES (" + (argRow + 1) + ", " + (argRow + 1) + ", ";
+                                            argCommand += "INSERT INTO "
+                                                          + cmdName.toLowerCase()
+                                                          + " ("
+                                                          + argColumnNames
+                                                          + ") VALUES ("
+                                                          + (argRow + 1)
+                                                          + ", "
+                                                          + (argRow + 1)
+                                                          + ", ";
 
                                             // Step through each column in the argument structure
                                             // table's data
-                                            for (int argColumn = NUM_HIDDEN_COLUMNS; argColumn < argTableInfo.getData()
-                                                    .get(argRow).length; argColumn++)
+                                            for (int argColumn = NUM_HIDDEN_COLUMNS; argColumn < argTableInfo.getData().get(argRow).length; argColumn++)
                                             {
                                                 // Store the argument structure value in the
                                                 // command
-                                                argCommand += "'" + argTableInfo.getData().get(argRow)[argColumn]
+                                                argCommand += "'"
+                                                              + argTableInfo.getData().get(argRow)[argColumn]
                                                               + "', ";
                                             }
 
@@ -1296,9 +1319,7 @@ public class CcddPatchHandler
                                                                    ccddMain.getMainFrame());
 
                                         // Check if the row contains data
-                                        if (!cmdArgRef[cmdArgTableType
-                                                .getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString()
-                                                        .isEmpty())
+                                        if (!cmdArgRef[cmdArgTableType.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString().isEmpty())
                                         {
                                             argRefTableData.add(cmdArgRef);
                                         }
@@ -1322,26 +1343,24 @@ public class CcddPatchHandler
                                     for (int cmdRow = 0; cmdRow < cmdTableInfo.getData().size(); cmdRow++)
                                     {
                                         // Begin building the command to populate the command table
-                                        command += "INSERT INTO " + commandTableName.toLowerCase() + " ("
+                                        command += "INSERT INTO "
+                                                   + commandTableName.toLowerCase()
+                                                   + " ("
                                                    + cmdColumnNames + ") VALUES ("
-                                                   + cmdTableInfo.getData().get(cmdRow)[DefaultColumn.PRIMARY_KEY
-                                                           .ordinal()]
-                                                   + ", " + cmdTableInfo.getData().get(cmdRow)[DefaultColumn.ROW_INDEX
-                                                           .ordinal()]
+                                                   + cmdTableInfo.getData().get(cmdRow)[DefaultColumn.PRIMARY_KEY.ordinal()]
+                                                   + ", " + cmdTableInfo.getData().get(cmdRow)[DefaultColumn.ROW_INDEX.ordinal()]
                                                    + ", ";
 
                                         // Step through each column in the original command table's
                                         // data
-                                        for (int cmdColumn = NUM_HIDDEN_COLUMNS; cmdColumn < cmdTableInfo.getData()
-                                                .get(cmdRow).length; cmdColumn++)
+                                        for (int cmdColumn = NUM_HIDDEN_COLUMNS; cmdColumn < cmdTableInfo.getData().get(cmdRow).length; cmdColumn++)
                                         {
                                             // Check if this column belongs to the command versus
                                             // to an argument
                                             if (commandColumns.contains(cmdColumn))
                                             {
                                                 // Store the command value in the command
-                                                command += CcddDbTableCommandHandler
-                                                        .delimitText(cmdTableInfo.getData().get(cmdRow)[cmdColumn])
+                                                command += CcddDbTableCommandHandler.delimitText(cmdTableInfo.getData().get(cmdRow)[cmdColumn])
                                                            + ", ";
                                             }
                                         }
@@ -1376,14 +1395,19 @@ public class CcddPatchHandler
                                     {
                                         // Begin building the command to populate the argument
                                         // structure reference table
-                                        argRefCommand += "INSERT INTO " + cmdArgTableInfo.getRootTable().toLowerCase()
-                                                         + " (" + argRefColumnNames + ") VALUES (" + (argRefRow + 1)
-                                                         + ", " + (argRefRow + 1) + ", ";
+                                        argRefCommand += "INSERT INTO "
+                                                         + cmdArgTableInfo.getRootTable().toLowerCase()
+                                                         + " ("
+                                                         + argRefColumnNames
+                                                         + ") VALUES ("
+                                                         + (argRefRow + 1)
+                                                         + ", "
+                                                         + (argRefRow + 1)
+                                                         + ", ";
 
                                         // Step through each column in the argument structure
                                         // reference table's data
-                                        for (int argRefColumn = NUM_HIDDEN_COLUMNS; argRefColumn < cmdArgTableInfo
-                                                .getData().get(argRefRow).length; argRefColumn++)
+                                        for (int argRefColumn = NUM_HIDDEN_COLUMNS; argRefColumn < cmdArgTableInfo.getData().get(argRefRow).length; argRefColumn++)
                                         {
                                             // Store the argument structure reference value in the
                                             // command
@@ -1405,14 +1429,22 @@ public class CcddPatchHandler
                                     for (int cmdRow = 0; cmdRow < argNamesAndNumber.size(); cmdRow++)
                                     {
                                         // Build the original and new command references
-                                        String oldCmdRef = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex] + " (code: "
+                                        String oldCmdRef = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex]
+                                                           + " (code: "
                                                            + cmdTableInfo.getData().get(cmdRow)[cmdCodeIndex]
-                                                           + ", owner: " + cmdTableInfo.getTablePath() + ", args: "
-                                                           + argNamesAndNumber.get(cmdRow)[1] + ")";
-                                        String newCmdRef = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex] + " (code: "
+                                                           + ", owner: "
+                                                           + cmdTableInfo.getTablePath()
+                                                           + ", args: "
+                                                           + argNamesAndNumber.get(cmdRow)[1]
+                                                                   + ")";
+                                        String newCmdRef = cmdTableInfo.getData().get(cmdRow)[cmdNameIndex]
+                                                           + " (code: "
                                                            + cmdTableInfo.getData().get(cmdRow)[cmdCodeIndex]
-                                                           + ", owner: " + cmdTableInfo.getTablePath() + ", arg: "
-                                                           + argNamesAndNumber.get(cmdRow)[0] + ")";
+                                                           + ", owner: "
+                                                           + cmdTableInfo.getTablePath()
+                                                           + ", arg: "
+                                                           + argNamesAndNumber.get(cmdRow)[0]
+                                                           + ")";
 
                                         // Step through each table type command reference input
                                         // type reference
@@ -1423,10 +1455,17 @@ public class CcddPatchHandler
                                             {
                                                 // Update references to the command reference from
                                                 // the table
-                                                cmdRefInpTypeCmd
-                                                        .append("UPDATE " + dbControl.getQuotedName(table) + " SET "
-                                                                + cmdRef.getColumnDb() + " = '" + newCmdRef + "' WHERE "
-                                                                + cmdRef.getColumnDb() + " = E'" + oldCmdRef + "'; ");
+                                                cmdRefInpTypeCmd.append("UPDATE "
+                                                                        + dbControl.getQuotedName(table)
+                                                                        + " SET "
+                                                                        + cmdRef.getColumnDb()
+                                                                        + " = '"
+                                                                        + newCmdRef
+                                                                        + "' WHERE "
+                                                                        + cmdRef.getColumnDb()
+                                                                        + " = E'"
+                                                                        + oldCmdRef
+                                                                        + "'; ");
                                             }
                                         }
 
@@ -1436,14 +1475,21 @@ public class CcddPatchHandler
                                         {
                                             // Update the data field value if the command path
                                             // matches
-                                            cmdRefInpTypeCmd
-                                                    .append("UPDATE " + InternalTable.FIELDS.getTableName() + " SET "
-                                                            + FieldsColumn.FIELD_VALUE.getColumnName() + " = E'"
-                                                            + newCmdRef + "' WHERE "
-                                                            + FieldsColumn.FIELD_TYPE.getColumnName() + " = E'"
-                                                            + DefaultInputType.COMMAND_REFERENCE.getInputName()
-                                                            + "' AND " + FieldsColumn.FIELD_VALUE.getColumnName()
-                                                            + " = E'" + oldCmdRef + "'; ");
+                                            cmdRefInpTypeCmd.append("UPDATE "
+                                                                    + InternalTable.FIELDS.getTableName()
+                                                                    + " SET "
+                                                                    + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                                    + " = E'"
+                                                                    + newCmdRef
+                                                                    + "' WHERE "
+                                                                    + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                                    + " = E'"
+                                                                    + DefaultInputType.COMMAND_REFERENCE.getInputName()
+                                                                    + "' AND "
+                                                                    + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                                    + " = E'"
+                                                                    + oldCmdRef
+                                                                    + "'; ");
                                         }
                                     }
                                 }
@@ -1471,7 +1517,9 @@ public class CcddPatchHandler
                             {
                                 // Create the updated command table
                                 if (dbTable.createTable(new String[] {commandTableNames.get(index)},
-                                                        commandTableDescriptions.get(index), typeDefn.getName(), false,
+                                                        commandTableDescriptions.get(index),
+                                                        typeDefn.getName(),
+                                                        false,
                                                         (index == commandTableNames.size() - 1),
                                                         ccddMain.getMainFrame()))
                                 {
@@ -1490,6 +1538,7 @@ public class CcddPatchHandler
                             // Update the internal __orders table
                             int columnCount = tableTypeHandler.getTypeDefinition("Command").getColumnCountDatabase();
                             String columnOrder = "'";
+
                             for (int index = 0; index < columnCount; index++)
                             {
                                 columnOrder += Integer.toString(index);
@@ -1531,19 +1580,24 @@ public class CcddPatchHandler
                 dbControl.getConnection().commit();
 
                 // Inform the user that updating the database command tables completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Project '")
-                        .append(dbControl.getProjectName()).append("' command tables conversion  complete"));
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' command tables conversion  complete"));
             }
         }
         catch (Exception e)
         {
             // Inform the user that converting the command tables failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '" + dbControl.getProjectName()
-                                                           + "' command tables to new format; cause '" + e.getMessage()
-                                                           + "'",
-                                  "<html><b>Cannot convert project '</b>" + dbControl
-                                          .getProjectName() + "<b>' command tables to new format " + "(project database will be closed)");
+                                  "Cannot convert project '"
+                                  + dbControl.getProjectName()
+                                  + "' command tables to new format; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot convert project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' command tables to new format "
+                                  + "(project database will be closed)");
 
             try
             {
@@ -1554,7 +1608,9 @@ public class CcddPatchHandler
             {
                 // Inform the user that rolling back the changes failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                      "Cannot revert changes to project; cause '" + se.getMessage() + "'",
+                                      "Cannot revert changes to project; cause '"
+                                      + se.getMessage()
+                                      + "'",
                                       "<html><b>Cannot revert changes to project");
             }
 
@@ -1586,8 +1642,9 @@ public class CcddPatchHandler
             List<String[]> tableData = new ArrayList<String[]>();
 
             // Read the contents of the fields table
-            ResultSet fieldsData = dbCommand.executeDbQuery(new StringBuilder("SELECT * FROM ")
-                    .append(InternalTable.FIELDS.getTableName()).append(" ORDER BY OID;"), ccddMain.getMainFrame());
+            ResultSet fieldsData = dbCommand.executeDbQuery(new StringBuilder("SELECT * FROM ").append(InternalTable.FIELDS.getTableName())
+                                                                                               .append(" ORDER BY OID;"),
+                                                                                               ccddMain.getMainFrame());
 
             // Check if the patch hasn't already been applied
             if (fieldsData.getMetaData().getColumnCount() == 8)
@@ -1651,8 +1708,7 @@ public class CcddPatchHandler
                         if (CcddFieldHandler.isTableField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]))
                         {
                             // Get the table's type name from the table comment
-                            String tableType = dbTable.getTableComment(TableInfo
-                                    .getPrototypeName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]),
+                            String tableType = dbTable.getTableComment(TableInfo.getPrototypeName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]),
                                                                        comments)[TableCommentIndex.TYPE.ordinal()];
 
                             // Step through the data field definitions
@@ -1660,14 +1716,11 @@ public class CcddPatchHandler
                             {
                                 // Check if this is a data field belonging to the table's type
                                 // definition and the field names match
-                                if (CcddFieldHandler.getFieldTypeName(tableType)
-                                        .equals(otherFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
-                                    && fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                            .equals(otherFldDefn[FieldsColumn.FIELD_NAME.ordinal()]))
+                                if (CcddFieldHandler.getFieldTypeName(tableType).equals(otherFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
+                                    && fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].equals(otherFldDefn[FieldsColumn.FIELD_NAME.ordinal()]))
                                 {
                                     // Check if the input types match
-                                    if (fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]
-                                            .equals(otherFldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
+                                    if (fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(otherFldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
                                     {
                                         // Set the flag that indicates this field is inherited
                                         fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = "true";
@@ -1707,13 +1760,9 @@ public class CcddPatchHandler
                                                 {
                                                     // Check if the field name matches another of
                                                     // the table's fields or its default fields
-                                                    if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                                            .equals(dupFldDefn[FieldsColumn.FIELD_NAME.ordinal()])
-                                                        && (fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
-                                                                .equals(dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
-                                                            || dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()]
-                                                                    .equals(CcddFieldHandler
-                                                                            .getFieldTypeName(tableType))))
+                                                    if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].equals(dupFldDefn[FieldsColumn.FIELD_NAME.ordinal()])
+                                                        && (fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].equals(dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
+                                                            || dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()].equals(CcddFieldHandler.getFieldTypeName(tableType))))
                                                     {
                                                         // Set the flag to indicate this name is in
                                                         // use and stop searching
@@ -1742,26 +1791,33 @@ public class CcddPatchHandler
                 }
 
                 // Store the updated fields table
-                dbTable.storeInformationTable(InternalTable.FIELDS, tableData, null, ccddMain.getMainFrame());
+                dbTable.storeInformationTable(InternalTable.FIELDS,
+                                              tableData,
+                                              null,
+                                              ccddMain.getMainFrame());
 
                 // Set the flag to indicate that part 2 of this patch should be performed
                 patch11052018Continue = true;
 
                 // Inform the user that updating the database fields table completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Project '")
-                        .append(dbControl.getProjectName()).append("' data fields table conversion (part 1) complete"));
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' data fields table conversion (part 1) complete"));
             }
         }
         catch (Exception e)
         {
             // Inform the user that converting the fields table failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '" + dbControl.getProjectName()
-                                                           + "' data fields table to new format; cause '" + e
-                                                                   .getMessage()
-                                                           + "'",
-                                  "<html><b>Cannot convert project '</b>" + dbControl
-                                          .getProjectName() + "<b>' data fields table to new format " + "(project database will be closed)");
+                                  "Cannot convert project '"
+                                  + dbControl.getProjectName()
+                                  + "' data fields table to new format; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot convert project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' data fields table to new format "
+                                  + "(project database will be closed)");
 
             throw new CCDDException();
         }
@@ -1794,17 +1850,16 @@ public class CcddPatchHandler
                 for (String typeName : ccddMain.getTableTypeHandler().getTableTypeNames())
                 {
                     // Get the list of names of all tables of the specified type
-                    List<String> tableNamesList = dbTable.getAllTablesOfType(typeName, null, ccddMain.getMainFrame());
+                    List<String> tableNamesList = dbTable.getAllTablesOfType(typeName,
+                                                                             null,
+                                                                             ccddMain.getMainFrame());
 
                     // Step through each of this table type's data fields
-                    for (FieldInformation fieldInfo : fieldHandler
-                            .getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(typeName)))
+                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(typeName)))
                     {
                         // Check if this isn't a separator or break
-                        if (!fieldInfo.getInputType()
-                                .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR))
-                            && !fieldInfo.getInputType()
-                                    .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
+                        if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR))
+                            && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
                         {
                             // Step through each table of this type
                             for (String tableName : tableNamesList)
@@ -1818,18 +1873,23 @@ public class CcddPatchHandler
                                     // ... and the table isn't a child structure (all fields are
                                     // stored for prototypes, even if not displayed) or the field
                                     // is applicable to this table
-                                    && (!tableName.contains(".") || fieldHandler.isFieldApplicable(tableName, fieldInfo
-                                            .getApplicabilityType().getApplicabilityName(), null)))
+                                    && (!tableName.contains(".")
+                                        || fieldHandler.isFieldApplicable(tableName,
+                                                                          fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                          null)))
                                 {
                                     // Add the data field to the table and set the flag indicating
                                     // a change has been made
-                                    fieldHandler.getFieldInformation()
-                                            .add(new FieldInformation(tableName, fieldInfo.getFieldName(),
-                                                                      fieldInfo.getDescription(),
-                                                                      fieldInfo.getInputType(), fieldInfo.getSize(),
-                                                                      fieldInfo.isRequired(),
-                                                                      fieldInfo.getApplicabilityType(),
-                                                                      fieldInfo.getValue(), true, null, -1));
+                                    fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
+                                                                                                fieldInfo.getFieldName(),
+                                                                                                fieldInfo.getDescription(),
+                                                                                                fieldInfo.getInputType(), fieldInfo.getSize(),
+                                                                                                fieldInfo.isRequired(),
+                                                                                                fieldInfo.getApplicabilityType(),
+                                                                                                fieldInfo.getValue(),
+                                                                                                true,
+                                                                                                null,
+                                                                                                -1));
                                     addedFields++;
                                 }
                             }
@@ -1841,7 +1901,9 @@ public class CcddPatchHandler
                 if (addedFields != 0)
                 {
                     // Store the data fields
-                    dbTable.storeInformationTable(InternalTable.FIELDS, fieldHandler.getFieldDefnsFromInfo(), null,
+                    dbTable.storeInformationTable(InternalTable.FIELDS,
+                                                  fieldHandler.getFieldDefnsFromInfo(),
+                                                  null,
                                                   ccddMain.getMainFrame());
                 }
 
@@ -1849,30 +1911,34 @@ public class CcddPatchHandler
                 if (addedFields != 0 || patch11052018RenamedFields != 0)
                 {
                     // Inform the user how many inherited fields were added and renamed
-                    new CcddDialogHandler()
-                            .showMessageDialog(ccddMain
-                                    .getMainFrame(),
-                                               "<html><b>Number of inherited data fields added: </b>" + addedFields
-                                                     + "<br><b>Number of existing fields renamed: </b>"
-                                                     + patch11052018RenamedFields,
-                                               "Patch #11052018 Data Field Updates", JOptionPane.INFORMATION_MESSAGE,
-                                               DialogOption.OK_OPTION);
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Number of inherited data fields added: </b>"
+                                                              + addedFields
+                                                              + "<br><b>Number of existing fields renamed: </b>"
+                                                              + patch11052018RenamedFields,
+                                                              "Patch #11052018 Data Field Updates",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
                 }
 
                 // Inform the user that updating the database fields table completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Project '")
-                        .append(dbControl.getProjectName()).append("' data fields table conversion (part 2) complete"));
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' data fields table conversion (part 2) complete"));
             }
             catch (Exception e)
             {
                 // Inform the user that adding the inherited tables failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                      "Cannot convert project '" + dbControl.getProjectName()
-                                                               + "' data fields table to new format; cause '" + e
-                                                                       .getMessage()
-                                                               + "'",
-                                      "<html><b>Cannot convert project '</b>" + dbControl
-                                              .getProjectName() + "<b>' data fields table to new format " + "(project database will be closed)");
+                                      "Cannot convert project '"
+                                      + dbControl.getProjectName()
+                                      + "' data fields table to new format; cause '"
+                                      + e.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot convert project '</b>"
+                                      + dbControl.getProjectName()
+                                      + "<b>' data fields table to new format "
+                                      + "(project database will be closed)");
 
                 throw new CCDDException();
             }
@@ -1901,16 +1967,22 @@ public class CcddPatchHandler
             // Determine if the table type or data field tables reference a message ID name or
             // message ID input type, or if the application scheduler table has separate wake-up
             // names and IDs
-            ResultSet msgData = dbCommand.executeDbQuery(new StringBuilder("SELECT 1 FROM ")
-                    .append(InternalTable.TABLE_TYPES.getTableName()).append(" WHERE ")
-                    .append(TableTypesColumn.INPUT_TYPE.getColumnName()).append(" = 'Message ID name' OR ")
-                    .append(TableTypesColumn.INPUT_TYPE.getColumnName()).append(" = 'Message ID' UNION SELECT 1 FROM ")
-                    .append(InternalTable.FIELDS.getTableName()).append(" WHERE ")
-                    .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = 'Message ID name' OR ")
-                    .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = 'Message ID' UNION SELECT 1 FROM ")
-                    .append(InternalTable.APP_SCHEDULER.getTableName()).append(" WHERE ")
-                    .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                    .append(" ~E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';"),
+            ResultSet msgData = dbCommand.executeDbQuery(new StringBuilder("SELECT 1 FROM ").append(InternalTable.TABLE_TYPES.getTableName())
+                                                                                            .append(" WHERE ")
+                                                                                            .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                                            .append(" = 'Message ID name' OR ")
+                                                                                            .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                                            .append(" = 'Message ID' UNION SELECT 1 FROM ")
+                                                                                            .append(InternalTable.FIELDS.getTableName())
+                                                                                            .append(" WHERE ")
+                                                                                            .append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                                                                            .append(" = 'Message ID name' OR ")
+                                                                                            .append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                                                                            .append(" = 'Message ID' UNION SELECT 1 FROM ")
+                                                                                            .append(InternalTable.APP_SCHEDULER.getTableName())
+                                                                                            .append(" WHERE ")
+                                                                                            .append(AppSchedulerColumn.APP_INFO.getColumnName())
+                                                                                            .append(" ~E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';"),
                                                          ccddMain.getMainFrame());
 
             // Check if the patch hasn't already been applied
@@ -1930,46 +2002,67 @@ public class CcddPatchHandler
                 // to use the message name & ID type, and the message ID name fields are changed to
                 // use the text input type
                 dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.TABLE_TYPES.getTableName())
-                        .append(" SET ").append(TableTypesColumn.INPUT_TYPE.getColumnName()).append(" = '")
-                        .append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()).append("' WHERE ")
-                        .append(TableTypesColumn.INPUT_TYPE.getColumnName()).append(" = 'Message ID'; UPDATE ")
-                        .append(InternalTable.TABLE_TYPES.getTableName()).append(" SET ")
-                        .append(TableTypesColumn.INPUT_TYPE.getColumnName()).append(" = '")
-                        .append(DefaultInputType.TEXT.getInputName()).append("' WHERE ")
-                        .append(TableTypesColumn.INPUT_TYPE.getColumnName()).append(" = 'Message ID name'; UPDATE ")
-                        .append(InternalTable.FIELDS.getTableName()).append(" SET ")
-                        .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = '")
-                        .append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()).append("' WHERE ")
-                        .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = 'Message ID'; UPDATE ")
-                        .append(InternalTable.FIELDS.getTableName()).append(" SET ")
-                        .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = '")
-                        .append(DefaultInputType.TEXT.getInputName()).append("' WHERE ")
-                        .append(FieldsColumn.FIELD_TYPE.getColumnName()).append(" = 'Message ID name'; UPDATE ")
-                        .append(InternalTable.APP_SCHEDULER.getTableName()).append(" SET ")
-                        .append(AppSchedulerColumn.APP_INFO.getColumnName()).append(" = regexp_replace(")
-                        .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                        .append(", E'([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*),([^,]*,[^,]*,[^,]*),([^,]*,.*)', '\\\\1 \\\\2 \\\\3', 'g') WHERE ")
-                        .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                        .append(" ~ E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';"),
+                                                                       .append(" SET ")
+                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                       .append(" = '")
+                                                                       .append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName())
+                                                                       .append("' WHERE ")
+                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                       .append(" = 'Message ID'; UPDATE ")
+                                                                       .append(InternalTable.TABLE_TYPES.getTableName())
+                                                                       .append(" SET ")
+                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                       .append(" = '")
+                                                                       .append(DefaultInputType.TEXT.getInputName())
+                                                                       .append("' WHERE ")
+                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                       .append(" = 'Message ID name'; UPDATE ")
+                                                                       .append(InternalTable.FIELDS.getTableName())
+                                                                       .append(" SET ")
+                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                                                       .append(" = '")
+                                                                       .append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName())
+                                                                       .append("' WHERE ")
+                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                                                       .append(" = 'Message ID'; UPDATE ")
+                                                                       .append(InternalTable.FIELDS.getTableName())
+                                                                       .append(" SET ")
+                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                                                       .append(" = '")
+                                                                       .append(DefaultInputType.TEXT.getInputName())
+                                                                       .append("' WHERE ")
+                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
+                                                                       .append(" = 'Message ID name'; UPDATE ")
+                                                                       .append(InternalTable.APP_SCHEDULER.getTableName())
+                                                                       .append(" SET ")
+                                                                       .append(AppSchedulerColumn.APP_INFO.getColumnName())
+                                                                       .append(" = regexp_replace(")
+                                                                       .append(AppSchedulerColumn.APP_INFO.getColumnName())
+                                                                       .append(", E'([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*),([^,]*,[^,]*,[^,]*),([^,]*,.*)', '\\\\1 \\\\2 \\\\3', 'g') WHERE ")
+                                                                       .append(AppSchedulerColumn.APP_INFO.getColumnName())
+                                                                       .append(" ~ E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';"),
                                            ccddMain.getMainFrame());
 
                 // Inform the user that updating the database table type, data field, and
                 // application scheduler tables completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Project '")
-                        .append(dbControl.getProjectName())
-                        .append("' table type, data field, and application scheduler tables conversion complete"));
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' table type, data field, and application scheduler tables conversion complete"));
             }
         }
         catch (Exception e)
         {
             // Inform the user that adding access level support failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot update project '" + dbControl.getProjectName()
-                                                           + "' to change message name and IDs; cause '" + e
-                                                                   .getMessage()
-                                                           + "'",
-                                  "<html><b>Cannot update project '</b>" + dbControl
-                                          .getProjectName() + "<b>' to change message name and IDs " + "(project database will be closed)");
+                                  "Cannot update project '"
+                                  + dbControl.getProjectName()
+                                  + "' to change message name and IDs; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot update project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' to change message name and IDs "
+                                  + "(project database will be closed)");
 
             throw new CCDDException();
         }
@@ -2006,33 +2099,41 @@ public class CcddPatchHandler
                 String[] comment = dbControl.getDatabaseComment(dbControl.getDatabaseName());
 
                 // Update the database's comment, adding the current user as the project creator
-                dbCommand.executeDbUpdate(new StringBuilder(dbControl
-                        .buildDatabaseCommentCommandAndUpdateInternalTable(dbControl.getProjectName(), dbControl
-                                .getUser(), false, comment[DatabaseComment.DESCRIPTION.ordinal()])),
+                dbCommand.executeDbUpdate(new StringBuilder(dbControl.buildDatabaseCommentCommandAndUpdateInternalTable(dbControl.getProjectName(),
+                                                                                                                        dbControl.getUser(),
+                                                                                                                        false,
+                                                                                                                        comment[DatabaseComment.DESCRIPTION.ordinal()])),
                                           ccddMain.getMainFrame());
 
                 // Update the user access level table, setting the current user as the
                 // administrator
                 List<String[]> userData = new ArrayList<String[]>(1);
                 userData.add(new String[] {dbControl.getUser(), AccessLevel.ADMIN.getDisplayName()});
-                ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.USERS, userData, null,
+                ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.USERS,
+                                                                          userData,
+                                                                          null,
                                                                           ccddMain.getMainFrame());
 
                 // Inform the user that updating the database to support user access levels
                 // completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Project '")
-                        .append(dbControl.getProjectName()).append("' user access level conversion complete"));
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' user access level conversion complete"));
             }
         }
         catch (Exception e)
         {
             // Inform the user that adding access level support failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot update project '" + dbControl.getProjectName()
-                                                           + "' to support user access levels; cause '" + e.getMessage()
-                                                           + "'",
-                                  "<html><b>Cannot update project '</b>" + dbControl
-                                          .getProjectName() + "<b>' to support user access levels " + "(project database will be closed)");
+                                  "Cannot update project '"
+                                  + dbControl.getProjectName()
+                                  + "' to support user access levels; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot update project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' to support user access levels "
+                                  + "(project database will be closed)");
 
             throw new CCDDException();
         }
@@ -2072,9 +2173,10 @@ public class CcddPatchHandler
             varColNames = CcddUtilities.removeTrailer(varColNames, ",");
 
             // Search for pad variables using the old format in all prototype tables
-            ResultSet padData = dbCommand
-                    .executeDbQuery(new StringBuilder("SELECT * FROM search_tables(E'__pad', false, ")
-                            .append("false, 'PROTO', '{").append(varColNames).append("}');"), ccddMain.getMainFrame());
+            ResultSet padData = dbCommand.executeDbQuery(new StringBuilder("SELECT * FROM search_tables(E'__pad', false, ").append("false, 'PROTO', '{")
+                                                                                                                           .append(varColNames)
+                                                                                                                           .append("}');"),
+                                                         ccddMain.getMainFrame());
 
             // Check if there are any pad variables using the old format in any structure table
             if (padData.next())
@@ -2096,57 +2198,67 @@ public class CcddPatchHandler
                     String[] comment = dbTable.queryDataTableComment(protoStruct, ccddMain.getMainFrame());
 
                     // Get the table type definition for this table
-                    TypeDefinition typeDefn = tableTypeHandler
-                            .getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
                     // Get the table's variable name column name
                     String variableNameColumn = typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE);
 
                     // Update the padding variable names to the new format
                     dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(dbControl.getQuotedName(protoStruct))
-                            .append(" SET ").append(dbControl.getQuotedName(variableNameColumn))
-                            .append(" = regexp_replace(").append(variableNameColumn)
-                            .append(", E'^__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E'pad\\\\1__\\\\2');"),
+                                                                           .append(" SET ")
+                                                                           .append(dbControl.getQuotedName(variableNameColumn))
+                                                                           .append(" = regexp_replace(")
+                                                                           .append(variableNameColumn)
+                                                                           .append(", E'^__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E'pad\\\\1__\\\\2');"),
                                                ccddMain.getMainFrame());
                 }
 
                 // Update the padding variable names in the custom values table to the new format
                 dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.VALUES.getTableName())
-                        .append(" SET ").append(ValuesColumn.TABLE_PATH.getColumnName()).append(" = regexp_replace(")
-                        .append(ValuesColumn.TABLE_PATH.getColumnName())
-                        .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
+                                                                       .append(" SET ")
+                                                                       .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                       .append(" = regexp_replace(")
+                                                                       .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                       .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
                                            ccddMain.getMainFrame());
 
                 // Update the padding variable names in the links table to the new format
                 dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.LINKS.getTableName())
-                        .append(" SET ").append(LinksColumn.MEMBER.getColumnName()).append(" = regexp_replace(")
-                        .append(LinksColumn.MEMBER.getColumnName())
-                        .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
+                                                                       .append(" SET ")
+                                                                       .append(LinksColumn.MEMBER.getColumnName())
+                                                                       .append(" = regexp_replace(")
+                                                                       .append(LinksColumn.MEMBER.getColumnName())
+                                                                       .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
                                            ccddMain.getMainFrame());
 
                 // Update the padding variable names in the telemetry scheduler table to the new
                 // format
-                dbCommand.executeDbCommand(new StringBuilder("UPDATE ")
-                        .append(InternalTable.TLM_SCHEDULER.getTableName()).append(" SET ")
-                        .append(TlmSchedulerColumn.MEMBER.getColumnName()).append(" = regexp_replace(")
-                        .append(TlmSchedulerColumn.MEMBER.getColumnName())
-                        .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
+                dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.TLM_SCHEDULER.getTableName())
+                                                                       .append(" SET ")
+                                                                       .append(TlmSchedulerColumn.MEMBER.getColumnName())
+                                                                       .append(" = regexp_replace(")
+                                                                       .append(TlmSchedulerColumn.MEMBER.getColumnName())
+                                                                       .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
                                            ccddMain.getMainFrame());
 
                 // Inform the user that updating the padding variables completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG, new StringBuilder("Project '")
-                        .append(dbControl.getProjectName()).append("' padding variable conversion complete"));
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' padding variable conversion complete"));
             }
         }
         catch (Exception e)
         {
             // Inform the user that converting the padding variable names failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '" + dbControl.getProjectName()
-                                                           + "' padding variable names to new format; cause '"
-                                                           + e.getMessage() + "'",
-                                  "<html><b>Cannot convert project '</b>" + dbControl
-                                          .getProjectName() + "<b>' padding variable names to new format");
+                                  "Cannot convert project '"
+                                  + dbControl.getProjectName()
+                                  + "' padding variable names to new format; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot convert project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' padding variable names to new format");
         }
     }
 
@@ -2170,8 +2282,11 @@ public class CcddPatchHandler
 
         private String getAutoPatchMessage()
         {
-            return "CCDD: " + CcddUtilities.removeHTMLTags(htmlDialogMessage) + System.lineSeparator()
-                   + "CCDD: Automatically applying patch " + patchId;
+            return "CCDD: "
+                   + CcddUtilities.removeHTMLTags(htmlDialogMessage)
+                   + System.lineSeparator()
+                   + "CCDD: Automatically applying patch "
+                   + patchId;
         }
 
         public boolean confirmPatchApplication() throws CCDDException
@@ -2185,7 +2300,8 @@ public class CcddPatchHandler
                     // The GUI is hidden and we are not automatically patching so ... we can't
                     // proceed
                     throw new CCDDException("Invalid command line combination: Please re-run with the -patch flag or with the GUI enabled ("
-                                            + patchId + ")");
+                                            + patchId
+                                            + ")");
                 }
 
                 return !this.generateQuestionDialog();
@@ -2197,9 +2313,11 @@ public class CcddPatchHandler
         private boolean generateQuestionDialog() throws CCDDException
         {
             // Check if the user elects to not apply the patch
-            return new CcddDialogHandler()
-                    .showMessageDialog(context.getMainFrame(), htmlDialogMessage, "Apply Patch " + this.patchId,
-                                       JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
+            return new CcddDialogHandler().showMessageDialog(context.getMainFrame(),
+                                                             htmlDialogMessage,
+                                                             "Apply Patch " + this.patchId,
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
         }
 
         public String getUserCancelledMessage()

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDialogHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Generic utility class for creating and handling all of the dialogs created within the
  * application.
@@ -1214,7 +1214,8 @@ public class CcddDialogHandler extends JDialog
                                                                                    : chooser.getCurrentDirectory()
                                                                                             .getAbsolutePath()
                                                                                      + File.separator)
-                                                                       + fileNames[i], envVars));
+                                                                       + fileNames[i],
+                                                                       envVars));
                 }
             }
         }

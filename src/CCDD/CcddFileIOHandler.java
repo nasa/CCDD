@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddFileIOHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing file input and output methods (project database backup and restore,
  * table import and export, script storage and retrieval).
@@ -1196,8 +1196,12 @@ public class CcddFileIOHandler
                             // Restore the database from the temporary file. This file has the line
                             // that disables creation of the database comment, which is handled
                             // when the restored database is created
-                            dbControl.restoreDatabase(projectName, projectOwner, projectAdministrator,
-                                                      projectDescription, tempFile, true);
+                            dbControl.restoreDatabase(projectName,
+                                                      projectOwner,
+                                                      projectAdministrator,
+                                                      projectDescription,
+                                                      tempFile,
+                                                      true);
                         }
                         // The the backup file is restored via the GUI
                         else
@@ -1311,14 +1315,12 @@ public class CcddFileIOHandler
     protected boolean displayDbuInfoWarningDialog()
     {
         return (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>No DBU_Info file found. Using defaults found below <br><br>"
-                                                          + "Database Name: "
+                                                          "<html><b>No DBU_Info file found. Using defaults "
+                                                          + "found below <br><br>Database Name: "
                                                           + DEFAULT_DATABASE_NAME
-                                                          + "<br>"
-                                                          + "Database Owner: "
+                                                          + "<br>Database Owner: "
                                                           + DEFAULT_DATABASE_USER
-                                                          + "<br>"
-                                                          + "Database Description: "
+                                                          + "<br>Database Description: "
                                                           + DEFAULT_DATABASE_DESCRIPTION
                                                           + "</b></html>",
                                                           "Warning!",
@@ -2044,7 +2046,8 @@ public class CcddFileIOHandler
 
         // Add event to log indicating that importing has begun
         eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                          new StringBuilder("Importing table(s) from '").append(CcddUtilities.convertArrayToString(fileNames.toArray(new String[0]))).append("'"));
+                          new StringBuilder("Importing table(s) from '").append(CcddUtilities.convertArrayToString(fileNames.toArray(new String[0])))
+                                                                        .append("'"));
 
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
@@ -3250,6 +3253,7 @@ public class CcddFileIOHandler
             {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
                                                            FileExtension.JSON.getExtensionName());
+
                 // Create a JSON handler
                 ioHandler = new CcddJSONHandler(ccddMain, groupHandler, tableHandler.getOwner());
                 importFileType = FileExtension.JSON;
@@ -3258,6 +3262,7 @@ public class CcddFileIOHandler
             {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
                                                            FileExtension.CSV.getExtensionName());
+
                 // Create a CSV handler
                 ioHandler = new CcddCSVHandler(ccddMain, groupHandler, tableHandler.getOwner());
                 importFileType = FileExtension.CSV;
@@ -3266,6 +3271,7 @@ public class CcddFileIOHandler
             {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
                                                            FileExtension.XTCE.getExtensionName());
+
                 // Create an XTCE handler
                 ioHandler = new CcddXTCEHandler(ccddMain, tableHandler.getOwner());
                 importFileType = FileExtension.XTCE;
@@ -3274,6 +3280,7 @@ public class CcddFileIOHandler
             {
                 extFilter[0] = new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
                                                            FileExtension.EDS.getExtensionName());
+
                 // Create an EDS handler
                 ioHandler = new CcddEDSHandler(ccddMain, tableHandler.getOwner());
                 importFileType = FileExtension.EDS;
@@ -3403,7 +3410,8 @@ public class CcddFileIOHandler
                     tableHandler.setDescription(tableDefn.getDescription());
 
                     // Add the imported data field(s) to the table
-                    addImportedDataField(tableDefn, tableHandler.getTableInformation().getTablePath(),
+                    addImportedDataField(tableDefn,
+                                         tableHandler.getTableInformation().getTablePath(),
                                          appendToExistingDataCbSelected);
 
                     // Rebuild the table's editor panel which contains the data fields
@@ -3551,7 +3559,7 @@ public class CcddFileIOHandler
             for (int index2 = 0; index2 < currentFieldInfo.size(); index2++)
             {
                 if (currentFieldInfo.get(index2)[FieldsColumn.FIELD_NAME.ordinal()]
-                        .contentEquals(newFieldInfo.get(index)[FieldsColumn.FIELD_NAME.ordinal()]))
+                                    .contentEquals(newFieldInfo.get(index)[FieldsColumn.FIELD_NAME.ordinal()]))
                 {
                     if (currentFieldInfo.get(index2)[FieldsColumn.FIELD_TYPE.ordinal()]
                                         .contentEquals(newFieldInfo.get(index)[FieldsColumn.FIELD_TYPE.ordinal()]))
@@ -3910,7 +3918,7 @@ public class CcddFileIOHandler
         boolean addEOFMarker = true;
         boolean addSOFMarker = true;
 
-        // Are we writing to a single mega file or multiple files?
+        // Are we writing to a single file or multiple files?
         String outputType = "";
 
         if (singleFile)

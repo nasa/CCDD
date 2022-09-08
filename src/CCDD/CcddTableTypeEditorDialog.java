@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableTypeEditorHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles the commands associated with a specific table type editor. This class
  * is an extension of the CcddInputFieldPanelHandler class.

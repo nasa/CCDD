@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddUtilities.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing common utility methods used by other CCDD classes.
  *
@@ -329,7 +329,10 @@ public class CcddUtilities
      * @return Text string divided into separate components, split at commas, accounting for commas
      *         within double quotes, and with the excess double quotes removed
      *********************************************************************************************/
-    protected static String[] splitAndRemoveQuotes(String text, String separator, int limit, boolean removeQuotes)
+    protected static String[] splitAndRemoveQuotes(String text,
+                                                   String separator,
+                                                   int limit,
+                                                   boolean removeQuotes)
     {
         // Split the supplied string into the specified number of parts using the specified
         // separator

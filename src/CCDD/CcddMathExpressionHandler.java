@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddMathExpressionHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for evaluating simple mathematical expressions.
  *
@@ -447,14 +447,12 @@ public class CcddMathExpressionHandler
 
                 // Bit-wise AND operator
                 case '&':
-                    nestLevel.setValue(Double
-                            .parseDouble(String.valueOf((nestLevel.getValue().longValue() & dValue.longValue()))));
+                    nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() & dValue.longValue()))));
                     break;
 
                 // Bit-wise OR operator
                 case '|':
-                    nestLevel.setValue(Double
-                            .parseDouble(String.valueOf((nestLevel.getValue().longValue() | dValue.longValue()))));
+                    nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() | dValue.longValue()))));
                     break;
 
                 // Left bit shift operator
@@ -462,8 +460,7 @@ public class CcddMathExpressionHandler
                     // Check if the right operand is non-negative
                     if (dValue >= 0)
                     {
-                        nestLevel.setValue(Double
-                                .parseDouble(String.valueOf((nestLevel.getValue().longValue() << dValue.longValue()))));
+                        nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() << dValue.longValue()))));
                     }
                     // The right operand is negative; the operation is undefined
                     else
@@ -480,8 +477,7 @@ public class CcddMathExpressionHandler
                     if (dValue >= 0)
                     {
                         // Set the result to 0 if the right operand is negative
-                        nestLevel.setValue(Double
-                                .parseDouble(String.valueOf((nestLevel.getValue().longValue() >> dValue.longValue()))));
+                        nestLevel.setValue(Double.parseDouble(String.valueOf((nestLevel.getValue().longValue() >> dValue.longValue()))));
                     }
                     // The right operand is negative; the operation is undefined
                     else

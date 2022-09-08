@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDbManagerDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to set the connection parameters to the database, and for creating,
  * copying, renaming, and deleting databases. The dialog is built on the CcddDialogHandler class.

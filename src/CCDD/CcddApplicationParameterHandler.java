@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddApplicationParameterHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles retrieval from and storage to the project database of the application
  * scheduling parameter values.

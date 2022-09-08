@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddMessageIDDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog displaying all message ID names and associated message ID values. The dialog is
  * built on the CcddDialogHandler class.
@@ -90,19 +90,25 @@ public class CcddMessageIDDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize(CcddMessageIDHandler messageIDHandler, Component parent)
     {
-        final List<String[]> msgIDs = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER, false,
+        final List<String[]> msgIDs = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
+                                                                                   false,
                                                                                    parent);
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create panels to hold the components of the dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -126,7 +132,8 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHTML(int column)
             {
-                return column == MsgIDTableColumnInfo.OWNER.ordinal() || column == MsgIDTableColumnInfo.PATH.ordinal();
+                return column == MsgIDTableColumnInfo.OWNER.ordinal()
+                                 || column == MsgIDTableColumnInfo.PATH.ordinal();
             }
 
             /**************************************************************************************
@@ -150,8 +157,13 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(messageIDData, MsgIDTableColumnInfo.getColumnNames(), null,
-                                            MsgIDTableColumnInfo.getToolTips(), true, true, true);
+                setUpdatableCharacteristics(messageIDData,
+                                            MsgIDTableColumnInfo.getColumnNames(),
+                                            null,
+                                            MsgIDTableColumnInfo.getToolTips(),
+                                            true,
+                                            true,
+                                            true);
             }
 
             /**************************************************************************************
@@ -209,10 +221,16 @@ public class CcddMessageIDDialog extends CcddDialogHandler
         JScrollPane scrollPane = new JScrollPane(msgIDTable);
 
         // Set up the field table parameters
-        msgIDTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                           TableSelectionMode.SELECT_BY_CELL, true,
-                                           ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
-                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
+        msgIDTable.setFixedCharacteristics(scrollPane,
+                                           false,
+                                           ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                           TableSelectionMode.SELECT_BY_CELL,
+                                           true,
+                                           ModifiableColorInfo.TABLE_BACK.getColor(),
+                                           false,
+                                           true,
+                                           ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
+                                           true);
 
         // Define the panel to contain the table
         JPanel msgIDTblPnl = new JPanel();
@@ -242,7 +260,8 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                 // Remove any HTML tags from the table name
                 tableName = CcddUtilities.removeHTMLTags(tableName);
 
-                return !tableName.startsWith(CcddFieldHandler.getFieldGroupName("")) && !tableName.startsWith("Tlm:");
+                return !tableName.startsWith(CcddFieldHandler.getFieldGroupName(""))
+                       && !tableName.startsWith("Tlm:");
             }
 
             /**************************************************************************************
@@ -251,14 +270,19 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             @Override
             protected String cleanUpTableName(String tableName, int row)
             {
-                return getOwnerWithPath(tableName, CcddUtilities.removeHTMLTags(msgIDTable.getModel()
-                        .getValueAt(row, MsgIDTableColumnInfo.PATH.ordinal()).toString()));
+                return getOwnerWithPath(tableName,
+                                        CcddUtilities.removeHTMLTags(msgIDTable.getModel()
+                                                                               .getValueAt(row,
+                                                                                           MsgIDTableColumnInfo.PATH.ordinal())
+                                                                               .toString()));
             }
         };
 
         // Open tables button
         JButton btnOpen = CcddButtonPanelHandler
-                .createButton("Open", TABLE_ICON, KeyEvent.VK_O,
+                .createButton("Open",
+                              TABLE_ICON,
+                              KeyEvent.VK_O,
                               "Open the table(s) associated with the selected message ID(s)");
 
         // Add a listener for the Open button
@@ -275,7 +299,9 @@ public class CcddMessageIDDialog extends CcddDialogHandler
         });
 
         // Print message ID table button
-        JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
+        JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
+                                                               PRINT_ICON,
+                                                               KeyEvent.VK_P,
                                                                "Print the message ID table");
 
         // Add a listener for the Print button
@@ -287,13 +313,17 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                msgIDTable.printTable("Message ID owners, names, and ID values", null, CcddMessageIDDialog.this,
+                msgIDTable.printTable("Message ID owners, names, and ID values",
+                                      null,
+                                      CcddMessageIDDialog.this,
                                       PageFormat.LANDSCAPE);
             }
         });
 
         // Close button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the message ID dialog");
 
         // Add a listener for the Close button
@@ -340,7 +370,8 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             String pathName = "";
 
             // Check that the owner isn't a group or telemetry scheduler
-            if (!ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")) && !ownerName.startsWith("Tlm:"))
+            if (!ownerName.startsWith(CcddFieldHandler.getFieldGroupName(""))
+                && !ownerName.startsWith("Tlm:"))
             {
                 // Get the index of the last comma in the field table path & name
                 int commaIndex = ownerName.lastIndexOf(",");

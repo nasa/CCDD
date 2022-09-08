@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddCommandDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to view the project’s commands (including the command’s name, code,
  * argument variable names, and command table). The dialog is built on the CcddDialogHandler class.

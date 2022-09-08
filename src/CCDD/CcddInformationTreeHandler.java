@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddInformationTreeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Generic utility class for manipulating information trees. This class is an extension of
  * the CcddCommonTreeHandler class.
@@ -97,9 +97,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param parent          GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddInformationTreeHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, InternalTable infoType,
-                               List<String[]> infoDefinitions, String filterValue, boolean filterFlag,
-                               List<String> treePathOrder, Component parent)
+    CcddInformationTreeHandler(CcddMain ccddMain,
+                               CcddUndoHandler undoHandler,
+                               InternalTable infoType,
+                               List<String[]> infoDefinitions,
+                               String filterValue,
+                               boolean filterFlag,
+                               List<String> treePathOrder,
+                               Component parent)
     {
         super(ccddMain);
 
@@ -174,13 +179,23 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddInformationTreeHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, InternalTable infoType,
-                               String filterValue, boolean filterFlag, List<String> treePathOrder, Component parent)
+    CcddInformationTreeHandler(CcddMain ccddMain,
+                               CcddUndoHandler undoHandler,
+                               InternalTable infoType,
+                               String filterValue,
+                               boolean filterFlag,
+                               List<String> treePathOrder,
+                               Component parent)
     {
         // Get the internal table definitions from the database
-        this(ccddMain, undoHandler, infoType,
-             ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType, false, parent), filterValue,
-             filterFlag, treePathOrder, parent);
+        this(ccddMain,
+             undoHandler,
+             infoType,
+             ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType, false, parent),
+             filterValue,
+             filterFlag,
+             treePathOrder,
+             parent);
     }
 
     /**********************************************************************************************
@@ -286,7 +301,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param infoDefinitions List containing the internal table definitions
      *********************************************************************************************/
-    protected abstract void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> infoDefinitions);
+    protected abstract void initialize(CcddMain ccddMain,
+                                       CcddUndoHandler undoHandler,
+                                       List<String[]> infoDefinitions);
 
     /**********************************************************************************************
      * Create the information tree root node and set the tree model
@@ -300,7 +317,10 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected void buildTree(boolean isFilterByApp, String filterValue, boolean filterFlag, Component parent)
+    protected void buildTree(boolean isFilterByApp,
+                             String filterValue,
+                             boolean filterFlag,
+                             Component parent)
     {
         this.isFilterByApp = isFilterByApp;
         this.filterValue = filterValue;
@@ -345,7 +365,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @return Reference to the newly added child node
      *********************************************************************************************/
-    private ToolTipTreeNode addNode(final ToolTipTreeNode parentNode, String nodeName, String toolTipText,
+    private ToolTipTreeNode addNode(final ToolTipTreeNode parentNode,
+                                    String nodeName,
+                                    String toolTipText,
                                     TreeChildOrder order)
     {
         // Create a node for the new child node
@@ -367,8 +389,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 {
                     // Check if the child node's name is alphabetically after the new child node's
                     // name
-                    if (removeExtraText(((ToolTipTreeNode) parentNode.getChildAt(index)).getUserObject().toString())
-                            .compareToIgnoreCase(nodeName) > 0)
+                    if (removeExtraText(((ToolTipTreeNode) parentNode.getChildAt(index)).getUserObject().toString()).compareToIgnoreCase(nodeName) > 0)
                     {
                         // Stop searching the node
                         break;
@@ -388,8 +409,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 index = parentNode.getChildCount();
 
                 // Get the path of the new child node and locate it within the path order list
-                int childIndex = treePathOrder
-                        .indexOf(createNameFromPath(path.toArray(new Object[0]), getItemNodeLevel()));
+                int childIndex = treePathOrder.indexOf(createNameFromPath(path.toArray(new Object[0]), getItemNodeLevel()));
 
                 // Check if the child is present in the path order list
                 if (childIndex != -1)
@@ -400,8 +420,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                         // Get the path of the sibling node and locate it within the path order
                         // list
                         ToolTipTreeNode siblingPath = (ToolTipTreeNode) parentNode.getChildAt(nodeIndex);
-                        int siblingIndex = treePathOrder
-                                .indexOf(createNameFromPath(siblingPath.getPath(), getItemNodeLevel()));
+                        int siblingIndex = treePathOrder.indexOf(createNameFromPath(siblingPath.getPath(), getItemNodeLevel()));
 
                         // Check if the sibling appears in the path order before the new child
                         if (siblingIndex < childIndex)
@@ -457,7 +476,10 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *********************************************************************************************/
     protected ToolTipTreeNode addInformationNode(String nodeName, String toolTipText, boolean isApp)
     {
-        return addNode(isFilterByApp ? (ToolTipTreeNode) root.getChildAt(isApp ? 0 : 1) : root, nodeName, toolTipText,
+        return addNode(isFilterByApp ? (ToolTipTreeNode) root.getChildAt(isApp ? 0 : 1)
+                                     : root,
+                       nodeName,
+                       toolTipText,
                        TreeChildOrder.ALPHABETICAL);
     }
 
@@ -474,7 +496,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param onlyIfPrimitive True to only include nodes that end with a reference to primitive
      *                        data type; false to include all nodes
      *********************************************************************************************/
-    protected void addSourceNodesToTargetNode(List<Object[]> sourcePaths, int startIndex, boolean onlyIfPrimitive)
+    protected void addSourceNodesToTargetNode(List<Object[]> sourcePaths,
+                                              int startIndex,
+                                              boolean onlyIfPrimitive)
     {
         // Check that at least one node is selected in the source tree and at least one node is
         // selected in the information tree
@@ -572,8 +596,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             if (!isFound)
             {
                 // Add the node to the information tree
-                node = addNode(node, nodeName, "",
-                               treePathOrder == null ? TreeChildOrder.NATURAL : TreeChildOrder.PATH_ORDER);
+                node = addNode(node,
+                               nodeName,
+                               "",
+                               treePathOrder == null ? TreeChildOrder.NATURAL
+                                                     : TreeChildOrder.PATH_ORDER);
 
                 // Expand the tree to display the added node
                 expandPath(new TreePath(((ToolTipTreeNode) node.getParent()).getPath()));
@@ -590,7 +617,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     protected void removeNodeAndEmptyAncestors(ToolTipTreeNode removeNode)
     {
         // Check if the node has no siblings and is not the top level in the sub-tree
-        while (removeNode.getParent() != null && removeNode.getParent().getChildCount() == 1
+        while (removeNode.getParent() != null
+               && removeNode.getParent().getChildCount() == 1
                && ((ToolTipTreeNode) removeNode.getParent()).getLevel() > getHeaderNodeLevel())
         {
             // Set the node to remove to the child node's parent node

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableTypeEditorHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles the commands associated with a specific table type editor. This class
  * is an extension of the CcddInputFieldPanelHandler class.
@@ -718,16 +718,19 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                 // Get the minimum width needed to display all columns, but no wider than the
                 // display
-                int width = Math.min(totalWidth
-                                     + LAF_SCROLL_BAR_WIDTH,
-                                     GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
+                int width = Math.min(totalWidth + LAF_SCROLL_BAR_WIDTH,
+                                     GraphicsEnvironment.getLocalGraphicsEnvironment()
+                                                        .getDefaultScreenDevice()
+                                                        .getDisplayMode()
+                                                        .getWidth());
 
                 // Check if this is the widest editor table in this tabbed editor dialog
                 if (editorDialog.getTableWidth() < width)
                 {
                     // Set the initial and preferred editor size
                     editorDialog.setTableWidth(width);
-                    editorDialog.setPreferredSize(new Dimension(width, editorDialog.getPreferredSize().height));
+                    editorDialog.setPreferredSize(new Dimension(width,
+                                                                editorDialog.getPreferredSize().height));
                 }
             }
 
@@ -918,10 +921,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                         1.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(0,
-                                                                   0,
-                                                                   0,
-                                                                   0),
+                                                        new Insets(0, 0, 0, 0),
                                                         0,
                                                         0);
 
@@ -997,8 +997,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     {
                         // Check if the input type column value matches the target table type input
                         // type
-                        if (table.getModel().getValueAt(tableRow,
-                                                        TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()).toString().equals(defColumn.getInputType().getInputName()))
+                        if (table.getModel()
+                                  .getValueAt(tableRow, TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
+                                  .toString()
+                                  .equals(defColumn.getInputType().getInputName()))
                         {
                             // Set the flag to indicate the target table type input type is in use
                             // and stop searching

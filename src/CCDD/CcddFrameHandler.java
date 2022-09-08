@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddFrameHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Generic utility class for creating and handling all of the frame windows created within
  * the application.
@@ -222,12 +222,20 @@ public class CcddFrameHandler extends JFrame
      *                       PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION; ignored if
      *                       buttonPnl isn't null
      *********************************************************************************************/
-    protected void createFrame(Component parent, JComponent upperComponent, JPanel buttonPnl, JButton defaultBtn,
-                               String title, DialogOption optionType)
+    protected void createFrame(Component parent,
+                               JComponent upperComponent,
+                               JPanel buttonPnl,
+                               JButton defaultBtn,
+                               String title,
+                               DialogOption optionType)
     {
         // Set up button panel related items and combine the button and upper panels
-        buttonPnl = buttonHandler.assembleWindowComponents(buttonPnl, defaultBtn, upperComponent, optionType,
-                                                           getContentPane(), getRootPane());
+        buttonPnl = buttonHandler.assembleWindowComponents(buttonPnl,
+                                                           defaultBtn,
+                                                           upperComponent,
+                                                           optionType,
+                                                           getContentPane(),
+                                                           getRootPane());
 
         // Add a listener for dialog focus gain and lost events
         addWindowFocusListener(new WindowFocusListener()

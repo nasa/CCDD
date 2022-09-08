@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableTreeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing the methods for creating and manipulating a data table tree. This class
  * is an extension of the CcddCommonTreeHandler class.
@@ -2438,8 +2438,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 }
 
                 // Get the variable path and name. Skip the link name node if present
-                String variablePath = getFullVariablePath(nodes, (nodes[1].equals(LINKED_VARIABLES_NODE_NAME)
-                                                                  && !isFilteredByGroup() ? 1 : 0));
+                String variablePath = getFullVariablePath(nodes,
+                                                          (nodes[1].equals(LINKED_VARIABLES_NODE_NAME)
+                                                           && !isFilteredByGroup() ? 1 : 0));
 
                 // Set the flag indicating the variable is excluded if it's in the exclusion lists
                 boolean isExcluded = excludedVariables.contains(variablePath)
@@ -2505,7 +2506,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         // Check if the enable state changed and that this isn't the root node
-        if (isEnabled != !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR) && node.getLevel() != 0)
+        if (isEnabled != !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR)
+            && node.getLevel() != 0)
         {
             // Reset the node name to indicate its enabled/disabled state. If disabled, prepend the
             // HTML tag to gray out the name. Indicate that the node changed so that the tree
@@ -2532,7 +2534,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @return JPanel containing the table tree components
      *********************************************************************************************/
-    protected JPanel createTreePanel(String label, int selectionMode, boolean isAllowHighlight, final Component parent)
+    protected JPanel createTreePanel(String label,
+                                     int selectionMode,
+                                     boolean isAllowHighlight,
+                                     final Component parent)
     {
         // Set the renderer for the tree so that the custom icons can be used for the various node
         // types

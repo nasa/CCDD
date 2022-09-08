@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddInputTypeEditorDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for creating, modifying, and deleting custom data input types. The dialog is built
  * on the CcddDialogHandler class.
@@ -136,7 +136,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
 
             // Get the references to the specified input type in the table type an data field
             // tables
-            references = inputTypeHandler.searchInputTypeReferences(inputTypeName, CcddInputTypeEditorDialog.this);
+            references = inputTypeHandler.searchInputTypeReferences(inputTypeName,
+                                                                    CcddInputTypeEditorDialog.this);
         }
 
         /******************************************************************************************
@@ -245,8 +246,17 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 tempOID = -1;
 
                 // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                1.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(0, 0, 0, 0),
+                                                                0,
+                                                                0);
 
                 // Create a copy of the input type data so it can be used to determine if changes
                 // are made
@@ -268,7 +278,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 ccddMain.getKeyboardHandler().setModalDialogReference(inputTypeTable.getUndoManager(), inputTypeTable);
 
                 // New button
-                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row", INSERT_ICON, KeyEvent.VK_I,
+                JButton btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
+                                                                           INSERT_ICON,
+                                                                           KeyEvent.VK_I,
                                                                            "Insert a new row into the table");
 
                 // Create a listener for the Insert Row button
@@ -285,7 +297,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Delete button
-                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row", DELETE_ICON, KeyEvent.VK_D,
+                JButton btnDeleteRow = CcddButtonPanelHandler.createButton("Del Row",
+                                                                           DELETE_ICON,
+                                                                           KeyEvent.VK_D,
                                                                            "Delete the selected row(s) from the table");
 
                 // Create a listener for the Delete row button
@@ -301,8 +315,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         for (int row : inputTypeTable.getSelectedRows())
                         {
                             // Get the input type name
-                            String inputTypeName = inputTypeTable.getValueAt(row, InputTypesColumn.NAME.ordinal())
-                                    .toString();
+                            String inputTypeName = inputTypeTable.getValueAt(row, InputTypesColumn.NAME.ordinal()).toString();
 
                             // Check if the input type name is present and the input type is in use
                             // by a table type or data field
@@ -321,13 +334,10 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                     String[] tblColCmtAndCntxt = inputTypeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
 
                                     // Extract the context from the reference
-                                    String[] refColumns = CcddUtilities
-                                            .splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT
-                                                    .ordinal()]);
+                                    String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                                     // Check if the context is in a table type definition
-                                    if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()]
-                                            .equals(InternalTable.TABLE_TYPES.getTableName()))
+                                    if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
                                     {
                                         // Check if the table type name hasn't already been added
                                         // to the list
@@ -339,8 +349,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                         }
                                     }
                                     // Check if the context is in a data field definition
-                                    else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()]
-                                            .equals(InternalTable.FIELDS.getTableName()))
+                                    else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.FIELDS.getTableName()))
                                     {
                                         // Check if the data field owner hasn't already been added
                                         // to the list
@@ -357,8 +366,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                 if (!tableTypes.isEmpty())
                                 {
                                     // Add the table types to the user text
-                                    inputTypeUsers = "table type(s) '</b>" + CcddUtilities
-                                            .convertArrayToStringTruncate(tableTypes.toArray(new String[0])) + "<b>'";
+                                    inputTypeUsers = "table type(s) '</b>"
+                                                     + CcddUtilities.convertArrayToStringTruncate(tableTypes.toArray(new String[0]))
+                                                     + "<b>'";
                                 }
 
                                 // Check if any data fields reference the input type
@@ -371,8 +381,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                     }
 
                                     // Add the data field owners to the user text
-                                    inputTypeUsers += "data fields owner(s) '</b>" + CcddUtilities
-                                            .convertArrayToStringTruncate(fields.toArray(new String[0])) + "<b>'";
+                                    inputTypeUsers += "data fields owner(s) '</b>"
+                                                      + CcddUtilities.convertArrayToStringTruncate(fields.toArray(new String[0]))
+                                                      + "<b>'";
                                 }
 
                                 // Deselect the input type
@@ -381,10 +392,12 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                 // Inform the user that the input type can't be deleted
                                 new CcddDialogHandler()
                                         .showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                           "<html><b>Cannot delete input type '</b>" + inputTypeName
-                                                                                           + "<b>'; input type is referenced by "
-                                                                                           + inputTypeUsers,
-                                                           "Delete Input Type", JOptionPane.ERROR_MESSAGE,
+                                                           "<html><b>Cannot delete input type '</b>"
+                                                           + inputTypeName
+                                                           + "<b>'; input type is referenced by "
+                                                           + inputTypeUsers,
+                                                           "Delete Input Type",
+                                                           JOptionPane.ERROR_MESSAGE,
                                                            DialogOption.OK_OPTION);
                             }
                         }
@@ -395,7 +408,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Move Up button
-                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up", UP_ICON, KeyEvent.VK_U,
+                JButton btnMoveUp = CcddButtonPanelHandler.createButton("Up",
+                                                                        UP_ICON,
+                                                                        KeyEvent.VK_U,
                                                                         "Move the selected row(s) up");
 
                 // Create a listener for the Move Up button
@@ -412,7 +427,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Move Down button
-                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down", DOWN_ICON, KeyEvent.VK_W,
+                JButton btnMoveDown = CcddButtonPanelHandler.createButton("Down",
+                                                                          DOWN_ICON,
+                                                                          KeyEvent.VK_W,
                                                                           "Move the selected row(s) down");
 
                 // Create a listener for the Move Down button
@@ -429,7 +446,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Undo button
-                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo", UNDO_ICON, KeyEvent.VK_Z,
+                JButton btnUndo = CcddButtonPanelHandler.createButton("Undo",
+                                                                      UNDO_ICON,
+                                                                      KeyEvent.VK_Z,
                                                                       "Undo the last edit");
 
                 // Create a listener for the Undo button
@@ -446,7 +465,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Redo button
-                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo", REDO_ICON, KeyEvent.VK_Y,
+                JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
+                                                                      REDO_ICON,
+                                                                      KeyEvent.VK_Y,
                                                                       "Redo the last undone edit");
 
                 // Create a listener for the Redo button
@@ -463,7 +484,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 });
 
                 // Store the input types button
-                JButton btnStore = CcddButtonPanelHandler.createButton("Store", STORE_ICON, KeyEvent.VK_S,
+                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                                       STORE_ICON,
+                                                                       KeyEvent.VK_S,
                                                                        "Store the input type(s)");
                 btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
@@ -479,24 +502,29 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         // Only update the table in the database if a cell's content has changed,
                         // none of the required columns is missing a value, and the user confirms
                         // the action
-                        if (inputTypeTable.isTableChanged(committedData) && !checkForMissingColumns()
+                        if (inputTypeTable.isTableChanged(committedData)
+                            && !checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
                                                                          "<html><b>Store changes in project database?",
-                                                                         "Store Changes", JOptionPane.QUESTION_MESSAGE,
+                                                                         "Store Changes",
+                                                                         JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                         {
                             // Get a list of the input type modifications
                             buildUpdates();
 
                             // Update the tables affected by the changes to the input type(s)
-                            dbTable.modifyTablesPerInputTypeChanges(modifications, getUpdatedData(),
+                            dbTable.modifyTablesPerInputTypeChanges(modifications,
+                                                                    getUpdatedData(),
                                                                     CcddInputTypeEditorDialog.this);
                         }
                     }
                 });
 
                 // Close button
-                btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the input type editor");
 
                 // Create a listener for the Close button
@@ -533,7 +561,12 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             protected void complete()
             {
                 // Display the input type editor dialog
-                showOptionsDialog(ccddMain.getMainFrame(), editorPnl, buttonPnl, btnClose, DIALOG_TITLE, true);
+                showOptionsDialog(ccddMain.getMainFrame(),
+                                  editorPnl,
+                                  buttonPnl,
+                                  btnClose,
+                                  DIALOG_TITLE,
+                                  true);
             }
         });
     }
@@ -618,8 +651,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                     int modelColumn = convertColumnIndexToModel(column);
 
                     // Check if the cell is editable
-                    isEditable = isDataAlterable(((List<?>) ((UndoableTableModel) inputTypeTable.getModel())
-                            .getDataVector().elementAt(modelRow)).toArray(new Object[0]), modelRow, modelColumn);
+                    isEditable = isDataAlterable(((List<?>) ((UndoableTableModel) inputTypeTable.getModel()).getDataVector().elementAt(modelRow)).toArray(new Object[0]),
+                                                 modelRow,
+                                                 modelColumn);
                 }
 
                 return isEditable;
@@ -639,10 +673,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                     // Disable editing if ...
                     isAlterable = // ... the regular expression match column if the selection items
                                   // column isn't blank or the input format type is boolean
-                            (column != InputTypeEditorColumnInfo.MATCH.ordinal()
-                             || (rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty()
-                                 && !InputType.getInputFormatByName(rowData[InputTypeEditorColumnInfo.FORMAT.ordinal()]
-                                         .toString()).equals(InputTypeFormat.BOOLEAN)));
+                                  (column != InputTypeEditorColumnInfo.MATCH.ordinal()
+                                   || (rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty()
+                                       && !InputType.getInputFormatByName(rowData[InputTypeEditorColumnInfo.FORMAT.ordinal()].toString()).equals(InputTypeFormat.BOOLEAN)));
                 }
 
                 return isAlterable;
@@ -674,8 +707,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 {
                     // Select the combo box cell editor, based on if the type has selection items,
                     // that displays the input type formats
-                    cellEditor = getValueAt(row, InputTypeEditorColumnInfo.ITEMS.ordinal()).toString()
-                            .isEmpty() ? formatCellEditor : itemFormatCellEditor;
+                    cellEditor = getValueAt(row,
+                                            InputTypeEditorColumnInfo.ITEMS.ordinal()).toString().isEmpty() ? formatCellEditor
+                                                                                                            : itemFormatCellEditor;
                 }
 
                 return cellEditor;
@@ -702,8 +736,13 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
              * @return Always returns false
              *************************************************************************************/
             @Override
-            protected Boolean validateCellContent(List<Object[]> tableData, int row, int column, Object oldValue,
-                                                  Object newValue, Boolean showMessage, boolean isMultiple)
+            protected Boolean validateCellContent(List<Object[]> tableData,
+                                                  int row,
+                                                  int column,
+                                                  Object oldValue,
+                                                  Object newValue,
+                                                  Boolean showMessage,
+                                                  boolean isMultiple)
             {
                 // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
@@ -725,8 +764,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                             {
                                 // Check if this row isn't the one being edited, and if the input
                                 // type name matches the one being added (case insensitive)
-                                if (otherRow != row && newValueS.equalsIgnoreCase(tableData
-                                        .get(otherRow)[InputTypeEditorColumnInfo.NAME.ordinal()].toString()))
+                                if (otherRow != row && newValueS.equalsIgnoreCase(tableData.get(otherRow)[InputTypeEditorColumnInfo.NAME.ordinal()].toString()))
                                 {
                                     throw new CCDDException("Input type name already in use");
                                 }
@@ -753,7 +791,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                             }
                             catch (PatternSyntaxException pse)
                             {
-                                throw new CCDDException("Invalid regular expression; cause '</b>" + pse.getMessage()
+                                throw new CCDDException("Invalid regular expression; cause '</b>"
+                                                        + pse.getMessage()
                                                         + "<b>'");
                             }
                         }
@@ -776,12 +815,10 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         // Check if the input type format has been changed to represent a boolean
                         // value
                         else if (column == InputTypeEditorColumnInfo.FORMAT.ordinal()
-                                 && InputType.getInputFormatByName(tableData.get(row)[column].toString())
-                                         .equals(InputTypeFormat.BOOLEAN))
+                                 && InputType.getInputFormatByName(tableData.get(row)[column].toString()).equals(InputTypeFormat.BOOLEAN))
                         {
                             // Set the regular expression to that for a boolean value
-                            tableData.get(row)[InputTypeEditorColumnInfo.MATCH.ordinal()] = DefaultInputType.BOOLEAN
-                                    .getInputMatch();
+                            tableData.get(row)[InputTypeEditorColumnInfo.MATCH.ordinal()] = DefaultInputType.BOOLEAN.getInputMatch();
                         }
                     }
                 }
@@ -795,8 +832,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                                  "<html><b>" + ce.getMessage(), "Invalid Input",
-                                                                  JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+                                                                  "<html><b>"
+                                                                  + ce.getMessage(),
+                                                                  "Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
                     }
 
                     // Restore the cell contents to its original value and pop the edit from the
@@ -817,8 +857,13 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(committedData, InputTypeEditorColumnInfo.getColumnNames(), null,
-                                            InputTypeEditorColumnInfo.getToolTips(), true, true, true);
+                setUpdatableCharacteristics(committedData,
+                                            InputTypeEditorColumnInfo.getColumnNames(),
+                                            null,
+                                            InputTypeEditorColumnInfo.getToolTips(),
+                                            true,
+                                            true,
+                                            true);
             }
 
             /**************************************************************************************
@@ -850,8 +895,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         int modelColumn = inputTypeTable.convertColumnIndexToModel(column);
 
                         // Check if input type name is blank
-                        if ((modelColumn == InputTypeEditorColumnInfo.NAME.ordinal()) && inputTypeTable
-                                .getValueAt(row, InputTypeEditorColumnInfo.NAME.ordinal()).toString().isEmpty())
+                        if ((modelColumn == InputTypeEditorColumnInfo.NAME.ordinal())
+                                            && inputTypeTable.getValueAt(row,
+                                                                         InputTypeEditorColumnInfo.NAME.ordinal()).toString().isEmpty())
                         {
                             // Set the flag indicating that the cell value is invalid
                             found = false;
@@ -906,10 +952,16 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         JScrollPane scrollPane = new JScrollPane(inputTypeTable);
 
         // Set common table parameters and characteristics
-        inputTypeTable.setFixedCharacteristics(scrollPane, true, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                               TableSelectionMode.SELECT_BY_CELL, false,
-                                               ModifiableColorInfo.TABLE_BACK.getColor(), true, true,
-                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+        inputTypeTable.setFixedCharacteristics(scrollPane,
+                                               true,
+                                               ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                               TableSelectionMode.SELECT_BY_CELL,
+                                               false,
+                                               ModifiableColorInfo.TABLE_BACK.getColor(),
+                                               true,
+                                               true,
+                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                               true);
 
         return scrollPane;
     }
@@ -924,9 +976,12 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // there are changes that haven't been stored. If changes exist then confirm discarding the
         // changes
         if (inputTypeTable.isLastCellValid()
-            && (!inputTypeTable.isTableChanged(committedData) || new CcddDialogHandler()
-                    .showMessageDialog(CcddInputTypeEditorDialog.this, "<html><b>Discard changes?", "Discard Changes",
-                                       JOptionPane.QUESTION_MESSAGE, DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+            && (!inputTypeTable.isTableChanged(committedData)
+                || new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the dialog
             closeDialog();
@@ -1009,13 +1064,15 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
 
                     // Inform the user that a row is missing required data. If Cancel is selected
                     // then do not perform checks on other columns and rows
-                    if (new CcddDialogHandler()
-                            .showMessageDialog(CcddInputTypeEditorDialog.this,
-                                               "<html><b>Data must be provided for column '</b>" + inputTypeTable
-                                                       .getColumnName(InputTypeEditorColumnInfo.NAME.ordinal())
-                                                                               + "<b>' [row </b>" + (row + 1) + "<b>]",
-                                               "Missing Data", JOptionPane.WARNING_MESSAGE,
-                                               DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                    if (new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
+                                                                  "<html><b>Data must be provided for column '</b>"
+                                                                  + inputTypeTable.getColumnName(InputTypeEditorColumnInfo.NAME.ordinal())
+                                                                  + "<b>' [row </b>"
+                                                                  + (row + 1)
+                                                                  + "<b>]",
+                                                                  "Missing Data",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                     {
                         // Set the stop flag to prevent further error checking
                         stopCheck = true;
@@ -1034,15 +1091,14 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
 
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
-                        if (new CcddDialogHandler()
-                                .showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                   "<html><b>Data must be provided for column '</b>"
-                                                                                   + inputTypeTable
-                                                                                           .getColumnName(column)
-                                                                                   + "<b>' [row </b>" + (row + 1)
-                                                                                   + "<b>]",
-                                                   "Missing Data", JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                        if (new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
+                                                                      "<html><b>Data must be provided for column '</b>"
+                                                                      + inputTypeTable.getColumnName(column)
+                                                                      + "<b>' [row </b>" + (row + 1)
+                                                                      + "<b>]",
+                                                                      "Missing Data",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
                             // Set the stop flag to prevent further error checking
                             stopCheck = true;
@@ -1084,8 +1140,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
                     // Check if the index values match for these rows
-                    if (tableData[tblRow][InputTypesColumn.OID.ordinal()]
-                            .equals(committedData[comRow][InputTypesColumn.OID.ordinal()]))
+                    if (tableData[tblRow][InputTypesColumn.OID.ordinal()].equals(committedData[comRow][InputTypesColumn.OID.ordinal()]))
                     {
                         // Set the flags indicating this row has a match
                         matchFound = true;

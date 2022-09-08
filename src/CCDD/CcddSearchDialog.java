@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddSearchDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to perform text string searches of the project database data tables
  * and stored scripts. The dialog is built on the CcddDialogHandler class.
@@ -164,7 +164,10 @@ public class CcddSearchDialog extends CcddFrameHandler
      *
      * @param parent        GUI component over which to center the dialog
      *********************************************************************************************/
-    CcddSearchDialog(CcddMain ccddMain, SearchDialogType searchDlgType, Long targetRow, CcddEventLogDialog eventLog,
+    CcddSearchDialog(CcddMain ccddMain,
+                     SearchDialogType searchDlgType,
+                     Long targetRow,
+                     CcddEventLogDialog eventLog,
                      Component parent)
     {
         this.ccddMain = ccddMain;
@@ -233,28 +236,31 @@ public class CcddSearchDialog extends CcddFrameHandler
         searchHandler = new CcddSearchHandler(ccddMain, searchDlgType, targetRow, eventLog);
 
         // Create a borders for the dialog components
-        Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.FIRST_LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(0, 0,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing()
-                                                                         / 2,
+                                                        new Insets(0,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    (searchDlgType == SearchDialogType.LOG ? 0
-                                                                                                          : ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                                                  .getSpacing())),
-                                                        0, 0);
+                                                                                                          : ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing())),
+                                                        0,
+                                                        0);
 
         // Create panels to hold the components of the dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -295,16 +301,19 @@ public class CcddSearchDialog extends CcddFrameHandler
             public void keyPressed(KeyEvent ke)
             {
                 // Check if this is a visible character
-                if (!ke.isActionKey() && ke.getKeyCode() != KeyEvent.VK_ENTER && !ke.isControlDown() && !ke.isAltDown()
-                    && !ke.isMetaDown() && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
+                if (!ke.isActionKey()
+                    && ke.getKeyCode() != KeyEvent.VK_ENTER
+                    && !ke.isControlDown()
+                    && !ke.isAltDown()
+                    && !ke.isMetaDown()
+                    && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
                 {
                     // Get the list of remembered searches from the program preferences. This is
                     // done as a key press occurs so that the list is updated to the latest one. If
                     // multiple search dialogs are open this allows them to 'share' the list rather
                     // than overwriting each other
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
-                    searches.addAll(Arrays
-                            .asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
+                    searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
                 }
             }
@@ -451,7 +460,12 @@ public class CcddSearchDialog extends CcddFrameHandler
                 final CcddDialogHandler columnDlg = new CcddDialogHandler();
 
                 // Add the column name check boxes to the dialog
-                columnDlg.addCheckBoxes(null, columnNames.toArray(new String[0][0]), null, "", false, columnPnl);
+                columnDlg.addCheckBoxes(null,
+                                        columnNames.toArray(new String[0][0]),
+                                        null,
+                                        "",
+                                        false,
+                                        columnPnl);
 
                 // Check if more than one column name check box exists
                 if (columnNames.size() > 1)
@@ -480,7 +494,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                         }
                     });
 
-                    // Add the Select All checkbox to the column name panel
+                    // Add the Select All check box to the column name panel
                     gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                     gbc.gridy++;
                     columnPnl.add(selectAllCb, gbc);
@@ -533,8 +547,11 @@ public class CcddSearchDialog extends CcddFrameHandler
                         if (selectedColumnsCb.isSelected())
                         {
                             // Display a pop-up for choosing which table columns to search
-                            if (columnDlg.showOptionsDialog(CcddSearchDialog.this, columnPnl, "Select Column(s)",
-                                                            DialogOption.OK_CANCEL_OPTION, true) == OK_BUTTON)
+                            if (columnDlg.showOptionsDialog(CcddSearchDialog.this,
+                                                            columnPnl,
+                                                            "Select Column(s)",
+                                                            DialogOption.OK_CANCEL_OPTION,
+                                                            true) == OK_BUTTON)
                             {
                                 searchColumns = "";
                                 String searchColVisible = "";
@@ -578,8 +595,7 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                         // Set the minimum width of the selected columns label so that the split
                         // pane can resize horizontally correctly
-                        selectedColumnsLbl
-                                .setMinimumSize(new Dimension(1, selectedColumnsLbl.getPreferredSize().height));
+                        selectedColumnsLbl.setMinimumSize(new Dimension(1, selectedColumnsLbl.getPreferredSize().height));
 
                         // Adjust the dialog size to force the components to adjust to the new size
                         // of the selected columns label (in case it gets larger). Without this the
@@ -645,11 +661,18 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
-                tableTree = new CcddTableTreeHandler(ccddMain, new CcddGroupHandler(ccddMain, null, parent),
-                                                     TableTreeType.TABLES, true, false, false, parent);
+                tableTree = new CcddTableTreeHandler(ccddMain,
+                                                     new CcddGroupHandler(ccddMain, null, parent),
+                                                     TableTreeType.TABLES,
+                                                     true,
+                                                     false,
+                                                     false,
+                                                     parent);
 
                 // Add the table tree to the filter panel
-                filterPnl.add(tableTree.createTreePanel(null, TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
+                filterPnl.add(tableTree.createTreePanel(null,
+                                                        TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                        false,
                                                         parent),
                               gbc);
             }
@@ -664,14 +687,20 @@ public class CcddSearchDialog extends CcddFrameHandler
                 scriptTree = new CcddScriptTreeHandler(ccddMain, parent);
 
                 // Add the script tree to the filter panel
-                filterPnl.add(scriptTree.createTreePanel(null, TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION), gbc);
+                filterPnl.add(scriptTree.createTreePanel(null,
+                                                         TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
+                              gbc);
             }
 
             JSeparator inputSep = new JSeparator(SwingConstants.VERTICAL);
             inputSep.setForeground(dialogPnl.getBackground().darker());
             gbc.insets.left = 0;
             gbc.insets.bottom = 0;
-            upperPnl.add(new CustomSplitPane(inputPnl, filterPnl, inputSep, JSplitPane.HORIZONTAL_SPLIT), gbc);
+            upperPnl.add(new CustomSplitPane(inputPnl,
+                                             filterPnl,
+                                             inputSep,
+                                             JSplitPane.HORIZONTAL_SPLIT),
+                         gbc);
         }
 
         // Create the results and number of results found labels
@@ -731,8 +760,13 @@ public class CcddSearchDialog extends CcddFrameHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(matchData, SearchResultsColumnInfo.getColumnNames(searchDlgType), null,
-                                            SearchResultsColumnInfo.getToolTips(searchDlgType), true, true, true);
+                setUpdatableCharacteristics(matchData,
+                                            SearchResultsColumnInfo.getColumnNames(searchDlgType),
+                                            null,
+                                            SearchResultsColumnInfo.getToolTips(searchDlgType),
+                                            true,
+                                            true,
+                                            true);
             }
 
             /**************************************************************************************
@@ -805,10 +839,16 @@ public class CcddSearchDialog extends CcddFrameHandler
         JScrollPane scrollPane = new JScrollPane(resultsTable);
 
         // Set up the search results table parameters
-        resultsTable.setFixedCharacteristics(scrollPane, false, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
-                                             TableSelectionMode.SELECT_BY_CELL, true,
-                                             ModifiableColorInfo.TABLE_BACK.getColor(), false, true,
-                                             ModifiableFontInfo.OTHER_TABLE_CELL.getFont(), true);
+        resultsTable.setFixedCharacteristics(scrollPane,
+                                             false,
+                                             ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                             TableSelectionMode.SELECT_BY_CELL,
+                                             true,
+                                             ModifiableColorInfo.TABLE_BACK.getColor(),
+                                             false,
+                                             true,
+                                             ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
+                                             true);
 
         // Define the panel to contain the table
         JPanel resultsTblPnl = new JPanel();
@@ -848,11 +888,17 @@ public class CcddSearchDialog extends CcddFrameHandler
             // the dialog
             JSeparator resultsSep = new JSeparator();
             resultsSep.setForeground(dialogPnl.getBackground().darker());
-            dialogPnl.add(new CustomSplitPane(upperPnl, lowerPnl, resultsSep, JSplitPane.VERTICAL_SPLIT), gbc);
+            dialogPnl.add(new CustomSplitPane(upperPnl,
+                                              lowerPnl,
+                                              resultsSep,
+                                              JSplitPane.VERTICAL_SPLIT),
+                          gbc);
         }
 
         // Search database tables button
-        JButton btnSearch = CcddButtonPanelHandler.createButton("Search", SEARCH_ICON, KeyEvent.VK_O,
+        JButton btnSearch = CcddButtonPanelHandler.createButton("Search",
+                                                                SEARCH_ICON,
+                                                                KeyEvent.VK_O,
                                                                 "Search the project database");
 
         // Add a listener for the Search button
@@ -899,9 +945,10 @@ public class CcddSearchDialog extends CcddFrameHandler
             };
 
             // Open table(s) button
-            btnOpen = CcddButtonPanelHandler
-                    .createButton("Open", TABLE_ICON, KeyEvent.VK_O,
-                                  "Open the table(s) associated with the selected search result(s)");
+            btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                          TABLE_ICON,
+                                                          KeyEvent.VK_O,
+                                                          "Open the table(s) associated with the selected search result(s)");
 
             // Add a listener for the Open button
             btnOpen.addActionListener(new ActionListener()
@@ -918,7 +965,9 @@ public class CcddSearchDialog extends CcddFrameHandler
         }
 
         // Print inconsistencies button
-        JButton btnPrint = CcddButtonPanelHandler.createButton("Print", PRINT_ICON, KeyEvent.VK_P,
+        JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
+                                                               PRINT_ICON,
+                                                               KeyEvent.VK_P,
                                                                "Print the search results list");
 
         // Add a listener for the Print button
@@ -930,12 +979,17 @@ public class CcddSearchDialog extends CcddFrameHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                resultsTable.printTable("Search Results", null, CcddSearchDialog.this, PageFormat.LANDSCAPE);
+                resultsTable.printTable("Search Results",
+                                        null,
+                                        CcddSearchDialog.this,
+                                        PageFormat.LANDSCAPE);
             }
         });
 
         // Close search dialog button
-        JButton btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+        JButton btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                               CLOSE_ICON,
+                                                               KeyEvent.VK_C,
                                                                "Close the search dialog");
 
         // Add a listener for the Close button
@@ -993,8 +1047,10 @@ public class CcddSearchDialog extends CcddFrameHandler
     private void performSearch()
     {
         // Check if the search criteria changed
-        if (!searchFld.getText().equals(prevSearchText) || ignoreCaseCb.isSelected() != prevIgnoreCase
-            || allowRegexCb.isSelected() != prevAllowRegex || !searchFilter.equals(prevFilter)
+        if (!searchFld.getText().equals(prevSearchText)
+            || ignoreCaseCb.isSelected() != prevIgnoreCase
+            || allowRegexCb.isSelected() != prevAllowRegex
+            || !searchFilter.equals(prevFilter)
             || !searchColumns.equals(prevColumns))
         {
             // Store the search criteria
@@ -1008,8 +1064,10 @@ public class CcddSearchDialog extends CcddFrameHandler
             if (searchFld.getText().isEmpty())
             {
                 // Inform the user that the input value is invalid
-                new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this, "<html><b>Search text cannot be blank",
-                                                          "Invalid Input", JOptionPane.WARNING_MESSAGE,
+                new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this,
+                                                          "<html><b>Search text cannot be blank",
+                                                          "Invalid Input",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
             // The search field contains text
@@ -1018,18 +1076,16 @@ public class CcddSearchDialog extends CcddFrameHandler
                 List<Object[]> resultsDataList = null;
 
                 // Create the match patterns from the search criteria
-                searchPattern = CcddSearchHandler.createSearchPattern(searchFld
-                        .getText(), (searchDlgType == SearchDialogType.LOG ? ignoreCaseCb.isSelected() : false),
-
+                searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                      (searchDlgType == SearchDialogType.LOG ? ignoreCaseCb.isSelected()
+                                                                                                             : false),
                                                                       allowRegexCb.isSelected(), CcddSearchDialog.this);
                 highlightPattern = searchDlgType == SearchDialogType.LOG
-                                   || !ignoreCaseCb.isSelected()
-                                                                 ? searchPattern
-                                                                 : CcddSearchHandler
-                                                                         .createSearchPattern(searchFld.getText(),
-                                                                                              ignoreCaseCb.isSelected(),
-                                                                                              allowRegexCb.isSelected(),
-                                                                                              CcddSearchDialog.this);
+                                   || !ignoreCaseCb.isSelected() ? searchPattern
+                                                                 : CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                                                         ignoreCaseCb.isSelected(),
+                                                                                                         allowRegexCb.isSelected(),
+                                                                                                         CcddSearchDialog.this);
 
                 // Check if the search pattern is valid
                 if (searchPattern != null)
@@ -1045,11 +1101,11 @@ public class CcddSearchDialog extends CcddFrameHandler
                         case TABLES:
                         case SCRIPTS:
                             // Search the database tables or scripts and display the results
-                            resultsDataList = searchHandler
-                                    .searchTablesOrScripts(searchPattern.pattern(), ignoreCaseCb.isSelected(),
-                                                           (searchDlgType == SearchDialogType.TABLES ? dataTablesOnlyCb
-                                                                   .isSelected() : false),
-                                                           searchColumns);
+                            resultsDataList = searchHandler.searchTablesOrScripts(searchPattern.pattern(),
+                                                                                  ignoreCaseCb.isSelected(),
+                                                                                  (searchDlgType == SearchDialogType.TABLES ? dataTablesOnlyCb.isSelected()
+                                                                                                                            : false),
+                                                                                  searchColumns);
                             break;
 
                         case LOG:
@@ -1081,9 +1137,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                             for (Object[] result : resultsDataList)
                             {
                                 // Separate the target into the target type and owner
-                                String[] typeAndOwner = CcddUtilities
-                                        .removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString())
-                                        .split(": ");
+                                String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
 
                                 // Check if the target type isn't a table or table data field, and
                                 // if owner isn't one of the selected tables or its prototype
@@ -1150,8 +1204,11 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
 
             // Update the number of matches found label
-            numMatchesLbl.setText(matchData.length != 0 ? "  (" + matchData.length
-                                                          + (matchData.length == 1 ? " match" : " matches") + ")"
+            numMatchesLbl.setText(matchData.length != 0 ? "  ("
+                                                          + matchData.length
+                                                          + (matchData.length == 1 ? " match"
+                                                                                     : " matches")
+                                                          + ")"
                                                         : "");
         }
     }

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddLinkTreeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing the methods for creating and manipulating a variable link tree. This
  * class is an extension of the CcddInformationTreeHandler class.
@@ -109,7 +109,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddLinkTreeHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, String rateName, Component parent)
+    CcddLinkTreeHandler(CcddMain ccddMain,
+                        CcddUndoHandler undoHandler,
+                        String rateName,
+                        Component parent)
     {
         super(ccddMain, undoHandler, InternalTable.LINKS, rateName, false, null, parent);
 
@@ -149,7 +152,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * @param linkDefinitions List containing the link definitions
      *********************************************************************************************/
     @Override
-    protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> linkDefinitions)
+    protected void initialize(CcddMain ccddMain,
+                              CcddUndoHandler undoHandler,
+                              List<String[]> linkDefinitions)
     {
         // Check if no undo handler is specified
         if (undoHandler == null)
@@ -253,7 +258,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *
      * @param description Link description
      *********************************************************************************************/
-    protected void addLinkInformation(String rateName, String linkName, String sampleRate, String description)
+    protected void addLinkInformation(String rateName,
+                                      String linkName,
+                                      String sampleRate,
+                                      String description)
     {
         // Add the new link information
         linkInformation.add(new LinkInformation(rateName, linkName, sampleRate, description));
@@ -324,7 +332,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * @param parent      GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByApp, String filterValue, boolean filterFlag, Component parent)
+    protected void buildTree(boolean filterByApp,
+                             String filterValue,
+                             boolean filterFlag,
+                             Component parent)
     {
         super.buildTree(false, filterValue, filterFlag, parent);
 
@@ -361,7 +372,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                     String[] rateAndDesc = linkMember.split(",", 2);
 
                     // Store the link information
-                    linkInformation.add(new LinkInformation(linkRate, linkName, rateAndDesc[0], rateAndDesc[1]));
+                    linkInformation.add(new LinkInformation(linkRate,
+                                                            linkName,
+                                                            rateAndDesc[0],
+                                                            rateAndDesc[1]));
 
                     // Create a node for the link and add it to the link tree
                     addInformationNode(linkName, rateAndDesc[1]);
@@ -376,7 +390,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                         if (linkName.equals(root.getChildAt(index).toString()))
                         {
                             // Add the variable to the node and stop searching
-                            addNodeToInfoNode((ToolTipTreeNode) root.getChildAt(index), linkMember.split(","), 0);
+                            addNodeToInfoNode((ToolTipTreeNode) root.getChildAt(index),
+                                              linkMember.split(","),
+                                              0);
                             break;
                         }
                     }
@@ -402,7 +418,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     protected void addInformation(Object linkToCopy, String nameOfCopy)
     {
         // Store the link information for the copy
-        linkInformation.add(new LinkInformation(((LinkInformation) linkToCopy).getSampleRate(), nameOfCopy,
+        linkInformation.add(new LinkInformation(((LinkInformation) linkToCopy).getSampleRate(),
+                                                nameOfCopy,
                                                 ((LinkInformation) linkToCopy).getDescription()));
     }
 
@@ -421,7 +438,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         for (LinkInformation linkInfo : linkInformation)
         {
             // Add the link's name, rate, and description to the list
-            definitions.add(new String[] {linkInfo.getRateName(), linkInfo.getName(),
+            definitions.add(new String[] {linkInfo.getRateName(),
+                                          linkInfo.getName(),
                                           linkInfo.getSampleRate() + "," + linkInfo.getDescription()});
         }
 
@@ -521,7 +539,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                     }
 
                     // Check if the selected sample rate doesn't match the link's rate
-                    if (!linkInfo.getSampleRate().equals("0") && !selectedRate.equals(linkInfo.getSampleRate()))
+                    if (!linkInfo.getSampleRate().equals("0")
+                        && !selectedRate.equals(linkInfo.getSampleRate()))
                     {
                         // Gray out the node text
                         nodeName = DISABLED_TEXT_COLOR + nodeName;
@@ -553,7 +572,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             for (TreePath selPath : getSelectionPaths())
             {
                 // Add the selected node's descendant nodes to the selected path list
-                addChildNodes((ToolTipTreeNode) selPath.getLastPathComponent(), selectedPaths, new ArrayList<String>(),
+                addChildNodes((ToolTipTreeNode) selPath.getLastPathComponent(),
+                              selectedPaths,
+                              new ArrayList<String>(),
                               true);
             }
 
@@ -566,7 +587,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                 // In order to remove all of a child's path that isn't shared with another child,
                 // step back through the child's path to find the ancestor node with only a single
                 // child node
-                while (node.getParent().getChildCount() == 1 && node.getLevel() > 2 + getHeaderNodeLevel())
+                while (node.getParent().getChildCount() == 1
+                       && node.getLevel() > 2 + getHeaderNodeLevel())
                 {
                     // Get the parent node for the child(ren) to be removed
                     node = (ToolTipTreeNode) node.getParent();
@@ -635,8 +657,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
              * Display the variable nodes using a special icon in the tree
              *************************************************************************************/
             @Override
-            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
-                                                          boolean leaf, int row, boolean hasFocus)
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
             {
                 // Display the node name
                 super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
@@ -690,11 +717,20 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2, 0),
-                                                        0, 0);
+                                                        new Insets(0,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0),
+                                                        0,
+                                                        0);
 
         // Set the table tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
@@ -711,15 +747,13 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
         // Create the tree scroll pane
         JScrollPane treeScroll = new JScrollPane(this);
-        treeScroll.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+        treeScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                Color.LIGHT_GRAY,
+                                                                                                Color.GRAY),
+                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Add the tree to the panel
         gbc.weighty = 1.0;

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddSearchHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles event log, table, and script searches.
  *
@@ -97,7 +97,10 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * @param eventLog      Event log to search; null if not searching a log
      *********************************************************************************************/
-    CcddSearchHandler(CcddMain ccddMain, SearchDialogType searchDlgType, Long targetRow, CcddEventLogDialog eventLog)
+    CcddSearchHandler(CcddMain ccddMain,
+                      SearchDialogType searchDlgType,
+                      Long targetRow,
+                      CcddEventLogDialog eventLog)
     {
         this.searchDlgType = searchDlgType;
         this.eventLog = eventLog;
@@ -146,7 +149,9 @@ public class CcddSearchHandler extends CcddDialogHandler
      *         database tables or event log, the column within the location, and an extract for the
      *         located match showing its context
      *********************************************************************************************/
-    protected List<Object[]> searchTablesOrScripts(String searchText, boolean ignoreCase, boolean dataTablesOnly,
+    protected List<Object[]> searchTablesOrScripts(String searchText,
+                                                   boolean ignoreCase,
+                                                   boolean dataTablesOnly,
                                                    String searchColumns)
     {
         // Initialize the list to contain the search results
@@ -159,12 +164,13 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                                      : SearchType.SCRIPT.toString();
 
         // Search the database for the text
-        String[] hits = dbCommand
-                .getList(DatabaseListCommand.SEARCH,
-                         new String[][] {{"_search_text_", searchText},
-                                         {"_case_insensitive_", String.valueOf(ignoreCase)}, {"_allow_regex_", "true"},
-                                         {"_selected_tables_", searchType}, {"_columns_", searchColumns}},
-                         CcddSearchHandler.this);
+        String[] hits = dbCommand.getList(DatabaseListCommand.SEARCH,
+                                          new String[][] {{"_search_text_", searchText},
+                                                          {"_case_insensitive_", String.valueOf(ignoreCase)},
+                                                          {"_allow_regex_", "true"},
+                                                          {"_selected_tables_", searchType},
+                                                          {"_columns_", searchColumns}},
+                                          CcddSearchHandler.this);
 
         // Step through each table/column containing the search text
         for (String hit : hits)
@@ -282,13 +288,15 @@ public class CcddSearchHandler extends CcddDialogHandler
                                     // Extract the variable from the path, then remove it from the
                                     // variable path
                                     location += ", variable '"
-                                                + tablePath.substring(index + 1).replaceFirst("^.+\\.", "") + "'";
+                                                + tablePath.substring(index + 1).replaceFirst("^.+\\.", "")
+                                                + "'";
                                 }
                             }
 
                             // Set the search result table values
-                            target = CcddUtilities
-                                    .highlightDataType(SearchTarget.TABLE.getTargetName(true) + ": " + tablePath);
+                            target = CcddUtilities.highlightDataType(SearchTarget.TABLE.getTargetName(true)
+                                                                     + ": "
+                                    + tablePath);
                             context = value;
                         }
                     }
@@ -371,22 +379,19 @@ public class CcddSearchHandler extends CcddDialogHandler
                     else if (hitTableName.equals(InternalTable.FIELDS.getTableName()))
                     {
                         // Check if this is a project data field
-                        if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":")
-                                .startsWith(CcddFieldHandler.getFieldProjectName()))
+                        if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldProjectName()))
                         {
                             target = SearchTarget.PROJECT_FIELD.getTargetName(true)
                                      + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a default data field
-                        else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":")
-                                .startsWith(CcddFieldHandler.getFieldTypeName("")))
+                        else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldTypeName("")))
                         {
                             target = SearchTarget.DEFAULT_FIELD.getTargetName(true)
                                      + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a group data field
-                        else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":")
-                                .startsWith(CcddFieldHandler.getFieldGroupName("")))
+                        else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldGroupName("")))
                         {
                             target = SearchTarget.GROUP_FIELD.getTargetName(true)
                                      + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
@@ -522,8 +527,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             else
                             {
                                 location = "Member rate, table, and variable";
-                                context = CcddUtilities
-                                        .highlightDataType(columnValue[TlmSchedulerColumn.MEMBER.ordinal()]);
+                                context = CcddUtilities.highlightDataType(columnValue[TlmSchedulerColumn.MEMBER.ordinal()]);
                             }
                         }
                     }
@@ -737,8 +741,11 @@ public class CcddSearchHandler extends CcddDialogHandler
         catch (IOException ioe)
         {
             // Inform the user that an error occurred reading the log
-            new CcddDialogHandler().showMessageDialog(this, "<html><b>Cannot read event log file", "Log Error",
-                                                      JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(this,
+                                                      "<html><b>Cannot read event log file",
+                                                      "Log Error",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
         }
 
         // Display the search results
@@ -838,7 +845,8 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * @param tblTypeHndlr Reference to the table type handler
      *********************************************************************************************/
-    protected static void removeArrayMemberReferences(List<String> matches, CcddTableTypeHandler tblTypeHndlr)
+    protected static void removeArrayMemberReferences(List<String> matches,
+                                                      CcddTableTypeHandler tblTypeHndlr)
     {
         // Step through each match (in reverse since an entry in the list may need to be removed)
         for (int index = matches.size() - 1; index >= 0; index--)
@@ -911,7 +919,9 @@ public class CcddSearchHandler extends CcddDialogHandler
      * @return Compiled regular expression search pattern; null if the regular expression is
      *         invalid
      *********************************************************************************************/
-    protected static Pattern createSearchPattern(String searchText, boolean ignoreCase, boolean allowRegEx,
+    protected static Pattern createSearchPattern(String searchText,
+                                                 boolean ignoreCase,
+                                                 boolean allowRegEx,
                                                  Component parent)
     {
         Pattern searchPattern = null;
@@ -923,16 +933,18 @@ public class CcddSearchHandler extends CcddDialogHandler
             // are then replaced with their corresponding regular expression (while protecting any
             // escaped instances of the asterisks and question marks by temporarily replacing these
             // with a marker)
-            searchPattern = Pattern
-                    .compile("(?" + (ignoreCase ? "i" : "") + ":"
-                             + (allowRegEx ? searchText.replaceAll("\\\\", "\\\\\\\\\\\\")
-                                           : searchText
-                                                   .replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-\\\\])",
-                                                               "\\\\\\\\\\\\$1")
-                                                   .replaceAll("\\\\\\?", WILD_CARD_MARKER).replaceAll("\\?", ".")
-                                                   .replaceAll(WILD_CARD_MARKER, "\\\\?")
-                                                   .replaceAll("\\\\\\*", WILD_CARD_MARKER).replaceAll("\\*", ".*?")
-                                                   .replaceAll(WILD_CARD_MARKER, "\\\\*"))
+            searchPattern = Pattern.compile("(?"
+                                            + (ignoreCase ? "i" : "")
+                                            + ":"
+                                            + (allowRegEx ? searchText.replaceAll("\\\\", "\\\\\\\\\\\\")
+                                                          : searchText.replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-\\\\])",
+                                                                                  "\\\\\\\\\\\\$1")
+                                                                      .replaceAll("\\\\\\?", WILD_CARD_MARKER)
+                                                                      .replaceAll("\\?", ".")
+                                                                      .replaceAll(WILD_CARD_MARKER, "\\\\?")
+                                                                      .replaceAll("\\\\\\*", WILD_CARD_MARKER)
+                                                                      .replaceAll("\\*", ".*?")
+                                                                      .replaceAll(WILD_CARD_MARKER, "\\\\*"))
                              + ")");
         }
         catch (PatternSyntaxException pse)
@@ -943,8 +955,10 @@ public class CcddSearchHandler extends CcddDialogHandler
                 // Inform the user that the regular expression is invalid
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Invalid regular expression; cause '</b>"
-                                                                  + pse.getMessage() + "'<b>",
-                                                          "Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                          + pse.getMessage()
+                                                          + "'<b>",
+                                                          "Invalid Input",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
         }

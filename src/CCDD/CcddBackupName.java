@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddBackupName.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class responsible for modifying the name of the database when it is backed up
  *

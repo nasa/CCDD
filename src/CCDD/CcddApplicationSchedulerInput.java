@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddApplicationSchedulerInput.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling application selection in the application scheduler dialog. This class
  * implements the CcddSchedulerInputInterface class.

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDbCommandHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling database commands.
  *

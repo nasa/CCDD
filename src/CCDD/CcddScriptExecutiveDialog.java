@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddScriptExecutiveDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to select script associations to execute. The dialog is built on the
  * CcddDialogHandler class.
@@ -88,7 +88,10 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
     {
         // Check if there are any open editors with uncommitted changes and if so check that the
         // user confirms ignoring the changes
-        if (ccddMain.ignoreUncommittedChanges("Script Executive", "Ignore changes?", false, null,
+        if (ccddMain.ignoreUncommittedChanges("Script Executive",
+                                              "Ignore changes?",
+                                              false,
+                                              null,
                                               ccddMain.getMainFrame()))
         {
             // Build the script executive dialog in the background
@@ -105,16 +108,20 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                 protected void execute()
                 {
                     // Set the initial layout manager characteristics
-                    GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+                    GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                    0,
+                                                                    1,
+                                                                    1,
+                                                                    1.0,
+                                                                    0.0,
+                                                                    GridBagConstraints.LINE_START,
                                                                     GridBagConstraints.BOTH,
-                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                            .getSpacing() / 2,
-                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                       .getSpacing(),
+                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                                0,
-                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                                       .getSpacing()),
-                                                                    0, 0);
+                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                    0,
+                                                                    0);
 
                     dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
@@ -131,7 +138,9 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                     dialogPnl.add(scriptHandler.getAssociationsPanel(null, false, CcddScriptExecutiveDialog.this), gbc);
 
                     // Execute selected script association(s) button
-                    btnExecute = CcddButtonPanelHandler.createButton("Execute", EXECUTE_ICON, KeyEvent.VK_E,
+                    btnExecute = CcddButtonPanelHandler.createButton("Execute",
+                                                                     EXECUTE_ICON,
+                                                                     KeyEvent.VK_E,
                                                                      "Execute the selected script association(s)");
 
                     // Add a listener for the Execute button
@@ -149,7 +158,9 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                     });
 
                     // Close button
-                    btnClose = CcddButtonPanelHandler.createButton("Close", CLOSE_ICON, KeyEvent.VK_C,
+                    btnClose = CcddButtonPanelHandler.createButton("Close",
+                                                                   CLOSE_ICON,
+                                                                   KeyEvent.VK_C,
                                                                    "Close the script executive");
 
                     // Add a listener for the Close button
@@ -181,8 +192,12 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                 protected void complete()
                 {
                     // Display the script execution dialog
-                    createFrame(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnExecute,
-                                "Execute Script Association(s)", null);
+                    createFrame(ccddMain.getMainFrame(),
+                                dialogPnl,
+                                buttonPnl,
+                                btnExecute,
+                                "Execute Script Association(s)",
+                                null);
                 }
             });
         }

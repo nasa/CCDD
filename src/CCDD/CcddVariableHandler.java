@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddVariableHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for building a list of project variables and converting the variable paths to
  * unique path names, and for calculating the variable offsets. This is used for populating the the
@@ -170,7 +170,9 @@ public class CcddVariableHandler
          * @return true if the separators provided match those used to create the associated
          *         converted variable name list
          *****************************************************************************************/
-        protected boolean isSeparatorsEqual(String varPathSeparator, boolean excludeDataTypes, String typeNameSeparator)
+        protected boolean isSeparatorsEqual(String varPathSeparator,
+                                            boolean excludeDataTypes,
+                                            String typeNameSeparator)
         {
             return varPathSeparator.equals(this.varPathSeparator)
                    && excludeDataTypes == this.excludeDataTypes
@@ -188,10 +190,14 @@ public class CcddVariableHandler
      *
      * @param macroHandler    Reference to a macro handler; null to use the one in the main class
      *********************************************************************************************/
-    CcddVariableHandler(CcddMain ccddMain, CcddDataTypeHandler dataTypeHandler, CcddMacroHandler macroHandler)
+    CcddVariableHandler(CcddMain ccddMain,
+                        CcddDataTypeHandler
+                        dataTypeHandler,
+                        CcddMacroHandler macroHandler)
     {
         this.ccddMain = ccddMain;
-        this.dataTypeHandler = dataTypeHandler == null ? ccddMain.getDataTypeHandler() : dataTypeHandler;
+        this.dataTypeHandler = dataTypeHandler == null ? ccddMain.getDataTypeHandler()
+                                                       : dataTypeHandler;
         this.macroHandler = macroHandler == null ? ccddMain.getMacroHandler() : macroHandler;
 
         allVariableNames = new ArrayList<String>();
@@ -323,7 +329,8 @@ public class CcddVariableHandler
      *********************************************************************************************/
     protected static boolean hasSizeof(String text, String dataType, CcddMacroHandler macroHndlr)
     {
-        return text.matches(".*?" + getSizeofDataTypeMatch(macroHndlr.getMacroExpansion(dataType), macroHndlr) + ".*");
+        return text.matches(".*?" + getSizeofDataTypeMatch(macroHndlr.getMacroExpansion(dataType),
+                                                           macroHndlr) + ".*");
     }
 
     /**********************************************************************************************
@@ -982,7 +989,9 @@ public class CcddVariableHandler
      *
      * @param typeNameSeparator Character(s) to place between data types and variable names
      *********************************************************************************************/
-    private void createVariableNameList(String varPathSeparator, boolean excludeDataTypes, String typeNameSeparator)
+    private void createVariableNameList(String varPathSeparator,
+                                        boolean excludeDataTypes,
+                                        String typeNameSeparator)
     {
         String varPathColumnsDb = "";
         String varPathColumnsUser = "";
@@ -1235,8 +1244,10 @@ convertedVariableName);
     protected void removeUnusedLists()
     {
         // Get the separators stored in the program preferences
-        String varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, DEFAULT_VARIABLE_PATH_SEP);
-        String typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, DEFAULT_TYPE_NAME_SEP);
+        String varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
+                                                              DEFAULT_VARIABLE_PATH_SEP);
+        String typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR,
+                                                               DEFAULT_TYPE_NAME_SEP);
         boolean excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
                                                                                     DEFAULT_HIDE_DATA_TYPE));
 

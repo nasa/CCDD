@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddMain.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief The CCDD main application class handles flow and execution of the menu bar items.
  *
@@ -376,10 +376,14 @@ public class CcddMain
 
         // Log the CCDD and Java versions
         getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                                      new StringBuilder("CCDD: ").append(ccddVersion).append(" (").append(buildDate)
-                                              .append(")  ***  Java: ").append(System.getProperty("java.version"))
-                                              .append(" (").append(System.getProperty("sun.arch.data.model"))
-                                              .append("-bit) *** command line: ").append(cmdLn));
+                                      new StringBuilder("CCDD: ").append(ccddVersion)
+                                                                 .append(" (").append(buildDate)
+                                                                 .append(")  ***  Java: ")
+                                                                 .append(System.getProperty("java.version"))
+                                                                 .append(" (")
+                                                                 .append(System.getProperty("sun.arch.data.model"))
+                                                                 .append("-bit) *** command line: ")
+                                                                 .append(cmdLn));
 
         // Create a keyboard handler to adjust the response to the Enter key to act like the Space
         // key to activate certain control types and to adjust the response to the arrow keys based
@@ -393,8 +397,9 @@ public class CcddMain
             // Inform the user that there was an error setting the look & feel
             new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                       "<html><b>Problem occurred when setting the look & feel to </b>"
-                                                                 + selectedLaF,
-                                                      "L&F Warning", JOptionPane.WARNING_MESSAGE,
+                                                      + selectedLaF,
+                                                      "L&F Warning",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
 
@@ -411,7 +416,9 @@ public class CcddMain
 
         // Check if a database, user, and host are specified either via the command line options
         // and/or the program preferences
-        if (!dbControl.getDatabaseName().isEmpty() && !dbControl.getUser().isEmpty() && !dbControl.getHost().isEmpty())
+        if (!dbControl.getDatabaseName().isEmpty()
+            && !dbControl.getUser().isEmpty()
+            && !dbControl.getHost().isEmpty())
         {
             // Check if the GUI is visible
             if (!isGUIHidden())
@@ -433,7 +440,8 @@ public class CcddMain
                 // the error flag if no database can be opened (including the default), or if the
                 // default database was successfully opened but was not the database specified
                 // (failure to open a database results in the default being opened)
-                boolean errorFlag = dbControl.openDatabase(projectName) || !projectName.equals(DEFAULT_DATABASE);
+                boolean errorFlag = dbControl.openDatabase(projectName)
+                                    || !projectName.equals(DEFAULT_DATABASE);
 
                 // Perform any clean-up steps and exit the application
                 cmdLnHandler.postCommandCleanUp(errorFlag ? 1 : 0);
@@ -980,7 +988,10 @@ public class CcddMain
         // Check if the table export path is set
         if (orgTableExportPath != null)
         {
-            CcddFileIOHandler.storePath(CcddMain.this, orgTableExportPath, false, ModifiablePathInfo.TABLE_EXPORT_PATH);
+            CcddFileIOHandler.storePath(CcddMain.this,
+                                        orgTableExportPath,
+                                        false,
+                                        ModifiablePathInfo.TABLE_EXPORT_PATH);
         }
     }
 
@@ -992,7 +1003,10 @@ public class CcddMain
         // Check if the script output path is set
         if (orgScriptOutPath != null)
         {
-            CcddFileIOHandler.storePath(CcddMain.this, orgScriptOutPath, false, ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+            CcddFileIOHandler.storePath(CcddMain.this,
+                                        orgScriptOutPath,
+                                        false,
+                                        ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
         }
     }
 
@@ -1020,7 +1034,9 @@ public class CcddMain
      *
      * @param parent           GUI component over which to center the dialog
      *********************************************************************************************/
-    protected void showSearchDialog(SearchDialogType searchType, Long targetRow, CcddEventLogDialog eventLogToSearch,
+    protected void showSearchDialog(SearchDialogType searchType,
+                                    Long targetRow,
+                                    CcddEventLogDialog eventLogToSearch,
                                     Component parent)
     {
         CcddSearchDialog searchDialog = null;
@@ -1056,16 +1072,26 @@ public class CcddMain
             switch (searchType)
             {
                 case TABLES:
-                    searchTableDlg = new CcddSearchDialog(CcddMain.this, SearchDialogType.TABLES, null, null, parent);
+                    searchTableDlg = new CcddSearchDialog(CcddMain.this,
+                                                          SearchDialogType.TABLES,
+                                                          null,
+                                                          null,
+                                                          parent);
                     break;
 
                 case SCRIPTS:
-                    searchScriptDlg = new CcddSearchDialog(CcddMain.this, SearchDialogType.SCRIPTS, null, null, parent);
+                    searchScriptDlg = new CcddSearchDialog(CcddMain.this,
+                                                           SearchDialogType.SCRIPTS,
+                                                           null,
+                                                           null,
+                                                           parent);
                     break;
 
                 case LOG:
-                    searchLogDlg = new CcddSearchDialog(CcddMain.this, SearchDialogType.LOG, targetRow,
-                                                        eventLogToSearch, parent);
+                    searchLogDlg = new CcddSearchDialog(CcddMain.this,
+                                                        SearchDialogType.LOG, targetRow,
+                                                        eventLogToSearch,
+                                                        parent);
                     break;
             }
         }
@@ -1150,8 +1176,10 @@ public class CcddMain
         mntmVerifyDatabase.setEnabled(activateIfDatabase);
         mntmManageUsers.setEnabled(activateIfDatabase && activateIfAdmin);
         mntmChangeDbOwner.setEnabled(activateIfServer);
-        mntmNewTable.setEnabled(activateIfDatabase && tableTypeHandler != null
-                                && tableTypeHandler.getTableTypeNames() != null && activateIfReadWrite);
+        mntmNewTable.setEnabled(activateIfDatabase
+                                && tableTypeHandler != null
+                                && tableTypeHandler.getTableTypeNames() != null
+                                && activateIfReadWrite);
         mntmEditTable.setEnabled(activateIfDatabase);
         mntmRenameTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmCopyTable.setEnabled(activateIfDatabase && activateIfReadWrite);
@@ -1239,7 +1267,8 @@ public class CcddMain
     private void setCurrentProjectLabel()
     {
         currentProject.setText("<html>Project:<b>&#160;"
-                               + (dbControl.isDatabaseConnected() ? dbControl.getProjectName() : "<i>not connected"));
+                               + (dbControl.isDatabaseConnected() ? dbControl.getProjectName()
+                                                                  : "<i>not connected"));
     }
 
     /**********************************************************************************************
@@ -1304,12 +1333,17 @@ public class CcddMain
      *
      * @return Sub-menu created
      *********************************************************************************************/
-    protected JMenu createSubMenu(JMenu menu, String name, int key, int occurrence, String toolTip)
+    protected JMenu createSubMenu(JMenu menu,
+                                  String name,
+                                  int key,
+                                  int occurrence,
+                                  String toolTip)
     {
         JMenu subMenu = new JMenu(name);
         subMenu.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(subMenu, name, key, occurrence);
-        subMenu.setToolTipText(CcddUtilities.wrapText(toolTip, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        subMenu.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menu.add(subMenu);
         return subMenu;
     }
@@ -1331,12 +1365,17 @@ public class CcddMain
      *
      * @return Menu item created
      *********************************************************************************************/
-    protected JMenuItem createMenuItem(JMenu menu, String name, int key, int occurrence, String toolTip)
+    protected JMenuItem createMenuItem(JMenu menu,
+                                       String name,
+                                       int key,
+                                       int occurrence,
+                                       String toolTip)
     {
         JMenuItem menuItem = new JMenuItem(name);
         menuItem.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menuItem, name, key, occurrence);
-        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menu.add(menuItem);
         return menuItem;
     }
@@ -1360,13 +1399,18 @@ public class CcddMain
      *
      * @return Check box menu item created
      *********************************************************************************************/
-    protected JCheckBoxMenuItem createCheckBoxMenuItem(JMenu menu, String name, int key, int occurrence, String toolTip,
+    protected JCheckBoxMenuItem createCheckBoxMenuItem(JMenu menu,
+                                                       String name,
+                                                       int key,
+                                                       int occurrence,
+                                                       String toolTip,
                                                        boolean isSelected)
     {
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(name);
         menuItem.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menuItem, name, key, occurrence);
-        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menuItem.setSelected(isSelected);
         menu.add(menuItem);
         return menuItem;
@@ -1391,13 +1435,18 @@ public class CcddMain
      *
      * @return Radio button menu item created
      *********************************************************************************************/
-    protected JRadioButtonMenuItem createRadioButtonMenuItem(JMenu menu, String name, int key, int occurrence,
-                                                             String toolTip, boolean isSelected)
+    protected JRadioButtonMenuItem createRadioButtonMenuItem(JMenu menu,
+                                                             String name,
+                                                             int key,
+                                                             int occurrence,
+                                                             String toolTip,
+                                                             boolean isSelected)
     {
         JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(name);
         menuItem.setFont(ModifiableFontInfo.MENU_ITEM.getFont());
         setMnemonic(menuItem, name, key, occurrence);
-        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip, ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        menuItem.setToolTipText(CcddUtilities.wrapText(toolTip,
+                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         menuItem.setSelected(isSelected);
         menu.add(menuItem);
         return menuItem;
@@ -1461,9 +1510,8 @@ public class CcddMain
         try
         {
             // Get the path+name of the .jar file in a format acceptable to all OS's
-            String jarFileName = URLDecoder
-                    .decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath())
-                            .getAbsolutePath(), "UTF-8");
+            String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
+                                                   "UTF-8");
 
             // Sometimes the name of the jar is not appended. Attempt to add it if the name does
             // not end with '.jar'
@@ -1729,16 +1777,15 @@ public class CcddMain
                     {
                         // Create the new recently opened table menu item in the table editor
                         // command menu
-                        editorDlg
-                                .getRecentTableMenuItems()[index] = createMenuItem(editorDlg.getFilesMenu(),
-                                                                                   (index + 1) + " " + (protoVar
-                                                                                           .equals(root) ? protoVar
-                                                                                                         : root + ": "
-                                                                                                           + protoVar),
-                                                                                   KeyEvent.VK_1 + (index == 9 ? -1
-                                                                                                               : index),
-                                                                                   1, "Open table "
-                                                                                      + recentTableNames.get(index));
+                        editorDlg.getRecentTableMenuItems()[index] = createMenuItem(editorDlg.getFilesMenu(),
+                                                                                    (index + 1)
+                                                                                    + " "
+                                                                                    + (protoVar.equals(root) ? protoVar
+                                                                                                             : root + ": " + protoVar),
+                                                                                    KeyEvent.VK_1 + (index == 9 ? -1
+                                                                                                                : index),
+                                                                                    1,
+                                                                                   "Open table " + recentTableNames.get(index));
 
                         // Add a listener for the recently opened table menu item
                         editorDlg.getRecentTableMenuItems()[index].addActionListener(new ActionListener()
@@ -1833,7 +1880,9 @@ public class CcddMain
         // Create the File menu and menu items
         JMenu mnFile = createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
         mntmUser = createMenuItem(mnFile, "Select user", KeyEvent.VK_U, 1, "Change user name and/or password");
-        mntmDbServer = createMenuItem(mnFile, "Database server", KeyEvent.VK_D, 1,
+        mntmDbServer = createMenuItem(mnFile,
+                                      "Database server",
+                                      KeyEvent.VK_D, 1,
                                       "Change PostgreSQL database server address and port");
         mnFile.addSeparator();
         mntmReadLog = createMenuItem(mnFile, "Read log", KeyEvent.VK_R, 1, "Open an event log");
@@ -1845,7 +1894,9 @@ public class CcddMain
                                                      "Start or stop the web server", false);
         mntmWebServerPort = createMenuItem(mnWebServer, "Select port", KeyEvent.VK_O, 1, "Select the web server port");
         mnFile.addSeparator();
-        JMenuItem mntmPreferences = createMenuItem(mnFile, "Preferences", KeyEvent.VK_F, 1,
+        JMenuItem mntmPreferences = createMenuItem(mnFile,
+                                                   "Preferences",
+                                                   KeyEvent.VK_F, 1,
                                                    "Change the application look & feel, fonts, etc.");
         mntmExit = createMenuItem(mnFile, "Exit", KeyEvent.VK_X, 1, "Exit the application");
 
@@ -2231,7 +2282,11 @@ public class CcddMain
             {
                 // Check if there are uncommitted changes and if so, confirm discarding the changes
                 // before proceeding
-                if (ignoreUncommittedChanges("Restore Project", "Discard changes?", true, null, frameCCDD))
+                if (ignoreUncommittedChanges("Restore Project",
+                                             "Discard changes?",
+                                             true,
+                                             null,
+                                             frameCCDD))
                 {
                     fileIOHandler.restoreDatabaseFromDBU();
                 }
@@ -2249,9 +2304,17 @@ public class CcddMain
             {
                 // Check if there are uncommitted changes and if so, confirm discarding the changes
                 // before proceeding
-                if (ignoreUncommittedChanges("Restore Project", "Discard changes?", true, null, frameCCDD))
+                if (ignoreUncommittedChanges("Restore Project",
+                                             "Discard changes?",
+                                             true,
+                                             null,
+                                             frameCCDD))
                 {
-                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON, null, null, null, null);
+                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               null);
                 }
             }
         });
@@ -2267,9 +2330,17 @@ public class CcddMain
             {
                 // Check if there are uncommitted changes and if so, confirm discarding the changes
                 // before proceeding
-                if (ignoreUncommittedChanges("Restore Project", "Discard changes?", true, null, frameCCDD))
+                if (ignoreUncommittedChanges("Restore Project",
+                                             "Discard changes?",
+                                             true,
+                                             null,
+                                             frameCCDD))
                 {
-                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV, null, null, null, null);
+                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
+                                                               null,
+                                                               null,
+                                                               null,
+                                                               null);
                 }
             }
         });
@@ -2730,7 +2801,7 @@ public class CcddMain
                 // The editor is currently displayed
                 else
                 {
-                    // Deiconify the editor (if iconfied) and bring it to the front
+                    // Deiconify the editor (if iconified) and bring it to the front
                     fieldTblEditorDialog.setExtendedState(Frame.NORMAL);
                     fieldTblEditorDialog.toFront();
                     fieldTblEditorDialog.repaint();
@@ -2802,7 +2873,7 @@ public class CcddMain
                 // The script association manager dialog is already open
                 else
                 {
-                    // Deiconify the dialog (if iconfied) and bring it to the front
+                    // Deiconify the dialog (if iconified) and bring it to the front
                     scriptManagerDialog.setExtendedState(Frame.NORMAL);
                     scriptManagerDialog.toFront();
                     scriptManagerDialog.repaint();
@@ -2829,7 +2900,8 @@ public class CcddMain
                     if (!scriptManagerDialog.isAssociationsChanged()
                         || new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                                      "<html><b>Discard script association changes?",
-                                                                     "Discard Changes", JOptionPane.QUESTION_MESSAGE,
+                                                                     "Discard Changes",
+                                                                     JOptionPane.QUESTION_MESSAGE,
                                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                     {
                         // Close the script manager
@@ -2864,7 +2936,7 @@ public class CcddMain
                         // The script association executive dialog is already open
                         else
                         {
-                            // Deiconify the dialog (if iconfied) and bring it to the front
+                            // Deiconify the dialog (if iconified) and bring it to the front
                             scriptExecutiveDialog.setExtendedState(Frame.NORMAL);
                             scriptExecutiveDialog.toFront();
                             scriptExecutiveDialog.repaint();
@@ -2875,8 +2947,10 @@ public class CcddMain
                     {
                         // Inform the user that no scripts exist
                         new CcddDialogHandler()
-                                .showMessageDialog(frameCCDD, "<html><b>No script association exists in the database",
-                                                   "File Generation", JOptionPane.INFORMATION_MESSAGE,
+                                .showMessageDialog(frameCCDD,
+                                                   "<html><b>No script association exists in the database",
+                                                   "File Generation",
+                                                   JOptionPane.INFORMATION_MESSAGE,
                                                    DialogOption.OK_OPTION);
                     }
                 }
@@ -2995,43 +3069,40 @@ public class CcddMain
                 new CcddDialogHandler()
                         .showMessageDialog(frameCCDD,
                                            "<html><b>Core Flight System<br>Command and Data Dictionary</b><br>Author: "
-                                                      + CCDD_AUTHOR + "<br>Contributors: " + CCDD_CONTRIBUTORS + "<br>"
-                                                      + CcddUtilities
-                                                              .colorHTMLText("Version: ",
-                                                                             ModifiableColorInfo.SPECIAL_LABEL_TEXT
-                                                                                     .getColor())
-                                                      + ccddVersion + "&#160;&#160;&#160;" + buildDate
-                                                      + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
-                                                      + CcddUtilities
-                                                              .colorHTMLText("Java: ",
-                                                                             ModifiableColorInfo.SPECIAL_LABEL_TEXT
-                                                                                     .getColor())
-                                                      + System.getProperty("java.version") + " ("
-                                                      + System.getProperty("sun.arch.data.model")
-                                                      + "-bit)<br>&#160;&#160;&#160;"
-                                                      + CcddUtilities
-                                                              .colorHTMLText(DEFAULT_SERVER + ": ",
-                                                                             ModifiableColorInfo.SPECIAL_LABEL_TEXT
-                                                                                     .getColor())
-                                                      + dbControl.getDatabaseVersion() + "<br>&#160;&#160;&#160;"
-                                                      + CcddUtilities
-                                                              .colorHTMLText("JDBC: ",
-                                                                             ModifiableColorInfo.SPECIAL_LABEL_TEXT
-                                                                                     .getColor())
-                                                      + dbControl.getJDBCVersion() + "<br>&#160;&#160;&#160;"
-                                                      + CcddUtilities
-                                                              .colorHTMLText("Jetty: ",
-                                                                             ModifiableColorInfo.SPECIAL_LABEL_TEXT
-                                                                                     .getColor())
-                                                      + org.eclipse.jetty.util.Jetty.VERSION
-                                                      + "<br><br><b>Scripting language versions:</b>"
-                                                      + scriptHandler.getEngineInformation()
-                                                      + "<br><br>Copyright 2017 United States Government "
-                                                      + "as represented by the<br>Administrator of the "
-                                                      + "National Aeronautics and Space Administration.<br>"
-                                                      + "No copyright is claimed in the United States "
-                                                      + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
-                                           "About CCDD", DialogOption.OK_OPTION, icon);
+                                           + CCDD_AUTHOR + "<br>Contributors: " + CCDD_CONTRIBUTORS + "<br>"
+                                           + CcddUtilities.colorHTMLText("Version: ",
+                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                           + ccddVersion
+                                           + "&#160;&#160;&#160;"
+                                           + buildDate
+                                           + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
+                                           + CcddUtilities.colorHTMLText("Java: ",
+                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                           + System.getProperty("java.version")
+                                           + " ("
+                                           + System.getProperty("sun.arch.data.model")
+                                           + "-bit)<br>&#160;&#160;&#160;"
+                                           + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
+                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                           + dbControl.getDatabaseVersion()
+                                           + "<br>&#160;&#160;&#160;"
+                                           + CcddUtilities.colorHTMLText("JDBC: ",
+                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                           + dbControl.getJDBCVersion()
+                                           + "<br>&#160;&#160;&#160;"
+                                           + CcddUtilities.colorHTMLText("Jetty: ",
+                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                           + org.eclipse.jetty.util.Jetty.VERSION
+                                           + "<br><br><b>Scripting language versions:</b>"
+                                           + scriptHandler.getEngineInformation()
+                                           + "<br><br>Copyright 2017 United States Government "
+                                           + "as represented by the<br>Administrator of the "
+                                           + "National Aeronautics and Space Administration.<br>"
+                                           + "No copyright is claimed in the United States "
+                                           + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
+                                           "About CCDD",
+                                           DialogOption.OK_OPTION,
+                                           icon);
             }
         });
     }
@@ -3095,10 +3166,16 @@ public class CcddMain
         // Ask the user to verify if exiting is okay, then check if there are editors open with
         // uncommitted changes; if so then get confirmation to discard the changes before exiting
         if (!withConfirm
-            || (new CcddDialogHandler().showMessageDialog(frameCCDD, "<html><b>Exit application?", "Exit CCDD",
+            || (new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                          "<html><b>Exit application?",
+                                                          "Exit CCDD",
                                                           JOptionPane.QUESTION_MESSAGE,
                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
-                && ignoreUncommittedChanges("Exit application", "Discard changes?", true, null, frameCCDD)))
+                && ignoreUncommittedChanges("Exit application",
+                                            "Discard changes?",
+                                            true,
+                                            null,
+                                            frameCCDD)))
         {
 
             // Try to acquire all of the semaphores in the map before exiting. This is a generic
@@ -3299,7 +3376,9 @@ public class CcddMain
      *
      * @param table      Reference to the container's table; null if the container has no table
      *********************************************************************************************/
-    private void updateContainerGUI(GUIUpdateType updateType, Container container, CcddJTableHandler table)
+    private void updateContainerGUI(GUIUpdateType updateType,
+                                    Container container,
+                                    CcddJTableHandler table)
     {
         // Update the container's components
         switch (updateType)
@@ -3366,8 +3445,10 @@ public class CcddMain
         catch (BackingStoreException bse)
         {
             // Inform the user that the program preferences can't be stored
-            new CcddDialogHandler().showMessageDialog(frameCCDD, "<html><b>Cannot store program preference values",
-                                                      "File Warning", JOptionPane.WARNING_MESSAGE,
+            new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                      "<html><b>Cannot store program preference values",
+                                                      "File Warning",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
 
@@ -3416,8 +3497,11 @@ public class CcddMain
      *         and continue with the operation; false if changes exist and the user cancels the
      *         operation
      *********************************************************************************************/
-    protected boolean ignoreUncommittedChanges(String dialogType, String dialogMessage, boolean closeEditors,
-                                               List<String> tableTypes, Component parent)
+    protected boolean ignoreUncommittedChanges(String dialogType,
+                                               String dialogMessage,
+                                               boolean closeEditors,
+                                               List<String> tableTypes,
+                                               Component parent)
     {
         // Assume that it's okay to continue with uncommitted changes
         boolean canContinue = true;
@@ -3442,11 +3526,15 @@ public class CcddMain
         // Check if there are unsaved table type or data field table editor changes. If the list of
         // changed table types is not empty then the caller is the table type editor; ignore table
         // type changes in this instance
-        if (!isChanged && (((tableTypes == null || tableTypes.isEmpty()) && tableTypeEditorDialog != null
-                            && tableTypeEditorDialog.isShowing() && tableTypeEditorDialog.isTypesChanged())
-                           || (fieldTblEditorDialog != null && fieldTblEditorDialog.isShowing()
+        if (!isChanged && (((tableTypes == null || tableTypes.isEmpty())
+                            && tableTypeEditorDialog != null
+                            && tableTypeEditorDialog.isShowing()
+                            && tableTypeEditorDialog.isTypesChanged())
+                           || (fieldTblEditorDialog != null
+                               && fieldTblEditorDialog.isShowing()
                                && fieldTblEditorDialog.isFieldTableChanged())
-                           || (scriptManagerDialog != null && scriptManagerDialog.isShowing()
+                           || (scriptManagerDialog != null
+                               && scriptManagerDialog.isShowing()
                                && scriptManagerDialog.isAssociationsChanged())))
         {
             // Set the flag to indicate that there are uncommitted changes
@@ -3455,7 +3543,9 @@ public class CcddMain
 
         // Check if there are uncommitted changes and if the user confirms that the changes should
         // be ignored
-        if (isChanged && new CcddDialogHandler().showMessageDialog(parent, "<html><b>" + dialogMessage, dialogType,
+        if (isChanged && new CcddDialogHandler().showMessageDialog(parent,
+                                                                   "<html><b>" + dialogMessage,
+                                                                   dialogType,
                                                                    JOptionPane.QUESTION_MESSAGE,
                                                                    DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
         {

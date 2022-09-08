@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddPaddingDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for adding, updating, or removing padding variables for the selected structure
  * table(s). The dialog is built on the CcddDialogHandler class.
@@ -77,16 +77,19 @@ public class CcddPaddingDialog extends CcddDialogHandler
     private void initialize(final CcddMain ccddMain)
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        1.0,
+                                                        GridBagConstraints.CENTER,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()
-                                                                      / 2),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
 
         // Create a panel to contain the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -95,18 +98,26 @@ public class CcddPaddingDialog extends CcddDialogHandler
         // Build the table tree showing both table prototypes and table instances; i.e., parent
         // tables with their child tables (i.e., parents with children)
         final CcddTableTreeHandler prototypeTree = new CcddTableTreeHandler(ccddMain,
-                                                                            new CcddGroupHandler(ccddMain, null,
+                                                                            new CcddGroupHandler(ccddMain,
+                                                                                                 null,
                                                                                                  ccddMain.getMainFrame()),
-                                                                            TableTreeType.PROTOTYPE_STRUCTURES, true,
-                                                                            false, false, ccddMain.getMainFrame());
+                                                                            TableTreeType.PROTOTYPE_STRUCTURES,
+                                                                            true,
+                                                                            false,
+                                                                            false,
+                                                                            ccddMain.getMainFrame());
 
         // Add the tree to the dialog
-        dialogPnl.add(prototypeTree.createTreePanel("Structure Tables", TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                    false, ccddMain.getMainFrame()),
+        dialogPnl.add(prototypeTree.createTreePanel("Structure Tables",
+                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                    false,
+                                                    ccddMain.getMainFrame()),
                       gbc);
 
         // Add/update padding button
-        JButton btnAddUpdate = CcddButtonPanelHandler.createButton("Add/Update", INSERT_ICON, KeyEvent.VK_A,
+        JButton btnAddUpdate = CcddButtonPanelHandler.createButton("Add/Update",
+                                                                   INSERT_ICON,
+                                                                   KeyEvent.VK_A,
                                                                    "Add or update padding for selected table(s)");
 
         // Add a listener for the Add/Update button
@@ -131,7 +142,9 @@ public class CcddPaddingDialog extends CcddDialogHandler
         });
 
         // Remove padding button
-        JButton btnRemove = CcddButtonPanelHandler.createButton("Remove", DELETE_ICON, KeyEvent.VK_R,
+        JButton btnRemove = CcddButtonPanelHandler.createButton("Remove",
+                                                                DELETE_ICON,
+                                                                KeyEvent.VK_R,
                                                                 "Remove padding from selected table(s)");
 
         // Add a listener for the Remove button
@@ -156,7 +169,9 @@ public class CcddPaddingDialog extends CcddDialogHandler
         });
 
         // Close padding dialog button
-        JButton btnCancel = CcddButtonPanelHandler.createButton("Cancel", CANCEL_ICON, KeyEvent.VK_C,
+        JButton btnCancel = CcddButtonPanelHandler.createButton("Cancel",
+                                                                CANCEL_ICON,
+                                                                KeyEvent.VK_C,
                                                                 "Close the padding dialog without making any changes");
 
         // Add a listener for the Cancel button
@@ -180,7 +195,12 @@ public class CcddPaddingDialog extends CcddDialogHandler
         buttonPnl.add(btnCancel);
 
         // Display the padding selection dialog
-        showOptionsDialog(ccddMain.getMainFrame(), dialogPnl, buttonPnl, btnCancel, "Add/Update/Remove Padding", true);
+        showOptionsDialog(ccddMain.getMainFrame(),
+                          dialogPnl,
+                          buttonPnl,
+                          btnCancel,
+                          "Add/Update/Remove Padding",
+                          true);
     }
 
     /**********************************************************************************************
@@ -198,9 +218,11 @@ public class CcddPaddingDialog extends CcddDialogHandler
         if (prototypeTree.isSelectionEmpty())
         {
             // Inform the user that a table must be selected
-            new CcddDialogHandler()
-                    .showMessageDialog(CcddPaddingDialog.this, "<html><b>Must select at least one structure table",
-                                       "Invalid Input", JOptionPane.WARNING_MESSAGE, DialogOption.OK_OPTION);
+            new CcddDialogHandler().showMessageDialog(CcddPaddingDialog.this,
+                                                      "<html><b>Must select at least one structure table",
+                                                      "Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
             isSelected = false;
         }
 
@@ -220,7 +242,9 @@ public class CcddPaddingDialog extends CcddDialogHandler
      *
      * @param prototypeTree Reference to the prototype table tree
      *********************************************************************************************/
-    private void addUpdatePadding(CcddMain ccddMain, PadOperationType padOpType, CcddTableTreeHandler prototypeTree)
+    private void addUpdatePadding(CcddMain ccddMain,
+                                  PadOperationType padOpType,
+                                  CcddTableTreeHandler prototypeTree)
     {
         List<String> referencedPrototypeTables = new ArrayList<String>();
         List<String> affectedTables = new ArrayList<String>();
@@ -230,18 +254,22 @@ public class CcddPaddingDialog extends CcddDialogHandler
 
         // Get an instance table tree
         CcddTableTreeHandler instanceTree = new CcddTableTreeHandler(ccddMain,
-                                                                     new CcddGroupHandler(ccddMain, null,
+                                                                     new CcddGroupHandler(ccddMain,
+                                                                                          null,
                                                                                           CcddPaddingDialog.this),
-                                                                     TableTreeType.INSTANCE_TABLES, true, false, false,
+                                                                     TableTreeType.INSTANCE_TABLES,
+                                                                     true,
+                                                                     false,
+                                                                     false,
                                                                      CcddPaddingDialog.this);
 
         // Step through each prototype table selected by the user
         for (String prototypeTable : selectedPrototypeTables)
         {
             // Step through each instance table that references the selected prototype table
-            for (String tablePath : instanceTree
-                    .getTableTreePathList(prototypeTable, instanceTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
-                                          -1))
+            for (String tablePath : instanceTree.getTableTreePathList(prototypeTable,
+                                                                      instanceTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
+                                                                      -1))
             {
                 // Get the index of the last table in the path
                 int index = tablePath.lastIndexOf(",");
@@ -311,7 +339,10 @@ public class CcddPaddingDialog extends CcddDialogHandler
         Collections.sort(referencedPrototypeTables, String.CASE_INSENSITIVE_ORDER);
 
         // Perform the padding operation
-        new CcddPaddingVariableHandler(ccddMain, padOpType, selectedPrototypeTables, referencedPrototypeTables,
+        new CcddPaddingVariableHandler(ccddMain,
+                                       padOpType,
+                                       selectedPrototypeTables,
+                                       referencedPrototypeTables,
                                        CcddPaddingDialog.this);
     }
 }

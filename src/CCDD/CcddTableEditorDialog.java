@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableEditorDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling data table editing; displays instances of CcddTableEditorHandler. The
  * dialog is built on the CcddEditorPanelHandler class.
@@ -597,95 +597,164 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Create the File menu and menu items
         mnFile = ccddMain.createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
-        mntmEdit = ccddMain.createMenuItem(mnFile, "Edit table(s)", KeyEvent.VK_E, 1,
+        mntmEdit = ccddMain.createMenuItem(mnFile,
+                                           "Edit table(s)",
+                                           KeyEvent.VK_E, 1,
                                            "Open one or more data tables for editing");
-        mntmEditPrototype = ccddMain.createMenuItem(mnFile, "Edit prototype", KeyEvent.VK_T, 2,
+        mntmEditPrototype = ccddMain.createMenuItem(mnFile,
+                                                    "Edit prototype",
+                                                    KeyEvent.VK_T, 2,
                                                     "Open the prototype for the current table");
         mnFile.addSeparator();
-        mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_U, 1,
+        mntmStore = ccddMain.createMenuItem(mnFile,
+                                            "Store current",
+                                            KeyEvent.VK_U, 1,
                                             "Store changes to the current editor table");
-        mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1,
+        mntmStoreAll = ccddMain.createMenuItem(mnFile,
+                                               "Store all",
+                                               KeyEvent.VK_L, 1,
                                                "Store the changes to all tables in this editor");
         mnFile.addSeparator();
         JMenu mnImport = ccddMain.createSubMenu(mnFile, "Import data", KeyEvent.VK_I, 1, null);
-        mntmImportCSV = ccddMain.createMenuItem(mnImport, "CSV", KeyEvent.VK_C, 1,
+        mntmImportCSV = ccddMain.createMenuItem(mnImport,
+                                                "CSV",
+                                                KeyEvent.VK_C, 1,
                                                 "Import a CSV file into the current editor table");
-        mntmImportEDS = ccddMain.createMenuItem(mnImport, "EDS", KeyEvent.VK_E, 1,
+        mntmImportEDS = ccddMain.createMenuItem(mnImport,
+                                                "EDS",
+                                                KeyEvent.VK_E, 1,
                                                 "Import a EDS file into the current editor table");
-        mntmImportJSON = ccddMain.createMenuItem(mnImport, "JSON", KeyEvent.VK_J, 1,
+        mntmImportJSON = ccddMain.createMenuItem(mnImport,
+                                                 "JSON",
+                                                 KeyEvent.VK_J, 1,
                                                  "Import a JSON file into the current editor table");
-        mntmImportXTCE = ccddMain.createMenuItem(mnImport, "XTCE", KeyEvent.VK_X, 1,
+        mntmImportXTCE = ccddMain.createMenuItem(mnImport,
+                                                 "XTCE",
+                                                 KeyEvent.VK_X, 1,
                                                  "Import a XTCE file into the current editor table");
         JMenu mnExport = ccddMain.createSubMenu(mnFile, "Export table", KeyEvent.VK_X, 1, null);
-        mntmExportCSV = ccddMain.createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1,
+        mntmExportCSV = ccddMain.createMenuItem(mnExport,
+                                                "CSV",
+                                                KeyEvent.VK_C, 1,
                                                 "Export the current editor table in CSV format");
-        mntmExportEDS = ccddMain.createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1,
+        mntmExportEDS = ccddMain.createMenuItem(mnExport,
+                                                "EDS",
+                                                KeyEvent.VK_E, 1,
                                                 "Export the current editor table in EDS XML format");
-        mntmExportJSON = ccddMain.createMenuItem(mnExport, "JSON", KeyEvent.VK_J, 1,
+        mntmExportJSON = ccddMain.createMenuItem(mnExport,
+                                                 "JSON",
+                                                 KeyEvent.VK_J, 1,
                                                  "Export the current editor table in JSON format");
-        mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1,
+        mntmExportXTCE = ccddMain.createMenuItem(mnExport,
+                                                 "XTCE",
+                                                 KeyEvent.VK_X, 1,
                                                  "Export the current editor table in XTCE XML format");
         mnFile.addSeparator();
-        mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1,
+        mntmPrint = ccddMain.createMenuItem(mnFile,
+                                            "Print current",
+                                            KeyEvent.VK_P, 1,
                                             "Print the current editor table information");
-        mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/replace", KeyEvent.VK_F, 1,
+        mntmFindReplace = ccddMain.createMenuItem(mnFile,
+                                                  "Find/replace",
+                                                  KeyEvent.VK_F, 1,
                                                   "Find/replace text in the active data table");
         mnFile.addSeparator();
-        mntmCloseActive = ccddMain.createMenuItem(mnFile, "Close current", KeyEvent.VK_C, 2,
+        mntmCloseActive = ccddMain.createMenuItem(mnFile,
+                                                  "Close current",
+                                                  KeyEvent.VK_C, 2,
                                                   "Close the current editor table");
-        mntmCloseAll = ccddMain.createMenuItem(mnFile, "Close all", KeyEvent.VK_A, 1,
+        mntmCloseAll = ccddMain.createMenuItem(mnFile,
+                                               "Close all",
+                                               KeyEvent.VK_A, 1,
                                                "Close all tables in this editor");
         mnFile.addSeparator();
 
         // Create the Edit menu and menu items
         JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", KeyEvent.VK_E, 1, null);
-        mntmCopy = ccddMain.createMenuItem(mnEdit, "Copy", KeyEvent.VK_C, 1,
+        mntmCopy = ccddMain.createMenuItem(mnEdit,
+                                           "Copy",
+                                           KeyEvent.VK_C, 1,
                                            "Copy the selected cell(s) to the clipboard");
-        mntmPaste = ccddMain.createMenuItem(mnEdit, "Paste (Ctrl-V)", KeyEvent.VK_V, 1,
+        mntmPaste = ccddMain.createMenuItem(mnEdit,
+                                            "Paste (Ctrl-V)",
+                                            KeyEvent.VK_V, 1,
                                             "Paste the clipboard contents at the current focus location");
-        mntmInsert = ccddMain.createMenuItem(mnEdit, "Insert", KeyEvent.VK_I, 1,
+        mntmInsert = ccddMain.createMenuItem(mnEdit,
+                                             "Insert",
+                                             KeyEvent.VK_I, 1,
                                              "Insert the clipboard contents at the current focus location");
         mnEdit.addSeparator();
-        mntmUndo = ccddMain.createMenuItem(mnEdit, "Undo (Ctrl-Z)", KeyEvent.VK_Z, 1, "Undo the last edit operation");
-        mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1,
+        mntmUndo = ccddMain.createMenuItem(mnEdit,
+                                           "Undo (Ctrl-Z)",
+                                           KeyEvent.VK_Z, 1,
+                                           "Undo the last edit operation");
+        mntmRedo = ccddMain.createMenuItem(mnEdit,
+                                           "Redo (Ctrl-Y)",
+                                           KeyEvent.VK_Y, 1,
                                            "Redo the last undone edit operation");
         mnEdit.addSeparator();
-        mntmInsertMacro = ccddMain.createMenuItem(mnEdit, "Insert macro", KeyEvent.VK_M, 1,
+        mntmInsertMacro = ccddMain.createMenuItem(mnEdit,
+                                                  "Insert macro",
+                                                  KeyEvent.VK_M, 1,
                                                   "Insert a macro selected from the pop-up list");
-        mntmShowMacros = ccddMain.createCheckBoxMenuItem(mnEdit, "Show macros", KeyEvent.VK_S, 1,
+        mntmShowMacros = ccddMain.createCheckBoxMenuItem(mnEdit,
+                                                         "Show macros",
+                                                         KeyEvent.VK_S, 1,
                                                          "Temporarily replace macro(s) with the corresponding value(s)",
                                                          false);
         mnEdit.addSeparator();
         JMenu mnClearSelected = ccddMain.createSubMenu(mnEdit, "Replace selected", KeyEvent.VK_L, 1, null);
-        mntmWithBlanks = ccddMain.createMenuItem(mnClearSelected, "With blank", KeyEvent.VK_B, 1,
+        mntmWithBlanks = ccddMain.createMenuItem(mnClearSelected,
+                                                 "With blank",
+                                                 KeyEvent.VK_B, 1,
                                                  "Replace the values in the selected cells with blanks");
-        mntmWithPrototype = ccddMain
-                .createMenuItem(mnClearSelected, "With prototype", KeyEvent.VK_P, 1,
-                                "Replace the values in the selected cells with the prototype's values");
+        mntmWithPrototype = ccddMain.createMenuItem(mnClearSelected,
+                                                    "With prototype",
+                                                    KeyEvent.VK_P, 1,
+                                                    "Replace the values in the selected cells with the prototype's values");
 
         // Create the Row menu and menu items
         JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
-        mntmInsertRow = ccddMain.createMenuItem(mnRow, "Insert row", KeyEvent.VK_I, 1,
+        mntmInsertRow = ccddMain.createMenuItem(mnRow,
+                                                "Insert row",
+                                                KeyEvent.VK_I, 1,
                                                 "Insert a row below the current focus location");
-        mntmDeleteRow = ccddMain.createMenuItem(mnRow, "Delete row(s)", KeyEvent.VK_D, 1,
+        mntmDeleteRow = ccddMain.createMenuItem(mnRow,
+                                                "Delete row(s)",
+                                                KeyEvent.VK_D, 1,
                                                 "Delete the currently selected row(s)");
         mnRow.addSeparator();
-        mntmMoveUp = ccddMain.createMenuItem(mnRow, "Move up", KeyEvent.VK_U, 1,
+        mntmMoveUp = ccddMain.createMenuItem(mnRow,
+                                             "Move up",
+                                             KeyEvent.VK_U, 1,
                                              "Move the currently selected row(s) up one row");
-        mntmMoveDown = ccddMain.createMenuItem(mnRow, "Move down", KeyEvent.VK_N, 1,
+        mntmMoveDown = ccddMain.createMenuItem(mnRow,
+                                               "Move down",
+                                               KeyEvent.VK_N, 1,
                                                "Move the currently selected row(s) down one row");
         mnRow.addSeparator();
-        mntmExpColArray = ccddMain.createCheckBoxMenuItem(mnRow, "Expand arrays", KeyEvent.VK_E, 1,
-                                                          "Expand/collapse display of array members", false);
+        mntmExpColArray = ccddMain.createCheckBoxMenuItem(mnRow,
+                                                          "Expand arrays",
+                                                          KeyEvent.VK_E, 1,
+                                                          "Expand/collapse display of array members",
+                                                          false);
         JMenu mnOverwrite = ccddMain.createSubMenu(mnRow, "Array overwrite", KeyEvent.VK_O, 1, null);
-        mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite, "Overwrite all", KeyEvent.VK_A, 1,
+        mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite,
+                                                              "Overwrite all",
+                                                              KeyEvent.VK_A, 1,
                                                               "Copy array definition value change to all members",
                                                               true);
         mntmOverwriteEmpty = ccddMain
-                .createRadioButtonMenuItem(mnOverwrite, "Overwrite empty", KeyEvent.VK_E, 3,
-                                           "Copy array definition value change only to empty members", false);
-        mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite, "Overwrite none", KeyEvent.VK_N, 1,
-                                                               "Do not copy definition value change to members", false);
+                .createRadioButtonMenuItem(mnOverwrite,
+                                           "Overwrite empty",
+                                           KeyEvent.VK_E, 3,
+                                           "Copy array definition value change only to empty members",
+                                           false);
+        mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite,
+                                                               "Overwrite none",
+                                                               KeyEvent.VK_N, 1,
+                                                               "Do not copy definition value change to members",
+                                                               false);
         ButtonGroup rbtnGroup = new ButtonGroup();
         rbtnGroup.add(mntmOverwriteAll);
         rbtnGroup.add(mntmOverwriteEmpty);
@@ -693,18 +762,28 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Create the Column menu and menu items
         JMenu mnColumn = ccddMain.createMenu(menuBar, "Column", KeyEvent.VK_M, 1, null);
-        mntmMoveLeft = ccddMain.createMenuItem(mnColumn, "Move left", KeyEvent.VK_L, 1,
+        mntmMoveLeft = ccddMain.createMenuItem(mnColumn,
+                                               "Move left",
+                                               KeyEvent.VK_L, 1,
                                                "Move the currently selected column(s) left one column");
-        mntmMoveRight = ccddMain.createMenuItem(mnColumn, "Move right", KeyEvent.VK_R, 1,
+        mntmMoveRight = ccddMain.createMenuItem(mnColumn,
+                                                "Move right",
+                                                KeyEvent.VK_R, 1,
                                                 "Move the currently selected column(s) right one column");
-        mntmResetOrder = ccddMain.createMenuItem(mnColumn, "Reset order", KeyEvent.VK_O, 1,
+        mntmResetOrder = ccddMain.createMenuItem(mnColumn,
+                                                 "Reset order",
+                                                 KeyEvent.VK_O, 1,
                                                  "Reset the column order to the default");
 
         // Create the Field menu and menu items
         JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_L, 1, null);
-        mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1,
+        mntmManageFields = ccddMain.createMenuItem(mnField,
+                                                   "Manage fields",
+                                                   KeyEvent.VK_M, 1,
                                                    "Open the data field manager");
-        mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1,
+        mntmClearValues = ccddMain.createMenuItem(mnField,
+                                                  "Clear values",
+                                                  KeyEvent.VK_C, 1,
                                                   "Clear the data field values");
 
         // Add a listener for the Edit table(s) command

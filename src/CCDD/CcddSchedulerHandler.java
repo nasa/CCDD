@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddSchedulerHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that manages the application and telemetry scheduler dialogs, including transfer of
  * information between the trees and lists.
@@ -253,19 +253,26 @@ public class CcddSchedulerHandler
     private void initialize()
     {
         // Create a border for the dialog components
-        border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                    Color.LIGHT_GRAY,
+                                                                                    Color.GRAY),
+                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        1.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(0, 0, 0, 0),
+                                                        0,
+                                                        0);
 
         // Create the panels for the display
         schedulerPnl = new JPanel(new GridBagLayout());
@@ -598,8 +605,7 @@ public class CcddSchedulerHandler
                                     // or variables if this variable is associated with others due
                                     // to bit-packing or string membership and therefore must be
                                     // placed together in a message
-                                    AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput)
-                                            .getAssociatedVariables(varList);
+                                    AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput).getAssociatedVariables(varList);
 
                                     // Set the total size to that of the associated variable(s) and
                                     // add the variable(s) to the list of those to be removed
@@ -630,7 +636,8 @@ public class CcddSchedulerHandler
                                 // Add the variable to the given message. If a sub-index is not
                                 // given it will be set to -1. Add the list of added variables to
                                 // the list of those to exclude in the Variables tree
-                                excludedVars.addAll(addVariableToMessage(removedVars, (Integer[]) parsedIndices[1],
+                                excludedVars.addAll(addVariableToMessage(removedVars,
+                                                                         (Integer[]) parsedIndices[1],
                                                                          (int) parsedIndices[0]));
                             }
                             // No option is available
@@ -684,12 +691,14 @@ public class CcddSchedulerHandler
                         if (unassigned != 0)
                         {
                             // Inform the user if there are items that are not assigned
-                            new CcddDialogHandler()
-                                    .showMessageDialog(schedulerDlg.getDialog(),
-                                                       "<html><b> Auto-fill unable to assign " + unassigned + " "
-                                                                                 + variableType,
-                                                       "Auto-fill", JOptionPane.WARNING_MESSAGE,
-                                                       DialogOption.OK_OPTION);
+                            new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                                      "<html><b> Auto-fill unable to assign "
+                                                                      + unassigned
+                                                                      + " "
+                                                                      + variableType,
+                                                                      "Auto-fill",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
                         }
                     }
                 }
@@ -703,10 +712,13 @@ public class CcddSchedulerHandler
                         haltDlg.closeDialog();
                     }
 
-                    new CcddDialogHandler()
-                            .showMessageDialog(schedulerDlg.getDialog(),
-                                               "<html><b>All " + variableType + " with a rate are already assigned",
-                                               "Auto-fill", JOptionPane.INFORMATION_MESSAGE, DialogOption.OK_OPTION);
+                    new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                              "<html><b>All "
+                                                              + variableType
+                                                              + " with a rate are already assigned",
+                                                              "Auto-fill",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
                 }
 
                 // Check if the user didn't cancel auto-fill
@@ -725,7 +737,9 @@ public class CcddSchedulerHandler
         });
 
         // Execute the command in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, schedulerDlg.getDialog(), new BackgroundCommand()
+        CcddBackgroundCommand.executeInBackground(ccddMain,
+                                                  schedulerDlg.getDialog(),
+                                                  new BackgroundCommand()
         {
             /**************************************************************************************
              * Build and display the auto-fill progress/cancellation dialog. This is done as a
@@ -739,7 +753,11 @@ public class CcddSchedulerHandler
                                    + (schedulerType == SchedulerType.TELEMETRY_SCHEDULER ? "Telemetry Messages"
                                                                                          : (schedulerType == SchedulerType.APPLICATION_SCHEDULER ? "Time Slots"
                                                                                                                                                  : "")),
-                                   "Assigning " + variableType + "...", "auto-fill", 100, ratesInUse.size(), true,
+                                   "Assigning " + variableType + "...",
+                                   "auto-fill",
+                                   100,
+                                   ratesInUse.size(),
+                                   true,
                                    schedulerDlg.getDialog());
             }
         });
@@ -760,7 +778,9 @@ public class CcddSchedulerHandler
      *
      * @return List containing the names of the variables added
      *********************************************************************************************/
-    private List<String> addVariableToMessage(List<Variable> variables, Integer[] messageIndices, int parentIndex)
+    private List<String> addVariableToMessage(List<Variable> variables,
+                                              Integer[] messageIndices,
+                                              int parentIndex)
     {
         List<String> addedVariables = new ArrayList<String>();
 
@@ -992,8 +1012,7 @@ public class CcddSchedulerHandler
         if (rateFilter.getSelectedItem() != null)
         {
             // Get the options from the telemetry scheduler
-            List<String> options = schedulerEditor.getMessageAvailability(CcddUtilities
-                    .convertStringToFloat(CcddUtilities.removeHTMLTags(rateFilter.getSelectedItem().toString())));
+            List<String> options = schedulerEditor.getMessageAvailability(CcddUtilities.convertStringToFloat(CcddUtilities.removeHTMLTags(rateFilter.getSelectedItem().toString())));
 
             // Step through each option
             for (String option : options)
@@ -1023,11 +1042,20 @@ public class CcddSchedulerHandler
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2, 0),
-                                                        0, 0);
+                                                        new Insets(0,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0),
+                                                        0,
+                                                        0);
 
         // Create the scheduler input (variables or applications) handler
         schedulerInput = schedulerDlg.createSchedulerInput(rateName);
@@ -1062,7 +1090,11 @@ public class CcddSchedulerHandler
         }
 
         // Create the scheduler editor handler
-        schedulerEditor = new CcddSchedulerEditorHandler(ccddMain, this, totalMsgs, totalBytes, msgsPerSec);
+        schedulerEditor = new CcddSchedulerEditorHandler(ccddMain,
+                                                         this,
+                                                         totalMsgs,
+                                                         totalBytes,
+                                                         msgsPerSec);
 
         // Create the options model
         optionModel = new DefaultListModel<String>();
@@ -1095,7 +1127,8 @@ public class CcddSchedulerHandler
         rateSelectPnl.add(rateSelectLbl, gbc);
 
         // Create the combo box that displays the variable rates
-        rateFilter = new PaddedComboBox(schedulerInput.getAvailableRates(), ModifiableFontInfo.INPUT_TEXT.getFont())
+        rateFilter = new PaddedComboBox(schedulerInput.getAvailableRates(),
+                                        ModifiableFontInfo.INPUT_TEXT.getFont())
         {
             /**************************************************************************************
              * Override so that items flagged as disabled (grayed out) can't be selected. Only the
@@ -1191,13 +1224,17 @@ public class CcddSchedulerHandler
         packPnl.add(optionPnl, gbc);
 
         // Create the split pane containing the input tree and options panel
-        JSplitPane leftSpltPn = new CustomSplitPane(schedulerInput.getInputPanel(), packPnl, null,
+        JSplitPane leftSpltPn = new CustomSplitPane(schedulerInput.getInputPanel(),
+                                                    packPnl,
+                                                    null,
                                                     JSplitPane.HORIZONTAL_SPLIT);
 
         // Create the split pane containing the left split pane and the split pane containing the
         // scheduler and assignment tree/list. Use the arrow button panel as the split pane divider
-        JSplitPane allSpltPn = new CustomSplitPane(leftSpltPn, schedulerEditor.getSchedulerAndAssignPanel(),
-                                                   createArrowButtonPanel(), JSplitPane.HORIZONTAL_SPLIT);
+        JSplitPane allSpltPn = new CustomSplitPane(leftSpltPn,
+                                                   schedulerEditor.getSchedulerAndAssignPanel(),
+                                                   createArrowButtonPanel(),
+                                                   JSplitPane.HORIZONTAL_SPLIT);
 
         // Set the options list to display the starting rate value
         getTelemetryOptions();
@@ -1275,7 +1312,8 @@ public class CcddSchedulerHandler
         for (int index = 0; index < indices.length; index++)
         {
             // Set size to the given (sub-)message's size
-            int size = schedulerEditor.getMessage(indices[index].intValue(), parentIndex).getBytesRemaining();
+            int size = schedulerEditor.getMessage(indices[index].intValue(),
+                                                  parentIndex).getBytesRemaining();
 
             // Check if the (sub-)message's size is less then the smallest
             if (size < smallest)
@@ -1397,21 +1435,21 @@ public class CcddSchedulerHandler
                             if (option == SchedulerType.TELEMETRY_SCHEDULER)
                             {
                                 // Inform the user that the variable can not be added
-                                new CcddDialogHandler()
-                                        .showMessageDialog(schedulerDlg.getDialog(),
-                                                           "<html><b>Cannot assign variable to a message",
-                                                           "Assign Fail", JOptionPane.WARNING_MESSAGE,
-                                                           DialogOption.OK_OPTION);
+                                new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                                          "<html><b>Cannot assign variable to a message",
+                                                                          "Assign Fail",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
                             }
                             // Check if this is an application scheduler
                             else if (option == SchedulerType.APPLICATION_SCHEDULER)
                             {
                                 // Inform the user that the application can not be added
-                                new CcddDialogHandler()
-                                        .showMessageDialog(schedulerDlg.getDialog(),
-                                                           "<html><b>Cannot assign application to a time slot",
-                                                           "Over-scheduled Time Slot", JOptionPane.WARNING_MESSAGE,
-                                                           DialogOption.OK_OPTION);
+                                new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                                          "<html><b>Cannot assign application to a time slot",
+                                                                          "Over-scheduled Time Slot",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
                             }
                         }
 
@@ -1426,8 +1464,17 @@ public class CcddSchedulerHandler
         });
 
         // Set the layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER,
-                                                        GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.CENTER,
+                                                        GridBagConstraints.NONE,
+                                                        new Insets(0, 0, 0, 0),
+                                                        0,
+                                                        0);
 
         // Set the border
         buttonPnl.setBorder(BorderFactory.createEmptyBorder());

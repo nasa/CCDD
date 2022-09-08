@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddCSVHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling import and export of data tables in CSV format. This class implements
  * the CcddImportExportInterface class.
@@ -2472,7 +2472,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                     // Append the group name, description and rather or not it
                                     // represents an application
-                                    groupData.append("\"").append(groupInfo.getName())
+                                    groupData.append("\"")
+                                             .append(groupInfo.getName())
                                              .append("\",\"")
                                              .append(groupInfo.getDescription())
                                              .append("\",\"")
@@ -2489,7 +2490,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         for (String member : tableMembers)
                                         {
                                             // If this is the first member add a comma rather than
-                                            // a semi-colon
+                                            // a semicolon
                                             if (firstMember)
                                             {
                                                 groupData.append(",\"").append(member);
@@ -2632,7 +2633,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 {
                                     // Output the reserved message ID definition
                                     finalOutput.append(CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
-                                                                                                reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()])).append("\n");
+                                                                                                reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]))
+                                               .append("\n");
                                 }
                             }
 

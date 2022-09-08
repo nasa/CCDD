@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddApplicationParameterDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for assigning the application scheduling parameters. The dialog is built on the
  * CcddDialogHandler class.

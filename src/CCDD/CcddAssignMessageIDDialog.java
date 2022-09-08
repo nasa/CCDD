@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddAssignMessageIDDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for automatic assignment of message IDs to data tables or telemetry messages. The
  * dialog is built on the CcddDialogHandler class.
@@ -1267,7 +1267,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // the structure's root/child status, and that either the overwrite check box is
             // selected or the field is blank
             if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
-                && tables.contains(fieldInfo.getOwnerName()) && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
+                && tables.contains(fieldInfo.getOwnerName())
+                && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (fieldInfo.getApplicabilityType() == ApplicabilityType.ALL
                     || (fieldInfo.getApplicabilityType() == ApplicabilityType.ROOT_ONLY
                         && dbTable.isRootStructure(fieldInfo.getOwnerName()))

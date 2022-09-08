@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddWebDataAccessHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that accepts web access commands and provides JSON formatted output of the
  * requested project data.
@@ -753,7 +753,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         projectJO.put("Project", dbControl.getProjectName());
         projectJO.put("Database", dbControl.getDatabaseName());
         projectJO.put("Description", dbControl.getDatabaseDescription(dbControl.getDatabaseName()));
-        projectJO.put("Status", dbControl.getDatabaseLockStatus(dbControl.getDatabaseName()) ? "locked" : "unlocked");
+        projectJO.put("Status", dbControl.getDatabaseLockStatus(dbControl.getDatabaseName()) ? "locked"
+                                                                                               : "unlocked");
         projectJO.put("User", CcddUtilities.removeTrailer(user, ", "));
         projectJO.put("Owner", dbControl.getOwner());
         projectJO.put("Server", dbControl.getHost());
@@ -809,7 +810,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     // Suppress warnings is used because when this code is compiled some of it is not legal, but it
     // will be at runtime
     @SuppressWarnings("unchecked")
-    private String getTableData(String tableName, boolean getDescription, String[] separators) throws CCDDException
+    private String getTableData(String tableName,
+                                boolean getDescription,
+                                String[] separators) throws CCDDException
     {
         String response = null;
 
@@ -1849,8 +1852,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                                 // Check if the description is present
                                 if (descriptionIndex != -1
-                                    && !(cellValue = tableInfo.getData().get(row)[descriptionIndex].toString())
-                                            .isEmpty())
+                                    && !(cellValue = tableInfo.getData().get(row)[descriptionIndex].toString()).isEmpty())
                                 {
                                     // Store the description in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex], cellValue);
@@ -1928,7 +1930,11 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             if (groupFilter.isEmpty() || groupTables.contains(commandTable))
             {
                 // Get the information from the database for the specified table
-                TableInfo tableInfo = dbTable.loadTableData(commandTable, false, false, false, ccddMain.getMainFrame());
+                TableInfo tableInfo = dbTable.loadTableData(commandTable,
+                                                            false,
+                                                            false,
+                                                            false,
+                                                            ccddMain.getMainFrame());
 
                 // Check if the table loaded successfully
                 if (!tableInfo.isErrorFlag())

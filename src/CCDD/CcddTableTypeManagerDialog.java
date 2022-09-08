@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableTypeManagerDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user to create, edit, copy, rename, and delete table types. The dialog is
  * built on the CcddDialogHandler class.
@@ -250,7 +250,10 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 dialogPnl.add(radioBtns, gbc);
 
                 // Get the user's input
-                if (showOptionsDialog(editorDialog, dialogPnl, "New Type", DialogOption.CREATE_OPTION) == OK_BUTTON)
+                if (showOptionsDialog(editorDialog,
+                                      dialogPnl,
+                                      "New Type",
+                                      DialogOption.CREATE_OPTION) == OK_BUTTON)
                 {
                     // Add the table type definition. The description must contain the character
                     // that identifies whether or not the type is a command argument structure (0
@@ -287,7 +290,10 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                 addTypeNameField("Enter the new name for the type:", activeTypeName, dialogPnl, gbc);
 
                 // Display the type renaming dialog
-                if (showOptionsDialog(editorDialog, dialogPnl, "Rename Type", DialogOption.RENAME_OPTION) == OK_BUTTON
+                if (showOptionsDialog(editorDialog,
+                                      dialogPnl,
+                                      "Rename Type",
+                                      DialogOption.RENAME_OPTION) == OK_BUTTON
                     && !activeTypeName.equals(typeNameFld.getText()))
                 {
                     // Rename the type
@@ -301,10 +307,16 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
             case COPY:
                 // Create the type copying dialog label and field
-                addTypeNameField("Enter the name for the type's copy:", activeTypeName + "_copy", dialogPnl, gbc);
+                addTypeNameField("Enter the name for the type's copy:",
+                                 activeTypeName + "_copy",
+                                 dialogPnl,
+                                 gbc);
 
                 // Display the type copying dialog
-                if (showOptionsDialog(editorDialog, dialogPnl, "Copy Type", DialogOption.COPY_OPTION) == OK_BUTTON)
+                if (showOptionsDialog(editorDialog,
+                                      dialogPnl,
+                                      "Copy Type",
+                                      DialogOption.COPY_OPTION) == OK_BUTTON)
                 {
                     // Check if the type exists
                     if (tableTypeHandler.getTypeDefinition(activeTypeName) != null)
@@ -359,7 +371,10 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      *
      * @param dialogGbc  Dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
-    private void addTypeNameField(String labelText, String intialName, JPanel dialogPnl, GridBagConstraints dialogGbc)
+    private void addTypeNameField(String labelText,
+                                  String intialName,
+                                  JPanel dialogPnl,
+                                  GridBagConstraints dialogGbc)
     {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,

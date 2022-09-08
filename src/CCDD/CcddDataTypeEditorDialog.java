@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDataTypeEditorDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for creating, modifying, and deleting custom data types. The dialog is built on
  * the CcddDialogHandler class.
@@ -853,8 +853,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             else if (oldValueS.equals(BaseDataTypeInfo.POINTER.getName()) || oldValueS.isEmpty())
                             {
                                 // Remove any asterisks from the C type name
-                                tableData.get(row)[DataTypeEditorColumnInfo.C_NAME.ordinal()] = cType.replaceAll("\\*",
-                                                                                                                 "");
+                                tableData.get(row)[DataTypeEditorColumnInfo.C_NAME.ordinal()] = cType.replaceAll("\\*", "");
                             }
                         }
 
@@ -868,7 +867,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             && ((column == DataTypeEditorColumnInfo.SIZE.ordinal()
                                  && Integer.valueOf(newValueS) < Integer.valueOf(oldValueS)
                                  && (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()]
-                                               .equals(BaseDataTypeInfo.SIGNED_INT.getName())
+                                              .equals(BaseDataTypeInfo.SIGNED_INT.getName())
                                      || tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()]
                                                  .equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))
 

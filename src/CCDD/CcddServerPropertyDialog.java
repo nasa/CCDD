@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddServerPropertyDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for changing the user name and password, and the PostgreSQL server host and port.
  * The dialog is built on the CcddDialogHandler class.
@@ -102,7 +102,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      * @param errorMessage      Message to display following an unsuccessful login; null if no
      *                          error has occurred or this isn't the login dialog
      *********************************************************************************************/
-    CcddServerPropertyDialog(CcddMain ccddMain, boolean useActiveDatabase, ServerPropertyDialogType dialogType,
+    CcddServerPropertyDialog(CcddMain ccddMain,
+                             boolean useActiveDatabase,
+                             ServerPropertyDialogType dialogType,
                              String errorMessage)
     {
         this.ccddMain = ccddMain;
@@ -150,28 +152,29 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         isPasswordSet = false;
 
         // Create a border for the input fields
-        Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        0.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create a panel to hold the components of the dialog
         JPanel selectPnl = new JPanel(new GridBagLayout());
@@ -201,8 +204,11 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     }
 
                     // Display the user & password dialog
-                    if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Select User",
-                                          DialogOption.OK_CANCEL_OPTION, allowResize) == OK_BUTTON)
+                    if (showOptionsDialog(ccddMain.getMainFrame(),
+                                          selectPnl,
+                                          "Select User",
+                                          DialogOption.OK_CANCEL_OPTION,
+                                          allowResize) == OK_BUTTON)
                     {
                         // Check if a connection exists to the server
                         if (dbControl.isServerConnected())
@@ -230,8 +236,10 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 else
                 {
                     // Inform the user that no other user exists on the server
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(), "<html><b>No other user exists",
-                                                              "Server Login", JOptionPane.WARNING_MESSAGE,
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>No other user exists",
+                                                              "Server Login",
+                                                              JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
 
@@ -242,7 +250,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 addLoginPanel(selectPnl, gbc, border);
 
                 // Display the user & password dialog
-                if (new CcddDialogHandler().showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Enter Password",
+                if (new CcddDialogHandler().showOptionsDialog(ccddMain.getMainFrame(),
+                                                              selectPnl,
+                                                              "Enter Password",
                                                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
                     // Store the password
@@ -262,8 +272,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 selectPnl.add(hostLbl, gbc);
 
                 List<String> servers = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
-                servers.addAll(Arrays
-                        .asList(ccddMain.getProgPrefs().get(SERVER_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
+                servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
                 hostFld = new AutoCompleteTextField(servers, ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 hostFld.setText(dbControl.getHost());
                 hostFld.setColumns(15);
@@ -305,7 +314,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 selectPnl.add(enableSSLCbox, gbc);
 
                 // Display the server properties parameter dialog
-                if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Database Server",
+                if (showOptionsDialog(ccddMain.getMainFrame(),
+                                      selectPnl,
+                                      "Database Server",
                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
                     // Update the host list and store it in the program preferences
@@ -313,7 +324,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     ccddMain.getProgPrefs().put(SERVER_STRINGS, hostFld.getListAsString());
 
                     // Open the default database using the new server properties
-                    dbControl.openDatabaseInBackground(DEFAULT_DATABASE, hostFld.getText(), portFld.getText(),
+                    dbControl.openDatabaseInBackground(DEFAULT_DATABASE,
+                                                       hostFld.getText(),
+                                                       portFld.getText(),
                                                        enableSSLCbox.isSelected());
                 }
 
@@ -327,7 +340,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 gbc.insets.bottom = 0;
                 selectPnl.add(portLbl, gbc);
 
-                portFld = new JTextField(ccddMain.getProgPrefs().get(WEB_SERVER_PORT, DEFAULT_WEB_SERVER_PORT), 4);
+                portFld = new JTextField(ccddMain.getProgPrefs().get(WEB_SERVER_PORT,
+                                                                     DEFAULT_WEB_SERVER_PORT), 4);
                 portFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 portFld.setEditable(true);
                 portFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -338,7 +352,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 selectPnl.add(portFld, gbc);
 
                 // Display the server properties parameter dialog
-                if (showOptionsDialog(ccddMain.getMainFrame(), selectPnl, "Web Server",
+                if (showOptionsDialog(ccddMain.getMainFrame(),
+                                      selectPnl,
+                                      "Web Server",
                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
                     // Store the web server port
@@ -420,8 +436,14 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
             }
 
             // Add radio buttons for the users
-            isUsers = addRadioButtons(dbControl.getUser(), false, userInfo, Arrays.asList(userIndex), "Select user",
-                                      false, selectPnl, gbc);
+            isUsers = addRadioButtons(dbControl.getUser(),
+                                      false,
+                                      userInfo,
+                                      Arrays.asList(userIndex),
+                                      "Select user",
+                                      false,
+                                      selectPnl,
+                                      gbc);
 
             // Allow resizing the dialog if the number of users to choose from exceeds the initial
             // number of viewable rows (i.e., the scroll bar is displayed)
@@ -442,8 +464,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
             userFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
             userFld.setEditable(dialogType == ServerPropertyDialogType.LOGIN);
             userFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-            userFld.setBackground(dialogType == ServerPropertyDialogType.LOGIN ? ModifiableColorInfo.INPUT_BACK
-                    .getColor() : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+            userFld.setBackground(dialogType == ServerPropertyDialogType.LOGIN ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                                                               : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
             userFld.setBorder(border);
             gbc.weightx = 1.0;
             gbc.gridx++;

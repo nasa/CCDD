@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddFindReplaceDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for performing a search or search and replace in a data table. The dialog is built
  * on the CcddDialogHandler class.
@@ -929,7 +929,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
 
         // Update the number of matches found label
         numMatchesLbl.setText(matchCount != 0 ? "  (" + matchCount + (matchCount == 1 ? " match"
-                                                                                        : " matches") + ")"
+                                                                                      : " matches") + ")"
                                               : "");
 
         return matchCount;

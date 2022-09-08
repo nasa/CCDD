@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddPaddingVariableHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that adds/updates or removes the padding variables.
  *
@@ -826,8 +826,7 @@ public class CcddPaddingVariableHandler
                         {
                             // Get the start and stop row indices for any subsequent variables that
                             // are bit-packed with this variable
-                            packIndex = padInfo.tableEditor
-                                    .getPackedVariables(padInfo.tableEditor.getTable().getTableDataList(false), row);
+                            packIndex = padInfo.tableEditor.getPackedVariables(padInfo.tableEditor.getTable().getTableDataList(false), row);
                         }
                         // The variable doesn't have a bit length
                         else

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddApplicationSchedulerTableHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling CFS application scheduler table output.
  *

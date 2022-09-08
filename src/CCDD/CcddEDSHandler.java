@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddEDSHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling import and export of data tables in EDS XML format. This class
  * implements the CcddImportExportInterface class.
@@ -1696,6 +1696,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                         // Get the argument units reference
                                         units = scmd.getSemantics().getUnit();
                                     }
+
                                     isString = true;
                                 }
                                 // Check if the argument is an enumerated data type
@@ -2160,7 +2161,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                            (EndianType) extraInfo[0],
                            (boolean) extraInfo[1]);
 
-        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8 levels;
+        // Output the XML to the specified file. The marshaller has a hard-coded limit of 8 levels;
         // once exceeded it starts back at the first column. Therefore, a Transformer is used to
         // set the indentation amount (it doesn't have an indentation level limit)
         DOMResult domResult = new DOMResult();
@@ -2982,7 +2983,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     String enumeration = null;
                                     String units = null;
                                     int stringSize = 1;
-
                                     int uniqueID = 0;
 
                                     // Store the command argument name and data type
@@ -3230,7 +3230,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             ConstraintSet constraintSet = factory.createContainerDataTypeConstraintSet();
 
             // Check if the application ID exists
-            if (applicationIDName != null && applicationID != null && !applicationIDName.isEmpty()
+            if (applicationIDName != null
+                && applicationID != null
+                && !applicationIDName.isEmpty()
                 && !applicationID.isEmpty())
             {
                 // Set the application ID value
@@ -3243,7 +3245,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
 
             // Check if the command function code exists
-            if (cmdFuncCodeName != null && cmdFuncCode != null && !cmdFuncCodeName.isEmpty() && !cmdFuncCode.isEmpty())
+            if (cmdFuncCodeName != null
+                && cmdFuncCode != null
+                && !cmdFuncCodeName.isEmpty()
+                && !cmdFuncCode.isEmpty())
             {
                 // Set the command function code value
                 ContainerConstraintType funcCodeType = factory.createContainerConstraintType();

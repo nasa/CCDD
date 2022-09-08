@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddGroupTreeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing the methods for creating and manipulating a table group tree. This class
  * is an extension of the CcddInformationTreeHandler class.
@@ -122,10 +122,19 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddGroupTreeHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, String scheduleRate, boolean isApplicationOnly,
+    CcddGroupTreeHandler(CcddMain ccddMain,
+                         CcddUndoHandler undoHandler,
+                         String scheduleRate,
+                         boolean isApplicationOnly,
                          Component parent)
     {
-        super(ccddMain, undoHandler, InternalTable.GROUPS, scheduleRate, isApplicationOnly, null, parent);
+        super(ccddMain,
+              undoHandler,
+              InternalTable.GROUPS,
+              scheduleRate,
+              isApplicationOnly,
+              null,
+              parent);
 
         this.isApplicationOnly = isApplicationOnly;
     }
@@ -152,7 +161,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @param groupDefinitions List containing the group definitions
      *********************************************************************************************/
     @Override
-    protected void initialize(CcddMain ccddMain, CcddUndoHandler undoHandler, List<String[]> groupDefinitions)
+    protected void initialize(CcddMain ccddMain,
+                              CcddUndoHandler undoHandler,
+                              List<String[]> groupDefinitions)
     {
         this.groupDefinitions = groupDefinitions;
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -167,7 +178,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Get the list of table comments
         tableComments = new ArrayListMultiple(TableCommentIndex.NAME.ordinal());
-        tableComments.addAll(Arrays.asList(ccddMain.getDbTableCommandHandler().queryDataTableComments(ccddMain.getMainFrame())));
+        tableComments.addAll(Arrays.asList(ccddMain.getDbTableCommandHandler()
+                                                   .queryDataTableComments(ccddMain.getMainFrame())));
     }
 
     /**********************************************************************************************
@@ -243,7 +255,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @return Array of table type nodes added to the group node; null if the table type nodes
      *         aren't added
      *********************************************************************************************/
-    protected ToolTipTreeNode[] addInformationNode(String nodeName, String toolTipText, boolean isApp,
+    protected ToolTipTreeNode[] addInformationNode(String nodeName,
+                                                   String toolTipText,
+                                                   boolean isApp,
                                                    boolean isAddTableTypes)
     {
         ToolTipTreeNode[] typeNodes = null;
@@ -283,7 +297,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
-    protected void buildTree(boolean filterByApp, String scheduleRate, boolean isApplicationOnly, Component parent)
+    protected void buildTree(boolean filterByApp,
+                             String scheduleRate,
+                             boolean isApplicationOnly,
+                             Component parent)
     {
         this.isFilterByApp = filterByApp;
         this.scheduleRate = scheduleRate;
@@ -316,7 +333,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         if (isFilterByApp)
         {
             // Create the node storage for the application statuses
-            appNodes = new ToolTipTreeNode[] {addInformationNode(APP_NODE, "Groups representing a CFS application"),
+            appNodes = new ToolTipTreeNode[] {addInformationNode(APP_NODE,
+                                                                 "Groups representing a CFS application"),
                                               addInformationNode(OTHER_NODE,
                                                                  "Groups not representing a CFS application")};
         }
@@ -332,7 +350,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             if (!isApplicationOnly || groupInfo.isApplication())
             {
                 // Create a node for the group and add it to the group tree
-                typeNodes = addInformationNode(groupName, groupInfo.getDescription(), groupInfo.isApplication(),
+                typeNodes = addInformationNode(groupName,
+                                               groupInfo.getDescription(),
+                                               groupInfo.isApplication(),
                                                scheduleRate == null || scheduleRate.isEmpty());
 
                 // Check if the table nodes should be displayed (i.e., no schedule rate is
@@ -613,11 +633,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     protected void addInformation(Object groupToCopy, String nameOfCopy)
     {
         // Store the group information for the copy
-        groupHandler.getGroupInformation() .add(new GroupInformation(nameOfCopy,
-                                                                     ((GroupInformation) groupToCopy).getDescription(),
-                                                                     ((GroupInformation) groupToCopy).isApplication(),
-                                                                     ((GroupInformation) groupToCopy).getTablesAndAncestors(),
-                                                                     ((GroupInformation) groupToCopy).getFieldInformation()));
+        groupHandler.getGroupInformation().add(new GroupInformation(nameOfCopy,
+                                                                    ((GroupInformation) groupToCopy).getDescription(),
+                                                                    ((GroupInformation) groupToCopy).isApplication(),
+                                                                    ((GroupInformation) groupToCopy).getTablesAndAncestors(),
+                                                                    ((GroupInformation) groupToCopy).getFieldInformation()));
     }
 
     /**********************************************************************************************
@@ -741,8 +761,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                                                                        DefaultApplicationField.SCHEDULE_RATE.getFieldName());
 
                     // Set the flag indicating the group is excluded if it's in the exclusion list
-                    boolean isExcluded = rateInfo == null || rateInfo.getValue().isEmpty()
-                                         || !scheduleRate.equals(rateInfo.getValue()) || excludes.contains(nodeName);
+                    boolean isExcluded = rateInfo == null
+                                         || rateInfo.getValue().isEmpty()
+                                         || !scheduleRate.equals(rateInfo.getValue())
+                                         || excludes.contains(nodeName);
 
                     // Check if the group's exclusion state has changed
                     if (wasExcluded != isExcluded)
@@ -829,7 +851,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *
      * @return JPanel containing the group tree components
      *********************************************************************************************/
-    protected JPanel createTreePanel(String label, int selectionMode, boolean noFilters, final Component parent)
+    protected JPanel createTreePanel(String label,
+                                     int selectionMode,
+                                     boolean noFilters,
+                                     final Component parent)
     {
         // Set the renderer for the tree so that custom icons can be used for the various node
         // types
@@ -843,11 +868,22 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
              * Display the group nodes using a special icon in the tree
              *************************************************************************************/
             @Override
-            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
-                                                          boolean leaf, int row, boolean hasFocus)
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
             {
                 // Display the node name
-                Component comp = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+                Component comp = super.getTreeCellRendererComponent(tree,
+                                                                    value,
+                                                                    sel,
+                                                                    expanded,
+                                                                    leaf,
+                                                                    row,
+                                                                    hasFocus);
 
                 // Get the tree level for this node
                 int level = ((ToolTipTreeNode) value).getLevel();
@@ -926,10 +962,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         treeScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                 Color.LIGHT_GRAY,
                                                                                                 Color.GRAY),
-                                      BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                      ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Check if this is the last component to add
         if (noFilters)
@@ -1081,7 +1117,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         else
                         {
                             // Insert Application and Other nodes names into the expansion paths
-                            expState = expState.replaceAll("\\[, ", "[, " + APP_NODE + ", ") + " "
+                            expState = expState.replaceAll("\\[, ", "[, " + APP_NODE + ", ")
+                                       + " "
                                        + expState.replaceAll("\\[, ", "[, " + OTHER_NODE + ", ");
                         }
                     }
@@ -1089,13 +1126,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     else
                     {
                         // Remove Application and Other nodes names from the expansion paths
-                        expState = expState.replaceAll("\\[, "
-                                                       + APP_NODE
-                                                       + ", ",
-                                                       "[, ").replaceAll("\\[, "
-                                                                         + OTHER_NODE
-                                                                         + ", ",
-                                                                         "[, ");
+                        expState = expState.replaceAll("\\[, " + APP_NODE + ", ", "[, ")
+                                           .replaceAll("\\[, " + OTHER_NODE + ", ", "[, ");
                     }
 
                     // Adjust the expansion state to account for the change in filtering

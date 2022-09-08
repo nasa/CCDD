@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddCopyTableHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling copy table operations.
  *
@@ -328,7 +328,7 @@ public class CcddCopyTableHandler
             {
                 // Add the size in bytes of the current variable to the initial one
                 initial[CopyTableEntry.VARIABLE_BYTES.ordinal()] = String.valueOf(Integer.valueOf(initial[CopyTableEntry.VARIABLE_BYTES.ordinal()])
-                                 +                                                                Integer.valueOf(current[CopyTableEntry.VARIABLE_BYTES.ordinal()]));
+                                                                   + Integer.valueOf(current[CopyTableEntry.VARIABLE_BYTES.ordinal()]));
 
                 // Append the subsequent variable's name to the initial variable's name
                 initial[CopyTableEntry.VARIABLE_NAME.ordinal()] = initial[CopyTableEntry.VARIABLE_NAME.ordinal()]

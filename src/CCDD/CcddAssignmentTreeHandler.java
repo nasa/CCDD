@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddAssignmentTreeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles the variable assignment tree in the telemetry scheduler dialog. This
  * class is an extension of the CcddInformationTreeHandler class.
@@ -283,7 +283,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
                     // Check if the selected variable node has children
                     addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),
                                   selectedVariablePaths,
-                                  new ArrayList<String>(), true);
+                                  new ArrayList<String>(),
+                                  true);
                 }
             }
         }

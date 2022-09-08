@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddClassesDataTable.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Collection of common classes used by other CCDD classes. These classes, in general, are
  * used to manipulate and contain information with respect to the data tables.
@@ -2616,7 +2616,8 @@ public class CcddClassesDataTable
                     // This is a 3d array
                     String info[] = arrayInfo.split(",");
 
-                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty())
+                    if ((info[0] != null && !info[0].isEmpty())
+                        && (info[1] != null && !info[1].isEmpty())
                         && (info[2] != null && !info[2].isEmpty()))
                     {
                         result[0] = 3;

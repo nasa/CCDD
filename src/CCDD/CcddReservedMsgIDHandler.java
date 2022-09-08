@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddReservedMsgIDHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling reserved message ID operations.
  *
@@ -58,7 +58,8 @@ public class CcddReservedMsgIDHandler
     CcddReservedMsgIDHandler(CcddMain ccddMain)
     {
         // Load the reserved message ID table from the project database
-        this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.RESERVED_MSG_IDS, true,
+        this(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.RESERVED_MSG_IDS,
+                                                                          true,
                                                                           ccddMain.getMainFrame()));
     }
 

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDbTableCommandHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing the methods for creating, altering, copying, renaming, and deleting the
  * database tables.
@@ -3633,7 +3633,8 @@ public class CcddDbTableCommandHandler
                                .append(" SELECT regexp_replace(")
                                .append(FieldsColumn.OWNER_NAME.getColumnName())
                                .append(", E'^")
-                               .append(dataType).append("$', E'")
+                               .append(dataType)
+                               .append("$', E'")
                                .append(newVariablePaths.get(index))
                                .append("'), ")
                                .append(FieldsColumn.FIELD_NAME.getColumnName())
@@ -4326,7 +4327,8 @@ public class CcddDbTableCommandHandler
                                             .append(FieldsColumn.OWNER_NAME.getColumnName())
                                             .append(", E'^")
                                             .append(newDataType)
-                                            .append(",', E'").append(newVariablePath)
+                                            .append(",', E'")
+                                            .append(newVariablePath)
                                             .append(",'); INSERT INTO ")
                                             .append(InternalTable.FIELDS.getTableName())
                                             .append(" SELECT regexp_replace(")
@@ -4378,7 +4380,8 @@ public class CcddDbTableCommandHandler
                                             .append(OrdersColumn.TABLE_PATH.getColumnName())
                                             .append(", E'^")
                                             .append(newDataType)
-                                            .append(",', E'").append(newVariablePath)
+                                            .append(",', E'")
+                                            .append(newVariablePath)
                                             .append(",'); INSERT INTO ")
                                             .append(InternalTable.ORDERS.getTableName())
                                             .append(" SELECT ")
@@ -6112,8 +6115,7 @@ public class CcddDbTableCommandHandler
         for (int childIndex = 0; childIndex < orgTableNode.getChildCount(); childIndex++)
         {
             // Get the indices of all variables bit-packed the variable at the current child index
-            BitPackNodeIndex nodeIndex = tableTree
-                    .getBitPackedVariables((ToolTipTreeNode) orgTableNode.getChildAt(childIndex));
+            BitPackNodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) orgTableNode.getChildAt(childIndex));
 
             // Check if any variables are bit-packed with the current variable
             if (nodeIndex.getFirstIndex() != nodeIndex.getLastIndex())
@@ -6228,20 +6230,19 @@ public class CcddDbTableCommandHandler
             {
                 // Insert the new string array member into the link definitions list immediately
                 // after the preceding member
-                addLinkHandler.getLinkDefinitions()
-                        .add(index + 1,
-                             new String[] {linkDefns.get(index)[LinksColumn.RATE_NAME.ordinal()],
-                                           linkDefns.get(index)[LinksColumn.LINK_NAME.ordinal()],
-                                           linkMember.replaceFirst("("
-                                                                   + protoTable
-                                                                   + "(?:,|\\.[^,]+,)"
-                                                                   + dataType
-                                                                   + "\\."
-                                                                   + stringVarNameDefn
-                                                                   + "\\[)"
-                                                                   + stringIndex
-                                                                   + "(\\])",
-                                                                   "$1" + (stringIndex + 1) + "$2")});
+                addLinkHandler.getLinkDefinitions().add(index + 1,
+                                                        new String[] {linkDefns.get(index)[LinksColumn.RATE_NAME.ordinal()],
+                                                                      linkDefns.get(index)[LinksColumn.LINK_NAME.ordinal()],
+                                                                      linkMember.replaceFirst("("
+                                                                                              + protoTable
+                                                                                              + "(?:,|\\.[^,]+,)"
+                                                                                              + dataType
+                                                                                              + "\\."
+                                                                                              + stringVarNameDefn
+                                                                                              + "\\[)"
+                                                                                              + stringIndex
+                                                                                              + "(\\])",
+                                                                                              "$1" + (stringIndex + 1) + "$2")});
 
                 // Set the flag to indicate that a change to the link definitions was made
                 updateLinks = true;
@@ -6538,8 +6539,7 @@ public class CcddDbTableCommandHandler
                             // Remove the data type(s) from the variable path (the variable
                             // reference input type only displays the variable name portion of the
                             // path)
-                            String targetVar = CcddUtilities.escapePostgreSQLReservedChars(variableHandler
-                                    .removeDataTypeFromVariablePath(entry));
+                            String targetVar = CcddUtilities.escapePostgreSQLReservedChars(variableHandler.removeDataTypeFromVariablePath(entry));
 
                             // Check if the variable isn't already in the list
                             if (!targetVars.contains((Object) targetVar))
@@ -6548,7 +6548,11 @@ public class CcddDbTableCommandHandler
                                 // building the modification commands
                                 targetVars.add(new String[] {targetVar,
                                                              variableHandler.removeDataTypeFromVariablePath(entry.replaceFirst(match,
-                                                              "$1" + newDataType + "." + newVariableName + "$2"))});
+                                                                                                                               "$1"
+                                                                                                                               + newDataType
+                                                                                                                               + "."
+                                                                                                                               + newVariableName
+                                                                                                                               + "$2"))});
                             }
                         }
                     }
@@ -6665,15 +6669,15 @@ public class CcddDbTableCommandHandler
             for (String table : varRef.getTables())
             {
                 // Remove references to the variable reference from the prototype table
-                valuesDelCmd.append("UPDATE "
-                                    + dbControl.getQuotedName(table)
-                                    + " SET "
-                                    + varRef.getColumnDb()
-                                    + " = '' WHERE "
-                                    + varRef.getColumnDb()
-                                    + " ~ E'"
-                                    + instanceVarPathEscNoDt
-                                    + "'; ");
+                valuesDelCmd.append("UPDATE ")
+                            .append(dbControl.getQuotedName(table))
+                            .append(" SET ")
+                            .append(varRef.getColumnDb())
+                            .append(" = '' WHERE ")
+                            .append(varRef.getColumnDb())
+                            .append(" ~ E'")
+                            .append(instanceVarPathEscNoDt)
+                            .append("'; ");
 
                 // Check if the table isn't a root structure
                 if (!rootStructures.contains(table))
@@ -7723,7 +7727,7 @@ public class CcddDbTableCommandHandler
                 // Get the comment for the internal table
                 ResultSet comment = dbCommand.executeDbQuery(new StringBuilder("SELECT obj_description('public.").append(tableName)
                                                                                                                  .append("'::regclass, 'pg_class');"),
-                                                                                                                 parent);
+                                                             parent);
 
                 // Check if a comment exists
                 if (comment.next() && comment.getString(1) != null)
@@ -9022,6 +9026,7 @@ public class CcddDbTableCommandHandler
                             {
                                 newFields[index1][index2] = newFields[index1][index2 + 1];
                             }
+
                             newFields[index1][newFields[0].length - 1] = Integer.toString(-1);
                         }
                     }
@@ -9085,8 +9090,7 @@ public class CcddDbTableCommandHandler
                                 for (int currIndex = 0; currIndex < currentFields.size(); currIndex++)
                                 {
                                     // If a match is found then replace it
-                                    if (newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()]
-                                            .equals(currentFields.get(currIndex).getFieldName()))
+                                    if (newFields[newIndex][FieldEditorColumnInfo.NAME.ordinal()].equals(currentFields.get(currIndex).getFieldName()))
                                     {
                                         String fieldValue = "";
 

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDataTypeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling data type operations.
  *

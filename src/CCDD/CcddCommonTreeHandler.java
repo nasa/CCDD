@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddCommonTreeHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing tree handling methods common to all other trees used in the application.
  * This class is an extension of the JTree class.
@@ -640,8 +640,7 @@ public class CcddCommonTreeHandler extends JTree
 
                 // Set the flag to true if the path contains a group node but no type node
                 boolean matchesGroup = groupPattern.equals("(())") ? false
-                                                                   : typePattern.equals("(())")
-                                                                                                ? path.matches(Pattern.quote(prefix)
+                                                                   : typePattern.equals("(())") ? path.matches(Pattern.quote(prefix)
                                                                                                                + groupPattern
                                                                                                                + termPattern)
                                                                                                   || path.matches(Pattern.quote(prefix)
@@ -656,8 +655,7 @@ public class CcddCommonTreeHandler extends JTree
 
                 // Set the flag to true if the path contains a type node but no group node
                 boolean matchesType = typePattern.equals("(())") ? false
-                                                                 : groupPattern.equals("(())")
-                                                                                               ? path.matches(Pattern.quote(prefix)
+                                                                 : groupPattern.equals("(())") ? path.matches(Pattern.quote(prefix)
                                                                                                               + typePattern
                                                                                                               + termPattern)
                                                                                                  || path.matches(Pattern.quote(prefix)

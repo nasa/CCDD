@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddXTCEHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling import and export of data tables in XTCE XML format. This class
  * implements the CcddImportExportInterface class.
@@ -2130,7 +2130,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     {
                         // Get the string argument attributes
                         StringDataType scmd = (StringDataType) argType;
-                        dataTypeBitSize = Integer.valueOf(scmd.getStringDataEncoding().getSizeInBits().getFixed().getFixedValue());
+                        dataTypeBitSize = Integer.valueOf(scmd.getStringDataEncoding()
+                                                              .getSizeInBits()
+                                                              .getFixed()
+                                                              .getFixedValue());
                         unitSet = scmd.getUnitSet();
                         isString = true;
                     }
@@ -2473,7 +2476,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             (String) extraInfo[5],
                             (String) extraInfo[6]);
 
-        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8 levels;
+        // Output the XML to the specified file. The marshaller has a hard-coded limit of 8 levels;
         // once exceeded it starts back at the first column. Therefore, a Transformer is used to
         // set the indentation amount (it doesn't have an indentation level limit)
         DOMResult domResult = new DOMResult();
@@ -2687,13 +2690,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // conversion to a system path
                     systemPath = cleanSystemPath((systemPath == null
                                                   || systemPath.isEmpty() ? ""
-                                                                            : systemPath + "/")
+                                                                          : systemPath + "/")
                                                  + tablePath.replaceFirst("(?:.*,)?("
                                                                             + tlmHeaderTable
                                                                             + ")[^,]+,(.*)",
                                                                             "$1,$2")
-                                                             .replaceFirst("(.*),.*", "$1")
-                                                             .replaceAll(",", "/"));
+                                                            .replaceFirst("(.*),.*", "$1")
+                                                            .replaceAll(",", "/"));
 
                     // Store the table's prototype and variable name as the table name. The actual
                     // table to load doesn't need the variable name, so it's removed from the table
@@ -3303,8 +3306,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     rowData[sizeColumn],
                                     rowData[bitColumn],
                                     (enumColumn != -1 && !rowData[enumColumn].isEmpty() ? rowData[enumColumn] : null),
-                                    (unitsColumn != -1 && !rowData[unitsColumn].isEmpty() ? rowData[unitsColumn]
-                                                                                          : null),
+                                    (unitsColumn != -1 && !rowData[unitsColumn].isEmpty() ? rowData[unitsColumn] : null),
                                     (minColumn != -1 && !rowData[minColumn].isEmpty() ? rowData[minColumn] : null),
                                     (maxColumn != -1 && !rowData[maxColumn].isEmpty() ? rowData[maxColumn] : null),
                                     (descColumn != -1 && !rowData[descColumn].isEmpty() ? rowData[descColumn] : null),
@@ -3357,8 +3359,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     baseContainer.setContainerRef("/"
                                                   + project.getValue().getName()
                                                   + (tlmHdrSysPath == null
-                                                     || tlmHdrSysPath.isEmpty() ? ""
-                                                                                  : "/"
+                                                     || tlmHdrSysPath.isEmpty() ? "" : "/"
                                                   + cleanSystemPath(tlmHdrSysPath))
                                                   + "/"
                                                   + tlmHeaderTable
@@ -3785,7 +3786,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 arrayType.setNumberOfDimensions(BigInteger.valueOf(ArrayVariable.getArrayIndexFromSize(arraySize).length));
 
                 // Set the parameter's array information
-                spaceSystem.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(arrayType);
+                spaceSystem.getTelemetryMetaData()
+                           .getParameterTypeSet()
+                           .getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType()
+                           .add(arrayType);
             }
 
             // Get the base data type corresponding to the primitive data type
@@ -3838,7 +3842,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
                                                 || (isHeaderBigEndian
                                                     && tlmHeaderTable.equals(TableInfo.getPrototypeName(spaceSystem.getName()))) ? "mostSignificantBitFirst"
-                                                                                                                                   : "leastSignificantBitFirst");
+                                                                                                                                 : "leastSignificantBitFirst");
 
                     enumType.setIntegerDataEncoding(intEncodingType);
 
@@ -3896,7 +3900,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
                                                         || (isHeaderBigEndian
                                                             && tlmHeaderTable.equals(TableInfo.getPrototypeName(spaceSystem.getName()))) ? "mostSignificantBitFirst"
-                                                                                                                                           : "leastSignificantBitFirst");
+                                                                                                                                         : "leastSignificantBitFirst");
 
                             // Set the encoding type and units
                             integerType.setIntegerDataEncoding(intEncodingType);
@@ -3998,7 +4002,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             }
 
             // Set the parameter's data type information
-            spaceSystem.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(parameterType);
+            spaceSystem.getTelemetryMetaData()
+                       .getParameterTypeSet()
+                       .getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType()
+                       .add(parameterType);
         }
     }
 

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddHaltDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog that displays a button for canceling the current operation, and optionally
  * displays a progress bar. The dialog is built on the CcddDialogHandler class.
@@ -229,15 +229,20 @@ public class CcddHaltDialog extends CcddDialogHandler
         progMaximum = numSteps * numDivisionPerStep;
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing(),
-                                                                   0, ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing()),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
 
         // Create the cancellation dialog
         JPanel dialogPnl = new JPanel(new GridBagLayout());
@@ -249,9 +254,12 @@ public class CcddHaltDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(textLbl, gbc);
         JLabel textLbl2 = new JLabel("<html><b>"
-                                     + CcddUtilities.colorHTMLText("<i>*** Press </i>Halt<i> " + "to terminate "
-                                                                   + operation + " ***", Color.RED)
-                                     + "</b><br><br>", SwingConstants.CENTER);
+                                     + CcddUtilities.colorHTMLText("<i>*** Press </i>Halt<i> to terminate "
+                                                                   + operation
+                                                                   + " ***",
+                                                                   Color.RED)
+                                     + "</b><br><br>",
+                                     SwingConstants.CENTER);
         textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
         gbc.gridy++;
         dialogPnl.add(textLbl2, gbc);

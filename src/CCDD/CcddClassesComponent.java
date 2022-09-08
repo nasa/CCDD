@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddClassesComponent.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Collection of common classes used by other CCDD classes. These classes, in general,
  * override existing Java component classes or introduce new ones.
@@ -600,6 +600,7 @@ public class CcddClassesComponent
                     {
                         // Store the text in the item matching text field
                         matchFld.setText(hasHTML ? CcddUtilities.removeHTMLTags(text.toString()) : text.toString());
+
                         // Check if the combo box is in a table cell
                         if (table != null)
                         {
@@ -1944,7 +1945,9 @@ public class CcddClassesComponent
                                                 .compareTo(Integer.decode(item2[compareColumn[index]]));
                         }
                         index++;
-                    } while (result == 0 && index < compareColumn.length && index < item1.length
+                    } while (result == 0
+                             && index < compareColumn.length
+                             && index < item1.length
                              && index < item2.length);
                     // Continue to perform the comparison as long as the two items match, more
                     // comparison columns are defined, and the column index doesn't exceed the
@@ -2104,7 +2107,7 @@ public class CcddClassesComponent
 
                 addRow(dim, rowWidth, rowHeight);
                 dim.width += horizontalInsetsAndGap;
-                dim.height += insets.top + insets.bottom + vgap * 2;
+                dim.height += insets.top + insets.bottom + (vgap * 2);
 
                 // When using a scroll pane or the DecoratedLookAndFeel we need to make sure the
                 // preferred size is less than the size of the target container so shrinking the
@@ -2269,7 +2272,9 @@ public class CcddClassesComponent
              * Replace text in the text field
              *************************************************************************************/
             @Override
-            public void replace(int startIndex, int length, String insertTxt,
+            public void replace(int startIndex,
+                                int length,
+                                String insertTxt,
                                 AttributeSet attributeset) throws BadLocationException
             {
                 super.remove(startIndex, length);
@@ -3669,11 +3674,11 @@ public class CcddClassesComponent
                         {
                             // Set the flag if the drag occurs within the original tabbed pane, or
                             // if in another, compatible tabbed pane
-                            isAcceptable = ((DnDTabbedPane.this == sourceData.getTabbedPane()
-                                             && sourceData.getTabIndex() >= 0)
-                                            || (DnDTabbedPane.this != sourceData.getTabbedPane()
+                            isAcceptable = (((DnDTabbedPane.this == sourceData.getTabbedPane())
+                                             && (sourceData.getTabIndex() >= 0))
+                                            || ((DnDTabbedPane.this != sourceData.getTabbedPane())
                                                 && DnDTabbedPane.this.compatibleTarget != null
-                                                && DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane().getCompatibleTarget()));
+                                                && (DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane().getCompatibleTarget())));
                         }
                     }
                 }
@@ -3712,11 +3717,11 @@ public class CcddClassesComponent
                         {
                             // Set the flag if the drop occurs within the original tabbed pane, or
                             // if in another, compatible tabbed pane
-                            isAcceptable = ((DnDTabbedPane.this == sourceData.getTabbedPane()
-                                             && sourceData.getTabIndex() >= 0)
-                                            || (DnDTabbedPane.this != sourceData.getTabbedPane()
-                                                && DnDTabbedPane.this.compatibleTarget != null
-                                                && DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane().getCompatibleTarget()));
+                            isAcceptable = (((DnDTabbedPane.this == sourceData.getTabbedPane())
+                                             && (sourceData.getTabIndex() >= 0))
+                                            || ((DnDTabbedPane.this != sourceData.getTabbedPane())
+                                                && (DnDTabbedPane.this.compatibleTarget != null)
+                                                && (DnDTabbedPane.this.compatibleTarget == sourceData.getTabbedPane().getCompatibleTarget())));
                         }
                     }
                 }
@@ -3965,7 +3970,8 @@ public class CcddClassesComponent
                         {
                             // Begin the drag operation
                             dge.startDrag(DragSource.DefaultMoveDrop,
-                                          new TabTransferable(DnDTabbedPane.this, dragTabIndex), dsl);
+                                          new TabTransferable(DnDTabbedPane.this, dragTabIndex),
+                                          dsl);
                         }
                         catch (InvalidDnDOperationException idoe)
                         {
@@ -4309,9 +4315,9 @@ public class CcddClassesComponent
         {
             // Check if the target index precedes the first tab, the pane has no tabs, or the
             // target is for the tab being dragged
-            if (targetIndex < 0 || getTabCount() == 0
-                || (data.getTabbedPane() == this
-                    && (data.getTabIndex() == targetIndex || targetIndex - data.getTabIndex() == 1)))
+            if ((targetIndex < 0) || (getTabCount() == 0)
+                || ((data.getTabbedPane() == this)
+                    && ((data.getTabIndex() == targetIndex) || ((targetIndex - data.getTabIndex()) == 1))))
             {
                 // Hide the indicator
                 lineRect.setRect(0, 0, 0, 0);

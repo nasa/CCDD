@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableManagerDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for the user create, edit, copy, rename, and delete data tables. The dialog is
  * built on the CcddDialogHandler class.
@@ -1012,7 +1012,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         importEntireDatabaseCb.setEnabled(false);
 
-        // If the IMPORT type is not JSON than set this checkbox to disabled
+        // If the IMPORT type is not JSON than set this check box to disabled
         if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV))
         {
             importEntireDatabaseCb.setEnabled(true);
@@ -1855,9 +1855,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 // Add a listener for the variable paths check box selection changes
                 includeVariablePaths.addActionListener(new ActionListener()
                 {
-                    /**********************************************************************************
+                    /******************************************************************************
                      * Respond to changes in selection of the include variable paths check box
-                     *********************************************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
@@ -2675,7 +2675,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                     // Check if no tables are selected and this is an EDS or XTCE export
                     if ((dialogType == ManagerDialogType.EXPORT_EDS || dialogType == ManagerDialogType.EXPORT_XTCE)
-                        && callingEditorDlg == null && tableTree.getSelectedTablesWithChildren().size() == 0)
+                        && callingEditorDlg == null
+                        && tableTree.getSelectedTablesWithChildren().size() == 0)
                     {
                         // Inform the user that no table has been selected
                         throw new CCDDException("Must select a table from the tree");
@@ -2791,7 +2792,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this, "<html><b>"
+            new CcddDialogHandler().showMessageDialog(CcddTableManagerDialog.this,
+                                                      "<html><b>"
                                                       + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,

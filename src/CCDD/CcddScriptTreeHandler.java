@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddScriptTreehandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles building the script trees
  *
@@ -151,11 +151,20 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(0, 0, ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing() / 2, 0),
-                                                        0, 0);
+                                                        new Insets(0,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0),
+                                                        0,
+                                                        0);
 
         // Set the script tree selection mode
         getSelectionModel().setSelectionMode(selectionMode);
@@ -176,15 +185,13 @@ public class CcddScriptTreeHandler extends CcddInformationTreeHandler
 
         // Create the tree scroll pane
         JScrollPane treeScroll = new JScrollPane(this);
-        treeScroll.setBorder(BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing())));
+        treeScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                Color.LIGHT_GRAY,
+                                                                                                Color.GRAY),
+                                                                BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
 
         // Add the tree to the panel
         gbc.weighty = 1.0;

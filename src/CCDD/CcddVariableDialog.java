@@ -280,9 +280,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                         return true;
                     }
 
-                    /**************************************************************************************
+                    /******************************************************************************
                      * Allow HTML-formatted text in the specified column(s)
-                     *************************************************************************************/
+                     *****************************************************************************/
                     @Override
                     protected boolean isColumnHTML(int column)
                     {
@@ -369,7 +369,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                 };
 
                 // Show variables button
-                btnShow = CcddButtonPanelHandler.createButton("Show", RENAME_ICON, KeyEvent.VK_W,
+                btnShow = CcddButtonPanelHandler.createButton("Show",
+                                                              RENAME_ICON,
+                                                              KeyEvent.VK_W,
                                                               "Show the project variables");
 
                 // Add a listener for the Show button
@@ -387,7 +389,8 @@ public class CcddVariableDialog extends CcddDialogHandler
 
                         // Check if a separator field contains a character that cannot be used
                         if (varPathSepFld.getText().matches(".*[\\[\\]].*")
-                            || (!hideDataTypeCb.isSelected() && typeNameSepFld.getText().matches(".*[\\[\\]].*")))
+                            || (!hideDataTypeCb.isSelected()
+                                && typeNameSepFld.getText().matches(".*[\\[\\]].*")))
                         {
                             // Inform the user that the input value is invalid
                             new CcddDialogHandler().showMessageDialog(CcddVariableDialog.this,
@@ -556,10 +559,10 @@ public class CcddVariableDialog extends CcddDialogHandler
             {
                 // Add the variable to the list
                 variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                                variableHandler.getFullVariableName(variableName,
-                                                                                    varPathSepFld.getText(),
-                                                                                    hideDataTypeCb.isSelected(),
-                                                                                    typeNameSepFld.getText())});
+                                               variableHandler.getFullVariableName(variableName,
+                                                                                   varPathSepFld.getText(),
+                                                                                   hideDataTypeCb.isSelected(),
+                                                                                   typeNameSepFld.getText())});
             }
             // One or more tables are selected for use as filters
             else

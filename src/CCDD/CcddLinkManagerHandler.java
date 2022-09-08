@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddLinkManagerHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling interactions with the variable links for a specific data stream.
  *
@@ -135,7 +135,9 @@ public class CcddLinkManagerHandler
      *
      * @param availableRates Array of sample rates available to this stream
      *********************************************************************************************/
-    CcddLinkManagerHandler(CcddMain ccddMain, CcddLinkManagerDialog linkDialog, String rateName,
+    CcddLinkManagerHandler(CcddMain ccddMain,
+                           CcddLinkManagerDialog linkDialog,
+                           String rateName,
                            String[] availableRates)
     {
         this.ccddMain = ccddMain;
@@ -259,15 +261,13 @@ public class CcddLinkManagerHandler
         isInitializing = true;
 
         // Create borders for the dialog components
-        border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                    Color.LIGHT_GRAY,
+                                                                                    Color.GRAY),
+                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -275,14 +275,20 @@ public class CcddLinkManagerHandler
         currentLinks = new ArrayList<String[]>();
 
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   0, 0),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   0),
+                                                        0,
+                                                        0);
 
         // Add an undo edit manager
         undoManager = new CcddUndoManager()
@@ -347,7 +353,8 @@ public class CcddLinkManagerHandler
                     // the description, rate, and size in bytes fields; otherwise clear the
                     // selected link, disable and clear the description, rate, and size in bytes
                     // fields
-                    setLinkAndFields(selected.length == 1 ? removeExtraText(selected[0]) : null, selected.length != 0);
+                    setLinkAndFields(selected.length == 1 ? removeExtraText(selected[0])
+                                                          : null, selected.length != 0);
 
                     // Check if the node change isn't set to be ignored for undo/redo purposes. The
                     // undo handler sets the flag so that the undo/redo operation isn't recorded on
@@ -379,7 +386,8 @@ public class CcddLinkManagerHandler
                 String isValueS = removeExtraText(isValue.toString());
 
                 // Step through the link's definitions
-                for (String[] linkDefn : getLinkHandler().getLinkDefinitionsByName(wasValueS, getRateName()))
+                for (String[] linkDefn : getLinkHandler().getLinkDefinitionsByName(wasValueS,
+                                                                                   getRateName()))
                 {
                     // Update the link definition's link name
                     linkDefn[LinksColumn.LINK_NAME.ordinal()] = isValueS;
@@ -426,19 +434,23 @@ public class CcddLinkManagerHandler
         // rate to a dummy value
         selectedRate = Arrays.asList(availableRates)
                 .contains("1") ? "1"
-                               : (availableRates.length != 0 ? CcddUtilities.removeHTMLTags(availableRates[0]) : "0");
+                               : (availableRates.length != 0 ? CcddUtilities.removeHTMLTags(availableRates[0])
+                                                             : "0");
 
         // Build the variable tree that shows tables and their variables for the selected rate. Use
         // the first rate in the available rates array to determine which variables to display in
         // the tree, or, if none, create the tree showing no variables
         variableTree = new CcddTableTreeHandler(ccddMain,
-                                                new CcddGroupHandler(ccddMain, undoHandler, ccddMain.getMainFrame()),
-                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES, rateName,
-                                                selectedRate, linkTree.getLinkVariables(null), null, // Unused
-                                                                                                     // in
-                                                                                                     // link
-                                                                                                     // manager
-                                                null, ccddMain.getMainFrame())
+                                                new CcddGroupHandler(ccddMain,
+                                                                     undoHandler,
+                                                                     ccddMain.getMainFrame()),
+                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
+                                                rateName,
+                                                selectedRate,
+                                                linkTree.getLinkVariables(null),
+                                                null, // Unused in link manager
+                                                null,
+                                                ccddMain.getMainFrame())
         {
             /**************************************************************************************
              * Respond to changes in selection of a node in the variable tree
@@ -470,8 +482,11 @@ public class CcddLinkManagerHandler
              * instances node name
              *************************************************************************************/
             @Override
-            protected void buildTableTree(Boolean isExpanded, String rateName, String rateFilter,
-                                          boolean isByGroupChanged, Component parent)
+            protected void buildTableTree(Boolean isExpanded,
+                                          String rateName,
+                                          String rateFilter,
+                                          boolean isByGroupChanged,
+                                          Component parent)
             {
                 // Set the flag to inhibit registering a link change due to the tree is being built
                 isInitializing = true;
@@ -502,7 +517,8 @@ public class CcddLinkManagerHandler
         gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 1.0;
         treePnl.add(variableTree.createTreePanel("Structures & Variables",
-                                                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION, false,
+                                                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                 false,
                                                  ccddMain.getMainFrame()),
                     gbc);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -517,7 +533,8 @@ public class CcddLinkManagerHandler
         managerPnl.add(new CustomSplitPane(treePnl,
                                            linkTree.createTreePanel("Links",
                                                                     TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
-                                           createArrowButtonPanel(), JSplitPane.HORIZONTAL_SPLIT),
+                                           createArrowButtonPanel(),
+                                           JSplitPane.HORIZONTAL_SPLIT),
                        gbc);
 
         // Create the link description label
@@ -679,7 +696,9 @@ public class CcddLinkManagerHandler
                 // Get the list of all variable tree paths in the variable tree and set these in
                 // the links tree. This is used to maintain the correct variable order in the links
                 // tree
-                linkTree.setTreePathOrder(variableTree.getTableTreePathList(null, variableTree.getRootNode(), -1));
+                linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
+                                                                            variableTree.getRootNode(),
+                                                                            -1));
 
                 // Check if this is the first time the rate selection occurs
                 if (firstRateChange)
@@ -901,8 +920,17 @@ public class CcddLinkManagerHandler
         });
 
         // Set the layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-                                                        GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        0.0,
+                                                        0.0,
+                                                        GridBagConstraints.CENTER,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(0, 0, 0, 0),
+                                                        0,
+                                                        0);
 
         // Create a panel to contain the buttons. Arrange the buttons vertically
         JPanel buttonPnl = new JPanel(new GridBagLayout());
@@ -918,7 +946,8 @@ public class CcddLinkManagerHandler
 
         // Add the buttons to the panel
         buttonPnl.add(rightArrowBtn, gbc);
-        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 2 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.bottom = LAF_CHECK_BOX_HEIGHT * 2
+                            + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         buttonPnl.add(leftArrowBtn, gbc);
 
@@ -935,7 +964,8 @@ public class CcddLinkManagerHandler
     {
         // Add the selected variable(s) to the link tree. The start node is decremented to account
         // for there not being an instance node in the tree
-        linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true), variableTree.getHeaderNodeLevel(),
+        linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true),
+                                            variableTree.getHeaderNodeLevel(),
                                             true);
 
         // Set the link's sample rate to the currently selected rate. This only makes a change if
@@ -1223,9 +1253,8 @@ public class CcddLinkManagerHandler
                     ToolTipTreeNode linkNode = ((ToolTipTreeNode) linkTree.getRootNode().getChildAt(linkIndex));
 
                     // Step through the variables belonging to the link
-                    for (String[] linkDefn : linkTree.getLinkHandler()
-                            .getLinkDefinitionsByName(linkTree.removeExtraText(linkNode.getUserObject().toString()),
-                                                      rateName))
+                    for (String[] linkDefn : linkTree.getLinkHandler().getLinkDefinitionsByName(linkTree.removeExtraText(linkNode.getUserObject().toString()),
+                                                                                                rateName))
                     {
                         // Check if the selected variable matches the link variable
                         if (variablePath.equals(linkDefn[LinksColumn.MEMBER.ordinal()]))

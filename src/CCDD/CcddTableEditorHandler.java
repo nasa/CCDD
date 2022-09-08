@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTableEditorHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles editing of a specific data table. This class is an extension of the
  * CcddInputFieldPanelHandler class.
@@ -1548,13 +1548,18 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check if the cell is non-alterable based on the following criteria: This is
                     // the variable name, data type, array size, or bit length cell and this is not
                     // a prototype table
-                    if ((((column == variableNameIndex || column == dataTypeIndex || column == arraySizeIndex
-                           || column == bitLengthIndex || column == valueIndex)
+                    if ((((column == variableNameIndex
+                           || column == dataTypeIndex
+                           || column == arraySizeIndex
+                           || column == bitLengthIndex
+                           || column == valueIndex)
                           && !currentTableInfo.isPrototype()))
 
                         // This is the variable name, data type, or array size cell and the row
                         // displays an array member
-                        || ((column == variableNameIndex || column == dataTypeIndex || column == arraySizeIndex)
+                        || ((column == variableNameIndex
+                             || column == dataTypeIndex
+                             || column == arraySizeIndex)
                             && ArrayVariable.isArrayMember(rowCopy[variableNameIndex]))
 
                         // This data type is a pointer and the column isn't valid for pointers
@@ -1750,13 +1755,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // instance table can't have it's array size of bit length changed, and
                     // non-structure tables can't have children, so there's no need to constrain
                     // the data types for these cases
-                    String newValueS = newMacroHandler
-                            .getMacroExpansion(newValue.toString(),
-                                               typeDefn.isStructure()
-                                               && currentTableInfo.isPrototype()
-                                               && (column == arraySizeIndex
-                                                   || column != bitLengthIndex) ? invalidDataTypes
-                                                                                : null);
+                    String newValueS = newMacroHandler.getMacroExpansion(newValue.toString(),
+                                                                         typeDefn.isStructure()
+                                                                         && currentTableInfo.isPrototype()
+                                                                         && (column == arraySizeIndex
+                                                                             || column != bitLengthIndex) ? invalidDataTypes
+                                                                                                          : null);
 
                     // Check if a sizeof() call in the text makes a recursive reference. Example:
                     // If this is a structure table then this can occur if a sizeof() call refers
@@ -3324,14 +3328,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                                             // Insert the new array definition row within the
                                             // pasted cell data array
-                                            cellData = CcddUtilities
-                                                    .concatenateArrays(CcddUtilities.concatenateArrays(Arrays
-                                                            .copyOfRange(cellData, 0, index + (numColumns * (i + 1))),
-                                                                                                       arrayDefn),
-                                                                       Arrays.copyOfRange(cellData,
-                                                                                          index + (numColumns
-                                                                                                   * (i + 1)),
-                                                                                          cellData.length));
+                                            cellData = CcddUtilities.concatenateArrays(CcddUtilities.concatenateArrays(Arrays.copyOfRange(cellData,
+                                                                                                                                          0,
+                                                                                                                                          index
+                                                                                                                                          + (numColumns
+                                                                                                                                             * (i + 1))),
+                                                                                                                                          arrayDefn),
+                                                                                       Arrays.copyOfRange(cellData,
+                                                                                                          index
+                                                                                                          + (numColumns
+                                                                                                             * (i + 1)),
+                                                                                                          cellData.length));
 
                                             endRow++;
                                         }
@@ -4167,19 +4174,18 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                                 // Inform the user that the prototype of the selected table is
                                 // opened
-                                new CcddDialogHandler()
-                                        .showMessageDialog(parent,
-                                                           "<html><b>Since prototype table '</b>"
-                                                           + currentTableInfo.getPrototypeName()
-                                                           + "<b>' is a child of another table it "
-                                                           + "cannot have its own child tables; "
-                                                           + "therefore the <i>prototype</i>, "
-                                                           + "instead of an instance, of table '</b>"
-                                                           + dataType
-                                                           + "<b>' was opened",
-                                                           "Edit Table",
-                                                           JOptionPane.INFORMATION_MESSAGE,
-                                                           DialogOption.OK_OPTION);
+                                new CcddDialogHandler().showMessageDialog(parent,
+                                                                          "<html><b>Since prototype table '</b>"
+                                                                          + currentTableInfo.getPrototypeName()
+                                                                          + "<b>' is a child of another table it "
+                                                                          + "cannot have its own child tables; "
+                                                                          + "therefore the <i>prototype</i>, "
+                                                                          + "instead of an instance, of table '</b>"
+                                                                          + dataType
+                                                                          + "<b>' was opened",
+                                                                          "Edit Table",
+                                                                          JOptionPane.INFORMATION_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
                             }
                         }
 
@@ -4431,9 +4437,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         int editColumnModel = table.convertColumnIndexToModel(getTable().getEditingColumn());
 
-        return typeDefn.isStructure() && currentTableInfo.isPrototype()
-               && (editColumnModel == arraySizeIndex || editColumnModel == bitLengthIndex) ? validStructureDataTypes
-                                                                                           : Arrays.asList(allPrototypeStructureTables);
+        return typeDefn.isStructure()
+               && currentTableInfo.isPrototype()
+               && (editColumnModel == arraySizeIndex
+                   || editColumnModel == bitLengthIndex) ? validStructureDataTypes
+                                                         : Arrays.asList(allPrototypeStructureTables);
     }
 
     /**********************************************************************************************

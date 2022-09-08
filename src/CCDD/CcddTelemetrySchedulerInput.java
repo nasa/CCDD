@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTelemetrySchedulerInput.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling variable selection in the telemetry scheduler dialog. This class
  * implements the CcddSchedulerInputInterface class.
@@ -300,7 +300,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             for (Variable variable : message.getVariablesWithParent())
             {
                 // Set the link for the variable (null if the variable is not a link member)
-                ((TelemetryData) variable).setLink(linkTree.getLinkHandler().getVariableLink(variable.getFullName(), rateName));
+                ((TelemetryData) variable).setLink(linkTree.getLinkHandler().getVariableLink(variable.getFullName(),
+                                                                                             rateName));
             }
         }
     }

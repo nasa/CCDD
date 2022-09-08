@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddScriptHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles obtaining the table data and executing the associated script.
  *
@@ -588,7 +588,11 @@ public class CcddScriptHandler
              * @param column     Cell column, view coordinates
              *************************************************************************************/
             @Override
-            protected void doSpecialRendering(Component component, String text, boolean isSelected, int row, int column)
+            protected void doSpecialRendering(Component component,
+                                              String text,
+                                              boolean isSelected,
+                                              int row,
+                                              int column)
             {
                 // Check if the association on the specified row is flagged as unavailable
                 if (!isAssociationAvailable(convertRowIndexToModel(row)))
@@ -1865,8 +1869,7 @@ public class CcddScriptHandler
                                                     + "\\s*"
                                                   : Pattern.quote(ASSN_TABLE_SEPARATOR)),
                                       (toInternal ? ASSN_TABLE_SEPARATOR
-                                                  : " " + ASSN_TABLE_SEPARATOR_CMD_LN + " "))
-                .trim();
+                                                  : " " + ASSN_TABLE_SEPARATOR_CMD_LN + " ")).trim();
     }
 
     /**********************************************************************************************

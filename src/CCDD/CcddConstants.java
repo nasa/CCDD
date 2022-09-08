@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddConstants.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing constant values used by the other classes.
  *
@@ -2308,17 +2308,20 @@ public class CcddConstants
         ALPHANUMERIC("Alphanumeric",
                      "[a-zA-Z_][a-zA-Z0-9_]*",
                      InputTypeFormat.TEXT,
-                     "Alphabetic or underscore first character followed by zero " + "or more alphabetic, numeric, and underscore characters"),
+                     "Alphabetic or underscore first character followed by zero "
+                     + "or more alphabetic, numeric, and underscore characters"),
 
         ALPHANUMERIC_MULTI("Alphanumeric (multi)",
                            "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+",
                            InputTypeFormat.TEXT,
-                           "One or more alphanumeric entries (see Alphanumeric) " + "separated by one or more white space characters"),
+                           "One or more alphanumeric entries (see Alphanumeric) "
+                           + "separated by one or more white space characters"),
 
         ALPHANUMERIC_INDEXES("Alphanumeric with indexes",
                              "[a-zA-Z_][a-zA-Z0-9_]*([\\[][0-9]*[\\]])*",
                              InputTypeFormat.TEXT,
-                             "Alphabetic or underscore first character followed by zero " + "or more alphabetic, numeric, and underscore characters followed by indexes"),
+                             "Alphabetic or underscore first character followed by zero "
+                             + "or more alphabetic, numeric, and underscore characters followed by indexes"),
 
         ARRAY_INDEX("Array index",
                     "^\\s*\\+??\\s*0*([1-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([1-9]|[1-9]\\d+))*",
@@ -2328,7 +2331,7 @@ public class CcddConstants
         BIT_LENGTH("Bit length",
                    "^\\+??\\s*0*([1-9]\\d*)",
                    InputTypeFormat.INTEGER,
-                   "Bit length; positive integer (initial '+' and leading " + "zeroes are optional)"),
+                   "Bit length; positive integer (initial '+' and leading zeroes are optional)"),
 
         BOOLEAN("Boolean",
                 "(?i)true|false",
@@ -2350,7 +2353,7 @@ public class CcddConstants
         COMMAND_NAME("Command name",
                      ALPHANUMERIC.getInputMatch(),
                      InputTypeFormat.TEXT,
-                     "Command name; same constraints as for an " + "alphanumeric (see Alphanumeric)"),
+                     "Command name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
         COMMAND_REFERENCE("Command reference",
                           ".*",
@@ -2371,22 +2374,22 @@ public class CcddConstants
               "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
               InputTypeFormat.FLOAT,
                 "Floating point value consisting of one or more of the numerals "
-                + "0 - 9 and a single optional decimal point (leading '+' or " + "'-' is optional)"),
+                + "0 - 9 and a single optional decimal point (leading '+' or '-' is optional)"),
 
         FLOAT_POSITIVE("Positive float",
                        "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
                        InputTypeFormat.FLOAT,
-                       "Floating point value > 0.0 (leading '+' is optional; " + "see Floating point)"),
+                       "Floating point value > 0.0 (leading '+' is optional; see Floating point)"),
 
         FLOAT_NON_NEGATIVE("Non-negative float",
                            "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
                            InputTypeFormat.FLOAT,
-                           "Floating point value >= 0.0 (leading '+' is " + "optional; see Floating point)"),
+                           "Floating point value >= 0.0 (leading '+' is optional; see Floating point)"),
 
         FLOAT_NEGATIVE("Negative float",
                        "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
                        InputTypeFormat.FLOAT,
-                       "Floating point value < 0.0 (leading '-' is required; " + "see Floating point)"),
+                       "Floating point value < 0.0 (leading '-' is required; see Floating point)"),
 
         INTEGER("Integer",
                 "^[\\+-]??\\s*\\d*",
@@ -2403,8 +2406,10 @@ public class CcddConstants
                       InputTypeFormat.INTEGER,
                       "Integer value > 1 (leading '+' is optional; see Integer)"),
 
-        INT_NON_NEGATIVE("Non-negative integer", "^\\+??\\s*0*\\d+", InputTypeFormat.INTEGER,
-                "Integer value > -1 (leading '+' is optional; see Integer)"),
+        INT_NON_NEGATIVE("Non-negative integer",
+                         "^\\+??\\s*0*\\d+",
+                         InputTypeFormat.INTEGER,
+                         "Integer value > -1 (leading '+' is optional; see Integer)"),
 
         INT_NEGATIVE("Negative integer",
                      "^-\\s*0*\\d+",
@@ -2461,7 +2466,7 @@ public class CcddConstants
                 "Minimum value; a boolean, integer, floating point, or "
                 + "hexadecimal value (depending on context; see Boolean, "
                 + "Integer, Floating point, and Hexadecimal) that must be "
-                + "less than or equal to the corresponding maximum value " + "(see Maximum)"),
+                + "less than or equal to the corresponding maximum value (see Maximum)"),
 
         MAXIMUM("Maximum",
                 "(" + INTEGER.getInputMatch() + ")|(" + FLOAT.getInputMatch() + ")",
@@ -2482,12 +2487,12 @@ public class CcddConstants
         PRIMITIVE("Primitive",
                   ".*",
                   InputTypeFormat.DATA_TYPE,
-                  "A primitive data type as defined in the data type editor " + "(for example, int16, float)"),
+                  "A primitive data type as defined in the data type editor (for example, int16, float)"),
 
         PRIM_AND_STRUCT("Primitive & Structure",
                         ".*",
                         InputTypeFormat.DATA_TYPE,
-                        "A primitive data type (see Primitive) or a prototype " + "structure name"),
+                        "A primitive data type (see Primitive) or a prototype structure name"),
 
         RATE("Rate",
              "^\\+??\\s*(0*1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
@@ -2509,7 +2514,7 @@ public class CcddConstants
         TEXT_MULTI("Text (multi-line)",
                    "(?s).*",
                    InputTypeFormat.TEXT,
-                   "Multi-line text, including alphabetic, " + "numeric, special, and new line characters"),
+                   "Multi-line text, including alphabetic, numeric, special, and new line characters"),
 
         TEXT_WHT_SPC("Text (spaces)",
                      "(?s).*",
@@ -3032,7 +3037,8 @@ public class CcddConstants
             for (DefaultColumn defCol : DefaultColumn.values())
             {
                 // Check if the table type and input type matches the one in the table
-                if (defCol.tableType.equals(compareTableType) && defCol.inputType.inputName.equals(compareInputType))
+                if (defCol.tableType.equals(compareTableType)
+                    && defCol.inputType.inputName.equals(compareInputType))
                 {
                     // Set the flag based on this parameter's input type status and stop searching
                     isUniqueInputType = defCol.isInputTypeUnique;
@@ -3219,7 +3225,8 @@ public class CcddConstants
                 "WITH OIDS",
 
                 // Create default table definition for the telemetry and command table types
-                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "dbu_info VALUES " + "('_db_lock_', '_db_name_', '_db_admins_', '_db_desc_')"),
+                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "dbu_info VALUES "
+                + "('_db_lock_', '_db_name_', '_db_admins_', '_db_desc_')"),
 
         // Application scheduler
         APP_SCHEDULER("app_scheduler",
@@ -3244,7 +3251,8 @@ public class CcddConstants
                 "WITH OIDS",
 
                 // Create default data type definitions
-                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "data_types VALUES " + DefaultPrimitiveTypeInfo.getDataTypeDefinitions()),
+                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "data_types VALUES "
+                + DefaultPrimitiveTypeInfo.getDataTypeDefinitions()),
 
         // Table data fields
         FIELDS("fields",
@@ -3262,19 +3270,19 @@ public class CcddConstants
 
                 // Create default data fields for the telemetry and command table types
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX + "fields (" + FieldsColumn.OWNER_NAME.columnName + ", "
-                             + FieldsColumn.FIELD_NAME.columnName + ", " + FieldsColumn.FIELD_DESC.columnName + ", "
-                             + FieldsColumn.FIELD_SIZE.columnName + ", " + FieldsColumn.FIELD_TYPE.columnName + ", "
-                             + FieldsColumn.FIELD_REQUIRED.columnName + ", "
-                             + FieldsColumn.FIELD_APPLICABILITY.columnName + ", " + FieldsColumn.FIELD_VALUE.columnName
-                             + ", " + FieldsColumn.FIELD_INHERITED.columnName
-                             + ") VALUES ('Type:Structure', 'Telemetry message "
-                             + "name & ID', 'Telemetry message name and ID', '15', '"
-                             + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "', 'true', '"
-                             + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                             + "', '', 'false'), ('Type:Command', 'Command "
-                             + "name & ID', 'Command name and ID', '15', '"
-                             + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "', 'true', '"
-                             + ApplicabilityType.ALL.getApplicabilityName() + "', '', 'false')"),
+                + FieldsColumn.FIELD_NAME.columnName + ", " + FieldsColumn.FIELD_DESC.columnName + ", "
+                + FieldsColumn.FIELD_SIZE.columnName + ", " + FieldsColumn.FIELD_TYPE.columnName + ", "
+                + FieldsColumn.FIELD_REQUIRED.columnName + ", "
+                + FieldsColumn.FIELD_APPLICABILITY.columnName + ", " + FieldsColumn.FIELD_VALUE.columnName
+                + ", " + FieldsColumn.FIELD_INHERITED.columnName
+                + ") VALUES ('Type:Structure', 'Telemetry message "
+                + "name & ID', 'Telemetry message name and ID', '15', '"
+                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "', 'true', '"
+                + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                + "', '', 'false'), ('Type:Command', 'Command "
+                + "name & ID', 'Command name and ID', '15', '"
+                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "', 'true', '"
+                + ApplicabilityType.ALL.getApplicabilityName() + "', '', 'false')"),
 
         // Data table groupings
         GROUPS("groups",
@@ -3367,15 +3375,15 @@ public class CcddConstants
                                 {TlmSchedulerColumn.MEMBER.columnName, TlmSchedulerColumn.MEMBER.dataType}},
                 "WITH OIDS",
                 "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "tlm_scheduler IS '1,1,false,\""
-                        + DefaultColumn.RATE.getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
+                + DefaultColumn.RATE.getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
 
         // User authorization
         USERS("users", new String[][] {{UsersColumn.USER_NAME.columnName, UsersColumn.USER_NAME.dataType},
                                        {UsersColumn.ACCESS_LEVEL.columnName, UsersColumn.ACCESS_LEVEL.dataType}},
                 "WITH OIDS",
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX + "users (" + UsersColumn.USER_NAME.columnName + ", "
-                             + UsersColumn.ACCESS_LEVEL.columnName + ") VALUES ('_admin_user_', '"
-                             + AccessLevel.ADMIN.getDisplayName() + "')"),
+                + UsersColumn.ACCESS_LEVEL.columnName + ") VALUES ('_admin_user_', '"
+                + AccessLevel.ADMIN.getDisplayName() + "')"),
 
         // Data table values for non-prototype tables
         VALUES("values",
@@ -6254,7 +6262,7 @@ public class CcddConstants
 
         // Get the list of data tables and their comments, sorted alphabetically
         TABLE_COMMENTS("SELECT description FROM (SELECT obj_description AS description FROM "
-                       + "(SELECT obj_description(oid) " + "FROM pg_class WHERE relkind = 'r' "
+                       + "(SELECT obj_description(oid) FROM pg_class WHERE relkind = 'r' "
                        + "AND obj_description(oid) != '' AND substr(relname, 1, "
                        + INTERNAL_TABLE_PREFIX.length()
                        + ") != '"
@@ -6268,7 +6276,7 @@ public class CcddConstants
         // Get the list of stored scripts, sorted alphabetically
         SCRIPTS("SELECT script_name FROM (SELECT obj_description AS script_name FROM "
                 + "(SELECT obj_description(oid) FROM pg_class WHERE relkind = 'r' AND "
-                + "obj_description(oid) " + "!= '' AND substr(relname, 1, "
+                + "obj_description(oid) != '' AND substr(relname, 1, "
                 + InternalTable.SCRIPT.getTableName().length()
                 + ") = '"
                 + InternalTable.SCRIPT.getTableName()
@@ -6287,8 +6295,8 @@ public class CcddConstants
                + TABLE_DESCRIPTION_SEPARATOR
                + "' || table_description || E'"
                + TABLE_DESCRIPTION_SEPARATOR
-               + "' || column_value AS search_result " + "FROM search_tables(E'_search_text_', "
-               + "_case_insensitive_, _allow_regex_, " + "'_selected_tables_', '{_columns_}') "
+               + "' || column_value AS search_result FROM search_tables(E'_search_text_', "
+               + "_case_insensitive_, _allow_regex_, '_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
 
         // Get the list of table paths and values from the custom values table that match the
@@ -6317,10 +6325,10 @@ public class CcddConstants
 
         // Get the tables that are members of the specified table. '___' should be replaced by the
         // table to search
-        TABLE_MEMBERS("SELECT DISTINCT ON (data_type) " + "CASE WHEN EXISTS (SELECT 1 FROM "
-                      + "pg_catalog.pg_attribute " + "WHERE attrelid = '___'::regclass AND "
-                      + "attname = 'data_type' " + "AND NOT attisdropped AND attnum > 0) THEN "
-                      + "data_type::text ELSE ''::text END " + "AS data_type FROM ___ AS data_type;");
+        TABLE_MEMBERS("SELECT DISTINCT ON (data_type) CASE WHEN EXISTS (SELECT 1 FROM "
+                      + "pg_catalog.pg_attribute WHERE attrelid = '___'::regclass AND "
+                      + "attname = 'data_type' AND NOT attisdropped AND attnum > 0) THEN "
+                      + "data_type::text ELSE ''::text END AS data_type FROM ___ AS data_type;");
 
         private final String listCommand;
 
@@ -6584,8 +6592,12 @@ public class CcddConstants
          *
          * @param defaultButton       Index of the button selected by default
          *****************************************************************************************/
-        DialogOption(String buttonText, char buttonMnemonic, String secondaryButtonText, String buttonIcon,
-                     int numButtons, int defaultButton)
+        DialogOption(String buttonText,
+                     char buttonMnemonic,
+                     String secondaryButtonText,
+                     String buttonIcon,
+                     int numButtons,
+                     int defaultButton)
         {
             this.buttonText = buttonText;
             this.buttonMnemonic = buttonMnemonic;

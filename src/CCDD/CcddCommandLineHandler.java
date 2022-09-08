@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddCommandLineHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for reading and executing the command line options.
  *
@@ -897,7 +897,8 @@ public class CcddCommandLineHandler
         argument.add(new CommandHandler("execute", "Execute script(s)",
                                         "[association name] or\n"
                                         + "[\" or ']script file name["
-                                        + SCRIPT_MEMBER_SEPARATOR + "table1\n"
+                                        + SCRIPT_MEMBER_SEPARATOR
+                                        + "table1\n"
                                         + "  or Group:group1[+...[+tableN or\n"
                                         + "  Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddTelemetrySchedulerDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for assignment of variables to telemetry messages. The dialog is built on the
  * CcddDialogHandler class and implements the CcddSchedulerDialogInterface class.
@@ -192,7 +192,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
+                        activeSchHandler.getSchedulerEditor()
+                                        .clearVariablesFromMessages(activeSchHandler.getSchedulerInput()
+                                                                                    .getSelectedRate());
                     }
 
                     /******************************************************************************
@@ -534,7 +536,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         if (activeSchHandler.getSchedulerEditor().getTable().isLastCellValid()
             && (!isChanges()
                 || new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
-                                                             "<html><b>Discard changes?", "Discard Changes",
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
                                                              JOptionPane.QUESTION_MESSAGE,
                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
@@ -611,7 +614,11 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     @Override
     public CcddSchedulerInputInterface createSchedulerInput(String rateName)
     {
-        return new CcddTelemetrySchedulerInput(ccddMain, this, rateName, allVariableTree, allVariableTreePaths);
+        return new CcddTelemetrySchedulerInput(ccddMain,
+                                               this,
+                                               rateName,
+                                               allVariableTree,
+                                               allVariableTreePaths);
     }
 
     /**********************************************************************************************

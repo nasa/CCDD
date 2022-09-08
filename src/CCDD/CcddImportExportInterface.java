@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddImportExportInterface.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that defines the interface for data table import and export classes.
  *
@@ -257,7 +257,9 @@ public interface CcddImportExportInterface
                                String[] separators,
                                boolean addEOFMarker,
                                String outputType,
-                               Object... extraInfo) throws JAXBException, CCDDException, Exception;
+                               Object... extraInfo) throws JAXBException,
+                                                           CCDDException,
+                                                           Exception;
 
     /**********************************************************************************************
      * Export table type definitions to the specified folder
@@ -287,7 +289,8 @@ public interface CcddImportExportInterface
                                              boolean includeDataTypes,
                                              String outputType,
                                              boolean addEOFMarker,
-                                             boolean addSOFMarker) throws CCDDException, Exception;
+                                             boolean addSOFMarker) throws CCDDException,
+                                                                          Exception;
 
     /**********************************************************************************************
      * Export script association data, group data, macro data, telemetry scheduler data or
@@ -309,5 +312,6 @@ public interface CcddImportExportInterface
     abstract void exportInternalCCDDData(boolean[] includes,
                                          CcddConstants.exportDataTypes[] dataTypes,
                                          FileEnvVar exportFile,
-                                         String outputType) throws CCDDException, Exception;
+                                         String outputType) throws CCDDException,
+                                                                   Exception;
 }

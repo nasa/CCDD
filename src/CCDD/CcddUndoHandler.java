@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddUndoHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that manages GUI component undo and redo edit operations.
  *
@@ -2372,7 +2372,12 @@ public class CcddUndoHandler
          * @param type       TableEditType.INSERT if inserting a row; TableEditType.DELETE if
          *                   removing a row; TableEditType.MOVE if moving a row or rows
          *****************************************************************************************/
-        RowEdit(UndoableTableModel tableModel, Object[] values, int row, int start, int end, TableEditType type)
+        RowEdit(UndoableTableModel tableModel,
+                Object[] values,
+                int row,
+                int start,
+                int end,
+                TableEditType type)
         {
             this.tableModel = tableModel;
             this.values = values == null ? null : Arrays.copyOf(values, values.length);
@@ -3600,7 +3605,8 @@ public class CcddUndoHandler
          *
          * @param newFieldInfo    Updated data field information list
          *****************************************************************************************/
-        protected void addDataFieldEdit(CcddInputFieldPanelHandler fieldPnlHandler, List<FieldInformation> newFieldInfo)
+        protected void addDataFieldEdit(CcddInputFieldPanelHandler fieldPnlHandler,
+                                        List<FieldInformation> newFieldInfo)
         {
             // Check if the edit is undoable
             if (isAllowUndo)

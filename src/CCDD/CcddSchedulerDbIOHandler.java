@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddSchedulerDbIOHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for handling project database input and output operations for the applications and
  * telemetry schedulers.
@@ -92,7 +92,9 @@ public class CcddSchedulerDbIOHandler
         if (option == SchedulerType.TELEMETRY_SCHEDULER)
         {
             // Store the telemetry scheduler information in the project database
-            dbTable.storeInformationTableInBackground(InternalTable.TLM_SCHEDULER, getTelemetryData(streams), null,
+            dbTable.storeInformationTableInBackground(InternalTable.TLM_SCHEDULER,
+                                                      getTelemetryData(streams),
+                                                      null,
                                                       dialog);
         }
         // Check if this is the application scheduler
@@ -100,7 +102,9 @@ public class CcddSchedulerDbIOHandler
         {
             // Store the application scheduler information in the project database
             dbTable.storeInformationTableInBackground(InternalTable.APP_SCHEDULER,
-                                                      getApplicationData(streams.get(0).getMessages()), null, dialog);
+                                                      getApplicationData(streams.get(0).getMessages()),
+                                                      null,
+                                                      dialog);
         }
     }
 
@@ -259,7 +263,8 @@ public class CcddSchedulerDbIOHandler
     private void loadTelemetryData()
     {
         // Load the data from the database
-        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.TLM_SCHEDULER, false,
+        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.TLM_SCHEDULER,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
         // Check if there is data stored
@@ -384,7 +389,8 @@ public class CcddSchedulerDbIOHandler
                     if (message == null)
                     {
                         // Create a new parent message
-                        message = new Message(nameAndIndex[0], messageID,
+                        message = new Message(nameAndIndex[0],
+                                              messageID,
                                               info.getMaxBytesPerSec() / info.getMaxMsgsPerCycle());
 
                         subIndex = 0;
@@ -483,12 +489,22 @@ public class CcddSchedulerDbIOHandler
                     // wake-up message name & ID, send rate, housekeeping wake-up message name &
                     // ID, and schedule group name
                     app[AppSchedulerColumn.TIME_SLOT.ordinal()] = message.getName();
-                    app[AppSchedulerColumn.APP_INFO.ordinal()] = appData.getFullName() + "," + appData.getRate() + ","
-                                                                 + appData.getSize() + "," + appData.getPriority() + ","
-                                                                 + appData.getMessageRate() + ","
-                                                                 + appData.getWakeUpMessage() + ","
-                                                                 + appData.getHkSendRate() + ","
-                                                                 + appData.getHkWakeUpMessage() + ","
+                    app[AppSchedulerColumn.APP_INFO.ordinal()] = appData.getFullName()
+                                                                 + ","
+                                                                 + appData.getRate()
+                                                                 + ","
+                                                                 + appData.getSize()
+                                                                 + ","
+                                                                 + appData.getPriority()
+                                                                 + ","
+                                                                 + appData.getMessageRate()
+                                                                 + ","
+                                                                 + appData.getWakeUpMessage()
+                                                                 + ","
+                                                                 + appData.getHkSendRate()
+                                                                 + ","
+                                                                 + appData.getHkWakeUpMessage()
+                                                                 + ","
                                                                  + appData.getSchGroup();
 
                     // Add the application to the list
@@ -509,7 +525,8 @@ public class CcddSchedulerDbIOHandler
         List<Variable> varList = new ArrayList<Variable>();
 
         // Load the application scheduler table
-        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.APP_SCHEDULER, false,
+        List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.APP_SCHEDULER,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
         // Check if any stored data exists

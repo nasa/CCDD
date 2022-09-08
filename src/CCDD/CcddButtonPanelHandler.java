@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddButtonPanelHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Generic utility class for creating and handling button panels in the dialogs and frames
  * created within the application.

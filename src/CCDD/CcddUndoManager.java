@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddUndoManager.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles undo and redo of edit operations and the edit stack.
  *

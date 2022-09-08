@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddKeyboardHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class for controlling keyboard input and implementing special key sequence actions.
  *
@@ -158,7 +158,10 @@ public class CcddKeyboardHandler
 
                 // Check if this is a key press event, and the Ctrl, Shift, or Alt key is not
                 // pressed
-                if (ke.getID() == KeyEvent.KEY_PRESSED && !ke.isControlDown() && !ke.isShiftDown() && !ke.isAltDown())
+                if (ke.getID() == KeyEvent.KEY_PRESSED
+                    && !ke.isControlDown()
+                    && !ke.isShiftDown()
+                    && !ke.isAltDown())
                 {
                     // Check if the Enter key is pressed
                     if (ke.getKeyCode() == KeyEvent.VK_ENTER)
@@ -248,7 +251,9 @@ public class CcddKeyboardHandler
                         }
                         // Check if the focus is on a button (including a color button), radio
                         // button, or check box
-                        else if (comp instanceof JButton || comp instanceof JRadioButton || comp instanceof JCheckBox)
+                        else if (comp instanceof JButton
+                                 || comp instanceof JRadioButton
+                                 || comp instanceof JCheckBox)
                         {
                             // The up and left arrow keys behave as Shift+Tab, and the down and
                             // right arrow keys behave as Tab
@@ -450,14 +455,17 @@ public class CcddKeyboardHandler
                         if (ccddMain.getMainFrame().isFocused())
                         {
                             // Open the event log search dialog
-                            ccddMain.showSearchDialog(SearchDialogType.LOG, null, ccddMain.getSessionEventLog(),
+                            ccddMain.showSearchDialog(SearchDialogType.LOG,
+                                                      null,
+                                                      ccddMain.getSessionEventLog(),
                                                       ccddMain.getMainFrame());
 
                             // Set the flag to indicate this key press was handled
                             handled = true;
                         }
                         // Check if the table type editor is open and has the focus
-                        else if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isFocused())
+                        else if (ccddMain.getTableTypeEditor() != null
+                                 && ccddMain.getTableTypeEditor().isFocused())
                         {
                             // Open the table search dialog for the table type editor dialog
                             ccddMain.getTableTypeEditor().findReplace();
@@ -486,15 +494,18 @@ public class CcddKeyboardHandler
 
                         // Check if a table editor dialog has the focus and that the cell doesn't
                         // contain a combo box or check box
-                        if (editorDialog != null && comp.getParent() instanceof CcddJTableHandler
-                            && !(comp instanceof JComboBox) && !(comp instanceof JCheckBox))
+                        if (editorDialog != null
+                            && comp.getParent() instanceof CcddJTableHandler
+                            && !(comp instanceof JComboBox)
+                            && !(comp instanceof JCheckBox))
                         {
                             // Check if a cell in the table is being edited
                             if (editorDialog.getTableEditor().getTable().isEditing())
                             {
                                 // Insert the structure name chosen by the user into the text field
                                 // at the current text insertion point
-                                new PopUpComboBox(editorDialog, (JTextComponent) comp,
+                                new PopUpComboBox(editorDialog,
+                                                  (JTextComponent) comp,
                                                   editorDialog.getTableEditor().getValidStructureDataTypes(),
                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
@@ -505,7 +516,8 @@ public class CcddKeyboardHandler
                             // Display a pop-up combo box with the data type selection items for
                             // the specified input type. Insert the item chosen by the user into
                             // the text component at the current text insertion point
-                            new PopUpComboBox(SwingUtilities.getWindowAncestor(comp), (JTextComponent) comp,
+                            new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
+                                              (JTextComponent) comp,
                                               dataTypeHandler.getDataTypePopUpItems(false),
                                               ModifiableFontInfo.INPUT_TEXT.getFont());
                         }
@@ -517,8 +529,7 @@ public class CcddKeyboardHandler
                             // of the edited row's base data type
                             int row = modalTable.getEditingRow();
                             int column = modalTable.convertColumnIndexToModel(modalTable.getEditingColumn());
-                            String baseType = modalTable.getValueAt(row, DataTypeEditorColumnInfo.BASE_TYPE.ordinal())
-                                    .toString();
+                            String baseType = modalTable.getValueAt(row, DataTypeEditorColumnInfo.BASE_TYPE.ordinal()).toString();
 
                             // Check if the type name or C name columns are being edited and the
                             // base data type is empty or a pointer
@@ -528,7 +539,8 @@ public class CcddKeyboardHandler
                             {
                                 // Insert the structure name chosen by the user into the text field
                                 // at the current text insertion point
-                                new PopUpComboBox(SwingUtilities.getWindowAncestor(comp), (JTextComponent) comp,
+                                new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
+                                                  (JTextComponent) comp,
                                                   dataTypeHandler.getDataTypePopUpItems(false),
                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
@@ -539,7 +551,8 @@ public class CcddKeyboardHandler
                         {
                             // Insert the structure name chosen by the user into the text field at
                             // the current text insertion point
-                            new PopUpComboBox(SwingUtilities.getWindowAncestor(comp), (JTextComponent) comp,
+                            new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
+                                              (JTextComponent) comp,
                                               dataTypeHandler.getDataTypePopUpItems(true),
                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                         }
@@ -579,7 +592,8 @@ public class CcddKeyboardHandler
                         }
                         // The shift key isn't pressed (Ctrl-M only). Check if this is a table cell
                         // that doesn't contain a combo box or check box
-                        else if (comp.getParent() instanceof CcddJTableHandler && !(comp instanceof JComboBox)
+                        else if (comp.getParent() instanceof CcddJTableHandler
+                                 && !(comp instanceof JComboBox)
                                  && !(comp instanceof JCheckBox))
                         {
                             // Get the table editor dialog with the focus
@@ -604,10 +618,11 @@ public class CcddKeyboardHandler
 
                                     // Insert the macro name chosen by the user into the text
                                     // component at the current text insertion point
-                                    new PopUpComboBox(editorDialog, (JTextComponent) comp,
-                                                      macroHandler
-                                                              .getMacroPopUpItems((JTextComponent) comp, inputType,
-                                                                                  editor.getValidStructureDataTypes()),
+                                    new PopUpComboBox(editorDialog,
+                                                      (JTextComponent) comp,
+                                                      macroHandler.getMacroPopUpItems((JTextComponent) comp,
+                                                                                      inputType,
+                                                                                      editor.getValidStructureDataTypes()),
                                                       macroHandler.getMacroPopUpToolTips(),
                                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                     {
@@ -626,16 +641,16 @@ public class CcddKeyboardHandler
                             // Check if this is the macro editor, editing is active, and the values
                             // column is being edited
                             else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog
-                                     && modalTable.isEditing() && modalTable.convertColumnIndexToModel(modalTable
-                                             .getEditingColumn()) == MacroEditorColumnInfo.VALUE.ordinal())
+                                     && modalTable.isEditing()
+                                     && modalTable.convertColumnIndexToModel(modalTable.getEditingColumn()) == MacroEditorColumnInfo.VALUE.ordinal())
                             {
                                 // Insert the macro name chosen by the user into the text component
                                 // at the current text insertion point
-                                new PopUpComboBox(SwingUtilities.getWindowAncestor(comp), (JTextComponent) comp,
-                                                  macroHandler
-                                                          .getMacroPopUpItems((JTextComponent) comp, inputTypeHandler
-                                                                  .getInputTypeByDefaultType(DefaultInputType.TEXT),
-                                                                              null),
+                                new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
+                                                  (JTextComponent) comp,
+                                                  macroHandler.getMacroPopUpItems((JTextComponent) comp,
+                                                                                  inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT),
+                                                                                  null),
                                                   macroHandler.getMacroPopUpToolTips(),
                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                 {
@@ -657,9 +672,11 @@ public class CcddKeyboardHandler
                             // Display a pop-up combo box with the macro selection items for the
                             // specified input type. Insert the item chosen by the user into the
                             // text component at the current text insertion point
-                            new PopUpComboBox(SwingUtilities.getWindowAncestor(comp), (JTextComponent) comp,
-                                              macroHandler.getMacroPopUpItems((JTextComponent) comp, inputTypeHandler
-                                                      .getInputTypeByDefaultType(DefaultInputType.TEXT), null),
+                            new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
+                                              (JTextComponent) comp,
+                                              macroHandler.getMacroPopUpItems((JTextComponent) comp,
+                                                                              inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT),
+                                                                              null),
                                               macroHandler.getMacroPopUpToolTips(),
                                               ModifiableFontInfo.INPUT_TEXT.getFont())
                             {
@@ -686,17 +703,21 @@ public class CcddKeyboardHandler
                 }
                 // Check if Alt-Shift-V, Alt-Shift-C, or Alt-Shift-M is pressed (but not with the
                 // Ctrl key)
-                else if (ke.getID() == KeyEvent.KEY_PRESSED && ke.isAltDown() && ke.isShiftDown() && !ke.isControlDown()
-                         && (ke.getKeyCode() == KeyEvent.VK_V || ke.getKeyCode() == KeyEvent.VK_C
+                else if (ke.getID() == KeyEvent.KEY_PRESSED
+                         && ke.isAltDown()
+                         && ke.isShiftDown()
+                         && !ke.isControlDown()
+                         && (ke.getKeyCode() == KeyEvent.VK_V
+                             || ke.getKeyCode() == KeyEvent.VK_C
                              || ke.getKeyCode() == KeyEvent.VK_M))
                 {
                     // Get the input type based on the key pressed: variable reference for
                     // Alt-Shift-V, command reference for Alt-Shift-C, and message reference for
                     // Alt-Shift-M
-                    DefaultInputType refInputType = ke
-                            .getKeyCode() == KeyEvent.VK_V ? DefaultInputType.VARIABLE_REFERENCE
-                                                           : (ke.getKeyCode() == KeyEvent.VK_C ? DefaultInputType.COMMAND_REFERENCE
-                                                                                               : DefaultInputType.MESSAGE_REFERENCE);
+                    DefaultInputType refInputType = ke.getKeyCode() == KeyEvent.VK_V ? DefaultInputType.VARIABLE_REFERENCE
+                                                                                     : (ke.getKeyCode() == KeyEvent.VK_C ? DefaultInputType.COMMAND_REFERENCE
+                                                                                                                         : DefaultInputType.MESSAGE_REFERENCE);
+
                     // Check if this is a table cell
                     if (comp.getParent() instanceof CcddJTableHandler)
                     {
@@ -717,9 +738,9 @@ public class CcddKeyboardHandler
                                 // Display a pop-up combo box with the selection items for the
                                 // specified input type. Insert the item chosen by the user into
                                 // the text component at the current text insertion point
-                                new PopUpComboBox(editorDialog, (JTextComponent) comp,
-                                                  inputTypeHandler.getInputTypeByDefaultType(refInputType)
-                                                          .getInputItems(),
+                                new PopUpComboBox(editorDialog,
+                                                  (JTextComponent) comp,
+                                                  inputTypeHandler.getInputTypeByDefaultType(refInputType).getInputItems(),
                                                   ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
                         }
@@ -730,7 +751,8 @@ public class CcddKeyboardHandler
                         // Display a pop-up combo box with the selection items for the specified
                         // input type. Insert the item chosen by the user into the text component
                         // at the current text insertion point
-                        new PopUpComboBox(SwingUtilities.getWindowAncestor(comp), (JTextComponent) comp,
+                        new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
+                                          (JTextComponent) comp,
                                           inputTypeHandler.getInputTypeByDefaultType(refInputType).getInputItems(),
                                           ModifiableFontInfo.INPUT_TEXT.getFont());
                     }
@@ -740,8 +762,11 @@ public class CcddKeyboardHandler
                 }
                 // Check if the Alt-Enter keys are pressed in a table cell that displays multi-line
                 // text
-                else if (ke.getID() == KeyEvent.KEY_PRESSED && ke.isAltDown() && !ke.isControlDown()
-                         && ke.getKeyCode() == KeyEvent.VK_ENTER && comp.getParent() instanceof CcddJTableHandler
+                else if (ke.getID() == KeyEvent.KEY_PRESSED
+                         && ke.isAltDown()
+                         && !ke.isControlDown()
+                         && ke.getKeyCode() == KeyEvent.VK_ENTER
+                         && comp.getParent() instanceof CcddJTableHandler
                          && comp instanceof JTextArea)
                 {
                     // Get the table editor dialog with the focus
@@ -762,7 +787,8 @@ public class CcddKeyboardHandler
                         int caretPosn = textComp.getSelectionStart();
 
                         // Replace the currently selected text with a line feed
-                        textComp.setText(cellValue.substring(0, caretPosn) + "\n"
+                        textComp.setText(cellValue.substring(0, caretPosn)
+                                         + "\n"
                                          + cellValue.substring(textComp.getSelectionEnd()));
 
                         // Position the cursor after the newly inserted line feed
@@ -803,8 +829,7 @@ public class CcddKeyboardHandler
                                 else if (SwingUtilities.getWindowAncestor(modalTable) instanceof CcddMacroEditorDialog)
                                 {
                                     // Expand the macros in the macro value column
-                                    ((CcddMacroEditorDialog) SwingUtilities.getWindowAncestor(modalTable))
-                                            .expandMacros(false);
+                                    ((CcddMacroEditorDialog) SwingUtilities.getWindowAncestor(modalTable)).expandMacros(false);
                                     isShowMacros = false;
                                 }
                             }
@@ -964,7 +989,8 @@ public class CcddKeyboardHandler
             Component focusOwner = focusManager.getFocusOwner();
 
             // Check if the focus is in an edit panel's description or data field
-            if (focusOwner != null && (focusOwner instanceof UndoableTextField || focusOwner instanceof UndoableTextArea
+            if (focusOwner != null && (focusOwner instanceof UndoableTextField
+                                       || focusOwner instanceof UndoableTextArea
                                        || focusOwner instanceof UndoableCheckBox))
             {
                 // Check if the focus owner is a text field data field

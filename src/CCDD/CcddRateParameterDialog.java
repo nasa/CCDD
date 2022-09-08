@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddRateParameterDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for assigning the telemetry sample rate parameters. The dialog is built on the
  * CcddDialogHandler class.
@@ -183,7 +183,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Inform the user that a rate is invalid
             new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
                                                       "<html><b>Rate parameter values must be positive integers",
-                                                      "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                      "Missing/Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
 
             // Restore the previous value in the field
@@ -218,28 +219,29 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     private void initialize()
     {
         // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.LINE_START,
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
                                                         GridBagConstraints.HORIZONTAL,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                           .getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                           .getSpacing() / 2),
-                                                        0, 0);
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
 
         // Create borders for the input fields
-        border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING
-                                                                         .getSpacing()));
+        border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                    Color.LIGHT_GRAY,
+                                                                                    Color.GRAY),
+                                                    BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         emptyBorder = BorderFactory.createEmptyBorder();
 
         // Create a panel to contain the dialog components
@@ -351,19 +353,26 @@ public class CcddRateParameterDialog extends CcddDialogHandler
 
                 // Re-order the rate information based on the new tab order
                 RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
-                rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex,
+                rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray,
+                                                                                  oldTabIndex,
                                                                                   newTabIndex);
                 List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
                 rateInfoList.addAll(Arrays.asList(rateInfoArray));
                 rateHandler.setRateInformation(rateInfoList);
 
                 // Re-order the fields based on the new tab order
-                maxMsgsPerCycleFld = (JTextField[]) CcddUtilities.moveArrayMember(maxMsgsPerCycleFld, oldTabIndex,
+                maxMsgsPerCycleFld = (JTextField[]) CcddUtilities.moveArrayMember(maxMsgsPerCycleFld,
+                                                                                  oldTabIndex,
                                                                                   newTabIndex);
-                maxBytesPerSecFld = (JTextField[]) CcddUtilities.moveArrayMember(maxBytesPerSecFld, oldTabIndex,
+                maxBytesPerSecFld = (JTextField[]) CcddUtilities.moveArrayMember(maxBytesPerSecFld,
+                                                                                 oldTabIndex,
                                                                                  newTabIndex);
-                streamNameFld = (JTextField[]) CcddUtilities.moveArrayMember(streamNameFld, oldTabIndex, newTabIndex);
-                availRatesFld = (JTextArea[]) CcddUtilities.moveArrayMember(availRatesFld, oldTabIndex, newTabIndex);
+                streamNameFld = (JTextField[]) CcddUtilities.moveArrayMember(streamNameFld,
+                                                                             oldTabIndex,
+                                                                             newTabIndex);
+                availRatesFld = (JTextArea[]) CcddUtilities.moveArrayMember(availRatesFld,
+                                                                            oldTabIndex,
+                                                                            newTabIndex);
 
                 return null;
             }
@@ -453,12 +462,21 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             }
 
             // Check if any rate parameter changed
-            if (isRateChanges(maxSecPerMsg, maxMsgsPerSec, streamNames, maxMsgsPerCycle, maxBytesPerSec,
+            if (isRateChanges(maxSecPerMsg,
+                              maxMsgsPerSec,
+                              streamNames,
+                              maxMsgsPerCycle,
+                              maxBytesPerSec,
                               unevenCb.isSelected()))
             {
                 // Store the rate parameters and update the sample rates
-                rateHandler.setRateParameters(maxSecPerMsg, maxMsgsPerSec, streamNames, maxMsgsPerCycle, maxBytesPerSec,
-                                              unevenCb.isSelected(), CcddRateParameterDialog.this);
+                rateHandler.setRateParameters(maxSecPerMsg,
+                                              maxMsgsPerSec,
+                                              streamNames,
+                                              maxMsgsPerCycle,
+                                              maxBytesPerSec,
+                                              unevenCb.isSelected(),
+                                              CcddRateParameterDialog.this);
             }
         }
     }
@@ -470,12 +488,11 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     {
         // Get the rate column to calculate and display its valid rates
         int index = tabbedPane.getSelectedIndex();
-        availRatesFld[index].setText(Arrays
-                .toString(rateHandler.calculateSampleRates(Integer.valueOf(maxSecPerMsgFld.getText()),
-                                                           Integer.valueOf(maxMsgsPerSecFld.getText()),
-                                                           Integer.valueOf(maxMsgsPerCycleFld[index].getText()),
-                                                           unevenCb.isSelected()))
-                .replaceAll("\\[|\\]", ""));
+        availRatesFld[index].setText(Arrays.toString(rateHandler.calculateSampleRates(Integer.valueOf(maxSecPerMsgFld.getText()),
+                                                                                      Integer.valueOf(maxMsgsPerSecFld.getText()),
+                                                                                      Integer.valueOf(maxMsgsPerCycleFld[index].getText()),
+                                                                                      unevenCb.isSelected()))
+                                     .replaceAll("\\[|\\]", ""));
         availRatesFld[index].setCaretPosition(0);
     }
 
@@ -490,17 +507,20 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         for (int index = 0; index < rateInfo.size(); index++)
         {
             // Set the initial layout manager characteristics
-            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.LINE_START,
+            GridBagConstraints gbc = new GridBagConstraints(0,
+                                                            0,
+                                                            1,
+                                                            1,
+                                                            0.0,
+                                                            0.0,
+                                                            GridBagConstraints.LINE_START,
                                                             GridBagConstraints.HORIZONTAL,
-                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                    .getSpacing() / 2,
-                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                               .getSpacing() / 2,
-                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING
-                                                                               .getSpacing() / 2,
-                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING
-                                                                               .getSpacing() / 2),
-                                                            0, 0);
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                            0,
+                                                            0);
 
             // Create a panel for the rate calculation button and results
             JPanel availRatesPnl = new JPanel(new GridBagLayout());
@@ -578,7 +598,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                         // Inform the user that a stream name is duplicated
                         new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
                                                                   "<html><b>Duplicate stream name",
-                                                                  "Missing/Invalid Input", JOptionPane.WARNING_MESSAGE,
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
 
                         // Restore the previous value in the field
@@ -728,13 +749,18 @@ public class CcddRateParameterDialog extends CcddDialogHandler
      *
      * @return true if any of the rate parameters changed
      *********************************************************************************************/
-    private boolean isRateChanges(int maxSecPerMsg, int maxMsgsPerSec, String[] streamName, int[] maxMsgsPerCycle,
-                                  int[] maxBytesPerSec, boolean includeUneven)
+    private boolean isRateChanges(int maxSecPerMsg,
+                                  int maxMsgsPerSec,
+                                  String[] streamName,
+                                  int[] maxMsgsPerCycle,
+                                  int[] maxBytesPerSec,
+                                  boolean includeUneven)
     {
         boolean isChanges = false;
 
         // Check if any of the common rate parameters changed
-        if (rateHandler.getMaxSecondsPerMsg() != maxSecPerMsg || rateHandler.getMaxMsgsPerSecond() != maxMsgsPerSec
+        if (rateHandler.getMaxSecondsPerMsg() != maxSecPerMsg
+            || rateHandler.getMaxMsgsPerSecond() != maxMsgsPerSec
             || rateHandler.isIncludeUneven() != includeUneven)
         {
             // Set the flag indicating a change

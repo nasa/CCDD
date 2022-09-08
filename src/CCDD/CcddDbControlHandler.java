@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddDbControlHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class containing the methods for connecting to, creating, copying, renaming, and deleting
  * project databases.

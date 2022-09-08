@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddRateParameterHandler.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Class that handles retrieval from and storage to the project database of the rate
  * parameter values, and calculation of the sample rates based on the rate parameters.
@@ -410,8 +410,7 @@ public class CcddRateParameterHandler
                 for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)
                 {
                     // Check if the column is a sample rate
-                    if (typeDefn.getInputTypes()[index]
-                            .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.RATE)))
+                    if (typeDefn.getInputTypes()[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.RATE)))
                     {
                         // Get the column's visible name
                         String colName = typeDefn.getColumnNamesUser()[index];
@@ -465,7 +464,8 @@ public class CcddRateParameterHandler
         setRateInformation();
 
         // Get the rate parameters from the database
-        String[] rateValues = dbTable.queryTableComment(InternalTable.TLM_SCHEDULER.getTableName(), 0,
+        String[] rateValues = dbTable.queryTableComment(InternalTable.TLM_SCHEDULER.getTableName(),
+                                                        0,
                                                         ccddMain.getMainFrame());
 
         try
@@ -507,14 +507,14 @@ public class CcddRateParameterHandler
                 if (getRateInformationByRateName(rateColName) != null)
                 {
                     // Remove the leading and trailing quotes from the stream name
-                    String streamName = rateValues[RateParameter.STREAM_NAME.ordinal() + offset]
-                            .replaceAll("^\"(.*)\"$", "$1");
+                    String streamName = rateValues[RateParameter.STREAM_NAME.ordinal()
+                                                   + offset].replaceAll("^\"(.*)\"$", "$1");
 
                     // Convert the rate parameters to integers
-                    int maxMsgsPerCycle = Integer
-                            .valueOf(rateValues[RateParameter.MAXIMUM_MESSAGES_PER_CYCLE.ordinal() + offset]);
-                    int maxBytesPerSec = Integer
-                            .valueOf(rateValues[RateParameter.MAXIMUM_BYTES_PER_SECOND.ordinal() + offset]);
+                    int maxMsgsPerCycle = Integer.valueOf(rateValues[RateParameter.MAXIMUM_MESSAGES_PER_CYCLE.ordinal()
+                                                                     + offset]);
+                    int maxBytesPerSec = Integer.valueOf(rateValues[RateParameter.MAXIMUM_BYTES_PER_SECOND.ordinal()
+                                                                    + offset]);
 
                     // Check if any of the values are less than 1
                     if (maxMsgsPerCycle <= 0 || maxBytesPerSec <= 0)
@@ -532,11 +532,12 @@ public class CcddRateParameterHandler
         catch (Exception e)
         {
             // Inform the user that calculating the rate parameters failed
-            ccddMain.getSessionEventLog()
-                    .logFailEvent(ccddMain.getMainFrame(), "Rate Parameter Error",
-                                  "Invalid rate parameter(s): using default values instead; cause '" + e.getMessage()
-                                                                                   + "'",
-                                  "<html><b>Invalid rate parameter(s): using default values instead");
+            ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+                                                       "Rate Parameter Error",
+                                                       "Invalid rate parameter(s): using default values instead; cause '"
+                                                       + e.getMessage()
+                                                       + "'",
+                                                       "<html><b>Invalid rate parameter(s): using default values instead");
 
             // Use default values
             maxSecPerMsg = 1;
@@ -579,8 +580,13 @@ public class CcddRateParameterHandler
      *
      * @param parent          Component calling this method, used for positioning any error dialogs
      *********************************************************************************************/
-    protected void setRateParameters(int maxSecPerMsg, int maxMsgsPerSec, String[] streamName, int[] maxMsgsPerCycle,
-                                     int[] maxBytesPerSec, boolean includeUneven, Component parent)
+    protected void setRateParameters(int maxSecPerMsg,
+                                     int maxMsgsPerSec,
+                                     String[] streamName,
+                                     int[] maxMsgsPerCycle,
+                                     int[] maxBytesPerSec,
+                                     boolean includeUneven,
+                                     Component parent)
     {
         this.maxSecPerMsg = maxSecPerMsg;
         this.maxMsgsPerSec = maxMsgsPerSec;
@@ -590,9 +596,8 @@ public class CcddRateParameterHandler
         for (int index = 0; index < rateInformation.size(); index++)
         {
             // Store the rate parameters
-            rateInformation.get(index)
-                    .setStreamName(streamName[index].isEmpty() ? rateInformation.get(index).getRateName()
-                                                               : streamName[index]);
+            rateInformation.get(index).setStreamName(streamName[index].isEmpty() ? rateInformation.get(index).getRateName()
+                                                                                 : streamName[index]);
             rateInformation.get(index).setMaxMsgsPerCycle(maxMsgsPerCycle[index]);
             rateInformation.get(index).setMaxBytesPerSec(maxBytesPerSec[index]);
         }
@@ -614,7 +619,9 @@ public class CcddRateParameterHandler
         for (RateInformation rateInfo : rateInformation)
         {
             // Store the rates in array form in the rate information
-            rateInfo.setSampleRates(calculateSampleRates(maxSecPerMsg, maxMsgsPerSec, rateInfo.getMaxMsgsPerCycle(),
+            rateInfo.setSampleRates(calculateSampleRates(maxSecPerMsg,
+                                                         maxMsgsPerSec,
+                                                         rateInfo.getMaxMsgsPerCycle(),
                                                          includeUneven));
         }
 
@@ -646,7 +653,9 @@ public class CcddRateParameterHandler
      *
      * @return Array containing the valid sample rates
      *********************************************************************************************/
-    protected String[] calculateSampleRates(int maxSecPerMsg, int maxMsgsPerSec, int maxMsgsPerCycle,
+    protected String[] calculateSampleRates(int maxSecPerMsg,
+                                            int maxMsgsPerSec,
+                                            int maxMsgsPerCycle,
                                             boolean includeUneven)
     {
         // Create storage for the valid sample rates
@@ -792,14 +801,15 @@ public class CcddRateParameterHandler
             // Query the database for those values of the specified rate that are in use in all
             // tables with a table type representing a structure, including any references in the
             // custom values table. Only unique rate values are returned
-            ratesInUse.addAll(dbTable
-                    .queryDatabase(new StringBuilder("SELECT DISTINCT ON (2) * FROM find_columns_by_name('")
-                            .append(rateName).append("', '")
-                            .append(tableTypeHandler
-                                    .convertVisibleToDatabase(rateName, DefaultInputType.RATE.getInputName(), true))
-                            .append("', '{").append(Arrays.toString(tableTypeHandler.getStructureTableTypes())
-                                    .replaceAll("[\\[\\]]", ""))
-                            .append("}');"), parent));
+            ratesInUse.addAll(dbTable.queryDatabase(new StringBuilder("SELECT DISTINCT ON (2) * FROM find_columns_by_name('").append(rateName)
+                                                                                                                             .append("', '")
+                                                                                                                             .append(tableTypeHandler.convertVisibleToDatabase(rateName,
+                                                                                                                                                                               DefaultInputType.RATE.getInputName(),
+                                                                                                                                                                               true))
+                                                                                                                             .append("', '{")
+                                                                                                                             .append(Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]", ""))
+                                                                                                                             .append("}');"),
+                                                                                                                             parent));
 
             // Step through the available sample rates
             for (int index = 0; index < availableRates.length; index++)

@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * /** \file CcddFieldTableEditorDialog.java
  *
- * \author Kevin Mccluney Bryan Willis
+ * \author Kevin McCluney Bryan Willis
  *
  * \brief Dialog for inspecting and assigning values to data input fields. The dialog is built on
  * the CcddDialogHandler class.
@@ -406,7 +406,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             }
                         });
 
-                        // Add the Select All checkbox to the field name panel
+                        // Add the Select All check box to the field name panel
                         gbc.gridy++;
                         fieldPnl.add(selectAllCb, gbc);
 
@@ -781,7 +781,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 JButton btnRemove = CcddButtonPanelHandler.createButton("Remove",
                                                                         DELETE_ICON,
                                                                         KeyEvent.VK_R,
-                                          "Remove the selected data field(s) from their table(s)");
+                                                                        "Remove the selected data field(s) from their table(s)");
 
                 // Add a listener for the Remove button
                 btnRemove.addActionListener(new ValidateCellActionListener(dataFieldTable)
@@ -800,7 +800,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
                                                                       TABLE_ICON,
                                                                       KeyEvent.VK_O,
-                                          "Open the table(s) associated with the selected data field(s)");
+                                                                      "Open the table(s) associated with the selected data field(s)");
 
                 // Add a listener for the Open button
                 btnOpen.addActionListener(new ValidateCellActionListener(dataFieldTable)
